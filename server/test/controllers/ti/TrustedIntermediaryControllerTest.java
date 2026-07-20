@@ -2,9 +2,9 @@ package controllers.ti;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
-import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -127,7 +127,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void testShowEditClientForm_returnsUnauthorizedForClientNotInGroup() {
+  public void testShowEditClientForm_returnsForbiddenForClientNotInGroup() {
     AccountModel account = setupForEditClient("notmanaged@fake.com");
     TrustedIntermediaryGroupModel otherGroup =
         repo.createNewTrustedIntermediaryGroup("otherGroup", "Unit Testing Other Group");
@@ -136,7 +136,7 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
 
     Result result = tiController.showEditClientForm(account.id, fakeRequest());
 
-    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+    assertThat(result.status()).isEqualTo(FORBIDDEN);
   }
 
   @Test

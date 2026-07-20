@@ -1,5 +1,6 @@
 package controllers.ti;
 
+import static play.mvc.Results.forbidden;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
 import static play.mvc.Results.redirect;
@@ -182,7 +183,7 @@ public final class TrustedIntermediaryController {
         trustedIntermediaryGroup.get().getManagedAccounts().stream()
             .anyMatch(account -> account.id.equals(accountId));
     if (!isManagedAccount) {
-      return unauthorized();
+      return forbidden();
     }
     String applicantName =
         accountRepository.lookupAccount(accountId).get().getApplicantDisplayName();

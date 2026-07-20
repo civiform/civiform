@@ -238,7 +238,7 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
             ex -> {
               Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
               if (cause instanceof SecurityException) {
-                return unauthorized();
+                return forbidden();
               }
               throw new RuntimeException(cause);
             });
