@@ -1,0 +1,19 @@
+%NAME iconDelete - predicate editor sizing (legacy ProgramPredicateConfigureView delete-row button)
+%TEMPLATE_MODE HTML
+%INPUT
+<svg th:replace="~{admin/questions/fragments/LegacySvgFragments :: iconDelete('w-8')}"></svg>
+%INPUT[admin/questions/fragments/LegacySvgFragments] (file:app/views/admin/questions/fragments/LegacySvgFragments.html)
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  class="w-8"
+>
+  <path
+    d="M5.896 17.5Q5.167 17.5 4.656 16.99Q4.146 16.479 4.146 15.75V5.125H3.333V3.375H7.542V2.5H12.458V3.375H16.667V5.125H15.833V15.75Q15.833 16.479 15.323 16.99Q14.812 17.5 14.083 17.5ZM14.083 5.125H5.896V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75H14.083Q14.083 15.75 14.083 15.75Q14.083 15.75 14.083 15.75ZM7.458 14H9.208V6.875H7.458ZM10.771 14H12.521V6.875H10.771ZM5.896 5.125V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Z"
+  ></path>
+</svg>

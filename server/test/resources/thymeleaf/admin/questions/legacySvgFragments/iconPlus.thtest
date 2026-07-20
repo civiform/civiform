@@ -1,0 +1,19 @@
+%NAME iconPlus - svg-text-button sizing (legacy ViewUtils.makeSvgTextButton)
+%TEMPLATE_MODE HTML
+%INPUT
+<svg th:replace="~{admin/questions/fragments/LegacySvgFragments :: iconPlus('inline-block h-4.5 w-4.5')}"></svg>
+%INPUT[admin/questions/fragments/LegacySvgFragments] (file:app/views/admin/questions/fragments/LegacySvgFragments.html)
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  class="inline-block h-4.5 w-4.5"
+>
+  <path
+    d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+  ></path>
+</svg>
