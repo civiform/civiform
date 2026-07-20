@@ -1,0 +1,68 @@
+<!--/*@thymesVar id="yesNoConfig" type="views.admin.questions.YesNoConfig"*/-->
+<!--/*
+  Type-specific question config for YES_NO questions. New questions (no
+  saved options) show the "Select answer options" label and the default
+  option set; existing questions render their saved options. Required
+  options ("yes"/"no") are checked and disabled, with an extra hidden input
+  so their value still posts.
+*/-->
+<th:block th:fragment="build(yesNoConfig)" xmlns:th="http://www.thymeleaf.org">
+  <div th:if="${yesNoConfig.showLabel()}">
+    <label
+      data-testId="yes-no-options-label"
+      class="text-sm font-medium text-gray-700"
+      >Select answer options<span
+        th:replace="~{admin/questions/fragments/RequiredIndicator :: requiredIndicator(true)}"
+      ></span
+    ></label>
+  </div>
+  <div
+    th:each="row : ${yesNoConfig.options()}"
+    class="cf-multi-option-question-option grid items-center"
+  >
+    <input
+      name="optionIds[]"
+      th:value="${row.optionId()}"
+      class="display-none"
+    />
+    <input
+      name="optionAdminNames[]"
+      th:value="${row.adminName()}"
+      class="display-none"
+    />
+    <input
+      name="options[]"
+      th:value="${row.optionText()}"
+      class="display-none"
+    />
+    <div
+      class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+    >
+      <input
+        th:id="${row.adminName()}"
+        type="checkbox"
+        name="displayedOptionIds[]"
+        th:value="${row.optionId()}"
+        class="usa-checkbox__input"
+        th:checked="${row.checked()}"
+        th:disabled="${row.required()}"
+      />
+      <label
+        th:for="${row.adminName()}"
+        th:aria-label="${row.ariaLabel()}"
+        class="usa-checkbox__label margin-top-0 flex flex-align-center"
+      >
+        <div class="flex-column">
+          <div><strong>Admin ID: </strong>[[${row.adminName()}]]</div>
+          <div><strong>Option text: </strong>[[${row.optionText()}]]</div>
+        </div>
+      </label>
+    </div>
+    <input
+      th:if="${row.required()}"
+      type="hidden"
+      name="displayedOptionIds[]"
+      th:value="${row.optionId()}"
+    />
+  </div>
+</th:block>

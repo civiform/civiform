@@ -1,0 +1,146 @@
+package views.admin.questions;
+
+import static org.apache.commons.lang3.StringUtils.isBlank;
+
+import com.google.common.collect.ImmutableList;
+import controllers.admin.routes;
+import forms.questions.QuestionForm;
+import java.util.List;
+import java.util.Locale;
+import java.util.Optional;
+import lombok.Builder;
+import lombok.Data;
+import services.RandomStringUtils;
+import views.BaseViewModel;
+
+/** ViewModel for the new question creation page (Thymeleaf). */
+@Data
+@Builder
+public final class QuestionNewPageViewModel implements BaseViewModel {
+
+  private final QuestionForm questionForm;
+
+  // Question type
+  private final String questionTypeName;
+  // Question type display label, e.g. "Text" or "Yes/No" (original casing;
+  // used for the preview URL).
+  private final String questionTypeLabel;
+
+  // Hidden fields
+  private final String concurrencyToken;
+  private final String redirectUrl;
+
+  // Applicant-visible fields
+  private final String questionText;
+  private final String questionHelpText;
+  private final boolean showHelpText;
+
+  // Admin-visible fields
+  private final String questionName;
+  private final String questionDescription;
+  private final ImmutableList<EnumeratorOption> enumeratorOptions;
+  private final String selectedEnumeratorId;
+
+  // Whether the admin may choose an enumerator. False when the creation
+  // context fixes it (e.g. adding a question to a repeated block), in which
+  // case the select renders read-only.
+  private final boolean enumeratorSelectEnabled;
+
+  // MAP question (GeoJSON endpoint)
+  private final boolean isMapQuestion;
+  private final String geoJsonEndpoint;
+
+  // MAP question config: settings rendered via the shared MapQuestionSettingsPartial template.
+  // Null for non-MAP questions.
+  private final MapQuestionSettingsPartialViewModel mapSettings;
+
+  // --- Universal question ---
+  private final boolean isCurrentlyUniversal;
+
+  // --- Demographic fields ---
+  private final boolean showDemographicFields;
+  private final String questionExportState;
+
+  // --- Display mode fields ---
+  private final boolean showDisplayModeFields;
+  private final String displayMode;
+
+  // When the enumerator-improvements flag is on, the repeated-question info
+  // alert omits the "$this" usage paragraphs.
+  private final boolean enumeratorImprovementsEnabled;
+
+  // --- Primary applicant info ---
+  private final boolean showPrimaryApplicantInfo;
+  private final List<PaiTagInfo> paiTags;
+
+  // --- Question config (per-type structured data) ---
+
+  // YES_NO: the option rows to render. Null for other question types.
+  private final YesNoConfig yesNoConfig;
+
+  // Error message shown as a toast (already carries the "Error: " prefix)
+  private final Optional<String> errorMessage;
+  // Random id for the toast container. Null when there is no error message.
+  private final String errorToastId;
+
+  /** Page title/heading, with the type label lowercased. */
+  public String getTitle() {
+    return String.format("New %s question", questionTypeLabel.toLowerCase(Locale.ROOT));
+  }
+
+  public String getCancelUrl() {
+    return isBlank(redirectUrl)
+        ? routes.AdminQuestionController.index(Optional.empty()).url()
+        : redirectUrl;
+  }
+
+  public String getFormActionUrl() {
+    return routes.AdminQuestionController.create(questionTypeName).url();
+  }
+
+  public String getPreviewUrl() {
+    return controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel)
+        .url();
+  }
+
+  public String getGeoJsonPostUrl() {
+    return controllers.geojson.routes.GeoJsonApiController.hxGetData().url();
+  }
+
+  /**
+   * Generates a random field id for fields without an explicit id (labels need an id to stay
+   * associated with their inputs).
+   */
+  public String randomFieldId() {
+    return RandomStringUtils.randomAlphabetic(8);
+  }
+
+  /** Whether there is a type-specific question config section. */
+  public boolean hasQuestionConfig() {
+    return switch (questionTypeName) {
+      case "ADDRESS",
+          "CHECKBOX",
+          "DATE",
+          "DROPDOWN",
+          "ENUMERATOR",
+          "FILEUPLOAD",
+          "ID",
+          "NUMBER",
+          "PHONE",
+          "RADIO_BUTTON",
+          "TEXT",
+          "YES_NO" ->
+          true;
+      case "MAP" -> mapSettings != null;
+      default -> false;
+    };
+  }
+
+  /** Represents an enumerator question option in the select dropdown. */
+  @Data
+  @Builder
+  public static final class EnumeratorOption {
+    private final String label;
+    private final String value;
+  }
+}
