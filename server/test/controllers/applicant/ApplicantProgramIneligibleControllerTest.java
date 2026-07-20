@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -195,5 +196,23 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void ineligibleWithApplicantId_returnsForbiddenForApplicantNotOwned() {
+    createTIWithMockedProfile(applicant);
+    ApplicantModel otherApplicant = createApplicant();
+
+    Result result =
+        subject
+            .ineligibleWithApplicantId(
+                fakeRequest(),
+                otherApplicant.id,
+                String.valueOf(program.id),
+                /* blockId= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FORBIDDEN);
   }
 }
