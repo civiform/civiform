@@ -145,85 +145,95 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
 
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-    return checkApplicantAuthorization(request, applicantId)
+    return programSlugHandler
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
-            v ->
-                programSlugHandler.resolveProgramParam(
-                    programParam, applicantId, programSlugUrlsEnabled))
-        .thenCompose(
-            programId -> {
-              return supplyAsync(
-                      () -> {
-                        ReadOnlyApplicantProgramService roApplicantProgramService =
-                            applicantService
-                                .getReadOnlyApplicantProgramService(applicantId, programId)
-                                .toCompletableFuture()
-                                .join();
-                        Block thisBlockUpdated =
-                            roApplicantProgramService
-                                .getActiveBlock(blockId)
-                                .orElseThrow(
-                                    () ->
-                                        new NoSuchElementException("Block not found: " + blockId));
+            programId ->
+                checkApplicantAuthorization(request, applicantId)
+                    .thenCompose(
+                        v ->
+                            supplyAsync(
+                                    () -> {
+                                      ReadOnlyApplicantProgramService roApplicantProgramService =
+                                          applicantService
+                                              .getReadOnlyApplicantProgramService(
+                                                  applicantId, programId)
+                                              .toCompletableFuture()
+                                              .join();
+                                      Block thisBlockUpdated =
+                                          roApplicantProgramService
+                                              .getActiveBlock(blockId)
+                                              .orElseThrow(
+                                                  () ->
+                                                      new NoSuchElementException(
+                                                          "Block not found: " + blockId));
 
-                        boolean isEligibilityEnabledOnThisBlock =
-                            thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-                        ApplicantPersonalInfo personalInfo =
-                            applicantService
-                                .getPersonalInfo(applicantId)
-                                .toCompletableFuture()
-                                .join();
+                                      boolean isEligibilityEnabledOnThisBlock =
+                                          thisBlockUpdated
+                                              .getLeafAddressNodeServiceAreaIds()
+                                              .isPresent();
+                                      ApplicantPersonalInfo personalInfo =
+                                          applicantService
+                                              .getPersonalInfo(applicantId)
+                                              .toCompletableFuture()
+                                              .join();
 
-                        AddressSuggestionGroup addressSuggestionGroup =
-                            applicantService
-                                .getAddressSuggestionGroup(thisBlockUpdated)
-                                .toCompletableFuture()
-                                .join();
-                        ImmutableList<AddressSuggestion> suggestions =
-                            addressSuggestionGroup.getAddressSuggestions();
-                        String addressSuggestionJson =
-                            addressSuggestionJsonSerializer.serialize(suggestions);
-                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
+                                      AddressSuggestionGroup addressSuggestionGroup =
+                                          applicantService
+                                              .getAddressSuggestionGroup(thisBlockUpdated)
+                                              .toCompletableFuture()
+                                              .join();
+                                      ImmutableList<AddressSuggestion> suggestions =
+                                          addressSuggestionGroup.getAddressSuggestions();
+                                      String addressSuggestionJson =
+                                          addressSuggestionJsonSerializer.serialize(suggestions);
+                                      CiviFormProfile profile =
+                                          profileUtils.currentUserProfile(request);
 
-                        AddressCorrectionBlockView.Params params =
-                            AddressCorrectionBlockView.Params.builder()
-                                .setRequest(request)
-                                .setProfile(profile)
-                                .setApplicantId(applicantId)
-                                .setApplicantPersonalInfo(personalInfo)
-                                .setMessages(messagesApi.preferred(request))
-                                .setProgramId(programId)
-                                .setProgramSlug(programSlugHandler.getProgramSlug(programParam))
-                                .setProgramTitle(roApplicantProgramService.getProgramTitle())
-                                .setProgramShortDescription(
-                                    roApplicantProgramService.getProgramShortDescription())
-                                .setBlockId(blockId)
-                                .setBlockIndex(roApplicantProgramService.getBlockIndex(blockId))
-                                .setBlockList(roApplicantProgramService.getAllActiveBlocks())
-                                .setInReview(inReview)
-                                .build();
-                        return ok(addressCorrectionBlockView.render(
-                                request,
-                                params,
-                                addressSuggestionGroup,
-                                applicantRequestedActionWrapper.getAction(),
-                                isEligibilityEnabledOnThisBlock,
-                                addressSuggestionJson))
-                            .as(Http.MimeTypes.HTML);
-                      })
-                  .exceptionally(
-                      ex -> {
-                        Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
-                        if (cause instanceof ProgramNotFoundException
-                            || cause instanceof NoSuchElementException) {
-                          return notFound();
-                        }
-                        if (cause instanceof MissingOptionalException) {
-                          return unauthorized();
-                        }
-                        throw new RuntimeException(cause);
-                      });
-            })
+                                      AddressCorrectionBlockView.Params params =
+                                          AddressCorrectionBlockView.Params.builder()
+                                              .setRequest(request)
+                                              .setProfile(profile)
+                                              .setApplicantId(applicantId)
+                                              .setApplicantPersonalInfo(personalInfo)
+                                              .setMessages(messagesApi.preferred(request))
+                                              .setProgramId(programId)
+                                              .setProgramSlug(
+                                                  programSlugHandler.getProgramSlug(programParam))
+                                              .setProgramTitle(
+                                                  roApplicantProgramService.getProgramTitle())
+                                              .setProgramShortDescription(
+                                                  roApplicantProgramService
+                                                      .getProgramShortDescription())
+                                              .setBlockId(blockId)
+                                              .setBlockIndex(
+                                                  roApplicantProgramService.getBlockIndex(blockId))
+                                              .setBlockList(
+                                                  roApplicantProgramService.getAllActiveBlocks())
+                                              .setInReview(inReview)
+                                              .build();
+                                      return ok(addressCorrectionBlockView.render(
+                                              request,
+                                              params,
+                                              addressSuggestionGroup,
+                                              applicantRequestedActionWrapper.getAction(),
+                                              isEligibilityEnabledOnThisBlock,
+                                              addressSuggestionJson))
+                                          .as(Http.MimeTypes.HTML);
+                                    })
+                                .exceptionally(
+                                    ex -> {
+                                      Throwable cause =
+                                          (ex instanceof CompletionException) ? ex.getCause() : ex;
+                                      if (cause instanceof ProgramNotFoundException
+                                          || cause instanceof NoSuchElementException) {
+                                        return notFound();
+                                      }
+                                      if (cause instanceof MissingOptionalException) {
+                                        return unauthorized();
+                                      }
+                                      throw new RuntimeException(cause);
+                                    })))
         .exceptionally(
             ex -> {
               Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
