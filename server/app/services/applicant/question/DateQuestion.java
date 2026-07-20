@@ -227,7 +227,6 @@ public final class DateQuestion extends AbstractQuestion {
     return getYearValue().isPresent() && getMonthValue().isPresent() && getDayValue().isPresent();
   }
 
-
   /**
    * Returns a part of the date that the user entered and failed to parse. Used to re-populate the
    * date fields in the UI after a failed update attempt.
