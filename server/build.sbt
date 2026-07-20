@@ -71,6 +71,7 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.7" % Test,
+      "org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.5.RELEASE" % Test,
       "org.mockito" % "mockito-inline" % "5.2.0",
 
       // EqualsTester
