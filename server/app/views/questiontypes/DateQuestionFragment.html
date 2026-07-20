@@ -4,6 +4,9 @@
            fieldErrors=${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())},
            questionErrors=${dateQuestion.getValidationErrors().get(question.getContextualizedPath())},
            hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()},
+           monthHasError=${hasErrors && (dateQuestion.isMonthEmpty() || dateQuestion.allFieldsPresent())},
+           dayHasError=${hasErrors && (dateQuestion.isDayEmpty() || dateQuestion.allFieldsPresent())},
+           yearHasError=${hasErrors && (dateQuestion.isYearEmpty() || dateQuestion.allFieldsPresent())},
            questionId=${'id-' + #strings.randomAlphanumeric(8)}"
   class="cf-question-date cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
@@ -46,7 +49,8 @@
         </label>
         <select
           class="usa-select"
-          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+          th:classappend="${monthHasError ? 'usa-input--error' : ''}"
+          th:aria-invalid="${monthHasError}"
           th:id="${monthId}"
           th:name="${dateQuestion.getMonthPath()}"
           th:with="value=${dateQuestion.getMonthValue().orElse('')}"
@@ -134,7 +138,8 @@
         </label>
         <input
           class="usa-input"
-          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+          th:classappend="${dayHasError ? 'usa-input--error' : ''}"
+          th:aria-invalid="${dayHasError}"
           th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${dayId}"
           th:name="${dateQuestion.getDayPath()}"
@@ -162,7 +167,8 @@
         </label>
         <input
           class="usa-input"
-          th:classappend="${hasErrors ? 'usa-input--error' : ''}"
+          th:classappend="${yearHasError ? 'usa-input--error' : ''}"
+          th:aria-invalid="${yearHasError}"
           th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"
