@@ -111,8 +111,7 @@ public final class ProgramBlockValidation {
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
-    if (isInitialQuestion
-        && !VALID_INITIAL_QUESTION_TYPES.contains(question.getQuestionType())) {
+    if (isInitialQuestion && !VALID_INITIAL_QUESTION_TYPES.contains(question.getQuestionType())) {
       return AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE;
     }
     if (block.getQuestionCount() > 0
