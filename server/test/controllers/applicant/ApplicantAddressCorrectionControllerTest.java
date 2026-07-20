@@ -6,6 +6,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -262,6 +263,26 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void addressCorrectionWithApplicantId_returnsUnauthorizedForApplicantNotOwned() {
+    createTIWithMockedProfile(applicant);
+    ApplicantModel otherApplicant = createApplicant();
+
+    Result result =
+        subject
+            .addressCorrectionWithApplicantId(
+                fakeRequest(),
+                otherApplicant.id,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   public void answerAddressQuestion() {

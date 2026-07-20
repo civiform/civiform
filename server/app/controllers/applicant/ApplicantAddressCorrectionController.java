@@ -145,8 +145,11 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
 
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+    return checkApplicantAuthorization(request, applicantId)
+        .thenCompose(
+            v ->
+                programSlugHandler.resolveProgramParam(
+                    programParam, applicantId, programSlugUrlsEnabled))
         .thenCompose(
             programId -> {
               return supplyAsync(
@@ -220,6 +223,14 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                         }
                         throw new RuntimeException(cause);
                       });
+            })
+        .exceptionally(
+            ex -> {
+              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+              if (cause instanceof SecurityException) {
+                return unauthorized();
+              }
+              throw new RuntimeException(cause);
             });
   }
 }

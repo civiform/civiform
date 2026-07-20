@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -121,8 +122,21 @@ public class TrustedIntermediaryControllerTest extends WithMockedProfiles {
                     "dob",
                     ""));
     Http.Request request = requestBuilder.build();
-    Result result = tiController.showAddClientForm(account.id, request);
+    Result result = tiController.showEditClientForm(account.id, request);
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void testShowEditClientForm_returnsUnauthorizedForClientNotInGroup() {
+    AccountModel account = setupForEditClient("notmanaged@fake.com");
+    TrustedIntermediaryGroupModel otherGroup =
+        repo.createNewTrustedIntermediaryGroup("otherGroup", "Unit Testing Other Group");
+    account.setManagedByGroup(otherGroup);
+    account.save();
+
+    Result result = tiController.showEditClientForm(account.id, fakeRequest());
+
+    assertThat(result.status()).isEqualTo(UNAUTHORIZED);
   }
 
   @Test

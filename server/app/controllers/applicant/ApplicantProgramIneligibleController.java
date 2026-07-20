@@ -121,8 +121,11 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
       Request request, long applicantId, String programParam, Optional<String> blockId) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
 
-    return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
+    return checkApplicantAuthorization(request, applicantId)
+        .thenCompose(
+            v ->
+                programSlugHandler.resolveProgramParam(
+                    programParam, applicantId, programSlugUrlsEnabled))
         .thenCompose(
             programId -> {
               return supplyAsync(
@@ -176,6 +179,14 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                         }
                         throw new RuntimeException(cause);
                       });
+            })
+        .exceptionally(
+            ex -> {
+              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+              if (cause instanceof SecurityException) {
+                return unauthorized();
+              }
+              throw new RuntimeException(cause);
             });
   }
 }

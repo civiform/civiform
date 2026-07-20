@@ -178,6 +178,12 @@ public final class TrustedIntermediaryController {
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
     }
+    boolean isManagedAccount =
+        trustedIntermediaryGroup.get().getManagedAccounts().stream()
+            .anyMatch(account -> account.id.equals(accountId));
+    if (!isManagedAccount) {
+      return unauthorized();
+    }
     String applicantName =
         accountRepository.lookupAccount(accountId).get().getApplicantDisplayName();
     return ok(
