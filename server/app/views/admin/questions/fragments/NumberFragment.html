@@ -1,0 +1,11 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.NumberQuestionForm"*/-->
+<!--/* Type-specific question config for NUMBER questions: min/max value
+     fields. */-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <div
+    th:replace="~{admin/questions/fragments/NumberField :: numberField(${model.randomFieldId()}, 'min', 'Minimum value', ${questionForm.getMin().isPresent() ? questionForm.getMin().getAsLong() : null}, '0')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/fragments/NumberField :: numberField(${model.randomFieldId()}, 'max', 'Maximum value', ${questionForm.getMax().isPresent() ? questionForm.getMax().getAsLong() : null}, '0')}"
+  ></div>
+</th:block>

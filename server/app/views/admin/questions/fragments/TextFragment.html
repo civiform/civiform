@@ -1,0 +1,11 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.TextQuestionForm"*/-->
+<!--/* Type-specific question config for TEXT questions: min/max length
+     fields. */-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <div
+    th:replace="~{admin/questions/fragments/NumberField :: numberField(${model.randomFieldId()}, 'minLength', 'Minimum length', ${questionForm.getMinLength().isPresent() ? questionForm.getMinLength().getAsInt() : null}, '0')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/fragments/NumberField :: numberField(${model.randomFieldId()}, 'maxLength', 'Maximum length', ${questionForm.getMaxLength().isPresent() ? questionForm.getMaxLength().getAsInt() : null}, '1')}"
+  ></div>
+</th:block>
