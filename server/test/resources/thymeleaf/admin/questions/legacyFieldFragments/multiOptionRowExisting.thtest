@@ -1,0 +1,160 @@
+%NAME multiOptionRow - existing option keeps its id and locks the Admin ID
+%TEMPLATE_MODE HTML
+%CONTEXT
+model = new support.thymeleaf.FakeFieldIdModel()
+%MESSAGES
+toast.errorMessageOutline=Error: {0}
+adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
+adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
+%INPUT
+<div th:replace="~{admin/questions/fragments/LegacyFieldFragments :: multiOptionRow(false, '42', 'option_one', 'Option one')}"></div>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%INPUT[admin/questions/fragments/LegacySvgFragments] (file:app/views/admin/questions/fragments/LegacySvgFragments.html)
+%OUTPUT
+<div
+  class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+>
+  <div class="hidden">
+    <label for="field-1" class="sr-only"
+      >option ids<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="42"
+        maxlength="10000"
+        id="field-1"
+        name="optionIds[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="field-1-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
+  <div
+    class="cf-multi-option-admin-input col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2"
+  >
+    <label
+      for="field-2"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Admin ID<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="option_one"
+        maxlength="10000"
+        aria-required="true"
+        id="field-2"
+        name="optionAdminNames[]"
+        readonly="readonly"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 read-only:text-gray-500 read-only:bg-gray-100"
+      />
+      <div
+        id="field-2-errors"
+        class="cf-multi-option-admin-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div>Error: Admin names can only contain lowercase letters, numbers, underscores, and dashes.</div>
+      </div>
+    </div>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-up-button row-start-1"
+    aria-label="move up"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      stroke="currentColor"
+      stroke-width="1%"
+      aria-hidden="true"
+      viewBox="0 -960 960 960"
+      class="w-6 h-6"
+    >
+      <path d="M480-528 296-344l-56-56 240-240 240 240-56 56-184-184Z"></path>
+    </svg>
+  </button>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-down-button row-start-2"
+    aria-label="move down"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      stroke="currentColor"
+      stroke-width="1%"
+      aria-hidden="true"
+      viewBox="0 -960 960 960"
+      class="w-6 h-6"
+    >
+      <path d="M480-344 240-584l56-56 184 184 184-184 56 56-240 240Z"></path>
+    </svg>
+  </button>
+  <div
+    class="cf-multi-option-input col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2"
+  >
+    <label
+      for="field-3"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Option Text<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="Option one"
+        maxlength="10000"
+        aria-required="true"
+        id="field-3"
+        name="options[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        id="field-3-errors"
+        class="cf-multi-option-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div>Error: Multi option questions cannot have blank options.</div>
+      </div>
+    </div>
+    <span class="flex flex-row mt-2 items-center">
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
+        fill="text-gray-600"
+        stroke="text-gray-600"
+        stroke-width="1%"
+        aria-hidden="true"
+        viewBox="0 -960 960 960"
+        class="h-6 w-6 mr-1"
+      >
+        <path
+          d="m640-360 120-120-42-43-48 48v-125h-60v125l-48-48-42 43 120 120ZM140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm0-60h680v-520H140v520Zm0 0v-520 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14 0-27 13t-13 27v200Z"
+        ></path>
+      </svg>
+      <span class="text-gray-600 text-sm"
+        >Some markdown is supported, <a
+          href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          >see how it works</a
+        ></span
+      >
+    </span>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-blue-900 hover:bg-gray-200 hover:text-gray-900 multi-option-question-field-remove-button col-start-8 row-span-2"
+    aria-label="delete"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="currentColor"
+      stroke="currentColor"
+      stroke-width="1%"
+      aria-hidden="true"
+      viewBox="0 0 20 20"
+      class="w-6 h-6"
+    >
+      <path
+        d="M5.896 17.5Q5.167 17.5 4.656 16.99Q4.146 16.479 4.146 15.75V5.125H3.333V3.375H7.542V2.5H12.458V3.375H16.667V5.125H15.833V15.75Q15.833 16.479 15.323 16.99Q14.812 17.5 14.083 17.5ZM14.083 5.125H5.896V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75H14.083Q14.083 15.75 14.083 15.75Q14.083 15.75 14.083 15.75ZM7.458 14H9.208V6.875H7.458ZM10.771 14H12.521V6.875H10.771ZM5.896 5.125V15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Q5.896 15.75 5.896 15.75Z"
+      ></path>
+    </svg>
+  </button>
+</div>

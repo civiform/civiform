@@ -1,0 +1,19 @@
+%NAME radioOption - unchecked
+%TEMPLATE_MODE HTML
+%INPUT
+<label th:replace="~{admin/questions/fragments/LegacyFieldFragments :: radioOption('date-custom', 'dateValidationOption', 'Custom date', 'CUSTOM', false)}"></label>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<label
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  for="date-custom"
+  ><input
+    type="radio"
+    value="CUSTOM"
+    maxlength="10000"
+    aria-required="true"
+    id="date-custom"
+    name="dateValidationOption"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+  />Custom date</label
+>

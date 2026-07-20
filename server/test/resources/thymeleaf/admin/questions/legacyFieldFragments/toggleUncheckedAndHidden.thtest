@@ -1,0 +1,21 @@
+%NAME toggle - unchecked and hidden; the false companion field still posts
+%TEMPLATE_MODE HTML
+%INPUT
+<div th:replace="~{admin/questions/fragments/LegacyFieldFragments :: toggle('validationEnabled', 'validation', false, true, 'Require an answer')}"></div>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<div class="cf-toggle mt-2" hidden="hidden">
+  <label class="cf-toggle__label" id="validation-toggle">
+    <input
+      type="checkbox"
+      role="switch"
+      class="cf-toggle__input"
+      name="validationEnabled"
+      value="true"
+      id="validation-toggle-input"
+    />
+    <input type="hidden" name="validationEnabled" value="false" />
+    <span class="cf-toggle__track" aria-hidden="true"></span>
+    <span>Require an answer</span>
+  </label>
+</div>

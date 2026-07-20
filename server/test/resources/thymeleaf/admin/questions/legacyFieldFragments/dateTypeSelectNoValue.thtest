@@ -1,0 +1,43 @@
+%NAME dateTypeSelect - no value selects the empty placeholder option
+%TEMPLATE_MODE HTML
+%INPUT
+<div th:replace="~{admin/questions/fragments/LegacyFieldFragments :: dateTypeSelect('min-date-type', 'minDateType', 'Start date', 'Any past date', '')}"></div>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<div class="mb-2">
+  <label
+    for="min-date-type"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Start date<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <select
+      maxlength="10000"
+      aria-required="true"
+      id="min-date-type"
+      name="minDateType"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
+    >
+      <option value="" hidden selected="selected"></option>
+      <optgroup label="">
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="ANY"
+        >Any past date</option>
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="APPLICATION_DATE"
+        >
+          Current date of application
+        </option>
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="CUSTOM"
+        >
+          Custom date
+        </option>
+      </optgroup>
+    </select>
+    <div id="min-date-type-errors" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>

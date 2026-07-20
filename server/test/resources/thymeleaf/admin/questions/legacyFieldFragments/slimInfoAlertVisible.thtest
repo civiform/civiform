@@ -1,0 +1,15 @@
+%NAME slimInfoAlert - visible, with extra classes
+%TEMPLATE_MODE HTML
+%INPUT
+<div th:replace="~{admin/questions/fragments/LegacyFieldFragments :: slimInfoAlert('Admins can see this.', false, 'mt-4')}"></div>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<div
+  class="usa-alert usa-alert--info usa-alert--slim mt-4"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <p class="usa-alert__text">Admins can see this.</p>
+  </div>
+</div>

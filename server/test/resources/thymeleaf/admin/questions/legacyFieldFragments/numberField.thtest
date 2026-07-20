@@ -1,0 +1,27 @@
+%NAME numberField - never marked required, renders min and value
+%TEMPLATE_MODE HTML
+%INPUT
+<div th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField('min-length', 'minLength', 'Minimum length', '5', '0')}"></div>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<div class="mb-2">
+  <label
+    for="min-length"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Minimum length<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <input
+      type="number"
+      inputmode="decimal"
+      step="any"
+      min="0"
+      value="5"
+      maxlength="10000"
+      id="min-length"
+      name="minLength"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    />
+    <div id="min-length-errors" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>

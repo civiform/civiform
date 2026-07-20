@@ -1,0 +1,7 @@
+%NAME requiredIndicator - not visible
+%TEMPLATE_MODE HTML
+%INPUT
+<span th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(false)}"></span>
+%INPUT[admin/questions/fragments/LegacyFieldFragments] (file:app/views/admin/questions/fragments/LegacyFieldFragments.html)
+%OUTPUT
+<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span>
