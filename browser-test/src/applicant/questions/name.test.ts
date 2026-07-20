@@ -1,7 +1,6 @@
 import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
   AdminPrograms,
   enableFeatureFlag,
   loginAsAdmin,
@@ -9,16 +8,17 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS, Seeding} from '../../support/seeding'
 
 test.describe('name applicant flow', () => {
   test.describe('single required name question', () => {
     const programName = 'Test program for single name'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await setUpSingleRequiredQuestion(
         programName,
         page,
-        adminQuestions,
+        seeding,
         adminPrograms,
       )
     })
@@ -100,17 +100,15 @@ test.describe('name applicant flow', () => {
   test.describe('multiple name questions', () => {
     const programName = 'Test program for multiple names'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'name-test-a-q',
-      })
       await adminQuestions.addNameQuestion({
         questionName: 'name-test-b-q',
       })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['name-test-a-q', 'name-test-b-q'],
+        [SAMPLE_QUESTIONS.name, 'name-test-b-q'],
         programName,
       )
 
@@ -184,12 +182,10 @@ test.describe('name applicant flow', () => {
   test.describe('optional name question', () => {
     const programName = 'Test program for optional name'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'name-test-optional-q',
-      })
       await adminQuestions.addNameQuestion({
         questionName: 'name-test-required-q',
       })
@@ -198,7 +194,7 @@ test.describe('name applicant flow', () => {
         programName,
         'Optional question block',
         ['name-test-required-q'],
-        'name-test-optional-q',
+        SAMPLE_QUESTIONS.name, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -253,11 +249,11 @@ test.describe('name applicant flow', () => {
     () => {
       const programName = 'Test program for name suffix'
 
-      test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+      test.beforeEach(async ({page, adminPrograms, seeding}) => {
         await setUpSingleRequiredQuestion(
           programName,
           page,
-          adminQuestions,
+          seeding,
           adminPrograms,
         )
         await enableFeatureFlag(page, 'name_suffix_dropdown_enabled')
@@ -321,16 +317,14 @@ test.describe('name applicant flow', () => {
   async function setUpSingleRequiredQuestion(
     programName: string,
     page: Page,
-    adminQuestions: AdminQuestions,
+    seeding: Seeding,
     adminPrograms: AdminPrograms,
   ) {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addNameQuestion({
-      questionName: 'name-test-q',
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['name-test-q'],
+      [SAMPLE_QUESTIONS.name],
       programName,
     )
     await logout(page)

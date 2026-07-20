@@ -5,6 +5,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('Text question for applicant flow', () => {
   test.describe('single text question', () => {
@@ -135,17 +136,12 @@ test.describe('Text question for applicant flow', () => {
   test.describe('no max text question', () => {
     const programName = 'test-program-for-no-max-text-q'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      // As admin, create program with a free form text question.
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addTextQuestion({
-        questionName: 'no-max-text-q',
-        minNum: 5,
-      })
-
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['no-max-text-q'],
+        [SAMPLE_QUESTIONS.text],
         programName,
       )
 
