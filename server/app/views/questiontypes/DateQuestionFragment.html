@@ -169,10 +169,10 @@
           th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
           th:id="${yearId}"
           th:name="${dateQuestion.getYearPath()}"
-          minlength="4"
           maxlength="4"
-          pattern="[0-9]*"
+          pattern="[0-9]{4}"
           inputmode="numeric"
+          th:title="#{validation.yearMustBeFourDigits}"
           th:value="${dateQuestion.getYearValue().orElse('')}"
           th:aria-required="${!question.isOptional()}"
         />
