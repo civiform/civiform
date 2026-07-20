@@ -1,0 +1,48 @@
+%NAME textareaField - required, markdown indicator shown
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-text', 'questionText', 'Question text', 'What is your name?', true, true)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-2">
+  <label
+    for="question-text"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Question text<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <textarea
+      maxlength="10000"
+      aria-required="true"
+      id="question-text"
+      name="questionText"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    >What is your name?</textarea>
+    <div id="question-text-errors" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+  <span class="flex flex-row mt-2 items-center">
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      fill="text-gray-600"
+      stroke="text-gray-600"
+      stroke-width="1%"
+      aria-hidden="true"
+      viewBox="0 -960 960 960"
+      class="h-6 w-6 mr-1"
+    >
+      <path
+        d="m640-360 120-120-42-43-48 48v-125h-60v125l-48-48-42 43 120 120ZM140-160q-24 0-42-18t-18-42v-520q0-24 18-42t42-18h680q24 0 42 18t18 42v520q0 24-18 42t-42 18H140Zm0-60h680v-520H140v520Zm0 0v-520 520Zm79-140h50v-190h53v127h50v-127h60v190h50v-200q0-14-13-27t-27-13H259q-14 0-27 13t-13 27v200Z"
+      ></path>
+    </svg>
+    <span class="text-gray-600 text-sm"
+      >Markdown is supported, <a
+        href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+        >see how it works</a
+      ></span
+    >
+  </span>
+</div>

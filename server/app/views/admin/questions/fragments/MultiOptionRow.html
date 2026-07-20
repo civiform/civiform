@@ -1,0 +1,126 @@
+<!--/*
+  One editable answer option row for CHECKBOX / DROPDOWN / RADIO_BUTTON
+  questions. New (unsaved) options post to newOptions[] /
+  newOptionAdminNames[] and have no hidden optionIds[] field; existing
+  options are also readonly on the Admin ID.
+
+  Callers pass the label/input ids in (optionIdFieldId, adminNameFieldId,
+  optionTextFieldId), generating them with ${model.randomFieldId()} so
+  labels stay associated with inputs. Icons live in LegacySvgFragments.html.
+*/-->
+<div
+  th:fragment="multiOptionRow(isForNewOption, optionId, adminName, optionText, optionIdFieldId, adminNameFieldId, optionTextFieldId)"
+  class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+>
+  <div th:if="${isForNewOption}"></div>
+  <div th:unless="${isForNewOption}" class="hidden">
+    <label th:for="${optionIdFieldId}" class="sr-only"
+      >option ids<span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${optionId}"
+        maxlength="10000"
+        th:id="${optionIdFieldId}"
+        name="optionIds[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${optionIdFieldId}-errors|"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
+  <div
+    class="cf-multi-option-admin-input col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2"
+  >
+    <label
+      th:for="${adminNameFieldId}"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Admin ID<span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${adminName}"
+        maxlength="10000"
+        aria-required="true"
+        th:id="${adminNameFieldId}"
+        th:name="${isForNewOption} ? 'newOptionAdminNames[]' : 'optionAdminNames[]'"
+        th:readonly="${!isForNewOption}"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+        th:classappend="${!isForNewOption} ? 'read-only:text-gray-500 read-only:bg-gray-100'"
+      />
+      <div
+        th:id="|${adminNameFieldId}-errors|"
+        class="cf-multi-option-admin-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div
+          th:text="#{toast.errorMessageOutline(#{adminValidation.multiOptionAdminError})}"
+        ></div>
+      </div>
+    </div>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-up-button row-start-1"
+    aria-label="move up"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconKeyboardArrowUp('w-6 h-6')}"
+    ></svg>
+  </button>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-gray-500 hover:bg-gray-200 hover:text-gray-900 col-start-8 multi-option-question-field-move-down-button row-start-2"
+    aria-label="move down"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconKeyboardArrowDown('w-6 h-6')}"
+    ></svg>
+  </button>
+  <div
+    class="cf-multi-option-input col-start-1 col-span-5 mb-2 ml-2 row-start-3 row-span-2"
+  >
+    <label
+      th:for="${optionTextFieldId}"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Option Text<span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${optionText}"
+        maxlength="10000"
+        aria-required="true"
+        th:id="${optionTextFieldId}"
+        th:name="${isForNewOption} ? 'newOptions[]' : 'options[]'"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${optionTextFieldId}-errors|"
+        class="cf-multi-option-input-error text-red-600 text-xs p-1 hidden"
+      >
+        <div
+          th:text="#{toast.errorMessageOutline(#{adminValidation.multiOptionEmpty})}"
+        ></div>
+      </div>
+    </div>
+    <span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/MarkdownIndicator :: markdownIndicator('Some markdown is supported, ')}"
+    ></span>
+  </div>
+  <button
+    class="bg-transparent p-0 w-6 text-center text-blue-900 hover:bg-gray-200 hover:text-gray-900 multi-option-question-field-remove-button col-start-8 row-span-2"
+    aria-label="delete"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('w-6 h-6')}"
+    ></svg>
+  </button>
+</div>

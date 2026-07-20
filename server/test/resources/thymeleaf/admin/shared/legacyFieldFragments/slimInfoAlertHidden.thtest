@@ -1,0 +1,17 @@
+%NAME slimInfoAlert - hidden, no extra classes
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/SlimInfoAlert :: slimInfoAlert('Admins can see this.', true, null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div
+  hidden="hidden"
+  class="usa-alert usa-alert--info usa-alert--slim"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <p class="usa-alert__text">Admins can see this.</p>
+  </div>
+</div>
