@@ -97,7 +97,7 @@ public final class ProgramBlockValidation {
       QuestionDefinition question,
       boolean enumeratorImprovementsEnabled,
       boolean fileUploadQuestionImprovementsEnabled,
-      boolean isInitialQuestionSelection) {
+      boolean isInitialQuestion) {
     if (version.getTombstonedQuestionNames().contains(question.getName())) {
       return AddQuestionResult.QUESTION_TOMBSTONED;
     }
@@ -111,7 +111,7 @@ public final class ProgramBlockValidation {
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
-    if (isInitialQuestionSelection
+    if (isInitialQuestion
         && !VALID_INITIAL_QUESTION_TYPES.contains(question.getQuestionType())) {
       return AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE;
     }
