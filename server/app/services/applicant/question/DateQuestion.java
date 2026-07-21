@@ -28,6 +28,9 @@ import services.question.types.DateQuestionDefinition.DateValidationOption;
 public final class DateQuestion extends AbstractQuestion {
 
   private Optional<LocalDate> dateValue;
+  private Optional<Integer> yearValue;
+  private Optional<Integer> monthValue;
+  private Optional<Integer> dayValue;
   private ApplicantData applicantData;
 
   DateQuestion(ApplicantQuestion applicantQuestion) {
@@ -188,27 +191,39 @@ public final class DateQuestion extends AbstractQuestion {
   }
 
   public Optional<Integer> getMonthValue() {
-    if (getDateValue().isPresent()) {
-      return Optional.of(getDateValue().get().getMonthValue());
-    } else {
-      return getDatePartFromFailedUpdates(1);
+    if (monthValue != null) {
+      return monthValue;
     }
+    if (getDateValue().isPresent()) {
+      monthValue = Optional.of(getDateValue().get().getMonthValue());
+    } else {
+      monthValue = getDatePartFromFailedUpdates(1);
+    }
+    return monthValue;
   }
 
   public Optional<Integer> getYearValue() {
-    if (getDateValue().isPresent()) {
-      return Optional.of(getDateValue().get().getYear());
-    } else {
-      return getDatePartFromFailedUpdates(0);
+    if (yearValue != null) {
+      return yearValue;
     }
+    if (getDateValue().isPresent()) {
+      yearValue = Optional.of(getDateValue().get().getYear());
+    } else {
+      yearValue = getDatePartFromFailedUpdates(0);
+    }
+    return yearValue;
   }
 
   public Optional<Integer> getDayValue() {
-    if (getDateValue().isPresent()) {
-      return Optional.of(getDateValue().get().getDayOfMonth());
-    } else {
-      return getDatePartFromFailedUpdates(2);
+    if (dayValue != null) {
+      return dayValue;
     }
+    if (getDateValue().isPresent()) {
+      dayValue = Optional.of(getDateValue().get().getDayOfMonth());
+    } else {
+      dayValue = getDatePartFromFailedUpdates(2);
+    }
+    return dayValue;
   }
 
   public boolean isYearEmpty() {
