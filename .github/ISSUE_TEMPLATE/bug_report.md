@@ -17,11 +17,23 @@ Steps to reproduce the behavior:
 3. Scroll down to '....'
 4. See error
 
+Only list reproduction steps if you have personally reproduced the issue. If you haven't reproduced it please be clear about it but stil provide some guideance.
+
 **Expected behavior**
 A clear and concise description of what you expected to happen.
 
 **Screenshots**
 If applicable, add screenshots to help explain your problem.
+
+**Severity**
+If you chose to set the severity level justify why that is an appropriate level.
+
+Please specify how many users are believed to be affected, if user data is affected, etc.
+
+Guidelines:
+ * High: Majority of users are known to be affected, or user data is impacted.
+ * Medium: Several known users affected.
+ * Low: Unkonwn how many users are affected. Single end-user reported issues that you are passing on.
 
 **Desktop (please complete the following information):**
 
