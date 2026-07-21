@@ -31,9 +31,10 @@ If you chose to set the severity level justify why that is an appropriate level.
 Please specify how many users are believed to be affected, if user data is affected, etc.
 
 Guidelines:
- * High: Majority of users are known to be affected, or user data is impacted.
- * Medium: Several known users affected.
- * Low: Unkonwn how many users are affected. Single end-user reported issues that you are passing on.
+
+- High: Majority of users are known to be affected, or user data is impacted.
+- Medium: Several known users affected.
+- Low: Unkonwn how many users are affected. Single end-user reported issues that you are passing on.
 
 **Desktop (please complete the following information):**
 
