@@ -645,7 +645,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.visibilityPredicate(),
             blockDefinition.getFullName(),
             allQuestions,
-            settingsManifest.getExpandedFormLogicEnabled(request));
+            settingsManifest.getExpandedFormLogicEnabled());
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
@@ -657,7 +657,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.getFullName(),
                   allQuestions,
-                  settingsManifest.getExpandedFormLogicEnabled(request)));
+                  settingsManifest.getExpandedFormLogicEnabled()));
     }
 
     boolean showRepeatedQuestionsSectionStyling =

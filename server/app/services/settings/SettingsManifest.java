@@ -1086,8 +1086,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
    * admin.
    */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  public boolean getExpandedFormLogicEnabled() {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED");
   }
 
   /** Enables a dropdown for login that has both applicant and admin login. */
@@ -2373,7 +2373,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
