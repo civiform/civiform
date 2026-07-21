@@ -218,7 +218,7 @@ public class TestQuestionBank {
    */
   public QuestionModel enumeratorWithInitialQuestionApplicantHouseholdPlantNames() {
     return questionCache.computeIfAbsent(
-        QuestionEnum.ENUMERATOR_NEW_FLOW_APPLICANT_HOUSEHOLD_MEMBERS,
+        QuestionEnum.ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS_WITH_INITIAL,
         this::enumeratorNewFlowApplicantHouseholdMembers);
   }
 
@@ -607,7 +607,7 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
-  /** Creates an new-flow enumerator and an initial question that each reference the other. */
+  /** Creates a new-flow enumerator and an initial question that each reference the other. */
   private QuestionModel enumeratorNewFlowApplicantHouseholdMembers(QuestionEnum ignore) {
     QuestionDefinition initialQuestion =
         new TextQuestionDefinition(
@@ -631,18 +631,15 @@ public class TestQuestionBank {
             LocalizedStrings.empty());
     var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
 
-    final QuestionModel updatedEnumeratorQuestionModel;
     try {
-      updatedEnumeratorQuestionModel =
-          new QuestionModel(
-              new QuestionDefinitionBuilder(enumeratorQuestionModel.getQuestionDefinition())
-                  .setEnumeratorInitialQuestionId(Optional.of(initialQuestionModel.id))
-                  .build());
+      new QuestionModel(
+          new QuestionDefinitionBuilder(initialQuestionModel.getQuestionDefinition())
+              .setEnumeratorId(Optional.of(enumeratorQuestionModel.id))
+              .build());
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }
-    updatedEnumeratorQuestionModel.update();
-    return updatedEnumeratorQuestionModel;
+    return enumeratorQuestionModel;
   }
 
   // File upload
@@ -992,7 +989,7 @@ public class TestQuestionBank {
     EMAIL_REPEATED_HOUSEHOLD_MEMBER_EMAIL,
     ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS,
     ENUMERATOR_NESTED_APPLICANT_HOUSEHOLD_MEMBER_JOBS,
-    ENUMERATOR_NEW_FLOW_APPLICANT_HOUSEHOLD_MEMBERS,
+    ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS_WITH_INITIAL,
     FILE_UPLOAD_APPLICANT_FILE,
     FILE_UPLOAD_REPEATED_HOUSEHOLD_MEMBER_FILE,
     ID_APPLICANT_ID,

@@ -570,6 +570,72 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('reuses an enumerator with initial question and attaches the initial question', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+
+      await addRepeatedSetBlock(page, {selectParent: true})
+
+      await test.step('create an enumerator with initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+        await fillAndSubmitEnumeratorQuestionForm(page)
+      })
+
+      await test.step('Delete the entire repeated set block', async () => {
+        await adminPrograms.removeCurrentBlock()
+      })
+
+      await test.step('Add a fresh repeated set block and select the parent enumerator screen', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+
+        // The fresh enumerator block starts empty: no enumerator question and no
+        // initial question line.
+        await expect(
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeHidden()
+        await expect(
+          blockPanel.getByTestId('repeated-set-initial-question'),
+        ).toBeHidden()
+      })
+
+      await test.step('Open the question bank via the "Choose existing" flow', async () => {
+        // Unfortunately, we have to click the label to select the radio button, because
+        // USWDS places the radio button itself outside the viewport.
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+      })
+
+      await test.step('Click the "Add question" button', async () => {
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await expect(questionBankSidebar).toBeVisible()
+      })
+
+      await test.step('Add the existing enumerator question back to the block', async () => {
+        await pickQuestionFromBank(page, 'pets enumerator')
+        await expect(
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeVisible()
+      })
+
+      await test.step('Verify the initial question is added along with the enumerator and is visible again', async () => {
+        await expect(
+          blockPanel.getByText(
+            'Initial question: income-non-repeated-question -_- a',
+          ),
+        ).toBeVisible()
+      })
+    })
+
     test('auto-fills and preserves editable repeated set suggestions', async ({
       page,
     }) => {
