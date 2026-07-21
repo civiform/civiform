@@ -903,7 +903,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
-          optionalNewInitialQuestion);
+          optionalNewInitialQuestion,
+          // Presence here means it arrived via the Create-New-Question redirect's URL param.
+          /* initialQuestionWasNewlyCreated= */ optionalNewInitialQuestion.isPresent());
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
           messages,
@@ -1026,7 +1028,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> optionalNewInitialQuestion) {
+      Optional<QuestionDefinition> optionalInitialQuestion,
+      boolean initialQuestionWasNewlyCreated) {
     return div(
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
@@ -1036,7 +1039,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockId,
                 optionalQuestionForm,
                 errorMessages,
-                optionalNewInitialQuestion),
+                optionalInitialQuestion,
+                initialQuestionWasNewlyCreated),
             renderChooseExistingQuestion(messages, programId, blockId))
         .withId("enumerator-setup")
         .withClass("maxw-mobile-lg");
@@ -1215,7 +1219,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Long blockId,
       Optional<EnumeratorQuestionForm> optionalQuestionForm,
       ImmutableSet<CiviFormError> errorMessages,
-      Optional<QuestionDefinition> optionalNewInitialQuestion) {
+      Optional<QuestionDefinition> optionalInitialQuestion,
+      boolean initialQuestionWasNewlyCreated) {
     InputTag csrfTag = makeCsrfTokenInputTag(request);
     return form(csrfTag)
         .withClasses("usa-summary-box", "bg-white", "border-gray-300")
@@ -1318,15 +1323,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                     .withId("initial-question-description")
                     .withClasses("font-ui-sm", "text-base"),
-                optionalNewInitialQuestion
+                optionalInitialQuestion
                     .map(
                         q ->
                             renderSelectedInitialQuestion(
-                                messages,
-                                q,
-                                programId,
-                                blockId,
-                                /* initialQuestionWasNewlyCreated= */ true))
+                                messages, q, programId, blockId, initialQuestionWasNewlyCreated))
                     .orElseGet(() -> renderEmptyInitialQuestionSlot(messages, programId, blockId))),
             div(
                     AlertComponent.renderSlimInfoAlert(

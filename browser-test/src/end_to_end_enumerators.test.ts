@@ -692,9 +692,26 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
       await test.step('Add a new repeated set and select the parent block', async () => {
         await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await test.step('Select an initial question so we can verify it survives the error re-render', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
       })
 
       await test.step('Submit the new enumerator question form without filling out all the required fields', async () => {
@@ -719,6 +736,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockPanel.getByRole('textbox', {name: 'Listed entity'}),
         ).toHaveValue('Pets')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
       })
 
       await test.step('Validate that an error alert is shown with the correct error messages', async () => {
