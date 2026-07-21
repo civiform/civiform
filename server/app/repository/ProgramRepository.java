@@ -3,6 +3,7 @@ package repository;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -10,6 +11,7 @@ import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
 import io.ebean.PagedList;
+import io.ebean.PersistenceContextScope;
 import io.ebean.Query;
 import io.ebean.SqlRow;
 import io.ebean.Transaction;
@@ -79,12 +81,23 @@ public final class ProgramRepository {
   }
 
   public CompletionStage<Optional<ProgramModel>> lookupProgram(long id) {
-    // Use the cache if it is enabled and there isn't a draft version in progress.
-    if (settingsManifest.getProgramCacheEnabled()
-        && versionRepository.get().getDraftVersion().isEmpty()) {
-      return supplyAsync(
-          () -> programCache.getOrElseUpdate(String.valueOf(id), () -> lookupProgramSync(id)),
-          dbExecutionContext);
+    // Only use cache when enabled and no draft version exists. During publish, active programs
+    // are carried forward and associated with the new active version, changing their version
+    // associations. A draft's existence signals that a publish may be imminent, so we bypass the
+    // cache to avoid serving stale version associations. The draft check queries the DB, ensuring
+    // correctness across multiple server instances.
+    //
+    // The cache key includes the active version ID so that after a publish, which changes the
+    // active version ID, we look up a different cache key and get fresh data instead of stale
+    // entries cached under the old active version ID's key.
+    if (settingsManifest.getProgramCacheEnabled()) {
+      Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
+      if (activeVersionId.isPresent()) {
+        String cacheKey = programCacheKey(id, activeVersionId.get());
+        return supplyAsync(
+            () -> programCache.getOrElseUpdate(cacheKey, () -> lookupProgramSync(id)),
+            dbExecutionContext);
+      }
     }
     return supplyAsync(() -> lookupProgramSync(id), dbExecutionContext);
   }
@@ -109,6 +122,11 @@ public final class ProgramRepository {
         .findOneOrEmpty();
   }
 
+  @VisibleForTesting
+  static String programCacheKey(long programId, long activeVersionId) {
+    return programId + ":" + activeVersionId;
+  }
+
   public ProgramModel insertProgramSync(ProgramModel program) {
     program.id = null;
     database.insert(program);
@@ -121,12 +139,52 @@ public final class ProgramRepository {
     return program;
   }
 
-  public ImmutableList<VersionModel> getVersionsForProgram(ProgramModel program) {
+  /**
+   * Returns the versions for a program.
+   *
+   * <p>If the cache is enabled, returns cached data or populates the cache on miss using a fresh DB
+   * fetch by program ID.
+   *
+   * <p>Only caches when no draft exists, since draft creation changes version associations. The
+   * cache key includes the active version ID to naturally invalidate stale entries after publish.
+   */
+  public ImmutableList<VersionModel> getVersionsForProgram(long programId) {
     if (settingsManifest.getProgramCacheEnabled()) {
-      return versionsByProgramCache.getOrElseUpdate(
-          String.valueOf(program.id), program::getVersions);
+      Optional<Long> activeVersionId = versionRepository.get().getActiveVersionIdIfNoDraft();
+      if (activeVersionId.isPresent()) {
+        String cacheKey = programCacheKey(programId, activeVersionId.get());
+        return versionsByProgramCache.getOrElseUpdate(
+            cacheKey, () -> getVersionsForProgramWithoutCache(programId));
+      }
     }
-    return program.getVersions();
+    return getVersionsForProgramWithoutCache(programId);
+  }
+
+  /**
+   * Returns the versions for a program without using the cache. Always fetches fresh data from the
+   * database by ID to avoid stale BeanCollection data.
+   *
+   * <p>Takes a program ID rather than a ProgramModel to make the fresh-fetch intent explicit.
+   */
+  @VisibleForTesting
+  ImmutableList<VersionModel> getVersionsForProgramWithoutCache(long programId) {
+    ProgramModel freshProgram =
+        database
+            .find(ProgramModel.class)
+            .setPersistenceContextScope(PersistenceContextScope.QUERY)
+            .setId(programId)
+            .setLabel("ProgramModel.findByIdForVersions")
+            .setProfileLocation(
+                queryProfileLocationBuilder.create("getVersionsForProgramWithoutCache"))
+            .findOne();
+    if (freshProgram == null) {
+      throw new RuntimeException(
+          String.format(
+              "Program %d not found when fetching versions. This may indicate data corruption"
+                  + " or a race condition.",
+              programId));
+    }
+    return freshProgram.getVersions();
   }
 
   public ImmutableSet<String> getAllProgramNames() {
