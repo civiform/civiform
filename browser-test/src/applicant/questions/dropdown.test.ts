@@ -1,25 +1,26 @@
-import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminPrograms,
-  AdminQuestions,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('Dropdown question for applicant flow', () => {
   test.describe('single dropdown question', () => {
     const programName = 'Test program for single dropdown'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpSingleDropdownQuestion(
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
+
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [SAMPLE_QUESTIONS.dropdown],
         programName,
-        page,
-        adminQuestions,
-        adminPrograms,
       )
+
+      await logout(page)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -98,7 +99,7 @@ test.describe('Dropdown question for applicant flow', () => {
       })
 
       await test.step('with selected option submits successfully', async () => {
-        await applicantQuestions.answerDropdownQuestion('green')
+        await applicantQuestions.answerDropdownQuestion('Chocolate')
         await applicantQuestions.clickContinue()
 
         await applicantQuestions.expectReviewPage()
@@ -109,18 +110,10 @@ test.describe('Dropdown question for applicant flow', () => {
   test.describe('multiple dropdown questions', () => {
     const programName = 'Test program for multiple dropdowns'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addDropdownQuestion({
-        questionName: 'dropdown-fave-vacation-q',
-        options: [
-          {adminName: 'beach_admin', text: 'beach'},
-          {adminName: 'mountains_admin', text: 'mountains'},
-          {adminName: 'city_admin', text: 'city'},
-          {adminName: 'cruise_admin', text: 'cruise'},
-        ],
-      })
       await adminQuestions.addDropdownQuestion({
         questionName: 'dropdown-fave-color-q',
         options: [
@@ -136,7 +129,7 @@ test.describe('Dropdown question for applicant flow', () => {
         programName,
         'Optional question block',
         ['dropdown-fave-color-q'],
-        'dropdown-fave-vacation-q', // optional
+        SAMPLE_QUESTIONS.dropdown, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -147,7 +140,7 @@ test.describe('Dropdown question for applicant flow', () => {
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
-      await applicantQuestions.answerDropdownQuestion('beach', 0)
+      await applicantQuestions.answerDropdownQuestion('Strawberry', 0)
       await applicantQuestions.answerDropdownQuestion('blue', 1)
       await applicantQuestions.clickContinue()
 
@@ -174,30 +167,4 @@ test.describe('Dropdown question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
-
-  async function setUpSingleDropdownQuestion(
-    programName: string,
-    page: Page,
-    adminQuestions: AdminQuestions,
-    adminPrograms: AdminPrograms,
-  ) {
-    // As admin, create program with single dropdown question.
-    await loginAsAdmin(page)
-
-    await adminQuestions.addDropdownQuestion({
-      questionName: 'dropdown-color-q',
-      options: [
-        {adminName: 'red_admin', text: 'red'},
-        {adminName: 'green_admin', text: 'green'},
-        {adminName: 'orange_admin', text: 'orange'},
-        {adminName: 'blue_admin', text: 'blue'},
-      ],
-    })
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['dropdown-color-q'],
-      programName,
-    )
-
-    await logout(page)
-  }
 })
