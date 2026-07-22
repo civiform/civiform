@@ -1740,8 +1740,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(applicationSummary).not.toContainText('Cartoon Character')
         await expect(applicationSummary).not.toContainText('100')
       })
-
-      await logout(page)
     })
 
     test('applicant repeated entity add button is enabled/disabled correctly', async ({
@@ -1849,8 +1847,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
         await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Daffy')
       })
-
-      await logout(page)
     })
   })
 
