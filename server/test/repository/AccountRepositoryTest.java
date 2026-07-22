@@ -490,7 +490,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     // Give the used applicant an application so it won't be cleaned up
     resourceCreator.insertApplication(usedApplicant, testProgram, LifecycleStage.DRAFT);
 
-    var numberDeleted = repo.deleteUnusedGuestAccounts(5);
+    var numberDeleted = repo.deleteUnusedGuestAccounts(/* minAgeInDays= */ 5);
     var remainingApplicants = repo.listApplicants().toCompletableFuture().join();
     var remainingAccounts = repo.listAccounts();
 
