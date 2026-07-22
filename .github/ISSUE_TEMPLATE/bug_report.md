@@ -26,15 +26,20 @@ A clear and concise description of what you expected to happen.
 If applicable, add screenshots to help explain your problem.
 
 **Severity**
-If you chose to set the severity level justify why that is an appropriate level.
 
-Please specify how many users are believed to be affected, if user data is affected, etc.
+Provide the following information:
+
+- How many users are believed to be affected?
+- How many instances/jurisdictions are believed to be affected?
+- Is private user data at risk?
+
+Select a severity level label based on the following definitions
 
 Guidelines:
 
-- High: Majority of users are known to be affected, or user data is impacted.
-- Medium: Several known users affected.
-- Low: Unkonwn how many users are affected. Single end-user reported issues that you are passing on.
+- **High**: A majority of users are known to be affected, or user data is impacted. Examples: Applicants across all programs are unable to submit forms; a bug causes incorrect eligibility data to be saved for submitted applications; a security vulnerability exposes another applicant's personal information.
+- **Medium**: Several known users affected. Examples: A validation error blocks submission for one specific program; a UI bug makes a field inaccessible to screen reader users; an admin-facing report shows incorrect counts
+- **Low**: Impact, or scope are unknown or unconfirmed. Based on a single end-user's report. Examples: One user reports a login issue with no confirmed pattern; a minor visual glitch; a typo or formatting issue with no functional effect.
 
 **Desktop (please complete the following information):**
 
