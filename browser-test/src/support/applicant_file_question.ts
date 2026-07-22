@@ -5,6 +5,7 @@ import {Page} from '@playwright/test'
 export class ApplicantFileQuestion {
   private fileSelectionErrorLocator = '[data-fileupload-error="required"]'
   private fileTooLargeErrorLocator = '[data-fileupload-error="too-large"]'
+  private fileLimitErrorLocator = '[data-fileupload-error="file-limit-reached"]'
   private continueButtonLocator = '#fileupload-continue-button'
   private continueFormLocator = '#cf-fileupload-continue-form'
   private skipButtonLocator = '#fileupload-skip-button'
@@ -18,11 +19,15 @@ export class ApplicantFileQuestion {
   }
 
   async expectQuestionErrorShown() {
-    await expect(this.page.locator(this.questionErrorLocator)).toBeVisible()
+    await expect(
+      this.page.locator(this.questionErrorLocator).first(),
+    ).toBeVisible()
   }
 
   async expectQuestionErrorHidden() {
-    await expect(this.page.locator(this.questionErrorLocator)).toBeHidden()
+    await expect(
+      this.page.locator(this.questionErrorLocator).filter({visible: true}),
+    ).toHaveCount(0)
   }
 
   async expectFileSelectionErrorHidden() {
@@ -35,6 +40,26 @@ export class ApplicantFileQuestion {
 
   async expectFileTooLargeErrorHidden() {
     await expect(this.page.locator(this.fileTooLargeErrorLocator)).toBeHidden()
+  }
+
+  async expectFileLimitErrorShown() {
+    await expect(this.page.locator(this.fileLimitErrorLocator)).toBeVisible()
+  }
+
+  async expectFileLimitErrorHidden() {
+    await expect(this.page.locator(this.fileLimitErrorLocator)).toBeHidden()
+  }
+
+  async expectLegacyFileLimitErrorShown() {
+    await expect(
+      this.page.locator('#cf-fileupload-file-limit-reached-error'),
+    ).toBeVisible()
+  }
+
+  async expectLegacyFileLimitErrorHidden() {
+    await expect(
+      this.page.locator('#cf-fileupload-file-limit-reached-error'),
+    ).toBeHidden()
   }
 
   async expectLegacyFileTooLargeErrorShown() {

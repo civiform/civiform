@@ -63,16 +63,10 @@
   </div>
   <div
     hidden
-    class="usa-alert usa-alert--error usa-alert--slim"
     data-fileupload-error="file-limit-reached"
-  >
-    <div class="usa-alert__body">
-      <p
-        class="usa-alert__text"
-        th:text="#{toast.errorMessageOutline(#{validation.fileLimitReached})}}"
-      ></p>
-    </div>
-  </div>
+    th:text="#{toast.errorMessageOutline(#{validation.fileLimitReached})}"
+    class="cf-question-error-message cf-applicant-question-errors"
+  ></div>
   <div
     hidden
     class="usa-alert usa-alert--error usa-alert--slim"
