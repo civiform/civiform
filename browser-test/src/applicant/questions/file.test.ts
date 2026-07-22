@@ -284,25 +284,27 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await test.step('Adding maximum files disables file input', async () => {
+      await test.step('Adding more files than maximum shows error message', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
         )
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload-second.png',
         )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-third.png',
+        )
+        await applicantFileQuestion.expectFileLimitErrorShown()
         await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
-
-        await applicantFileQuestion.expectFileInputDisabled()
       })
 
-      await test.step('Removing a file shows file input again', async () => {
+      await test.step('Removing a file removes file limit error', async () => {
         await applicantFileQuestion.removeFileUpload('file-upload.png')
         await waitForHtmxReady(page)
-        await applicantFileQuestion.expectFileInputEnabled()
+        await applicantFileQuestion.expectFileLimitErrorHidden()
       })
     })
 
