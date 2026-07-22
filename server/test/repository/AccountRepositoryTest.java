@@ -505,7 +505,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteUnusedGuestAccounts_multipleApplicants_allUnused() {
+  public void deleteUnusedGuestAccounts_multipleApplicants_allUnused_allDeleted() {
     // When an account has two applicants and both qualify for cleanup,
     // both applicants and the account should be deleted.
     LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
@@ -528,7 +528,7 @@ public class AccountRepositoryTest extends ResetPostgres {
     sharedAccount.setApplicants(ImmutableList.of(unusedApplicant1, unusedApplicant2));
     sharedAccount.save();
 
-    var numberDeleted = repo.deleteUnusedGuestAccounts(5);
+    var numberDeleted = repo.deleteUnusedGuestAccounts(/* minAgeInDays= */ 5);
     var remainingApplicants = repo.listApplicants().toCompletableFuture().join();
     var remainingAccounts = repo.listAccounts();
 
