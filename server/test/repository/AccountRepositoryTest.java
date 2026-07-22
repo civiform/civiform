@@ -462,7 +462,7 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void deleteUnusedGuestAccounts_multipleApplicants_onlyOneUnused() {
+  public void deleteUnusedGuestAccounts_multipleApplicants_onlyOneUnused_onlyDeletesUnusedOne() {
     // When an account has two applicants and only one qualifies for cleanup,
     // the unused applicant should be deleted but the account should be kept
     // because the other applicant still references it.
