@@ -135,17 +135,15 @@ public abstract class ApplicantBaseView {
     // Set branding theme colors.
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
     context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
-    if (settingsManifest.getCustomThemeColorsEnabled()) {
-      settingsManifest
-          .getThemeColorPrimary(request)
-          .filter(setting -> !setting.isEmpty())
-          .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
-      settingsManifest
-          .getThemeColorPrimaryDark(request)
-          .filter(setting -> !setting.isEmpty())
-          .ifPresent(
-              colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
-    }
+    settingsManifest
+        .getThemeColorPrimary(request)
+        .filter(setting -> !setting.isEmpty())
+        .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
+    settingsManifest
+        .getThemeColorPrimaryDark(request)
+        .filter(setting -> !setting.isEmpty())
+        .ifPresent(
+            colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
