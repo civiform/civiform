@@ -71,6 +71,10 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.7" % Test,
+      // Excludes mockito-core so its newer transitive version doesn't override
+      // the mockito-inline version pinned below.
+      ("org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.5.RELEASE" % Test)
+        .exclude("org.mockito", "mockito-core"),
       "org.mockito" % "mockito-inline" % "5.2.0",
 
       // EqualsTester
