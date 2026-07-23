@@ -106,4 +106,36 @@ public class CurrencyQuestionTest {
                     ValidationErrorMessage.create(MessageKey.CURRENCY_VALIDATION_MISFORMATTED))));
     assertThat(currencyQuestion.getCurrencyValue().isPresent()).isFalse();
   }
+
+  @Test
+  public void withValueExceedingMax_failsValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            currencyQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerCurrencyQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "1000000001");
+
+    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
+
+    assertThat(currencyQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                currencyQuestion.getCurrencyPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.NUMBER_VALIDATION_TOO_BIG, 1_000_000_000L))));
+  }
+
+  @Test
+  public void withMaxValue_passesValidation() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            currencyQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerCurrencyQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "1000000000");
+
+    CurrencyQuestion currencyQuestion = applicantQuestion.createCurrencyQuestion();
+
+    assertThat(currencyQuestion.getValidationErrors()).isEmpty();
+  }
 }
