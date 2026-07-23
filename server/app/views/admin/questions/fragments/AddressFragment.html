@@ -1,0 +1,17 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.AddressQuestionForm"*/-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <label
+    th:with="fieldId=${model.randomFieldId()}"
+    class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+    th:for="${fieldId}"
+    ><input
+      type="checkbox"
+      value="true"
+      maxlength="10000"
+      th:id="${fieldId}"
+      name="disallowPoBox"
+      class="h-4 w-4 mr-4 align-middle self-center flex-none"
+      th:checked="${questionForm.getDisallowPoBox()}"
+    />Disallow post office boxes</label
+  >
+</th:block>

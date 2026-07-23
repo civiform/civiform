@@ -1,0 +1,35 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.EnumeratorQuestionForm"*/-->
+<!--/* Type-specific question config for ENUMERATOR questions: required
+     entity type input plus min/max entity count fields. */-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <div class="mb-2">
+    <label
+      for="enumerator-question-entity-type-input"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Repeated entity type (What are we enumerating?)<span
+        th:replace="~{admin/questions/fragments/LegacyFieldFragments :: requiredIndicator(true)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="text"
+        th:value="${questionForm.getEntityType()}"
+        maxlength="10000"
+        aria-required="true"
+        id="enumerator-question-entity-type-input"
+        name="entityType"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        id="enumerator-question-entity-type-input-errors"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
+  <div
+    th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField(${model.randomFieldId()}, 'minEntities', 'Minimum entity count', ${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : null}, '0')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField(${model.randomFieldId()}, 'maxEntities', 'Maximum entity count', ${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : null}, '1')}"
+  ></div>
+</th:block>

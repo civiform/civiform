@@ -1,0 +1,8 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.FileUploadQuestionForm"*/-->
+<!--/* Type-specific question config for FILEUPLOAD questions: the max files
+     field. */-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <div
+    th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField(${model.randomFieldId()}, 'maxFiles', 'Maximum number of file uploads', ${questionForm.getMaxFiles().isPresent() ? questionForm.getMaxFiles().getAsInt() : null}, '1')}"
+  ></div>
+</th:block>

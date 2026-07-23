@@ -1,0 +1,16 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.MultiOptionQuestionForm"*/-->
+<!--/*
+  Type-specific question config for CHECKBOX questions: the shared
+  multi-option markup plus the min/max choices validation fields.
+*/-->
+<th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
+  <th:block
+    th:replace="~{admin/questions/fragments/RadioButtonFragment :: build(${questionForm})}"
+  ></th:block>
+  <div
+    th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField(${model.randomFieldId()}, 'minChoicesRequired', 'Minimum number of choices required', ${questionForm.getMinChoicesRequired().isPresent() ? questionForm.getMinChoicesRequired().getAsInt() : null}, '0')}"
+  ></div>
+  <div
+    th:replace="~{admin/questions/fragments/LegacyFieldFragments :: numberField(${model.randomFieldId()}, 'maxChoicesAllowed', 'Maximum number of choices allowed', ${questionForm.getMaxChoicesAllowed().isPresent() ? questionForm.getMaxChoicesAllowed().getAsInt() : null}, '1')}"
+  ></div>
+</th:block>
