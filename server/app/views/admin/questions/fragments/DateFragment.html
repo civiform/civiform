@@ -1,0 +1,33 @@
+<!--/*@thymesVar id="questionForm" type="forms.questions.DateQuestionForm"*/-->
+<!--/*
+  Type-specific question config for DATE questions: validation parameters
+  legend, the start/end date type selects, and the min/max USWDS memorable
+  date pickers (hidden unless the corresponding type is CUSTOM).
+*/-->
+<th:block
+  th:fragment="build(questionForm)"
+  xmlns:th="http://www.thymeleaf.org"
+  th:with="minDateType=${questionForm.getMinDateType().isPresent() ? questionForm.getMinDateType().get().name() : 'ANY'},
+           maxDateType=${questionForm.getMaxDateType().isPresent() ? questionForm.getMaxDateType().get().name() : 'ANY'}"
+>
+  <legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+    Validation parameters
+  </legend>
+  <p class="px-1 pb-2 text-sm text-gray-600">
+    <span
+      th:text="'Set the parameters for allowable values for this date question below.'"
+    ></span>
+  </p>
+  <div
+    th:replace="~{admin/questions/fragments/DateTypeSelect :: dateTypeSelect('min-date-type', 'minDateType', 'Start date', 'Any past date', ${minDateType})}"
+  ></div>
+  <fieldset
+    th:replace="~{admin/questions/fragments/MemorableDate :: memorableDate('min-custom-date', ${minDateType != 'CUSTOM'}, 'minCustomMonth', ${questionForm.getMinCustomMonth().orElse('')}, 'minCustomDay', ${questionForm.getMinCustomDay().orElse('')}, 'minCustomYear', ${questionForm.getMinCustomYear().orElse('')})}"
+  ></fieldset>
+  <div
+    th:replace="~{admin/questions/fragments/DateTypeSelect :: dateTypeSelect('max-date-type', 'maxDateType', 'End date', 'Any future date', ${maxDateType})}"
+  ></div>
+  <fieldset
+    th:replace="~{admin/questions/fragments/MemorableDate :: memorableDate('max-custom-date', ${maxDateType != 'CUSTOM'}, 'maxCustomMonth', ${questionForm.getMaxCustomMonth().orElse('')}, 'maxCustomDay', ${questionForm.getMaxCustomDay().orElse('')}, 'maxCustomYear', ${questionForm.getMaxCustomYear().orElse('')})}"
+  ></fieldset>
+</th:block>
