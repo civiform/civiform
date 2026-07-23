@@ -1,0 +1,23 @@
+<!--/* A CSS-only toggle. The hidden companion field MUST come after the
+     checkbox: when the box is unchecked only `false` posts; when checked
+     both post and Play form binding takes the first value. */-->
+<div
+  th:fragment="toggle(name, idPrefix, checked, hidden, text)"
+  class="cf-toggle mt-2"
+  th:hidden="${hidden}"
+>
+  <label class="cf-toggle__label" th:id="|${idPrefix}-toggle|">
+    <input
+      type="checkbox"
+      role="switch"
+      class="cf-toggle__input"
+      th:name="${name}"
+      value="true"
+      th:checked="${checked}"
+      th:id="|${idPrefix}-toggle-input|"
+    />
+    <input type="hidden" th:name="${name}" value="false" />
+    <span class="cf-toggle__track" aria-hidden="true"></span>
+    <span th:text="${text}"></span>
+  </label>
+</div>
