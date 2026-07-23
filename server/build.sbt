@@ -77,6 +77,9 @@ lazy val root = (project in file("."))
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
       "com.google.guava" % "guava-testlib" % "33.6.0-jre" % Test,
 
+      // Architecture testing with ArchUnit
+      "com.tngtech.archunit" % "archunit-junit4" % "1.4.2" % Test,
+
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
       "jakarta.activation" % "jakarta.activation-api" % "2.1.4",
