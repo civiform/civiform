@@ -1,5 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, logout} from '../support'
+import {loginAsAdmin} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('login only program', () => {
@@ -40,8 +40,6 @@ test.describe('login only program', () => {
         }),
       ).toBeDisabled()
     })
-
-    await logout(page)
   })
 
   test('login only persists through publish', async ({page, adminPrograms}) => {

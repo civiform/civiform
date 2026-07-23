@@ -116,7 +116,6 @@ test.describe('Program admin download button visibility and endpoint access', ()
         await enableFeatureFlag(page, downloadFlag)
         await loginAsCiviformAndProgramAdmin(page)
         await expectDownloadButtonsAndEndpoints(true)
-        await logout(page)
       })
     },
   )

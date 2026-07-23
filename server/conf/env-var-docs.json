@@ -917,12 +917,6 @@
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
-      "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable using custom theme colors in the applicant UI.",
-        "type": "bool",
-        "required": false
-      },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables suffix dropdown field in name question.",
@@ -941,7 +935,7 @@
         "required": false
       },
       "EXPANDED_FORM_LOGIC_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false

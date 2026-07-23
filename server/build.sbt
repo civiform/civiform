@@ -71,6 +71,10 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.7" % Test,
+      // Excludes mockito-core so its newer transitive version doesn't override
+      // the mockito-inline version pinned below.
+      ("org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.5.RELEASE" % Test)
+        .exclude("org.mockito", "mockito-core"),
       "org.mockito" % "mockito-inline" % "5.2.0",
 
       // EqualsTester
@@ -118,7 +122,7 @@ lazy val root = (project in file("."))
       "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.34",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "4.0.0",
+      "com.github.slugify" % "slugify" % "4.0.1",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.13.0",
@@ -142,7 +146,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.37",
+      "ch.qos.logback" % "logback-classic" % "1.5.38",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

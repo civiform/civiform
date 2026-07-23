@@ -506,9 +506,12 @@ public final class AccountRepository {
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
   public int deleteUnusedGuestAccounts(int minAgeInDays) {
-    // TODO(#12167): Handle that Accounts can have multiple Applicants.
+    // First, identify all unused guest applicants: those with no applications, on guest accounts
+    // (no authority_id), and older than the minimum age. Then delete those applicants. Finally,
+    // only delete accounts where ALL applicants have been removed — this handles the case where
+    // an Account has multiple Applicants and only some qualify for cleanup.
     String sql =
-        "WITH unused_accounts AS ( "
+        "WITH unused_applicants AS ( "
             + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "
             + "  FROM applicants"
             + "  LEFT JOIN applications ON applicants.id = applications.applicant_id "
@@ -521,10 +524,15 @@ public final class AccountRepository {
             + "), "
             + "applicants_deleted AS ("
             + "  DELETE FROM applicants"
-            + "  WHERE applicants.id IN (SELECT applicant_id FROM unused_accounts) "
+            + "  WHERE applicants.id IN (SELECT applicant_id FROM unused_applicants) "
             + ") "
             + "DELETE FROM accounts "
-            + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
+            + "WHERE accounts.id IN (SELECT account_id FROM unused_applicants) "
+            + "AND NOT EXISTS ( "
+            + "  SELECT 1 FROM applicants "
+            + "  WHERE applicants.account_id = accounts.id "
+            + "  AND applicants.id NOT IN (SELECT applicant_id FROM unused_applicants) "
+            + ");";
 
     return database.sqlUpdate(sql).execute();
   }
