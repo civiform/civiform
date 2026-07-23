@@ -395,8 +395,7 @@ public abstract class QuestionDefinition {
   }
 
   public final ImmutableSet<CiviFormError> validate(
-      Optional<QuestionDefinition> previousDefinition,
-      boolean requireLegacyRepeatedEntitySelector) {
+      Optional<QuestionDefinition> previousDefinition, boolean enumeratorImprovementsEnabled) {
     if (previousDefinition.isPresent()
         && previousDefinition.get().getQuestionType() != getQuestionType()) {
       throw new IllegalArgumentException(
@@ -426,7 +425,7 @@ public abstract class QuestionDefinition {
               String.format("Administrative identifier '%s' is not allowed", getName())));
     }
 
-    if (requireLegacyRepeatedEntitySelector
+    if (!enumeratorImprovementsEnabled
         && isRepeated()
         && !questionTextContainsRepeatedEntityNameFormatString()) {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
@@ -448,7 +447,7 @@ public abstract class QuestionDefinition {
    */
   public final ImmutableSet<CiviFormError> validate(
       Optional<QuestionDefinition> previousDefinition) {
-    return validate(previousDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return validate(previousDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   @Override

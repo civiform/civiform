@@ -74,15 +74,15 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
-    return create(questionDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return create(questionDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   public ErrorAnd<QuestionDefinition, CiviFormError> create(
-      QuestionDefinition questionDefinition, boolean requireLegacyRepeatedEntitySelector) {
+      QuestionDefinition questionDefinition, boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> validationErrors =
         questionDefinition.validate(
             /* previousDefinition= */ Optional.empty(),
-            /* requireLegacyRepeatedEntitySelector= */ requireLegacyRepeatedEntitySelector);
+            /* enumeratorImprovementsEnabled= */ enumeratorImprovementsEnabled);
 
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
@@ -161,8 +161,7 @@ public final class QuestionService {
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
-    return update(
-        Optional.empty(), updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return update(Optional.empty(), updatedDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   /**
@@ -187,19 +186,19 @@ public final class QuestionService {
       Optional<QuestionDefinition> previousDefinition, QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
     return update(
-        previousDefinition, updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+        previousDefinition, updatedDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   public ErrorAnd<QuestionDefinition, CiviFormError> update(
       Optional<QuestionDefinition> previousDefinition,
       QuestionDefinition updatedDefinition,
-      boolean requireLegacyRepeatedEntitySelector)
+      boolean enumeratorImprovementsEnabled)
       throws InvalidUpdateException {
     if (!updatedDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
     ImmutableSet<CiviFormError> validationErrors =
-        updatedDefinition.validate(previousDefinition, requireLegacyRepeatedEntitySelector);
+        updatedDefinition.validate(previousDefinition, enumeratorImprovementsEnabled);
 
     Optional<QuestionModel> maybeQuestion =
         questionRepository.lookupQuestion(updatedDefinition.getId()).toCompletableFuture().join();
@@ -245,7 +244,7 @@ public final class QuestionService {
             .setEnumeratorId(enumeratorId)
             .build();
 
-    return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
+    return create(copy, /* enumeratorImprovementsEnabled= */ true);
   }
 
   /** The persisted initial question and the enumerator question linked to it. */

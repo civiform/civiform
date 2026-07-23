@@ -228,11 +228,11 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.getMessage());
     }
 
-    boolean requireLegacyRepeatedEntitySelector =
-        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
 
     ErrorAnd<QuestionDefinition, CiviFormError> result =
-        service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
+        service.create(questionDefinition, enumeratorImprovementsEnabled);
     if (result.isError()) {
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       ReadOnlyQuestionService roService =
@@ -377,10 +377,10 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      boolean requireLegacyRepeatedEntitySelector =
-          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+      boolean enumeratorImprovementsEnabled =
+          settingsManifest.getEnumeratorImprovementsEnabled(request);
       errorAndUpdatedQuestionDefinition =
-          service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
+          service.update(maybeExisting, questionDefinition, enumeratorImprovementsEnabled);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
