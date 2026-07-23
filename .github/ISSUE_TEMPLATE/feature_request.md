@@ -1,37 +1,33 @@
 ---
 name: Feature request
-about: Suggest an idea or give feedback for CiviForm
+about: Describe a problem or outcome you'd like CiviForm to address
 title: ''
 labels: PM Review
 assignees: ''
 ---
 
-#### Is your feature request related to a problem? Please describe.
+## The problem
 
-A clear and concise description of what the problem is. Ex. I'm always frustrated when [...]
+_What's broken, missing, or painful right now? Who experiences this, and how often? Include evidence wherever possible._
 
-#### Describe the solution you'd like.
+## Why does it matter?
 
-A clear and concise description of what you want to happen.
+_Why is the problem significant? What’s the impact of leaving this unresolved?_
 
-#### What priority is this?
+## Intended outcome
 
-A clear description of whether this is high, medium, or low priority for you and why (eg, it is majorly blocking a user group, it has been requested several times, etc).
+_What should be true once this is solved? Outcomes are measurable and observable. Focus on the result for the user, not a specific implementation or solution. Quick check: if your outcome names a specific button, screen, or technology, it's likely still a solution, so push it up a level. If there's more than one desired outcome, list them separately rather than combining them. Example: Instead of "Add a CSV export button to the dashboard,” write "Admins can access applicant data into a format they can analyze without asking engineering for a one-off export."_
 
-#### Associated civic entity
+## Non-goals / out of scope
 
-Is this request associated with a specific civic entity? If so, please add the associated civic entity to the label (eg, label with 'seattle' if this request is coming from Seattle admins, CBOs, or residents.
+_What this request is not asking for. What rabbit holes should be avoided? What scope creep can we prevent?_
 
-#### User Group
+## Supporting evidence
 
-If this request or piece of feedback comes from a resident, add the label 'Resident feedback'.
-If this request or piece of feedback comes from a CBO or TI, add the label 'TI'.
-If this request or piece of feedback comes from an admin, add the label 'Program Feedback'.
+_Optionally, include links to support tickets, usability research, analysis, related documentation or background._
 
-#### Additional Context
+### Metadata
 
-Add any other context or screenshots about the feature request here.
-
-#### Done when:
-
-What conditions need to be met before this issue can be closed?
+- If this request associated with a single specific civic entity, add the associated label (i.e. `ce-seattle`)
+- If this request or piece of feedback comes from or is related to a specific user type, add the associated label (i.e. `user-cbo` or `user-resident`)
+- Priority will be added by the Exygy team during initial intake and triage.
