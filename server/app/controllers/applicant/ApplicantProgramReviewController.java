@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.ApplicationModel;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
@@ -32,7 +31,6 @@ import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
@@ -299,18 +297,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
-    CompletableFuture<ApplicationModel> submitAppFuture =
-        applicantService
-            .submitApplication(applicantId, programId, submittingProfile, request)
-            .toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
-        applicantService
-            .getReadOnlyApplicantProgramService(applicantId, programId)
-            .toCompletableFuture();
-    return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
+    return applicantService
+        .submitApplication(applicantId, programId, submittingProfile, request)
         .thenApplyAsync(
-            (v) -> {
-              ApplicationModel application = submitAppFuture.join();
+            (application) -> {
               Long applicationId = application.id;
 
               final String programParam;
@@ -332,8 +322,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  readOnlyApplicantProgramServiceFuture.join();
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
@@ -343,7 +331,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
@@ -364,7 +352,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
@@ -390,7 +378,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
