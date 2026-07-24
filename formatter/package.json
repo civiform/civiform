@@ -10,6 +10,6 @@
     "eslint-plugin-playwright": "2.10.5",
     "prettier": "3.9.4",
     "sql-formatter": "15.8.2",
-    "typescript": "6.0.3"
+    "typescript": "7.0.2"
   }
 }
