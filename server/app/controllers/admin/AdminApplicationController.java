@@ -295,8 +295,13 @@ public final class AdminApplicationController extends CiviFormController {
       return badRequest(String.format("Application %d does not exist.", applicationId));
     }
     ApplicationModel application = applicationMaybe.get();
+    ImmutableList<String> allowedProgramsForScoring =
+        settingsManifest.getAllowedProgramsForSummingInPdf(request).orElse(ImmutableList.of());
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ true);
+        pdfExporterService.generateApplicationPdf(
+            application,
+            /* isAdmin= */ true,
+            allowedProgramsForScoring.contains(program.adminName()));
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(

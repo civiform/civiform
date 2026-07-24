@@ -1020,7 +1020,7 @@
       "ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Allows summing of options ids in the programs when generating application PDF as TI or Program Admin. Default is empty list.",
-        "type": "string",
+        "type": "index-list",
         "required": false
       }
     }

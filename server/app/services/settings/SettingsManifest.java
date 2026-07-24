@@ -1155,10 +1155,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Allows summing of options ids in the programs when generating application PDF as TI or Program Admin.
+   * Allows summing of options ids in the programs when generating application PDF as TI or Program
+   * Admin. Default is empty list.
    */
-  public Optional<ImmutableList<String>> getAllowedProgramsForSummingInPDF(){
-    return getListOfStrings("ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF");
+  public Optional<ImmutableList<String>> getAllowedProgramsForSummingInPdf(RequestHeader request) {
+    return getListOfStrings("ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2460,12 +2461,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
-                    SettingDescription.create("ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF",
-                      "Enable Summing of Scored Options in Application PDF downloads",
-                      /* isRequired= */ false,
-                      SettingType.LIST_OF_STRINGS,
-                      SettingMode.ADMIN_WRITEABLE)
-                  )))
+                      SettingDescription.create(
+                          "ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF",
+                          "Allows summing of options ids in the programs when generating"
+                              + " application PDF as TI or Program Admin. Default is empty list.",
+                          /* isRequired= */ false,
+                          SettingType.LIST_OF_STRINGS,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

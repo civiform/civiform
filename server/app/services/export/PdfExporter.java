@@ -3,7 +3,6 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import annotations.BindingAnnotations.Now;
-import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import com.itextpdf.text.Anchor;
@@ -19,7 +18,6 @@ import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
-import com.itextpdf.text.pdf.parser.Line;
 import com.typesafe.config.Config;
 import controllers.admin.PredicateUtils;
 import controllers.admin.ReadablePredicate;
@@ -48,10 +46,8 @@ import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
-import services.settings.SettingsManifest;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
@@ -60,7 +56,6 @@ public final class PdfExporter {
   private final String baseUrl;
   private final DateConverter dateConverter;
   private final StatusService statusService;
-  private final Provider<SettingsManifest> settingsManifest;
 
   // A set of fonts that approximate various heading and text sizes to easily create visual
   // hierarchy in the PDF.
@@ -84,18 +79,16 @@ public final class PdfExporter {
 
   @Inject
   PdfExporter(
-    ApplicantService applicantService,
-    @Now Provider<LocalDateTime> nowProvider,
-    Config configuration,
-    DateConverter dateConverter,
-    StatusService statusService,
-    Provider<SettingsManifest> settingsManifest) {
+      ApplicantService applicantService,
+      @Now Provider<LocalDateTime> nowProvider,
+      Config configuration,
+      DateConverter dateConverter,
+      StatusService statusService) {
     this.applicantService = checkNotNull(applicantService);
     this.nowProvider = checkNotNull(nowProvider);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
-    this.settingsManifest=checkNotNull(settingsManifest);
   }
 
   /**
@@ -104,7 +97,8 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
+  public InMemoryPdf exportApplication(
+      ApplicationModel application, boolean isAdmin, boolean exportScoredApplication)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -129,19 +123,24 @@ public final class PdfExporter {
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
     // Check if program is part of the scored programs list.
-    ImmutableList<String> allowedProgramsForScoring = settingsManifest.get().getAllowedProgramsForSummingInPDF().orElse(ImmutableList.of());
-    //Scored pdfs only for prorgamAdmins and TI.
-    if (allowedProgramsForScoring.contains(application.getProgram().getProgramDefinition().adminName()) && isAdmin || application.getSubmitterEmail().isPresent()) {
+    //    ImmutableList<String> allowedProgramsForScoring =
+    //
+    // settingsManifest.get().getAllowedProgramsForSummingInPdf(re).orElse(ImmutableList.of());
+    // Scored pdfs only for prorgamAdmins and TI.
+    //    if (allowedProgramsForScoring.contains(
+    //            application.getProgram().getProgramDefinition().adminName())
+    //        && (isAdmin || application.getSubmitterEmail().isPresent())) {
+    if (exportScoredApplication) {
       byte[] bytes =
-        buildApplicationPdfWithScore(
-          answersOnlyActive,
-          answersOnlyHidden,
-          applicantNameWithApplicationId,
-          application.getOriginalApplicantId().orElse(application.getApplicant().id),
-          application.getProgram().getProgramDefinition(),
-          application.getLatestStatus(),
-          getSubmitTime(application.getSubmitTime()),
-          isAdmin);
+          buildApplicationPdfWithScore(
+              answersOnlyActive,
+              answersOnlyHidden,
+              applicantNameWithApplicationId,
+              application.getOriginalApplicantId().orElse(application.getApplicant().id),
+              application.getProgram().getProgramDefinition(),
+              application.getLatestStatus(),
+              getSubmitTime(application.getSubmitTime()),
+              isAdmin);
       return new InMemoryPdf(bytes, filename);
     }
     byte[] bytes =
@@ -163,16 +162,162 @@ public final class PdfExporter {
         : dateConverter.renderDateTimeHumanReadable(submitTime);
   }
 
+  private byte[] buildApplicationPdf(
+      ImmutableList<AnswerData> answersOnlyActive,
+      ImmutableList<AnswerData> answersOnlyHidden,
+      String applicantNameWithApplicationId,
+      Long applicantId,
+      ProgramDefinition programDefinition,
+      Optional<String> statusValue,
+      String submitTime,
+      boolean isAdmin)
+      throws DocumentException, IOException {
+    ByteArrayOutputStream byteArrayOutputStream = null;
+    PdfWriter writer = null;
+    Document document = null;
+
+    try {
+      byteArrayOutputStream = new ByteArrayOutputStream();
+      document = new Document();
+      writer = PdfWriter.getInstance(document, byteArrayOutputStream);
+      document.open();
+
+      Paragraph applicant =
+          new Paragraph(
+              applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+      Paragraph program =
+          new Paragraph(
+              "Program Name : " + programDefinition.adminName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+      document.add(applicant);
+      document.add(program);
+      Paragraph status =
+          new Paragraph(
+              "Status: " + statusValue.orElse("none"),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(status);
+      Paragraph submitTimeInformation =
+          new Paragraph(
+              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(submitTimeInformation);
+      document.add(Chunk.NEWLINE);
+      boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
+      for (AnswerData answerData : answersOnlyActive) {
+        Paragraph question =
+            new Paragraph(
+                answerData.questionDefinition().getName(),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        final Paragraph answer;
+        if (!answerData.encodedFileKeys().isEmpty()) {
+          answer = new Paragraph();
+          ImmutableList<String> encodedFileKeys = answerData.encodedFileKeys();
+          for (int i = 0; i < encodedFileKeys.size(); i++) {
+            String encodedFileKey = encodedFileKeys.get(i);
+            String fileName = answerData.fileNames().get(i);
+            String fileLink =
+                (isAdmin
+                        ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                        : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                    .url();
+            Anchor anchor = new Anchor(fileName, LINK_FONT);
+            anchor.setReference(baseUrl + fileLink);
+            Paragraph fileParagraph = new Paragraph();
+            fileParagraph.add(anchor);
+            answer.add(fileParagraph);
+          }
+        } else if (answerData.encodedFileKey().isPresent()) {
+          String encodedFileKey = answerData.encodedFileKey().get();
+          String fileLink =
+              (isAdmin
+                      ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                      : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                  .url();
+          Anchor anchor = new Anchor(answerData.answerText());
+          anchor.setReference(baseUrl + fileLink);
+          answer = new Paragraph();
+          answer.add(anchor);
+        } else {
+          answer =
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+        }
+        LocalDate date =
+            Instant.ofEpochMilli(answerData.timestamp())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+        Paragraph time =
+            new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
+        time.setAlignment(Paragraph.ALIGN_RIGHT);
+        Paragraph eligibility = new Paragraph();
+        if (isAdmin && isEligibilityEnabledInProgram) {
+          try {
+            Optional<EligibilityDefinition> eligibilityDef =
+                programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
+            if (eligibilityDef
+                .map(
+                    definition ->
+                        definition
+                            .predicate()
+                            .getQuestions()
+                            .contains(answerData.questionDefinition().getId()))
+                .orElse(false)) {
+
+              String eligibilityText =
+                  answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+              eligibility =
+                  new Paragraph(eligibilityText, FontFactory.getFont(FontFactory.HELVETICA, 10));
+              eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
+            }
+          } catch (ProgramBlockDefinitionNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
+        document.add(question);
+        document.add(answer);
+        document.add(time);
+        if (!eligibility.isEmpty()) {
+          document.add(eligibility);
+        }
+      }
+      if (!answersOnlyHidden.isEmpty()) {
+        document.add(Chunk.NEWLINE);
+        Paragraph hiddenText =
+            new Paragraph(
+                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+        document.add(hiddenText);
+        document.add(Chunk.NEWLINE);
+        for (AnswerData answerData : answersOnlyHidden) {
+          Paragraph question =
+              new Paragraph(
+                  answerData.questionDefinition().getName(),
+                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          final Paragraph answer;
+          answer =
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+          document.add(question);
+          document.add(answer);
+        }
+      }
+    } finally {
+      document.close();
+      writer.close();
+      byteArrayOutputStream.close();
+    }
+    return byteArrayOutputStream.toByteArray();
+  }
+
   private byte[] buildApplicationPdfWithScore(
-    ImmutableList<AnswerData> answersOnlyActive,
-    ImmutableList<AnswerData> answersOnlyHidden,
-    String applicantNameWithApplicationId,
-    Long applicantId,
-    ProgramDefinition programDefinition,
-    Optional<String> statusValue,
-    String submitTime,
-    boolean isAdmin)
-    throws DocumentException, IOException {
+      ImmutableList<AnswerData> answersOnlyActive,
+      ImmutableList<AnswerData> answersOnlyHidden,
+      String applicantNameWithApplicationId,
+      Long applicantId,
+      ProgramDefinition programDefinition,
+      Optional<String> statusValue,
+      String submitTime,
+      boolean isAdmin)
+      throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
     Document document = null;
@@ -193,22 +338,22 @@ public final class PdfExporter {
       document.add(templateImage);
 
       Paragraph applicant =
-        new Paragraph(
-          applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+          new Paragraph(
+              applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
       Paragraph program =
-        new Paragraph(
-          "Program Name : " + programDefinition.adminName(),
-          FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+          new Paragraph(
+              "Program Name : " + programDefinition.adminName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
       document.add(applicant);
       document.add(program);
       Paragraph status =
-        new Paragraph(
-          "Status: " + statusValue.orElse("none"),
-          FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          new Paragraph(
+              "Status: " + statusValue.orElse("none"),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(status);
       Paragraph submitTimeInformation =
-        new Paragraph(
-          "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          new Paragraph(
+              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
       document.add(Chunk.NEWLINE);
 
@@ -220,39 +365,48 @@ public final class PdfExporter {
 
       for (AnswerData answerData : answersOnlyActive) {
         if (answerData.questionDefinition().getQuestionType() == QuestionType.RADIO_BUTTON) {
-          Optional<String> optionAdminId = answerData.applicantQuestion().createSingleSelectQuestion().getSelectedOptionAdminName();
+          Optional<String> optionAdminId =
+              answerData
+                  .applicantQuestion()
+                  .createSingleSelectQuestion()
+                  .getSelectedOptionAdminName();
           if (optionAdminId.isPresent() && isNumber(optionAdminId.get())) {
             sum = sum + getNumber(optionAdminId.get());
           }
         }
 
         LocalDate date =
-          Instant.ofEpochMilli(answerData.timestamp())
-            .atZone(ZoneId.systemDefault())
-            .toLocalDate();
+            Instant.ofEpochMilli(answerData.timestamp())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
 
         // --- 1. Question + "Answered on" on the same line ---
         Paragraph question = new Paragraph();
-        question.add(new Chunk(answerData.questionDefinition().getName(), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        question.add(
+            new Chunk(
+                answerData.questionDefinition().getName(),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
         question.add(glue);
-        question.add(new Chunk("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10)));
+        question.add(
+            new Chunk("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10)));
 
         // --- 2. Determine Eligibility String early ---
         String eligibilityText = "";
         if (isAdmin && isEligibilityEnabledInProgram) {
           try {
             Optional<EligibilityDefinition> eligibilityDef =
-              programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
+                programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
             if (eligibilityDef
-              .map(
-                definition ->
-                  definition
-                    .predicate()
-                    .getQuestions()
-                    .contains(answerData.questionDefinition().getId()))
-              .orElse(false)) {
+                .map(
+                    definition ->
+                        definition
+                            .predicate()
+                            .getQuestions()
+                            .contains(answerData.questionDefinition().getId()))
+                .orElse(false)) {
 
-              eligibilityText = answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+              eligibilityText =
+                  answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
             }
           } catch (ProgramBlockDefinitionNotFoundException e) {
             throw new RuntimeException(e);
@@ -268,10 +422,10 @@ public final class PdfExporter {
             String encodedFileKey = encodedFileKeys.get(i);
             String fileName = answerData.fileNames().get(i);
             String fileLink =
-              (isAdmin
-                ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
-                : controllers.routes.FileController.show(applicantId, encodedFileKey))
-                .url();
+                (isAdmin
+                        ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                        : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                    .url();
             Anchor anchor = new Anchor(fileName, LINK_FONT);
             anchor.setReference(baseUrl + fileLink);
             Paragraph fileParagraph = new Paragraph();
@@ -281,17 +435,18 @@ public final class PdfExporter {
         } else if (answerData.encodedFileKey().isPresent()) {
           String encodedFileKey = answerData.encodedFileKey().get();
           String fileLink =
-            (isAdmin
-              ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
-              : controllers.routes.FileController.show(applicantId, encodedFileKey))
-              .url();
+              (isAdmin
+                      ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                      : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                  .url();
           Anchor anchor = new Anchor(answerData.answerText());
           anchor.setReference(baseUrl + fileLink);
           answer = new Paragraph();
           answer.add(anchor);
         } else {
           answer = new Paragraph();
-          answer.add(new Chunk(answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11)));
+          answer.add(
+              new Chunk(answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11)));
         }
 
         // --- 4. Append Score and/or Eligibility to the same line as the Answer ---
@@ -299,11 +454,18 @@ public final class PdfExporter {
 
         // Handle Score
         if (answerData.questionDefinition().getQuestionType() == QuestionType.RADIO_BUTTON) {
-          Optional<String> optionAdminId = answerData.applicantQuestion().createSingleSelectQuestion().getSelectedOptionAdminName();
+          Optional<String> optionAdminId =
+              answerData
+                  .applicantQuestion()
+                  .createSingleSelectQuestion()
+                  .getSelectedOptionAdminName();
           if (optionAdminId.isPresent() && isNumber(optionAdminId.get())) {
             answer.add(glue);
             addedGlueToAnswer = true;
-            answer.add(new Chunk("Score : " + getNumber(optionAdminId.get()), FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11)));
+            answer.add(
+                new Chunk(
+                    "Score : " + getNumber(optionAdminId.get()),
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11)));
           }
         }
 
@@ -312,15 +474,21 @@ public final class PdfExporter {
           if (!addedGlueToAnswer) {
             answer.add(glue); // Push to right if score wasn't there
           } else {
-            answer.add(new Chunk("  |  ", FontFactory.getFont(FontFactory.HELVETICA, 10))); // Add separator if score already pushed
+            answer.add(
+                new Chunk(
+                    "  |  ",
+                    FontFactory.getFont(
+                        FontFactory.HELVETICA, 10))); // Add separator if score already pushed
           }
 
           // Define color: A darker green for legibility on white, and standard red
-          com.itextpdf.text.BaseColor statusColor = answerData.isEligible()
-            ? new com.itextpdf.text.BaseColor(0, 128, 0)
-            : com.itextpdf.text.BaseColor.RED;
+          com.itextpdf.text.BaseColor statusColor =
+              answerData.isEligible()
+                  ? new com.itextpdf.text.BaseColor(0, 128, 0)
+                  : com.itextpdf.text.BaseColor.RED;
 
-          com.itextpdf.text.Font coloredEligibilityFont = FontFactory.getFont(FontFactory.HELVETICA, 10, statusColor);
+          com.itextpdf.text.Font coloredEligibilityFont =
+              FontFactory.getFont(FontFactory.HELVETICA, 10, statusColor);
 
           answer.add(new Chunk(eligibilityText, coloredEligibilityFont));
         }
@@ -334,31 +502,32 @@ public final class PdfExporter {
       if (!answersOnlyHidden.isEmpty()) {
         document.add(Chunk.NEWLINE);
         Paragraph hiddenText =
-          new Paragraph(
-            "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+            new Paragraph(
+                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
         document.add(hiddenText);
         document.add(Chunk.NEWLINE);
         for (AnswerData answerData : answersOnlyHidden) {
           Paragraph question =
-            new Paragraph(
-              answerData.questionDefinition().getName(),
-              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+              new Paragraph(
+                  answerData.questionDefinition().getName(),
+                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
           final Paragraph answer;
           answer =
-            new Paragraph(
-              answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
           document.add(question);
           document.add(answer);
           document.add(new Paragraph(" "));
         }
       }
 
-      com.itextpdf.text.pdf.ColumnText ct = new com.itextpdf.text.pdf.ColumnText(sumTemplate);
-      ct.setSimpleColumn(new com.itextpdf.text.Rectangle(0, 0, 500, 30));
+      com.itextpdf.text.pdf.ColumnText columnText =
+          new com.itextpdf.text.pdf.ColumnText(sumTemplate);
+      columnText.setSimpleColumn(new com.itextpdf.text.Rectangle(0, 0, 500, 30));
       Paragraph totalSumParagraph = new Paragraph("Total Calculated Score: " + sum, H2_FONT);
       totalSumParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
-      ct.addElement(totalSumParagraph);
-      ct.go();
+      columnText.addElement(totalSumParagraph);
+      columnText.go();
     } finally {
       document.close();
       writer.close();
@@ -377,13 +546,14 @@ public final class PdfExporter {
       return null;
     }
   }
+
   private boolean isNumber(String text) {
     if (text == null) {
       return false;
     }
     try {
-       Integer.parseInt(text);
-       return true;
+      Integer.parseInt(text);
+      return true;
     } catch (NumberFormatException e) {
       return false;
     }
