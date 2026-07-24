@@ -35,10 +35,8 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
     String applicantName = "name-unavailable";
-    String applicantNameWithApplicationId =
-        String.format("%s (%d)", applicantName, applicationOne.id);
-    PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
+    String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationOne.id);
+    PdfExporter.InMemoryPdf result = service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -76,34 +74,25 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   public void generateScoredApplicationPdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
-    String applicantName = "name-unavailable";
-    String applicantNameWithApplicationId =
-        String.format("%s (%d)", applicantName, applicationEight.id);
-    PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, false);
+    String applicantName = "eight, Example";
+    String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationEight.id);
+    PdfExporter.InMemoryPdf result = service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, true);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
     int pages = pdfReader.getNumberOfPages();
-    for (int pageNum = 1; pageNum < pages; pageNum++) {
+    for (int pageNum = 1; pageNum <= pages; pageNum++) {
       textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
     }
 
     pdfReader.close();
-    assertThat(textFromPDF).isNotNull();
-    System.out.println("********************");
-    System.out.println(textFromPDF);
     List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-    assertThat(linesFromPDF).isNotNull();
     String programName = applicationEight.getProgram().getProgramDefinition().adminName();
 
-    System.out.println("********************");
-    for (int i = 0; i < linesFromPDF.size(); i++) {
-      System.out.println(linesFromPDF.get(i));
-    }
-    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-    assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
+    assertThat(linesFromPDF.get(0)).isEqualTo("Total Calculated Score: 100");
+    assertThat(linesFromPDF.get(1)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(3)).isEqualTo("Status: none");
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_EIGHT_STRING);
     for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
       assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
@@ -114,17 +103,17 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   public void generateProgramPreviewPdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
-    PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            fakeProgram.getProgramDefinition(),
-            getFakeQuestionDefinitions(),
-            /* expandedFormLogicEnabled= */ true);
+    PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
+        fakeProgram.getProgramDefinition(),
+        getFakeQuestionDefinitions(),
+        /* expandedFormLogicEnabled= */ true);
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();
     assertThat(linesFromPdf.get(0))
         .isEqualTo(fakeProgram.getProgramDefinition().localizedName().getDefault());
-    // More assertions about the PDF content will be in PdfExporterTest, since PdfExporter is the
+    // More assertions about the PDF content will be in PdfExporterTest, since
+    // PdfExporter is the
     // class that actually builds the PDF.
   }
 }
