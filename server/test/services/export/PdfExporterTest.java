@@ -32,751 +32,791 @@ import services.question.types.QuestionDefinition;
 @RunWith(JUnitParamsRunner.class)
 public class PdfExporterTest extends AbstractExporterTest {
 
-    @Before
-    public void createTestData() throws Exception {
-        createFakeQuestions();
-        createFakeProgram();
-        createFakeApplications();
+  @Before
+  public void createTestData() throws Exception {
+    createFakeQuestions();
+    createFakeProgram();
+    createFakeApplications();
+  }
+
+  @Test
+  public void exportApplication() throws IOException, DocumentException {
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationOne.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationOne, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum < pages; pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+      assertFileUploadLink(
+          pdfReader.getPageN(pageNum),
+          0,
+          "http://localhost:9000/applicants/"
+              + applicationOne.getApplicant().id
+              + "/files/my-file-key");
     }
 
-    @Test
-    public void exportApplication() throws IOException, DocumentException {
-        PdfExporter exporter = instanceOf(PdfExporter.class);
-
-        String applicantName = "name-unavailable";
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationOne.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationOne, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
-
-        int pages = pdfReader.getNumberOfPages();
-        for (int pageNum = 1; pageNum < pages; pageNum++) {
-            textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
-            assertFileUploadLink(
-                    pdfReader.getPageN(pageNum),
-                    0,
-                    "http://localhost:9000/applicants/"
-                            + applicationOne.getApplicant().id
-                            + "/files/my-file-key");
-        }
-
-        pdfReader.close();
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        assertThat(textFromPDF).isNotNull();
-        String programName = applicationOne.getProgram().getProgramDefinition().adminName();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-        assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
-        for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
-            assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
-        }
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationOne.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
+    for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
+      assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
     }
+  }
 
-    @Test
-    public void exportApplication_optionalFileUploadWithFile_asAdmin_singleFile()
-            throws IOException, DocumentException {
+  @Test
+  public void exportApplication_optionalFileUploadWithFile_asAdmin_singleFile()
+      throws IOException, DocumentException {
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    createFakeProgramWithOptionalQuestion(fileQuestion);
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
-        QuestionAnswerer.answerFileQuestion(
-                applicantFive.getApplicantData(), answerPath, "my-file-key");
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        applicationFive.save();
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        // The applicant for this application has a value for the name, so ensure that
-        // it is reflected in the generated filename, and later, in the PDF contents.
-        assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
-        String applicantName = applicationFive.getApplicant().getApplicantName().get();
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationFive.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
+    // The applicant for this application has a value for the name, so ensure that
+    // it is reflected in the generated filename, and later, in the PDF contents.
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationFive.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
 
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        assertFileUploadLink(
-                pdfReader.getPageN(1), 0, "http://localhost:9000/admin/applicant-files/my-file-key");
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    assertFileUploadLink(
+        pdfReader.getPageN(1), 0, "http://localhost:9000/admin/applicant-files/my-file-key");
 
-        pdfReader.close();
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        assertThat(textFromPDF).isNotNull();
-        String programName = applicationFive.getProgram().getProgramDefinition().adminName();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
 
-        for (int i = 3; i < linesFromPDF.size(); i++) {
-            assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
-        }
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
 
-    @Test
-    public void exportApplication_optionalFileUploadWithFile_asAdmin()
-            throws IOException, DocumentException {
+  @Test
+  public void exportApplication_optionalFileUploadWithFile_asAdmin()
+      throws IOException, DocumentException {
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    createFakeProgramWithOptionalQuestion(fileQuestion);
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-                applicantFive.getApplicantData(),
-                answerPath,
-                ImmutableList.of("my-file-key-1", "my-file-key-2"));
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        applicationFive.save();
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        // The applicant for this application has a value for the name, so ensure that
-        // it is reflected in the generated filename, and later, in the PDF contents.
-        assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
-        String applicantName = applicationFive.getApplicant().getApplicantName().get();
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationFive.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
+    // The applicant for this application has a value for the name, so ensure that
+    // it is reflected in the generated filename, and later, in the PDF contents.
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationFive.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
 
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        PdfDictionary pdfDictionary = pdfReader.getPageN(1);
-        assertFileUploadLink(
-                pdfDictionary, 0, "http://localhost:9000/admin/applicant-files/my-file-key-1");
-        assertFileUploadLink(
-                pdfDictionary, 1, "http://localhost:9000/admin/applicant-files/my-file-key-2");
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
+    assertFileUploadLink(
+        pdfDictionary, 0, "http://localhost:9000/admin/applicant-files/my-file-key-1");
+    assertFileUploadLink(
+        pdfDictionary, 1, "http://localhost:9000/admin/applicant-files/my-file-key-2");
 
-        pdfReader.close();
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        assertThat(textFromPDF).isNotNull();
-        String programName = applicationFive.getProgram().getProgramDefinition().adminName();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
 
-        for (int i = 3; i < linesFromPDF.size(); i++) {
-            assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
-        }
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
 
-    @Test
-    public void exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent_singleFile()
-            throws IOException, DocumentException {
+  @Test
+  public void
+      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent_singleFile()
+          throws IOException, DocumentException {
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    createFakeProgramWithOptionalQuestion(fileQuestion);
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
-        QuestionAnswerer.answerFileQuestion(
-                applicantFive.getApplicantData(), answerPath, "my-file-key");
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        applicationFive.save();
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
 
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                0,
-                "http://localhost:9000/applicants/"
-                        + applicationFive.getApplicant().id
-                        + "/files/my-file-key");
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicant().id
+            + "/files/my-file-key");
 
-        pdfReader.close();
+    pdfReader.close();
 
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING_SINGLE_FILE);
 
-        for (int i = 3; i < linesFromPDF.size(); i++) {
-            assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
-        }
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
 
-    @Test
-    public void exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_singleFile()
-            throws IOException, DocumentException {
+  @Test
+  public void
+      exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_singleFile()
+          throws IOException, DocumentException {
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    createFakeProgramWithOptionalQuestion(fileQuestion);
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
 
-        QuestionAnswerer.answerFileQuestion(
-                applicantFive.getApplicantData(), answerPath, "my-file-key");
+    QuestionAnswerer.answerFileQuestion(
+        applicantFive.getApplicantData(), answerPath, "my-file-key");
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        long originalApplicantId = 99999L;
-        applicationFive.setOriginalApplicantId(originalApplicantId);
-        applicationFive.save();
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    long originalApplicantId = 99999L;
+    applicationFive.setOriginalApplicantId(originalApplicantId);
+    applicationFive.save();
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
 
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                0,
-                "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key");
 
-        pdfReader.close();
+    pdfReader.close();
+  }
+
+  @Test
+  public void
+      exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_multipleFiles()
+          throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    long originalApplicantId = 99999L;
+    applicationFive.setOriginalApplicantId(originalApplicantId);
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-1");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        1,
+        "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-2");
+
+    pdfReader.close();
+  }
+
+  @Test
+  public void
+      exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
+          throws IOException, DocumentException {
+
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+
+    createFakeProgramWithOptionalQuestion(fileQuestion);
+
+    Path answerPath =
+        fileQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+
+    QuestionAnswerer.answerFileQuestionWithMultipleUpload(
+        applicantFive.getApplicantData(),
+        answerPath,
+        ImmutableList.of("my-file-key-1", "my-file-key-2"));
+
+    applicantFive.save();
+    applicationFive.setApplicantData(applicantFive.getApplicantData());
+    applicationFive.save();
+
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        0,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicant().id
+            + "/files/my-file-key-1");
+    assertFileUploadLink(
+        pdfReader.getPageN(1),
+        1,
+        "http://localhost:9000/applicants/"
+            + applicationFive.getApplicant().id
+            + "/files/my-file-key-2");
+
+    pdfReader.close();
+
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
+
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
 
-    @Test
-    public void exportApplication_whenOriginalApplicantIdIsSet_fileLinksUseOriginalApplicantId_multipleFiles()
-            throws IOException, DocumentException {
+  @Test
+  public void exportApplication_optionalFileUploadWithoutFile()
+      throws IOException, DocumentException {
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    createFakeProgramWithOptionalQuestion(fileQuestion);
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-                applicantFive.getApplicantData(),
-                answerPath,
-                ImmutableList.of("my-file-key-1", "my-file-key-2"));
+    assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
+    String applicantName = applicationFive.getApplicant().getApplicantName().get();
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationFive.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        long originalApplicantId = 99999L;
-        applicationFive.setOriginalApplicantId(originalApplicantId);
-        applicationFive.save();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    // Check for URL, annots is null if url is not present.
+    PdfDictionary pdfDictionary = pdfReader.getPageN(1);
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    assertThat(annots).isNull();
 
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    String programName = applicationFive.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
 
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                0,
-                "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-1");
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                1,
-                "http://localhost:9000/applicants/" + originalApplicantId + "/files/my-file-key-2");
+    List<String> linesFromStaticString =
+        Splitter.on("\n").splitToList(APPLICATION_FIVE_WITHOUT_FILE_STRING);
 
-        pdfReader.close();
+    for (int i = 3; i < linesFromPDF.size(); i++) {
+      assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
     }
+  }
 
-    @Test
-    public void exportApplication_optionalFileUploadWithFile_asApplicantUsesDifferentLinkWithSameContent()
-            throws IOException, DocumentException {
+  @Test
+  public void exportApplication_hiddenQuestionIncludedForAdmins()
+      throws IOException, DocumentException {
+    createFakeProgramWithVisibilityPredicate();
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationSeven.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationSeven, /* isAdmin= */ true, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).contains("Hidden Questions");
+  }
 
-        Path answerPath = fileQuestion
-                .getQuestionDefinition()
-                .getContextualizedPath(
-                        /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+  @Test
+  public void exportApplication_eligibilityShowsForAdmins() throws IOException, DocumentException {
+    createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
-        QuestionAnswerer.answerFileQuestionWithMultipleUpload(
-                applicantFive.getApplicantData(),
-                answerPath,
-                ImmutableList.of("my-file-key-1", "my-file-key-2"));
+    PdfExporter exporter = instanceOf(PdfExporter.class);
 
-        applicantFive.save();
-        applicationFive.setApplicantData(applicantFive.getApplicantData());
-        applicationFive.save();
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationTwo.id);
+    PdfExporter.InMemoryPdf result =
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ false, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    String programName = applicationTwo.getProgram().getProgramDefinition().adminName();
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDF).doesNotContain("Meets eligibility");
+    PdfExporter.InMemoryPdf resultWithEligibility =
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true, false);
+    PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
+    StringBuilder textFromPDFTwo = new StringBuilder();
+    textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
+    pdfReaderTwo.close();
+    assertThat(textFromPDFTwo).isNotNull();
+    List<String> linesFromPDFTwo = Splitter.on('\n').splitToList(textFromPDFTwo.toString());
+    assertThat(linesFromPDFTwo.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(textFromPDFTwo).contains("Meets eligibility");
+  }
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+  @Test
+  public void exportProgram_hasMainProgramInfo() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                0,
-                "http://localhost:9000/applicants/"
-                        + applicationFive.getApplicant().id
-                        + "/files/my-file-key-1");
-        assertFileUploadLink(
-                pdfReader.getPageN(1),
-                1,
-                "http://localhost:9000/applicants/"
-                        + applicationFive.getApplicant().id
-                        + "/files/my-file-key-2");
+    List<String> linesFromPdf = getPdfLines(result);
+    assertThat(linesFromPdf).isNotEmpty();
+    assertThat(linesFromPdf.get(0)).isEqualTo(programDef.localizedName().getDefault());
+    assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
+    assertThat(linesFromPdf.get(2))
+        .isEqualTo("Admin description: " + programDef.adminDescription());
+    assertThat(linesFromPdf.get(3))
+        .contains(
+            "Admin short description: " + programDef.localizedShortDescription().getDefault());
+    assertThat(linesFromPdf.get(4))
+        .isEqualTo("Admin long description: " + programDef.localizedDescription().getDefault());
+    assertThat(linesFromPdf.get(5)).contains("Time of export:");
+    assertThat(linesFromPdf.get(6)).isEqualTo("Origin of export: http://localhost:9000");
+    assertThat(linesFromPdf.get(7)).isEqualTo(" ");
+    assertThat(linesFromPdf.get(8)).isEqualTo("Application steps");
+    String step1 =
+        programDef.applicationSteps().get(0).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(0).getDescription().getDefault();
+    String step2 =
+        programDef.applicationSteps().get(1).getTitle().getDefault()
+            + " : "
+            + programDef.applicationSteps().get(1).getDescription().getDefault();
+    assertThat(linesFromPdf.get(9)).isEqualTo(step1);
+    assertThat(linesFromPdf.get(10)).isEqualTo(step2);
+    assertThat(linesFromPdf.get(11)).isEqualTo(" ");
+    assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
+    assertThat(linesFromPdf.get(13))
+        .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
+    assertThat(linesFromPdf.get(15)).isEqualTo("Statuses");
+    assertThat(linesFromPdf.get(17)).isEqualTo("(Default status)");
+    assertThat(linesFromPdf.get(18)).isEqualTo("Pending");
+    assertThat(linesFromPdf.get(19)).isEqualTo("We are reviewing your application!");
+    assertThat(linesFromPdf.get(21)).isEqualTo("approved");
+    assertThat(linesFromPdf.get(22)).isEqualTo("You are approved");
+  }
 
-        pdfReader.close();
+  @Test
+  public void exportProgram_hasBlocksAndQuestions() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_STRING);
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
-        for (int i = 3; i < linesFromPDF.size(); i++) {
-            assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
-        }
+    String pdfText = getPdfText(result);
+    // For every block (which is every question, since our fake program creates one
+    // block per
+    // question): Verify the PDF has the block name, question text, question help
+    // text, admin name,
+    // admin description, and question type.
+    for (int i = 0; i < fakeQuestions.size(); i++) {
+      BlockDefinition block = programDef.blockDefinitions().get(i);
+      QuestionDefinition questionDefinition = fakeQuestions.get(i).getQuestionDefinition();
+      pdfText = assertContainsThenCrop(pdfText, "Screen " + (i + 1));
+      pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionText().getDefault());
+      if (!questionDefinition.getQuestionHelpText().isEmpty()) {
+        pdfText =
+            assertContainsThenCrop(pdfText, questionDefinition.getQuestionHelpText().getDefault());
+      }
+      pdfText =
+          assertContainsThenCrop(
+              pdfText,
+              block.programQuestionDefinitions().stream()
+                      .filter(pqd -> pqd.id() == questionDefinition.getId())
+                      .findFirst()
+                      .get()
+                      .optional()
+                  ? "Optional Question"
+                  : "Required Question");
+      pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
+      pdfText =
+          assertContainsThenCrop(
+              pdfText, "Admin description: " + questionDefinition.getDescription());
+      pdfText =
+          assertContainsThenCrop(
+              pdfText,
+              "Question type: "
+                  + fakeQuestions.get(i).getQuestionDefinition().getQuestionType().name());
     }
+  }
 
-    @Test
-    public void exportApplication_optionalFileUploadWithoutFile()
-            throws IOException, DocumentException {
+  /**
+   * Asserts that {@code expected} is contained in {@code actual}, then crops {@code actual} to just
+   * be the substring after the first occurrence of {@code expected}.
+   *
+   * <p>This is used for asserting program info is in the PDF in the right order. Because the
+   * program info is split across multiple pages and then concatenated together, there may be extra
+   * spaces within the PDF string and we can't assert that lines are exactly equal to particular
+   * values. Instead, we can only assert that all the information is in the PDF in the right order.
+   */
+  private String assertContainsThenCrop(String actual, String expected) {
+    assertThat(actual).contains(expected);
+    return actual.substring(actual.indexOf(expected) + expected.length());
+  }
 
-        QuestionModel fileQuestion = testQuestionBank.fileUploadApplicantFile();
+  @Test
+  public void exportProgram_hasQuestionOptions() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
-        createFakeProgramWithOptionalQuestion(fileQuestion);
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+    String pdfText = getPdfText(result);
 
-        assertThat(applicationFive.getApplicant().getApplicantName().isPresent()).isTrue();
-        String applicantName = applicationFive.getApplicant().getApplicantName().get();
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationFive.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
+    // Dropdown options
+    assertThat(pdfText).contains("- Chocolate");
+    assertThat(pdfText).contains("- Strawberry");
+    assertThat(pdfText).contains("- Vanilla");
+    assertThat(pdfText).contains("- Coffee");
 
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    // Checkbox options
+    assertThat(pdfText).contains("- Toaster");
+    assertThat(pdfText).contains("- Pepper Grinder");
+    assertThat(pdfText).contains("- Garlic Press");
 
-        // Check for URL, annots is null if url is not present.
-        PdfDictionary pdfDictionary = pdfReader.getPageN(1);
-        PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-        assertThat(annots).isNull();
+    // Radio button options
+    assertThat(pdfText).contains("- Winter");
+    assertThat(pdfText).contains("- Spring");
+    assertThat(pdfText).contains("- Summer");
+    assertThat(pdfText).contains("- Fall");
+  }
 
-        pdfReader.close();
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        assertThat(textFromPDF).isNotNull();
-        String programName = applicationFive.getProgram().getProgramDefinition().adminName();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+  @Test
+  @Parameters({"true", "false"})
+  public void exportProgram_hasEligibilityPredicate(boolean expandedFormLogicEnabled)
+      throws IOException {
+    createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
-        List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_FIVE_WITHOUT_FILE_STRING);
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
 
-        for (int i = 3; i < linesFromPDF.size(); i++) {
-            assertThat(linesFromPDF.get(i)).isEqualTo(linesFromStaticString.get(i));
-        }
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText)
+        .contains(
+            "Applicant is eligible if \"applicant favorite color\" text is equal to \"blue\"");
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void exportProgram_hasVisibilityPredicate(boolean expandedFormLogicEnabled)
+      throws IOException {
+    createFakeProgramWithVisibilityPredicate();
+
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText)
+        .contains("Screen 2 is hidden if \"applicant favorite color\" text is equal to \"red\"");
+  }
+
+  @Test
+  public void exportProgram_nestedEnumeratorQuestionsShown() throws IOException {
+    createFakeProgramWithEnumeratorAndAnswerQuestions();
+
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+    ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+
+    String pdfText = getPdfText(result);
+    assertThat(pdfText).contains("What is the $this's name?");
+    assertThat(pdfText).contains("household members name");
+    assertThat(pdfText).contains("What are the $this's jobs?");
+    assertThat(pdfText).contains("household members jobs");
+    assertThat(pdfText).contains("How many days has $this.parent worked at $this?");
+    assertThat(pdfText).contains("household members days worked");
+  }
+
+  public static List<String> getPdfLines(PdfExporter.InMemoryPdf pdf) throws IOException {
+    return Splitter.on('\n').splitToList(getPdfText(pdf));
+  }
+
+  private static String getPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
+    PdfReader pdfReader = new PdfReader(pdf.getByteArray());
+    StringBuilder textFromPdf = new StringBuilder();
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum <= pages; pageNum++) {
+      textFromPdf.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
     }
+    pdfReader.close();
+    return textFromPdf.toString();
+  }
 
-    @Test
-    public void exportApplication_hiddenQuestionIncludedForAdmins()
-            throws IOException, DocumentException {
-        createFakeProgramWithVisibilityPredicate();
+  private static void assertFileUploadLink(
+      PdfDictionary pdfDictionary, int index, String expectedLink) {
+    PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
+    PdfObject current = annots.getPdfObject(index);
+    PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
+    assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
+    PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
+    assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
+    PdfString link = AnnotationAction.getAsString(PdfName.URI);
+    assertThat(link.toString()).isEqualTo(expectedLink);
+  }
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
-        String applicantName = "name-unavailable";
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationSeven.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationSeven, /* isAdmin= */ true, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
-        String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        pdfReader.close();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+  public static final String APPLICATION_EIGHT_STRING =
+      """
+      Total Calculated Score: 100
+      eight, Example (470)
+      Program Name : Fake Scored Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name Answered on : 1969-12-31
+      Example Eight
+      \s
+      applicant favorite season Answered on : 1969-12-31
+      Summer Score : 30
+      \s
+      applicant favorite ice cream Answered on : 1969-12-31
+      strawberry Score : 20
+      \s
+      applicant favorite drink Answered on : 1969-12-31
+      water Score : 40
+      \s
+      applicant favorite food Answered on : 1969-12-31
+      pretzel Score : 10
+      \s
+      """;
 
-        assertThat(textFromPDF).isNotNull();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-        assertThat(textFromPDF).contains("Hidden Questions");
-    }
+  public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- NO FILE SELECTED --
+      Answered on : 1969-12-31
+      """;
 
-    @Test
-    public void exportApplication_eligibilityShowsForAdmins() throws IOException, DocumentException {
-        createFakeProgramWithEligibilityPredicateAndThreeApplications();
+  public static final String APPLICATION_FIVE_STRING_SINGLE_FILE =
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      """;
 
-        PdfExporter exporter = instanceOf(PdfExporter.class);
+  public static final String APPLICATION_FIVE_STRING =
+      """
+      Optional.empty (558)
+      Program Name : Fake Optional Question Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name
+      Example Five
+      Answered on : 1969-12-31
+      applicant file
+      my-file-key-1
+      my-file-key-2
+      Answered on : 1969-12-31
+      """;
 
-        String applicantName = "name-unavailable";
-        String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationTwo.id);
-        PdfExporter.InMemoryPdf result = exporter.exportApplication(applicationTwo, /* isAdmin= */ false, false);
-        PdfReader pdfReader = new PdfReader(result.getByteArray());
-        StringBuilder textFromPDF = new StringBuilder();
-        textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
-        pdfReader.close();
-        assertThat(textFromPDF).isNotNull();
-        List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
-        String programName = applicationTwo.getProgram().getProgramDefinition().adminName();
-        assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
-        assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
-        assertThat(textFromPDF).doesNotContain("Meets eligibility");
-        PdfExporter.InMemoryPdf resultWithEligibility = exporter.exportApplication(applicationTwo, /* isAdmin= */ true,
-                false);
-        PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
-        StringBuilder textFromPDFTwo = new StringBuilder();
-        textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
-        pdfReaderTwo.close();
-        assertThat(textFromPDFTwo).isNotNull();
-        List<String> linesFromPDFTwo = Splitter.on('\n').splitToList(textFromPDFTwo.toString());
-        assertThat(linesFromPDFTwo.get(1)).isEqualTo("Program Name : " + programName);
-        assertThat(textFromPDFTwo).contains("Meets eligibility");
-    }
-
-    @Test
-    public void exportProgram_hasMainProgramInfo() throws IOException {
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgram.getProgramDefinition();
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
-
-        List<String> linesFromPdf = getPdfLines(result);
-        assertThat(linesFromPdf).isNotEmpty();
-        assertThat(linesFromPdf.get(0)).isEqualTo(programDef.localizedName().getDefault());
-        assertThat(linesFromPdf.get(1)).isEqualTo("Admin name: " + programDef.adminName());
-        assertThat(linesFromPdf.get(2))
-                .isEqualTo("Admin description: " + programDef.adminDescription());
-        assertThat(linesFromPdf.get(3))
-                .contains(
-                        "Admin short description: " + programDef.localizedShortDescription().getDefault());
-        assertThat(linesFromPdf.get(4))
-                .isEqualTo("Admin long description: " + programDef.localizedDescription().getDefault());
-        assertThat(linesFromPdf.get(5)).contains("Time of export:");
-        assertThat(linesFromPdf.get(6)).isEqualTo("Origin of export: http://localhost:9000");
-        assertThat(linesFromPdf.get(7)).isEqualTo(" ");
-        assertThat(linesFromPdf.get(8)).isEqualTo("Application steps");
-        String step1 = programDef.applicationSteps().get(0).getTitle().getDefault()
-                + " : "
-                + programDef.applicationSteps().get(0).getDescription().getDefault();
-        String step2 = programDef.applicationSteps().get(1).getTitle().getDefault()
-                + " : "
-                + programDef.applicationSteps().get(1).getDescription().getDefault();
-        assertThat(linesFromPdf.get(9)).isEqualTo(step1);
-        assertThat(linesFromPdf.get(10)).isEqualTo(step2);
-        assertThat(linesFromPdf.get(11)).isEqualTo(" ");
-        assertThat(linesFromPdf.get(12)).isEqualTo("Application confirmation message");
-        assertThat(linesFromPdf.get(13))
-                .isEqualTo(programDef.localizedConfirmationMessage().getDefault());
-        assertThat(linesFromPdf.get(15)).isEqualTo("Statuses");
-        assertThat(linesFromPdf.get(17)).isEqualTo("(Default status)");
-        assertThat(linesFromPdf.get(18)).isEqualTo("Pending");
-        assertThat(linesFromPdf.get(19)).isEqualTo("We are reviewing your application!");
-        assertThat(linesFromPdf.get(21)).isEqualTo("approved");
-        assertThat(linesFromPdf.get(22)).isEqualTo("You are approved");
-    }
-
-    @Test
-    public void exportProgram_hasBlocksAndQuestions() throws IOException {
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgram.getProgramDefinition();
-
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
-
-        String pdfText = getPdfText(result);
-        // For every block (which is every question, since our fake program creates one
-        // block per
-        // question): Verify the PDF has the block name, question text, question help
-        // text, admin name,
-        // admin description, and question type.
-        for (int i = 0; i < fakeQuestions.size(); i++) {
-            BlockDefinition block = programDef.blockDefinitions().get(i);
-            QuestionDefinition questionDefinition = fakeQuestions.get(i).getQuestionDefinition();
-            pdfText = assertContainsThenCrop(pdfText, "Screen " + (i + 1));
-            pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionText().getDefault());
-            if (!questionDefinition.getQuestionHelpText().isEmpty()) {
-                pdfText = assertContainsThenCrop(pdfText, questionDefinition.getQuestionHelpText().getDefault());
-            }
-            pdfText = assertContainsThenCrop(
-                    pdfText,
-                    block.programQuestionDefinitions().stream()
-                            .filter(pqd -> pqd.id() == questionDefinition.getId())
-                            .findFirst()
-                            .get()
-                            .optional()
-                                    ? "Optional Question"
-                                    : "Required Question");
-            pdfText = assertContainsThenCrop(pdfText, "Admin name: " + questionDefinition.getName());
-            pdfText = assertContainsThenCrop(
-                    pdfText, "Admin description: " + questionDefinition.getDescription());
-            pdfText = assertContainsThenCrop(
-                    pdfText,
-                    "Question type: "
-                            + fakeQuestions.get(i).getQuestionDefinition().getQuestionType().name());
-        }
-    }
-
-    /**
-     * Asserts that {@code expected} is contained in {@code actual}, then crops
-     * {@code actual} to just
-     * be the substring after the first occurrence of {@code expected}.
-     *
-     * <p>
-     * This is used for asserting program info is in the PDF in the right order.
-     * Because the
-     * program info is split across multiple pages and then concatenated together,
-     * there may be extra
-     * spaces within the PDF string and we can't assert that lines are exactly equal
-     * to particular
-     * values. Instead, we can only assert that all the information is in the PDF in
-     * the right order.
-     */
-    private String assertContainsThenCrop(String actual, String expected) {
-        assertThat(actual).contains(expected);
-        return actual.substring(actual.indexOf(expected) + expected.length());
-    }
-
-    @Test
-    public void exportProgram_hasQuestionOptions() throws IOException {
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgram.getProgramDefinition();
-
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
-
-        String pdfText = getPdfText(result);
-
-        // Dropdown options
-        assertThat(pdfText).contains("- Chocolate");
-        assertThat(pdfText).contains("- Strawberry");
-        assertThat(pdfText).contains("- Vanilla");
-        assertThat(pdfText).contains("- Coffee");
-
-        // Checkbox options
-        assertThat(pdfText).contains("- Toaster");
-        assertThat(pdfText).contains("- Pepper Grinder");
-        assertThat(pdfText).contains("- Garlic Press");
-
-        // Radio button options
-        assertThat(pdfText).contains("- Winter");
-        assertThat(pdfText).contains("- Spring");
-        assertThat(pdfText).contains("- Summer");
-        assertThat(pdfText).contains("- Fall");
-    }
-
-    @Test
-    @Parameters({ "true", "false" })
-    public void exportProgram_hasEligibilityPredicate(boolean expandedFormLogicEnabled)
-            throws IOException {
-        createFakeProgramWithEligibilityPredicateAndThreeApplications();
-
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
-
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
-
-        String pdfText = getPdfText(result);
-        assertThat(pdfText)
-                .contains(
-                        "Applicant is eligible if \"applicant favorite color\" text is equal to \"blue\"");
-    }
-
-    @Test
-    @Parameters({ "true", "false" })
-    public void exportProgram_hasVisibilityPredicate(boolean expandedFormLogicEnabled)
-            throws IOException {
-        createFakeProgramWithVisibilityPredicate();
-
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
-
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
-
-        String pdfText = getPdfText(result);
-        assertThat(pdfText)
-                .contains("Screen 2 is hidden if \"applicant favorite color\" text is equal to \"red\"");
-    }
-
-    @Test
-    public void exportProgram_nestedEnumeratorQuestionsShown() throws IOException {
-        createFakeProgramWithEnumeratorAndAnswerQuestions();
-
-        PdfExporterService service = instanceOf(PdfExporterService.class);
-        ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
-
-        PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-                programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
-
-        String pdfText = getPdfText(result);
-        assertThat(pdfText).contains("What is the $this's name?");
-        assertThat(pdfText).contains("household members name");
-        assertThat(pdfText).contains("What are the $this's jobs?");
-        assertThat(pdfText).contains("household members jobs");
-        assertThat(pdfText).contains("How many days has $this.parent worked at $this?");
-        assertThat(pdfText).contains("household members days worked");
-    }
-
-    public static List<String> getPdfLines(PdfExporter.InMemoryPdf pdf) throws IOException {
-        return Splitter.on('\n').splitToList(getPdfText(pdf));
-    }
-
-    private static String getPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
-        PdfReader pdfReader = new PdfReader(pdf.getByteArray());
-        StringBuilder textFromPdf = new StringBuilder();
-        int pages = pdfReader.getNumberOfPages();
-        for (int pageNum = 1; pageNum <= pages; pageNum++) {
-            textFromPdf.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
-        }
-        pdfReader.close();
-        return textFromPdf.toString();
-    }
-
-    private static void assertFileUploadLink(
-            PdfDictionary pdfDictionary, int index, String expectedLink) {
-        PdfArray annots = pdfDictionary.getAsArray(PdfName.ANNOTS);
-        PdfObject current = annots.getPdfObject(index);
-        PdfDictionary currentPdfDictionary = (PdfDictionary) PdfReader.getPdfObject(current);
-        assertThat(currentPdfDictionary.get(PdfName.SUBTYPE)).isEqualTo(PdfName.LINK);
-        PdfDictionary AnnotationAction = currentPdfDictionary.getAsDict(PdfName.A);
-        assertThat(AnnotationAction.get(PdfName.S)).isEqualTo(PdfName.URI);
-        PdfString link = AnnotationAction.getAsString(PdfName.URI);
-        assertThat(link.toString()).isEqualTo(expectedLink);
-    }
-
-    public static final String APPLICATION_EIGHT_STRING = """
-            Total Calculated Score: 100
-            eight, Example (470)
-            Program Name : Fake Scored Program
-            Status: none
-            Submit Time: 2021/12/31 at 4:00 PM PST
-            \s
-            applicant name Answered on : 1969-12-31
-            Example Eight
-            \s
-            applicant favorite season Answered on : 1969-12-31
-            Summer Score : 30
-            \s
-            applicant favorite ice cream Answered on : 1969-12-31
-            strawberry Score : 20
-            \s
-            applicant favorite drink Answered on : 1969-12-31
-            water Score : 40
-            \s
-            applicant favorite food Answered on : 1969-12-31
-            pretzel Score : 10
-            \s
-            """;
-
-    public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING = """
-            Optional.empty (558)
-            Program Name : Fake Optional Question Program
-            Status: none
-            Submit Time: 2021/12/31 at 4:00 PM PST
-            \s
-            applicant name
-            Example Five
-            Answered on : 1969-12-31
-            applicant file
-            -- NO FILE SELECTED --
-            Answered on : 1969-12-31
-            """;
-
-    public static final String APPLICATION_FIVE_STRING_SINGLE_FILE = """
-            Optional.empty (558)
-            Program Name : Fake Optional Question Program
-            Status: none
-            Submit Time: 2021/12/31 at 4:00 PM PST
-            \s
-            applicant name
-            Example Five
-            Answered on : 1969-12-31
-            applicant file
-            -- my-file-key UPLOADED (click to download) --
-            Answered on : 1969-12-31
-            """;
-
-    public static final String APPLICATION_FIVE_STRING = """
-            Optional.empty (558)
-            Program Name : Fake Optional Question Program
-            Status: none
-            Submit Time: 2021/12/31 at 4:00 PM PST
-            \s
-            applicant name
-            Example Five
-            Answered on : 1969-12-31
-            applicant file
-            my-file-key-1
-            my-file-key-2
-            Answered on : 1969-12-31
-            """;
-
-    public static final String APPLICATION_ONE_STRING = """
-            Optional.empty (48)
-            Program Name : Fake Program
-            Status: \
-            %s
-            Submit Time: 2021/12/31 at 4:00 PM PST
-            \s
-            applicant address
-            street st
-            apt 100
-            city, AB 54321
-            Answered on : 1969-12-31
-            applicant birth date
-            01/01/1980
-            Answered on : 1969-12-31
-            applicant email address
-            one@example.com
-            Answered on : 1969-12-31
-            applicant favorite color
-            Some Value " containing ,,, special characters
-            Answered on : 1969-12-31
-            applicant favorite season
-            Winter
-            Answered on : 1969-12-31
-            applicant file
-            -- my-file-key UPLOADED (click to download) --
-            Answered on : 1969-12-31
-            applicant has a dog
-            Yes
-            Answered on : 1969-12-31
-            applicant household members
-            item1
-            item2
-            Answered on : 1969-12-31
-            applicant ice cream
-            Strawberry
-            Answered on : 1969-12-31
-            applicant id
-            012
-            Answered on : 1969-12-31
-            applicant monthly income
-            1234.56
-            Answered on : 1969-12-31
-            applicant name
-            Alice M Appleton Jr
-            Answered on : 1969-12-31
-            applicant phone
-            +1 615-757-1010
-            Answered on : 1969-12-31
-            kitchen tools
-            Toaster
-            Pepper Grinder
-            Answered on : 1969-12-31
-            number of items applicant can juggle
-            123456
-            Answered on : 1969-12-31
-            """
-            .formatted(STATUS_VALUE);
+  public static final String APPLICATION_ONE_STRING =
+      """
+      Optional.empty (48)
+      Program Name : Fake Program
+      Status: \
+      %s
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant address
+      street st
+      apt 100
+      city, AB 54321
+      Answered on : 1969-12-31
+      applicant birth date
+      01/01/1980
+      Answered on : 1969-12-31
+      applicant email address
+      one@example.com
+      Answered on : 1969-12-31
+      applicant favorite color
+      Some Value " containing ,,, special characters
+      Answered on : 1969-12-31
+      applicant favorite season
+      Winter
+      Answered on : 1969-12-31
+      applicant file
+      -- my-file-key UPLOADED (click to download) --
+      Answered on : 1969-12-31
+      applicant has a dog
+      Yes
+      Answered on : 1969-12-31
+      applicant household members
+      item1
+      item2
+      Answered on : 1969-12-31
+      applicant ice cream
+      Strawberry
+      Answered on : 1969-12-31
+      applicant id
+      012
+      Answered on : 1969-12-31
+      applicant monthly income
+      1234.56
+      Answered on : 1969-12-31
+      applicant name
+      Alice M Appleton Jr
+      Answered on : 1969-12-31
+      applicant phone
+      +1 615-757-1010
+      Answered on : 1969-12-31
+      kitchen tools
+      Toaster
+      Pepper Grinder
+      Answered on : 1969-12-31
+      number of items applicant can juggle
+      123456
+      Answered on : 1969-12-31
+      """
+          .formatted(STATUS_VALUE);
 }

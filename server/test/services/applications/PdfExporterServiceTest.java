@@ -35,8 +35,10 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
     String applicantName = "name-unavailable";
-    String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationOne.id);
-    PdfExporter.InMemoryPdf result = service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationOne.id);
+    PdfExporter.InMemoryPdf result =
+        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -75,8 +77,10 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
     String applicantName = "eight, Example";
-    String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, applicationEight.id);
-    PdfExporter.InMemoryPdf result = service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, true);
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationEight.id);
+    PdfExporter.InMemoryPdf result =
+        service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, true);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -103,10 +107,11 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   public void generateProgramPreviewPdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
-    PdfExporter.InMemoryPdf result = service.generateProgramPreviewPdf(
-        fakeProgram.getProgramDefinition(),
-        getFakeQuestionDefinitions(),
-        /* expandedFormLogicEnabled= */ true);
+    PdfExporter.InMemoryPdf result =
+        service.generateProgramPreviewPdf(
+            fakeProgram.getProgramDefinition(),
+            getFakeQuestionDefinitions(),
+            /* expandedFormLogicEnabled= */ true);
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();
