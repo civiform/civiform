@@ -1,25 +1,26 @@
-import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
-  AdminPrograms,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('Email question for applicant flow', () => {
   test.describe('single email question', () => {
     const programName = 'Test program for single email'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
+
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [SAMPLE_QUESTIONS.email],
         programName,
-        page,
-        adminQuestions,
-        adminPrograms,
       )
+
+      await logout(page)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -76,18 +77,18 @@ test.describe('Email question for applicant flow', () => {
   test.describe('multiple email questions', () => {
     const programName = 'Test program for multiple emails'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addEmailQuestion({questionName: 'my-email-q'})
-      await adminQuestions.addEmailQuestion({questionName: 'your-email-q'})
+      await adminQuestions.addEmailQuestion({questionName: 'email-b-q'})
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
-        ['my-email-q'],
-        'your-email-q', // optional
+        ['email-b-q'],
+        SAMPLE_QUESTIONS.email, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -125,22 +126,4 @@ test.describe('Email question for applicant flow', () => {
       await validateAccessibility(page)
     })
   })
-
-  async function setUpForSingleQuestion(
-    programName: string,
-    page: Page,
-    adminQuestions: AdminQuestions,
-    adminPrograms: AdminPrograms,
-  ) {
-    // As admin, create program with single email question.
-    await loginAsAdmin(page)
-
-    await adminQuestions.addEmailQuestion({questionName: 'general-email-q'})
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      ['general-email-q'],
-      programName,
-    )
-
-    await logout(page)
-  }
 })

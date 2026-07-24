@@ -462,6 +462,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await addRepeatedSetBlock(page, {selectParent: true})
 
+        await test.step('Fill out the enumerator form fields before leaving to create the initial question', async () => {
+          await fillEnumeratorQuestionForm(page)
+        })
+
         await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
           await initialQuestionSlot
             .getByRole('button', {name: 'Add question'})
@@ -491,6 +495,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             helpText: '',
           })
           await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        })
+
+        await test.step('Verify the enumerator form fields are restored from session storage on return', async () => {
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          ).toHaveValue('Pets')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Question text'}),
+          ).toHaveValue('List the names of your pets.')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
+          ).toHaveValue('pets enumerator')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Hint text'}),
+          ).toHaveValue('Hint')
         })
 
         await test.step('Validate the bank is closed and the slot shows the card with the new question', async () => {
@@ -551,6 +570,72 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('reuses an enumerator with initial question and attaches the initial question', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+
+      await addRepeatedSetBlock(page, {selectParent: true})
+
+      await test.step('create an enumerator with initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+        await fillAndSubmitEnumeratorQuestionForm(page)
+      })
+
+      await test.step('Delete the entire repeated set block', async () => {
+        await adminPrograms.removeCurrentBlock()
+      })
+
+      await test.step('Add a fresh repeated set block and select the parent enumerator screen', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+
+        // The fresh enumerator block starts empty: no enumerator question and no
+        // initial question line.
+        await expect(
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeHidden()
+        await expect(
+          blockPanel.getByTestId('repeated-set-initial-question'),
+        ).toBeHidden()
+      })
+
+      await test.step('Open the question bank via the "Choose existing" flow', async () => {
+        // Unfortunately, we have to click the label to select the radio button, because
+        // USWDS places the radio button itself outside the viewport.
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+      })
+
+      await test.step('Click the "Add question" button', async () => {
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await expect(questionBankSidebar).toBeVisible()
+      })
+
+      await test.step('Add the existing enumerator question back to the block', async () => {
+        await pickQuestionFromBank(page, 'pets enumerator')
+        await expect(
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeVisible()
+      })
+
+      await test.step('Verify the initial question is added along with the enumerator and is visible again', async () => {
+        await expect(
+          blockPanel.getByText(
+            'Initial question: income-non-repeated-question -_- a',
+          ),
+        ).toBeVisible()
+      })
+    })
+
     test('auto-fills and preserves editable repeated set suggestions', async ({
       page,
     }) => {
@@ -607,9 +692,26 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
       await test.step('Add a new repeated set and select the parent block', async () => {
         await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await test.step('Select an initial question so we can verify it survives the error re-render', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
       })
 
       await test.step('Submit the new enumerator question form without filling out all the required fields', async () => {
@@ -634,6 +736,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockPanel.getByRole('textbox', {name: 'Listed entity'}),
         ).toHaveValue('Pets')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
       })
 
       await test.step('Validate that an error alert is shown with the correct error messages', async () => {
@@ -841,6 +948,98 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('After the repeated screen has a question: both delete-screen and remove-question are disabled', async () => {
         await expect(deleteScreenButton).toBeDisabled()
         await expect(removeQuestionButton).toBeDisabled()
+      })
+    })
+
+    test('deleting the enumerator block clears its auto-saved form input', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Add a new repeated set and select the parent block', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await test.step('Fill out the enumerator form (auto-save captures the values)', async () => {
+        await fillEnumeratorQuestionForm(page)
+      })
+
+      await test.step('Ensure form input is auto-saved by switching blocks and returning', async () => {
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+        // Return to enumerator screen
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('List the names of your pets.')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
+        ).toHaveValue('pets enumerator')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('Hint')
+      })
+
+      await test.step('Delete the block', async () => {
+        await page.getByRole('button', {name: 'Delete screen'}).click()
+        await page.locator('#delete-block-button').click()
+      })
+
+      await test.step('Add another repeated set (block id is reused) and select the parent block', async () => {
+        await addRepeatedSetBlock(page, {selectParent: true})
+      })
+
+      await test.step('Verify the enumerator form fields are empty — storage was cleared on delete', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('')
+      })
+    })
+
+    test('successful "Create repeated set" submit clears the auto-saved enumerator form input', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await addRepeatedSetBlock(page, {selectParent: true})
+
+      await fillAndSubmitEnumeratorQuestionForm(page)
+
+      await test.step('Delete the enumerator question so the setup form re-appears', async () => {
+        await blockPanel
+          .getByTestId('question-admin-name-pets enumerator')
+          .getByRole('button', {name: 'Delete'})
+          .click()
+      })
+
+      await test.step('Verify the enumerator form fields are empty — storage was cleared on submit', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Repeated set admin ID'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('')
       })
     })
 
@@ -1541,8 +1740,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(applicationSummary).not.toContainText('Cartoon Character')
         await expect(applicationSummary).not.toContainText('100')
       })
-
-      await logout(page)
     })
 
     test('applicant repeated entity add button is enabled/disabled correctly', async ({
@@ -1650,8 +1847,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
         await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Daffy')
       })
-
-      await logout(page)
     })
   })
 

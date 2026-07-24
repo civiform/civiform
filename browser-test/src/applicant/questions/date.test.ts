@@ -8,6 +8,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('Date question for applicant flow', () => {
   test.describe('single date question', () => {
@@ -106,24 +107,20 @@ test.describe('Date question for applicant flow', () => {
   test.describe('multiple date questions', () => {
     const programName = 'Test program for multiple date questions'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
       await adminQuestions.addDateQuestion({
-        questionName: 'birthday-date-q',
-        questionText: 'What is your birthday? (This is required)',
-      })
-      await adminQuestions.addDateQuestion({
-        questionName: 'todays-date-q',
-        questionText: "What is today's date? (This is optional)",
+        questionName: 'date-b-q',
       })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockWithOptional(
         programName,
         'Optional question block',
-        ['birthday-date-q'],
-        'todays-date-q', // optional
+        ['date-b-q'],
+        SAMPLE_QUESTIONS.date, // optional
       )
       await adminPrograms.publishAllDrafts()
 

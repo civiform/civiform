@@ -1,9 +1,8 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('admin program page headers', () => {
   test('predicate page program header', async ({page, adminPrograms}) => {
-    await enableFeatureFlag(page, 'expanded_form_logic_enabled')
     await loginAsAdmin(page)
 
     const programName = 'Predicate page program header'

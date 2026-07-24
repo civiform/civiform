@@ -212,6 +212,16 @@ public class TestQuestionBank {
         this::enumeratorNestedApplicantHouseholdMemberJobs);
   }
 
+  /**
+   * Returns a sample ENUMERATOR question with an initial question listing the applicant's household
+   * members.
+   */
+  public QuestionModel enumeratorWithInitialQuestionApplicantHouseholdPlantNames() {
+    return questionCache.computeIfAbsent(
+        QuestionEnum.ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS_WITH_INITIAL,
+        this::enumeratorNewFlowApplicantHouseholdMembers);
+  }
+
   /** Returns a sample FILE_UPLOAD question. */
   public QuestionModel fileUploadApplicantFile() {
     return questionCache.computeIfAbsent(
@@ -597,6 +607,41 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  /** Creates a new-flow enumerator and an initial question that each reference the other. */
+  private QuestionModel enumeratorNewFlowApplicantHouseholdMembers(QuestionEnum ignore) {
+    QuestionDefinition initialQuestion =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant's household member's name")
+                .setDescription("The household member's name")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .build());
+    var initialQuestionModel = maybeSave(initialQuestion);
+
+    QuestionDefinition enumeratorQuestion =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("applicant household members")
+                .setDescription("The applicant's household members")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setEnumeratorInitialQuestionId(initialQuestionModel.id)
+                .build(),
+            LocalizedStrings.empty());
+    var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
+
+    try {
+      new QuestionModel(
+          new QuestionDefinitionBuilder(initialQuestionModel.getQuestionDefinition())
+              .setEnumeratorId(Optional.of(enumeratorQuestionModel.id))
+              .build());
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
+    return enumeratorQuestionModel;
+  }
+
   // File upload
   private QuestionModel fileUploadApplicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =
@@ -944,6 +989,7 @@ public class TestQuestionBank {
     EMAIL_REPEATED_HOUSEHOLD_MEMBER_EMAIL,
     ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS,
     ENUMERATOR_NESTED_APPLICANT_HOUSEHOLD_MEMBER_JOBS,
+    ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS_WITH_INITIAL,
     FILE_UPLOAD_APPLICANT_FILE,
     FILE_UPLOAD_REPEATED_HOUSEHOLD_MEMBER_FILE,
     ID_APPLICANT_ID,

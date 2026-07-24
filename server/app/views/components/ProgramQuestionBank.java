@@ -429,7 +429,7 @@ public final class ProgramQuestionBank {
                         q,
                         settingsManifest.getEnumeratorImprovementsEnabled(request),
                         settingsManifest.getFileUploadQuestionImprovementsEnabled(request),
-                        /* isInitialQuestionSelection= */ params.mode() == Mode.INITIAL_QUESTION)
+                        /* isInitialQuestion= */ params.mode() == Mode.INITIAL_QUESTION)
                     == AddQuestionResult.ELIGIBLE);
   }
 

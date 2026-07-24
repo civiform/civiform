@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
@@ -262,6 +263,26 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void addressCorrectionWithApplicantId_returnsForbiddenForApplicantNotOwned() {
+    createTIWithMockedProfile(applicant);
+    ApplicantModel otherApplicant = createApplicant();
+
+    Result result =
+        subject
+            .addressCorrectionWithApplicantId(
+                fakeRequest(),
+                otherApplicant.id,
+                String.valueOf(program.id),
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FORBIDDEN);
   }
 
   public void answerAddressQuestion() {
