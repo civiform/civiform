@@ -1,6 +1,7 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.PdfExporterTest.APPLICATION_EIGHT_STRING;
 import static services.export.PdfExporterTest.APPLICATION_ONE_STRING;
 import static services.export.PdfExporterTest.getPdfLines;
 
@@ -26,6 +27,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
+    createFakeProgramWithScoredQuestions();
   }
 
   @Test
@@ -36,7 +38,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true);
+        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -71,6 +73,37 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void generateScoredApplicationPdf() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+
+    String applicantName = "eight, Example";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationEight.id);
+    PdfExporter.InMemoryPdf result =
+        service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, true);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum <= pages; pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+    }
+
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    String programName = applicationEight.getProgram().getProgramDefinition().adminName();
+
+    assertThat(linesFromPDF.get(0)).isEqualTo("Total Calculated Score: 100");
+    assertThat(linesFromPDF.get(1)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(3)).isEqualTo("Status: none");
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_EIGHT_STRING);
+    for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
+      assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
+    }
+  }
+
+  @Test
   public void generateProgramPreviewPdf() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
 
@@ -84,7 +117,8 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     assertThat(linesFromPdf).isNotEmpty();
     assertThat(linesFromPdf.get(0))
         .isEqualTo(fakeProgram.getProgramDefinition().localizedName().getDefault());
-    // More assertions about the PDF content will be in PdfExporterTest, since PdfExporter is the
+    // More assertions about the PDF content will be in PdfExporterTest, since
+    // PdfExporter is the
     // class that actually builds the PDF.
   }
 }

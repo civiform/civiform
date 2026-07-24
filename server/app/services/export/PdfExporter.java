@@ -97,7 +97,8 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
+  public InMemoryPdf exportApplication(
+      ApplicationModel application, boolean isAdmin, boolean exportScoredApplication)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
@@ -121,6 +122,19 @@ public final class PdfExporter {
         application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
+    if (exportScoredApplication) {
+      byte[] bytes =
+          buildApplicationPdfWithScore(
+              answersOnlyActive,
+              answersOnlyHidden,
+              applicantNameWithApplicationId,
+              application.getOriginalApplicantId().orElse(application.getApplicant().id),
+              application.getProgram().getProgramDefinition(),
+              application.getLatestStatus(),
+              getSubmitTime(application.getSubmitTime()),
+              isAdmin);
+      return new InMemoryPdf(bytes, filename);
+    }
     byte[] bytes =
         buildApplicationPdf(
             answersOnlyActive,
@@ -284,6 +298,257 @@ public final class PdfExporter {
       byteArrayOutputStream.close();
     }
     return byteArrayOutputStream.toByteArray();
+  }
+
+  private byte[] buildApplicationPdfWithScore(
+      ImmutableList<AnswerData> answersOnlyActive,
+      ImmutableList<AnswerData> answersOnlyHidden,
+      String applicantNameWithApplicationId,
+      Long applicantId,
+      ProgramDefinition programDefinition,
+      Optional<String> statusValue,
+      String submitTime,
+      boolean isAdmin)
+      throws DocumentException, IOException {
+    ByteArrayOutputStream byteArrayOutputStream = null;
+    PdfWriter writer = null;
+    Document document = null;
+
+    try {
+      byteArrayOutputStream = new ByteArrayOutputStream();
+      document = new Document();
+      writer = PdfWriter.getInstance(document, byteArrayOutputStream);
+      document.open();
+
+      // 1. Initialize a Template placeholder for the sum at the top of the document
+      com.itextpdf.text.pdf.PdfContentByte cb = writer.getDirectContent();
+      // Width matching standard printable area (e.g., 500) and height (30)
+      com.itextpdf.text.pdf.PdfTemplate sumTemplate = cb.createTemplate(500, 30);
+
+      // 2. Reserve space for the template at the top of the document layout
+      com.itextpdf.text.Image templateImage = com.itextpdf.text.Image.getInstance(sumTemplate);
+      document.add(templateImage);
+
+      Paragraph applicant =
+          new Paragraph(
+              applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
+      Paragraph program =
+          new Paragraph(
+              "Program Name : " + programDefinition.adminName(),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+      document.add(applicant);
+      document.add(program);
+      Paragraph status =
+          new Paragraph(
+              "Status: " + statusValue.orElse("none"),
+              FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(status);
+      Paragraph submitTimeInformation =
+          new Paragraph(
+              "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+      document.add(submitTimeInformation);
+      document.add(Chunk.NEWLINE);
+
+      int sum = 0;
+      boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
+
+      // Create a reusable glue chunk to push text to the right side of the line
+      Chunk glue = new Chunk(new com.itextpdf.text.pdf.draw.VerticalPositionMark());
+
+      for (AnswerData answerData : answersOnlyActive) {
+        if (answerData.questionDefinition().getQuestionType() == QuestionType.RADIO_BUTTON) {
+          Optional<String> optionAdminId =
+              answerData
+                  .applicantQuestion()
+                  .createSingleSelectQuestion()
+                  .getSelectedOptionAdminName();
+          if (optionAdminId.isPresent() && isNumber(optionAdminId.get())) {
+            sum = sum + getNumber(optionAdminId.get());
+          }
+        }
+
+        LocalDate date =
+            Instant.ofEpochMilli(answerData.timestamp())
+                .atZone(ZoneId.systemDefault())
+                .toLocalDate();
+
+        // --- 1. Question + "Answered on" on the same line ---
+        Paragraph question = new Paragraph();
+        question.add(
+            new Chunk(
+                answerData.questionDefinition().getName(),
+                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12)));
+        question.add(glue);
+        question.add(
+            new Chunk("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10)));
+
+        // --- 2. Determine Eligibility String early ---
+        String eligibilityText = "";
+        if (isAdmin && isEligibilityEnabledInProgram) {
+          try {
+            Optional<EligibilityDefinition> eligibilityDef =
+                programDefinition.getBlockDefinition(answerData.blockId()).eligibilityDefinition();
+            if (eligibilityDef
+                .map(
+                    definition ->
+                        definition
+                            .predicate()
+                            .getQuestions()
+                            .contains(answerData.questionDefinition().getId()))
+                .orElse(false)) {
+
+              eligibilityText =
+                  answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
+            }
+          } catch (ProgramBlockDefinitionNotFoundException e) {
+            throw new RuntimeException(e);
+          }
+        }
+
+        // --- 3. Build the Answer paragraph ---
+        final Paragraph answer;
+        if (!answerData.encodedFileKeys().isEmpty()) {
+          answer = new Paragraph();
+          ImmutableList<String> encodedFileKeys = answerData.encodedFileKeys();
+          for (int i = 0; i < encodedFileKeys.size(); i++) {
+            String encodedFileKey = encodedFileKeys.get(i);
+            String fileName = answerData.fileNames().get(i);
+            String fileLink =
+                (isAdmin
+                        ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                        : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                    .url();
+            Anchor anchor = new Anchor(fileName, LINK_FONT);
+            anchor.setReference(baseUrl + fileLink);
+            Paragraph fileParagraph = new Paragraph();
+            fileParagraph.add(anchor);
+            answer.add(fileParagraph);
+          }
+        } else if (answerData.encodedFileKey().isPresent()) {
+          String encodedFileKey = answerData.encodedFileKey().get();
+          String fileLink =
+              (isAdmin
+                      ? controllers.routes.FileController.acledAdminShow(encodedFileKey)
+                      : controllers.routes.FileController.show(applicantId, encodedFileKey))
+                  .url();
+          Anchor anchor = new Anchor(answerData.answerText());
+          anchor.setReference(baseUrl + fileLink);
+          answer = new Paragraph();
+          answer.add(anchor);
+        } else {
+          answer = new Paragraph();
+          answer.add(
+              new Chunk(answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11)));
+        }
+
+        // --- 4. Append Score and/or Eligibility to the same line as the Answer ---
+        boolean addedGlueToAnswer = false;
+
+        // Handle Score
+        if (answerData.questionDefinition().getQuestionType() == QuestionType.RADIO_BUTTON) {
+          Optional<String> optionAdminId =
+              answerData
+                  .applicantQuestion()
+                  .createSingleSelectQuestion()
+                  .getSelectedOptionAdminName();
+          if (optionAdminId.isPresent() && isNumber(optionAdminId.get())) {
+            answer.add(glue);
+            addedGlueToAnswer = true;
+            answer.add(
+                new Chunk(
+                    "Score : " + getNumber(optionAdminId.get()),
+                    FontFactory.getFont(FontFactory.HELVETICA_BOLD, 11)));
+          }
+        }
+
+        // Handle Eligibility with Colored Fonts
+        if (!eligibilityText.isEmpty()) {
+          if (!addedGlueToAnswer) {
+            answer.add(glue); // Push to right if score wasn't there
+          } else {
+            answer.add(
+                new Chunk(
+                    "  |  ",
+                    FontFactory.getFont(
+                        FontFactory.HELVETICA, 10))); // Add separator if score already pushed
+          }
+
+          // Define color: A darker green for legibility on white, and standard red
+          com.itextpdf.text.BaseColor statusColor =
+              answerData.isEligible()
+                  ? new com.itextpdf.text.BaseColor(0, 128, 0)
+                  : com.itextpdf.text.BaseColor.RED;
+
+          com.itextpdf.text.Font coloredEligibilityFont =
+              FontFactory.getFont(FontFactory.HELVETICA, 10, statusColor);
+
+          answer.add(new Chunk(eligibilityText, coloredEligibilityFont));
+        }
+
+        document.add(question);
+        document.add(answer);
+        // Add a spacer between Q&A blocks for readability
+        document.add(new Paragraph(" "));
+      }
+
+      if (!answersOnlyHidden.isEmpty()) {
+        document.add(Chunk.NEWLINE);
+        Paragraph hiddenText =
+            new Paragraph(
+                "Hidden Questions : ", FontFactory.getFont(FontFactory.HELVETICA_BOLD, 15));
+        document.add(hiddenText);
+        document.add(Chunk.NEWLINE);
+        for (AnswerData answerData : answersOnlyHidden) {
+          Paragraph question =
+              new Paragraph(
+                  answerData.questionDefinition().getName(),
+                  FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+          final Paragraph answer;
+          answer =
+              new Paragraph(
+                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+          document.add(question);
+          document.add(answer);
+          document.add(new Paragraph(" "));
+        }
+      }
+
+      com.itextpdf.text.pdf.ColumnText columnText =
+          new com.itextpdf.text.pdf.ColumnText(sumTemplate);
+      columnText.setSimpleColumn(new com.itextpdf.text.Rectangle(0, 0, 500, 30));
+      Paragraph totalSumParagraph = new Paragraph("Total Calculated Score: " + sum, H2_FONT);
+      totalSumParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+      columnText.addElement(totalSumParagraph);
+      columnText.go();
+    } finally {
+      document.close();
+      writer.close();
+      byteArrayOutputStream.close();
+    }
+    return byteArrayOutputStream.toByteArray();
+  }
+
+  private Integer getNumber(String text) {
+    if (text == null) {
+      return null;
+    }
+    try {
+      return Integer.parseInt(text);
+    } catch (NumberFormatException e) {
+      return null;
+    }
+  }
+
+  private boolean isNumber(String text) {
+    if (text == null) {
+      return false;
+    }
+    try {
+      Integer.parseInt(text);
+      return true;
+    } catch (NumberFormatException e) {
+      return false;
+    }
   }
 
   /**

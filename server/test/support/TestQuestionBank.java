@@ -849,6 +849,90 @@ public class TestQuestionBank {
     return maybeSave(definition);
   }
 
+  // Radio button
+  public QuestionModel radioApplicantScoredQuestionOne() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant favorite season")
+            .setDescription("Favorite season in the year")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your favorite season?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "10", LocalizedStrings.of(Locale.US, "Winter")),
+            QuestionOption.create(2L, 2L, "20", LocalizedStrings.of(Locale.US, "Spring")),
+            QuestionOption.create(3L, 3L, "30", LocalizedStrings.of(Locale.US, "Summer")),
+            QuestionOption.create(4L, 4L, "40", LocalizedStrings.of(Locale.US, "Fall")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
+    return maybeSave(definition);
+  }
+
+  // Radio button
+  public QuestionModel radioApplicantScoredQuestionTwo() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant favorite ice cream")
+            .setDescription("Favorite icecream")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your ice cream?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "10", LocalizedStrings.of(Locale.US, "vanilla")),
+            QuestionOption.create(2L, 2L, "20", LocalizedStrings.of(Locale.US, "strawberry")),
+            QuestionOption.create(3L, 3L, "30", LocalizedStrings.of(Locale.US, "chocolate")),
+            QuestionOption.create(4L, 4L, "40", LocalizedStrings.of(Locale.US, "cookies")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
+    return maybeSave(definition);
+  }
+
+  // Radio button
+  public QuestionModel radioApplicantScoredQuestionThree() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant favorite drink")
+            .setDescription("Favorite drink")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your drink?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "10", LocalizedStrings.of(Locale.US, "coffee")),
+            QuestionOption.create(2L, 2L, "20", LocalizedStrings.of(Locale.US, "tea")),
+            QuestionOption.create(3L, 3L, "30", LocalizedStrings.of(Locale.US, "milk")),
+            QuestionOption.create(4L, 4L, "40", LocalizedStrings.of(Locale.US, "water")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
+    return maybeSave(definition);
+  }
+
+  // Radio button
+  public QuestionModel radioApplicantScoredQuestionfour() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("applicant favorite food")
+            .setDescription("Favorite food")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your food?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(1L, 1L, "10", LocalizedStrings.of(Locale.US, "pretzel")),
+            QuestionOption.create(2L, 2L, "20", LocalizedStrings.of(Locale.US, "cookie")),
+            QuestionOption.create(3L, 3L, "30", LocalizedStrings.of(Locale.US, "peanuts")),
+            QuestionOption.create(4L, 4L, "40", LocalizedStrings.of(Locale.US, "fruit")));
+    QuestionDefinition definition =
+        new MultiOptionQuestionDefinition(
+            config, questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
+    return maybeSave(definition);
+  }
+
   // Repeated radio button
   private QuestionModel radioRepeatedHouseholdMemberFavoritePrecipitation(QuestionEnum ignore) {
     QuestionModel householdMembers = enumeratorApplicantHouseholdMembers();

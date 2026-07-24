@@ -1016,6 +1016,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.",
         "type": "bool",
         "required": false
+      },
+      "ALLOWED_PROGRAMS_FOR_SUMMING_IN_PDF": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Allows summing of options ids in the programs when generating application PDF as TI or Program Admin. Default is empty list.",
+        "type": "index-list",
+        "required": false
       }
     }
   }

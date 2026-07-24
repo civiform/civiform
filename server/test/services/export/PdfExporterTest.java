@@ -47,7 +47,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationOne, /* isAdmin= */ false);
+        exporter.exportApplication(applicationOne, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -106,7 +106,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -161,7 +161,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -211,7 +211,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -262,7 +262,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -302,7 +302,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -344,7 +344,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -387,7 +387,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -424,7 +424,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSeven.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationSeven, /* isAdmin= */ true);
+        exporter.exportApplication(applicationSeven, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
@@ -448,7 +448,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ false);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -460,7 +460,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ true);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true, false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
@@ -526,8 +526,10 @@ public class PdfExporterTest extends AbstractExporterTest {
             programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
 
     String pdfText = getPdfText(result);
-    // For every block (which is every question, since our fake program creates one block per
-    // question): Verify the PDF has the block name, question text, question help text, admin name,
+    // For every block (which is every question, since our fake program creates one
+    // block per
+    // question): Verify the PDF has the block name, question text, question help
+    // text, admin name,
     // admin description, and question type.
     for (int i = 0; i < fakeQuestions.size(); i++) {
       BlockDefinition block = programDef.blockDefinitions().get(i);
@@ -686,6 +688,31 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfString link = AnnotationAction.getAsString(PdfName.URI);
     assertThat(link.toString()).isEqualTo(expectedLink);
   }
+
+  public static final String APPLICATION_EIGHT_STRING =
+      """
+      Total Calculated Score: 100
+      eight, Example (470)
+      Program Name : Fake Scored Program
+      Status: none
+      Submit Time: 2021/12/31 at 4:00 PM PST
+      \s
+      applicant name Answered on : 1969-12-31
+      Example Eight
+      \s
+      applicant favorite season Answered on : 1969-12-31
+      Summer Score : 30
+      \s
+      applicant favorite ice cream Answered on : 1969-12-31
+      strawberry Score : 20
+      \s
+      applicant favorite drink Answered on : 1969-12-31
+      water Score : 40
+      \s
+      applicant favorite food Answered on : 1969-12-31
+      pretzel Score : 10
+      \s
+      """;
 
   public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
       """
