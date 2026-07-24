@@ -47,7 +47,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationOne, /* isAdmin= */ false);
+        exporter.exportApplication(applicationOne, /* isAdmin= */ false, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -106,7 +106,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -161,7 +161,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -211,7 +211,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -262,7 +262,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -302,7 +302,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -344,7 +344,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ false,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -387,7 +387,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(applicationFive, /* isAdmin= */ true,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -424,7 +424,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSeven.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationSeven, /* isAdmin= */ true);
+        exporter.exportApplication(applicationSeven, /* isAdmin= */ true,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
@@ -448,7 +448,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ false);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ false,false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -460,7 +460,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ true);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true,false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
@@ -686,6 +686,22 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfString link = AnnotationAction.getAsString(PdfName.URI);
     assertThat(link.toString()).isEqualTo(expectedLink);
   }
+
+  public static final String APPLICATION_EIGHT_STRING =
+    """
+    Optional.empty (558)
+    Program Name : Fake Optional Question Program
+    Status: none
+    Submit Time: 2021/12/31 at 4:00 PM PST
+    \s
+    applicant name
+    Example Five
+    Answered on : 1969-12-31
+    applicant file
+    my-file-key-1
+    my-file-key-2
+    Answered on : 1969-12-31
+    """;
 
   public static final String APPLICATION_FIVE_WITHOUT_FILE_STRING =
       """

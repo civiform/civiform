@@ -1,6 +1,7 @@
 package services.applications;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static services.export.PdfExporterTest.APPLICATION_EIGHT_STRING;
 import static services.export.PdfExporterTest.APPLICATION_ONE_STRING;
 import static services.export.PdfExporterTest.getPdfLines;
 
@@ -26,6 +27,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     createFakeQuestions();
     createFakeProgram();
     createFakeApplications();
+    createFakeProgramWithScoredQuestions();
   }
 
   @Test
@@ -36,7 +38,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true);
+        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true, false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -65,6 +67,44 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
     List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_ONE_STRING);
+    for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
+      assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
+    }
+  }
+
+  @Test
+  public void generateScoredApplicationPdf() throws IOException {
+    PdfExporterService service = instanceOf(PdfExporterService.class);
+
+    String applicantName = "name-unavailable";
+    String applicantNameWithApplicationId =
+        String.format("%s (%d)", applicantName, applicationEight.id);
+    PdfExporter.InMemoryPdf result =
+        service.generateApplicationPdf(applicationEight, /* isAdmin= */ true, false);
+    PdfReader pdfReader = new PdfReader(result.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+
+    int pages = pdfReader.getNumberOfPages();
+    for (int pageNum = 1; pageNum < pages; pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+    }
+
+    pdfReader.close();
+    assertThat(textFromPDF).isNotNull();
+    System.out.println("********************");
+    System.out.println(textFromPDF);
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(linesFromPDF).isNotNull();
+    String programName = applicationEight.getProgram().getProgramDefinition().adminName();
+
+    System.out.println("********************");
+    for (int i = 0; i < linesFromPDF.size(); i++) {
+      System.out.println(linesFromPDF.get(i));
+    }
+    assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
+    assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
+    assertThat(linesFromPDF.get(2)).isEqualTo("Status: " + STATUS_VALUE);
+    List<String> linesFromStaticString = Splitter.on("\n").splitToList(APPLICATION_EIGHT_STRING);
     for (int lineNum = 4; lineNum < linesFromPDF.size(); lineNum++) {
       assertThat(linesFromPDF.get(lineNum)).isEqualTo(linesFromStaticString.get(lineNum));
     }
