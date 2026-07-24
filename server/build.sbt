@@ -92,13 +92,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.4",
+      "org.pac4j" % "pac4j-core" % "6.5.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.4",
+      "org.pac4j" % "pac4j-http" % "6.5.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.4",
+      "org.pac4j" % "pac4j-oidc" % "6.5.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.4",
+      "org.pac4j" % "pac4j-saml" % "6.5.5",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
