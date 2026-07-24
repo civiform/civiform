@@ -122,14 +122,6 @@ public final class PdfExporter {
         application.getApplicant().getApplicantDisplayName().orElse("name-unavailable");
     String applicantNameWithApplicationId = String.format("%s (%d)", applicantName, application.id);
     String filename = String.format("%s-%s.pdf", applicantNameWithApplicationId, nowProvider.get());
-    // Check if program is part of the scored programs list.
-    //    ImmutableList<String> allowedProgramsForScoring =
-    //
-    // settingsManifest.get().getAllowedProgramsForSummingInPdf(re).orElse(ImmutableList.of());
-    // Scored pdfs only for prorgamAdmins and TI.
-    //    if (allowedProgramsForScoring.contains(
-    //            application.getProgram().getProgramDefinition().adminName())
-    //        && (isAdmin || application.getSubmitterEmail().isPresent())) {
     if (exportScoredApplication) {
       byte[] bytes =
           buildApplicationPdfWithScore(

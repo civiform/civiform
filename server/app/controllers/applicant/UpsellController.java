@@ -246,13 +246,15 @@ public final class UpsellController extends CiviFormController {
                       .getAllowedProgramsForSummingInPdf(request)
                       .orElse(ImmutableList.of());
               // Only TIs and Program Admins can download the Scored PDFs.
+              boolean exportScoredApplictaion =
+                  allowedProgramsForScoring.contains(
+                          application.getProgram().getProgramDefinition().adminName())
+                      && application.getSubmitterEmail().isPresent();
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
                       application,
                       /* isAdmin= */ false,
-                      /* exportScoredApplication= */ (allowedProgramsForScoring.contains(
-                              application.getProgram().getProgramDefinition().adminName())
-                          && application.getSubmitterEmail().isPresent()));
+                      /* exportScoredApplication= */ exportScoredApplictaion);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

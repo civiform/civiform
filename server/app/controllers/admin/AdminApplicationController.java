@@ -301,7 +301,7 @@ public final class AdminApplicationController extends CiviFormController {
         pdfExporterService.generateApplicationPdf(
             application,
             /* isAdmin= */ true,
-            allowedProgramsForScoring.contains(program.adminName()));
+            /* exportScoredApplication= */ allowedProgramsForScoring.contains(program.adminName()));
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
