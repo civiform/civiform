@@ -99,8 +99,14 @@ export const init = () => {
     }
   })
 
-  document.body.addEventListener('htmx:afterSwap', () => {
+  document.body.addEventListener('htmx:afterSwap', (event) => {
     toggleDisabledState()
+    const fileUploadContainer = event.detail.elt.closest(
+      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
+    )
+    if (fileUploadContainer) {
+      maybeHideCanUploadError(fileUploadContainer as HTMLElement)
+    }
   })
 
   document.body.addEventListener('change', (event) => {
@@ -208,4 +214,19 @@ const resetFileInputFromEvent = (event: HtmxAfterRequestEvent) => {
   }
 
   resetFileInput(fileUploadContainer)
+}
+
+const maybeHideCanUploadError = (fileUploadContainer: HTMLElement) => {
+  const fileInput =
+    fileUploadContainer.querySelector<HTMLInputElement>('input[type=file]')
+  if (fileInput) {
+    const canUploadMore = canUploadMoreFiles(fileUploadContainer)
+    const fileLimitReachedErrorDiv =
+      fileUploadContainer.querySelector<HTMLElement>(
+        '[data-fileupload-error="file-limit-reached"]',
+      )
+    if (canUploadMore) {
+      hideError(fileLimitReachedErrorDiv, fileInput)
+    }
+  }
 }
