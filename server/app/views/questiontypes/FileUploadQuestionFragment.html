@@ -63,6 +63,12 @@
   </div>
   <div
     hidden
+    data-fileupload-error="file-limit-reached"
+    th:text="#{toast.errorMessageOutline(#{validation.fileLimitReached})}"
+    class="cf-question-error-message cf-applicant-question-errors"
+  ></div>
+  <div
+    hidden
     class="usa-alert usa-alert--error usa-alert--slim"
     data-fileupload-error="too-large"
   >
@@ -96,7 +102,6 @@
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
-    th:disabled="${!fileUploadQuestion.canUploadFile()}"
     th:aria-required="${!question.isOptional()}"
     th:hx-post="${!isPreview} ? ${hxSelectFileForUploadUrl}"
     th:hx-trigger="${!isPreview} ? 'change'"

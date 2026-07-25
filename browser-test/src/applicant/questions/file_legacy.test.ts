@@ -54,6 +54,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantFileQuestion.expectFileSelectionErrorHidden()
       await applicantFileQuestion.expectLegacyFileTooLargeErrorHidden()
+      await applicantFileQuestion.expectLegacyFileLimitErrorHidden()
     })
 
     test('no continue button initially', async ({
@@ -280,7 +281,7 @@ test.describe('file upload applicant flow', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await test.step('Adding maximum files disables file input', async () => {
+      await test.step('Adding maximum files keeps file input enabled', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
         )
@@ -292,12 +293,20 @@ test.describe('file upload applicant flow', () => {
           'file-upload-second.png',
         )
 
-        await applicantFileQuestion.expectFileInputDisabled()
+        await applicantFileQuestion.expectFileInputEnabled()
       })
 
-      await test.step('Removing a file shows file input again', async () => {
+      await test.step('Shows error when too many files', async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-third.png',
+        )
+
+        await applicantFileQuestion.expectLegacyFileLimitErrorShown()
+      })
+
+      await test.step('Removing a file removes file input error', async () => {
         await applicantFileQuestion.removeFileUploadLegacy('file-upload.png')
-        await applicantFileQuestion.expectFileInputEnabled()
+        await applicantFileQuestion.expectLegacyFileLimitErrorHidden()
       })
     })
 

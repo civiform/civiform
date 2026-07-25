@@ -6,6 +6,7 @@ import {assertNotNull} from '@/util'
 
 // This should be kept in sync with views/fileupload/FileUploadViewStrategy.FILE_LIMIT_ATTR.
 const MAX_FILE_SIZE_MB_ATTR = 'data-file-limit-mb'
+const CAN_UPLOAD_FILE_ATTR = 'data-can-upload-file'
 
 // Matches a file name with a number "-<number>" at the end. For example "file-2.png"
 // Groups are: [1] The file name [2] The "-<number>" [3] - The file type, if it exists (e.g. .png), null otherwise.
@@ -46,6 +47,20 @@ export function isFileTooLarge(inputElement: HTMLInputElement): boolean {
   const maxFileSizeBytes = maxFileSizeMb * 1024 * 1024
 
   return file.size > maxFileSizeBytes
+}
+
+/**
+ * Returns false if the maximum number of files has been reached, true otherwise.
+ * @param fileUploadContainer the container that holds the file upload elements.
+ */
+export function canUploadMoreFiles(fileUploadContainer: Element): boolean {
+  const fileList = fileUploadContainer.querySelector(
+    `[${CAN_UPLOAD_FILE_ATTR}]`,
+  )
+  if (!fileList) {
+    return true
+  }
+  return fileList.getAttribute(CAN_UPLOAD_FILE_ATTR) === 'true'
 }
 
 /**
