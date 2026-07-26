@@ -95,4 +95,14 @@ public class LegacyQuestionFragmentsTest {
   public void multiOptionRow_existingOption() {
     ThymeleafFragmentTester.run(DIR + "multiOptionRowExisting.thtest");
   }
+
+  /**
+   * With showScores on (the answer-option-scoring flag and a supported question type), the row
+   * grows to six grid rows and renders a never-readonly score input posting to optionScores[],
+   * with the pre-formatted display value.
+   */
+  @Test
+  public void multiOptionRow_scoredOption() {
+    ThymeleafFragmentTester.run(DIR + "multiOptionRowScored.thtest");
+  }
 }
