@@ -79,4 +79,36 @@ public class MultiOptionQuestionTranslationFormTest {
                 /* displayInAnswerOptions= */ Optional.empty(),
                 /* locale= */ Locale.FRANCE));
   }
+
+  @Test
+  public void buildsQuestion_preservesOptionScores() throws Exception {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("test")
+            .setDescription("desc")
+            .setQuestionText(LocalizedStrings.empty())
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    QuestionDefinition question =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(
+                    /* id= */ 1L,
+                    /* displayOrder= */ 0L,
+                    /* adminName= */ "opt1",
+                    /* optionText= */ LocalizedStrings.withDefaultValue("other"),
+                    /* displayInAnswerOptions= */ Optional.of(true),
+                    /* score= */ Optional.of(7))),
+            MultiOptionQuestionType.RADIO_BUTTON);
+
+    MultiOptionQuestionTranslationForm form = new MultiOptionQuestionTranslationForm();
+    form.setOptions(ImmutableList.of("new"));
+    MultiOptionQuestionDefinition updated =
+        (MultiOptionQuestionDefinition) form.builderWithUpdates(question, Locale.CHINA).build();
+
+    // A translation-only edit must not drop stored scores.
+    assertThat(updated.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(7));
+  }
 }

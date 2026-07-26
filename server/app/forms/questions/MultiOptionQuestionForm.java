@@ -2,12 +2,15 @@ package forms.questions;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import services.CiviFormError;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
 import services.question.LocalizedQuestionOption;
@@ -30,6 +33,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   private List<Long> optionIds;
   private List<String> optionAdminNames;
   private List<String> newOptionAdminNames;
+  // Optional per-option scores, parallel to options/newOptions. Stored as strings so that blank
+  // (unscored), 0, and invalid input are distinguishable; see parseScore.
+  private List<String> optionScores;
+  private List<String> newOptionScores;
 
   // The IDs of option types which have been selected by the admin to be included in the question's
   // answer options.
@@ -50,6 +57,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.optionScores = new ArrayList<>();
+    this.newOptionScores = new ArrayList<>();
     this.displayedOptionIds = new ArrayList<>();
     this.minChoicesRequired = OptionalInt.empty();
     this.maxChoicesAllowed = OptionalInt.empty();
@@ -71,7 +80,16 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.optionIds = new ArrayList<>();
     this.optionAdminNames = new ArrayList<>();
     this.newOptionAdminNames = new ArrayList<>();
+    this.optionScores = new ArrayList<>();
+    this.newOptionScores = new ArrayList<>();
     this.displayedOptionIds = new ArrayList<>();
+
+    // Scores live on QuestionOption only (never on the applicant-facing LocalizedQuestionOption),
+    // so resolve them by option id.
+    ImmutableMap<Long, QuestionOption> optionsById =
+        qd.getOptions().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(QuestionOption::id, option -> option, (a, b) -> a));
 
     try {
       // The first time a question is created, we only create for the default locale. The admin can
@@ -84,6 +102,11 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
                   options.add(option.optionText());
                   optionIds.add(option.id());
                   optionAdminNames.add(option.adminName());
+                  optionScores.add(
+                      Optional.ofNullable(optionsById.get(option.id()))
+                          .flatMap(QuestionOption::score)
+                          .map(String::valueOf)
+                          .orElse(""));
                   if (getQuestionType() == QuestionType.YES_NO) {
                     if (option.displayInAnswerOptions().isPresent()
                         && option.displayInAnswerOptions().get()) {
@@ -144,6 +167,22 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
     this.newOptionAdminNames = newOptionAdminNames;
   }
 
+  public List<String> getOptionScores() {
+    return this.optionScores;
+  }
+
+  public void setOptionScores(List<String> optionScores) {
+    this.optionScores = optionScores;
+  }
+
+  public List<String> getNewOptionScores() {
+    return this.newOptionScores;
+  }
+
+  public void setNewOptionScores(List<String> newOptionScores) {
+    this.newOptionScores = newOptionScores;
+  }
+
   public List<Long> getDisplayedOptionIds() {
     return this.displayedOptionIds;
   }
@@ -195,13 +234,90 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
+   * Returns validation problems with the submitted option scores, as form errors rather than
+   * exceptions so the edit view can re-render with a message.
+   *
+   * <p>Empty score lists are tolerated (no score inputs were rendered); a non-empty list must be
+   * parallel to its option list, and every non-blank entry must parse as a signed 32-bit integer.
+   */
+  public ImmutableSet<CiviFormError> getOptionScoreErrors() {
+    ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
+    if (!optionScores.isEmpty() && optionScores.size() != options.size()) {
+      errors.add(
+          CiviFormError.of("The number of option scores does not match the number of options"));
+    }
+    if (!newOptionScores.isEmpty() && newOptionScores.size() != newOptions.size()) {
+      errors.add(
+          CiviFormError.of(
+              "The number of new option scores does not match the number of new options"));
+    }
+    for (String scoreAsString : optionScores) {
+      addParseErrorIfInvalid(errors, scoreAsString);
+    }
+    for (String scoreAsString : newOptionScores) {
+      addParseErrorIfInvalid(errors, scoreAsString);
+    }
+    return errors.build();
+  }
+
+  private static void addParseErrorIfInvalid(
+      ImmutableSet.Builder<CiviFormError> errors, String scoreAsString) {
+    if (!isBlank(scoreAsString) && parseScore(scoreAsString).isEmpty()) {
+      errors.add(
+          CiviFormError.of(
+              String.format(
+                  "Option score '%s' must be a whole number between -2147483648 and 2147483647",
+                  scoreAsString.trim())));
+    }
+  }
+
+  private static boolean isBlank(String scoreAsString) {
+    return scoreAsString == null || scoreAsString.isBlank();
+  }
+
+  /**
+   * Parses an admin-entered score. Blank means unscored. The HTML input is type="number" step="1",
+   * so strict {@link Integer#parseInt} is a server-side backstop against crafted posts: decimals,
+   * exponents, out-of-range values, and junk all surface as empty here and as errors in {@link
+   * #getOptionScoreErrors}.
+   */
+  private static Optional<Integer> parseScore(String scoreAsString) {
+    if (isBlank(scoreAsString)) {
+      return Optional.empty();
+    }
+    try {
+      return Optional.of(Integer.parseInt(scoreAsString.trim()));
+    } catch (NumberFormatException e) {
+      return Optional.empty();
+    }
+  }
+
+  private static Optional<Integer> scoreAt(List<String> scores, int index) {
+    return index < scores.size() ? parseScore(scores.get(index)) : Optional.empty();
+  }
+
+  /**
    * Build a {@link QuestionDefinitionBuilder} from this QuestionForm, for handling the form
-   * response.
+   * response. Option scores are never applied through this overload; callers with the scoring
+   * feature flag in hand use {@link #getBuilder(boolean)}.
    *
    * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
    */
   @Override
   public QuestionDefinitionBuilder getBuilder() {
+    return getBuilder(/* scoringEnabled= */ false);
+  }
+
+  /**
+   * Build a {@link QuestionDefinitionBuilder} from this QuestionForm, for handling the form
+   * response.
+   *
+   * @param scoringEnabled whether the answer-option-scoring feature flag is on for this request;
+   *     when false (or the question type does not support scores), submitted scores are discarded
+   *     and options are built unscored
+   * @return a {@link QuestionDefinitionBuilder} with the values from this QuestionForm
+   */
+  public QuestionDefinitionBuilder getBuilder(boolean scoringEnabled) {
     MultiOptionQuestionDefinition.MultiOptionValidationPredicates.Builder predicateBuilder =
         MultiOptionQuestionDefinition.MultiOptionValidationPredicates.builder();
 
@@ -222,6 +338,10 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
         this.optionAdminNames.size() == this.options.size(),
         "Option admin names and options are not the same size.");
 
+    // Scores only apply when the feature flag is on and the type supports them; this inherently
+    // excludes Yes/No questions.
+    boolean applyScores = scoringEnabled && QuestionType.supportsOptionScores(getQuestionType());
+
     // Note: the question edit form only sets or updates the default locale.
     for (int i = 0; i < options.size(); i++) {
       // Yes/No questions have optional question options; all other question types should write
@@ -236,7 +356,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               /* displayOrder= */ i,
               /* adminName= */ optionAdminNames.get(i),
               /* optionText= */ LocalizedStrings.withDefaultValue(options.get(i)),
-              /* displayInAnswerOptions= */ Optional.of(displayInAnswerOptions)));
+              /* displayInAnswerOptions= */ Optional.of(displayInAnswerOptions),
+              /* score= */ applyScores ? scoreAt(optionScores, i) : Optional.empty()));
     }
 
     // Get the next available ID, from either the max of the option IDs in the response or the
@@ -251,7 +372,8 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
               /* displayOrder= */ options.size() + i,
               /* adminName= */ newOptionAdminNames.get(i),
               /* optionText= */ LocalizedStrings.withDefaultValue(newOptions.get(i)),
-              /* displayInAnswerOptions= */ Optional.of(true)));
+              /* displayInAnswerOptions= */ Optional.of(true),
+              /* score= */ applyScores ? scoreAt(newOptionScores, i) : Optional.empty()));
     }
     ImmutableList<QuestionOption> questionOptions = questionOptionsBuilder.build();
 

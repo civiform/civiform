@@ -935,6 +935,276 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_withOptionScores_flagEnabled_savesScores() {
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", "scored dropdown")
+            .put("questionDescription", "desc")
+            .put("questionType", "DROPDOWN")
+            .put("questionText", "Pick one")
+            .put("questionHelpText", "help")
+            .put("newOptions[0]", "first")
+            .put("newOptions[1]", "second")
+            .put("newOptionAdminNames[0]", "first_admin")
+            .put("newOptionAdminNames[1]", "second_admin")
+            .put("newOptionScores[0]", "5")
+            .put("newOptionScores[1]", "")
+            .build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData);
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "dropdown");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
+    MultiOptionQuestionDefinition definition =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(newQuestionId)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    assertThat(definition.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(5), Optional.empty());
+  }
+
+  @Test
+  public void create_withOptionScores_flagDisabled_ignoresCraftedScores() {
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", "crafted dropdown")
+            .put("questionDescription", "desc")
+            .put("questionType", "DROPDOWN")
+            .put("questionText", "Pick one")
+            .put("questionHelpText", "help")
+            .put("newOptions[0]", "first")
+            .put("newOptionAdminNames[0]", "first_admin")
+            .put("newOptionScores[0]", "5")
+            .build();
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "dropdown");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
+    MultiOptionQuestionDefinition definition =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(newQuestionId)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    assertThat(definition.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.empty());
+  }
+
+  @Test
+  public void create_withInvalidScore_flagEnabled_rendersErrorWithoutSaving() {
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", "invalid score dropdown")
+            .put("questionDescription", "desc")
+            .put("questionType", "DROPDOWN")
+            .put("questionText", "Pick one")
+            .put("questionHelpText", "help")
+            .put("newOptions[0]", "first")
+            .put("newOptionAdminNames[0]", "first_admin")
+            .put("newOptionScores[0]", "1.5")
+            .build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build();
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(request, "dropdown");
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped).contains("Option score '1.5' must be a whole number");
+    assertThat(retrieveAllQuestionIds().size()).isEqualTo(questionIdsBefore.size());
+  }
+
+  @Test
+  public void update_withOptionScores_flagEnabled_savesScores() {
+    QuestionDefinition definition = createScoredDropdownDefinition();
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("options[1]", "strawberry")
+            .put("optionIds[0]", "1")
+            .put("optionIds[1]", "2")
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_admin")
+            .put("optionScores[0]", "9")
+            .put("optionScores[1]", "")
+            .put("nextAvailableId", "3")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
+            .build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData);
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.id, definition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    MultiOptionQuestionDefinition found =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(question.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    // Option 1's score is updated; option 2's blank input clears its stored score.
+    assertThat(found.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(9), Optional.empty());
+  }
+
+  @Test
+  public void update_flagDisabled_preservesStoredScoresAndIgnoresCraftedScores() {
+    QuestionDefinition definition = createScoredDropdownDefinition();
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("options[1]", "strawberry")
+            .put("optionIds[0]", "1")
+            .put("optionIds[1]", "2")
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_admin")
+            // Crafted scores; the score inputs are not rendered while the flag is off.
+            .put("optionScores[0]", "1000")
+            .put("optionScores[1]", "1000")
+            .put("nextAvailableId", "3")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
+            .build();
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.id, definition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    MultiOptionQuestionDefinition found =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(question.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    // The stored scores survive the flag-off edit; the crafted values are discarded.
+    assertThat(found.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(3), Optional.empty());
+  }
+
+  @Test
+  public void update_withInvalidScore_flagEnabled_rendersErrorWithoutSaving() {
+    QuestionDefinition definition = createScoredDropdownDefinition();
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("options[1]", "strawberry")
+            .put("optionIds[0]", "1")
+            .put("optionIds[1]", "2")
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_admin")
+            .put("optionScores[0]", "2147483648")
+            .put("optionScores[1]", "")
+            .put("nextAvailableId", "3")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
+            .build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build();
+
+    Result result =
+        controller.update(request, question.id, definition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped).contains("Option score '2147483648' must be a whole number");
+    MultiOptionQuestionDefinition found =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(question.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    assertThat(found.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(3), Optional.empty());
+  }
+
+  private MultiOptionQuestionDefinition createScoredDropdownDefinition() {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("scored ice cream")
+            .setDescription("Select your favorite ice cream flavor")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Ice cream?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help"))
+            .build();
+    ImmutableList<QuestionOption> questionOptions =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1L,
+                /* displayOrder= */ 0,
+                /* adminName= */ "chocolate_admin",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "chocolate"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.of(3)),
+            QuestionOption.create(
+                /* id= */ 2L,
+                /* displayOrder= */ 1,
+                /* adminName= */ "strawberry_admin",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "strawberry"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.empty()));
+    return new MultiOptionQuestionDefinition(
+        config, questionOptions, MultiOptionQuestionType.DROPDOWN);
+  }
+
+  @Test
   public void update_failsWithErrorMessageAndPopulatedFields() {
     QuestionModel question = testQuestionBank.textApplicantFavoriteColor();
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
