@@ -121,12 +121,12 @@ public final class ProgramJsonSampler {
           sampleScores.add(1L);
           sampleScores.add(null);
           jsonExportData.addApplicationEntries(
-              ImmutableMap.of(
+              ImmutableMap.<Path, Optional<?>>of(
                   apiPath.join("scores"), Optional.of(new NullableLongArray(sampleScores))));
           sampleTotalScore += 1;
         } else {
           jsonExportData.addApplicationEntries(
-              ImmutableMap.of(apiPath.join("score"), Optional.of(2L)));
+              ImmutableMap.<Path, Optional<?>>of(apiPath.join("score"), Optional.of(2L)));
           sampleTotalScore += 2;
         }
       }
