@@ -16,6 +16,7 @@ import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.DateTimeProperty;
+import io.swagger.models.properties.DoubleProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
@@ -155,33 +156,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
           "result",
           new ModelImpl()
               .type("object")
-              .property(
-                  "payload",
-                  new ArrayProperty(
-                      new ObjectProperty()
-                          .property("applicant_id", new IntegerProperty())
-                          .property("application", buildApplicationDefinitions(programDefinition))
-                          .property("application_id", new IntegerProperty())
-                          .property(
-                              "application_note",
-                              new StringProperty().vendorExtension("x-nullable", true))
-                          .property("create_time", new DateTimeProperty())
-                          .property("language", new StringProperty())
-                          .property("program_name", new StringProperty())
-                          .property("program_version_id", new IntegerProperty())
-                          .property("revision_state", new StringProperty())
-                          .property(
-                              "status", new StringProperty().vendorExtension("x-nullable", true))
-                          .property(
-                              "status_last_modified_time",
-                              new DateTimeProperty().vendorExtension("x-nullable", true))
-                          .property("submit_time", new DateTimeProperty())
-                          .property("submitter_type", new StringProperty())
-                          .property(
-                              "ti_email", new StringProperty().vendorExtension("x-nullable", true))
-                          .property(
-                              "ti_organization",
-                              new StringProperty().vendorExtension("x-nullable", true))))
+              .property("payload", new ArrayProperty(buildResultItemProperty(programDefinition)))
               .property("nextPageToken", new StringProperty()));
 
       return Yaml.pretty().writeValueAsString(swaggerRoot);
@@ -191,6 +166,35 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
         | JsonProcessingException ex) {
       throw new RuntimeException("Unable to generate OpenAPI schema for Swagger 2.", ex);
     }
+  }
+
+  /** Builds the schema of one payload item. */
+  private ObjectProperty buildResultItemProperty(ProgramDefinition programDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    ObjectProperty resultItem =
+        new ObjectProperty()
+            .property("applicant_id", new IntegerProperty())
+            .property("application", buildApplicationDefinitions(programDefinition))
+            .property("application_id", new IntegerProperty())
+            .property("application_note", new StringProperty().vendorExtension("x-nullable", true))
+            .property("create_time", new DateTimeProperty())
+            .property("language", new StringProperty())
+            .property("program_name", new StringProperty())
+            .property("program_version_id", new IntegerProperty())
+            .property("revision_state", new StringProperty())
+            .property("status", new StringProperty().vendorExtension("x-nullable", true))
+            .property(
+                "status_last_modified_time",
+                new DateTimeProperty().vendorExtension("x-nullable", true))
+            .property("submit_time", new DateTimeProperty())
+            .property("submitter_type", new StringProperty())
+            .property("ti_email", new StringProperty().vendorExtension("x-nullable", true))
+            .property("ti_organization", new StringProperty().vendorExtension("x-nullable", true));
+    if (openApiSchemaSettings.includeScores()) {
+      // Null when the application predates scoring or scoring wasn't applied; double precision.
+      resultItem.property("total_score", new DoubleProperty().vendorExtension("x-nullable", true));
+    }
+    return resultItem;
   }
 
   /***
@@ -239,6 +243,20 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
               fieldName,
               getPropertyFromType(
                   definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
+        }
+        // Score properties are deliberately not question scalars, so they are added here rather
+        // than picked up by the scalar loop.
+        if (openApiSchemaSettings.includeScores()
+            && QuestionType.supportsOptionScores(questionDefinition.getQuestionType())) {
+          if (questionDefinition.getQuestionType() == QuestionType.CHECKBOX) {
+            containerDefinition.property(
+                "scores",
+                new ArrayProperty(new DoubleProperty().vendorExtension("x-nullable", true))
+                    .vendorExtension("x-nullable", true));
+          } else {
+            containerDefinition.property(
+                "score", new DoubleProperty().vendorExtension("x-nullable", true));
+          }
         }
       } else {
         var enumeratorProperties =

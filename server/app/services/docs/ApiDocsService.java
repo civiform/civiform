@@ -66,9 +66,18 @@ public final class ApiDocsService {
     }
   }
 
-  /** Returns a pretty-printed JSON sample of the program's API response. */
+  /** Returns a pretty-printed JSON sample of the program's API response, without scores. */
   public String getSampleJsonPreview(ProgramDefinition programDefinition) {
-    return asPrettyJsonString(programJsonSampler.getSampleJson(programDefinition));
+    return getSampleJsonPreview(programDefinition, /* includeScores= */ false);
+  }
+
+  /**
+   * Returns a pretty-printed JSON sample of the program's API response.
+   *
+   * @param includeScores whether the answer-option-scoring feature flag is on for this request
+   */
+  public String getSampleJsonPreview(ProgramDefinition programDefinition, boolean includeScores) {
+    return asPrettyJsonString(programJsonSampler.getSampleJson(programDefinition, includeScores));
   }
 
   /**

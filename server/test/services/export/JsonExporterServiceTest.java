@@ -5,11 +5,15 @@ import static play.api.test.Helpers.testServerPort;
 
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicantModel;
+import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.junit.Test;
 import repository.ProgramRepository;
 import repository.SubmittedApplicationFilter;
@@ -17,6 +21,8 @@ import repository.VersionRepository;
 import services.CfJsonDocumentContext;
 import services.LocalizedStrings;
 import services.Path;
+import services.applicant.ApplicantData;
+import services.applicant.ApplicationScoreMetadata;
 import services.application.ApplicationEventDetails;
 import services.application.ApplicationEventDetails.StatusEvent;
 import services.geo.CorrectedAddressState;
@@ -2650,6 +2656,256 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
         """);
   }
 
+  private QuestionModel createScoredQuestion(
+      String name, MultiOptionQuestionDefinition.MultiOptionQuestionType type) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setDescription(name)
+            .setQuestionText(LocalizedStrings.of(Locale.US, name + "?"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1L,
+                /* displayOrder= */ 0L,
+                /* adminName= */ "scored_option",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.of(10.5)),
+            QuestionOption.create(
+                /* id= */ 2L,
+                /* displayOrder= */ 1L,
+                /* adminName= */ "unscored_option",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "unscored option"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.empty()));
+    return testQuestionBank.maybeSave(
+        new MultiOptionQuestionDefinition(config, options, type), LifecycleStage.ACTIVE);
+  }
+
+  private Path questionContextualizedPath(QuestionModel question) {
+    return question
+        .getQuestionDefinition()
+        .getContextualizedPath(
+            /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+  }
+
+  @Test
+  public void export_includeScores_scoredApplication_emitsScoresAndTotal() {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    QuestionModel checkbox =
+        createScoredQuestion(
+            "json scored checkbox",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("json-scored-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .withQuestion(checkbox)
+            .build();
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .answerCheckboxQuestion(checkbox, ImmutableList.of(1L, 2L))
+            .submit()
+            .getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putDouble(
+        ApplicationScoreMetadata.scorePath(questionContextualizedPath(dropdown)), 10.5);
+    List<Double> checkboxScores = new ArrayList<>();
+    checkboxScores.add(10.5);
+    checkboxScores.add(null);
+    data.putArray(
+        ApplicationScoreMetadata.scoresPath(questionContextualizedPath(checkbox)), checkboxScores);
+    data.putDouble(ApplicationScoreMetadata.totalScorePath(), 21.0);
+    application.setApplicantData(data);
+    application.save();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            /* includeScores= */ true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("application.json_scored_dropdown.score", 10.5);
+    // Scores align with the emitted selections order; the unscored selection is null.
+    resultAsserter.assertJsonAtApplicationPath(".json_scored_checkbox.scores", "[ 10.5, null ]");
+    resultAsserter.assertValueAtPath("total_score", 21.0);
+  }
+
+  @Test
+  public void export_includeScores_scoringNotApplied_emitsNulls() {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    QuestionModel checkbox =
+        createScoredQuestion(
+            "json scored checkbox",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("json-unscored-program")
+            .withQuestion(dropdown)
+            .withQuestion(checkbox)
+            .build();
+    // Submitted without score metadata: e.g. pre-feature or a non-scoring program.
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerDropdownQuestion(dropdown, 1L)
+        .answerCheckboxQuestion(checkbox, ImmutableList.of(1L))
+        .submit();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            /* includeScores= */ true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtPath("application.json_scored_dropdown.score");
+    resultAsserter.assertNullValueAtPath("application.json_scored_checkbox.scores");
+    resultAsserter.assertNullValueAtPath("total_score");
+  }
+
+  @Test
+  public void export_includeScores_scoringAppliedButUnanswered_checkboxEmitsEmptyArray() {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    QuestionModel checkbox =
+        createScoredQuestion(
+            "json scored checkbox",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("json-scored-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .withQuestion(checkbox)
+            .build();
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 2L)
+            .submit()
+            .getApplication();
+    // Scoring was applied (total present, zero) but the checkbox is unanswered and the selected
+    // dropdown option is unscored.
+    ApplicantData data = application.getApplicantData();
+    data.putDouble(ApplicationScoreMetadata.totalScorePath(), 0.0);
+    application.setApplicantData(data);
+    application.save();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            /* includeScores= */ true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertNullValueAtPath("application.json_scored_dropdown.score");
+    resultAsserter.assertJsonAtApplicationPath(".json_scored_checkbox.scores", "[ ]");
+    // An explicit zero total passes through.
+    resultAsserter.assertValueAtPath("total_score", 0.0);
+  }
+
+  @Test
+  public void export_includeScores_checkboxOnlyInAnotherVersion_initializesScoresPerApplication()
+      throws ProgramNotFoundException {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("json-scored-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .submit()
+            .getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putDouble(
+        ApplicationScoreMetadata.scorePath(questionContextualizedPath(dropdown)), 10.5);
+    data.putDouble(ApplicationScoreMetadata.totalScorePath(), 10.5);
+    application.setApplicantData(data);
+    application.save();
+
+    // A later program version adds a scored checkbox the application's version never had.
+    QuestionModel checkbox =
+        createScoredQuestion(
+            "json scored checkbox",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    ProgramModel updatedFakeProgram =
+        FakeProgramBuilder.newDraftOf(fakeProgram).withQuestion(checkbox).build();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            updatedFakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            /* includeScores= */ true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("application.json_scored_dropdown.score", 10.5);
+    // Scoring was applied to this application, so the other version's checkbox emits [] rather
+    // than keeping the template's null.
+    resultAsserter.assertJsonAtApplicationPath(".json_scored_checkbox.scores", "[ ]");
+    resultAsserter.assertValueAtPath("total_score", 10.5);
+    // The per-application initializer writes into the application object only; it must not leak
+    // an applicant-rooted copy of the score paths into the export.
+    resultAsserter.assertTopLevelPathAbsent("applicant");
+  }
+
+  @Test
+  public void export_includeScoresFalse_scorePropertiesAreAbsent() {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown",
+            MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    var fakeProgram =
+        FakeProgramBuilder.newActiveProgram("json-scored-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .submit()
+            .getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putDouble(
+        ApplicationScoreMetadata.scorePath(questionContextualizedPath(dropdown)), 10.5);
+    data.putDouble(ApplicationScoreMetadata.totalScorePath(), 10.5);
+    application.setApplicantData(data);
+    application.save();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            fakeProgram.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    // With the flag off, the properties are absent, not null.
+    resultAsserter.assertJsonDoesNotContainApplicationPath(".json_scored_dropdown.score");
+    resultAsserter.assertTopLevelPathAbsent("total_score");
+  }
+
   private static class ResultAsserter {
     final CfJsonDocumentContext resultJson;
 
@@ -2675,6 +2931,15 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
       assertThat(resultJson.readLong(jsonPath).get()).isEqualTo(value);
     }
 
+    private void assertValueAtPath(String path, Double value) {
+      assertValueAtPath(0, path, value);
+    }
+
+    private void assertValueAtPath(int resultNumber, String path, Double value) {
+      Path jsonPath = Path.create("$[" + resultNumber + "]." + path);
+      assertThat(resultJson.readDouble(jsonPath).get()).isEqualTo(value);
+    }
+
     private void assertNullValueAtPath(String path) {
       assertNullValueAtPath(0, path);
     }
@@ -2686,6 +2951,11 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
 
     private void assertJsonDoesNotContainApplicationPath(String innerPath) {
       Path path = Path.create("$[0].application" + innerPath);
+      assertThat(resultJson.hasPath(path)).isFalse();
+    }
+
+    private void assertTopLevelPathAbsent(String topLevelPath) {
+      Path path = Path.create("$[0]." + topLevelPath);
       assertThat(resultJson.hasPath(path)).isFalse();
     }
 
