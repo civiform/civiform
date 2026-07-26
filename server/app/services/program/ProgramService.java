@@ -409,6 +409,53 @@ public final class ProgramService {
       ImmutableList<ApplicationStep> applicationSteps,
       Messages messages,
       boolean enumeratorImprovementsEnabled) {
+    return createProgramDefinition(
+        adminName,
+        adminDescription,
+        defaultDisplayName,
+        defaultDisplayDescription,
+        defaultShortDescription,
+        defaultConfirmationMessage,
+        externalLink,
+        displayMode,
+        notificationPreferences,
+        eligibilityIsGating,
+        loginOnly,
+        /* usesScoring= */ false,
+        programType,
+        tiGroups,
+        categoryIds,
+        applicationSteps,
+        messages,
+        enumeratorImprovementsEnabled);
+  }
+
+  /**
+   * Creates a new program with an empty block, specifying whether the program applies
+   * answer-option scores to submitted applications. See {@link #createProgramDefinition(String,
+   * String, String, String, String, String, String, String, ImmutableList, boolean, boolean,
+   * ProgramType, ImmutableList, ImmutableList, ImmutableList, Messages, boolean)} for the other
+   * parameters.
+   */
+  public ErrorAnd<ProgramDefinition, CiviFormError> createProgramDefinition(
+      String adminName,
+      String adminDescription,
+      String defaultDisplayName,
+      String defaultDisplayDescription,
+      String defaultShortDescription,
+      String defaultConfirmationMessage,
+      String externalLink,
+      String displayMode,
+      ImmutableList<String> notificationPreferences,
+      boolean eligibilityIsGating,
+      boolean loginOnly,
+      boolean usesScoring,
+      ProgramType programType,
+      ImmutableList<Long> tiGroups,
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
             adminName,
@@ -463,6 +510,7 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             loginOnly,
+            usesScoring,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
@@ -592,6 +640,88 @@ public final class ProgramService {
       ImmutableList<Long> categoryIds,
       ImmutableList<ApplicationStep> applicationSteps)
       throws ProgramNotFoundException {
+    return updateProgramDefinitionInternal(
+        programId,
+        locale,
+        adminDescription,
+        displayName,
+        displayDescription,
+        shortDescription,
+        confirmationMessage,
+        externalLink,
+        displayMode,
+        notificationPreferences,
+        eligibilityIsGating,
+        loginOnly,
+        /* usesScoring= */ Optional.empty(),
+        programType,
+        tiGroups,
+        categoryIds,
+        applicationSteps);
+  }
+
+  /**
+   * Updates a program, including whether it applies answer-option scores to submitted
+   * applications. The overload without {@code usesScoring} leaves the stored value unchanged.
+   */
+  public ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinition(
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String shortDescription,
+      String confirmationMessage,
+      String externalLink,
+      String displayMode,
+      List<String> notificationPreferences,
+      boolean eligibilityIsGating,
+      boolean loginOnly,
+      boolean usesScoring,
+      ProgramType programType,
+      ImmutableList<Long> tiGroups,
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps)
+      throws ProgramNotFoundException {
+    return updateProgramDefinitionInternal(
+        programId,
+        locale,
+        adminDescription,
+        displayName,
+        displayDescription,
+        shortDescription,
+        confirmationMessage,
+        externalLink,
+        displayMode,
+        notificationPreferences,
+        eligibilityIsGating,
+        loginOnly,
+        Optional.of(usesScoring),
+        programType,
+        tiGroups,
+        categoryIds,
+        applicationSteps);
+  }
+
+  private ErrorAnd<ProgramDefinition, CiviFormError> updateProgramDefinitionInternal(
+      long programId,
+      Locale locale,
+      String adminDescription,
+      String displayName,
+      String displayDescription,
+      String shortDescription,
+      String confirmationMessage,
+      String externalLink,
+      String displayMode,
+      List<String> notificationPreferences,
+      boolean eligibilityIsGating,
+      boolean loginOnly,
+      Optional<Boolean> usesScoring,
+      ProgramType programType,
+      ImmutableList<Long> tiGroups,
+      ImmutableList<Long> categoryIds,
+      ImmutableList<ApplicationStep> applicationSteps)
+      throws ProgramNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForUpdate(
@@ -630,7 +760,7 @@ public final class ProgramService {
         notificationPreferences.stream()
             .map(ProgramNotificationPreference::valueOf)
             .collect(ImmutableList.toImmutableList());
-    ProgramModel program =
+    ProgramDefinition.Builder programBuilder =
         programDefinition.toBuilder()
             .setAdminDescription(adminDescription)
             .setLocalizedName(
@@ -655,9 +785,10 @@ public final class ProgramService {
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)
-            .setBridgeDefinitions(programDefinition.bridgeDefinitions())
-            .build()
-            .toProgram();
+            .setBridgeDefinitions(programDefinition.bridgeDefinitions());
+    // When absent, toBuilder() has already carried over the stored value.
+    usesScoring.ifPresent(programBuilder::setUsesScoring);
+    ProgramModel program = programBuilder.build().toProgram();
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(

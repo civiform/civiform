@@ -385,6 +385,11 @@ public class ProgramBuilder {
     return this;
   }
 
+  public ProgramBuilder withUsesScoring(boolean usesScoring) {
+    builder.setUsesScoring(usesScoring);
+    return this;
+  }
+
   /**
    * Creates a {@link BlockBuilder} with this {@link ProgramBuilder} with empty name and
    * description.

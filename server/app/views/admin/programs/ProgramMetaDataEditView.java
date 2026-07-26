@@ -104,8 +104,8 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
     FormTag formTag =
         programForm.isPresent()
-            ? buildProgramForm(programForm.get(), programEditStatus)
-            : buildProgramForm(existingProgram, programEditStatus);
+            ? buildProgramForm(request, programForm.get(), programEditStatus)
+            : buildProgramForm(request, existingProgram, programEditStatus);
 
     HtmlBundle htmlBundle =
         layout
