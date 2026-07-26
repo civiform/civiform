@@ -4,20 +4,25 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import controllers.api.ApiPayloadWrapper;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
 import repository.ApplicationStatusesRepository;
 import services.DeploymentType;
 import services.Path;
+import services.applicant.ApplicantData;
 import services.export.JsonExporterService.ApplicationExportData;
 import services.export.QuestionJsonSampler.SampleDataContext;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.statuses.StatusDefinitions.Status;
 
 /** Contains methods related to sampling JSON data for programs. */
@@ -46,9 +51,21 @@ public final class ProgramJsonSampler {
 
   /**
    * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
-   * the API response looks like.
+   * the API response looks like, without answer-option scores.
    */
   public String getSampleJson(ProgramDefinition programDefinition) {
+    return getSampleJson(programDefinition, /* includeScores= */ false);
+  }
+
+  /**
+   * Samples JSON for a {@link ProgramDefinition} with fake data, appropriate for previews of what
+   * the API response looks like.
+   *
+   * @param includeScores whether the answer-option-scoring feature flag is on for this request;
+   *     when true, supported questions gain sample {@code score}/{@code scores} values and the
+   *     response gains a {@code total_score}
+   */
+  public String getSampleJson(ProgramDefinition programDefinition, boolean includeScores) {
     ApplicationExportData.Builder jsonExportData =
         ApplicationExportData.builder()
             // Customizable program-specific API fields
@@ -81,6 +98,7 @@ public final class ProgramJsonSampler {
 
     SampleDataContext sampleDataContext = new SampleDataContext();
 
+    long sampleTotalScore = 0;
     for (QuestionDefinition questionDefinition : questionDefinitions) {
       @SuppressWarnings("unchecked")
       ImmutableMap<Path, Optional<?>> questionEntries =
@@ -89,12 +107,41 @@ public final class ProgramJsonSampler {
               .getSampleJsonEntries(questionDefinition, sampleDataContext);
 
       jsonExportData.addApplicationEntries(questionEntries);
+
+      // Sample score values for supported non-repeated question types; repeated sample questions
+      // are left unscored.
+      if (includeScores
+          && QuestionType.supportsOptionScores(questionDefinition.getQuestionType())
+          && questionDefinition.getEnumeratorId().isEmpty()) {
+        Path apiPath =
+            ApplicantData.APPLICANT_PATH.join(questionDefinition.getQuestionPathSegment());
+        if (questionDefinition.getQuestionType() == QuestionType.CHECKBOX) {
+          // One scored and one unscored (null) sample selection.
+          List<Long> sampleScores = new ArrayList<>();
+          sampleScores.add(1L);
+          sampleScores.add(null);
+          jsonExportData.addApplicationEntries(
+              ImmutableMap.of(
+                  apiPath.join("scores"), Optional.of(new NullableLongArray(sampleScores))));
+          sampleTotalScore += 1;
+        } else {
+          jsonExportData.addApplicationEntries(
+              ImmutableMap.of(apiPath.join("score"), Optional.of(2L)));
+          sampleTotalScore += 2;
+        }
+      }
+    }
+    if (includeScores) {
+      jsonExportData.setTotalScore(Optional.of(sampleTotalScore));
     }
 
     return apiPayloadWrapper.wrapPayload(
         jsonExporterService
             .convertApplicationExportDataListToJsonArray(
-                ImmutableList.of(jsonExportData.build()), "{}")
+                ImmutableList.of(jsonExportData.build()),
+                "{}",
+                includeScores,
+                /* checkboxScoreApiPaths= */ ImmutableSet.of())
             .jsonString(),
         /* paginationTokenPayload= */ Optional.empty());
   }

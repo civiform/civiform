@@ -32,6 +32,7 @@ import services.pagination.PaginationResult;
 import services.pagination.RowIdSequentialAccessPaginationSpec;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.program.ProgramType;
 
 /** API controller for admin access to a specific program's applications. */
@@ -45,6 +46,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
   private final ProgramService programService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final JsonExporterService jsonExporterService;
+  private final SettingsManifest settingsManifest;
   private final int maxPageSize;
 
   @Inject
@@ -57,12 +59,14 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
       ClassLoaderExecutionContext classLoaderExecutionContext,
       ProgramService programService,
       VersionRepository versionRepository,
+      SettingsManifest settingsManifest,
       Config config) {
     super(apiPaginationTokenSerializer, apiPayloadWrapper, profileUtils, versionRepository);
     this.dateConverter = checkNotNull(dateConverter);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.jsonExporterService = checkNotNull(jsonExporterService);
     this.programService = checkNotNull(programService);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.maxPageSize = checkNotNull(config).getInt("civiform_api_applications_list_max_page_size");
   }
 
@@ -119,7 +123,10 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                       programDefinition.id(), paginationSpec, filters);
 
               String applicationsJson =
-                  jsonExporterService.exportPage(programDefinition, paginationResult);
+                  jsonExporterService.exportPage(
+                      programDefinition,
+                      paginationResult,
+                      /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request));
 
               String responseJson =
                   apiPayloadWrapper.wrapPayload(

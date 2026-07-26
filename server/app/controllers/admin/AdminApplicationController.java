@@ -177,7 +177,8 @@ public final class AdminApplicationController extends CiviFormController {
         jsonExporterService.export(
             program,
             SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
-            filters);
+            filters,
+            /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request));
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));

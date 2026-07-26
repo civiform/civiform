@@ -87,6 +87,26 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
+  public void getSampleJson_withScores_includesSampleScoreValues() {
+    String json = programJsonSampler.getSampleJson(programDefinition, /* includeScores= */ true);
+
+    // Single-select sample questions (dropdown, radio) get a sample score.
+    assertThat(json).contains("\"score\" : 2");
+    // Checkbox sample questions show the nullable-array semantics.
+    assertThat(json).contains("\"scores\" : [ 1, null ]");
+    assertThat(json).contains("\"total_score\" : ");
+  }
+
+  @Test
+  public void getSampleJson_withoutScores_omitsScoreProperties() {
+    String json = programJsonSampler.getSampleJson(programDefinition);
+
+    assertThat(json).doesNotContain("\"score\"");
+    assertThat(json).doesNotContain("\"scores\"");
+    assertThat(json).doesNotContain("\"total_score\"");
+  }
+
+  @Test
   public void samplesFullProgram() {
     String json = programJsonSampler.getSampleJson(programDefinition);
 
