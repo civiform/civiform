@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import annotations.BindingAnnotations.Now;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.google.inject.Provider;
 import com.itextpdf.text.Anchor;
 import com.itextpdf.text.BaseColor;
@@ -28,14 +29,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.DateConverter;
+import services.Path;
 import services.TranslationNotFoundException;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicationScoreMetadata;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -51,6 +62,8 @@ import services.statuses.StatusService;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
+  private static final Logger logger = LoggerFactory.getLogger(PdfExporter.class);
+
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
@@ -97,13 +110,24 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
+  public InMemoryPdf exportApplication(
+      ApplicationModel application, boolean isAdmin, boolean includeScores)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
+
+    // Score text renders only for admins with the scoring flag on, and only when the snapshot
+    // actually carries score metadata (a pre-feature or unscored application has none). The
+    // snapshot is a fresh private copy of the application's stored data.
+    ApplicantData snapshot = application.getApplicantData();
+    Optional<Long> totalScore = snapshot.readLong(ApplicationScoreMetadata.totalScorePath());
+    Optional<ApplicantData> scoreData =
+        isAdmin && includeScores && totalScore.isPresent()
+            ? Optional.of(snapshot)
+            : Optional.empty();
 
     ImmutableList<AnswerData> answersOnlyActive =
         isAdmin
@@ -130,7 +154,8 @@ public final class PdfExporter {
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),
-            isAdmin);
+            isAdmin,
+            scoreData);
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -138,6 +163,76 @@ public final class PdfExporter {
     return submitTime == null
         ? "Application submitted without submission time marked."
         : dateConverter.renderDateTimeHumanReadable(submitTime);
+  }
+
+  /**
+   * Builds the small score annotation for an answer, reading persisted score metadata from the
+   * application snapshot by contextualized path. Answers of unsupported types or with no persisted
+   * score keys render exactly as before.
+   */
+  private static Optional<Paragraph> buildScoreParagraph(
+      AnswerData answerData, ApplicantData scoreData) {
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (!QuestionType.supportsOptionScores(questionType)) {
+      return Optional.empty();
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+    if (questionType != QuestionType.CHECKBOX) {
+      return scoreData
+          .readLong(ApplicationScoreMetadata.scorePath(contextualizedPath))
+          .map(
+              score ->
+                  new Paragraph("Score: " + score, FontFactory.getFont(FontFactory.HELVETICA, 10)));
+    }
+
+    Optional<ImmutableList<Long>> selections =
+        scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+    Optional<java.util.List<Long>> scores =
+        scoreData.readNullableLongList(ApplicationScoreMetadata.scoresPath(contextualizedPath));
+    if (selections.isEmpty() || scores.isEmpty()) {
+      return Optional.empty();
+    }
+    if (selections.get().size() != scores.get().size()) {
+      // Corrupt metadata: render the answer without scores rather than mispairing values.
+      logger.warn(
+          "Score metadata length mismatch at {}: {} selections vs {} scores",
+          contextualizedPath,
+          selections.get().size(),
+          scores.get().size());
+      return Optional.empty();
+    }
+    Map<Long, Long> scoreByOptionId = new HashMap<>();
+    for (int i = 0; i < selections.get().size(); i++) {
+      Long score = scores.get().get(i);
+      if (score != null) {
+        scoreByOptionId.putIfAbsent(selections.get().get(i), score);
+      }
+    }
+    MultiOptionQuestionDefinition definition =
+        (MultiOptionQuestionDefinition) answerData.questionDefinition();
+    ImmutableSet<Long> selectedIds = ImmutableSet.copyOf(selections.get());
+    // Render in definition display order (the raw option-list order is not guaranteed to match),
+    // omitting the score suffix for unscored entries.
+    String scoreText =
+        definition.getOptions().stream()
+            .sorted(
+                Comparator.comparingLong(
+                    (QuestionOption option) -> option.displayOrder().orElse(option.id())))
+            .filter(option -> selectedIds.contains(option.id()))
+            .map(
+                option -> {
+                  Long score = scoreByOptionId.get(option.id());
+                  String optionText = option.optionText().getDefault();
+                  return score == null
+                      ? optionText
+                      : String.format("%s (Score: %d)", optionText, score);
+                })
+            .collect(Collectors.joining(", "));
+    if (scoreText.isEmpty()) {
+      return Optional.empty();
+    }
+    return Optional.of(
+        new Paragraph("Scores: " + scoreText, FontFactory.getFont(FontFactory.HELVETICA, 10)));
   }
 
   private byte[] buildApplicationPdf(
@@ -148,7 +243,8 @@ public final class PdfExporter {
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
       String submitTime,
-      boolean isAdmin)
+      boolean isAdmin,
+      Optional<ApplicantData> scoreData)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -178,6 +274,14 @@ public final class PdfExporter {
           new Paragraph(
               "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
+      if (scoreData.isPresent()) {
+        long totalScore =
+            scoreData.get().readLong(ApplicationScoreMetadata.totalScorePath()).orElse(0L);
+        Paragraph totalScoreParagraph =
+            new Paragraph(
+                "Total score: " + totalScore, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
+        document.add(totalScoreParagraph);
+      }
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answersOnlyActive) {
@@ -253,6 +357,12 @@ public final class PdfExporter {
 
         document.add(question);
         document.add(answer);
+        if (scoreData.isPresent()) {
+          Optional<Paragraph> scoreParagraph = buildScoreParagraph(answerData, scoreData.get());
+          if (scoreParagraph.isPresent()) {
+            document.add(scoreParagraph.get());
+          }
+        }
         document.add(time);
         if (!eligibility.isEmpty()) {
           document.add(eligibility);
