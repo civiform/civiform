@@ -14,8 +14,10 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 import javax.inject.Inject;
 import models.ApplicantModel;
@@ -36,6 +38,7 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /**
@@ -70,8 +73,26 @@ public final class CsvExporterService {
     this.csvColumnFactory = checkNotNull(csvColumnFactory);
   }
 
-  /** Return a string containing a CSV of all applications at all versions of particular program. */
+  /**
+   * Return a string containing a CSV of all applications at all versions of particular program,
+   * without answer-option score columns. See {@link #getProgramAllVersionsCsv(long,
+   * SubmittedApplicationFilter, boolean)}.
+   */
   public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
+      throws ProgramNotFoundException {
+    return getProgramAllVersionsCsv(programId, filters, /* includeScores= */ false);
+  }
+
+  /**
+   * Return a string containing a CSV of all applications at all versions of particular program.
+   *
+   * @param includeScores whether the answer-option-scoring feature flag is on for this request,
+   *     resolved at the controller boundary. Score columns appear only for questions where a
+   *     represented program version uses scoring and that version of the question has at least one
+   *     scored option.
+   */
+  public String getProgramAllVersionsCsv(
+      long programId, SubmittedApplicationFilter filters, boolean includeScores)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -88,7 +109,10 @@ public final class CsvExporterService {
 
     CsvExportConfig exportConfig =
         generateCsvConfig(
-            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+            applications,
+            programDefinitionsForAllVersions,
+            currentProgram.hasEligibilityEnabled(),
+            includeScores);
 
     return exportCsv(
         exportConfig,
@@ -102,18 +126,37 @@ public final class CsvExporterService {
   private CsvExportConfig generateCsvConfig(
       ImmutableList<ApplicationModel> applications,
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
-      boolean showEligibilityColumn)
+      boolean showEligibilityColumn,
+      boolean includeScores)
       throws ProgramNotFoundException {
     Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
+    // Columns are application-driven: a question qualifies for a score column only when it is
+    // represented by an application whose program version uses scoring, the type supports option
+    // scores, and that version of the question has at least one scored option.
+    Set<Path> scoredQuestionPaths = new HashSet<>();
+    // The total column is also application-driven but needs only a scoring version — no scored
+    // options required, since such applications still persist a total of 0.
+    boolean anyVersionUsesScoring = false;
 
-    applications.stream()
-        .flatMap(
-            app ->
-                applicantService
-                    .getReadOnlyApplicantProgramService(
-                        app, programDefinitionsForAllVersions.get(app.getProgram().id))
-                    .getAllQuestions())
-        .forEach(aq -> uniqueQuestions.putIfAbsent(aq.getContextualizedPath(), aq));
+    for (ApplicationModel application : applications) {
+      ProgramDefinition programVersion =
+          programDefinitionsForAllVersions.get(application.getProgram().id);
+      anyVersionUsesScoring |= programVersion.usesScoring();
+
+      applicantService
+          .getReadOnlyApplicantProgramService(application, programVersion)
+          .getAllQuestions()
+          .forEach(
+              aq -> {
+                uniqueQuestions.putIfAbsent(aq.getContextualizedPath(), aq);
+                if (includeScores
+                    && programVersion.usesScoring()
+                    && QuestionType.supportsOptionScores(aq.getType())
+                    && hasScoredOption(aq)) {
+                  scoredQuestionPaths.add(aq.getContextualizedPath());
+                }
+              });
+    }
 
     ImmutableList<ApplicantQuestion> sortedUniqueQuestions =
         uniqueQuestions.values().stream()
@@ -124,7 +167,16 @@ public final class CsvExporterService {
             .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(sortedUniqueQuestions, showEligibilityColumn);
+    return buildColumnHeaders(
+        sortedUniqueQuestions,
+        showEligibilityColumn,
+        ImmutableSet.copyOf(scoredQuestionPaths),
+        /* showTotalScoreColumn= */ includeScores && anyVersionUsesScoring);
+  }
+
+  private static boolean hasScoredOption(ApplicantQuestion applicantQuestion) {
+    return ((MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition())
+        .getOptions().stream().anyMatch(option -> option.score().isPresent());
   }
 
   /**
@@ -181,7 +233,10 @@ public final class CsvExporterService {
    * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<ApplicantQuestion> exemplarQuestions, boolean showEligibilityColumn) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions,
+      boolean showEligibilityColumn,
+      ImmutableSet<Path> scoredQuestionPaths,
+      boolean showTotalScoreColumn) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -220,11 +275,25 @@ public final class CsvExporterService {
     }
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
+    if (showTotalScoreColumn) {
+      // Application-level data, so it sits in the metadata block rather than with the per-question
+      // score columns. Flag-gated like them, so it can't shift an existing export's column order.
+      columnsBuilder.add(
+          Column.builder().setHeader("Total Score").setColumnType(ColumnType.TOTAL_SCORE).build());
+    }
 
-    // Add columns for each scalar path to an answer.
+    // Add columns for each scalar path to an answer. This intentionally follows the adjacency
+    // decision for score columns (inside each question's own column stream) rather than the
+    // append-at-end backwards-compatibility convention below: score columns exist only when the
+    // scoring flag is on and a represented version scores the question.
     exemplarQuestions.stream()
         .filter(aq -> !NON_EXPORTED_QUESTION_TYPES.contains(aq.getType()))
-        .flatMap(aq -> csvColumnFactory.buildColumns(aq, ColumnType.APPLICANT_ANSWER))
+        .flatMap(
+            aq ->
+                csvColumnFactory.buildColumns(
+                    aq,
+                    ColumnType.APPLICANT_ANSWER,
+                    scoredQuestionPaths.contains(aq.getContextualizedPath())))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(

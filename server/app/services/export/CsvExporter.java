@@ -18,10 +18,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import services.DateConverter;
 import services.Path;
+import services.applicant.ApplicationScoreMetadata;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.ApplicantQuestion;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
+import services.question.QuestionOption;
 
 /**
  * CsvExporter takes a list of {@link Column}s and exports the data specified. A column contains a
@@ -151,6 +153,15 @@ public final class CsvExporter implements AutoCloseable {
           }
         }
         case STATUS_TEXT -> printer.print(application.getLatestStatus().orElse(EMPTY_VALUE));
+        case TOTAL_SCORE ->
+            // An absent snapshot means scoring was never applied to this application and renders
+            // blank; an explicit persisted 0 renders 0.
+            printer.print(
+                application
+                    .getApplicantData()
+                    .readDouble(ApplicationScoreMetadata.totalScorePath())
+                    .map(QuestionOption::formatScore)
+                    .orElse(EMPTY_VALUE));
         case ADMIN_NOTE -> printer.print(application.getLatestNote().orElse(EMPTY_VALUE));
         case STATUS_LAST_MODIFIED_TIME -> {
           if (application.getStatusLastModifiedTime().isEmpty()) {
