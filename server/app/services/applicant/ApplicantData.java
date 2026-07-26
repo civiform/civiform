@@ -120,6 +120,23 @@ public class ApplicantData extends CfJsonDocumentContext {
     } catch (PathNotFoundException _) {
       // Metadata may be missing in unit tests. No harm, no foul.
     }
+    // Score keys are derived from answers at submit time and live only on submitted snapshots,
+    // as siblings of the answer they score, so they should not affect duplicate detection. Delete
+    // them only from objects that hold both the answer scalar and the score key — i.e.
+    // single/multi-select question objects, where a score key can only be ours. A bare recursive
+    // $..score delete would also remove a question subtree admin-named "score" from both sides
+    // and blind the comparison to real changes in that question.
+    for (String scoreJsonPath :
+        ImmutableList.of(
+            "$..[?(@.selection && @.score)].score",
+            "$..[?(@.selections && @.scores)].scores",
+            "$." + ApplicationScoreMetadata.TOTAL_SCORE_KEY)) {
+      try {
+        applicantData.getDocumentContext().delete(scoreJsonPath);
+      } catch (PathNotFoundException _) {
+        // Documents with no scored answers have nothing to scrub.
+      }
+    }
   }
 
   /**

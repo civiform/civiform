@@ -297,6 +297,19 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
+    // Reject crafted updates targeting a reserved score key as defense in depth; score keys are
+    // written only at submit time, as siblings of the answer scalars, and are never applicant
+    // updatable. "keyName[]" collides with "keyName".
+    boolean updatePathsContainScoreKeys =
+        updates.stream()
+            .map(Update::path)
+            .map(path -> path.isArrayElement() ? path.withoutArrayReference() : path)
+            .anyMatch(path -> ApplicationScoreMetadata.isReservedScoreKey(path.keyName()));
+    if (updatePathsContainScoreKeys) {
+      return CompletableFuture.failedFuture(
+          new IllegalArgumentException("Path contained reserved score key"));
+    }
+
     return stageAndUpdateIfValid(
         applicantId,
         programId,
@@ -477,6 +490,23 @@ public final class ApplicantService {
    */
   public CompletionStage<ApplicationModel> submitApplication(
       long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
+    return submitApplication(
+        applicantId, programId, submitterProfile, request, /* scoringEnabled= */ false);
+  }
+
+  /**
+   * See {@link #submitApplication(long, long, CiviFormProfile, Request)}.
+   *
+   * @param scoringEnabled whether the answer-option-scoring feature flag is on for this request,
+   *     resolved at the controller boundary. When true and the submitted program version has
+   *     {@code usesScoring}, score metadata is written to the application's private snapshot.
+   */
+  public CompletionStage<ApplicationModel> submitApplication(
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      Request request,
+      boolean scoringEnabled) {
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {
@@ -501,7 +531,8 @@ public final class ApplicantService {
                                       ? Optional.empty()
                                       : Optional.of(tiAccount.getEmailAddress()),
                                   eligibilityDetermination,
-                                  request);
+                                  pd,
+                                  scoringEnabled);
                             },
                             classLoaderExecutionContext.current()));
       }
@@ -519,7 +550,8 @@ public final class ApplicantService {
                                 programId,
                                 /* tiSubmitterEmail= */ Optional.empty(),
                                 eligibilityDetermination,
-                                request);
+                                pd,
+                                scoringEnabled);
                           }));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Could not find program.", e);
@@ -647,9 +679,31 @@ public final class ApplicantService {
       Optional<String> tiSubmitterEmail,
       EligibilityDetermination eligibilityDetermination,
       Request request) {
+    return submitApplication(
+        applicantId,
+        programId,
+        tiSubmitterEmail,
+        eligibilityDetermination,
+        /* fullProgramDefinition= */ null,
+        /* scoringEnabled= */ false);
+  }
+
+  private CompletionStage<ApplicationModel> submitApplication(
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      ProgramDefinition fullProgramDefinition,
+      boolean scoringEnabled) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
+            .submitApplication(
+                applicantId,
+                programId,
+                tiSubmitterEmail,
+                eligibilityDetermination,
+                Optional.ofNullable(fullProgramDefinition),
+                scoringEnabled)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())

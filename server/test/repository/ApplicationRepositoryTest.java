@@ -22,10 +22,20 @@ import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
+import services.LocalizedStrings;
 import services.Path;
+import services.applicant.ApplicationScoreMetadata;
 import services.applicant.exception.DuplicateApplicationException;
+import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.question.QuestionAnswerer;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.CfTestHelpers;
+import support.ProgramBuilder;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
@@ -595,6 +605,222 @@ public class ApplicationRepositoryTest extends ResetPostgres {
     assertThatThrownBy(() -> repo.updateDraftApplicationProgram(applicant.id, fakeProgramV2Id))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("Program not found");
+  }
+
+  private QuestionDefinition saveScoredDropdown(String name, double score) {
+    return testQuestionBank
+        .maybeSave(
+            new MultiOptionQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription(name)
+                    .setQuestionText(LocalizedStrings.of(Locale.US, name + "?"))
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build(),
+                ImmutableList.of(
+                    QuestionOption.create(
+                        /* id= */ 1L,
+                        /* displayOrder= */ 0L,
+                        /* adminName= */ "scored_option",
+                        /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+                        /* displayInAnswerOptions= */ Optional.of(true),
+                        /* score= */ Optional.of(score))),
+                MultiOptionQuestionType.DROPDOWN),
+            LifecycleStage.ACTIVE)
+        .getQuestionDefinition();
+  }
+
+  private Path answerScoredDropdown(ApplicantModel applicant, QuestionDefinition dropdown) {
+    Path path = Path.create("applicant").join(dropdown.getQuestionPathSegment());
+    QuestionAnswerer.answerSingleSelectQuestion(applicant.getApplicantData(), path, 1L);
+    applicant.save();
+    return path;
+  }
+
+  @Test
+  public void submitApplication_scoringNotRequested_writesNoScoreMetadata() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("no scoring dropdown", 10);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("no-scoring-requested")
+            .withUsesScoring(true)
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    answerScoredDropdown(applicant, dropdown);
+
+    // The legacy overload never applies scoring, matching the flag-off behavior.
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(
+            application
+                .getApplicantData()
+                .hasPath(ApplicationScoreMetadata.totalScorePath()))
+        .isFalse();
+    assertThat(application.getApplicantData().asJsonString())
+        .doesNotContain("\"score\":")
+        .doesNotContain("\"total_score\":");
+  }
+
+  @Test
+  public void submitApplication_flagOnButProgramNotScoring_writesNoScoreMetadata() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("program off dropdown", 10);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("program-not-scoring")
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    answerScoredDropdown(applicant, dropdown);
+
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant.id,
+                program.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED,
+                Optional.of(program.getProgramDefinition()),
+                /* scoringEnabled= */ true)
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    assertThat(
+            application
+                .getApplicantData()
+                .hasPath(ApplicationScoreMetadata.totalScorePath()))
+        .isFalse();
+  }
+
+  @Test
+  public void submitApplication_scoringApplied_writesMetadataToSnapshotOnly() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("applied dropdown", 10.5);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("scoring-applied")
+            .withUsesScoring(true)
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    Path questionPath = answerScoredDropdown(applicant, dropdown);
+    applicant.getApplicantData().setPreferredLocale(Locale.FRENCH);
+    applicant.save();
+    String applicantJsonBefore = applicant.getApplicantData().asJsonString();
+
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant.id,
+                program.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED,
+                Optional.of(program.getProgramDefinition()),
+                /* scoringEnabled= */ true)
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    // The snapshot carries the score metadata and keeps the source's preferred locale.
+    assertThat(
+            application.getApplicantData().readDouble(ApplicationScoreMetadata.totalScorePath()))
+        .hasValue(10.5);
+    assertThat(
+            application
+                .getApplicantData()
+                .readDouble(ApplicationScoreMetadata.scorePath(questionPath)))
+        .hasValue(10.5);
+    assertThat(application.getApplicantData().preferredLocale()).isEqualTo(Locale.FRENCH);
+
+    // The applicant's own shared row never carries score metadata.
+    ApplicantModel refreshedApplicant =
+        instanceOf(AccountRepository.class)
+            .lookupApplicant(applicant.id)
+            .toCompletableFuture()
+            .join()
+            .get();
+    assertThat(refreshedApplicant.getApplicantData().asJsonString())
+        .doesNotContain("\"score\":")
+        .doesNotContain("\"total_score\":");
+    assertThat(refreshedApplicant.getApplicantData().asJsonString())
+        .isEqualTo(applicantJsonBefore);
+  }
+
+  @Test
+  public void submitApplication_duplicateOfScoredSnapshot_stillDetected() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("duplicate dropdown", 10);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("scored-duplicate")
+            .withUsesScoring(true)
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    answerScoredDropdown(applicant, dropdown);
+
+    repo.submitApplication(
+            applicant.id,
+            program.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED,
+            Optional.of(program.getProgramDefinition()),
+            /* scoringEnabled= */ true)
+        .toCompletableFuture()
+        .join();
+
+    // The previous snapshot carries score metadata and the live applicant does not; identical
+    // answers must still be detected as a duplicate.
+    assertThatThrownBy(
+            () ->
+                repo.submitApplication(
+                        applicant,
+                        program,
+                        Optional.empty(),
+                        EligibilityDetermination.NOT_COMPUTED)
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(DuplicateApplicationException.class);
+  }
+
+  @Test
+  public void submitApplication_staleDraft_repointsAndScoresFromSubmittedVersion() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition oldDropdown = saveScoredDropdown("stale dropdown old", 10);
+    QuestionDefinition newDropdown = saveScoredDropdown("stale dropdown new", 99.25);
+    ProgramModel oldVersion =
+        ProgramBuilder.newObsoleteProgram("stale-program")
+            .withUsesScoring(true)
+            .withBlock()
+            .withRequiredQuestionDefinition(oldDropdown)
+            .build();
+    ProgramModel newVersion =
+        ProgramBuilder.newActiveProgram("stale-program")
+            .withUsesScoring(true)
+            .withBlock()
+            .withRequiredQuestionDefinition(newDropdown)
+            .build();
+    // The draft still points at the old program version.
+    repo.createOrUpdateDraft(applicant, oldVersion).toCompletableFuture().join();
+    answerScoredDropdown(applicant, newDropdown);
+
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant.id,
+                newVersion.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED,
+                Optional.of(newVersion.getProgramDefinition()),
+                /* scoringEnabled= */ true)
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    assertThat(application.getProgram().id).isEqualTo(newVersion.id);
+    assertThat(
+            application.getApplicantData().readDouble(ApplicationScoreMetadata.totalScorePath()))
+        .hasValue(99.25);
   }
 
   private ApplicantModel saveApplicant(String name) {
