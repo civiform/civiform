@@ -1176,6 +1176,37 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .containsExactly(Optional.of(3), Optional.empty());
   }
 
+  @Test
+  public void edit_scoredQuestion_flagEnabled_rendersScoreInputsWithValues() {
+    QuestionModel question =
+        testQuestionBank.maybeSave(createScoredDropdownDefinition(), LifecycleStage.DRAFT);
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .build();
+
+    Result result =
+        controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .containsPattern("name=\"optionScores\\[\\]\"[^>]*value=\"3\"");
+  }
+
+  @Test
+  public void edit_scoredQuestion_flagDisabled_rendersNoScoreInputs() {
+    QuestionModel question =
+        testQuestionBank.maybeSave(createScoredDropdownDefinition(), LifecycleStage.DRAFT);
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+
+    Result result =
+        controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("optionScores[]");
+  }
+
   private MultiOptionQuestionDefinition createScoredDropdownDefinition() {
     QuestionDefinitionConfig config =
         QuestionDefinitionConfig.builder()

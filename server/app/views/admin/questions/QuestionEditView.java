@@ -163,7 +163,7 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("New %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, showScores(request, questionType))
             .with(
                 buildNewQuestionForm(questionForm, enumeratorQuestionDefinitions, request)
                     .with(makeCsrfTokenInputTag(request)));
@@ -222,7 +222,7 @@ public final class QuestionEditView extends BaseHtmlView {
         String.format("Edit %s question", questionType.getLabel().toLowerCase(Locale.ROOT));
 
     DivTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, showScores(request, questionType))
             .with(
                 buildEditQuestionForm(
                         id,
@@ -258,7 +258,7 @@ public final class QuestionEditView extends BaseHtmlView {
             questionForm.getEnumeratorSelectEnabled(),
             FormMode.VIEW);
     DivTag formContent =
-        buildQuestionContainer(title)
+        buildQuestionContainer(title, showScores(request, questionType))
             .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
 
     return renderWithPreview(
@@ -303,7 +303,7 @@ public final class QuestionEditView extends BaseHtmlView {
         questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false, request);
   }
 
-  private DivTag buildQuestionContainer(String title) {
+  private DivTag buildQuestionContainer(String title, boolean showScores) {
     return div()
         .withId("question-form")
         .attr("hx-ext", "response-targets")
@@ -319,25 +319,34 @@ public final class QuestionEditView extends BaseHtmlView {
             "relative",
             "w-2/5")
         .with(renderHeader(title))
-        .with(multiOptionQuestionField());
+        .with(multiOptionQuestionField(showScores));
   }
 
   // A <template> holding the markup for a new multi-option answer. The id lives
   // on the <template> so the JS can clone its content (see MultiOptionQuestion);
   // the cloned row is shown when appended, so it is not hidden here.
-  private TemplateTag multiOptionQuestionField() {
+  private TemplateTag multiOptionQuestionField(boolean showScores) {
     return template()
         .withId("multi-option-question-answer-template")
         .with(
-            QuestionConfig.multiOptionQuestionFieldTemplate(messages)
+            QuestionConfig.multiOptionQuestionFieldTemplate(messages, showScores)
                 .withClasses(
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
                     ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
                     "grid",
                     "grid-cols-8",
-                    "grid-rows-4",
+                    showScores ? "grid-rows-6" : "grid-rows-4",
                     "items-center",
                     "mb-4"));
+  }
+
+  /**
+   * Whether score inputs should render for this request and question type: the scoring flag is on
+   * and the type supports option scores (which excludes Yes/No).
+   */
+  private boolean showScores(Request request, QuestionType questionType) {
+    return settingsManifest.getAnswerOptionScoringEnabled(request)
+        && QuestionType.supportsOptionScores(questionType);
   }
 
   private FormTag buildNewQuestionForm(

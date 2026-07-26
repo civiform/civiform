@@ -28,6 +28,7 @@ import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
 import j2html.tags.specialized.InputTag;
 import j2html.tags.specialized.LabelTag;
+import java.util.List;
 import java.util.Optional;
 import java.util.OptionalLong;
 import play.i18n.Messages;
@@ -39,6 +40,7 @@ import services.question.LocalizedQuestionOption;
 import services.question.YesNoQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
+import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.BaseView;
 import views.BaseViewModel;
@@ -70,6 +72,11 @@ public final class QuestionConfig {
       SettingsManifest settingsManifest,
       Request request) {
     QuestionConfig config = new QuestionConfig();
+    // Score inputs render only when the scoring flag is on and the type supports option scores;
+    // Yes/No questions use a separate renderer and never show scores.
+    boolean showScores =
+        settingsManifest.getAnswerOptionScoringEnabled(request)
+            && QuestionType.supportsOptionScores(questionForm.getQuestionType());
     switch (questionForm.getQuestionType()) {
       case ADDRESS:
         return Optional.of(
@@ -78,7 +85,7 @@ public final class QuestionConfig {
         MultiOptionQuestionForm form = (MultiOptionQuestionForm) questionForm;
         return Optional.of(
             config
-                .addMultiOptionQuestionFields(form, messages)
+                .addMultiOptionQuestionFields(form, messages, showScores)
                 .addMultiSelectQuestionValidation(form)
                 .getContainer());
       case ENUMERATOR:
@@ -106,7 +113,8 @@ public final class QuestionConfig {
       case RADIO_BUTTON:
         return Optional.of(
             config
-                .addMultiOptionQuestionFields((MultiOptionQuestionForm) questionForm, messages)
+                .addMultiOptionQuestionFields(
+                    (MultiOptionQuestionForm) questionForm, messages, showScores)
                 .getContainer());
       case FILEUPLOAD:
         return Optional.of(
@@ -312,8 +320,13 @@ public final class QuestionConfig {
    * Creates a template text field where an admin can enter a single multi-option question answer,
    * along with a button to remove the option.
    */
-  public static DivTag multiOptionQuestionFieldTemplate(Messages messages) {
-    return multiOptionQuestionField(Optional.empty(), messages, /* isForNewOption= */ true);
+  public static DivTag multiOptionQuestionFieldTemplate(Messages messages, boolean showScores) {
+    return multiOptionQuestionField(
+        Optional.empty(),
+        messages,
+        /* isForNewOption= */ true,
+        /* scoreValue= */ Optional.empty(),
+        showScores);
   }
 
   /**
@@ -321,7 +334,11 @@ public final class QuestionConfig {
    * answer, along with a button to remove the option.
    */
   private static DivTag multiOptionQuestionField(
-      Optional<LocalizedQuestionOption> existingOption, Messages messages, boolean isForNewOption) {
+      Optional<LocalizedQuestionOption> existingOption,
+      Messages messages,
+      boolean isForNewOption,
+      Optional<String> scoreValue,
+      boolean showScores) {
     DivTag optionAdminName =
         FieldWithLabel.input()
             .setFieldName(isForNewOption ? "newOptionAdminNames[]" : "optionAdminNames[]")
@@ -403,26 +420,64 @@ public final class QuestionConfig {
                 "col-start-8",
                 "row-span-2")
             .attr("aria-label", "delete");
-    return div()
-        .withClasses(
-            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
-            ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
-            "grid",
-            "grid-cols-8",
-            "grid-rows-4",
-            "items-center",
-            "mb-4")
-        .with(
-            optionIndexInput,
-            optionAdminName,
-            moveUpButton,
-            moveDownButton,
-            optionInput,
-            removeOptionButton);
+    DivTag row =
+        div()
+            .withClasses(
+                ReferenceClasses.MULTI_OPTION_QUESTION_OPTION,
+                ReferenceClasses.MULTI_OPTION_QUESTION_OPTION_EDITABLE,
+                "grid",
+                "grid-cols-8",
+                showScores ? "grid-rows-6" : "grid-rows-4",
+                "items-center",
+                "mb-4")
+            .with(
+                optionIndexInput,
+                optionAdminName,
+                moveUpButton,
+                moveDownButton,
+                optionInput,
+                removeOptionButton);
+    if (showScores) {
+      row.with(
+          FieldWithLabel.number()
+              .setFieldName(isForNewOption ? "newOptionScores[]" : "optionScores[]")
+              .setLabelText("Score")
+              .addReferenceClass(ReferenceClasses.MULTI_OPTION_SCORE_INPUT)
+              .setValue(scoreValueForDisplay(scoreValue))
+              .getNumberTag()
+              .withClasses(
+                  ReferenceClasses.MULTI_OPTION_SCORE_INPUT,
+                  "col-start-1",
+                  "col-span-5",
+                  "mb-2",
+                  "ml-2",
+                  "row-start-5",
+                  "row-span-2"));
+    }
+    return row;
+  }
+
+  /**
+   * Converts a form score string to a display value. Blank (unscored) and unparseable values
+   * render an empty input; invalid submissions are re-rendered alongside a form-level error.
+   */
+  private static OptionalLong scoreValueForDisplay(Optional<String> scoreValue) {
+    if (scoreValue.isEmpty() || scoreValue.get().isBlank()) {
+      return OptionalLong.empty();
+    }
+    try {
+      return OptionalLong.of(Long.parseLong(scoreValue.get().trim()));
+    } catch (NumberFormatException e) {
+      return OptionalLong.empty();
+    }
+  }
+
+  private static Optional<String> scoreAt(List<String> scores, int index) {
+    return index < scores.size() ? Optional.of(scores.get(index)) : Optional.empty();
   }
 
   private QuestionConfig addMultiOptionQuestionFields(
-      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages) {
+      MultiOptionQuestionForm multiOptionQuestionForm, Messages messages, boolean showScores) {
     Preconditions.checkState(
         multiOptionQuestionForm.getOptionIds().size()
             == multiOptionQuestionForm.getOptions().size(),
@@ -441,7 +496,9 @@ public final class QuestionConfig {
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
-              /* isForNewOption= */ false));
+              /* isForNewOption= */ false,
+              scoreAt(multiOptionQuestionForm.getOptionScores(), i),
+              showScores));
       optionIndex++;
     }
 
@@ -457,7 +514,9 @@ public final class QuestionConfig {
                       /* displayInAnswerOptions= */ Optional.of(true),
                       LocalizedStrings.DEFAULT_LOCALE)),
               messages,
-              /* isForNewOption= */ true));
+              /* isForNewOption= */ true,
+              scoreAt(multiOptionQuestionForm.getNewOptionScores(), i),
+              showScores));
       optionIndex++;
     }
 
