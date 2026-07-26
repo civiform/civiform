@@ -201,6 +201,64 @@ public class AdminProgramControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_usesScoring_flagEnabled_savesSetting() {
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.create(
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build());
+
+    assertThat(getDraftProgram().getProgramDefinition().usesScoring()).isTrue();
+  }
+
+  @Test
+  public void create_usesScoring_flagDisabled_craftedPostCannotEnable() {
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
+
+    assertThat(getDraftProgram().getProgramDefinition().usesScoring()).isFalse();
+  }
+
+  @Test
+  public void update_usesScoring_flagEnabled_roundTrips() throws Exception {
+    ProgramModel program = ProgramBuilder.newDraftProgram("Scoring program").build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.update(
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build(),
+        program.id,
+        ProgramEditStatus.EDIT.name());
+
+    ProgramModel found = programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().usesScoring()).isTrue();
+  }
+
+  @Test
+  public void update_usesScoring_flagDisabled_preservesStoredSetting() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Scoring program").withUsesScoring(true).build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    // Crafted post attempts to disable scoring while the flag is off; the input is not rendered,
+    // so the stored value must survive.
+    formData.put("usesScoring", "false");
+
+    controller.update(
+        fakeRequestBuilder().bodyForm(formData).build(), program.id, ProgramEditStatus.EDIT.name());
+
+    ProgramModel found = programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().usesScoring()).isTrue();
+  }
+
+  @Test
   public void create_includesNewAndExistingProgramsInList() {
     ProgramBuilder.newActiveProgram("Existing One").build();
 

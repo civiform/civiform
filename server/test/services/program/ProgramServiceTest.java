@@ -546,6 +546,139 @@ public class ProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void createProgram_withUsesScoring_persistsSetting() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "scoring-program",
+            "description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            /* usesScoring= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isTrue();
+    assertThat(ps.getFullProgramDefinition(result.getResult().id()).usesScoring()).isTrue();
+  }
+
+  @Test
+  public void createProgram_legacyOverloadWithoutUsesScoring_defaultsToFalse() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "no-scoring-program",
+            "description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            messages,
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isFalse();
+  }
+
+  @Test
+  public void updateProgram_withUsesScoring_updatesSetting() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("scoring update program").buildDefinition();
+    assertThat(originalProgram.usesScoring()).isFalse();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "short description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            /* usesScoring= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isTrue();
+  }
+
+  @Test
+  public void updateProgram_legacyOverloadWithoutUsesScoring_preservesStoredSetting()
+      throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("scoring preserve program").buildDefinition();
+    // Turn scoring on through the scoring-aware overload first.
+    ps.updateProgramDefinition(
+        originalProgram.id(),
+        Locale.US,
+        "new description",
+        "name",
+        "description",
+        "short description",
+        "",
+        "https://usa.gov",
+        DisplayMode.PUBLIC.getValue(),
+        ImmutableList.of(),
+        /* eligibilityIsGating= */ true,
+        /* loginOnly= */ false,
+        /* usesScoring= */ true,
+        ProgramType.DEFAULT,
+        ImmutableList.of(),
+        /* categoryIds= */ ImmutableList.of(),
+        ImmutableList.of(new ApplicationStep("title", "description")));
+
+    // An update through the legacy overload must not clobber the stored value.
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "another description",
+            "name",
+            "description",
+            "short description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isTrue();
+  }
+
+  @Test
   public void createProgram_setsNotificationPreferences() {
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         ps.createProgramDefinition(

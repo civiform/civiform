@@ -161,6 +161,12 @@ public final class AdminProgramController extends CiviFormController {
       }
     }
 
+    // While the scoring flag is off the setting is not rendered, and a new program cannot acquire
+    // it through a crafted post.
+    boolean usesScoring =
+        settingsManifest.getAnswerOptionScoringEnabled(request)
+            && Boolean.TRUE.equals(programData.getUsesScoring());
+
     ErrorAnd<ProgramDefinition, CiviFormError> result =
         programService.createProgramDefinition(
             programData.getAdminName(),
@@ -174,6 +180,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getNotificationPreferences()),
             programData.getEligibilityIsGating(),
             programData.getLoginOnly(),
+            usesScoring,
             programData.getProgramType(),
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
@@ -310,6 +317,13 @@ public final class AdminProgramController extends CiviFormController {
       }
     }
 
+    // While the scoring flag is off the setting is not rendered, so preserve the stored value and
+    // discard any crafted post value.
+    boolean usesScoring =
+        settingsManifest.getAnswerOptionScoringEnabled(request)
+            ? Boolean.TRUE.equals(programData.getUsesScoring())
+            : programDefinition.usesScoring();
+
     programService.updateProgramDefinition(
         programDefinition.id(),
         LocalizedStrings.DEFAULT_LOCALE,
@@ -323,6 +337,7 @@ public final class AdminProgramController extends CiviFormController {
         programData.getNotificationPreferences(),
         programData.getEligibilityIsGating(),
         programData.getLoginOnly(),
+        usesScoring,
         programData.getProgramType(),
         ImmutableList.copyOf(programData.getTiGroups()),
         ImmutableList.copyOf(programData.getCategories()),
