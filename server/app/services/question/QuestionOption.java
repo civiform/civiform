@@ -39,6 +39,13 @@ public abstract class QuestionOption {
   public abstract Optional<Boolean> displayInAnswerOptions();
 
   /**
+   * The score this option contributes to a submitted application, for programs that use scoring.
+   * Never shown to applicants. Absent means unscored, which is distinct from a score of 0.
+   */
+  @JsonProperty("score")
+  public abstract Optional<Integer> score();
+
+  /**
    * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
    *
    * <p>Legacy QuestionOptions from before early May 2021 will not have `localizedOptionText`.
@@ -50,16 +57,20 @@ public abstract class QuestionOption {
       @JsonProperty("adminName") String adminName,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
       @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText,
-      @JsonProperty("displayInAnswerOptions") Optional<Boolean> displayInAnswerOptions) {
+      @JsonProperty("displayInAnswerOptions") Optional<Boolean> displayInAnswerOptions,
+      @JsonProperty("score") Optional<Integer> score) {
     if (displayOrder == -1) {
       displayOrder = id;
     }
     if (localizedOptionText != null) {
       return QuestionOption.create(
-          id, displayOrder, adminName, localizedOptionText, displayInAnswerOptions);
+          id, displayOrder, adminName, localizedOptionText, displayInAnswerOptions, score);
     }
     return QuestionOption.create(
-        id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText));
+            id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText))
+        .toBuilder()
+        .setScore(score)
+        .build();
   }
 
   /**
@@ -123,6 +134,34 @@ public abstract class QuestionOption {
         .build();
   }
 
+  /**
+   * Create a {@link QuestionOption}.
+   *
+   * @param id the option id
+   * @param displayOrder the option display
+   * @param adminName the option's immutable admin name, exposed via the API
+   * @param optionText the option's user-facing text
+   * @param displayInAnswerOptions whether to show the option to the applicant
+   * @param score the score the option contributes to a scored application, absent if unscored
+   * @return the {@link QuestionOption}
+   */
+  public static QuestionOption create(
+      long id,
+      long displayOrder,
+      String adminName,
+      LocalizedStrings optionText,
+      Optional<Boolean> displayInAnswerOptions,
+      Optional<Integer> score) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setAdminName(adminName)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.of(displayOrder))
+        .setDisplayInAnswerOptions(displayInAnswerOptions)
+        .setScore(score)
+        .build();
+  }
+
   public LocalizedQuestionOption localize(Locale locale) {
     if (!optionText().hasTranslationFor(locale)) {
       throw new RuntimeException(
@@ -180,6 +219,13 @@ public abstract class QuestionOption {
 
     @JsonProperty("displayInAnswerOptions")
     public abstract Builder setDisplayInAnswerOptions(Optional<Boolean> displayInAnswerOptions);
+
+    @JsonProperty("score")
+    public abstract Builder setScore(Optional<Integer> score);
+
+    public Builder setScore(int score) {
+      return setScore(Optional.of(score));
+    }
 
     public abstract QuestionOption build();
   }
