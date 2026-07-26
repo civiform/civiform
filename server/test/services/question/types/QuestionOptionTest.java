@@ -223,6 +223,28 @@ public class QuestionOptionTest {
   }
 
   @Test
+  public void localize_neverExposesScore() {
+    // D6: the applicant-facing LocalizedQuestionOption must never carry the score. This guards
+    // against a future accessor being added and picked up by applicant rendering.
+    QuestionOption scored =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "invisible",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "option"),
+            /* displayInAnswerOptions= */ Optional.of(true),
+            /* score= */ Optional.of(987654));
+
+    LocalizedQuestionOption localized = scored.localizeOrDefault(Locale.US);
+
+    assertThat(
+            java.util.Arrays.stream(LocalizedQuestionOption.class.getMethods())
+                .map(java.lang.reflect.Method::getName))
+        .noneMatch(name -> name.toLowerCase(Locale.ROOT).contains("score"));
+    assertThat(localized.toString()).doesNotContain("987654");
+  }
+
+  @Test
   public void jsonCreator_legacyBranch_preservesScore() {
     QuestionOption option =
         QuestionOption.jsonCreator(

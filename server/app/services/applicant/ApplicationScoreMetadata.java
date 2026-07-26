@@ -76,22 +76,6 @@ public final class ApplicationScoreMetadata {
     return RESERVED_SCORE_KEYS.contains(keyName);
   }
 
-  /**
-   * Returns true if the path is rooted at the application-private metadata namespace. Applicant
-   * update endpoints reject such paths as defense in depth.
-   */
-  public static boolean isMetadataPath(Path path) {
-    if (path.isEmpty()) {
-      return false;
-    }
-    String root = path.segments().get(0);
-    int arrayStart = root.indexOf('[');
-    if (arrayStart >= 0) {
-      root = root.substring(0, arrayStart);
-    }
-    return root.equals("application_metadata");
-  }
-
   private static Path checkApplicantRooted(Path contextualizedQuestionPath) {
     ImmutableList<String> segments = contextualizedQuestionPath.segments();
     checkArgument(
