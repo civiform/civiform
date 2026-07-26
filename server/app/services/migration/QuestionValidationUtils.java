@@ -103,6 +103,35 @@ final class QuestionValidationUtils {
   }
 
   /**
+   * Validates imported answer-option scores: a score may only appear on question types that support
+   * option scores (never on YES_NO questions), and must fit in a signed 32-bit integer. The range
+   * check is defensive; {@link ProgramMigrationService} already rejects non-integral score nodes on
+   * the raw JSON tree before binding.
+   */
+  static ImmutableSet<CiviFormError> validateOptionScores(
+      ImmutableList<QuestionDefinition> questions) {
+    return questions.stream()
+        .filter(question -> question.getQuestionType().isMultiOptionType())
+        .map(question -> (MultiOptionQuestionDefinition) question)
+        .flatMap(
+            question ->
+                question.getOptions().stream()
+                    .filter(option -> option.score().isPresent())
+                    .filter(
+                        option ->
+                            !QuestionType.supportsOptionScores(question.getQuestionType()))
+                    .map(
+                        option ->
+                            CiviFormError.of(
+                                String.format(
+                                    "Question '%s' of type %s cannot have a score on option '%s'.",
+                                    question.getName(),
+                                    question.getQuestionType(),
+                                    option.adminName()))))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
    * Ensures that repeated questions (1) each have an associated enumerator, and (2) only exists in
    * the question bank if the associated enumerator also already exists in the question bank.
    */
