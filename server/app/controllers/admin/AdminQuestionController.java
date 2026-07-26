@@ -273,9 +273,27 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+
+    // Invalid scores surface as form validation errors and re-render the form, rather than being
+    // silently dropped by the builder below.
+    ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
+    if (!scoreErrors.isEmpty()) {
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(scoreErrors));
+      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
+          service
+              .getReadOnlyQuestionService()
+              .toCompletableFuture()
+              .join()
+              .getUpToDateEnumeratorQuestions();
+      return ok(
+          editView.renderNewQuestionForm(
+              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+    }
+
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      questionDefinition = getBuilder(questionForm, scoringEnabled).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
@@ -459,9 +477,25 @@ public final class AdminQuestionController extends CiviFormController {
 
     Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
 
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+
+    // Invalid scores surface as form validation errors and re-render the form, rather than being
+    // silently dropped by the builder below.
+    ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
+    if (!scoreErrors.isEmpty()) {
+      return ok(
+          editView.renderEditQuestionForm(
+              request,
+              id,
+              questionForm,
+              maybeGetEnumerationQuestion(roService, maybeExisting.get()),
+              ToastMessage.errorNonLocalized(joinErrors(scoreErrors))));
+    }
+
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
+      questionDefinition =
+          getBuilder(maybeExisting, questionForm, scoringEnabled).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
@@ -527,12 +561,37 @@ public final class AdminQuestionController extends CiviFormController {
     return result;
   }
 
+  /**
+   * Builds the {@link QuestionDefinitionBuilder} for a form response, threading the scoring flag
+   * into multi-option forms. When the flag is off, submitted scores are discarded.
+   */
+  private QuestionDefinitionBuilder getBuilder(QuestionForm questionForm, boolean scoringEnabled) {
+    if (questionForm instanceof MultiOptionQuestionForm multiOptionQuestionForm) {
+      return multiOptionQuestionForm.getBuilder(scoringEnabled);
+    }
+    return questionForm.getBuilder();
+  }
+
+  /**
+   * Returns validation errors for submitted option scores. Only relevant when the scoring flag is
+   * on and the question type supports scores; crafted score fields on other requests are ignored.
+   */
+  private ImmutableSet<CiviFormError> getOptionScoreErrors(
+      QuestionForm questionForm, boolean scoringEnabled) {
+    if (!scoringEnabled
+        || !(questionForm instanceof MultiOptionQuestionForm multiOptionQuestionForm)
+        || !QuestionType.supportsOptionScores(questionForm.getQuestionType())) {
+      return ImmutableSet.of();
+    }
+    return multiOptionQuestionForm.getOptionScoreErrors();
+  }
+
   private QuestionDefinitionBuilder getBuilder(
-      Optional<QuestionDefinition> existing, QuestionForm questionForm) {
-    QuestionDefinitionBuilder updated = questionForm.getBuilder();
+      Optional<QuestionDefinition> existing, QuestionForm questionForm, boolean scoringEnabled) {
+    QuestionDefinitionBuilder updated = getBuilder(questionForm, scoringEnabled);
 
     if (existing.isPresent()) {
-      updateDefaultLocalizations(existing.get(), updated, questionForm);
+      updateDefaultLocalizations(existing.get(), updated, questionForm, scoringEnabled);
     }
 
     return updated;
@@ -545,7 +604,8 @@ public final class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizations(
       QuestionDefinition currentQuestionDefinition,
       QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
-      QuestionForm questionForm) {
+      QuestionForm questionForm,
+      boolean scoringEnabled) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
     updatedQuestionDefinitionBuilder.setQuestionText(
@@ -584,7 +644,8 @@ public final class AdminQuestionController extends CiviFormController {
       updateDefaultLocalizationForOptions(
           updatedQuestionDefinitionBuilder,
           (MultiOptionQuestionDefinition) currentQuestionDefinition,
-          updatedQuestionOptions);
+          updatedQuestionOptions,
+          scoringEnabled);
     }
 
     if (questionForm instanceof MapQuestionForm) {
@@ -621,7 +682,15 @@ public final class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizationForOptions(
       QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
       MultiOptionQuestionDefinition currentQuestionDefinition,
-      ImmutableList<QuestionOption> updatedQuestionOptions) {
+      ImmutableList<QuestionOption> updatedQuestionOptions,
+      boolean scoringEnabled) {
+
+    // When scores don't apply to this edit (flag off or unsupported type), existing options keep
+    // their stored score via toBuilder() below, so an edit made while the flag is off cannot drop
+    // a stored score, and crafted score fields are discarded.
+    boolean applyScores =
+        scoringEnabled
+            && QuestionType.supportsOptionScores(currentQuestionDefinition.getQuestionType());
 
     var existingOptions = currentQuestionDefinition.getOptions();
     ImmutableList.Builder<QuestionOption> newOptionsListBuilder = ImmutableList.builder();
@@ -641,24 +710,31 @@ public final class AdminQuestionController extends CiviFormController {
               .equals(updatedQuestionOptionText.getDefault())) {
         // If there's an existing option with the same ID and same default locale text, then use it
         // and only update the displayOrder, preserving the adminName and translations.
-        newOptionsListBuilder.add(
+        QuestionOption.Builder optionBuilder =
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
-                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
-                .build());
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions());
+        if (applyScores) {
+          optionBuilder.setScore(updatedQuestionOption.score());
+        }
+        newOptionsListBuilder.add(optionBuilder.build());
       } else if (maybeExistingOptionWithSameId.isPresent()) {
         // If there's an existing option with the same ID but different text, then use it
         // and update the displayOrder and default locale text, preserving the adminName but
         // clearing any existing translations.
-        newOptionsListBuilder.add(
+        QuestionOption.Builder optionBuilder =
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
                 .setOptionText(updatedQuestionOptionText)
-                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
-                .build());
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions());
+        if (applyScores) {
+          optionBuilder.setScore(updatedQuestionOption.score());
+        }
+        newOptionsListBuilder.add(optionBuilder.build());
       } else {
         // If there wasn't an option with the same ID, treat it as a new
-        // option with a new adminName, displayOrder, and text.
+        // option with a new adminName, displayOrder, and text. Its score is already stripped by
+        // the form builder when scores don't apply.
         newOptionsListBuilder.add(updatedQuestionOption);
       }
     }
