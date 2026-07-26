@@ -1016,6 +1016,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.",
         "type": "bool",
         "required": false
+      },
+      "ANSWER_OPTION_SCORING_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and score output on submitted applications for programs that opt in.",
+        "type": "bool",
+        "required": false
       }
     }
   }

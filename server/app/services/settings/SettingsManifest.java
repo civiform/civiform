@@ -1154,6 +1154,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and
+   * score output on submitted applications for programs that opt in.
+   */
+  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
+    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2452,7 +2460,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicant-guest merging strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "ANSWER_OPTION_SCORING_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option"
+                              + " question answer options and score output on submitted"
+                              + " applications for programs that opt in.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
