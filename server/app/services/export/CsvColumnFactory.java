@@ -9,12 +9,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import repository.ExportServiceRepository;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicationScoreMetadata;
 import services.applicant.Currency;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
@@ -34,6 +36,7 @@ import services.applicant.question.TextQuestion;
 import services.export.enums.ColumnType;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.question.LocalizedQuestionOption;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 
@@ -61,14 +64,26 @@ final class CsvColumnFactory {
   }
 
   Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType) {
+    return buildColumns(aq, columnType, /* includeScoreColumn= */ false);
+  }
+
+  /**
+   * Builds the columns for a question. When {@code includeScoreColumn} is true (only for questions
+   * that qualified for a score column: scoring flag on, a represented program version uses scoring,
+   * and the question type supports option scores), the question's own column stream additionally
+   * contains its score column so adjacency is structural.
+   */
+  Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType, boolean includeScoreColumn) {
+    // Yes/No questions share the single-select branch but never score.
+    boolean scoreColumn = includeScoreColumn && QuestionType.supportsOptionScores(aq.getType());
     return switch (aq.getType()) {
       case ADDRESS -> buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
       case CHECKBOX ->
-          buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
+          buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType, scoreColumn);
       case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
       case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
       case DROPDOWN, RADIO_BUTTON, YES_NO ->
-          buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
+          buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType, scoreColumn);
       case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
         // Enumerator questions themselves are not included in the CSV, but their repeated questions
         // are.
@@ -251,7 +266,7 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForMultiSelectQuestion(
-      MultiSelectQuestion q, ColumnType columnType) {
+      MultiSelectQuestion q, ColumnType columnType, boolean includeScoreColumn) {
     // We only build columns once per unique contextualized question path, so for regular questions
     // this query should only be run once per question.
     // For a repeated multi-select question, which has a unique contextualized path for each
@@ -260,19 +275,72 @@ final class CsvColumnFactory {
     // To fix this we could add a short-lived cache to store the options for each multi-option
     // question, but it should only last for the lifecycle of the export request to avoid it getting
     // stale when the multi-select question is modified.
-    return exportServiceRepository
-        .getAllHistoricMultiOptionAdminNames(q.getQuestionDefinition())
-        .stream()
-        .map(
-            option ->
-                Column.builder()
-                    .setColumnType(columnType)
-                    .setHeader(CsvColumnFactory.formatHeader(q.getSelectionPath(), option))
-                    .setQuestionPath(q.getContextualizedPath())
-                    .setAnswerExtractor(
-                        msq ->
-                            getMultiSelectQuestionAnswerForCsv((MultiSelectQuestion) msq, option))
-                    .build());
+    Stream<Column> optionColumns =
+        exportServiceRepository
+            .getAllHistoricMultiOptionAdminNames(q.getQuestionDefinition())
+            .stream()
+            .map(
+                option ->
+                    Column.builder()
+                        .setColumnType(columnType)
+                        .setHeader(CsvColumnFactory.formatHeader(q.getSelectionPath(), option))
+                        .setQuestionPath(q.getContextualizedPath())
+                        .setAnswerExtractor(
+                            msq ->
+                                getMultiSelectQuestionAnswerForCsv(
+                                    (MultiSelectQuestion) msq, option))
+                        .build());
+    if (!includeScoreColumn) {
+      return optionColumns;
+    }
+    // The score column comes once, after all per-option columns.
+    return Stream.concat(
+        optionColumns, Stream.of(buildMultiSelectScoreColumn(q, columnType)));
+  }
+
+  private static Column buildMultiSelectScoreColumn(MultiSelectQuestion q, ColumnType columnType) {
+    // The header join produces the same sibling path ApplicationScoreMetadata derives for
+    // storage; values are still read through the helper.
+    return Column.builder()
+        .setColumnType(columnType)
+        .setHeader(formatHeader(q.getContextualizedPath().join("score")))
+        .setQuestionPath(q.getContextualizedPath())
+        .setAnswerExtractor(
+            msq -> {
+              // Read the row-specific persisted snapshot through the row's own question; never
+              // capture the exemplar question used to construct the column.
+              MultiSelectQuestion question = (MultiSelectQuestion) msq;
+              ApplicantData data = question.getApplicantQuestion().getApplicantData();
+              if (data.readLong(ApplicationScoreMetadata.totalScorePath()).isEmpty()) {
+                // Scoring was not applied to this application (flag-off era, program off, or
+                // pre-feature).
+                return "";
+              }
+              Path contextualizedPath = question.getApplicantQuestion().getContextualizedPath();
+              Optional<ImmutableList<Long>> selections =
+                  data.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+              Optional<List<Long>> scores =
+                  data.readNullableLongList(
+                      ApplicationScoreMetadata.scoresPath(contextualizedPath));
+              if (selections.isEmpty() || scores.isEmpty()) {
+                // Unanswered question.
+                return "";
+              }
+              if (selections.get().size() != scores.get().size()) {
+                // Corrupt metadata; render blank rather than mispairing.
+                return "";
+              }
+              List<Long> contributing =
+                  scores.get().stream().filter(Objects::nonNull).collect(Collectors.toList());
+              if (contributing.isEmpty()) {
+                // All-null scores (no selected option was scored) render blank; an explicit 0 or
+                // a cancel-to-zero sum renders 0 below.
+                return "";
+              }
+              long sum = contributing.stream().mapToLong(Long::longValue).sum();
+              return String.valueOf(sum);
+            })
+        .build();
   }
 
   private String getMultiSelectQuestionAnswerForCsv(MultiSelectQuestion q, String option) {
@@ -358,15 +426,50 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForSingleSelectQuestion(
-      SingleSelectQuestion q, ColumnType columnType) {
-    return Stream.of(
+      SingleSelectQuestion q, ColumnType columnType, boolean includeScoreColumn) {
+    Column selectionColumn =
         Column.builder()
             .setColumnType(columnType)
             .setHeader(formatHeader(q.getSelectionPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(
                 ssq -> ((SingleSelectQuestion) ssq).getSelectedOptionAdminName().orElse(""))
-            .build());
+            .build();
+    if (!includeScoreColumn) {
+      return Stream.of(selectionColumn);
+    }
+    // The score column comes immediately after the (selection) column.
+    return Stream.of(selectionColumn, buildSingleSelectScoreColumn(q, columnType));
+  }
+
+  private static Column buildSingleSelectScoreColumn(
+      SingleSelectQuestion q, ColumnType columnType) {
+    // The header join produces the same sibling path ApplicationScoreMetadata derives for
+    // storage; values are still read through the helper.
+    return Column.builder()
+        .setColumnType(columnType)
+        .setHeader(formatHeader(q.getContextualizedPath().join("score")))
+        .setQuestionPath(q.getContextualizedPath())
+        .setAnswerExtractor(
+            ssq -> {
+              // Read the row-specific persisted snapshot through the row's own question; never
+              // capture the exemplar question used to construct the column.
+              SingleSelectQuestion question = (SingleSelectQuestion) ssq;
+              ApplicantData data = question.getApplicantQuestion().getApplicantData();
+              if (data.readLong(ApplicationScoreMetadata.totalScorePath()).isEmpty()) {
+                // Scoring was not applied to this application (flag-off era, program off, or
+                // pre-feature).
+                return "";
+              }
+              // Blank when the question is unanswered or the selected option is unscored.
+              return data
+                  .readLong(
+                      ApplicationScoreMetadata.scorePath(
+                          question.getApplicantQuestion().getContextualizedPath()))
+                  .map(String::valueOf)
+                  .orElse("");
+            })
+        .build();
   }
 
   private Stream<Column> buildColumnsForTextQuestion(TextQuestion q, ColumnType columnType) {
