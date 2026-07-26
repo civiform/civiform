@@ -172,6 +172,7 @@ public final class ProgramMigrationService {
         .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
         .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
         .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
+        .addAll(QuestionValidationUtils.validateOptionScores(questions))
         .addAll(
             QuestionValidationUtils.validateRepeatedQuestions(
                 program, questions, existingAdminNames))

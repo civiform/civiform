@@ -42,8 +42,15 @@
       <div data-testid="question-div" th:utext="${card.questionTextHtml}"></div>
       <div class="mt-1 text-sm" th:utext="${card.helpTextHtml}"></div>
       <p class="mt-1 text-sm" th:text="|Admin ID: ${card.adminName}|"></p>
-      <ul th:if="${card.optionTexts != null}" class="list-disc mx-4 mt-2">
-        <li th:each="option : ${card.optionTexts}" th:text="${option}"></li>
+      <ul th:if="${card.options != null}" class="list-disc mx-4 mt-2">
+        <li th:each="option : ${card.options}">
+          <span th:text="${option.text}"></span>
+          <span
+            th:if="${option.score != null}"
+            class="ml-1 text-sm text-gray-600"
+            th:text="|(Score: ${option.score})|"
+          ></span>
+        </li>
       </ul>
     </div>
     <th:block th:if="${card.duplicateHandling != null}">
