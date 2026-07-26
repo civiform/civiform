@@ -1,4 +1,4 @@
-%NAME multiOptionRow - new option posts to the newOptions fields and has no optionIds field
+%NAME multiOptionRow - showScores grows the grid and renders an editable score input
 %TEMPLATE_MODE HTML
 %MESSAGES
 toast.errorMessageOutline=Error: {0}
@@ -6,13 +6,28 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
 # ----------------------------------------------------------------------
 %INPUT
-<div th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, null, '', '', 'field-1', 'field-2', 'field-3', false, null, 'field-4')}"></div>
+<div th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(false, '42', 'option_one', 'Option one', 'field-1', 'field-2', 'field-3', true, '2.5', 'field-4')}"></div>
 # ----------------------------------------------------------------------
 %OUTPUT
 <div
-  class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
+  class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-6 items-center mb-4"
 >
-  <div></div>
+  <div class="hidden">
+    <label for="field-1" class="sr-only"
+      >option ids<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="42"
+        maxlength="10000"
+        id="field-1"
+        name="optionIds[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="field-1-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
   <div
     class="cf-multi-option-admin-input col-start-1 col-span-5 mb-2 ml-2 row-start-1 row-span-2"
   >
@@ -24,12 +39,13 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
     <div class="flex flex-col">
       <input
         type="text"
-        value=""
+        value="option_one"
         maxlength="10000"
         aria-required="true"
         id="field-2"
-        name="newOptionAdminNames[]"
-        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+        name="optionAdminNames[]"
+        readonly="readonly"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 read-only:text-gray-500 read-only:bg-gray-100"
       />
       <div
         id="field-2-errors"
@@ -82,11 +98,11 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
     <div class="flex flex-col">
       <input
         type="text"
-        value=""
+        value="Option one"
         maxlength="10000"
         aria-required="true"
         id="field-3"
-        name="newOptions[]"
+        name="options[]"
         class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
       />
       <div
@@ -139,4 +155,26 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
       ></path>
     </svg>
   </button>
+  <div
+    class="cf-multi-option-score-input col-start-1 col-span-5 mb-2 ml-2 row-start-5 row-span-2"
+  >
+    <label
+      for="field-4"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Score<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="number"
+        inputmode="decimal"
+        step="any"
+        value="2.5"
+        maxlength="10000"
+        id="field-4"
+        name="optionScores[]"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="field-4-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
 </div>
