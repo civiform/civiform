@@ -330,6 +330,67 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void hxSaveProgram_questionValidationFails_rendersErrorAndDoesNotSave() {
+    // The save handler re-validates questions rather than trusting the JSON that round-tripped
+    // through the preview's hidden form field.
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("One or more question errors occured");
+    assertThat(contentAsString(result)).contains("Question ID 2 is not defined");
+    assertThat(
+            database
+                .find(ProgramModel.class)
+                .where()
+                .eq("name", "minimal-sample-program")
+                .findCount())
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void hxSaveProgram_partiallyScoredQuestion_rendersErrorAndDoesNotSave() {
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PARTIALLY_SCORED_DROPDOWN))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("One or more question errors occured");
+    assertThat(contentAsString(result)).contains("must have a score on every option or on none");
+    assertThat(database.find(ProgramModel.class).where().eq("name", "scored-program").findCount())
+        .isEqualTo(0);
+    assertThat(database.find(QuestionModel.class).where().eq("name", "color").findCount())
+        .isEqualTo(0);
+  }
+
+  @Test
+  public void hxSaveProgram_thymeleafEnabled_partiallyScoredQuestion_rendersErrorPartial() {
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of("programJson", PROGRAM_JSON_WITH_PARTIALLY_SCORED_DROPDOWN))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("One or more question errors occured");
+    assertThat(content).contains("must have a score on every option or on none");
+    assertThat(database.find(ProgramModel.class).where().eq("name", "scored-program").findCount())
+        .isEqualTo(0);
+  }
+
+  @Test
   public void hxSaveProgram_handlesNestEnumeratorQuestions() {
     Result result =
         controller.hxSaveProgram(
@@ -1667,6 +1728,146 @@ public class AdminImportControllerTest extends WithMockedProfiles {
               }
           }]
           }
+      """;
+
+  /** A one-block program whose only question is a dropdown with a score on just one option. */
+  public static final String PROGRAM_JSON_WITH_PARTIALLY_SCORED_DROPDOWN =
+      """
+      {
+        "program" : {
+          "id" : 11,
+          "adminName" : "scored-program",
+          "adminDescription" : "desc",
+          "externalLink" : "https://www.example.com",
+          "displayMode" : "PUBLIC",
+          "loginOnly" : false,
+          "notificationPreferences" : [ ],
+          "localizedName" : {
+            "translations" : {
+              "en_US" : "Scored Program"
+            },
+            "isRequired" : true
+          },
+          "localizedDescription" : {
+            "translations" : {
+              "en_US" : "display description"
+            },
+            "isRequired" : true
+          },
+          "localizedShortDescription" : {
+            "translations" : {
+              "en_US" : "short display description"
+            },
+            "isRequired" : true
+          },
+          "localizedConfirmationMessage" : {
+            "translations" : {
+              "en_US" : ""
+            },
+            "isRequired" : true
+          },
+          "blockDefinitions" : [ {
+            "id" : 1,
+            "name" : "Screen 1",
+            "description" : "Screen 1",
+            "localizedName" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "localizedDescription" : {
+              "translations" : {
+                "en_US" : "Screen 1"
+              },
+              "isRequired" : true
+            },
+            "repeaterId" : null,
+            "hidePredicate" : null,
+            "optionalPredicate" : null,
+            "questionDefinitions" : [ {
+              "id" : 1,
+              "optional" : false,
+              "addressCorrectionEnabled" : false
+            } ]
+          } ],
+          "statusDefinitions" : {
+            "statuses" : [ ]
+          },
+          "programType" : "DEFAULT",
+          "eligibilityIsGating" : true,
+          "acls" : {
+            "tiProgramViewAcls" : [ ]
+          },
+          "categories" : [ ],
+          "localizedSummaryImageDescription" : null,
+          "applicationSteps" : [ {
+            "title" : {
+              "translations" : {
+                "en_US" : "step one"
+              },
+              "isRequired" : true
+            },
+            "description" : {
+              "translations" : {
+                "en_US" : "step one"
+              },
+              "isRequired" : true
+            }
+          } ],
+          "bridgeDefinitions" : { }
+        },
+        "questions" : [ {
+          "type" : "multioption",
+          "config" : {
+            "name" : "color",
+            "description" : "Favorite color",
+            "questionText" : {
+              "translations" : {
+                "en_US" : "What is your favorite color?"
+              },
+              "isRequired" : true
+            },
+            "questionHelpText" : {
+              "translations" : { },
+              "isRequired" : false
+            },
+            "validationPredicates" : {
+              "type" : "multioption"
+            },
+            "id" : 1,
+            "universal" : false,
+            "displayMode" : "VISIBLE",
+            "primaryApplicantInfoTags" : [ ]
+          },
+          "questionOptions" : [ {
+            "id" : 1,
+            "adminName" : "red",
+            "localizedOptionText" : {
+              "translations" : {
+                "en_US" : "Red"
+              },
+              "isRequired" : true
+            },
+            "displayOrder" : 1,
+            "displayInAnswerOptions" : true,
+            "score" : 2.5
+          }, {
+            "id" : 2,
+            "adminName" : "blue",
+            "localizedOptionText" : {
+              "translations" : {
+                "en_US" : "Blue"
+              },
+              "isRequired" : true
+            },
+            "displayOrder" : 2,
+            "displayInAnswerOptions" : true,
+            "score" : null
+          } ],
+          "multiOptionQuestionType" : "DROPDOWN"
+        } ]
+      }
       """;
 
   public static final String PROGRAM_JSON_WITH_MISMATCHED_QUESTION_ID =

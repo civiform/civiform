@@ -12,6 +12,7 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Map.Entry;
+import java.util.Optional;
 import mapping.admin.migration.AdminImportErrorPartialMapper;
 import mapping.admin.migration.AdminImportProgramDataPartialMapper;
 import models.DisplayMode;
@@ -278,25 +279,10 @@ public class AdminImportController extends CiviFormController {
                 .render());
       }
 
-      programMigrationService.validateQuestionKeyUniqueness(questions);
-      ImmutableList<String> existingAdminNames =
-          programMigrationService.getExistingAdminNames(questions);
-      ImmutableSet<CiviFormError> questionErrors =
-          programMigrationService.validateQuestions(program, questions, existingAdminNames);
-      if (!questionErrors.isEmpty()) {
-        if (thymeleafEnabled) {
-          return ok(adminImportErrorPartialView.render(
-                  request,
-                  new AdminImportErrorPartialMapper()
-                      .mapWithLineBreaks(
-                          "One or more question errors occured:", joinErrors(questionErrors))))
-              .as(Http.MimeTypes.HTML);
-        }
-        return ok(
-            adminImportViewPartial
-                .renderErrorWithLineBreaks(
-                    "One or more question errors occured:", joinErrors(questionErrors))
-                .render());
+      Optional<Result> questionErrorResult =
+          renderQuestionErrors(request, program, questions, thymeleafEnabled);
+      if (questionErrorResult.isPresent()) {
+        return questionErrorResult.get();
       }
 
       ErrorAnd<String, String> serializeResult =
@@ -363,6 +349,16 @@ public class AdminImportController extends CiviFormController {
       ImmutableMap<String, ProgramMigrationWrapper.DuplicateQuestionHandlingOption>
           duplicateHandlingOptions = programMigrationWrapper.getDuplicateQuestionHandlingOptions();
 
+      // The preview already validated these questions, but the JSON round-trips through a hidden
+      // form field, so re-validate here rather than trust what came back.
+      if (questionsOnJson != null) {
+        Optional<Result> questionErrorResult =
+            renderQuestionErrors(request, programOnJson, questionsOnJson, thymeleafEnabled);
+        if (questionErrorResult.isPresent()) {
+          return questionErrorResult.get();
+        }
+      }
+
       ErrorAnd<ProgramModel, String> savedProgram =
           programMigrationService.saveImportedProgram(
               programOnJson, questionsOnJson, duplicateHandlingOptions);
@@ -411,6 +407,42 @@ public class AdminImportController extends CiviFormController {
                   "Error: " + error.toString())
               .render());
     }
+  }
+
+  /**
+   * Validates the imported questions and, if any fail, renders the question-errors partial. Returns
+   * empty when all questions are valid.
+   */
+  private Optional<Result> renderQuestionErrors(
+      Http.Request request,
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      boolean thymeleafEnabled) {
+    programMigrationService.validateQuestionKeyUniqueness(questions);
+    ImmutableList<String> existingAdminNames =
+        programMigrationService.getExistingAdminNames(questions);
+    ImmutableSet<CiviFormError> questionErrors =
+        programMigrationService.validateQuestions(program, questions, existingAdminNames);
+
+    if (questionErrors.isEmpty()) {
+      return Optional.empty();
+    }
+
+    if (thymeleafEnabled) {
+      return Optional.of(
+          ok(adminImportErrorPartialView.render(
+                  request,
+                  new AdminImportErrorPartialMapper()
+                      .mapWithLineBreaks(
+                          "One or more question errors occured:", joinErrors(questionErrors))))
+              .as(Http.MimeTypes.HTML));
+    }
+    return Optional.of(
+        ok(
+            adminImportViewPartial
+                .renderErrorWithLineBreaks(
+                    "One or more question errors occured:", joinErrors(questionErrors))
+                .render()));
   }
 
   /** Renders the Thymeleaf import-error partial. */

@@ -8,11 +8,13 @@ import mapping.admin.questions.QuestionTypeIconFragments;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.admin.migration.AdminImportProgramDataPartialViewModel;
 import views.admin.migration.AdminImportProgramDataPartialViewModel.Block;
 import views.admin.migration.AdminImportProgramDataPartialViewModel.DuplicateHandling;
+import views.admin.migration.AdminImportProgramDataPartialViewModel.Option;
 import views.admin.migration.AdminImportProgramDataPartialViewModel.QuestionCard;
 import views.components.TextFormatter;
 
@@ -125,13 +127,20 @@ public final class AdminImportProgramDataPartialMapper {
     }
 
     // Only shown during program import, so the option list is rendered for
-    // every multi-option question type.
-    ImmutableList<String> optionTexts = null;
+    // every multi-option question type. Scores are surfaced whenever the
+    // imported option has one; the program's usesScoring setting does not
+    // gate them.
+    ImmutableList<Option> options = null;
     if (questionDefinition.getQuestionType().isMultiOptionType()) {
-      optionTexts =
+      options =
           ((MultiOptionQuestionDefinition) questionDefinition)
               .getOptions().stream()
-                  .map(option -> option.optionText().getDefault())
+                  .map(
+                      option ->
+                          Option.builder()
+                              .text(option.optionText().getDefault())
+                              .score(option.score().map(QuestionOption::formatScore).orElse(null))
+                              .build())
                   .collect(ImmutableList.toImmutableList());
     }
 
@@ -153,7 +162,7 @@ public final class AdminImportProgramDataPartialMapper {
             questionIsRepeated
                 ? questionsById.get(questionDefinition.getEnumeratorId().get()).getName()
                 : null)
-        .optionTexts(optionTexts)
+        .options(options)
         .duplicateHandling(duplicateHandling)
         .build();
   }
