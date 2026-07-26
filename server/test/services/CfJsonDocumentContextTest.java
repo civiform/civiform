@@ -542,6 +542,46 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void readNullableLongList_roundTripsNullHoles() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.toppings.scores");
+    java.util.List<Long> scores = new java.util.ArrayList<>();
+    scores.add(3L);
+    scores.add(null);
+    scores.add(-7L);
+
+    data.putArray(path, scores);
+
+    assertThat(data.readNullableLongList(path)).hasValue(scores);
+    // readLongList silently vanishes on null holes (Guava rejects nulls); the nullable reader is
+    // the supported way to get the array back.
+    assertThat(data.readLongList(path)).isEmpty();
+  }
+
+  @Test
+  public void readNullableLongList_allNullAndEmptyLists_roundTrip() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path allNullPath = Path.create("applicant.all_null.scores");
+    java.util.List<Long> allNull = new java.util.ArrayList<>();
+    allNull.add(null);
+    allNull.add(null);
+    data.putArray(allNullPath, allNull);
+
+    Path emptyPath = Path.create("applicant.empty.scores");
+    data.putArray(emptyPath, new java.util.ArrayList<Long>());
+
+    assertThat(data.readNullableLongList(allNullPath)).hasValue(allNull);
+    assertThat(data.readNullableLongList(emptyPath)).hasValue(java.util.List.of());
+  }
+
+  @Test
+  public void readNullableLongList_pathNotPresent_returnsEmptyOptional() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThat(data.readNullableLongList(Path.create("not.here"))).isEmpty();
+  }
+
+  @Test
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
     String testData =
         """

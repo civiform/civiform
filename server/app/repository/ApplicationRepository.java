@@ -21,8 +21,11 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.applicant.ApplicantData;
+import services.applicant.ApplicationScoreCalculator;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.DuplicateApplicationException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 
 /**
@@ -38,18 +41,21 @@ public final class ApplicationRepository {
   private final ProgramRepository programRepository;
   private final AccountRepository accountRepository;
   private final DatabaseExecutionContext dbExecutionContext;
+  private final ApplicationScoreCalculator applicationScoreCalculator;
   private static final Logger logger = LoggerFactory.getLogger(ApplicationRepository.class);
 
   @Inject
   public ApplicationRepository(
       ProgramRepository programRepository,
       AccountRepository accountRepository,
-      DatabaseExecutionContext dbExecutionContext) {
+      DatabaseExecutionContext dbExecutionContext,
+      ApplicationScoreCalculator applicationScoreCalculator) {
     this.database = DB.getDefault();
     this.transactionManager = new TransactionManager();
     this.programRepository = checkNotNull(programRepository);
     this.accountRepository = checkNotNull(accountRepository);
     this.dbExecutionContext = checkNotNull(dbExecutionContext);
+    this.applicationScoreCalculator = checkNotNull(applicationScoreCalculator);
   }
 
   @VisibleForTesting
@@ -61,33 +67,71 @@ public final class ApplicationRepository {
     return supplyAsync(
         () ->
             submitApplicationInternal(
-                applicant, program, tiSubmitterEmail, eligibilityDetermination),
+                applicant,
+                program,
+                tiSubmitterEmail,
+                eligibilityDetermination,
+                /* fullProgramDefinition= */ Optional.empty(),
+                /* scoringEnabled= */ false),
         dbExecutionContext.current());
   }
 
   /**
-   * Submit an application, which will delete any in-progress drafts, obsolete any submitted
-   * applications to a program with the same name (to include past versions of the same program),
-   * and create a new application in the active state.
+   * Submit an application without applying answer-option scoring. See {@link
+   * #submitApplication(long, long, Optional, EligibilityDetermination, Optional, boolean)}.
    */
   public CompletionStage<Optional<ApplicationModel>> submitApplication(
       long applicantId,
       long programId,
       Optional<String> tiSubmitterEmail,
       EligibilityDetermination eligibilityDetermination) {
+    return submitApplication(
+        applicantId,
+        programId,
+        tiSubmitterEmail,
+        eligibilityDetermination,
+        /* fullProgramDefinition= */ Optional.empty(),
+        /* scoringEnabled= */ false);
+  }
+
+  /**
+   * Submit an application, which will delete any in-progress drafts, obsolete any submitted
+   * applications to a program with the same name (to include past versions of the same program),
+   * and create a new application in the active state.
+   *
+   * @param fullProgramDefinition the full definition of the submitted program version, used to
+   *     resolve answer-option scores
+   * @param scoringEnabled whether the answer-option-scoring feature flag is on for this request;
+   *     score metadata is written only when this is true and the program version has {@code
+   *     usesScoring}
+   */
+  public CompletionStage<Optional<ApplicationModel>> submitApplication(
+      long applicantId,
+      long programId,
+      Optional<String> tiSubmitterEmail,
+      EligibilityDetermination eligibilityDetermination,
+      Optional<ProgramDefinition> fullProgramDefinition,
+      boolean scoringEnabled) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
             submitApplicationInternal(
-                appArgs.applicant, appArgs.program, tiSubmitterEmail, eligibilityDetermination));
+                appArgs.applicant,
+                appArgs.program,
+                tiSubmitterEmail,
+                eligibilityDetermination,
+                fullProgramDefinition,
+                scoringEnabled));
   }
 
   private ApplicationModel submitApplicationInternal(
       ApplicantModel applicant,
       ProgramModel program,
       Optional<String> tiSubmitterEmail,
-      EligibilityDetermination eligibilityDetermination) {
+      EligibilityDetermination eligibilityDetermination,
+      Optional<ProgramDefinition> fullProgramDefinition,
+      boolean scoringEnabled) {
     return transactionManager.execute(
         () -> {
           List<ApplicationModel> oldApplications =
@@ -163,9 +207,37 @@ public final class ApplicationRepository {
             appModel.setLifecycleStage(LifecycleStage.OBSOLETE);
             appModel.save();
           }
+          boolean applyScoring =
+              scoringEnabled
+                  && fullProgramDefinition.isPresent()
+                  && fullProgramDefinition.get().usesScoring();
+          final ApplicantData snapshot;
+          if (applyScoring) {
+            ProgramDefinition submittedVersion = fullProgramDefinition.get();
+            // The controller's fast-forward normally guarantees the draft points at the version
+            // being submitted, but do not depend on it: repoint stale drafts so scores resolve
+            // from the exact version the application is associated with.
+            if (application.getProgram().id != submittedVersion.id()) {
+              application.setProgram(program);
+            }
+            // Enrich a private copy, preserving the source's preferred locale. Never mutate
+            // applicant.getApplicantData(): ApplicantModel memoizes it, so enriching it in place
+            // would leak score metadata into the applicant's shared row on a later save.
+            snapshot =
+                new ApplicantData(
+                    applicant.getApplicantData().hasPreferredLocale()
+                        ? Optional.of(applicant.getApplicantData().preferredLocale())
+                        : Optional.empty(),
+                    applicant.getApplicantData().asJsonString());
+            applicationScoreCalculator.enrich(applicant, snapshot, submittedVersion);
+          } else {
+            snapshot = applicant.getApplicantData();
+          }
+          // Enrichment, activation, and save share this transaction, so the application cannot go
+          // active without its complete score snapshot.
           application
               .setEligibilityDetermination(eligibilityDetermination)
-              .setApplicantData(applicant.getApplicantData())
+              .setApplicantData(snapshot)
               .setLifecycleStage(LifecycleStage.ACTIVE)
               .setSubmitTimeToNow();
           tiSubmitterEmail.ifPresent(application::setSubmitterEmail);

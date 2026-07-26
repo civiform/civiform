@@ -258,6 +258,10 @@ public class CfJsonDocumentContext {
   /**
    * Puts an array at a given path, building parent objects as needed.
    *
+   * <p>This is the supported way to persist numeric arrays with null holes: pass a plain {@link
+   * java.util.ArrayList} (Guava's immutable collections reject nulls) and read the values back
+   * with {@link #readNullableLongList}.
+   *
    * @param path the {@link Path} where the array should be added.
    * @param list a {@link List} containing scalar values such as strings or longs.
    */
@@ -437,6 +441,27 @@ public class CfJsonDocumentContext {
    */
   public Optional<ImmutableList<String>> readStringList(Path path) {
     return this.readList(path, new TypeRef<ImmutableList<String>>() {});
+  }
+
+  /**
+   * Attempt to read a list of longs that may contain null entries at the given {@link Path}.
+   * Returns {@code Optional#empty} if the path does not exist or holds a value of another type.
+   *
+   * <p>Unlike {@link #readLongList}, this tolerates null holes: Guava's {@link ImmutableList}
+   * rejects nulls, so a null-holed array read through {@link #readLongList} would surface as
+   * {@code Optional#empty} and silently vanish. Write such arrays with {@link #putArray(Path,
+   * List)} using a plain {@link ArrayList}.
+   *
+   * @param path the {@link Path} to the list
+   * @return an Optional containing a List<Long> that may contain nulls
+   */
+  public Optional<List<Long>> readNullableLongList(Path path) {
+    try {
+      Optional<ArrayList<Long>> result = this.read(path, new TypeRef<ArrayList<Long>>() {});
+      return result.map(list -> (List<Long>) list);
+    } catch (JsonPathTypeMismatchException e) {
+      return Optional.empty();
+    }
   }
 
   /**

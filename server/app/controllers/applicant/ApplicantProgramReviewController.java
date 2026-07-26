@@ -301,7 +301,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CompletableFuture<ApplicationModel> submitAppFuture =
         applicantService
-            .submitApplication(applicantId, programId, submittingProfile, request)
+            .submitApplication(
+                applicantId,
+                programId,
+                submittingProfile,
+                request,
+                settingsManifest.getAnswerOptionScoringEnabled(request))
             .toCompletableFuture();
     CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
         applicantService
