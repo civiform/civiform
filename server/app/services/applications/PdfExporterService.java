@@ -26,12 +26,16 @@ public final class PdfExporterService {
    *
    * <p>Used for applicants to download a copy of their submitted application and for program admins
    * to review applications.
+   *
+   * @param includeScores whether the answer-option-scoring feature flag is on for this request;
+   *     score text renders only for admins when the application snapshot carries score metadata.
+   *     Applicant downloads always pass false.
    */
   public PdfExporter.InMemoryPdf generateApplicationPdf(
-      ApplicationModel application, boolean isAdmin) {
+      ApplicationModel application, boolean isAdmin, boolean includeScores) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.exportApplication(application, isAdmin);
+      pdf = pdfExporter.exportApplication(application, isAdmin, includeScores);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }
