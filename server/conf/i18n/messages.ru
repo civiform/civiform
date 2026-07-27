@@ -1221,7 +1221,7 @@ description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Перед добавлением повторяющихся вопросов необходимо добавить вопросы для повторяющегося набора. Чтобы сделать это, перейдите на основной экран.
 # Alert shown when the admin submits the new repeated set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Initial question must be added
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=При создании повторяющегося набора новый вопрос будет добавлен в банк.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
