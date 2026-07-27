@@ -105,6 +105,10 @@ input.singleFileUploadHint=Select a file
 input.multipleFileUploadHint=Select one or more files (maximum of {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Select one or more files
+# Aria-label for the file input when files have already been uploaded. %count% is replaced by JavaScript with the
+# number of already-uploaded files. Screen readers read this when focusing the file input, instead of the
+# browser-native "No file selected" text.
+input.filesAlreadyUploadedAriaLabel=%count% file(s) already uploaded. Select a file to upload more.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Save and next
 # The button text for navigating to the previous screen in the form.

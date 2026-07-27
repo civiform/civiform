@@ -88,6 +88,28 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
     })
 
+    test('file input has updated aria-label after upload for screen reader users', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      // Before any file is uploaded, no aria-label should be set on the input.
+      const fileInput = page.locator('input[type="file"]')
+      await expect(fileInput).not.toHaveAttribute('aria-label')
+
+      await applicantQuestions.answerFileUploadQuestionFromAssets(
+        'file-upload.png',
+      )
+
+      // After upload, the input should have an aria-label indicating the file count
+      // so screen readers announce something meaningful instead of "No file selected".
+      await expect(fileInput).toHaveAttribute(
+        'aria-label',
+        /1 file\(s\) already uploaded/,
+      )
+    })
+
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     test('missing file error disappears when file uploaded', async ({
       applicantQuestions,
