@@ -321,8 +321,7 @@ public class QuestionDefinitionTest {
       throws Exception {
     QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();
 
-    assertThat(
-            question.validate(Optional.empty(), /* requireLegacyRepeatedEntitySelector= */ false))
+    assertThat(question.validate(Optional.empty(), /* enumeratorImprovementsEnabled= */ true))
         .isEmpty();
   }
 

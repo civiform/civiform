@@ -70,7 +70,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 questionForTombstone.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(services.ProgramBlockValidation.AddQuestionResult.QUESTION_TOMBSTONED);
   }
 
@@ -93,7 +93,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 householdMemberNameQuestion,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(
             services.ProgramBlockValidation.AddQuestionResult
                 .QUESTION_NOT_IN_ACTIVE_OR_DRAFT_STATE);
@@ -111,7 +111,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 question,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -130,7 +130,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 question,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.DUPLICATE);
   }
 
@@ -151,7 +151,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 nameQuestion,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.BLOCK_IS_SINGLE_QUESTION);
   }
 
@@ -172,7 +172,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 fileQuestion,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.CANT_ADD_SINGLE_BLOCK_QUESTION_TO_NON_EMPTY_BLOCK);
   }
 
@@ -190,7 +190,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 repeatedQuestion,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
@@ -209,7 +209,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 question,
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK);
   }
 
@@ -232,7 +232,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 nameQuestion,
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
@@ -251,7 +251,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 nestedHouseholdMemberWageQuestion.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ false,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -270,7 +270,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 repeatedHouseholdMemberNameQuestion.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -291,7 +291,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 questionForEligible.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -318,7 +318,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 otherRepeatedQuestion.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
@@ -336,7 +336,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 questionForEligible.getQuestionDefinition(), // text question type
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ true))
+                /* isInitialQuestion= */ true))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 
@@ -356,7 +356,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 checkboxQuestion,
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ true))
+                /* isInitialQuestion= */ true))
         .isEqualTo(AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE);
   }
 
@@ -374,7 +374,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 householdMemberQuestion.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ true))
+                /* isInitialQuestion= */ true))
         .isEqualTo(AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE);
   }
 
@@ -392,7 +392,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 householdMemberQuestion.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestionSelection= */ false))
+                /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 }

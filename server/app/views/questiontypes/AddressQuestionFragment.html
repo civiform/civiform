@@ -5,35 +5,36 @@
            firstPathWithError=${addressQuestion.getFirstPathWithError()},
            hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
   th:id="${questionId}"
-  class="cf-question-address"
+  class="cf-question-address cf-applicant-question-field"
   th:classappend="${hasGroupErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
-  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
-  <fieldset class="usa-fieldset">
-    <div class="cf-question-header">
-      <!--/* Title and Help Text */-->
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-      ></div>
+  <fieldset
+    class="usa-fieldset"
+    th:aria-labelledby="|${questionId}-title ${questionId}-description|"
+    th:aria-describedby="${questionId} + '-description'"
+  >
+    <!--/* Title and Help Text */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
+    ></div>
 
-      <!--/* Display errors for the entire question */-->
-      <div
-        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
-          ${addressQuestion.getValidationErrors().get(question.getContextualizedPath())},
-          ${questionRendererParams},
-          ${questionId})}"
-      ></div>
-    </div>
+    <!--/* Display errors for the entire question */-->
+    <div
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(
+                        ${addressQuestion.getValidationErrors().get(question.getContextualizedPath())},
+                        ${questionRendererParams},
+            ${questionId})}"
+    ></div>
 
     <!--/* Street address */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
-               streetPath=${addressQuestion.getStreetPath()},
-               fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
-               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
-               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-      class="cf-address-street-1 cf-applicant-question-field"
+                      streetPath=${addressQuestion.getStreetPath()},
+                      fieldErrors=${addressQuestion.getValidationErrors().get(streetPath)},
+                      hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+                      showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-street-1"
       th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
       <th:block th:if="${showFieldErrorMessages}">
@@ -68,11 +69,11 @@
     <!--/* Street address line 2 */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
-               line2Path=${addressQuestion.getLine2Path()},
-               fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
-               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
-               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-      class="cf-address-street-2 cf-applicant-question-field"
+                      line2Path=${addressQuestion.getLine2Path()},
+                      fieldErrors=${addressQuestion.getValidationErrors().get(line2Path)},
+                      hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+                      showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-street-2"
       th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
       <th:block th:if="${showFieldErrorMessages}">
@@ -101,11 +102,11 @@
     <!--/* City */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
-               cityPath=${addressQuestion.getCityPath()},
-               fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
-               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
-               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-      class="cf-address-city cf-applicant-question-field"
+                      cityPath=${addressQuestion.getCityPath()},
+                      fieldErrors=${addressQuestion.getValidationErrors().get(cityPath)},
+                      hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+                      showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-city"
       th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
       <th:block th:if="${showFieldErrorMessages}">
@@ -140,11 +141,11 @@
     <!--/* State */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
-               statePath=${addressQuestion.getStatePath()},
-               fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
-               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
-               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-      class="cf-address-state cf-applicant-question-field"
+                      statePath=${addressQuestion.getStatePath()},
+                      fieldErrors=${addressQuestion.getValidationErrors().get(statePath)},
+                      hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+                      showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-state"
       th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
     >
       <th:block th:if="${showFieldErrorMessages}">
@@ -186,11 +187,11 @@
     <!--/* ZIP code */-->
     <div
       th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},
-               zipPath=${addressQuestion.getZipPath()},
-               fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
-               hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
-               showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
-      class="cf-address-zip cf-applicant-question-field"
+                      zipPath=${addressQuestion.getZipPath()},
+                      fieldErrors=${addressQuestion.getValidationErrors().get(zipPath)},
+                      hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
+                      showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},"
+      class="cf-address-zip"
       th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error cf-address-zip-error' : ''}"
     >
       <th:block th:if="${showFieldErrorMessages}">

@@ -37,29 +37,38 @@
               <!-- We need h4 style for the headings, but accessibility checker
                doesn't allow skipping from h2 to h4 -->
               <div class="content">
-                <h3 th:text="#{heading.applicantName}" class="cf-prose-h4"></h3>
-                <p th:text="${applicantName}"></p>
+                <h3
+                  th:text="#{heading.applicantName}"
+                  class="cf-prose-h4 margin-0"
+                ></h3>
+                <p class="margin-0" th:text="${applicantName}"></p>
               </div>
 
               <div class="content">
                 <h3
                   th:text="#{heading.confirmationNumber}"
-                  class="cf-prose-h4"
+                  class="cf-prose-h4 margin-0"
                 ></h3>
-                <p th:text="${applicationId}" class="cf-application-id"></p>
+                <p
+                  th:text="${applicationId}"
+                  class="cf-application-id margin-0"
+                ></p>
               </div>
 
               <div class="content">
-                <h3 th:text="#{heading.dateSubmitted}" class="cf-prose-h4"></h3>
-                <p th:text="${dateSubmitted}" class="cf-bt-date"></p>
+                <h3
+                  th:text="#{heading.dateSubmitted}"
+                  class="cf-prose-h4 margin-0"
+                ></h3>
+                <p th:text="${dateSubmitted}" class="cf-bt-date margin-0"></p>
               </div>
 
               <div class="content">
                 <h4
                   th:text="#{heading.forYourRecords}"
-                  class="cf-prose-h4"
+                  class="cf-prose-h4 margin-0"
                 ></h4>
-                <p th:text="#{content.youCanPrint}"></p>
+                <p class="margin-0" th:text="#{content.youCanPrint}"></p>
               </div>
 
               <div class="section-internal">

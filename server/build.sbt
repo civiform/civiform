@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.46.20",
-      "software.amazon.awssdk" % "ses" % "2.46.20",
+      "software.amazon.awssdk" % "s3" % "2.49.1",
+      "software.amazon.awssdk" % "ses" % "2.49.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -59,7 +59,7 @@ lazy val root = (project in file("."))
       "com.microsoft.graph" % "microsoft-graph" % "6.65.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.12",
+      "org.postgresql" % "postgresql" % "42.7.13",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.6",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
@@ -71,6 +71,10 @@ lazy val root = (project in file("."))
 
       // Testing libraries
       "org.assertj" % "assertj-core" % "3.27.7" % Test,
+      // Excludes mockito-core so its newer transitive version doesn't override
+      // the mockito-inline version pinned below.
+      ("org.thymeleaf.testing" % "thymeleaf-testing" % "3.1.5.RELEASE" % Test)
+        .exclude("org.mockito", "mockito-core"),
       "org.mockito" % "mockito-inline" % "5.2.0",
 
       // EqualsTester
@@ -88,16 +92,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.4",
+      "org.pac4j" % "pac4j-core" % "6.5.5",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.4",
+      "org.pac4j" % "pac4j-http" % "6.5.5",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.4",
+      "org.pac4j" % "pac4j-oidc" % "6.5.5",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.4",
-
-      // Encrypted cookies require encryption.
-      "org.apache.shiro" % "shiro-crypto-cipher" % "1.13.0",
+      "org.pac4j" % "pac4j-saml" % "6.5.5",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
@@ -121,7 +122,7 @@ lazy val root = (project in file("."))
       "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.34",
 
       // Slugs for deeplinking.
-      "com.github.slugify" % "slugify" % "4.0.0",
+      "com.github.slugify" % "slugify" % "4.0.1",
 
       // Apache libraries for testing subnets
       "commons-net" % "commons-net" % "3.13.0",
@@ -145,7 +146,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.37",
+      "ch.qos.logback" % "logback-classic" % "1.5.38",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

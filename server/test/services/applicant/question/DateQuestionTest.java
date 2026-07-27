@@ -277,6 +277,29 @@ public class DateQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withMisformattedDate_retainsValuesOnFailedUpdate() {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    // User input from the 3 fields are concatenated in YYYY-MM-DD format.
+    // Test a date with no year and an invalid month.
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "-invalid-10"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    // Date should have validation errors.
+    assertThat(dateQuestion.getDateValue()).isEmpty();
+    assertThat(dateQuestion.getValidationErrors()).isNotEmpty();
+    // Previously entered integer values should be kept so the user doesn't lose their input.
+    assertThat(dateQuestion.getYearValue()).isEmpty();
+    assertThat(dateQuestion.getMonthValue()).isEmpty();
+    assertThat(dateQuestion.getDayValue()).hasValue(10);
+  }
+
+  @Test
   public void getDateValue_returnsPAIValueWhenTagged() {
     DateQuestionDefinition dateQuestionDefinitionWithPAI =
         new DateQuestionDefinition(
@@ -300,6 +323,40 @@ public class DateQuestionTest extends ResetPostgres {
             .createDateQuestion();
 
     assertThat(dateQuestion.getDateValue().get()).isEqualTo(applicant.getDateOfBirth().get());
+  }
+
+  @Test
+  public void emptyFieldsDetection_withPartialDate() {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    // Missing year, valid month (5), valid day (10)
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "-5-10"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    assertThat(dateQuestion.isYearEmpty()).isTrue();
+    assertThat(dateQuestion.isMonthEmpty()).isFalse();
+    assertThat(dateQuestion.isDayEmpty()).isFalse();
+    assertThat(dateQuestion.allFieldsPresent()).isFalse();
+  }
+
+  @Test
+  public void allFieldsPresent_withCompleteDate() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerDateQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "2021-05-10");
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    assertThat(dateQuestion.isYearEmpty()).isFalse();
+    assertThat(dateQuestion.isMonthEmpty()).isFalse();
+    assertThat(dateQuestion.isDayEmpty()).isFalse();
+    assertThat(dateQuestion.allFieldsPresent()).isTrue();
   }
 
   private DateQuestionDefinition createDateQuestionDefinition(

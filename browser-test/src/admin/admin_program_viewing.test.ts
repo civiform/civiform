@@ -273,7 +273,6 @@ test.describe('admin program view page', () => {
       ProgramHeaderButton.DOWNLOAD_PDF_PREVIEW,
     )
     await adminPrograms.expectBlockPanelHidden()
-    await logout(page)
   })
 
   test('admin views application with long text answer', async ({

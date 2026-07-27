@@ -195,7 +195,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
-      if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+      if (settingsManifest.getExpandedFormLogicEnabled()) {
         Optional<PredicateDefinition> maybePredicateDefinition =
             getAvailablePredicateDefinition(programDefinition, blockDefinitionId, predicateUseCase);
 
@@ -767,7 +767,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updatePredicate(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     requestChecker.throwIfProgramNotDraft(programId);
@@ -864,7 +864,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -944,7 +944,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -1004,7 +1004,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -1063,7 +1063,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -1123,7 +1123,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -1197,7 +1197,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteAllConditions(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 

@@ -7,10 +7,10 @@
   class="cf-question-radio cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
-  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
+    th:aria-labelledby="|${questionId}-title ${questionId}-description|"
     th:aria-describedby="${questionId} + '-description'"
   >
     <!--/* Title and Help Text */-->

@@ -468,6 +468,14 @@ fieldset .usa-error-message {
   font-size: initial;
 }
 
+/* USWDS sets display:block on .usa-error-message, overriding the browser's [hidden] rule
+ * (equal specificity, last-wins). The compound selector beats the USWDS rule by specificity,
+ * preventing a flash on page load. showError() removes hidden before showing, so this doesn't
+ * interfere with legitimate error display. */
+.usa-error-message[hidden] {
+  display: none;
+}
+
 // Add asterisk for required fields
 .usa-label:has(~ input.usa-input[required]:enabled)::after,
 .usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,

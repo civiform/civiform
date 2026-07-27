@@ -1,0 +1,126 @@
+<!--/* USWDS memorable date (month/day/year) picker with required
+     indicators. Shared by the question new/edit pages. */-->
+<fieldset
+  th:fragment="memorableDate(idPrefix, hidden, monthName, monthValue, dayName, dayValue, yearName, yearValue)"
+  th:id="|${idPrefix}-fieldset|"
+  class="pb-2"
+  th:hidden="${hidden}"
+>
+  <div class="text-red-600 text-xs" id="memorable_date_error"></div>
+  <div class="usa-memorable-date">
+    <div class="usa-form-group usa-form-group--month usa-form-group--select">
+      <label class="usa-label" th:for="|${idPrefix}-month|"
+        >[[#{label.month}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+        ></span
+      ></label>
+      <select
+        class="usa-select"
+        th:id="|${idPrefix}-month|"
+        th:name="${monthName}"
+        aria-describedby="mdHint"
+      >
+        <option
+          value=""
+          th:selected="${monthValue == ''}"
+          th:text="'- ' + #{placeholder.memorableDate} + ' -'"
+        ></option>
+        <option
+          value="1"
+          th:selected='${monthValue == "1"}'
+          th:text="#{option.memorableDate.January}"
+        ></option>
+        <option
+          value="2"
+          th:selected='${monthValue == "2"}'
+          th:text="#{option.memorableDate.February}"
+        ></option>
+        <option
+          value="3"
+          th:selected='${monthValue == "3"}'
+          th:text="#{option.memorableDate.March}"
+        ></option>
+        <option
+          value="4"
+          th:selected='${monthValue == "4"}'
+          th:text="#{option.memorableDate.April}"
+        ></option>
+        <option
+          value="5"
+          th:selected='${monthValue == "5"}'
+          th:text="#{option.memorableDate.May}"
+        ></option>
+        <option
+          value="6"
+          th:selected='${monthValue == "6"}'
+          th:text="#{option.memorableDate.June}"
+        ></option>
+        <option
+          value="7"
+          th:selected='${monthValue == "7"}'
+          th:text="#{option.memorableDate.July}"
+        ></option>
+        <option
+          value="8"
+          th:selected='${monthValue == "8"}'
+          th:text="#{option.memorableDate.August}"
+        ></option>
+        <option
+          value="9"
+          th:selected='${monthValue == "9"}'
+          th:text="#{option.memorableDate.September}"
+        ></option>
+        <option
+          value="10"
+          th:selected='${monthValue == "10"}'
+          th:text="#{option.memorableDate.October}"
+        ></option>
+        <option
+          value="11"
+          th:selected='${monthValue == "11"}'
+          th:text="#{option.memorableDate.November}"
+        ></option>
+        <option
+          value="12"
+          th:selected='${monthValue == "12"}'
+          th:text="#{option.memorableDate.December}"
+        ></option>
+      </select>
+    </div>
+    <div class="usa-form-group usa-form-group--day">
+      <label class="usa-label" th:for="|${idPrefix}-day|"
+        >[[#{label.day}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+        ></span
+      ></label>
+      <input
+        class="usa-input"
+        th:id="|${idPrefix}-day|"
+        th:name="${dayName}"
+        aria-describedby="mdHint"
+        inputmode="numeric"
+        maxlength="2"
+        pattern="[0-9]*"
+        th:value="${dayValue}"
+      />
+    </div>
+    <div class="usa-form-group usa-form-group--year">
+      <label class="usa-label" th:for="|${idPrefix}-year|"
+        >[[#{label.year}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+        ></span
+      ></label>
+      <input
+        class="usa-input"
+        th:id="|${idPrefix}-year|"
+        th:name="${yearName}"
+        aria-describedby="mdHint"
+        minlength="4"
+        inputmode="numeric"
+        maxlength="4"
+        pattern="[0-9]*"
+        th:value="${yearValue}"
+      />
+    </div>
+  </div>
+</fieldset>

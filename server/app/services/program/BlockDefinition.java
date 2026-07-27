@@ -98,8 +98,6 @@ public abstract class BlockDefinition {
   @JsonIgnore
   @Memoized
   public boolean hasEnumeratorQuestion() {
-    // Though `anyMatch` is used here, enumerator block definitions should only ever have a single
-    // question, which is an enumerator question.
     return programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getQuestionType)

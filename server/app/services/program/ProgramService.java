@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -1604,9 +1605,14 @@ public final class ProgramService {
   /**
    * Update a {@link BlockDefinition} to include additional questions.
    *
+   * <p>Questions in {@code questionIds} are added in the specified order.
+   *
+   * <p>Enforces that the block is correctly configured and will not allow incorrect configurations,
+   * such as tombstoned questions, multiple enumerators, other questions with enumerators.
+   *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @param questionIds the questions to add
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1634,8 +1640,13 @@ public final class ProgramService {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    Set<Long> newFlowEnumIds = new HashSet<>();
     for (long questionId : questionIds) {
       QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+      if (questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorInitialQuestionId().isPresent()) {
+        newFlowEnumIds.add(questionId);
+      }
 
       // If this is a repeated block and the question is not repeated
       // Create a new question that is a copy and save that question before adding it to the block.
@@ -1649,6 +1660,8 @@ public final class ProgramService {
 
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
+      boolean isInitialQuestion =
+          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false);
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -1658,12 +1671,26 @@ public final class ProgramService {
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
                   fileUploadQuestionImprovementsEnabled,
-                  /* isInitialQuestionSelection= */ false);
+                  isInitialQuestion);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
       }
       updatedBlockQuestions.add(question);
+
+      // If we just added an enumerator question, reflect it in blockDefinition so the next
+      // iteration's canAddQuestion sees it (e.g. the initial question's enumeratorId match).
+      if (questionDefinition.isEnumerator()) {
+        blockDefinition =
+            blockDefinition.toBuilder()
+                .setProgramQuestionDefinitions(
+                    ImmutableList.<ProgramQuestionDefinition>builder()
+                        .addAll(blockDefinition.programQuestionDefinitions())
+                        .add(question)
+                        .build())
+                .setIsEnumerator(Optional.of(true))
+                .build();
+      }
     }
 
     ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =

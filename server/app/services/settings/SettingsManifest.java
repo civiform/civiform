@@ -894,6 +894,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * How long in milliseconds a database connection can be borrowed from the pool before a warning
+   * log is generated indicating a potential connection leak. Minimum value is 2000.
+   */
+  public Optional<Integer> getLeakDetectionThreshold() {
+    return getInt("LEAK_DETECTION_THRESHOLD");
+  }
+
+  /**
    * A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for
    * salting API keys before storing their hash values in the database. This value should be kept
    * strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be
@@ -1054,11 +1062,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
-  /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled() {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED");
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -1078,8 +1081,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
    * admin.
    */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  public boolean getExpandedFormLogicEnabled() {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED");
   }
 
   /** Enables a dropdown for login that has both applicant and admin login. */
@@ -2126,6 +2129,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " scripts are added to the CiviForm pages.",
                           /* isRequired= */ false,
                           SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LEAK_DETECTION_THRESHOLD",
+                          "How long in milliseconds a database connection can be borrowed from the"
+                              + " pool before a warning log is generated indicating a potential"
+                              + " connection leak. Minimum value is 2000.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .put(
               "Data Export API",
@@ -2328,12 +2339,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "CUSTOM_THEME_COLORS_ENABLED",
-                          "Enable using custom theme colors in the applicant UI.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
@@ -2357,7 +2362,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",

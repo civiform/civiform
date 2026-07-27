@@ -278,8 +278,6 @@ test.describe('End to end enumerator test', () => {
       await expect(page.locator('.application-summary')).not.toContainText(
         '100',
       )
-
-      await logout(page)
     })
 
     test('Enumerator add button is enabled/disabled correctly', async ({
@@ -363,7 +361,6 @@ test.describe('End to end enumerator test', () => {
     })
 
     test('Applicant can navigate to previous blocks', async ({
-      page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
@@ -414,8 +411,6 @@ test.describe('End to end enumerator test', () => {
       // Click previous and see name question
       await applicantQuestions.clickBack()
       await applicantQuestions.checkNameQuestionValue('Porky', 'Pig')
-
-      await logout(page)
     })
 
     test('Create new version of enumerator and update repeated questions and programs', async ({
@@ -445,8 +440,6 @@ test.describe('End to end enumerator test', () => {
       await test.step('Publish program', async () => {
         await adminPrograms.publishProgram(programName)
       })
-
-      await logout(page)
     })
   })
 

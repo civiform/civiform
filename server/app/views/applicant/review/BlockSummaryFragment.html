@@ -4,12 +4,14 @@
       <!-- We want h3 style, but using h3 directly is an accessibility violation. -->
       <span
         class="left-align cf-prose-h3"
+        th:id="'block-summary-header-' + ${blockSummary.block().getId()}"
         th:text="${blockSummary.block().getLocalizedName(preferredLanguage.toLocale())}"
       ></span>
       <a
         class="usa-button usa-button--outline right-align auto-width summary-edit-button margin-left-0"
         th:href="${blockSummary.editUrl()}"
         th:text="#{button.edit}"
+        th:aria-describedby="'block-summary-header-' + ${blockSummary.block().getId()}"
       ></a>
     </div>
 
