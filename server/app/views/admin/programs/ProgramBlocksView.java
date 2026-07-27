@@ -1243,7 +1243,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     /* text= */ "Error: "
                         + errorMessages.stream()
                             .map(CiviFormError::message)
-                            .collect(Collectors.joining(".  "))
+                            .collect(Collectors.joining(". "))
                         + ".",
                     /* title= */ Optional.empty(),
                     /* hidden= */ errorMessages.isEmpty())
