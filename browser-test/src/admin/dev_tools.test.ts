@@ -49,7 +49,7 @@ test.describe('developer tools', () => {
   })
 
   test('dev tools page is accessible', async ({page}) => {
-    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED')
     await page.goto('/dev/seed')
     await validateAccessibility(page)
   })

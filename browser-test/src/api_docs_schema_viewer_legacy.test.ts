@@ -7,7 +7,7 @@ test.describe('Viewing API docs', () => {
   const program2 = 'minimal-sample-program'
 
   test.beforeEach(async ({page, seeding}) => {
-    await disableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+    await disableFeatureFlag(page, 'ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED')
     await seeding.seedProgramsAndCategories()
   })
 

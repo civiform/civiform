@@ -82,21 +82,21 @@
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
     <th:block
-      th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
+      th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/Banner}"
     ></th:block>
     <th:block
-      th:unless="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
+      th:unless="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
     ></th:block>
 
     <div
       class="cf-admin-page-wrapper spacing-0 bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
-      th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
+      th:classappend="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()} ? '' : 'padding-top-8 padding-bottom-4'"
     >
       <!--/* Header navigation */-->
       <th:block
-        th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
+        th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/AdminCommonHeader}"
       ></th:block>
 
@@ -131,7 +131,7 @@
       <div
         class="grid-container bg-white"
         data-testid="page-content"
-        th:classappend="${featureFlags.isAdminUiMigrationScExtendedEnabled()} ? '' : 'padding-top-4'"
+        th:classappend="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()} ? '' : 'padding-top-4'"
       >
         <!--/* Content */-->
         <div
@@ -163,7 +163,7 @@
 
       <!--/* Footer */-->
       <th:block
-        th:if="${featureFlags.isAdminUiMigrationScExtendedEnabled()}"
+        th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/Footer}"
       ></th:block>
 
