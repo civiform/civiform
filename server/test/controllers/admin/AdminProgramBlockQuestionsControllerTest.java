@@ -271,7 +271,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains("<div id=\"enumerator-setup\" class=\"maxw-mobile-lg\">");
     assertThat(contentAsString(result))
-        .contains("Error: Question text cannot be blank.  Initial question must be added.");
+        .contains("Error: Question text cannot be blank. Initial question must be added.");
   }
 
   @Test
