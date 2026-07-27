@@ -42,7 +42,6 @@ import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
 import services.cloud.PublicStorageClient;
 import services.geojson.GeoJsonClient;
-import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
