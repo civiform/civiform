@@ -1221,7 +1221,7 @@ description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown when the admin submits the new repeated set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Initial question must be added
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Ang paggawa ng isang inuulit na set ay magdaragdag ng bagong tanong sa kaban ng mga tanong.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
