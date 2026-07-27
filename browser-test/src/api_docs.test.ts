@@ -5,7 +5,7 @@ import {ApiDocsPage} from './page/admin/docs/api_docs_page'
 
 test.describe('Viewing API docs', () => {
   test.beforeEach(async ({page, seeding}) => {
-    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
+    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED')
     await seeding.seedProgramsAndCategories()
     await page.goto('/')
     await loginAsAdmin(page)

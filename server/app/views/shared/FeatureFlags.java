@@ -17,17 +17,15 @@ import services.settings.SettingsManifest;
  */
 @Builder
 public record FeatureFlags(
-    boolean isAdminUiMigrationScEnabled,
-    boolean isAdminUiMigrationScExtendedEnabled,
+    boolean isAdminUiMigrationUxRedesignScEnabled,
     boolean isFileUploadQuestionImprovementsEnabled) {
 
   /** Create an instance of this record from the {@link SettingsManifest} */
   public static FeatureFlags fromSettingsManifest(
       SettingsManifest settingsManifest, Http.RequestHeader request) {
     return FeatureFlags.builder()
-        .isAdminUiMigrationScEnabled(settingsManifest.getAdminUiMigrationScEnabled(request))
-        .isAdminUiMigrationScExtendedEnabled(
-            settingsManifest.getAdminUiMigrationScExtendedEnabled(request))
+        .isAdminUiMigrationUxRedesignScEnabled(
+            settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request))
         .isFileUploadQuestionImprovementsEnabled(
             settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
         .build();

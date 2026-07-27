@@ -112,7 +112,7 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
       ImmutableList<String> durableJobOptions =
           ImmutableList.copyOf(DurableJobName.values()).stream()
               .map(DurableJobName::toString)

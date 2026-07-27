@@ -73,7 +73,7 @@ public final class ApiDocsController {
     Optional<ProgramDefinition> programDefinition =
         apiDocsService.getProgramDefinition(selectedProgramSlug, lifecycleStage);
 
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
       String jsonPreview = programDefinition.map(apiDocsService::getSampleJsonPreview).orElse("");
       ImmutableMap<String, ImmutableList<String>> historicOptionsByQuestionNameKey =
           programDefinition
