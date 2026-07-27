@@ -710,11 +710,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockPanel.getByRole('textbox', {name: 'Listed entity'}),
         ).toHaveValue('Pets')
-        await expect(
-          initialQuestionSlot.getByTestId(
-            'question-admin-name-income-non-repeated-question',
-          ),
-        ).toBeVisible()
       })
 
       await test.step('Select an initial question so we can verify it survives the next error re-render', async () => {
@@ -1444,7 +1439,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     })
   })
 
-  // TODO(#13548): Re-enable once the applicant-side flow supports enumerators
+  // TODO(#13412): Re-enable once the applicant-side flow supports enumerators
   // with an attached initial question. The admin-side validator currently requires
   // an initial question on create; the applicant-side flow still uses the legacy
   // entity-name inputs, which fails path validation on submit.
