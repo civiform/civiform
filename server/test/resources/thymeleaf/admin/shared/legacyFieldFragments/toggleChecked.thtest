@@ -1,0 +1,23 @@
+%NAME toggle - checked
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/Toggle :: toggle('validationEnabled', 'validation', true, false, 'Require an answer')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-toggle mt-2">
+  <label class="cf-toggle__label" id="validation-toggle">
+    <input
+      type="checkbox"
+      role="switch"
+      class="cf-toggle__input"
+      name="validationEnabled"
+      value="true"
+      checked="checked"
+      id="validation-toggle-input"
+    />
+    <input type="hidden" name="validationEnabled" value="false" />
+    <span class="cf-toggle__track" aria-hidden="true"></span>
+    <span>Require an answer</span>
+  </label>
+</div>

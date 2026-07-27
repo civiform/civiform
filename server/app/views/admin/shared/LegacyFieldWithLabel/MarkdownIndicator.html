@@ -1,0 +1,19 @@
+<!--/*
+  "Markdown is supported" indicator with a docs link. Icons live in
+  LegacySvgFragments.html.
+*/-->
+<span
+  th:fragment="markdownIndicator(text)"
+  class="flex flex-row mt-2 items-center"
+>
+  <svg th:replace="~{admin/shared/LegacySvgFragments :: iconMarkdown}"></svg>
+  <span class="text-gray-600 text-sm"
+    >[[${text}]]<a
+      href="https://docs.civiform.us/user-manual/civiform-admin-guide/using-markdown"
+      target="_blank"
+      rel="noopener noreferrer"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+      >see how it works</a
+    ></span
+  >
+</span>
