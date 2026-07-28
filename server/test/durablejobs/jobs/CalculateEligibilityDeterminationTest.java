@@ -8,7 +8,6 @@ import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableMap;
-import durablejobs.DurableJobName;
 import io.ebean.DB;
 import java.time.Instant;
 import java.util.Locale;
@@ -54,9 +53,7 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
   NameQuestionDefinition questionDefinition;
   PersistedDurableJobModel jobModel =
       new PersistedDurableJobModel(
-          DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB.toString(),
-          JobType.RUN_ONCE,
-          Instant.now());
+          "CALCULATE_ELIGIBILITY_DETERMINATION_JOB", JobType.RUN_ONCE, Instant.now());
 
   @Before
   public void setup() {
