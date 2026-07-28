@@ -243,7 +243,7 @@ const syncFileInputAriaLabel = () => {
       const uploadedFilesAttr = fileList.getAttribute(UPLOADED_FILES_ATTR)
       if (!uploadedFilesAttr) return
 
-      let uploadedFiles: string[] = []
+      let uploadedFiles: string[]
       try {
         uploadedFiles = JSON.parse(uploadedFilesAttr) as string[]
       } catch {
@@ -253,7 +253,10 @@ const syncFileInputAriaLabel = () => {
       if (uploadedFiles.length > 0) {
         const labelTemplate =
           container.getAttribute(FILES_UPLOADED_ARIA_LABEL_ATTR) ?? ''
-        const label = labelTemplate.replace('%count%', String(uploadedFiles.length))
+        const label = labelTemplate.replace(
+          '%count%',
+          String(uploadedFiles.length),
+        )
         fileInput.setAttribute('aria-label', label)
       } else {
         // No files uploaded — remove any previously set aria-label so the
