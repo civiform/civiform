@@ -572,15 +572,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
-      await test.step('Delete just the enumerator question', async () => {
+      await test.step('Delete the enumerator question', async () => {
         await blockPanel
           .getByTestId('question-admin-name-pets enumerator')
           .getByRole('button', {name: 'Delete'})
           .click()
 
         // Deleting the enumerator also removes its paired initial question,
-        // leaving the block empty: no enumerator question and no initial
-        // question line.
+        // leaving the block empty.
         await expect(
           blockPanel.getByTestId('question-admin-name-pets enumerator'),
         ).toBeHidden()
