@@ -94,6 +94,7 @@ export const init = () => {
         )
       }
       resetFileInput(event)
+      syncFileInputAriaLabel()
     } else if (fileUploadContainer && !event.detail.successful) {
       showError(
         fileUploadContainer.querySelector<HTMLElement>(
@@ -106,8 +107,8 @@ export const init = () => {
 
   document.body.addEventListener('htmx:afterSwap', () => {
     syncFileInputDisabledState()
-    syncFileInputAriaLabel()
     toggleDisabledState()
+    syncFileInputAriaLabel()
   })
 
   document.body.addEventListener('change', (event) => {
