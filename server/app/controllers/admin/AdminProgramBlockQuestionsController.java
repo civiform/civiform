@@ -105,9 +105,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
-      // TODO(#13638): This is likely an unnecessary database lookup, as well
-      //  the resulting IDs are passed to addQuestionsToBlock which uses a
-      //  cached view which is a different source that this.
+      // TODO(#13638): This is likely an unnecessary database lookup when the
+      // cache can be used, as well the resulting IDs are passed to addQuestionsToBlock which uses
+      // a cached view which is error prone as it is a different source than this.
       Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
