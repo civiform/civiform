@@ -19,6 +19,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -286,7 +287,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Returns true if any question id in the list is used by an api bridge configuration */
-  public boolean isQuestionsListUsedByApiBridge(ImmutableList<Long> questionIds) {
+  public boolean isQuestionsListUsedByApiBridge(List<Long> questionIds) {
     ImmutableList<String> questionNamesUsedByBridges =
         bridgeDefinitions().values().stream()
             .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
