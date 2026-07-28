@@ -1725,7 +1725,7 @@ public final class ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @param questionIds question IDs to be removed from the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1738,7 +1738,7 @@ public final class ProgramService {
   public ProgramDefinition removeQuestionsFromBlock(
       long programId,
       long blockDefinitionId,
-      ImmutableList<Long> questionIds,
+      List<Long> questionIds,
       SettingsManifest settingsManifest,
       Request request)
       throws QuestionNotFoundException,

@@ -553,7 +553,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('reuses an enumerator with initial question and attaches the initial question', async ({
       page,
-      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
@@ -573,15 +572,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
-      await test.step('Delete the entire repeated set block', async () => {
-        await adminPrograms.removeCurrentBlock()
-      })
+      await test.step('Delete the enumerator question', async () => {
+        await blockPanel
+          .getByTestId('question-admin-name-pets enumerator')
+          .getByRole('button', {name: 'Delete'})
+          .click()
 
-      await test.step('Add a fresh repeated set block and select the parent enumerator screen', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
-
-        // The fresh enumerator block starts empty: no enumerator question and no
-        // initial question line.
+        // Deleting the enumerator also removes its paired initial question,
+        // leaving the block empty.
         await expect(
           blockPanel.getByTestId('question-admin-name-pets enumerator'),
         ).toBeHidden()
