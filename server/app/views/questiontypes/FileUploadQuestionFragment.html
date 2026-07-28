@@ -63,6 +63,7 @@
   </div>
   <div
     hidden
+    th:id="'cf-fileupload-limit-reached-error-' + ${question.getQuestionDefinition().getId()}"
     data-fileupload-error="file-limit-reached"
     th:text="#{toast.errorMessageOutline(#{validation.fileLimitReached})}"
     class="cf-question-error-message cf-applicant-question-errors"

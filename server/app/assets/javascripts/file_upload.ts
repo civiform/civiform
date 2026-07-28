@@ -159,6 +159,7 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
   if (!canUploadMore) {
     showError(fileLimitReachedErrorDiv, fileInput)
     resetFileInput(fileUploadContainer)
+    fileInput.focus()
   } else {
     hideError(fileLimitReachedErrorDiv, fileInput)
   }

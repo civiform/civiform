@@ -107,6 +107,12 @@ export class ApplicantFileQuestion {
     ).toBeDisabled()
   }
 
+  async expectFileInputFocused() {
+    await expect(
+      this.page.getByLabel('Drag file here or choose from folder'),
+    ).toBeFocused()
+  }
+
   async clickSkip() {
     await this.page.locator(this.skipButtonLocator).click()
   }

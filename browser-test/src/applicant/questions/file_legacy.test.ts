@@ -302,6 +302,7 @@ test.describe('file upload applicant flow', () => {
         )
 
         await applicantFileQuestion.expectLegacyFileLimitErrorShown()
+        await applicantFileQuestion.expectFileInputFocused()
       })
 
       await test.step('Removing a file removes file input error', async () => {

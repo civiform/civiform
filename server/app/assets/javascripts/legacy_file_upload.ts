@@ -190,6 +190,7 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
     fileInput.value = ''
     uswdsFileInput.off(fileInput)
     uswdsFileInput.on(fileInput)
+    fileInput.focus()
   } else {
     hideError(fileLimitReachedErrorDiv, fileInput)
   }

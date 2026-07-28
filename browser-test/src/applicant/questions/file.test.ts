@@ -295,6 +295,8 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
           'file-upload-third.png',
         )
         await applicantFileQuestion.expectFileLimitErrorShown()
+        await applicantFileQuestion.expectFileInputFocused()
+
         await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
