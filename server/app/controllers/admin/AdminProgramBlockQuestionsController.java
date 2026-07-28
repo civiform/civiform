@@ -6,10 +6,12 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import controllers.FlashKey;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.questions.EnumeratorQuestionForm;
 import forms.questions.QuestionFormBuilder;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -103,6 +105,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
+      // TODO(#13638): This is likely an unnecessary database lookup, as well
+      //  the resulting IDs are passed to addQuestionsToBlock which uses a
+      //  cached view which is a different source that this.
       Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
@@ -363,13 +368,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    List<Long> idsToDelete = Lists.newArrayList(questionDefinitionId);
+    // Delete an enumerators initial question also. They are treated as pair.
+    questionService
+        .getReadOnlyQuestionServiceSync()
+        .getQuestionDefinition(questionDefinitionId)
+        .getEnumeratorInitialQuestionId()
+        .ifPresent(idsToDelete::add);
     try {
       programService.removeQuestionsFromBlock(
-          programId,
-          blockDefinitionId,
-          ImmutableList.of(questionDefinitionId),
-          settingsManifest,
-          request);
+          programId, blockDefinitionId, idsToDelete, settingsManifest, request);
     } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(

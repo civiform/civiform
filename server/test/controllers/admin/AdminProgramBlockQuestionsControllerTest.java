@@ -394,6 +394,68 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void delete_removesQuestionFromBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block1")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .build();
+
+    Result result =
+        controller.delete(
+            fakeRequest(), program.id, /* blockDefinitionId= */ 1, nameQuestion.getId());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .isEmpty();
+  }
+
+  @Test
+  public void delete_enumeratorWithInitialQuestion_removesBothFromBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    var enumeratorQuestionModel =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long enumeratorId = enumeratorQuestionModel.id;
+
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    // Add the enumerator (and its paired initial question) to the block.
+    Request createRequest =
+        fakeRequestBuilder()
+            .call(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
+            .build();
+    controller.create(createRequest, program.id, 1);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .hasSize(2);
+
+    // Execute. Delete only the enumerator question.
+    Result result =
+        controller.delete(fakeRequest(), program.id, /* blockDefinitionId= */ 1, enumeratorId);
+
+    // Verify. Both the enumerator and its initial question are removed from the block.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .isEmpty();
+  }
+
+  @Test
   public void setOptional_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(
