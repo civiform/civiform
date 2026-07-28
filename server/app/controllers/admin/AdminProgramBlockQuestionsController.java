@@ -369,7 +369,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     requestChecker.throwIfProgramNotDraft(programId);
 
     List<Long> idsToDelete = Lists.newArrayList(questionDefinitionId);
-    // Delete an enumerators initial question also. They are treated as pair.
+    // Delete an enumerator's initial question also. They are treated as pair.
     questionService
         .getReadOnlyQuestionServiceSync()
         .getQuestionDefinition(questionDefinitionId)
