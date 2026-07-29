@@ -632,10 +632,12 @@ public class TestQuestionBank {
     var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
 
     try {
-      new QuestionModel(
-          new QuestionDefinitionBuilder(initialQuestionModel.getQuestionDefinition())
-              .setEnumeratorId(Optional.of(enumeratorQuestionModel.id))
-              .build());
+      QuestionModel updatedInitial =
+          new QuestionModel(
+              new QuestionDefinitionBuilder(initialQuestionModel.getQuestionDefinition())
+                  .setEnumeratorId(Optional.of(enumeratorQuestionModel.id))
+                  .build());
+      updatedInitial.update();
     } catch (UnsupportedQuestionTypeException e) {
       throw new RuntimeException(e);
     }

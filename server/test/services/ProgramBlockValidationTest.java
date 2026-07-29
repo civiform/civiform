@@ -2,6 +2,7 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import java.util.Optional;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -13,6 +14,7 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
@@ -393,6 +395,103 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
                 /* isInitialQuestion= */ false))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenNonEnumeratorOnEmptyEnumeratorBlock_invalid()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1").withEnumeratorBlock().buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ false))
+        .isEqualTo(AddQuestionResult.NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenNonInitialOnPopulatedEnumeratorBlock_invalid()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ false))
+        .isEqualTo(AddQuestionResult.NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenMismatchedInitialOnEnumeratorBlock_invalid()
+          throws Exception {
+    QuestionModel intendedInitial = resourceCreator.insertQuestion("intended-initial");
+    QuestionModel wrongInitial = resourceCreator.insertQuestion("wrong-candidate");
+    version.addQuestion(intendedInitial);
+    version.addQuestion(wrongInitial);
+    version.save();
+
+    QuestionDefinition linkedEnumerator =
+        new QuestionDefinitionBuilder(householdMemberQuestion.getQuestionDefinition())
+            .setEnumeratorInitialQuestionId(Optional.of(intendedInitial.id))
+            .build();
+
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(linkedEnumerator)
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                wrongInitial.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
+        .isEqualTo(AddQuestionResult.NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenExpectedInitialOnEnumeratorBlock_eligible()
+          throws Exception {
+    QuestionDefinition linkedEnumerator =
+        new QuestionDefinitionBuilder(householdMemberQuestion.getQuestionDefinition())
+            .setEnumeratorInitialQuestionId(Optional.of(questionForEligible.id))
+            .build();
+
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(linkedEnumerator)
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
   }
 }
