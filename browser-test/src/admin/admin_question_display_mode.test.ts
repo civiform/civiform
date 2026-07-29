@@ -4,6 +4,10 @@ import {QuestionDisplayMode} from '../support/admin_questions'
 
 test.describe('Question display mode', () => {
   test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
     await loginAsAdmin(page)
   })
 

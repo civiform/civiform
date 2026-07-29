@@ -1,9 +1,13 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Admin question preview', () => {
   test.beforeEach(async ({page, seeding}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
     await seeding.seedQuestions()
     await loginAsAdmin(page)
   })
