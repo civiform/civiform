@@ -813,6 +813,8 @@ placeholder.entityName=Название записи ({0})
 validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Мы не смогли загрузить ваш файл. Попробуйте еще раз.
 # Text shown on a tag while a file is uploading.
