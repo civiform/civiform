@@ -157,9 +157,11 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
       '[data-fileupload-error="file-limit-reached"]',
     )
   if (!canUploadMore) {
-    showError(fileLimitReachedErrorDiv, fileInput)
-    resetFileInput(fileUploadContainer)
-    fileInput.focus()
+    if (!fileLimitReachedErrorDiv?.checkVisibility()) {
+      showError(fileLimitReachedErrorDiv, fileInput)
+      resetFileInput(fileUploadContainer)
+      fileInput.focus()
+    }
   } else {
     hideError(fileLimitReachedErrorDiv, fileInput)
   }

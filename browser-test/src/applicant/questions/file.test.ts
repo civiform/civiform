@@ -301,12 +301,30 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
+
+        await validateScreenshot(
+          page.locator('.cf-question-fileupload'),
+          'file-limit-error-message',
+        )
       })
 
       await test.step('Removing a file removes file limit error', async () => {
         await applicantFileQuestion.removeFileUpload('file-upload.png')
         await waitForHtmxReady(page)
         await applicantFileQuestion.expectFileLimitErrorHidden()
+      })
+
+      await test.step("File limit error doesn't block continuing", async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-third.png',
+        )
+        await applicantFileQuestion.expectFileLimitErrorShown()
+
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
       })
     })
 
@@ -378,95 +396,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
             exact: true,
           }),
         ).toBeVisible()
-      })
-    })
-
-    test("error message doesn't block continuing", async ({
-      applicantQuestions,
-      applicantFileQuestion,
-      page,
-      adminQuestions,
-      adminPrograms,
-    }) => {
-      await test.step('Add file upload question and publish', async () => {
-        await loginAsAdmin(page)
-
-        await adminQuestions.addFileUploadQuestion({
-          questionName: 'file-upload-test-q',
-          questionText: fileUploadQuestionText,
-          maxFiles: 2,
-        })
-        await adminPrograms.addAndPublishProgramWithQuestions(
-          ['file-upload-test-q'],
-          programName,
-        )
-
-        await logout(page)
-      })
-
-      await applicantQuestions.applyProgram(programName)
-
-      await test.step('Adding more files than maximum shows error message', async () => {
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload.png',
-        )
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-second.png',
-        )
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-third.png',
-        )
-        await applicantFileQuestion.expectFileLimitErrorShown()
-      })
-
-      await test.step("File limit error doesn't block continuing", async () => {
-        await applicantQuestions.clickContinue()
-        await applicantQuestions.expectReviewPage()
-      })
-    })
-
-    test('max file error renders correctly', async ({
-      page,
-      applicantQuestions,
-      adminQuestions,
-      adminPrograms,
-    }) => {
-      await test.step('Add file upload question and publish', async () => {
-        await loginAsAdmin(page)
-
-        await adminQuestions.addFileUploadQuestion({
-          questionName: 'file-upload-test-q',
-          questionText: fileUploadQuestionText,
-          maxFiles: 2,
-        })
-        await adminPrograms.addAndPublishProgramWithQuestions(
-          ['file-upload-test-q'],
-          programName,
-        )
-
-        await logout(page)
-      })
-
-      await applicantQuestions.applyProgram(programName)
-
-      await test.step('Try to upload 3 files to get error message', async () => {
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload.png',
-        )
-        await waitForHtmxReady(page)
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-second.png',
-        )
-        await waitForHtmxReady(page)
-        await applicantQuestions.answerFileUploadQuestionFromAssets(
-          'file-upload-third.png',
-        )
-        await waitForHtmxReady(page)
-
-        await validateScreenshot(
-          page.locator('.cf-question-fileupload'),
-          'file-limit-error-message',
-        )
       })
     })
   })
