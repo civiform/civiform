@@ -1095,14 +1095,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
+  /** Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
   public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -2370,7 +2370,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable session timeout based on inactivity and maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "Enables translation management improvement phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2383,13 +2389,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
                               + " URLs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
-                              + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
