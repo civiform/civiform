@@ -813,6 +813,8 @@ placeholder.entityName=「{0}」名稱
 validation.fileRequired=請選取檔案。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=檔案過大，請選擇小於 {0} MB 的檔案。
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=我們無法上傳您的檔案。請重新嘗試。
 # Text shown on a tag while a file is uploading.
