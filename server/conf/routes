@@ -321,6 +321,7 @@ GET     /dev/addressChecker                                 controllers.dev.Addr
 POST    /dev/addressChecker/hx/correctAddress               controllers.dev.AddressCheckerController.hxCorrectAddress(request: Request)
 POST    /dev/addressChecker/hx/checkServiceArea             controllers.dev.AddressCheckerController.hxCheckServiceArea(request: Request)
 POST    /dev/runDurableJob                                  controllers.dev.DevToolsController.runDurableJob(request: Request)
+GET     /dev/logBlankLines                                  controllers.dev.DevToolsController.logBlankLines()
 
 # Change feature flags
 GET     /dev/feature/:flag/disable                          controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

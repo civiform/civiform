@@ -243,6 +243,22 @@ public class DevToolsController extends Controller {
   }
 
   /**
+   * Log blank lines to create visual spacing the log file.
+   * <p>
+   * Normally a developer could just press enter as desired, but in our setup
+   * that terminates the local server.
+   */
+  public Result logBlankLines() {
+    // Log enough so that it'll be visibly discoverable when scrolling through logs.
+    // Note the HTTP request for this handler will also be logged next to
+    // this, so multiple calls won't result in a larger unbroken section.
+    for (int i = 0; i < 5; ++i) {
+      logger.info("");
+    }
+    return ok();
+  }
+
+  /**
    * Remove all content from all server application tables and clear the responding server's memory
    * caches. Should only be used for testing.
    *
