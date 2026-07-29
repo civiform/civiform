@@ -1072,11 +1072,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enable showing external program cards. */
-  public boolean getExternalProgramCardsEnabled() {
-    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
-  }
-
   /**
    * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
    * admin.
@@ -2350,12 +2345,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "Enable showing external program cards.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "EXPANDED_FORM_LOGIC_ENABLED",
                           "Enables new visibility/eligibility condition editing UI and expanded"
