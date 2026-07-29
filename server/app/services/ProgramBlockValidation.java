@@ -156,6 +156,9 @@ public final class ProgramBlockValidation {
    */
   private boolean isAllowedOnEnumeratorBlock(
       BlockDefinition block, QuestionDefinition question, boolean isInitialQuestion) {
+    if (!block.getIsEnumerator()) {
+      return true;
+    }
     if (!block.hasEnumeratorQuestion()) {
       return question.isEnumerator() || isInitialQuestion;
     }

@@ -442,9 +442,9 @@ public class ProgramBlockValidationTest extends ResetPostgres {
       canAddQuestion_whenEnumeratorImprovementsEnabled_whenMismatchedInitialOnEnumeratorBlock_invalid()
           throws Exception {
     QuestionModel intendedInitial = resourceCreator.insertQuestion("intended-initial");
-    QuestionModel wrongCandidate = resourceCreator.insertQuestion("wrong-candidate");
+    QuestionModel wrongInitial = resourceCreator.insertQuestion("wrong-candidate");
     version.addQuestion(intendedInitial);
-    version.addQuestion(wrongCandidate);
+    version.addQuestion(wrongInitial);
     version.save();
 
     QuestionDefinition linkedEnumerator =
@@ -462,7 +462,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
             programBlockValidation.canAddQuestion(
                 program,
                 program.getLastBlockDefinition(),
-                wrongCandidate.getQuestionDefinition(),
+                wrongInitial.getQuestionDefinition(),
                 /* enumeratorImprovementsEnabled= */ true,
                 /* fileUploadQuestionImprovementsEnabled= */ false,
                 /* isInitialQuestion= */ true))
@@ -473,8 +473,6 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   public void
       canAddQuestion_whenEnumeratorImprovementsEnabled_whenExpectedInitialOnEnumeratorBlock_eligible()
           throws Exception {
-    // Use questionForEligible (added to the version in setUp) so it lives in
-    // activeAndDraftQuestions, which was captured when programBlockValidation was created.
     QuestionDefinition linkedEnumerator =
         new QuestionDefinitionBuilder(householdMemberQuestion.getQuestionDefinition())
             .setEnumeratorInitialQuestionId(Optional.of(questionForEligible.id))
