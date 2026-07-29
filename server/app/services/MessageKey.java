@@ -150,6 +150,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES("validation.tooManyEntities"),
   ENUMERATOR_VALIDATION_TOO_FEW_ENTITIES("validation.tooFewEntities"),
   ERROR_INCOMPLETE_DATE("error.incompleteDate"),
+  FILEUPLOAD_VALIDATION_FILE_LIMIT_REACHED("validation.fileLimitReached"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FILEUPLOAD_VALIDATION_FILE_TOO_LARGE("validation.fileTooLarge"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
