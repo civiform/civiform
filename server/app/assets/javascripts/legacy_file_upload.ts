@@ -5,6 +5,7 @@ import {
   hideError,
   isFileTooLarge,
   showError,
+  maybeShowFileLimitError,
 } from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
@@ -68,6 +69,13 @@ export function init() {
       })
       document.body.classList.add(CF_FILE_UPLOADING_CLASS)
       blockForm.submit()
+    } else {
+      const fileInput: HTMLInputElement = event.target as HTMLInputElement
+      const fileLimitErrorContainer: HTMLElement = assertNotNull(
+        document.getElementById('cf-fileupload-file-limit-reached-error'),
+      )
+
+      maybeShowFileLimitError(blockForm, fileInput, fileLimitErrorContainer)
     }
   })
 

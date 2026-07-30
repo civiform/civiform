@@ -3,6 +3,8 @@ import {
   isFileTooLarge,
   showError,
   canUploadMoreFiles,
+  maybeHideFileLimitError,
+  maybeShowFileLimitError,
 } from '@/file_upload_util'
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {HtmxAfterRequestEvent} from '@/types/htmx'
@@ -13,6 +15,9 @@ const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_IN_PROGRESS_CLASS = 'cf-file-upload-in-progress'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
 const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
+const FILE_LIMIT_REACHED_ERROR_SELECTOR =
+  '[data-fileupload-error="file-limit-reached"]'
+const FILE_INPUT_SELECTOR = 'input[type=file]'
 
 // Track the number of file uploads in progress to prevent navigating away
 let fileUploadsInProgress = 0
@@ -35,17 +40,24 @@ export const init = () => {
     if (!isCfFileUploadInput(fileInput)) {
       return
     }
+    const fileUploadContainer = fileInput.closest(
+      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
+    )
 
     // We validate both on the beforeRequest and onchange so that we block the request
     // to the server if the client invalidates the upload
     if (!validateFileUploadQuestion(fileInput)) {
+      maybeShowFileLimitError(
+        fileUploadContainer as HTMLElement,
+        fileInput,
+        fileUploadContainer?.querySelector<HTMLElement>(
+          FILE_LIMIT_REACHED_ERROR_SELECTOR,
+        ) as HTMLElement,
+      )
       event.preventDefault()
       return
     }
 
-    const fileUploadContainer = fileInput.closest(
-      CF_FILE_UPLOAD_CONTAINER_SELECTOR,
-    )
     if (fileUploadContainer) {
       hideError(
         fileUploadContainer.querySelector<HTMLElement>(
@@ -88,7 +100,7 @@ export const init = () => {
           event.detail.elt,
         )
       }
-      resetFileInputFromEvent(event)
+      resetFileInput(event)
     } else if (fileUploadContainer && !event.detail.successful) {
       showError(
         fileUploadContainer.querySelector<HTMLElement>(
@@ -103,9 +115,22 @@ export const init = () => {
     toggleDisabledState()
     const fileUploadContainer = event.detail.elt.closest(
       CF_FILE_UPLOAD_CONTAINER_SELECTOR,
-    )
+    ) as HTMLElement
+
     if (fileUploadContainer) {
-      maybeHideCanUploadError(fileUploadContainer as HTMLElement)
+      const fileInput = fileUploadContainer.querySelector<HTMLInputElement>(
+        FILE_INPUT_SELECTOR,
+      ) as HTMLInputElement
+      const fileLimitReachedErrorContainer =
+        fileUploadContainer.querySelector<HTMLElement>(
+          FILE_LIMIT_REACHED_ERROR_SELECTOR,
+        ) as HTMLElement
+
+      maybeHideFileLimitError(
+        fileUploadContainer,
+        fileInput,
+        fileLimitReachedErrorContainer,
+      )
     }
   })
 
@@ -152,20 +177,6 @@ const validateFileUploadQuestion = (fileInput: HTMLInputElement): boolean => {
     hideError(fileTooLargeErrorDiv, fileInput)
   }
 
-  const fileLimitReachedErrorDiv =
-    fileUploadContainer.querySelector<HTMLElement>(
-      '[data-fileupload-error="file-limit-reached"]',
-    )
-  if (!canUploadMore) {
-    if (!fileLimitReachedErrorDiv?.checkVisibility()) {
-      showError(fileLimitReachedErrorDiv, fileInput)
-      resetFileInput(fileUploadContainer)
-      fileInput.focus()
-    }
-  } else {
-    hideError(fileLimitReachedErrorDiv, fileInput)
-  }
-
   const isValid = isFileUploaded && !isFileTooLargeResult && canUploadMore
   if (isValid) {
     fileUploadContainer
@@ -198,38 +209,18 @@ const toggleDisabledState = () => {
   })
 }
 
-const resetFileInput = (fileUploadContainer: HTMLElement) => {
-  const fileInput =
-    fileUploadContainer.querySelector<HTMLInputElement>('input[type=file]')
+const resetFileInput = (event: HtmxAfterRequestEvent) => {
+  const fileUploadContainer = event.detail.elt.closest(
+    CF_FILE_UPLOAD_CONTAINER_SELECTOR,
+  ) as HTMLElement
+  if (!fileUploadContainer) return
+
+  const fileInput = fileUploadContainer.querySelector<HTMLInputElement>(
+    FILE_INPUT_SELECTOR,
+  ) as HTMLInputElement
   if (fileInput) {
     fileInput.value = ''
   }
   uswdsFileInput.off(fileUploadContainer)
   uswdsFileInput.on(fileUploadContainer)
-}
-
-const resetFileInputFromEvent = (event: HtmxAfterRequestEvent) => {
-  const fileUploadContainer = event.detail.elt.closest(
-    CF_FILE_UPLOAD_CONTAINER_SELECTOR,
-  )
-  if (!fileUploadContainer || !(fileUploadContainer instanceof HTMLElement)) {
-    return
-  }
-
-  resetFileInput(fileUploadContainer)
-}
-
-const maybeHideCanUploadError = (fileUploadContainer: HTMLElement) => {
-  const fileInput =
-    fileUploadContainer.querySelector<HTMLInputElement>('input[type=file]')
-  if (fileInput) {
-    const canUploadMore = canUploadMoreFiles(fileUploadContainer)
-    const fileLimitReachedErrorDiv =
-      fileUploadContainer.querySelector<HTMLElement>(
-        '[data-fileupload-error="file-limit-reached"]',
-      )
-    if (canUploadMore) {
-      hideError(fileLimitReachedErrorDiv, fileInput)
-    }
-  }
 }

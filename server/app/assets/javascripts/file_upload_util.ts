@@ -1,4 +1,5 @@
 import {assertNotNull} from '@/util'
+import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 /** @fileoverview Collection of utility functions for working with file upload.
  * Can be used for both the admin UI and applicant UI.
@@ -153,5 +154,39 @@ export const hideError = (
   if (ariaDescribedBy.includes(errorId)) {
     const ariaDescribedByWithoutError = ariaDescribedBy.replace(errorId, '')
     fileInput.setAttribute('aria-describedby', ariaDescribedByWithoutError)
+  }
+}
+
+export const maybeShowFileLimitError = (
+  fileUploadContainer: HTMLElement,
+  fileInput: HTMLInputElement,
+  errorMessageContainer: HTMLElement,
+) => {
+  const canUploadMore = canUploadMoreFiles(fileUploadContainer)
+  if (canUploadMore) {
+    return
+  }
+
+  if (!errorMessageContainer.checkVisibility()) {
+    showError(errorMessageContainer, fileInput)
+  }
+
+  fileInput.value = ''
+  uswdsFileInput.off(fileUploadContainer)
+  uswdsFileInput.on(fileUploadContainer)
+
+  if (document.activeElement !== fileInput) {
+    fileInput.focus()
+  }
+}
+
+export const maybeHideFileLimitError = (
+  fileUploadContainer: HTMLElement,
+  fileInput: HTMLInputElement,
+  errorMessageContainer: HTMLElement,
+) => {
+  const canUploadMore = canUploadMoreFiles(fileUploadContainer)
+  if (canUploadMore) {
+    hideError(errorMessageContainer, fileInput)
   }
 }
