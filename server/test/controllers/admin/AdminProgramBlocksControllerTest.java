@@ -61,6 +61,39 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_withRepeatedLastBlockWithoutEnumeratorQuestion_redirectsToEnumeratorScreen() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram().withEnumeratorBlock().withRepeatedBlock().build();
+
+    Result result = controller.index(program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
+                .url());
+  }
+
+  @Test
+  public void index_withRepeatedLastBlockWithEnumeratorQuestion_redirectsToLastBlock() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .withRepeatedBlock()
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+
+    Result result = controller.index(program.id);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 2L)
+                .url());
+  }
+
+  @Test
   public void readOnlyIndex_readOnly_redirectsToShow() {
     ProgramModel program = ProgramBuilder.newActiveProgram().build();
 
@@ -128,11 +161,11 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     Result result = controller.create(request, program.id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
-    // Ensures we're redirected to the newly created repeated block rather than the last
-    // block in the program (see issue #1885).
+    // Ensures we're redirected to the newly-created enumerator block rather than the repeated
+    // block.
     assertThat(result.redirectLocation())
         .hasValue(
-            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 3L)
+            routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 2L)
                 .url());
 
     program.refresh();
@@ -182,23 +215,24 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .findFirst()
             .orElseThrow()
             .id();
-    long repeatedUnderNestedId =
-        blockDefinitions.stream()
-            .filter(
-                block ->
-                    block.isRepeated()
-                        && block
-                            .enumeratorId()
-                            .map(id -> id.equals(nestedEnumeratorId))
-                            .orElse(false))
-            .findFirst()
-            .orElseThrow()
-            .id();
+    // The repeated block under the nested enumerator was also created.
+    assertThat(
+            blockDefinitions.stream()
+                .anyMatch(
+                    block ->
+                        block.isRepeated()
+                            && block
+                                .enumeratorId()
+                                .map(id -> id.equals(nestedEnumeratorId))
+                                .orElse(false)))
+        .isTrue();
 
+    // We're redirected to the nested enumerator block rather than its repeated block, since
+    // setting up the enumerator question is the admin's next step.
     assertThat(result.redirectLocation())
         .hasValue(
             routes.AdminProgramBlocksController.edit(
-                    program.id, /* blockDefinitionId= */ repeatedUnderNestedId)
+                    program.id, /* blockDefinitionId= */ nestedEnumeratorId)
                 .url());
   }
 

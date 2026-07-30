@@ -105,11 +105,23 @@ public final class AdminProgramBlocksController extends CiviFormController {
    *
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
+   *
+   * <p>When editing, if the last screen is a repeated screen whose enumerator screen does not yet
+   * have an enumerator question, the enumerator screen is shown instead, since setting up the
+   * enumerator question is the admin's next step.
    */
   private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      long blockId = program.getLastBlockDefinition().id();
+      BlockDefinition block = program.getLastBlockDefinition();
+
+      if (!readOnly && block.isRepeated()) {
+        BlockDefinition enumeratorBlock = program.getBlockDefinition(block.enumeratorId().get());
+        if (!enumeratorBlock.hasEnumeratorQuestion()) {
+          block = enumeratorBlock;
+        }
+      }
+      long blockId = block.id();
 
       String redirectUrl =
           readOnly
@@ -117,7 +129,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
               : routes.AdminProgramBlocksController.edit(programId, blockId).url();
 
       return redirect(redirectUrl);
-    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+    } catch (ProgramNotFoundException
+        | ProgramNeedsABlockException
+        | ProgramBlockDefinitionNotFoundException e) {
       return notFound();
     }
   }
@@ -187,7 +201,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       long addedBlockId = block.id();
 
-      // If it's an enumerator, also add the first repeated block.
+      // If it's an enumerator, also add the first repeated block, but land on the enumerator
+      // screen since setting up the enumerator question is the admin's next step.
       if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
         result =
             programService.addRepeatedBlockToProgram(
@@ -199,7 +214,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
         }
-        addedBlockId++;
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
