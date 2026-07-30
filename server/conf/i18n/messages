@@ -1230,8 +1230,8 @@ alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to
 alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=Create repeated set
-# Button for admins to add a new repeated set
-button.repeatedSet.addNew=Add repeated set
+# Button for admins to add a new list set
+button.repeatedSet.addNew=Add list set
 # Button label on the initial question card that clears the selection
 button.repeatedSet.initialQuestion.delete=Delete
 # Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.

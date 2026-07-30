@@ -27,7 +27,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPrograms.gotoEditDraftProgramPage(
           'Enumerator seeding program',
         )
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'household member',
           questionText: 'Household members',
@@ -72,16 +72,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         initialBlockCount = await screenLinks.count()
       })
 
-      await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
-        await page.getByRole('button', {name: 'Add screen'}).first().click()
-        const addScreenDropdown = page
-          .getByRole('list')
-          .filter({has: page.getByRole('button', {name: 'Add repeated set'})})
-        await expect(addScreenDropdown).toBeVisible()
-      })
-
-      await test.step('Click "Add repeated set" button', async () => {
-        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      await test.step('Click "Add list set" button', async () => {
+        await page.getByRole('button', {name: 'Add list set'}).click()
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
@@ -159,7 +151,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Click the "Choose existing" radio button', async () => {
@@ -242,7 +234,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await test.step('Add a new repeated set', async () => {
-          await addRepeatedSetBlock(page)
+          await addRepeatedSetBlocks(page)
         })
 
         await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
@@ -300,7 +292,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
         await test.step('Add a new repeated set', async () => {
-          await addRepeatedSetBlock(page)
+          await addRepeatedSetBlocks(page)
         })
 
         await test.step('Open the question bank', async () => {
@@ -361,7 +353,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         const blockPanel = page.getByTestId('block-panel-edit')
         const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
 
         await test.step('Open the question bank via the initial-question slot', async () => {
           await initialQuestionSlot
@@ -445,7 +437,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         const newQuestionAdminId = 'household-member-name'
         const newQuestionText = 'What is the household member name?'
 
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
 
         await test.step('Fill out the enumerator form fields before leaving to create the initial question', async () => {
           await fillEnumeratorQuestionForm(page)
@@ -564,7 +556,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'Add a question',
       })
 
-      await addRepeatedSetBlock(page)
+      await addRepeatedSetBlocks(page)
 
       await test.step('create an enumerator with initial question', async () => {
         await initialQuestionSlot
@@ -634,7 +626,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Auto-fill admin id and question text from listed entity', async () => {
@@ -680,7 +672,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
       const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
-      await addRepeatedSetBlock(page)
+      await addRepeatedSetBlocks(page)
 
       await test.step('Submit the new enumerator question form without filling out all the required fields or selecting an initial question', async () => {
         await blockPanel
@@ -758,7 +750,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
@@ -795,7 +787,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await navigateToRepeatedScreen(
@@ -853,7 +845,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set and verify nested button is hidden before parent enumerator question is saved', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await expect(addNestedRepeatedSetButton).toBeHidden()
       })
 
@@ -922,7 +914,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set and save the enumerator question on the parent block', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await fillAndSubmitEnumeratorQuestionForm(page, {
           initialQuestion: SAMPLE_QUESTIONS.number,
         })
@@ -964,7 +956,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const blockPanel = page.getByTestId('block-panel-edit')
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Fill out the enumerator form (auto-save captures the values)', async () => {
@@ -999,7 +991,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add another repeated set (block id is reused)', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Verify the enumerator form fields are empty — storage was cleared on delete', async () => {
@@ -1023,7 +1015,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
 
-      await addRepeatedSetBlock(page)
+      await addRepeatedSetBlocks(page)
 
       await fillAndSubmitEnumeratorQuestionForm(page, {
         initialQuestion: SAMPLE_QUESTIONS.number,
@@ -1066,7 +1058,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set and go to the repeated screen', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await navigateToRepeatedScreen(
           page,
           /* screenNumber= */ 3,
@@ -1133,7 +1125,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await fillAndSubmitEnumeratorQuestionForm(page, {
@@ -1281,7 +1273,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await waitForPageJsLoad(page)
       })
 
@@ -1329,7 +1321,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
@@ -1403,7 +1395,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const blockPanel = page.getByTestId('block-panel-edit')
 
       await test.step('Add the existing enumerator question to a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await blockPanel.getByTestId('choose-existing-radio-label').click()
         await blockPanel.getByRole('button', {name: 'Add question'}).click()
         await pickQuestionFromBank(page, 'enumerator-ete-householdmembers')
@@ -1463,7 +1455,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await adminPrograms.gotoEditDraftProgramPage(programName)
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
 
       await fillAndSubmitEnumeratorQuestionForm(page, {
@@ -1899,12 +1891,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     await entityNameInput(page, entityType, newIndex).fill(entityName)
   }
 
-  // Adds a new repeated-set block via the program block edit page. This creates
+  // Adds a new repeated set via the program block edit page. This creates
   // a parent enumerator block (Screen 2) plus a repeated child block (Screen 3)
   // and lands on the parent enumerator block.
-  async function addRepeatedSetBlock(page: Page) {
-    await page.getByRole('button', {name: 'Add screen'}).first().click()
-    await page.getByRole('button', {name: 'Add repeated set'}).click()
+  async function addRepeatedSetBlocks(page: Page) {
+    await page.getByRole('button', {name: 'Add list set'}).click()
   }
 
   async function fillEnumeratorQuestionForm(
