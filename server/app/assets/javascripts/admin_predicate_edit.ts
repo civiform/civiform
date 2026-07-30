@@ -878,9 +878,7 @@ export class AdminPredicateEdit {
    */
   private static getPredicateFormState(): string | undefined | null {
     const predicateForm = document.getElementById('predicate-form') as
-      | HTMLFormElement
-      | undefined
-      | null
+      HTMLFormElement | undefined | null
     if (!predicateForm) {
       return null
     }
