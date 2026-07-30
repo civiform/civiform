@@ -62,6 +62,16 @@ public class LegacyFieldFragmentsTest {
   }
 
   @Test
+  public void textField_required() {
+    ThymeleafFragmentTester.run(DIR + "textFieldRequired.thtest");
+  }
+
+  @Test
+  public void textField_optionalEmpty() {
+    ThymeleafFragmentTester.run(DIR + "textFieldOptionalEmpty.thtest");
+  }
+
+  @Test
   public void numberField() {
     ThymeleafFragmentTester.run(DIR + "numberField.thtest");
   }

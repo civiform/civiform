@@ -77,6 +77,16 @@ public class LegacyQuestionFragmentsTest {
   }
 
   @Test
+  public void translationField_textareaWithMarkdown() {
+    ThymeleafFragmentTester.run(DIR + "translationFieldTextarea.thtest");
+  }
+
+  @Test
+  public void translationField_textInput() {
+    ThymeleafFragmentTester.run(DIR + "translationFieldTextInput.thtest");
+  }
+
+  @Test
   public void multiOptionRow_newOption() {
     ThymeleafFragmentTester.run(DIR + "multiOptionRowNew.thtest");
   }
