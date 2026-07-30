@@ -244,9 +244,7 @@ public class DevToolsController extends Controller {
 
   /**
    * Log blank lines to create visual spacing the log file.
-   *
-   * <p>
-   * Normally a developer could just press enter as desired, but in our setup
+   * <p>Normally a developer could just press enter as desired, but in our setup
    * that terminates the local server.
    */
   public Result logBlankLines() {
