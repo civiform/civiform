@@ -411,12 +411,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .withForm(CREATE_BLOCK_FORM_ID));
       ret.condWith(
           settingsManifest.getEnumeratorImprovementsEnabled(request),
-        ViewUtils.makeSvgTextButton(
-                messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()), Icons.ADD)
-          .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
-          .withType("submit")
-          .withId("add-enumerator-block-button")
-          .withForm(CREATE_ENUMERATOR_BLOCK_FORM_ID));
+          ViewUtils.makeSvgTextButton(
+                  messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()), Icons.ADD)
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
+              .withType("submit")
+              .withId("add-enumerator-block-button")
+              .withForm(CREATE_ENUMERATOR_BLOCK_FORM_ID));
     }
     return ret;
   }
