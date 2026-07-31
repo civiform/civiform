@@ -88,25 +88,23 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    test('file input has updated aria-label after upload for screen reader users', async ({
+    // Regression test for https://github.com/civiform/civiform/issues/13318.
+    // After a file is uploaded, screen readers should announce the count of already-uploaded
+    // files rather than the browser-native "No file selected" text.
+    test('screen reader status span appears after file upload', async ({
       page,
       applicantQuestions,
     }) => {
       await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.pdf')
 
-      // Before any file is uploaded, no aria-label should be set on the input.
-      const fileInput = page.locator('input[type="file"]')
-      await expect(fileInput).not.toHaveAttribute('aria-label')
-
-      await applicantQuestions.answerFileUploadQuestionFromAssets(
-        'file-upload.png',
-      )
-
-      // After upload, the input should have an aria-label indicating the file count
-      // so screen readers announce something meaningful instead of "No file selected".
-      await expect(fileInput).toHaveAttribute(
-        'aria-label',
-        /1 file\(s\) already uploaded/,
+      // The visually-hidden SR status span (inside the already-OOB-swapped file list)
+      // should now be present and contain the file count.
+      await expect(page.locator('[id^="cf-fileupload-sr-status-"]')).toBeVisible({
+        visible: false, // it's visually hidden (usa-sr-only) but present in DOM
+      })
+      await expect(page.locator('[id^="cf-fileupload-sr-status-"]')).toContainText(
+        '1 file(s) already uploaded',
       )
     })
 
@@ -163,9 +161,9 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await expect(
-        page.locator('input[type="file"].usa-file-input__input'),
-      ).toHaveAttribute('aria-required')
+      await expect(page.getByLabel('Drag file here')).toHaveAttribute(
+        'aria-required',
+      )
       await validateAccessibility(page)
     })
 

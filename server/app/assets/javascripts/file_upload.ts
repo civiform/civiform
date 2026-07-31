@@ -9,11 +9,6 @@ const CF_FILE_UPLOADING_CLASS = 'cf-file-uploading'
 const CF_FILE_UPLOAD_IN_PROGRESS_CLASS = 'cf-file-upload-in-progress'
 const CF_FILE_UPLOAD_CONTAINER_SELECTOR = '[data-cf-file-upload-container]'
 const FILE_UPLOAD_HTMX_FAILURE = '[data-fileupload-error="request-failed"]'
-// Attribute on the file list element containing a JSON array of uploaded file names
-const UPLOADED_FILES_ATTR = 'data-uploaded-files'
-// Attribute on the upload container containing the i18n label template for when files are uploaded.
-// Contains a {0} placeholder replaced client-side with the file count.
-const FILES_UPLOADED_ARIA_LABEL_ATTR = 'data-files-uploaded-aria-label'
 
 // Track the number of file uploads in progress to prevent navigating away
 let fileUploadsInProgress = 0
@@ -22,10 +17,6 @@ export const init = () => {
   if (!document.querySelector(CF_FILE_UPLOAD_CONTAINER_SELECTOR)) {
     return
   }
-
-  // Sync aria-labels on initial page load (e.g. if the user navigated back to a
-  // page with already-uploaded files).
-  syncFileInputAriaLabel()
 
   window.addEventListener('beforeunload', (e: BeforeUnloadEvent) => {
     if (fileUploadsInProgress > 0) {
@@ -94,7 +85,6 @@ export const init = () => {
         )
       }
       resetFileInput(event)
-      syncFileInputAriaLabel()
     } else if (fileUploadContainer && !event.detail.successful) {
       showError(
         fileUploadContainer.querySelector<HTMLElement>(
@@ -108,7 +98,6 @@ export const init = () => {
   document.body.addEventListener('htmx:afterSwap', () => {
     syncFileInputDisabledState()
     toggleDisabledState()
-    syncFileInputAriaLabel()
   })
 
   document.body.addEventListener('change', (event) => {
@@ -219,50 +208,6 @@ const syncFileInputDisabledState = () => {
         uswdsFileInput.enable(fileInput)
       } else {
         uswdsFileInput.disable(fileInput)
-      }
-    })
-}
-
-/**
- * Updates the aria-label of each file input to reflect the number of already-uploaded
- * files. When files have been uploaded, the file input shows "No file selected" to
- * screen readers (because the input value is cleared after upload), which is confusing.
- * Setting an aria-label with the uploaded file count provides screen reader users with
- * the correct context about already-uploaded files.
- */
-const syncFileInputAriaLabel = () => {
-  document
-    .querySelectorAll<HTMLElement>(CF_FILE_UPLOAD_CONTAINER_SELECTOR)
-    .forEach((container) => {
-      const fileList = container.querySelector<HTMLElement>(
-        `[${UPLOADED_FILES_ATTR}]`,
-      )
-      const fileInput =
-        container.querySelector<HTMLInputElement>('input[type=file]')
-      if (!fileList || !fileInput) return
-
-      const uploadedFilesAttr = fileList.getAttribute(UPLOADED_FILES_ATTR)
-      if (!uploadedFilesAttr) return
-
-      let uploadedFiles: string[]
-      try {
-        uploadedFiles = JSON.parse(uploadedFilesAttr) as string[]
-      } catch {
-        return
-      }
-
-      if (uploadedFiles.length > 0) {
-        const labelTemplate =
-          container.getAttribute(FILES_UPLOADED_ARIA_LABEL_ATTR) ?? ''
-        const label = labelTemplate.replace(
-          '%count%',
-          String(uploadedFiles.length),
-        )
-        fileInput.setAttribute('aria-label', label)
-      } else {
-        // No files uploaded — remove any previously set aria-label so the
-        // browser's native "No file selected" text is used.
-        fileInput.removeAttribute('aria-label')
       }
     })
 }
