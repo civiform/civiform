@@ -344,7 +344,8 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withEnumeratorImprovementsEnabled_showsNestedButtonOnlyOnAllowedNestingLevels() {
+  public void
+      edit_withEnumeratorImprovementsEnabled_showsNestedButtonOnParentEnumeratorAndDirectRepeatedScreens() {
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
             .withBlock()
@@ -412,7 +413,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             program.id,
             /* blockId= */ parentEnumeratorId);
     String parentEnumeratorHtml = Helpers.contentAsString(parentEnumeratorResult);
-    assertThat(parentEnumeratorHtml).doesNotContain("id=\"create-nested-set-button\"");
+    assertThat(parentEnumeratorHtml).contains("id=\"create-nested-set-button\"");
 
     Result repeatedUnderParentResult =
         controller.edit(
