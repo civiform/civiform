@@ -72,13 +72,13 @@ export class ApplicantFileQuestion {
 
   async expectFileInputEnabled() {
     await expect(
-      this.page.locator('input[type="file"].usa-file-input__input'),
+      this.page.getByLabel('Drag file here or choose from folder'),
     ).toBeEnabled()
   }
 
   async expectFileInputDisabled() {
     await expect(
-      this.page.locator('input[type="file"].usa-file-input__input'),
+      this.page.getByLabel('Drag file here or choose from folder'),
     ).toBeDisabled()
   }
 

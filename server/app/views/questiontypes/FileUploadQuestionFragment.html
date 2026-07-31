@@ -9,7 +9,6 @@
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
   data-cf-file-upload-container
-  th:data-files-uploaded-aria-label="#{input.filesAlreadyUploadedAriaLabel}"
 >
   <!--/* Title and Help Text */-->
   <div
@@ -93,7 +92,7 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} : ''"
+    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} + ' cf-fileupload-sr-status-' + ${question.getQuestionDefinition().getId()} : 'cf-fileupload-sr-status-' + ${question.getQuestionDefinition().getId()}"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"
