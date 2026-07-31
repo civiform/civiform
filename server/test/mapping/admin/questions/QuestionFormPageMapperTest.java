@@ -94,7 +94,7 @@ public final class QuestionFormPageMapperTest {
 
     QuestionFormPageViewModel result = mapNewTextForm(form);
 
-    assertThat(result.getCancelUrl()).isNotEmpty();
+    assertThat(result.getCancelUrl()).isEqualTo("/admin/questions");
   }
 
   @Test
