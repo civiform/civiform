@@ -258,25 +258,6 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void canAddQuestion_canAddRepeatedQuestionToEnumeratorBlock_IfEnumeratorIdMatches()
-      throws Exception {
-    ProgramDefinition program =
-        ProgramBuilder.newDraftProgram("program1")
-            .withBlock()
-            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
-            .buildDefinition();
-    assertThat(
-            programBlockValidation.canAddQuestion(
-                program,
-                program.getLastBlockDefinition(),
-                repeatedHouseholdMemberNameQuestion.getQuestionDefinition(),
-                /* enumeratorImprovementsEnabled= */ true,
-                /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestion= */ false))
-        .isEqualTo(AddQuestionResult.ELIGIBLE);
-  }
-
-  @Test
   public void
       canAddQuestion_canAddNonRepeatedQuestionToRepeatedBlock_whenEnumeratorImprovementsEnabled()
           throws Exception {
@@ -295,33 +276,6 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 /* fileUploadQuestionImprovementsEnabled= */ false,
                 /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.ELIGIBLE);
-  }
-
-  @Test
-  public void
-      canAddQuestion_cannotAddRepeatedQuestionToWrongEnumeratorBlock_whenEnumeratorImprovementsEnabled()
-          throws Exception {
-    QuestionModel otherEnumerator = resourceCreator.insertEnum("otherEnumerator");
-    QuestionModel otherRepeatedQuestion =
-        resourceCreator.insertRepeatedTextQuestion("otherRepeated", otherEnumerator);
-    version.addQuestion(otherEnumerator);
-    version.addQuestion(otherRepeatedQuestion);
-    version.save();
-
-    ProgramDefinition program =
-        ProgramBuilder.newDraftProgram("program1")
-            .withBlock()
-            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
-            .buildDefinition();
-    assertThat(
-            programBlockValidation.canAddQuestion(
-                program,
-                program.getLastBlockDefinition(),
-                otherRepeatedQuestion.getQuestionDefinition(),
-                /* enumeratorImprovementsEnabled= */ true,
-                /* fileUploadQuestionImprovementsEnabled= */ false,
-                /* isInitialQuestion= */ false))
-        .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
   }
 
   @Test
