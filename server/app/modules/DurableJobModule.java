@@ -19,7 +19,6 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
@@ -41,10 +40,8 @@ import repository.PersistedDurableJobRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
-import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
 import services.geojson.GeoJsonClient;
-import services.program.ProgramService;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -119,8 +116,6 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
-      ApplicantService applicantService,
-      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -160,13 +155,7 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
-    durableJobRegistry.register(
-        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
-        JobType.RECURRING,
-        persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(
-                applicantService, programService, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+    // TODO(#12749): Re-register CalculateEligibilityDeterminationJob once bugs are fixed
 
     if (config.getBoolean("durable_jobs.map_refresh")) {
       durableJobRegistry.register(

@@ -79,7 +79,11 @@ public final class ProgramBlockValidation {
 
     // Cannot use this question as the initial question on an enumerator block because its
     // type is not in {@link #VALID_INITIAL_QUESTION_TYPES}.
-    INVALID_INITIAL_QUESTION_TYPE
+    INVALID_INITIAL_QUESTION_TYPE,
+
+    // Cannot use this question on an enumerator block because it is not an enumerator question
+    // or an initial question.
+    NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK
   }
 
   /**
@@ -111,6 +115,11 @@ public final class ProgramBlockValidation {
     if (enumeratorImprovementsEnabled && question.isEnumerator() && !block.getIsEnumerator()) {
       return AddQuestionResult.ENUMERATOR_ON_NON_ENUMERATOR_BLOCK;
     }
+    if (enumeratorImprovementsEnabled
+        && block.getIsEnumerator()
+        && !isAllowedOnEnumeratorBlock(block, question, isInitialQuestion)) {
+      return AddQuestionResult.NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK;
+    }
     if (isInitialQuestion && !VALID_INITIAL_QUESTION_TYPES.contains(question.getQuestionType())) {
       return AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE;
     }
@@ -136,6 +145,29 @@ public final class ProgramBlockValidation {
       case FILEUPLOAD -> !fileUploadQuestionImprovementsEnabled;
       default -> false;
     };
+  }
+
+  /**
+   * The only questions a new-flow enumerator block should ever hold are the enumerator itself and
+   * its associated initial question. An empty enumerator block accepts the enumerator or an
+   * initial-question candidate (the question bank filter path marks candidates with {@code
+   * isInitialQuestion=true}); a populated enumerator block accepts only the specific question the
+   * enumerator points to via {@code enumeratorInitialQuestionId}.
+   */
+  private boolean isAllowedOnEnumeratorBlock(
+      BlockDefinition block, QuestionDefinition question, boolean isInitialQuestion) {
+    if (!block.getIsEnumerator()) {
+      return true;
+    }
+    if (!block.hasEnumeratorQuestion()) {
+      return question.isEnumerator() || isInitialQuestion;
+    }
+    return isInitialQuestion
+        && block
+            .getEnumeratorQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .map(id -> id.equals(question.getId()))
+            .orElse(false);
   }
 
   /**

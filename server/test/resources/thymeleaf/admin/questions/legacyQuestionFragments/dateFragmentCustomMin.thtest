@@ -1,0 +1,45 @@
+%NAME dateFragment - CUSTOM min shows its picker, unset max falls back to ANY and hides it
+%TEMPLATE_MODE HTML
+# DateFragment just wires up DateTypeSelect and MemorableDate, so both are
+# faked here and only the wiring is checked: an unset date type becomes
+# ANY, and each picker is hidden unless its type is CUSTOM.
+%CONTEXT
+questionForm = (#form = new forms.questions.DateQuestionForm(), \
+                #form.setMinDateType("CUSTOM"), \
+                #form.setMinCustomMonth("1"), \
+                #form.setMinCustomDay("2"), \
+                #form.setMinCustomYear("2024"), \
+                #form)
+# ----------------------------------------------------------------------
+%INPUT
+<th:block th:replace="~{admin/questions/fragments/DateFragment :: build(${questionForm})}"></th:block>
+# ----------------------------------------------------------------------
+# Swaps the real DateTypeSelect for a fake that just prints its arguments.
+# The output then shows exactly what DateFragment passed in; the real
+# dropdown markup has its own thtests.
+%INPUT[admin/questions/fragments/DateTypeSelect]
+<div
+  th:fragment="dateTypeSelect(id, fieldName, labelText, anyDateLabel, selectedValue)"
+  th:text="|dateTypeSelect(${id}, ${fieldName}, ${labelText}, ${anyDateLabel}, ${selectedValue})|"
+></div>
+# ----------------------------------------------------------------------
+# Same for MemorableDate: the printed arguments show whether each picker
+# is hidden and that min/max read their own form values, without copying
+# the picker markup tested in memorableDate*.thtest.
+%INPUT[admin/questions/fragments/MemorableDate]
+<fieldset
+  th:fragment="memorableDate(idPrefix, hidden, monthName, monthValue, dayName, dayValue, yearName, yearValue)"
+  th:text="|memorableDate(${idPrefix}, hidden=${hidden}, ${monthName}=${monthValue}, ${dayName}=${dayValue}, ${yearName}=${yearValue})|"
+></fieldset>
+# ----------------------------------------------------------------------
+%OUTPUT
+<legend class="pointer-events-none text-gray-600 text-base px-1 py-2">
+  Validation parameters
+</legend>
+<p class="px-1 pb-2 text-sm text-gray-600">
+  <span>Set the parameters for allowable values for this date question below.</span>
+</p>
+<div>dateTypeSelect(min-date-type, minDateType, Start date, Any past date, CUSTOM)</div>
+<fieldset>memorableDate(min-custom-date, hidden=false, minCustomMonth=1, minCustomDay=2, minCustomYear=2024)</fieldset>
+<div>dateTypeSelect(max-date-type, maxDateType, End date, Any future date, ANY)</div>
+<fieldset>memorableDate(max-custom-date, hidden=true, maxCustomMonth=, maxCustomDay=, maxCustomYear=)</fieldset>

@@ -43,6 +43,39 @@ public class LegacyQuestionFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "memorableDateSingleDigitMonth.thtest");
   }
 
+  /**
+   * DateTypeSelect and MemorableDate internals are covered above; this stubs them out and asserts
+   * only DateFragment's wiring: the ANY fallback for an unset date type and the hidden flag pairing
+   * each memorable date picker with its type select.
+   */
+  @Test
+  public void dateFragment_customMinShowsPickerUnsetMaxHidesIt() {
+    ThymeleafFragmentTester.run(DIR + "dateFragmentCustomMin.thtest");
+  }
+
+  /**
+   * Mirror of the CUSTOM-min case: the min/max expressions are copy-paste symmetric, and only a
+   * CUSTOM max evaluates the max-present branch.
+   */
+  @Test
+  public void dateFragment_customMaxShowsPickerUnsetMinHidesIt() {
+    ThymeleafFragmentTester.run(DIR + "dateFragmentCustomMax.thtest");
+  }
+
+  /**
+   * Guards the required-option posting trick: a required option's checkbox is disabled (so it does
+   * not post) and must be duplicated by a hidden displayedOptionIds[] input.
+   */
+  @Test
+  public void yesNo_newQuestionShowsLabelAndRequiredOptionPostsViaHiddenInput() {
+    ThymeleafFragmentTester.run(DIR + "yesNoRequiredHiddenInput.thtest");
+  }
+
+  @Test
+  public void yesNo_existingQuestionHidesLabelAndUndisplayedOptionIsUnchecked() {
+    ThymeleafFragmentTester.run(DIR + "yesNoUndisplayedUnchecked.thtest");
+  }
+
   @Test
   public void multiOptionRow_newOption() {
     ThymeleafFragmentTester.run(DIR + "multiOptionRowNew.thtest");

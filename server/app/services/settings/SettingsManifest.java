@@ -1072,11 +1072,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enable showing external program cards. */
-  public boolean getExternalProgramCardsEnabled() {
-    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
-  }
-
   /**
    * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
    * admin.
@@ -1132,14 +1127,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
-  public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf. */
+  public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
-  public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using new UX Designs. */
+  public boolean getAdminUiMigrationUxRedesignScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
@@ -2351,12 +2346,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "Enable showing external program cards.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "EXPANDED_FORM_LOGIC_ENABLED",
                           "Enables new visibility/eligibility condition editing UI and expanded"
                               + " logic capabilities for admin.",
@@ -2427,15 +2416,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ADMIN_UI_MIGRATION_SC_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
+                          "ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html"
+                              + " to Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI"
-                              + " migration in Thymeleaf.",
+                          "ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using"
+                              + " new UX Designs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
