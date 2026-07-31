@@ -100,12 +100,12 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
       // The visually-hidden SR status span (inside the already-OOB-swapped file list)
       // should now be present and contain the file count.
-      await expect(page.locator('[id^="cf-fileupload-sr-status-"]')).toBeVisible({
-        visible: false, // it's visually hidden (usa-sr-only) but present in DOM
-      })
-      await expect(page.locator('[id^="cf-fileupload-sr-status-"]')).toContainText(
-        '1 file(s) already uploaded',
-      )
+      await expect(
+        page.locator('[id^="cf-fileupload-sr-status-"]'),
+      ).toBeHidden()
+      await expect(
+        page.locator('[id^="cf-fileupload-sr-status-"]'),
+      ).toContainText('1 file(s) already uploaded')
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
