@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -10,6 +11,13 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('sample question seeding works', async ({
     page,
     adminQuestions,
