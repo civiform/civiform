@@ -139,7 +139,7 @@ lazy val root = (project in file("."))
       "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
-      "org.apache.tika" % "tika-core" % "3.3.1",
+      "org.apache.tika" % "tika-core" % "3.3.2",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
