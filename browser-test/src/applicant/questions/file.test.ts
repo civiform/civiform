@@ -100,9 +100,11 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
       // The visually-hidden SR status span (inside the already-OOB-swapped file list)
       // should now be present and contain the file count.
+      // Note: usa-sr-only hides elements via CSS (position/clip), not display:none,
+      // so Playwright treats the span as visible even though it's visually hidden.
       await expect(
         page.locator('[id^="cf-fileupload-sr-status-"]'),
-      ).toBeHidden()
+      ).toBeVisible()
       await expect(
         page.locator('[id^="cf-fileupload-sr-status-"]'),
       ).toContainText('1 file(s) already uploaded')
