@@ -260,7 +260,11 @@ public final class AdminLayout extends BaseHtmlLayout {
             a(Icons.svg(Icons.COG)
                     .withClasses("height-3", "width-3", "opacity-75", "hover:opacity-100"))
                 .withHref(settingsLink)
-                .withClasses("cf-admin-heading-nav-item-settings-icon"));
+                // Below the desktop breakpoint the pinned admin header styles add
+                // padding the legacy layout never had; cancel it so the narrow
+                // header keeps its pre-USWDS-merge geometry.
+                .withClasses(
+                    "cf-admin-heading-nav-item-settings-icon", "margin-neg-2", "desktop:margin-0"));
 
     LiTag logoutNavItem =
         createTopNavItem("Logout", logoutLink, /* active= */ false, Optional.of("logout-button"));
@@ -323,7 +327,15 @@ public final class AdminLayout extends BaseHtmlLayout {
     ATag aTag =
         a(span(text).withClasses("text-normal", "font-sans-md", "line-height-sans-6"))
             .withHref(href)
-            .withClasses("usa-nav__link", "cf-admin-heading-nav-item", active ? "usa-current" : "");
+            // The negative margins cancel the vertical padding the pinned admin
+            // header styles add below the desktop breakpoint, keeping the narrow
+            // header at its pre-USWDS-merge geometry.
+            .withClasses(
+                "usa-nav__link",
+                "cf-admin-heading-nav-item",
+                "margin-y-neg-2",
+                "desktop:margin-y-0",
+                active ? "usa-current" : "");
 
     id.ifPresent(x -> aTag.withId(x));
 
