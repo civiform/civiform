@@ -81,8 +81,7 @@ public final class QuestionEditView extends BaseHtmlView {
 
   private enum FormMode {
     CREATE,
-    EDIT,
-    VIEW
+    EDIT
   }
 
   @Inject
@@ -241,30 +240,6 @@ public final class QuestionEditView extends BaseHtmlView {
         request, formContent, questionType, title, Optional.of(unsetUniversalModal));
   }
 
-  /** Render a read-only non-submittable question form. */
-  public Content renderViewQuestionForm(
-      Request request,
-      QuestionDefinition questionDefinition,
-      Optional<QuestionDefinition> maybeEnumerationQuestionDefinition)
-      throws InvalidQuestionTypeException {
-    QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
-    QuestionType questionType = questionForm.getQuestionType();
-    String title =
-        String.format("View %s question", questionType.toString().toLowerCase(Locale.ROOT));
-
-    SelectWithLabel enumeratorOption =
-        enumeratorOptionsFromMaybeEnumerationQuestionDefinition(
-            maybeEnumerationQuestionDefinition,
-            questionForm.getEnumeratorSelectEnabled(),
-            FormMode.VIEW);
-    DivTag formContent =
-        buildQuestionContainer(title)
-            .with(buildReadOnlyQuestionForm(questionForm, enumeratorOption, request));
-
-    return renderWithPreview(
-        request, formContent, questionType, title, /* modal= */ Optional.empty());
-  }
-
   private Content renderWithPreview(
       Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
     DivTag previewContent;
@@ -295,12 +270,6 @@ public final class QuestionEditView extends BaseHtmlView {
       Request request) {
     return buildQuestionForm(
         questionForm, enumeratorOptions, /* submittable= */ true, forCreate, request);
-  }
-
-  private FormTag buildReadOnlyQuestionForm(
-      QuestionForm questionForm, SelectWithLabel enumeratorOptions, Request request) {
-    return buildQuestionForm(
-        questionForm, enumeratorOptions, /* submittable= */ false, /* forCreate= */ false, request);
   }
 
   private DivTag buildQuestionContainer(String title) {
