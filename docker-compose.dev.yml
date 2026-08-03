@@ -56,7 +56,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4:9.16@sha256:40fa840c5bb7c8463957f1255b01283732c2d8c9396a956d180f8e6c296753b3
+    image: dpage/pgadmin4:9.17@sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d
     restart: always
     depends_on:
       - db
