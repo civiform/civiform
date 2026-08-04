@@ -310,9 +310,13 @@
       <!-- Map container -->
       <div class="grid-col-12 desktop:grid-col-6">
         <!-- TODO(#11150): Add map question preview functionality -->
+        <!--/* In the admin question preview the map never initializes, so skip the
+          cf-map-container/cf-toggle-hidden styling hooks; their min-height would
+          stretch the placeholder past the square-mobile size the preview shows. */-->
         <div
           th:id="${mapId}"
-          class="cf-map-container cf-toggle-hidden width-full height-full maxh-viewport bg-base-lighter margin-top-3 tablet:margin-top-0 display-flex flex-align-center flex-justify-center"
+          class="width-full height-full maxh-viewport bg-base-lighter margin-top-3 tablet:margin-top-0 display-flex flex-align-center flex-justify-center"
+          th:classappend="${isPreview ? '' : 'cf-map-container cf-toggle-hidden'}"
           data-testid="map-container"
         >
           <div
