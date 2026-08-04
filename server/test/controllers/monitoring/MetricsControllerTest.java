@@ -62,7 +62,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(metricsContent).contains("ebean_queries_total_latency_micros");
     assertThat(metricsContent).contains(getEbeanCountName("models.ProgramModel"));
     assertThat(metricsContent).contains(getEbeanCountName("models.Question"));
-    assertThat(metricsContent).contains(getEbeanCountName("VersionModel.byId"));
+    assertThat(metricsContent).contains(getEbeanCountName("VersionModel.findByIdFor"));
     assertThat(metricsContent).contains("location=\"repository.VersionRepository.getActiveVersion");
     assertThat(metricsContent).contains("className=\"models.VersionModel");
   }
