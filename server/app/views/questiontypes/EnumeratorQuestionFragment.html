@@ -70,10 +70,12 @@
 </div>
 
 <!--/* Renders a single enumerator field (label, input, and remove button). This is used to render existing entities, and as a template used in TS to render a newly added entity.  */-->
+<!--/* The admin question preview kept the pre-USWDS spacing, so cancel the
+  applicant-side .cf-enumerator-field top padding when rendering there. */-->
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
   class="cf-enumerator-field maxw-mobile-lg"
-  th:classappend="${hidden ? 'display-none' : ''}"
+  th:classappend="${(hidden ? 'display-none ' : '') + (isPreview ? 'margin-top-neg-105' : '')}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
 >
