@@ -15,6 +15,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "license": "CC0-1.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=12.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tsconfig/recommended": "1.0.13",

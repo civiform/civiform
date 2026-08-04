@@ -14,6 +14,8 @@ RUN set -o pipefail && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
     apk add --no-cache --update bash wget npm git && \
+    # npm >= 12 required by engines/engine-strict
+    npm install -g npm@^12 && \
     mkdir -p "$SBT_HOME" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
@@ -24,7 +26,6 @@ ENV PROJECT_LOC="${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
-    npm install -g npm && \
     npm ci && \
     npm run build && \
     sbt update && \
