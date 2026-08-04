@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -13,6 +14,13 @@ import {
 } from './support/admin_questions'
 
 test.describe('primary applicant info questions', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows primary applicant info toggles/alerts correctly when creating a new question, and tag is persisted', async ({
     page,
     adminQuestions,

@@ -134,9 +134,9 @@ export class AdminPredicateEdit {
       AdminPredicateEdit.updateRootNodeOperatorAriaLabel,
     )
     addEventListenerToElements(
-      '#predicate-form',
-      'submit',
-      AdminPredicateEdit.onPredicateFormSubmit.bind(this),
+      '#cancel-predicate-edit',
+      'click',
+      AdminPredicateEdit.onCancelClick.bind(this),
     )
 
     // Trigger change to update operators based on the current scalar selected.
@@ -297,46 +297,20 @@ export class AdminPredicateEdit {
     AdminPredicateEdit.updateRootNodeOperatorAriaLabel()
   }
 
-  private static onPredicateFormSubmit(event: SubmitEvent) {
-    // If this is a submit, do nothing and let it go through.
-    // If this is a cancel, handle submit manually.
-    if (event.submitter && event.submitter.id === 'cancel-predicate-edit') {
-      event.preventDefault()
-      AdminPredicateEdit.confirmExitWithoutSaving(
-        event.target as HTMLFormElement,
-        event.submitter as HTMLButtonElement,
-      )
-    }
-  }
+  private static onCancelClick(event: Event) {
+    const cancelLink = event.currentTarget as HTMLAnchorElement
 
-  private static confirmExitWithoutSaving(
-    predicateForm: HTMLFormElement,
-    cancelButton: HTMLButtonElement,
-  ) {
+    // If the form has unsaved changes, ask for confirmation before letting
+    // the link navigate away.
     const currentPredicateState = AdminPredicateEdit.getPredicateFormState()
-
-    // Check the initial form state against the current form state.
-    // If they're equal, do nothing and cancel.
-    // If there have been changes, show a confirmation dialog.
     if (
       currentPredicateState !== AdminPredicateEdit.INITIAL_PREDICATE_FORM_STATE
     ) {
-      const confirmationMessage =
-        cancelButton.getAttribute('data-cancel-dialog')
-      if (!confirmationMessage) {
-        return
-      }
-
-      if (window.confirm(confirmationMessage)) {
-        predicateForm.action = cancelButton.formAction
-        predicateForm.submit()
-      } else {
-        return
+      const confirmationMessage = cancelLink.getAttribute('data-cancel-dialog')
+      if (confirmationMessage && !window.confirm(confirmationMessage)) {
+        event.preventDefault()
       }
     }
-
-    predicateForm.action = cancelButton.formAction
-    predicateForm.submit()
   }
 
   /** Focus the root node operator select dropdown. Used on page load and on adding the first condition. */
