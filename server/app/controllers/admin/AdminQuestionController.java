@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import mapping.admin.questions.QuestionFormPageMapper;
+import mapping.admin.questions.QuestionsListPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -31,8 +32,10 @@ import play.mvc.Result;
 import repository.GeoJsonDataRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
+import services.DateConverter;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
@@ -56,6 +59,8 @@ import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionFormPageView;
 import views.admin.questions.QuestionFormPageViewModel;
+import views.admin.questions.QuestionsListPageView;
+import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -73,6 +78,9 @@ public final class AdminQuestionController extends CiviFormController {
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
   private final GeoJsonDataRepository geoJsonDataRepository;
   private final QuestionFormPageView questionFormPageView;
+  private final QuestionsListPageView questionsListPageView;
+  private final TranslationLocales translationLocales;
+  private final DateConverter dateConverter;
 
   @Inject
   public AdminQuestionController(
@@ -87,7 +95,10 @@ public final class AdminQuestionController extends CiviFormController {
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
       GeoJsonDataRepository geoJsonDataRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
-      QuestionFormPageView questionFormPageView) {
+      QuestionFormPageView questionFormPageView,
+      QuestionsListPageView questionsListPageView,
+      TranslationLocales translationLocales,
+      DateConverter dateConverter) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -99,6 +110,9 @@ public final class AdminQuestionController extends CiviFormController {
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
     this.questionFormPageView = checkNotNull(questionFormPageView);
+    this.questionsListPageView = checkNotNull(questionsListPageView);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -110,12 +124,27 @@ public final class AdminQuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService ->
-                ok(
-                    listView.render(
-                        readOnlyService.getActiveAndDraftQuestions(),
-                        filter.map(TextFormatter::sanitizeHtml),
-                        request)),
+            readOnlyService -> {
+              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+                QuestionsListPageViewModel model =
+                    new QuestionsListPageMapper()
+                        .map(
+                            readOnlyService.getActiveAndDraftQuestions(),
+                            filter.map(TextFormatter::sanitizeHtml),
+                            translationLocales,
+                            service,
+                            dateConverter,
+                            settingsManifest.getEnumeratorImprovementsEnabled(request),
+                            request.flash().get(FlashKey.SUCCESS),
+                            request.flash().get(FlashKey.ERROR));
+                return ok(questionsListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+              }
+              return ok(
+                  listView.render(
+                      readOnlyService.getActiveAndDraftQuestions(),
+                      filter.map(TextFormatter::sanitizeHtml),
+                      request));
+            },
             classLoaderExecutionContext.current());
   }
 
