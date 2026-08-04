@@ -76,12 +76,14 @@
       ></th:block>
     </main>
 
-    <!--/* Modal container rendered by the legacy layout on every page; admin JS expects it */-->
     <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
       <div
         id="modal-glass-pane"
         class="fixed h-screen w-screen bg-gray-400 opacity-75"
       ></div>
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: modals} ?: ~{}"
+      ></th:block>
     </div>
 
     <!--/* Google Tag Manager */-->

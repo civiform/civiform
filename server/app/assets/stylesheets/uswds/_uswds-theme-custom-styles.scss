@@ -316,6 +316,15 @@ body {
   table-layout: fixed;
 }
 
+// Tailwind-parity: the transitional admin header markup uses z-10,
+// which USWDS doesn't define (it only has z-100 through z-500).
+// Without it the fixed header nav has z-index auto and positioned
+// content (e.g. usa-card containers) paints over it when scrolling.
+// This will be removed as part of the admin migration moving off tailwind
+.z-10 {
+  z-index: 10;
+}
+
 // Set a basic default gap for `display: flex`.
 .display-flex.flex-gap {
   gap: 1rem;

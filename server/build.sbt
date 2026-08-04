@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.0",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.0",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.0",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.1",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.1",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.1",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -48,19 +48,19 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.49.1",
-      "software.amazon.awssdk" % "ses" % "2.49.1",
+      "software.amazon.awssdk" % "s3" % "2.49.6",
+      "software.amazon.awssdk" % "ses" % "2.49.6",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.65.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.67.0",
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.13",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.28.6",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.29.0",
       "com.h2database" % "h2" % "2.4.240" % Test,
 
       // Metrics collection and export for Prometheus
@@ -114,12 +114,12 @@ lazy val root = (project in file("."))
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
-      "commons-validator" % "commons-validator" % "1.10.1",
+      "commons-validator" % "commons-validator" % "1.11.0",
 
       // pdf library for export
-      "com.itextpdf" % "itextpdf" % "5.5.13.5",
+      "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.34",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.36",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -139,14 +139,14 @@ lazy val root = (project in file("."))
       "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
 
       // Apache library for byte detection
-      "org.apache.tika" % "tika-core" % "3.3.1",
+      "org.apache.tika" % "tika-core" % "3.3.2",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.5.38",
+      "ch.qos.logback" % "logback-classic" % "1.6.1",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -160,7 +160,7 @@ lazy val root = (project in file("."))
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.45",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.3",
+      "com.networknt" % "json-schema-validator" % "2.0.4",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"
@@ -338,8 +338,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.0",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.0",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.1",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.1",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 

@@ -1,7 +1,19 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+  waitForPageJsLoad,
+} from '../support'
 
 test.describe('Yes/no options', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('Renders options correctly', async ({page, adminQuestions}) => {
     await loginAsAdmin(page)
 

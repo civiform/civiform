@@ -124,12 +124,6 @@ export class AdminQuestions {
     await this.expectAdminQuestionsPage()
   }
 
-  async goToViewQuestionPage(questionName: string) {
-    await this.gotoAdminQuestionsPage()
-    await this.page.click(this.selectQuestionTableRow(questionName))
-    await waitForPageJsLoad(this.page)
-  }
-
   async clickSubmitButtonAndNavigate(buttonText: string) {
     await this.page.click(`button:text-is("${buttonText}")`)
     await waitForPageJsLoad(this.page)

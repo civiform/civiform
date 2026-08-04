@@ -378,7 +378,7 @@ export class AdminPredicates {
   }
 
   async clickCancelButton() {
-    await this.page.getByRole('button', {name: 'Cancel'}).click()
+    await this.page.getByRole('link', {name: 'Cancel'}).click()
   }
 
   async clickSaveConditionButton() {
