@@ -1,0 +1,20 @@
+%NAME iconNoiseControlOff - lifecycle badge dot sizing (legacy ViewUtils.makeLifecycleBadge)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconNoiseControlOff('inline-block w-5 h-5')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  class="inline-block w-5 h-5"
+>
+  <path
+    d="M10 14.208Q8.25 14.208 7.021 12.979Q5.792 11.75 5.792 10Q5.792 8.25 7.021 7.021Q8.25 5.792 10 5.792Q11.75 5.792 12.979 7.021Q14.208 8.25 14.208 10Q14.208 11.75 12.979 12.979Q11.75 14.208 10 14.208Z"
+  ></path>
+</svg>
