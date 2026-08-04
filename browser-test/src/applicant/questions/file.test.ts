@@ -107,7 +107,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       ).toBeVisible()
       await expect(
         page.locator('[id^="cf-fileupload-sr-status-"]'),
-      ).toContainText('1 file(s) already uploaded')
+      ).toContainText('1 file already uploaded')
     })
 
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
