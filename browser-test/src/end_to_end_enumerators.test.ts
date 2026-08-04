@@ -123,7 +123,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Take a screenshot of the block panel', async () => {
-        await validateScreenshot(blockPanel, 'enumerator-block-panel', {
+        const fullBlockPanel = page.getByTestId('block-panel')
+        await validateScreenshot(fullBlockPanel, 'enumerator-block-panel', {
           fullPage: false,
         })
       })
@@ -822,7 +823,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('"Add nested repeated set" button appears only on parent enumerator and direct repeated screens', async ({
+    test('"Add nested list set" button appears only on parent enumerator and direct repeated screens', async ({
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
@@ -996,7 +997,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('successful "Create repeated set" submit clears the auto-saved enumerator form input', async ({
+    test('successful "Create list set" submit clears the auto-saved enumerator form input', async ({
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
