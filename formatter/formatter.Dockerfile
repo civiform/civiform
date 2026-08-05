@@ -6,6 +6,8 @@ ENV JAVA_FORMATTER_URL="https://github.com/google/google-java-format/releases/do
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \
     apk add --no-cache --update bash wget npm shfmt git py3-pip py3-yapf && \
+    # npm >= 12 required by engines/engine-strict
+    npm install -g npm@^12 && \
     apk cache clean
 
 # Below we pre-install nodejs depdendencies for various

@@ -38,6 +38,13 @@ test.describe('Yes/no options', () => {
 })
 
 test.describe('Yes/no translations', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('renders translation screen with pre-translated message only', async ({
     page,
     adminQuestions,

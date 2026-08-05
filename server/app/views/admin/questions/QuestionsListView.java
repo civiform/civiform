@@ -380,9 +380,6 @@ public final class QuestionsListView extends BaseHtmlView {
                         generateTranslationCompleteText(question).orElse(div())))
             .with(actionsCellAndModal.getLeft());
 
-    asRedirectElement(
-        row, controllers.admin.routes.AdminQuestionController.show(question.getId()).url());
-
     return Pair.of(row, actionsCellAndModal.getRight());
   }
 

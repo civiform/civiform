@@ -1,0 +1,115 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionTranslationPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
+         the direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="mb-4" th:text="${model.title}"></h1>
+
+  <!--/* Language picker. The currently selected locale is underlined. */-->
+  <div class="m-2">
+    <a
+      th:each="link : ${model.languageLinks}"
+      th:href="${link.href}"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center cf-admin-language-link m-2"
+      th:classappend="${link.selected} ? 'border-blue-400 border-b-2'"
+      th:text="${link.displayLanguage}"
+    ></a>
+  </div>
+
+  <form method="POST" th:action="${model.formActionUrl}">
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+
+    <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
+      <legend>
+        <span>Applicant-visible question details</span
+        ><a
+          th:href="${model.editDefaultUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div
+          th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.questionTextField})}"
+        ></div>
+        <!--/* Help text is optional - only shown when the question has one. */-->
+        <th:block th:if="${model.showHelpText}">
+          <div
+            th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.questionHelpTextField})}"
+          ></div>
+        </th:block>
+      </div>
+    </fieldset>
+
+    <input
+      hidden
+      name="concurrencyToken"
+      th:value="${model.concurrencyToken}"
+    />
+
+    <!--/* Question-type specific fields. At most one of these renders. */-->
+    <th:block th:if="${model.showYesNoNote}">
+      <div class="mb-4">Yes/No question options are pre-translated.</div>
+    </th:block>
+
+    <th:block th:if="${model.showAnswerOptions}">
+      <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
+        <legend>Answer options</legend>
+        <div class="flex-row space-y-4">
+          <th:block th:each="field : ${model.answerOptionFields}">
+            <div
+              th:replace="~{admin/questions/fragments/TranslationField :: translationField(${field})}"
+            ></div>
+          </th:block>
+        </div>
+      </fieldset>
+    </th:block>
+
+    <!--/* Enumerator entity type is not wrapped in a fieldset, matching the
+           legacy view. */-->
+    <th:block th:if="${model.showEntityType}">
+      <div
+        th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.entityTypeField})}"
+      ></div>
+    </th:block>
+
+    <!--/* Map settings. The legacy view rendered the fieldset whenever the
+           question had any settings, even if none of them were translatable,
+           which leaves the inner div empty. */-->
+    <th:block th:if="${model.showMapSettings}">
+      <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
+        <legend>Settings</legend>
+        <div class="flex-row space-y-4">
+          <th:block th:each="field : ${model.mapSettingFields}">
+            <div
+              th:replace="~{admin/questions/fragments/TranslationField :: translationField(${field})}"
+            ></div>
+          </th:block>
+        </div>
+      </fieldset>
+    </th:block>
+
+    <div class="flex flex-row gap-x-2">
+      <button
+        type="submit"
+        id="update-localizations-button"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        th:text="${model.saveButtonText}"
+      ></button>
+    </div>
+  </form>
+
+  <!--/* Error toast (save failures and the concurrent-update notice), consumed
+         by toast.ts. */-->
+  <div
+    th:if="${model.errorMessage.isPresent()}"
+    class="hidden cf-toast-data"
+    th:id="${model.errorToastId}"
+    canDismiss="true"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage.get()}"
+  ></div>
+</th:block>

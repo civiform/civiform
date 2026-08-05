@@ -15,6 +15,10 @@
     "test:coverage": "vitest run --coverage"
   },
   "license": "CC0-1.0",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=12.0.0"
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@tsconfig/recommended": "1.0.13",
@@ -31,7 +35,7 @@
     "globals": "17.8.0",
     "htmx-ext-response-targets": "2.0.4",
     "htmx.org": "2.0.10",
-    "jsdom": "^29.0.0",
+    "jsdom": "^30.0.0",
     "postcss": "8.5.25",
     "sass": "^1.94.0",
     "tailwindcss": "^3.4.1",

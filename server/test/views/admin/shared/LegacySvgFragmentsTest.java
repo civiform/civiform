@@ -64,4 +64,178 @@ public class LegacySvgFragmentsTest {
   public void iconMarkdown() {
     ThymeleafFragmentTester.run(DIR + "iconMarkdown.thtest");
   }
+
+  /** Legacy source: QuestionBank.renderFilterAndSort filter input. */
+  @Test
+  public void iconSearch_questionFilter() {
+    ThymeleafFragmentTester.run(DIR + "iconSearch.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeUniversalBadge. */
+  @Test
+  public void iconStar_universalBadge() {
+    ThymeleafFragmentTester.run(DIR + "iconStar.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeLifecycleBadge status dot. */
+  @Test
+  public void iconNoiseControlOff_lifecycleBadge() {
+    ThymeleafFragmentTester.run(DIR + "iconNoiseControlOff.thtest");
+  }
+
+  /** Legacy source: QuestionsListView translation complete badge. */
+  @Test
+  public void iconCheck_translationBadge() {
+    ThymeleafFragmentTester.run(DIR + "iconCheck.thtest");
+  }
+
+  /** Legacy source: QuestionsListView translation incomplete badge. */
+  @Test
+  public void iconClose_translationBadge() {
+    ThymeleafFragmentTester.run(DIR + "iconCloseTranslationBadge.thtest");
+  }
+
+  /** Legacy source: Modal close button (Modal.getModalHeader). */
+  @Test
+  public void iconClose_modalCloseButton() {
+    ThymeleafFragmentTester.run(DIR + "iconCloseModal.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Edit"). */
+  @Test
+  public void iconEdit_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconEditSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton (extra actions dropdown button). */
+  @Test
+  public void iconMoreVert_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconMoreVertSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Manage translations"). */
+  @Test
+  public void iconTranslate_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconTranslateSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Archive"). */
+  @Test
+  public void iconArchive_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconArchiveSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Restore archived"). */
+  @Test
+  public void iconUnarchive_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconUnarchiveSvgTextButton.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconAddress_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconAddressCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconCheckbox_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconCheckboxCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconCurrency_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconCurrencyCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconDate_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconDateCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconDropdown_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconDropdownCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconEmail_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconEmailCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconFileupload_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconFileuploadCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconId_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconIdCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconMap_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconMapCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconName_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconNameCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconNumber_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconNumberCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconRadioButton_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconRadioButtonCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconEnumerator_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconEnumeratorCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconAnnotation_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconAnnotationCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconText_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconTextCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconPhone_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconPhoneCreateDropdown.thtest");
+  }
+
+  /** Legacy source: CreateQuestionButton dropdown (Icons.questionTypeSvgWithId). */
+  @Test
+  public void iconUnknown_createQuestionDropdown() {
+    ThymeleafFragmentTester.run(DIR + "iconUnknownCreateDropdown.thtest");
+  }
+
+  /** Legacy source: QuestionsListView info cell (no svg-link id). */
+  @Test
+  public void iconAddress_questionCard() {
+    ThymeleafFragmentTester.run(DIR + "iconAddressQuestionCard.thtest");
+  }
 }

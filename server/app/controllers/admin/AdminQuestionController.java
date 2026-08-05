@@ -157,32 +157,6 @@ public final class AdminQuestionController extends CiviFormController {
         .as(Http.MimeTypes.HTML);
   }
 
-  /**
-   * Return a HTML page displaying all configurations of a question without the ability to update
-   * it.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(Request request, long id) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
-
-              Optional<QuestionDefinition> maybeEnumerationQuestion =
-                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-              try {
-                return ok(
-                    editView.renderViewQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
-              } catch (InvalidQuestionTypeException e) {
-                return badRequest(
-                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-              }
-            },
-            classLoaderExecutionContext.current());
-  }
-
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(
