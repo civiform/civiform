@@ -950,7 +950,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withId("repeated-set-question-section-heading")
                 .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
-            p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
+            p(messages.at(MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))
                 .withClasses("text-gray-cool-50", "font-ui-sm"),
             enumeratorQuestionCard);
   }
