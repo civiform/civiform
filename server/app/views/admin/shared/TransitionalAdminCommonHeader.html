@@ -107,7 +107,7 @@
           <span>Civi</span><span class="text-light">Form</span>
         </div>
         <div
-          class="usa-header usa-header--basic display-inline-block width-full"
+          class="usa-header usa-header--basic cf-admin-header display-inline-block width-full"
         >
           <nav aria-label="Primary navigation">
             <ul
@@ -119,7 +119,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.programsUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
+                  class="usa-nav__link cf-admin-heading-nav-item margin-y-neg-2 desktop:margin-y-0"
                   th:classappend="${adminCommonHeader.activeNavPage().name() == 'PROGRAMS'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Programs</span
@@ -132,7 +132,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.questionsUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
+                  class="usa-nav__link cf-admin-heading-nav-item margin-y-neg-2 desktop:margin-y-0"
                   th:classappend="${adminCommonHeader.activeNavPage().name() == 'QUESTIONS'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Questions</span
@@ -145,7 +145,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.intermediaryUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
+                  class="usa-nav__link cf-admin-heading-nav-item margin-y-neg-2 desktop:margin-y-0"
                   th:classappend="${adminCommonHeader.activeNavPage().name() == 'INTERMEDIARIES'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Intermediaries</span
@@ -158,7 +158,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.reportingUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
+                  class="usa-nav__link cf-admin-heading-nav-item margin-y-neg-2 desktop:margin-y-0"
                   th:classappend="${adminCommonHeader.activeNavPage().name() == 'REPORTING'} ? 'usa-current' : ''"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Reporting</span
@@ -216,7 +216,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.settingsUrl()}"
-                  class="cf-admin-heading-nav-item-settings-icon"
+                  class="cf-admin-heading-nav-item-settings-icon margin-neg-2 desktop:margin-0"
                   aria-label="Settings Link"
                   ><svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -238,7 +238,7 @@
               >
                 <a
                   th:href="${adminCommonHeader.logoutUrl()}"
-                  class="usa-nav__link cf-admin-heading-nav-item"
+                  class="usa-nav__link cf-admin-heading-nav-item margin-y-neg-2 desktop:margin-y-0"
                   id="logout-button"
                   ><span class="text-normal font-sans-md line-height-sans-6"
                     >Logout</span

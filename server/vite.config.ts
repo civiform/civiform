@@ -31,7 +31,6 @@ const assetPaths = {
   uswds_css: 'app/assets/stylesheets/uswds/styles.scss',
   uswds_js: 'node_modules/@uswds/uswds/dist/js/uswds.min.js',
   uswdsinit_js: 'node_modules/@uswds/uswds/dist/js/uswds-init.min.js',
-  northstar_css: 'app/assets/stylesheets/northstar/styles.scss',
   tailwind: 'app/assets/stylesheets/styles.css',
   maplibregl_css: 'node_modules/maplibre-gl/dist/maplibre-gl.css',
   swaggerui_css: 'node_modules/swagger-ui-dist/swagger-ui.css',
@@ -66,7 +65,6 @@ export default defineConfig({
         assetPaths.uswdsinit_js,
         assetPaths.uswds_js,
         assetPaths.uswds_css,
-        assetPaths.northstar_css,
         assetPaths.maplibregl_css,
         assetPaths.tailwind,
       ],
@@ -113,7 +111,6 @@ export default defineConfig({
         admin: resolve(__dirname, assetPaths.admin),
         uswdsinit_js: resolve(__dirname, assetPaths.uswdsinit_js),
         uswds_css: resolve(__dirname, assetPaths.uswds_css),
-        northstar_css: resolve(__dirname, assetPaths.northstar_css),
         maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
         tailwind: resolve(__dirname, assetPaths.tailwind),
         // Load page specific files

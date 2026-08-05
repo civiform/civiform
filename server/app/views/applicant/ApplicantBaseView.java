@@ -75,7 +75,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("useBundlerDevServer", bundledAssetsFinder.useBundlerDevServer());
     context.setVariable("viteClientUrl", bundledAssetsFinder.viteClientUrl());
-    context.setVariable("northStarStylesheet", bundledAssetsFinder.getNorthStarStylesheet());
+    context.setVariable("uswdsStylesheet", bundledAssetsFinder.getUswdsStylesheet());
     context.setVariable("mapLibreGLStylesheet", bundledAssetsFinder.getMapLibreGLStylesheet());
     context.setVariable("applicantJsBundle", bundledAssetsFinder.getApplicantJsBundle());
     context.setVariable("uswdsJsInit", bundledAssetsFinder.getUswdsJsInit());
