@@ -1244,8 +1244,6 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=상위 라벨
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=하위 라벨
-# Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
