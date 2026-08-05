@@ -2,7 +2,7 @@ package controllers.dev;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-import actions.DemoModeDisabledAction;
+import actions.DemoModeEnabledAction;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.FlashKey;
@@ -44,7 +44,7 @@ import views.dev.DevToolsPageViewModel;
 import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
-@With(DemoModeDisabledAction.class)
+@With(DemoModeEnabledAction.class)
 public class DevToolsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
