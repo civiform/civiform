@@ -1,0 +1,41 @@
+%NAME translationField - textarea branch passes markdown flag, never required; unescaped English hint
+%TEMPLATE_MODE HTML
+# TranslationField just picks a field fragment and adds the English hint, so
+# both field fragments are faked here and only the wiring is checked: the
+# textarea branch renders alone, forwarding the field's values with
+# required=false, and the hint HTML lands unescaped via th:utext.
+%CONTEXT
+# TranslationField(id, name, label, value, textarea, markdown, defaultTextHtml)
+field = @views.admin.questions.QuestionTranslationPageViewModel$TranslationField@builder() \
+    .id("q-text-es").name("localizedQuestionText").label("Question text") \
+    .value("Como se llama?").textarea(true).markdown(true) \
+    .defaultTextHtml("<p>What is your <strong>name</strong>?</p>").build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/questions/fragments/TranslationField :: translationField(${field})}"></div>
+# ----------------------------------------------------------------------
+# Swaps the real TextareaField for a fake that just prints its arguments.
+# The output then shows exactly what TranslationField passed in; the real
+# textarea markup has its own thtests in LegacyFieldFragmentsTest.
+%INPUT[admin/shared/LegacyFieldWithLabel/TextareaField]
+<div
+  th:fragment="textareaField(id, name, label, value, required, markdown)"
+  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, markdown=${markdown})|"
+></div>
+# ----------------------------------------------------------------------
+# TextField is faked too so the output proves the text-input branch did
+# not render alongside the textarea branch.
+%INPUT[admin/shared/LegacyFieldWithLabel/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="grid gap-6 grid-cols-2">
+  <div>textareaField(q-text-es, localizedQuestionText, Question text, Como se llama?, required=false, markdown=true)</div>
+  <div class="px-2 py-1 text-sm bg-gray-100">
+    <p class="font-medium">English text:</p>
+    <div class="font-sans"><p>What is your <strong>name</strong>?</p></div>
+  </div>
+</div>
