@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -175,7 +174,6 @@ test.describe('Admin can manage question translations', () => {
     adminPrograms,
     adminTranslations,
   }) => {
-    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
     await loginAsAdmin(page)
     const questionName = 'name-translated'
 

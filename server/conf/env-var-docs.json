@@ -951,6 +951,12 @@
         "description": "Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
+      },
+      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables translation management improvement phase one",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -960,12 +966,6 @@
       "PROGRAM_SLUG_URLS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
-        "type": "bool",
-        "required": false
-      },
-      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
         "type": "bool",
         "required": false
       },

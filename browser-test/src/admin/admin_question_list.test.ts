@@ -2,7 +2,6 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
-  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
@@ -471,10 +470,6 @@ test.describe('Admin question list', () => {
 })
 
 test.describe('Translation tag shows up as expected', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
-  })
-
   const questionName = 'Question for translation tags'
   const questionHelpText = 'Question help text'
 
