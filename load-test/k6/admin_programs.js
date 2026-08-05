@@ -52,19 +52,20 @@ export default async function () {
       page.getByRole("link", { name: "Questions", exact: true }).click(),
     ]);
 
+    // Run both handlers a second time just to get a little more from the
+    // cost of logging in without throwing off the utility of the scenario
+    // run configs too much.
     await Promise.all([
       page.waitForNavigation(),
       page.getByRole("link", { name: "Programs", exact: true }).click(),
     ]);
 	  
-    // Run both handlers a second time just to get a little more from the
-    // cost of logging in without throwing off the utility of the scenario
-    // run configs.
     await Promise.all([
       page.waitForNavigation(),
       page.getByRole("link", { name: "Questions", exact: true }).click(),
     ]);
 
+    // Ensure the page loaded.
     await expect(
       page.getByRole("heading", { name: "All questions", exact: true }),
     ).toBeVisible();
