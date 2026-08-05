@@ -23,10 +23,9 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update bash wget npm git
-
-# Install npm (node)
-RUN npm install -g npm
+  apk add --no-cache --update bash wget npm git && \
+  # npm >= 12 required by engines/engine-strict
+  npm install -g npm@^12
 
 # Download sbt
 RUN set -o pipefail && \
