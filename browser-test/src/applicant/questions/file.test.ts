@@ -88,7 +88,6 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
     })
 
-    // Regression test for https://github.com/civiform/civiform/issues/13318.
     // After a file is uploaded, screen readers should announce the count of already-uploaded
     // files rather than the browser-native "No file selected" text.
     test('screen reader status span appears after file upload', async ({
