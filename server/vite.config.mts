@@ -53,9 +53,9 @@ export default defineConfig({
       // fonts and images referenced via $theme-font-path and $theme-image-path
       // in the USWDS SCSS config.
       allow: [
-        resolve(__dirname, 'app/assets'),
-        resolve(__dirname, 'node_modules'),
-        resolve(__dirname, 'node_modules/@uswds/uswds/dist'),
+        resolve(import.meta.dirname, 'app/assets'),
+        resolve(import.meta.dirname, 'node_modules'),
+        resolve(import.meta.dirname, 'node_modules/@uswds/uswds/dist'),
       ],
     },
     // Pre-compile on startup for faster loading of the first page hit
@@ -109,18 +109,18 @@ export default defineConfig({
     rolldownOptions: {
       // Set up the main entrypoint chunks
       input: {
-        applicant: resolve(__dirname, assetPaths.applicant),
-        admin: resolve(__dirname, assetPaths.admin),
-        uswdsinit_js: resolve(__dirname, assetPaths.uswdsinit_js),
-        uswds_css: resolve(__dirname, assetPaths.uswds_css),
-        northstar_css: resolve(__dirname, assetPaths.northstar_css),
-        maplibregl: resolve(__dirname, assetPaths.maplibregl_css),
-        tailwind: resolve(__dirname, assetPaths.tailwind),
+        applicant: resolve(import.meta.dirname, assetPaths.applicant),
+        admin: resolve(import.meta.dirname, assetPaths.admin),
+        uswdsinit_js: resolve(import.meta.dirname, assetPaths.uswdsinit_js),
+        uswds_css: resolve(import.meta.dirname, assetPaths.uswds_css),
+        northstar_css: resolve(import.meta.dirname, assetPaths.northstar_css),
+        maplibregl: resolve(import.meta.dirname, assetPaths.maplibregl_css),
+        tailwind: resolve(import.meta.dirname, assetPaths.tailwind),
         // Load page specific files
         ...Object.fromEntries(
           Object.entries(pageEntries).map(([key, path]) => [
             key,
-            resolve(__dirname, path),
+            resolve(import.meta.dirname, path),
           ]),
         ),
       },
@@ -177,8 +177,8 @@ export default defineConfig({
         quietDeps: true,
         // Add USWDS load paths for SCSS imports
         loadPaths: [
-          resolve(__dirname, 'app/assets/stylesheets/uswds'),
-          resolve(__dirname, 'node_modules/@uswds/uswds/packages'),
+          resolve(import.meta.dirname, 'app/assets/stylesheets/uswds'),
+          resolve(import.meta.dirname, 'node_modules/@uswds/uswds/packages'),
         ],
       },
     },
@@ -186,8 +186,8 @@ export default defineConfig({
 
   resolve: {
     alias: {
-      '@pages': resolve(__dirname, 'app/assets/javascripts/pages'),
-      '@': resolve(__dirname, 'app/assets/javascripts'),
+      '@pages': resolve(import.meta.dirname, 'app/assets/javascripts/pages'),
+      '@': resolve(import.meta.dirname, 'app/assets/javascripts'),
     },
     extensions: ['.ts', '.js', '.scss', '.css'],
   },
