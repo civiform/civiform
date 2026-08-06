@@ -42,7 +42,8 @@
     th:if="${fileUploadQuestion.getFileKeyListValue().isPresent() and !fileUploadQuestion.getFileKeyListValue().get().isEmpty()}"
     th:id="'cf-fileupload-sr-status-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
     class="usa-sr-only"
-    th:text="#{input.filesAlreadyUploadedAriaLabel(${fileUploadQuestion.getFileKeyListValue().get().size()})}"
+    th:with="fileCount=${fileUploadQuestion.getFileKeyListValue().get().size()}"
+    th:text="${fileCount == 1} ? #{input.filesAlreadyUploadedAriaLabel.singular} : #{input.filesAlreadyUploadedAriaLabel.plural(${fileCount})}"
   ></span>
   <th:block th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}">
     <li
