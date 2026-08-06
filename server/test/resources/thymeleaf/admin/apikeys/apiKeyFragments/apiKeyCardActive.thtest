@@ -1,0 +1,81 @@
+%NAME apiKeyCard - active key shows the retire form and its program grants
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+apiKey = @views.admin.apikeys.ApiKeyIndexPageViewModel$ApiKey@builder() \
+    .name("Test API key").status("active").nameSlug("test-api-key") \
+    .keyId("key-id").subnets("1.1.1.1/32") \
+    .expirationDate("2100-01-01") \
+    .createdDate("2024/01/01 at 9:00 AM PST") \
+    .createdBy("admin@example.com") \
+    .lastCallIp("N/A").callCount(0L) \
+    .retired(false) \
+    .retireUrl("/admin/apiKeys/7/retire") \
+    .grants(@com.google.common.collect.ImmutableList@of( \
+        @views.admin.apikeys.ApiKeyIndexPageViewModel$ProgramGrant@builder() \
+            .programName("Utility Discount").programSlug("utility-discount") \
+            .permission("READ").build())) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/apikeys/fragments/ApiKeyCard :: apiKeyCard(${apiKey})}"></div>
+# ----------------------------------------------------------------------
+# The icon is faked so this test stays about the card; iconDelete has its own
+# thtests under admin/shared/legacySvgFragments/.
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconDelete(classes)" th:text="|iconDelete(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="w-full shadow-lg mb-6">
+  <div class="border border-gray-300 bg-white rounded p-4">
+    <h2 class="mb-2 cf-api-key-name">
+      Test API key<span class="text-gray-700 text-sm"> active</span>
+    </h2>
+    <div class="flex place-content-between">
+      <div>
+        <div>
+          <p class="cf-bt-api-key-id">ID: key-id</p>
+          <p class="text-gray-700 text-sm">Allowed subnets: 1.1.1.1/32</p>
+          <p class="text-gray-700 text-sm cf-bt-date">Expires on: 2100-01-01</p>
+        </div>
+      </div>
+      <div class="text-xs">
+        <p class="cf-bt-date">Created 2024/01/01 at 9:00 AM PST</p>
+        <p class="cf-bt-api-key-created-by">Created by admin@example.com</p>
+        <p id="test-api-key-last-call-ip">Last used by N/A</p>
+        <p id="test-api-key-call-count">Call count: 0</p>
+      </div>
+    </div>
+    <div class="flex place-content-between mt-4">
+      <table class="table-auto w-2/3">
+        <tr>
+          <th class="text-left text-sm">Program name</th>
+          <th class="text-left text-sm">Program slug</th>
+          <th class="text-left text-sm">Permission</th>
+        </tr>
+        <tr>
+          <td>Utility Discount</td>
+          <td>utility-discount</td>
+          <td>READ</td>
+        </tr>
+      </table>
+      <div class="flex">
+        <form
+          action="/admin/apiKeys/7/retire"
+          method="POST"
+          id="retire-test-api-key"
+          data-api-key-name="Test API key"
+          class="retire-key-form"
+        >
+          <input hidden value="token" name="csrfToken" />
+          <button
+            class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+          >
+            <svg>iconDelete(inline-block h-4.5 w-4.5)</svg>
+            <span class="text-left">Retire key</span>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
