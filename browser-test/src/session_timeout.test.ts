@@ -1,10 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {
-  enableFeatureFlag,
-  loginAsAdmin,
-  loginAsTestUser,
-  validateScreenshot,
-} from './support'
+import {loginAsAdmin, loginAsTestUser, validateScreenshot} from './support'
 import {Page} from '@playwright/test'
 
 // Config values from application.dev-browser-tests.conf:
@@ -23,7 +18,6 @@ test.describe('Session timeout for admins', () => {
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
     await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and logs user out after 90 more minutes', async ({
@@ -77,7 +71,6 @@ test.describe('Session timeout for applicants', () => {
     // Install clock at the current real time
     // This way server timestamps and browser time should be in sync
     await page.clock.install({time: realTime})
-    await enableFeatureFlag(page, 'session_timeout_enabled')
   })
 
   test('shows inactivity warning modal after 50 minutes and session length warning modal after 55 minutes', async ({
@@ -130,13 +123,9 @@ test.describe('Session timeout for applicants', () => {
 
 const confirmUserIsLoggedOut = async (page: Page) => {
   // If the user logged in through OIDC previously - during logout they are
-  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-  // logout.
+  // redirected through the dev-oidc:PORT/session/end page, which confirms
+  // the logout automatically and redirects back to the programs index page.
   if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
-    if (pageContent!.includes('Do you want to sign-out from')) {
-      // OIDC central provider confirmation page
-      await page.getByRole('button', {name: 'Yes'}).click()
-    }
+    await page.waitForURL('**/programs')
   }
 }

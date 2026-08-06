@@ -11,10 +11,10 @@
     "sourceMap": true,
     "mapRoot": "/assets/javascripts",
     "sourceRoot": "/assets/javascripts",
-    "baseUrl": "./",
+    "rootDir": "./app/assets/javascripts",
     "paths": {
-      "@/*": ["app/assets/javascripts/*"],
-      "@pages/*": ["app/assets/javascripts/pages/*"]
+      "@/*": ["./app/assets/javascripts/*"],
+      "@pages/*": ["./app/assets/javascripts/pages/*"]
     },
     "strict": true,
     "types": ["vitest"]

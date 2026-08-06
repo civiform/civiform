@@ -36,8 +36,8 @@ jobs:
         run: |
           # Temporarily ignore errors so we can check grep for matches
           set +e
-          echo "BranchName: ${{ env.BRANCH_NAME }}"
-          echo "${{ env.BRANCH_NAME }}" | grep --quiet --ignore-case "azure"
+          echo "BranchName: $BRANCH_NAME"
+          echo "$BRANCH_NAME" | grep --quiet --ignore-case "azure"
           if [[ $? -eq 0 ]]; then
               matrix='{"cloud": ["aws", "azure"], "shard_number": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]}'
           else

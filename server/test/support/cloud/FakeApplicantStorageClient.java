@@ -17,7 +17,7 @@ public class FakeApplicantStorageClient implements ApplicantStorageClient {
   }
 
   @Override
-  public String getPresignedUrlString(String fileKey, Optional<String> prefixedOriginalFileName) {
+  public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
     return "presigned-url";
   }
 

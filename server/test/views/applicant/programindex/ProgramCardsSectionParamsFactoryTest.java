@@ -43,7 +43,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/programs/fake-program");
   }
 
@@ -61,7 +61,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/fake-program");
   }
 
@@ -79,7 +79,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/edit");
   }
 
@@ -97,7 +97,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
   }
 
@@ -115,7 +115,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                 LifecycleStage.DRAFT), // draft lifecyle stage means they have an in progress draft
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ true);
+            /* programSlugUrlsEnabled= */ true);
     assertThat(url).isEqualTo("/programs/fake-program/edit");
   }
 
@@ -134,7 +134,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                     .ACTIVE), // active lifecycle stage means they have submitted the application
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/review");
   }
 
@@ -153,7 +153,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
                     .ACTIVE), // active lifecycle stage means they have submitted the application
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/review");
   }
 
@@ -171,7 +171,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/programs/1/edit");
   }
 
@@ -189,7 +189,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.of(1L),
             /* profile= */ Optional.of(testProfile),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("/applicants/1/programs/1/edit");
   }
 
@@ -207,7 +207,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ true);
+            /* programSlugUrlsEnabled= */ true);
     assertThat(url).isEqualTo("/programs/fake-program/edit");
   }
 
@@ -225,7 +225,7 @@ public class ProgramCardsSectionParamsFactoryTest extends ResetPostgres {
             /* optionalLifecycleStage= */ Optional.empty(),
             /* applicantId= */ Optional.empty(),
             /* profile= */ Optional.empty(),
-            /* programSlugUrlEnabled= */ false);
+            /* programSlugUrlsEnabled= */ false);
     assertThat(url).isEqualTo("https://usa.gov");
   }
 }

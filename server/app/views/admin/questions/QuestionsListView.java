@@ -114,15 +114,8 @@ public final class QuestionsListView extends BaseHtmlView {
                     .with(
                         h1(title),
                         div().withClass("flex-grow"),
-                        CreateQuestionButton.renderCreateQuestionButton(
-                            controllers.admin.routes.AdminQuestionController.index(Optional.empty())
-                                .url(),
-                            /* isPrimaryButton= */ true,
-                            /* enumeratorQuestion= */ Optional.empty(),
-                            settingsManifest,
-                            request,
-                            /* isEmptyBlock= */ true,
-                            /* isQuestionPage= */ true)),
+                        CreateQuestionButton.renderCreateQuestionButtonForQuestionListPage(
+                            settingsManifest, request)),
                 QuestionBank.renderFilterAndSort(
                     ImmutableList.of(
                         QuestionSortOption.LAST_MODIFIED,
@@ -386,9 +379,6 @@ public final class QuestionsListView extends BaseHtmlView {
                         settingsManifest.getTranslationManagementImprovementEnabled(request),
                         generateTranslationCompleteText(question).orElse(div())))
             .with(actionsCellAndModal.getLeft());
-
-    asRedirectElement(
-        row, controllers.admin.routes.AdminQuestionController.show(question.getId()).url());
 
     return Pair.of(row, actionsCellAndModal.getRight());
   }

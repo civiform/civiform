@@ -9,7 +9,6 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
-import controllers.FlashKey;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -92,7 +91,6 @@ public final class ApplicantProgramsController extends CiviFormController {
       List<String> categories /* The selected program categories */) {
     CiviFormProfile requesterProfile = profileUtils.currentUserProfile(request);
 
-    Optional<String> bannerMessage = request.flash().get(FlashKey.BANNER);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
 
@@ -112,7 +110,6 @@ public final class ApplicantProgramsController extends CiviFormController {
                           Optional.of(applicantId),
                           applicantStage.toCompletableFuture().join(),
                           applicationPrograms,
-                          bannerMessage,
                           Optional.of(requesterProfile)))
                       .as(Http.MimeTypes.HTML);
               // If the user has been to the index page, any existing redirects should be
@@ -151,7 +148,6 @@ public final class ApplicantProgramsController extends CiviFormController {
                     Optional.empty(),
                     ApplicantPersonalInfo.ofGuestUser(),
                     programsFuture.join(),
-                    request.flash().get(FlashKey.BANNER),
                     Optional.empty()))
                 .as(Http.MimeTypes.HTML));
   }
@@ -227,8 +223,8 @@ public final class ApplicantProgramsController extends CiviFormController {
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/applicants/:applicantId/programs/:programParam/edit", programParam)
@@ -240,9 +236,9 @@ public final class ApplicantProgramsController extends CiviFormController {
 
   private CompletionStage<Result> editInternal(
       Request request, long applicantId, String programParam) {
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
     return programSlugHandler
-        .resolveProgramParam(programParam, applicantId, programSlugUrlEnabled)
+        .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
             programId -> {
               CiviFormProfile profile = profileUtils.currentUserProfile(request);
@@ -259,7 +255,7 @@ public final class ApplicantProgramsController extends CiviFormController {
                         Optional<Block> blockMaybe =
                             roApplicantService.getFirstBlockRequiringAction(
                                 /* includeStatic= */ true);
-                        if (programSlugUrlEnabled) {
+                        if (programSlugUrlsEnabled) {
                           return blockMaybe.flatMap(
                               block ->
                                   Optional.of(
@@ -287,9 +283,16 @@ public final class ApplicantProgramsController extends CiviFormController {
                       resultMaybe -> {
                         if (resultMaybe.isEmpty()) {
                           return supplyAsync(
-                              () ->
-                                  redirect(
-                                      applicantRoutes.review(profile, applicantId, programId)));
+                              () -> {
+                                if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                                  String programSlug =
+                                      programSlugHandler.getProgramSlug(programParam);
+                                  return redirect(
+                                      applicantRoutes.review(profile, applicantId, programSlug));
+                                }
+                                return redirect(
+                                    applicantRoutes.review(profile, applicantId, programId));
+                              });
                         }
                         return supplyAsync(resultMaybe::get);
                       },
@@ -318,8 +321,8 @@ public final class ApplicantProgramsController extends CiviFormController {
   public CompletionStage<Result> edit(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (programSlugUrlEnabled && StringUtils.isNumeric(programParam)) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels("/programs/:programParam/edit", programParam)
@@ -367,8 +370,12 @@ public final class ApplicantProgramsController extends CiviFormController {
           applicantService.relevantProgramsWithoutApplicant(request).toCompletableFuture();
     } else {
       programsFuture =
-          applicantService
-              .relevantProgramsForApplicant(maybeApplicantId.get(), requesterProfile, request)
+          checkApplicantAuthorization(request, maybeApplicantId.get())
+              .thenComposeAsync(
+                  _ ->
+                      applicantService.relevantProgramsForApplicant(
+                          maybeApplicantId.get(), requesterProfile, request),
+                  classLoaderExecutionContext.current())
               .toCompletableFuture();
     }
 
@@ -386,6 +393,9 @@ public final class ApplicantProgramsController extends CiviFormController {
                     .as("text/html"))
         .exceptionally(
             ex -> {
+              if (ex instanceof CompletionException && ex.getCause() instanceof SecurityException) {
+                return Results.forbidden();
+              }
               logger.error(
                   "There was an error in rendering the filtered programs"
                       + " partial view with these categories: "

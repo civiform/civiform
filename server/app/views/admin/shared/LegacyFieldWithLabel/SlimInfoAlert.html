@@ -1,0 +1,15 @@
+<!--/*
+  Slim USWDS info alert, legacy-parity markup for migrated admin pages.
+*/-->
+<div
+  th:fragment="slimInfoAlert(text, hidden, extraClasses)"
+  th:hidden="${hidden}"
+  class="usa-alert usa-alert--info usa-alert--slim"
+  th:classappend="${extraClasses}"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <p class="usa-alert__text" th:text="${text}"></p>
+  </div>
+</div>

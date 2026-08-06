@@ -60,7 +60,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle().orElse(""));
     context.setVariable("programShortDescription", params.programShortDescription().orElse(""));
     context.setVariable("applicationId", params.applicationId());
-    context.setVariable("bannerMessage", params.bannerMessage());
 
     String alertTitle =
         params
@@ -111,9 +110,6 @@ public class ApplicantUpsellView extends ApplicantBaseView {
                 params.applicationId(), params.applicantId())
             .url();
     context.setVariable("downloadHref", downloadHref);
-
-    // Create account or login alert
-    context.setVariable("createAccountLink", controllers.routes.LoginController.register().url());
 
     // Cards section
     Optional<ProgramSectionParams> cardsSection = Optional.empty();

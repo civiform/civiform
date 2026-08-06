@@ -1,13 +1,13 @@
 import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
   AdminPrograms,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS, Seeding} from '../../support/seeding'
 
 test.describe('Number question for applicant flow', () => {
   const errorMessage = 'This question is required.'
@@ -17,13 +17,8 @@ test.describe('Number question for applicant flow', () => {
   test.describe('single number question', () => {
     const programName = 'Test program for single number'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await setUpForSingleQuestion(programName, page, seeding, adminPrograms)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -95,14 +90,12 @@ test.describe('Number question for applicant flow', () => {
   test.describe('multiple number questions', () => {
     const programName = 'Test program for multiple numbers'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
       await adminQuestions.addNumberQuestion({
         questionName: 'my-number-q',
-      })
-      await adminQuestions.addNumberQuestion({
-        questionName: 'your-number-q',
       })
 
       await adminPrograms.addProgram(programName)
@@ -110,7 +103,7 @@ test.describe('Number question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-number-q'],
-        'your-number-q', // optional
+        SAMPLE_QUESTIONS.number, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -176,17 +169,15 @@ test.describe('Number question for applicant flow', () => {
   async function setUpForSingleQuestion(
     programName: string,
     page: Page,
-    adminQuestions: AdminQuestions,
+    seeding: Seeding,
     adminPrograms: AdminPrograms,
   ) {
     // As admin, create program with single number question.
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addNumberQuestion({
-      questionName: 'fave-number-q',
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['fave-number-q'],
+      [SAMPLE_QUESTIONS.number],
       programName,
     )
 

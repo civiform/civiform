@@ -1,19 +1,25 @@
 package auth;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.annotations.VisibleForTesting;
 import com.typesafe.config.Config;
 import java.nio.charset.StandardCharsets;
 import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
-import java.util.Random;
+import java.util.HashMap;
+import java.util.Map;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.pac4j.core.context.FrameworkParameters;
+import org.pac4j.core.context.WebContext;
 import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.context.session.SessionStoreFactory;
+import org.pac4j.core.util.serializer.JsonSerializer;
 import org.pac4j.play.store.DataEncrypter;
 import org.pac4j.play.store.JdkAesDataEncrypter;
 import org.pac4j.play.store.PlayCookieSessionStore;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   // Chosen based on OWASP's recommendation for PBKDF2-HMAC-SHA256
@@ -24,8 +30,6 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   // a different salt resulting in a different AES key.
   private static final byte[] SALT =
       "civiform:play-cookie-aes-key:v1".getBytes(StandardCharsets.UTF_8);
-  private final byte[] aesKey;
-  private final byte[] legacyAesKey;
   private final DataEncrypter encrypter;
 
   /**
@@ -33,27 +37,19 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
    * store in a way that always results in the same key, so that cookies generated from different
    * CiviForm server instances or different CiviForm versions are decryptable here.
    *
-   * <p>In play-pac4j 13, the encryption library was replaced, so we provide a fallback to a 1:1
-   * copy of the old Shiro implementation so that the upgrade is seamless. In a bit, once everyone
-   * has upgraded and we're reasonably sure most people have had their sessions migrated, we can
-   * remove this fallback and catch the exception that would happen just in case and invalidate the
-   * session.
-   *
    * @param config Configuration object that contains the application secret
    */
   public CiviFormSessionStoreFactory(Config config) {
+    byte[] aesKey;
     try {
       String secret = config.getString("play.http.secret.key");
-      this.aesKey = deriveAes128Key(secret);
-      this.legacyAesKey = deriveLegacyAesKey(secret);
+      aesKey = deriveAes128Key(secret);
     } catch (NoSuchAlgorithmException | InvalidKeySpecException e) {
       // Should never really be possible given we hard code the algo/key spec
       throw new RuntimeException("Error generating cookie encryption key", e);
     }
 
-    var primary = new JdkAesDataEncrypter(aesKey);
-    var fallback = new ShiroAesDataEncrypter(legacyAesKey);
-    this.encrypter = new FallbackDataEncrypter(primary, fallback);
+    this.encrypter = new JdkAesDataEncrypter(aesKey);
   }
 
   @Override
@@ -62,25 +58,49 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
   }
 
   public SessionStore newSessionStore() {
-    // This is a weird one.  :)  The cookie session store refuses to serialize any
-    // classes it doesn't explicitly trust.  A bug in pac4j interacts badly with
-    // sbt's autoreload, so we have a little workaround here.  configure() gets called on every
-    // startup,
-    // but the JAVA_SERIALIZER object is only initialized on initial startup.
-    // So, on a second startup, we'll add the CiviFormProfileData a second time.  The
-    // trusted classes set should dedupe CiviFormProfileData against the old CiviFormProfileData,
-    // but it's technically a different class with the same name at that point,
-    // which triggers the bug.  So, we just clear the classes, which will be empty
-    // on first startup and will contain the profile on subsequent startups,
-    // so that it's always safe to add the profile.
-    // We will need to do this for every class we want to store in the cookie.
-    var serializer = new org.pac4j.core.util.serializer.JavaSerializer();
-    serializer.clearTrustedClasses();
-    serializer.addTrustedClass(CiviFormProfileData.class);
+    var jsonSerializer = new JsonSerializer();
+    // Play's request threads can have a context classloader that doesn't include the
+    // application classes, so Jackson's DefaultTyping fails to resolve type ids like
+    // "auth.CiviFormProfileData" with "no such class found". Bind the TypeFactory to the
+    // classloader that actually loaded our app classes.
+    ObjectMapper jsonMapper = jsonSerializer.getObjectMapper();
+    jsonMapper.setTypeFactory(
+        jsonMapper.getTypeFactory().withClassLoader(CiviFormProfileData.class.getClassLoader()));
 
-    var sessionStore = new PlayCookieSessionStore(encrypter);
-    sessionStore.setSerializer(serializer);
+    var sessionStore = new InvalidatingCookieSessionStore(encrypter);
+    sessionStore.setSerializer(jsonSerializer);
     return sessionStore;
+  }
+
+  /**
+   * A {@link PlayCookieSessionStore} that treats an unreadable session cookie as no session rather
+   * than an error.
+   *
+   * <p>A cookie can be unreadable because it was written by a CiviForm version predating the
+   * play-pac4j 13 upgrade (Shiro encryption / Java serialization, previously handled by fallback
+   * decrypters and serializers that have since been removed), or because the application secret
+   * changed. In either case the right outcome is to invalidate the session and treat the user as
+   * logged out, not to fail the request.
+   */
+  private static final class InvalidatingCookieSessionStore extends PlayCookieSessionStore {
+    private static final Logger logger =
+        LoggerFactory.getLogger(InvalidatingCookieSessionStore.class);
+
+    InvalidatingCookieSessionStore(DataEncrypter dataEncrypter) {
+      super(dataEncrypter);
+    }
+
+    @Override
+    protected Map<String, Object> getSessionValues(WebContext context) {
+      try {
+        return super.getSessionValues(context);
+      } catch (RuntimeException e) {
+        logger.warn("Session cookie could not be read, invalidating the session", e);
+        // Drop the unreadable cookie so we don't re-attempt (and re-log) on every request.
+        putSessionValues(context, null);
+        return new HashMap<>();
+      }
+    }
   }
 
   /**
@@ -119,20 +139,5 @@ public class CiviFormSessionStoreFactory implements SessionStoreFactory {
     } finally {
       spec.clearPassword();
     }
-  }
-
-  /**
-   * This is the old way we were generating the key. This is so that we can migrate sessions to the
-   * new key the first time they load CiviForm on this version.
-   *
-   * @param playSecret The Play application secret string, or other sufficiently random string.
-   * @return A 32-byte AES key
-   */
-  @VisibleForTesting
-  static byte[] deriveLegacyAesKey(String playSecret) {
-    Random r = new Random(playSecret.hashCode());
-    byte[] aesKey = new byte[32];
-    r.nextBytes(aesKey);
-    return aesKey;
   }
 }

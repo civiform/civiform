@@ -1,0 +1,55 @@
+@use 'uswds-core' as *;
+
+// Vertical spacing system aligning with the Admin Components Figma spacing table. Put the
+// class on a parent element. The owl selector (> * + *) will apply margin-top to each direct
+// sibling after the first direct child. Nested descendants aren't affected.
+
+// Reset margin top/bottom on elements inside a spacing container so the
+// owl selector (`> * + *`) below is the sole source of vertical rhythm.
+
+$spacing-scopes: '.spacing-0, .spacing-05, .spacing-1, .spacing-105, .spacing-2, .spacing-3, .spacing-4, .spacing-8';
+$reset-targets: 'h1, h2, h3, h4, h5, h6, .usa-form-group, .usa-card, .usa-input';
+
+// Reset margin-top on spacing-* direct children to enforce a good starting point for
+// when the spacing-* is applied.
+:is(#{$spacing-scopes}) > * {
+  @include u-margin-top(0);
+}
+
+// Reset margin-top on the items in the reset-targets list. It resets all children, but
+// uses css :where which has a lower specificity so it is overrideable by our spacing-*
+// and spacing-override-* classes below.
+:is(#{$spacing-scopes}) :where(#{$reset-targets}) {
+  @include u-margin-top(0);
+}
+
+// Reset margin-bottom on the items in the reset-targets list. It resets all children, but
+// uses css :is which has a specificity of the most specific selector so it will always
+// make sure we get the expected 0 margin.
+:is(#{$spacing-scopes}) :is(#{$reset-targets}) {
+  @include u-margin-bottom(0);
+}
+
+/*
+Generate the spacing-* and spacing-override-* classes
+
+Example of what is generated:
+
+    .spacing-0 > * + * {
+      @include u-margin-top(0);
+    }
+
+    .spacing-override-0 {
+      @include u-margin-top(0);
+    }
+
+*/
+@each $key in (0, '05', 1, '105', 2, 3, 4, 8) {
+  .spacing-#{$key} > * + * {
+    @include u-margin-top($key);
+  }
+
+  .spacing-override-#{$key} {
+    @include u-margin-top($key);
+  }
+}

@@ -16,6 +16,7 @@ import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import services.program.ProgramDefinition;
 import support.ProgramBuilder;
 
@@ -25,18 +26,21 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
   private static final String EMAIL_ATTR = "user_emailid";
   private static final String EMAIL = "bar@foo.com";
 
-  private AccountRepository repository;
   private ProfileFactory profileFactory;
   private CiviFormProfileMerger civiFormProfileMerger;
   private UserProfile userProfile;
 
   @Before
   public void setup() {
-    repository = instanceOf(AccountRepository.class);
+    var repository = instanceOf(AccountRepository.class);
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     civiFormProfileMerger =
         new CiviFormProfileMerger(
-            profileFactory, () -> repository, instanceOf(DatabaseExecutionContext.class));
+            profileFactory,
+            () -> repository,
+            () -> storedFileRepository,
+            instanceOf(DatabaseExecutionContext.class));
     userProfile = new CommonProfile();
   }
 

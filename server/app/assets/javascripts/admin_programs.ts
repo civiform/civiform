@@ -7,10 +7,6 @@ enum ProgramType {
   EXTERNAL = 'External program',
 }
 
-interface HtmxDetail {
-  target?: HTMLElement
-}
-
 class AdminPrograms {
   private static PROGRAM_CARDS_SELECTOR = '.cf-admin-program-card'
   private static PROGRAM_LINK_ATTRIBUTE = 'data-copyable-program-link'
@@ -360,16 +356,15 @@ class AdminPrograms {
 
   static attachEventListenerToHtmxSwap() {
     document.body.addEventListener('htmx:afterSwap', (e) => {
-      const targetElement = (e as CustomEvent<HtmxDetail>).detail.target
-      if (!targetElement) {
-        return
-      }
+      const targetElement = e.detail.target
       if (targetElement.id === 'enumerator-setup') {
         if (document.getElementById('new-enumerator-question-form-errors')) {
           this.focusOnFirstEnumeratorFormField()
         } else {
           this.focusOnEnumeratorQuestionSection()
         }
+      } else if (targetElement.id === 'initial-question-slot') {
+        this.focusOnInitialQuestionHeading()
       }
     })
   }
@@ -409,6 +404,30 @@ class AdminPrograms {
     if (enumeratorSectionHeading) {
       enumeratorSectionHeading.focus()
     }
+  }
+
+  static focusOnInitialQuestionHeading() {
+    const initialQuestionHeading = document.getElementById(
+      'initial-question-label',
+    )
+    if (initialQuestionHeading) {
+      initialQuestionHeading.focus()
+    }
+  }
+
+  /**
+   * After redirecting back to the block edit page from adding an existing enumerator question, the
+   * controller appends ?focusEnumeratorHeading=true so we know to move focus to the enumerator
+   * section heading. The param is then stripped so a refresh doesn't keep refocusing.
+   */
+  static focusOnEnumeratorQuestionSectionFromUrlParam() {
+    const url = new URL(window.location.href)
+    if (url.searchParams.get('focusEnumeratorHeading') !== 'true') {
+      return
+    }
+    this.focusOnEnumeratorQuestionSection()
+    url.searchParams.delete('focusEnumeratorHeading')
+    window.history.replaceState({}, '', url.toString())
   }
 
   static focusOnFirstEnumeratorFormField() {
@@ -491,6 +510,9 @@ class AdminPrograms {
     // or when admins intentionally clear the field.
     if (input.value === '' || input.value === previousSuggestion) {
       input.value = suggestion
+      // Programmatic .value assignment doesn't fire an `input` event on its own.
+      // Dispatch one so listeners (e.g. sessionStorage auto-save) see the change.
+      input.dispatchEvent(new Event('input'))
     }
 
     input.dataset[previousSuggestionDataAttribute] = suggestion
@@ -498,6 +520,71 @@ class AdminPrograms {
 
   static normalizeRepeatedSetEntity(entity: string): string {
     return entity.trim().replace(/\s+/g, ' ').toLowerCase()
+  }
+
+  /**
+   * Preserve the user input on the new enumerator question form in session storage
+   * and re-populate the fields on page load and after HTMX swaps.
+   */
+  static attachEnumeratorFormInputStorage() {
+    const restoreAndBind = () => {
+      const form = document.getElementById('new-enumerator-question-form')
+      if (!form) return
+      const programId = form.dataset.programId
+      const blockId = form.dataset.blockId
+      if (!programId || !blockId) return
+      const keyPrefix = `enumerator-form:program:${programId}:block:${blockId}:`
+
+      const inputs = form.querySelectorAll<
+        HTMLInputElement | HTMLTextAreaElement
+      >('input, textarea')
+      inputs.forEach((input) => {
+        if (!input.name) return
+        const key = keyPrefix + input.name
+        const saved = sessionStorage.getItem(key)
+        if (saved !== null) input.value = saved
+        input.addEventListener('input', () => {
+          sessionStorage.setItem(key, input.value)
+        })
+      })
+    }
+
+    restoreAndBind()
+    // Re-run after HTMX swaps the setup section back in (e.g. after a validation error).
+    document.body.addEventListener('htmx:afterSettle', restoreAndBind)
+
+    // Clear enumerator form values from session storage after successful submit of the form.
+    document.body.addEventListener('htmx:afterSettle', () => {
+      const questionSectionElement = document.getElementById(
+        'repeated-set-question-section',
+      )
+      if (questionSectionElement)
+        this.clearEnumeratorFormStorage(questionSectionElement)
+    })
+
+    // #block-delete-form triggers a clear when the admin confirms delete.
+    const deleteForm = document.getElementById('block-delete-form')
+    if (deleteForm?.hasAttribute('data-clear-enumerator-form-storage')) {
+      deleteForm.addEventListener('submit', () => {
+        this.clearEnumeratorFormStorage(deleteForm)
+      })
+    }
+  }
+
+  private static clearEnumeratorFormStorage(markerElement: HTMLElement) {
+    const programAndBlockIds = markerElement.getAttribute(
+      'data-clear-enumerator-form-storage',
+    )
+    if (!programAndBlockIds) return
+    const [programId, blockId] = programAndBlockIds.split(':')
+    if (!programId || !blockId) return
+    const keyPrefix = `enumerator-form:program:${programId}:block:${blockId}:`
+    const toRemove: string[] = []
+    for (let i = 0; i < sessionStorage.length; i++) {
+      const key = sessionStorage.key(i)
+      if (key && key.startsWith(keyPrefix)) toRemove.push(key)
+    }
+    toRemove.forEach((k) => sessionStorage.removeItem(k))
   }
 }
 
@@ -512,4 +599,6 @@ export function init() {
   AdminPrograms.attachEventListenerToHtmxSwap()
   AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
   AdminPrograms.attachEventListenerToRepeatedSetFieldAutofill()
+  AdminPrograms.focusOnEnumeratorQuestionSectionFromUrlParam()
+  AdminPrograms.attachEnumeratorFormInputStorage()
 }

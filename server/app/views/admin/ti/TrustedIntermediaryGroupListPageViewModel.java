@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Map;
 import lombok.Builder;
 import lombok.Data;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 import views.components.QuestionSortOption;
 
 @Data

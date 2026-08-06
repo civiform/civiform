@@ -19,6 +19,7 @@ import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import support.CfTestHelpers;
 
 public class GenericOidcProfileCreatorTest extends ResetPostgres {
@@ -28,6 +29,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
   public void setup() {
     AccountRepository accountRepository = instanceOf(AccountRepository.class);
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    var storedFileRepository = instanceOf(StoredFileRepository.class);
     OidcClient client = CfTestHelpers.getOidcClient("dev-oidc", 3390);
     OidcConfiguration client_config = CfTestHelpers.getOidcConfiguration("dev-oidc", 3390);
     Config serverConfig =
@@ -41,9 +43,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                serverConfig,
-                profileFactory,
-                CfTestHelpers.userRepositoryProvider(accountRepository)),
+                serverConfig, profileFactory, () -> accountRepository, () -> storedFileRepository),
             instanceOf(DatabaseExecutionContext.class));
   }
 

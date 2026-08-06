@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import org.mockito.Mockito;
 import play.Environment;
 import play.inject.ApplicationLifecycle;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
@@ -77,8 +78,16 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
   @Override
   public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
+    GetObjectRequest.Builder getObjectRequestBuilder =
+        GetObjectRequest.builder().key(fileKey).bucket(bucket);
     GetObjectRequest getObjectRequest =
-        GetObjectRequest.builder().key(fileKey).bucket(bucket).build();
+        originalFileName.isPresent()
+            ? getObjectRequestBuilder
+                .responseContentDisposition(
+                    ApplicantFileNameFormatter.buildResponseContentDisposition(
+                        originalFileName.get()))
+                .build()
+            : getObjectRequestBuilder.build();
     GetObjectPresignRequest getObjectPresignRequest =
         GetObjectPresignRequest.builder()
             .signatureDuration(PRESIGNED_URL_DURATION)

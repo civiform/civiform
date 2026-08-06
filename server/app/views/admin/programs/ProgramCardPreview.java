@@ -46,6 +46,17 @@ public class ProgramCardPreview extends ApplicantBaseView {
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 
+  public ProgramCardParams buildCard(Params params) {
+    return programCardsSectionParamsFactory.getCard(
+        params.request(),
+        params.messages(),
+        params.applicantProgramData(),
+        LocalizedStrings.DEFAULT_LOCALE, // Admin console is not localized
+        Optional.of(params.profile()),
+        params.applicantId(),
+        params.applicantPersonalInfo());
+  }
+
   public String render(Params params) {
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -55,16 +66,7 @@ public class ProgramCardPreview extends ApplicantBaseView {
             params.applicantPersonalInfo(),
             params.messages());
 
-    ProgramCardParams programCardParams =
-        programCardsSectionParamsFactory.getCard(
-            params.request(),
-            params.messages(),
-            params.applicantProgramData(),
-            LocalizedStrings.DEFAULT_LOCALE, // Admin console is not localized
-            Optional.of(params.profile()),
-            params.applicantId(),
-            params.applicantPersonalInfo());
-    context.setVariable("card", programCardParams);
+    context.setVariable("card", buildCard(params));
 
     return templateEngine.process("admin/programs/ProgramCardPreviewFragment.html", context);
   }

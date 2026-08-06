@@ -1,15 +1,11 @@
 package views.admin.programs.predicates;
 
-import auth.ProfileUtils;
 import com.google.inject.Inject;
-import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
-import services.BundledAssetsFinder;
-import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
+import views.shared.LayoutDeps;
 
 /**
  * Page view for rendering EditPredicatePageView.html. This page is used for editing predicates of a
@@ -18,18 +14,8 @@ import views.admin.programs.ProgramPredicatesEditView;
  */
 public class EditPredicatePageView extends TransitionalLayoutBaseView<EditPredicatePageViewModel> {
   @Inject
-  public EditPredicatePageView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      SettingsManifest settingsManifest,
-      BundledAssetsFinder bundledAssetsFinder,
-      ProfileUtils profileUtils) {
-    super(
-        templateEngine,
-        playThymeleafContextFactory,
-        settingsManifest,
-        bundledAssetsFinder,
-        profileUtils);
+  public EditPredicatePageView(LayoutDeps layoutDeps) {
+    super(layoutDeps);
   }
 
   @Override

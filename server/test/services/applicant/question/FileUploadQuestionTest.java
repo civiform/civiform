@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Locale;
@@ -10,10 +11,12 @@ import java.util.OptionalInt;
 import java.util.OptionalLong;
 import junitparams.JUnitParamsRunner;
 import models.ApplicantModel;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import repository.ResetPostgres;
+import repository.StoredFileRepository;
 import services.LocalizedStrings;
 import services.applicant.ApplicantData;
 import services.question.QuestionAnswerer;
@@ -228,5 +231,142 @@ public class FileUploadQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("filekey1"));
 
     assertThat(fileUploadQuestion.canUploadFile()).isTrue();
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_keyNotFound_returnsEmpty() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(storedFileRepository, "nonexistent-key")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_findsOriginalName() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("applicant-1/program-2/block-3/uuid-key");
+    storedFile.setOriginalFileName("report.pdf");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).contains("report.pdf");
+  }
+
+  @Test
+  public void getOriginalFileNameForFileKey_noOriginalName_returnsEmpty() {
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+
+    StoredFileModel storedFile = new StoredFileModel();
+    storedFile.setName("applicant-1/program-2/block-3/uuid-key-no-name");
+    storedFileRepository.insert(storedFile).toCompletableFuture().join();
+
+    Optional<String> result =
+        FileUploadQuestion.getOriginalFileNameForFileKey(
+                storedFileRepository, "applicant-1/program-2/block-3/uuid-key-no-name")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getUniqueName_nullName_throws() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> FileUploadQuestion.getUniqueName(null, ImmutableList.of()));
+  }
+
+  @Test
+  public void getUniqueName_emptyName_throws() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> FileUploadQuestion.getUniqueName("", ImmutableList.of()));
+  }
+
+  @Test
+  public void getUniqueName_nullExistingNames_throws() {
+    assertThrows(
+        IllegalArgumentException.class, () -> FileUploadQuestion.getUniqueName("file.txt", null));
+  }
+
+  @Test
+  public void getUniqueName_appendsAndIncrementsSuffix() {
+    assertThat(FileUploadQuestion.getUniqueName("file.txt", ImmutableList.of()))
+        .isEqualTo("file.txt");
+    assertThat(FileUploadQuestion.getUniqueName("file.txt", ImmutableList.of("file.txt")))
+        .isEqualTo("file-2.txt");
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                "file.txt", ImmutableList.of("file.txt", "file-2.txt")))
+        .isEqualTo("file-3.txt");
+    assertThat(FileUploadQuestion.getUniqueName("file", ImmutableList.of("file")))
+        .isEqualTo("file-2");
+  }
+
+  @Test
+  public void getUniqueName_multipleDots() {
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                "my.report.2024.pdf", ImmutableList.of("my.report.2024.pdf")))
+        .isEqualTo("my.report.2024-2.pdf");
+  }
+
+  @Test
+  public void getUniqueName_spaces() {
+    assertThat(FileUploadQuestion.getUniqueName("my resume.pdf", ImmutableList.of("my resume.pdf")))
+        .isEqualTo("my resume-2.pdf");
+  }
+
+  @Test
+  public void getUniqueName_numericSuffixInOriginalName() {
+    // Numbers already in the filename are not treated as deduplication suffixes.
+    assertThat(FileUploadQuestion.getUniqueName("covid-19.pdf", ImmutableList.of("covid-19.pdf")))
+        .isEqualTo("covid-19-2.pdf");
+  }
+
+  @Test
+  public void getUniqueName_nameAlreadyHasSuffix() {
+    // A name that looks like a suffixed duplicate is treated as an opaque base name.
+    assertThat(FileUploadQuestion.getUniqueName("file-2.txt", ImmutableList.of("file-2.txt")))
+        .isEqualTo("file-2-2.txt");
+  }
+
+  @Test
+  public void getUniqueName_skipsToNextAvailable() {
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                "file.txt", ImmutableList.of("file.txt", "file-2.txt", "file-3.txt")))
+        .isEqualTo("file-4.txt");
+  }
+
+  @Test
+  public void getUniqueName_longMaxValueSuffix() {
+    // the large suffix is treated as part of the base name, not parsed as a counter
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                "file-9223372036854775807.txt", ImmutableList.of("file-9223372036854775807.txt")))
+        .isEqualTo("file-9223372036854775807-2.txt");
+  }
+
+  @Test
+  public void getUniqueName_dotfile() {
+    // Dotfiles have no real extension; suffix appended after the whole name.
+    assertThat(FileUploadQuestion.getUniqueName(".gitignore", ImmutableList.of(".gitignore")))
+        .isEqualTo(".gitignore-2");
+    assertThat(
+            FileUploadQuestion.getUniqueName(
+                ".gitignore", ImmutableList.of(".gitignore", ".gitignore-2")))
+        .isEqualTo(".gitignore-3");
   }
 }

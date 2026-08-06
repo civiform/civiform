@@ -1,5 +1,8 @@
 package views.applicant.addresscorrection;
 
+import auth.CiviFormProfile;
+import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
@@ -7,17 +10,19 @@ import controllers.applicant.ApplicantRoutes;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
 import services.AlertType;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
+import services.applicant.ApplicantPersonalInfo;
+import services.applicant.Block;
 import services.geo.AddressSuggestionGroup;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
 import views.applicant.blocks.ProgressBar;
-import views.trustedintermediary.ApplicationBaseViewParams;
 
 public class AddressCorrectionBlockView extends ApplicantBaseView {
 
@@ -48,7 +53,7 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
 
   public String render(
       Request request,
-      ApplicationBaseViewParams params,
+      Params params,
       AddressSuggestionGroup addressSuggestionGroup,
       ApplicantRequestedAction applicantRequestedAction,
       Boolean isEligibilityEnabled,
@@ -72,7 +77,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("confirmAddressAction", getFormAction(params, applicantRequestedAction));
-    context.setVariable("goBackAction", goBackAction(params));
+    context.setVariable(
+        "goBackAction", goBackAction(params, settingsManifest.getProgramSlugUrlsEnabled(request)));
     context.setVariable("addressSuggestionGroup", addressSuggestionGroup);
     context.setVariable("isEligibilityEnabled", isEligibilityEnabled);
     context.setVariable("applicationParams", params);
@@ -103,27 +109,102 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
         "applicant/addresscorrection/AddressCorrectionBlockTemplate", context);
   }
 
-  private String getFormAction(
-      ApplicationBaseViewParams params, ApplicantRequestedAction applicantRequestedAction) {
+  private String getFormAction(Params params, ApplicantRequestedAction applicantRequestedAction) {
     return applicantRoutes
         .confirmAddress(
             params.profile(),
             params.applicantId(),
             params.programId(),
-            params.block().getId(),
+            params.blockId(),
             params.inReview(),
             applicantRequestedAction)
         .url();
   }
 
-  private String goBackAction(ApplicationBaseViewParams params) {
+  private String goBackAction(Params params, boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              params.profile(),
+              params.applicantId(),
+              params.programSlug(),
+              params.blockId(),
+              params.inReview())
+          .url();
+    }
     return applicantRoutes
         .blockEditOrBlockReview(
             params.profile(),
             params.applicantId(),
             params.programId(),
-            params.block().getId(),
+            params.blockId(),
             params.inReview())
         .url();
+  }
+
+  @AutoValue
+  public abstract static class Params {
+
+    public static Builder builder() {
+      return new AutoValue_AddressCorrectionBlockView_Params.Builder();
+    }
+
+    abstract Request request();
+
+    abstract CiviFormProfile profile();
+
+    abstract long applicantId();
+
+    abstract ApplicantPersonalInfo applicantPersonalInfo();
+
+    abstract Messages messages();
+
+    abstract long programId();
+
+    abstract String programSlug();
+
+    abstract String programTitle();
+
+    abstract String programShortDescription();
+
+    abstract String blockId();
+
+    abstract int blockIndex();
+
+    abstract ImmutableList<Block> blockList();
+
+    abstract boolean inReview();
+
+    @AutoValue.Builder
+    public abstract static class Builder {
+
+      public abstract Builder setRequest(Request request);
+
+      public abstract Builder setProfile(CiviFormProfile profile);
+
+      public abstract Builder setApplicantId(long applicantId);
+
+      public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo applicantPersonalInfo);
+
+      public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setProgramId(long programId);
+
+      public abstract Builder setProgramSlug(String programSlug);
+
+      public abstract Builder setProgramTitle(String programTitle);
+
+      public abstract Builder setProgramShortDescription(String programShortDescription);
+
+      public abstract Builder setBlockId(String blockId);
+
+      public abstract Builder setBlockIndex(int blockIndex);
+
+      public abstract Builder setBlockList(ImmutableList<Block> blockList);
+
+      public abstract Builder setInReview(boolean inReview);
+
+      public abstract Params build();
+    }
   }
 }

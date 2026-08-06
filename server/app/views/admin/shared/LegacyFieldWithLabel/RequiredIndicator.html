@@ -1,0 +1,10 @@
+<!--/*
+  Required-field indicator (*), legacy FieldWithLabel-parity markup for migrated admin pages.
+*/-->
+<span
+  th:fragment="requiredIndicator(visible)"
+  class="usa-hint--required"
+  th:classappend="${visible} ? '' : 'hidden'"
+  aria-hidden="true"
+  >&nbsp;*</span
+>

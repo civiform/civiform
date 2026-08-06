@@ -61,7 +61,7 @@ public class TextAreaFormSettings extends FormSettings {
 
   @Override
   public String sizeCssClass() {
-    return "usa-textarea--%s".formatted(size().value());
+    return "usa-input--%s".formatted(size().value());
   }
 
   @Override

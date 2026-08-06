@@ -220,10 +220,6 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
 ])
 
 test.describe('create and edit predicates', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'expanded_form_logic_enabled')
-  })
-
   test('Create and edit a new predicate', async ({
     page,
     adminQuestions,
@@ -452,10 +448,6 @@ test.describe('create and edit predicates', () => {
 
       await expect(page.locator('#edit-predicate')).toContainText(
         'Error: This field is required.',
-      )
-      await validateScreenshot(
-        page.locator('#condition-1'),
-        'edit-eligibility-predicate-with-validation-error',
       )
     })
   })

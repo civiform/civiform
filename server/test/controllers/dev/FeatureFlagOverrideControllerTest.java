@@ -1,7 +1,7 @@
 package controllers.dev;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
@@ -32,7 +32,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
     var result = controller.disable(fakeRequest(), FLAG_NAME);
 
     // Verify
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(getSettings().get(FLAG_NAME)).isEqualTo("false");
   }
 
@@ -45,7 +45,7 @@ public class FeatureFlagOverrideControllerTest extends ResetPostgres {
     var result = controller.enable(fakeRequest(), FLAG_NAME);
 
     // Verify
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(getSettings().get(FLAG_NAME)).isEqualTo("true");
   }
 

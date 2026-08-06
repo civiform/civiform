@@ -2,6 +2,7 @@ package services;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.jayway.jsonpath.DocumentContext;
@@ -19,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import services.applicant.Currency;
 import services.applicant.JsonPathProvider;
@@ -671,6 +674,78 @@ public class CfJsonDocumentContext {
       }
     }
     return pathsRemoved.build();
+  }
+
+  /**
+   * Result of {@link #mergeQuestionAnswersFrom}, reporting the result of the merge.
+   *
+   * @param originUniquePaths paths from this not present in {@code other}.
+   * @param mergedPaths paths from {@code other} that were copied into this document because they
+   *     did not already exist.
+   * @param droppedPaths paths from {@code other} that were skipped because this document already
+   *     contained a value at that path.
+   */
+  public record MergeQaResult(
+      ImmutableList<String> originUniquePaths,
+      ImmutableList<String> mergedPaths,
+      ImmutableList<String> droppedPaths) {}
+
+  /**
+   * Copies top-level question-answer entries from {@code other} into this document.
+   *
+   * <p>Each direct child of the {@code "applicant"} key is either copied whole or skipped entirely.
+   *
+   * <p>Both this document and {@code other} must have exactly one root key, {@code applicant},
+   * whose value is a map. Each entry in {@code other}'s applicant map is copied if no entry with
+   * the same key exists in this document; otherwise it is dropped.
+   *
+   * @param other the source document to copy question answers from. Not modified.
+   * @return {@link MergeQaResult} summarizing which paths were merged and which were dropped.
+   */
+  public MergeQaResult mergeQuestionAnswersFrom(CfJsonDocumentContext other) {
+    checkLocked();
+    Path applicantPath = Path.create("applicant");
+    Map<?, ?> otherMap = other.jsonData.read("$", Map.class);
+    Map<?, ?> thisMap = this.jsonData.read("$", Map.class);
+
+    // Verify that other and this object have the required structure
+    // described in the javadoc.
+    Preconditions.checkArgument(
+        otherMap.size() == 1 && otherMap.containsKey(applicantPath.keyName()),
+        "Expected a single 'applicant' root key in input, found %s",
+        otherMap.keySet());
+    Preconditions.checkArgument(
+        thisMap.size() == 1 && thisMap.containsKey(applicantPath.keyName()),
+        "Expected a single 'applicant' root key in target, found %s",
+        thisMap.keySet());
+    Preconditions.checkArgument(
+        otherMap.get(applicantPath.keyName()) instanceof Map,
+        "Input 'applicant' value must be a map");
+    Preconditions.checkArgument(
+        thisMap.get(applicantPath.keyName()) instanceof Map,
+        "Target 'applicant' value must be a map");
+
+    Map<?, ?> thisQuestionAnswers = (Map<?, ?>) thisMap.get("applicant");
+    Set<String> thisUniquePaths =
+        thisQuestionAnswers.keySet().stream().map(Object::toString).collect(Collectors.toSet());
+    Map<?, ?> otherQuestionAnswers = (Map<?, ?>) otherMap.get("applicant");
+
+    ImmutableList.Builder<String> otherMergedPaths = ImmutableList.builder();
+    ImmutableList.Builder<String> otherDroppedPaths = ImmutableList.builder();
+    for (Map.Entry<?, ?> entry : otherQuestionAnswers.entrySet()) {
+      String questionName = entry.getKey().toString();
+      Path questionPath = applicantPath.join(questionName);
+      // Only add entries/question-answers from other that are not already present.
+      if (hasPath(questionPath)) {
+        otherDroppedPaths.add(questionName);
+        thisUniquePaths.remove(questionName);
+      } else {
+        put(questionPath, entry.getValue());
+        otherMergedPaths.add(questionName);
+      }
+    }
+    return new MergeQaResult(
+        ImmutableList.copyOf(thisUniquePaths), otherMergedPaths.build(), otherDroppedPaths.build());
   }
 
   protected void checkLocked() {

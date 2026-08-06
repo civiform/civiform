@@ -74,8 +74,6 @@ public abstract class RepeatedEntity {
         enumeratorQuestionDefinition, visibility, parent, entityName, index);
   }
 
-  /** AutoValue Getters. */
-
   /**
    * The {@link services.question.types.QuestionType#ENUMERATOR} question definition associated with
    * this repeated entity.
@@ -96,8 +94,6 @@ public abstract class RepeatedEntity {
    * the applicant associated with this repeated entity's enumerator question.
    */
   public abstract int index();
-
-  /** Member functions. */
 
   /** The contextualized path to the root of this repeated entity. */
   public Path contextualizedPath() {

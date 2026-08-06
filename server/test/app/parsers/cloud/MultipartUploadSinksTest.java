@@ -18,10 +18,13 @@ import org.junit.Before;
 import org.junit.Test;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.aws.AwsS3MultipartUploadSinkProvider;
+import parsers.cloud.gcp.GcpMultipartUploadSinkProvider;
+import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
 public class MultipartUploadSinksTest {
   private static final String FILE_KEY = "test-file-key";
+  private static final Integer CHUNK_SIZE = 1024 * 1024; // 1 MB
 
   private MultipartUploadSinks uploadSinks;
   private Config config;
@@ -46,6 +49,14 @@ public class MultipartUploadSinksTest {
   }
 
   @Test
+  public void getSinkForCloudProvider_gcp_returnsGcpSink() throws Exception {
+    createUploadSink(StorageServiceName.GCP_S3.getString());
+
+    assertThat(uploadSinks.getUploadSinkProvider().getClass())
+        .isEqualTo(GcpMultipartUploadSinkProvider.class);
+  }
+
+  @Test
   public void getSinkForCloudProvider_azure_returnsInvalid() throws Exception {
     createUploadSink(StorageServiceName.AZURE_BLOB.getString());
 
@@ -65,7 +76,8 @@ public class MultipartUploadSinksTest {
 
   private StreamingMultipartUploadResult runSink() throws Exception {
     Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
-        checkNotNull(uploadSinks).getSinkForCloudProvider("bucket", FILE_KEY);
+        checkNotNull(uploadSinks)
+            .getSinkForCloudProvider(BucketType.PRIVATE_BUCKET, FILE_KEY, CHUNK_SIZE);
     CompletionStage<StreamingMultipartUploadResult> completionStage =
         Source.single(ByteString.fromString("test")).runWith(sink, system);
 
@@ -73,7 +85,14 @@ public class MultipartUploadSinksTest {
   }
 
   private void createUploadSink(String storageProvider) {
-    config = ConfigFactory.parseMap(ImmutableMap.of("cloud.storage", storageProvider));
+    config =
+        ConfigFactory.parseMap(
+            ImmutableMap.of(
+                "cloud.storage", storageProvider,
+                "aws.s3.bucket", "test-aws-bucket",
+                "aws.s3.public_bucket", "test-aws-public-bucket",
+                "gcp.s3.bucket", "test-gcp-bucket",
+                "gcp.s3.public_bucket", "test-gcp-public-bucket"));
     uploadSinks = new MultipartUploadSinks(config);
   }
 }

@@ -1,0 +1,21 @@
+%NAME iconDropdown - create-question dropdown sizing and svg-link id (legacy CreateQuestionButton)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconDropdown('inline-block h-6 w-6 mr-1 text-sm', 'svg-link-dropdown')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  class="inline-block h-6 w-6 mr-1 text-sm"
+  id="svg-link-dropdown"
+>
+  <path
+    d="M12 4c4.41 0 8 3.59 8 8s-3.59 8-8 8-8-3.59-8-8 3.59-8 8-8m0-2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 13l-4-4h8z"
+  ></path>
+</svg>

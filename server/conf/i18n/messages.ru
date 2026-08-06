@@ -551,6 +551,39 @@ content.disabledProgramInfo=К сожалению, программа, кото�
 button.homePage=Вернуться на главную страницу
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=Изображение загружено
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=Назад
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=Макс. размер загружаемого изображения составляет 1 МБ.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=Изображение будет автоматически кадрировано до формата 16х9. Сохраненное изображение отображается справа в окне предпросмотра карточки программы.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=Введите описание изображения (Alt-текст)
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=Продолжить
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=Сохранить
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=Удалить изображение
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=При загрузке изображения программы нужно задать описание.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=Изображение сохранено со следующим описанием: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=Значение описания изображения: {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=Описание не может быть удалено, поскольку имеется связанное изображение. Сначала удалите изображение.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=Изображение удалено
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=Ошибка создания предпросмотра карточки
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -669,7 +702,7 @@ validation.noPoBox=Введите действительный адрес. Не 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Подтвердите свой адрес
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Нам не удалось найти указанный адрес.
+content.confirmAddressLine1.v2=Требуется подтверждение адреса.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Проверьте его на наличие ошибок или выберите вариант из списка предложенных.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +813,10 @@ placeholder.entityName=Название записи ({0})
 validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=Мы не смогли загрузить ваш файл. Попробуйте еще раз.
 # Text shown on a tag while a file is uploading.
 label.uploading=Загрузка
 # Label applied to a list of uploaded files
@@ -1170,25 +1207,35 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Перед добавлением повторяющихся вопросов необходимо добавить вопросы для повторяющегося набора. Чтобы сделать это, перейдите на основной экран.
+# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=При создании повторяющегося набора новый вопрос будет добавлен в банк.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
@@ -1197,8 +1244,6 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=заголовок родительского элемента
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=заголовок дочернего элемента
-# Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
@@ -1208,7 +1253,7 @@ text.repeatedQuestions.description=Добавьте нужные вопросы 
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Повторяющиеся вопросы
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1274,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=Добавить вложенный повторяющийся набор
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1328,83 @@ reportingProgram.timeToCompleteP75=Время завершения (p75)
 reportingProgram.timeToCompleteP99=Время завершения (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=Скачать CSV
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=Документация по API
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=Разделы документации по API
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=Документация
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=Просмотр схем
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=На этой странице представлена документация по API для активных и черновых программ. Подробные сведения по аутентификации, разбивке на страницы и возможным значениям всех полей находятся по адресу
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=Как это работает?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=Предпросмотр ответа API — это лишь пример того, как он может выглядеть в контексте данной программы. Вся приведенная информация является вымышленной. В образцах вопросов с выбором одного или нескольких ответов используются предлагаемые варианты.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=Вы можете поделиться ссылкой
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=со всеми, кому нужен доступ к документации по API. Она доступна без входа в систему и не требует наличия прав администратора CiviForm или программы.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=Выберите программу:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=Выберите версию:
+# Option label for the active version of a program.
+adminApiDocs.version.active=Активная
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=Черновая
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=Программы не найдены. Для получения документации по API нужно сначала создать и опубликовать хотя бы одну.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=Вопросы
+# Label for a question's admin name
+adminApiDocs.adminName=Имя администратора
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=Тип
+# Label for a question's display text.
+adminApiDocs.text=Текст
+# Label for a multi-option question's answer options.
+adminApiDocs.options=Опции
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=Текущие опции:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=Все возможные опции:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=Предпросмотр ответа API
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=Просмотр схемы API
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=На этой странице представлена визуализация схемы OpenAPI. Доступны как версия 2 (ранее Swagger 2), так и версия 3.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=Мы рекомендуем использовать версию 3, за исключением ситуаций, когда старый формат действительно необходим.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=Программа:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=Статус:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=Версия OpenApi:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError=Не удалось сгенерировать документацию OpenAPI версии '{0}' для программы '{1}' на этапе '{2}'.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #

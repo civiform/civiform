@@ -8,7 +8,7 @@ import controllers.admin.routes;
 import java.util.Optional;
 import lombok.Builder;
 import services.program.predicate.PredicateUseCase;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 /**
  * Partial view for rendering EditSubconditionPartial.html. This partial is used for editing a

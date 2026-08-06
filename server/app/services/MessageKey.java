@@ -6,7 +6,7 @@ import lombok.Getter;
 @Getter
 public enum MessageKey {
   ACCT_STATUS_LABEL("label.acctStatus"),
-  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1"),
+  ADDRESS_CORRECTION_LINE_1("content.confirmAddressLine1.v2"),
   ADDRESS_CORRECTION_FOUND_SIMILAR_LINE_2("content.foundSimilarAddressLine2"),
   ADDRESS_CORRECTION_NO_VALID_LINE_2("content.noValidAddressLine2"),
   ADDRESS_VALIDATION_CITY_REQUIRED("validation.cityRequired"),
@@ -48,6 +48,7 @@ public enum MessageKey {
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
+  ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED("alert.repeatedSet.initialQuestionRequired"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_REPEATED_SET_PREVIOUSLY_USED("alert.repeatedSet.previouslyUsed"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
@@ -83,6 +84,9 @@ public enum MessageKey {
   BUTTON_NEXT("button.nextPage"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
   BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
+  BUTTON_REPEATED_SET_INITIAL_QUESTION_DELETE("button.repeatedSet.initialQuestion.delete"),
+  BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL(
+      "button.repeatedSet.initialQuestion.removeAriaLabel"),
   BUTTON_REPEATED_SET_SUBMIT_NEW("button.repeatedSet.submitNew"),
   BUTTON_REVIEW("button.review"),
   BUTTON_SAVE("button.save"),
@@ -121,6 +125,7 @@ public enum MessageKey {
   DESCRIPTION_REPEATED_SET_ADMIN_ID("description.repeatedSet.adminId"),
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
+  DESCRIPTION_REPEATED_SET_INITIAL_QUESTION("description.repeatedSet.initialQuestion"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
   DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
   DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
@@ -145,6 +150,7 @@ public enum MessageKey {
   ENUMERATOR_VALIDATION_TOO_MANY_ENTITIES("validation.tooManyEntities"),
   ENUMERATOR_VALIDATION_TOO_FEW_ENTITIES("validation.tooFewEntities"),
   ERROR_INCOMPLETE_DATE("error.incompleteDate"),
+  FILEUPLOAD_VALIDATION_FILE_LIMIT_REACHED("validation.fileLimitReached"),
   FILEUPLOAD_VALIDATION_FILE_REQUIRED("validation.fileRequired"),
   FILEUPLOAD_VALIDATION_FILE_TOO_LARGE("validation.fileTooLarge"),
   FOOTER_SUPPORT_LINK_DESCRIPTION("footer.supportLinkDescription"),
@@ -174,6 +180,7 @@ public enum MessageKey {
       "input.repeatedSet.questionTextAutofillSuggestion"),
   INVALID_INPUT("validation.invalidInput"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
+  LABEL_REPEATED_SET_INITIAL_QUESTION("label.repeatedSet.initialQuestion"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_EDIT("link.edit"),
@@ -239,7 +246,6 @@ public enum MessageKey {
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
   TEXT_REPEATED_QUESTIONS_DESCRIPTION("text.repeatedQuestions.description"),
   TEXT_REPEATED_SET("text.repeatedSet"),
-  TEXT_REPEATED_SET_QUESTION_DESCRIPTION("text.repeatedSet.questionDescription"),
   TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),
   TEXT_REPEATED_SET_PREFIX("text.repeatedSet.prefix"),
   TEXT_REPEATED_SET_NESTED_PREFIX("text.repeatedSet.nestedPrefix"),
@@ -262,6 +268,8 @@ public enum MessageKey {
   TITLE_TI_DASHBOARD("title.tiDashboard"),
   TOAST_APPLICATION_OUT_OF_DATE("toast.applicationOutOfDate"),
   TOAST_ERROR_MSG_OUTLINE("toast.errorMessageOutline"),
+  TOOLTIP_DELETE_SCREEN_DISABLED("tooltip.deleteScreenDisabled"),
+  TOOLTIP_REMOVE_ENUMERATOR_QUESTION_DISABLED("tooltip.removeEnumeratorQuestionDisabled"),
   USER_NAME("header.userName"),
   VALIDATION_REQUIRED("validation.isRequired"),
   YEAR_LABEL("label.year"),

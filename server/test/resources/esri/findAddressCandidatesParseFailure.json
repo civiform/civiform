@@ -1,0 +1,17 @@
+{
+  "spatialReference": {
+    "wkid": 4326,
+    "latestWkid": 4326
+  },
+  "candidates": [
+    {
+      "address": "Malformed Candidate, Redlands, 92373",
+      "location": {
+        "x": -100,
+        "y": 100
+      },
+      "score": 100,
+      "attributes": null
+    }
+  ]
+}

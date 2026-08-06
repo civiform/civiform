@@ -14,15 +14,15 @@ import static j2html.TagCreator.text;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import forms.AddressQuestionForm;
-import forms.DateQuestionForm;
-import forms.EnumeratorQuestionForm;
-import forms.FileUploadQuestionForm;
-import forms.IdQuestionForm;
-import forms.MultiOptionQuestionForm;
-import forms.NumberQuestionForm;
-import forms.QuestionForm;
-import forms.TextQuestionForm;
+import forms.questions.AddressQuestionForm;
+import forms.questions.DateQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
+import forms.questions.FileUploadQuestionForm;
+import forms.questions.IdQuestionForm;
+import forms.questions.MultiOptionQuestionForm;
+import forms.questions.NumberQuestionForm;
+import forms.questions.QuestionForm;
+import forms.questions.TextQuestionForm;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.FieldsetTag;
@@ -40,9 +40,9 @@ import services.question.YesNoQuestionOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.settings.SettingsManifest;
+import views.BaseView;
+import views.BaseViewModel;
 import views.ViewUtils;
-import views.admin.BaseView;
-import views.admin.BaseViewModel;
 import views.components.ButtonStyles;
 import views.components.FieldWithLabel;
 import views.components.Icons;
@@ -117,7 +117,7 @@ public final class QuestionConfig {
         return Optional.of(
             config.addDateQuestionConfig((DateQuestionForm) questionForm, messages).getContainer());
       case MAP: // fallthrough intended - MAP question configuration is handled in
-        // QuestionEditView.getQuestionConfig
+      // QuestionEditView.getQuestionConfig
       case CURRENCY: // fallthrough intended - no options
       case NAME: // fallthrough intended - no options
       case EMAIL: // fallthrough intended
@@ -462,7 +462,7 @@ public final class QuestionConfig {
     }
 
     content
-        .with(optionsBuilder.build())
+        .with(div().withId("multi-option-container").with(optionsBuilder.build()))
         .with(
             ViewUtils.makeSvgTextButton("Add answer option", Icons.PLUS)
                 .withType("button")

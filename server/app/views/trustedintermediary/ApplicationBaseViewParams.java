@@ -11,7 +11,6 @@ import services.AlertSettings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.Block;
 import services.cloud.ApplicantStorageClient;
-import views.components.ToastMessage;
 import views.questiontypes.ApplicantQuestionRendererParams;
 
 @AutoValue
@@ -42,6 +41,8 @@ public abstract class ApplicationBaseViewParams {
 
   public abstract long programId();
 
+  public abstract String programSlug();
+
   public abstract boolean loginOnly();
 
   public abstract Block block();
@@ -55,10 +56,6 @@ public abstract class ApplicationBaseViewParams {
   public abstract ApplicantPersonalInfo applicantPersonalInfo();
 
   public abstract ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode();
-
-  public abstract Optional<ToastMessage> bannerToastMessage();
-
-  public abstract Optional<String> bannerMessage();
 
   public abstract Optional<String> applicantSelectedQuestionName();
 
@@ -92,6 +89,8 @@ public abstract class ApplicationBaseViewParams {
 
     public abstract Builder setProgramId(long programId);
 
+    public abstract Builder setProgramSlug(String programSlug);
+
     public abstract Builder setBlock(Block block);
 
     public abstract Builder setPreferredLanguageSupported(boolean preferredLanguageSupported);
@@ -105,10 +104,6 @@ public abstract class ApplicationBaseViewParams {
 
     public abstract Builder setErrorDisplayMode(
         ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode);
-
-    public abstract Builder setBannerToastMessage(Optional<ToastMessage> banner);
-
-    public abstract Builder setBannerMessage(Optional<String> bannerMessage);
 
     public abstract Builder setApplicantPersonalInfo(ApplicantPersonalInfo personalInfo);
 

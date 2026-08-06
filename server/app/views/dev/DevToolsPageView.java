@@ -1,30 +1,18 @@
 package views.dev;
 
-import auth.ProfileUtils;
 import javax.inject.Inject;
 import modules.ThymeleafModule;
-import org.thymeleaf.TemplateEngine;
+import play.i18n.Messages;
 import play.mvc.Http;
-import services.BundledAssetsFinder;
-import services.settings.SettingsManifest;
 import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.LayoutDeps;
 
 public final class DevToolsPageView extends AdminLayoutBaseView<DevToolsPageViewModel> {
   @Inject
-  public DevToolsPageView(
-      TemplateEngine templateEngine,
-      ThymeleafModule.PlayThymeleafContextFactory playThymeleafContextFactory,
-      BundledAssetsFinder bundledAssetsFinder,
-      ProfileUtils profileUtils,
-      SettingsManifest settingsManifest) {
-    super(
-        templateEngine,
-        playThymeleafContextFactory,
-        settingsManifest,
-        bundledAssetsFinder,
-        profileUtils);
+  public DevToolsPageView(LayoutDeps layoutDeps) {
+    super(layoutDeps);
   }
 
   @Override
@@ -41,7 +29,7 @@ public final class DevToolsPageView extends AdminLayoutBaseView<DevToolsPageView
   }
 
   @Override
-  protected String pageTitle(DevToolsPageViewModel model) {
+  protected String pageTitle(DevToolsPageViewModel model, Messages messages) {
     return "Dev Tools";
   }
 

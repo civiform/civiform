@@ -1,5 +1,4 @@
 import {attachRedirectToPageListeners} from '@/main'
-import {HtmxRequest} from '@/htmx_request'
 
 /**
  * Dynamic behavior for AdminImportView.
@@ -152,11 +151,10 @@ class AdminImportView {
 
   addStringifyJsonListener() {
     document.body.addEventListener('htmx:configRequest', function (evt) {
-      const customEvent = evt as CustomEvent<HtmxRequest>
-      const formData = customEvent.detail.formData
+      const formData = evt.detail.formData
       const programJson = formData.get('programJson') as string
       const trimmedProgramJson = JSON.stringify(JSON.parse(programJson))
-      customEvent.detail.formData.set('programJson', trimmedProgramJson)
+      formData.set('programJson', trimmedProgramJson)
     })
   }
 }

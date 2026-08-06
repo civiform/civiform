@@ -3,8 +3,8 @@ package support;
 import com.google.common.collect.ImmutableList;
 import services.question.ActiveAndDraftQuestions;
 import services.question.ReadOnlyQuestionService;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
 /** Wraps a list of {@link QuestionDefinition}s for testing purposes. */
@@ -45,10 +45,10 @@ public class FakeReadOnlyQuestionService implements ReadOnlyQuestionService {
   }
 
   @Override
-  public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {
+  public QuestionDefinition getQuestionDefinition(long id) {
     return questions.stream()
         .filter(qd -> qd.getId() == id)
         .findAny()
-        .orElseThrow(() -> new QuestionNotFoundException(id));
+        .orElseGet(() -> new NullQuestionDefinition(id));
   }
 }

@@ -1,0 +1,73 @@
+%NAME yesNo - existing question hides the label; undisplayed option is unchecked
+%TEMPLATE_MODE HTML
+# Existing question: no label, saved options keep their saved state. The
+# admin hid "maybe", so it renders unchecked. Required "yes" is still
+# locked and checked, with its hidden posting input.
+%CONTEXT
+# YesNoOptionRow(optionId, adminName, optionText, required, checked, ariaLabel)
+yesNoConfig = new views.admin.questions.YesNoConfig(false, \
+    @com.google.common.collect.ImmutableList@of( \
+        new views.admin.questions.YesNoConfig$YesNoOptionRow( \
+            "1", "yes", "Yes", true, true, "Admin ID: yes. Option text: Yes."), \
+        new views.admin.questions.YesNoConfig$YesNoOptionRow( \
+            "3", "maybe", "Maybe", false, false, "Admin ID: maybe. Option text: Maybe.")))
+# ----------------------------------------------------------------------
+%INPUT
+<th:block th:replace="~{admin/questions/fragments/YesNoFragment :: build(${yesNoConfig})}"></th:block>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-multi-option-question-option grid items-center">
+  <input name="optionIds[]" value="1" class="display-none" />
+  <input name="optionAdminNames[]" value="yes" class="display-none" />
+  <input name="options[]" value="Yes" class="display-none" />
+  <div
+    class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+  >
+    <input
+      id="yes"
+      type="checkbox"
+      name="displayedOptionIds[]"
+      value="1"
+      class="usa-checkbox__input"
+      checked="checked"
+      disabled="disabled"
+    />
+    <label
+      for="yes"
+      aria-label="Admin ID: yes. Option text: Yes."
+      class="usa-checkbox__label margin-top-0 flex flex-align-center"
+    >
+      <div class="flex-column">
+        <div><strong>Admin ID: </strong>yes</div>
+        <div><strong>Option text: </strong>Yes</div>
+      </div>
+    </label>
+  </div>
+  <input type="hidden" name="displayedOptionIds[]" value="1" />
+</div>
+<div class="cf-multi-option-question-option grid items-center">
+  <input name="optionIds[]" value="3" class="display-none" />
+  <input name="optionAdminNames[]" value="maybe" class="display-none" />
+  <input name="options[]" value="Maybe" class="display-none" />
+  <div
+    class="usa-checkbox flex-align-center border-width-1px border-base radius-md grid-row items-center padding-1 margin-1"
+  >
+    <input
+      id="maybe"
+      type="checkbox"
+      name="displayedOptionIds[]"
+      value="3"
+      class="usa-checkbox__input"
+    />
+    <label
+      for="maybe"
+      aria-label="Admin ID: maybe. Option text: Maybe."
+      class="usa-checkbox__label margin-top-0 flex flex-align-center"
+    >
+      <div class="flex-column">
+        <div><strong>Admin ID: </strong>maybe</div>
+        <div><strong>Option text: </strong>Maybe</div>
+      </div>
+    </label>
+  </div>
+</div>

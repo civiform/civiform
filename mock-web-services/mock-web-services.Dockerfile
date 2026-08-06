@@ -1,7 +1,9 @@
-# syntax=docker/dockerfile:1@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91
-FROM node:24-slim@sha256:d8e448a56fc63242f70026718378bd4b00f8c82e78d20eefb199224a4d8e33d8
+# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+FROM node:24-slim@sha256:235600a8101ab264e117b1768e925532262668dc9b581ef1dd7d96ced463b8e7
 
-RUN useradd --create-home appuser --no-log-init
+# node:24 bundles npm 11; engines/engine-strict require npm >= 12
+RUN npm install -g npm@^12 && \
+    useradd --create-home appuser --no-log-init
 
 USER appuser
 

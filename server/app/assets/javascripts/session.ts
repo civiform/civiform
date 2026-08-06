@@ -185,12 +185,8 @@ export class SessionTimeoutHandler {
    */
   private static setupModalEventHandlers() {
     // HTMX handler remains at document level
-    document.addEventListener('htmx:afterRequest', (event: Event) => {
-      const customEvent = event as CustomEvent
-      const detail = customEvent.detail as {
-        xhr: XMLHttpRequest
-        elt: HTMLElement
-      }
+    document.addEventListener('htmx:afterRequest', (event) => {
+      const detail = event.detail
       if (detail.elt.id !== 'extend-session-button') return
 
       // Processes /extend-session request

@@ -1,11 +1,13 @@
 package repository;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
@@ -536,6 +538,59 @@ public class EbeanInvariantTest extends ResetPostgres {
         // Note: innerAccount is the same object as innerInnerAccount unexpectedly.
         assertThat(innerAccount).isSameAs(innerInnerAccount);
       }
+    }
+  }
+
+  /* Async
+   *
+   * Async code doesn't work with our Transaction setup.
+   *
+   * The current transaction is maintained in thread-local storage, however
+   * Async calls create a new thread with its own storage.
+   *
+   * We can explicitly specify the transaction in the Ebean queries though.
+   * This is likely onerous as a broad approach but specific needs may allow
+   * for it more cleanly.
+   */
+  @Test
+  @Parameters({"false", "true"})
+  public void async_mustExplicitlyManageTransaction(boolean setInnerTransaction) {
+    try (Transaction _ =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      // While we could have named the above transaction, this shows how to
+      // get the current one.
+      Transaction outerTransaction = Transaction.current();
+      // Insert a few just to reduce confusion with the 1 added in the Async
+      // call.
+      new AccountModel().insert();
+      new AccountModel().insert();
+
+      int beforeCount = database.find(AccountModel.class).findCount();
+      assertThat(beforeCount).isEqualTo(2);
+
+      // Using the current transaction in the Async code will reveal the outer
+      // code's updates to the inner, and vice versa.
+      int innerCount =
+          supplyAsync(
+                  () -> {
+                    Query<AccountModel> query = database.find(AccountModel.class);
+                    if (setInnerTransaction) {
+                      new AccountModel().insert(outerTransaction);
+                      query = query.usingTransaction(outerTransaction);
+                    } else {
+                      // The insert will have its own transaction.
+                      new AccountModel().insert();
+                    }
+                    return query.findCount();
+                  })
+              .toCompletableFuture()
+              .join();
+
+      // How many did the Async code see?
+      assertThat(innerCount).isEqualTo(setInnerTransaction ? 3 : 1);
+      // How may does the outer transaction see?
+      int afterCount = database.find(AccountModel.class).findCount();
+      assertThat(afterCount).isEqualTo(setInnerTransaction ? 3 : 2);
     }
   }
 }

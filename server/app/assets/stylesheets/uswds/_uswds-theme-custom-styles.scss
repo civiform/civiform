@@ -271,6 +271,22 @@ button.usa-button.usa-button--unstyled.htmx-request {
   @include u-maxw('full');
 }
 
+// At widescreen (≥1400px) the admin content column (maxw 1200px)
+// sits inside a gray page chrome per the Figma desktop-lg/widescreen
+// spec (node 3522:2651). Below widescreen the body stays white so
+// the column reads edge-to-edge.
+body {
+  @include at-media('desktop-lg') {
+    @include u-bg('gray-3');
+  }
+}
+
+.cf-admin-page-wrapper {
+  @include at-media('desktop-lg') {
+    @include u-shadow(1);
+  }
+}
+
 @media (screen and min-width: 1500px) {
   .admin-widescreen-main {
     @include u-margin-x(8);
@@ -298,6 +314,15 @@ button.usa-button.usa-button--unstyled.htmx-request {
 // Adds support for the fixed table-layout property
 .table-layout-fixed {
   table-layout: fixed;
+}
+
+// Tailwind-parity: the transitional admin header markup uses z-10,
+// which USWDS doesn't define (it only has z-100 through z-500).
+// Without it the fixed header nav has z-index auto and positioned
+// content (e.g. usa-card containers) paints over it when scrolling.
+// This will be removed as part of the admin migration moving off tailwind
+.z-10 {
+  z-index: 10;
 }
 
 // Set a basic default gap for `display: flex`.
@@ -452,6 +477,14 @@ fieldset .usa-error-message {
   font-size: initial;
 }
 
+/* USWDS sets display:block on .usa-error-message, overriding the browser's [hidden] rule
+ * (equal specificity, last-wins). The compound selector beats the USWDS rule by specificity,
+ * preventing a flash on page load. showError() removes hidden before showing, so this doesn't
+ * interfere with legitimate error display. */
+.usa-error-message[hidden] {
+  display: none;
+}
+
 // Add asterisk for required fields
 .usa-label:has(~ input.usa-input[required]:enabled)::after,
 .usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,
@@ -494,6 +527,43 @@ Example with two column checkbox list
         grid-template-columns: repeat(#{$cols}, 1fr);
       }
     }
+  }
+}
+
+pre.api-docs-tag:has(code) {
+  @include u-bg('base-lightest');
+  display: inline;
+}
+
+// Inline page-section nav used to switch between sibling views
+// (e.g. API Docs / Schema Viewer). Styled to read as an h2, with
+// the current view marked via aria-current="page".
+.cf-navigation-tabs {
+  @include u-font('heading', 'xl');
+  @include u-text('bold');
+  @include u-margin-bottom(4);
+
+  // Drop the default underline on inactive links; keep USWDS primary /
+  // primary-dark / primary-darker for default / hover / active states.
+  // Only override :visited, since browsers restrict what :visited can
+  // change and we don't want the visited-link color here.
+  a {
+    text-decoration: none;
+  }
+
+  a[aria-current='page'] {
+    @include u-text('ink');
+    @include u-border-bottom('05', 'primary');
+    @include u-padding-bottom('05');
+    display: inline-block;
+
+    &:visited {
+      @include u-text('ink');
+    }
+  }
+
+  .cf-navigation-tabs__separator {
+    @include u-text('base-dark');
   }
 }
 

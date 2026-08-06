@@ -22,7 +22,7 @@ jobs:
 
       - name: Add issue to project when one is not already assigned
         if: steps.check-projects.outputs.project_count == '0'
-        uses: actions/add-to-project@244f685bbc3b7adfa8466e08b698b5577571133e # v1.0.2
+        uses: actions/add-to-project@5afcf98fcd03f1c2f92c3c83f58ae24323cc57fd # v2.0.0
         with:
           project-url: https://github.com/orgs/civiform/projects/1
           github-token: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}

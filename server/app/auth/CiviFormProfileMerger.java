@@ -9,7 +9,9 @@ import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
+import repository.CiviFormAccountMerger;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 import repository.TransactionManager;
 
 /** Helper class for common {@code UserProfile} merging logic. */
@@ -17,15 +19,18 @@ public final class CiviFormProfileMerger {
 
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
+  private final CiviFormAccountMerger accountMerger;
   private final DatabaseExecutionContext dbExecutionContext;
   private final TransactionManager transactionManager;
 
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
+    this.accountMerger = new CiviFormAccountMerger(storedFileRepositoryProvider);
     this.dbExecutionContext = dbExecutionContext;
     this.transactionManager = new TransactionManager();
   }
@@ -116,10 +121,8 @@ public final class CiviFormProfileMerger {
         || newMergeStage.equals(NewGuestMergeLaunchStage.DRY_RUN)) {
       // Run the new merge code, it will update the database if the launch is
       // enabled, and log the dry run otherwise.
-      applicantRepositoryProvider
-          .get()
-          .mergeApplicants(
-              /* mergeFrom= */ guestApplicant, /* mergeTo= */ applicantInDatabase, newMergeStage);
+      accountMerger.mergeApplicants(
+          /* civiformUser= */ applicantInDatabase, /* guestUser= */ guestApplicant, newMergeStage);
     }
 
     // If the new merge launch is enabled, then the above merge updated the
@@ -130,6 +133,7 @@ public final class CiviFormProfileMerger {
       return profileFactory.wrap(applicantInDatabase);
     }
 
+    // The current pre-existing behavior.
     ApplicantModel mergedApplicant =
         applicantRepositoryProvider
             .get()

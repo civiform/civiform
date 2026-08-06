@@ -114,7 +114,7 @@ public final class JsonPathPredicateGenerator {
    */
   private JsonPathPredicate formatAgePredicate(LeafOperationExpressionNode node)
       throws InvalidPredicateException {
-    switch (node.operator()) {
+    return switch (node.operator()) {
       case AGE_BETWEEN -> {
         // Value is stored as "[18, 30]"
         String arrayString = node.comparedValue().value();
@@ -126,7 +126,7 @@ public final class JsonPathPredicateGenerator {
                 .collect(ImmutableList.toImmutableList());
 
         // Check that the date value is between the two age timestamps.
-        return JsonPathPredicate.create(
+        yield JsonPathPredicate.create(
             String.format(
                 "%s[?(%2$s >= @.%4$s && %3$s <= @.%4$s)]",
                 getPath(node).predicateFormat(),
@@ -134,20 +134,19 @@ public final class JsonPathPredicateGenerator {
                 dateConverter.getDateTimestampFromAge(ageRange.get(1)),
                 node.scalar().name().toLowerCase(Locale.ROOT)));
       }
-      case AGE_OLDER_THAN, AGE_YOUNGER_THAN -> {
-        return JsonPathPredicate.create(
-            String.format(
-                "%s[?(%s %s @.%s)]",
-                getPath(node).predicateFormat(),
-                dateConverter.getDateTimestampFromAge(
-                    Double.parseDouble(node.comparedValue().value())),
-                node.operator().toJsonPathOperator(),
-                node.scalar().name().toLowerCase(Locale.ROOT)));
-      }
+      case AGE_OLDER_THAN, AGE_YOUNGER_THAN ->
+          JsonPathPredicate.create(
+              String.format(
+                  "%s[?(%s %s @.%s)]",
+                  getPath(node).predicateFormat(),
+                  dateConverter.getDateTimestampFromAge(
+                      Double.parseDouble(node.comparedValue().value())),
+                  node.operator().toJsonPathOperator(),
+                  node.scalar().name().toLowerCase(Locale.ROOT)));
       default ->
           throw new InvalidPredicateException(
               String.format("Expecting an age predicate but instead received %s", node.operator()));
-    }
+    };
   }
 
   private JsonPathPredicate formatBetweenPredicate(LeafOperationExpressionNode node)

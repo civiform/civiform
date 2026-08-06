@@ -110,6 +110,11 @@ public final class ReadOnlyApplicantProgramService {
     return this.programDefinition.id();
   }
 
+  /** Returns the slug of the program. */
+  public String getProgramSlug() {
+    return this.programDefinition.slug();
+  }
+
   /** Returns the ProgramType of the program. */
   public ProgramType getProgramType() {
     return this.programDefinition.programType();
@@ -617,7 +622,7 @@ public final class ReadOnlyApplicantProgramService {
       if (blockDefinition.hasEnumeratorQuestion()) {
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-            blockDefinition.getEnumerationQuestionDefinition();
+            blockDefinition.getEnumeratorQuestionDefinition();
         ImmutableList<RepeatedEntity> repeatedEntities =
             maybeRepeatedEntity
                 .map(

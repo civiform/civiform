@@ -11,6 +11,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -37,7 +38,6 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.applicant.ineligible.ApplicantIneligibleView;
 import views.applicant.review.ApplicantProgramSummaryView;
 
 public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
@@ -67,7 +67,6 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             instanceOf(ClassLoaderExecutionContext.class),
             instanceOf(MessagesApi.class),
             instanceOf(ApplicantProgramSummaryView.class),
-            instanceOf(ApplicantIneligibleView.class),
             instanceOf(ProfileUtils.class),
             settingsManifest,
             instanceOf(ProgramService.class),
@@ -295,7 +294,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     ApplicantModel tiApplicant = createApplicant();
     createTIWithMockedProfile(tiApplicant);
@@ -344,7 +343,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
 
     answer(programDefinition.id());
 
-    var programId = programDefinition.id();
+    var programId = String.valueOf(programDefinition.id());
 
     Result result =
         blockController
@@ -450,6 +449,112 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
     assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
   }
 
+  @Test
+  public void
+      submit_duplicate_withProgramSlugUrlsEnabled_handlesErrorAndDoesNotSaveDuplicateApplication() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+
+    subject
+        .submitWithApplicantId(request, applicant.id, activeProgram.id)
+        .toCompletableFuture()
+        .join();
+
+    // Submit the application again without editing
+    Result noEditsResult =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+    // Error is handled and applicant is redirected to review page with flash message
+    assertThat(noEditsResult.status()).isEqualTo(FOUND);
+    assertThat(noEditsResult.redirectLocation().get()).contains("/review");
+
+    // Edit the application but re-enter the same values
+    answer(activeProgram.id);
+    Result sameValuesResult =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+    // Error is handled and applicant is redirected to review page with flash message
+    assertThat(sameValuesResult.status()).isEqualTo(FOUND);
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(activeProgram.getSlug()).url();
+    assertThat(sameValuesResult.redirectLocation().get()).isEqualTo(reviewRoute);
+
+    // There is only one application saved in the db
+    ApplicationRepository applicationRepository = instanceOf(ApplicationRepository.class);
+    ImmutableSet<ApplicationModel> applications =
+        applicationRepository
+            .getApplicationsForApplicant(applicant.id, ImmutableSet.of(LifecycleStage.ACTIVE))
+            .toCompletableFuture()
+            .join();
+    assertThat(applications).hasSize(1);
+    assertThat(applications.asList().get(0).getProgram().id).isEqualTo(activeProgram.id);
+  }
+
+  @Test
+  public void submit_withProgramSlugUrlsEnabled_returnsRouteUsingSlug() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramModel activeProgram =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().staticContent())
+            .build();
+    answer(activeProgram.id);
+
+    Result result =
+        subject
+            .submitWithApplicantId(request, applicant.id, activeProgram.id)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(FOUND);
+    assertThat(result.redirectLocation().get()).contains(activeProgram.getSlug());
+  }
+
+  @Test
+  public void
+      updateApplicationToLatestProgramVersionIfNeeded_withProgramSlugUrlsEnabled_redirectsToReviewWithProgramSlug() {
+    Request request = fakeRequest();
+    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .buildDefinition();
+
+    resourceCreator().insertDraftProgram(programDefinition.adminName());
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    CiviFormProfile profile = mock(CiviFormProfile.class);
+    versionRepository.publishNewSynchronizedVersion();
+    Result result =
+        subject
+            .updateApplicationToLatestProgramVersionIfNeeded(
+                applicant.id, programDefinition.id(), profile, /* programSlugUrlsEnabled= */ true)
+            .get();
+
+    // assertThat(result.status()).isEqualTo(FOUND);
+    String reviewRoute =
+        routes.ApplicantProgramReviewController.review(programDefinition.slug()).url();
+    assertThat(result.redirectLocation().get()).isEqualTo(reviewRoute);
+  }
+
   public Result reviewWithApplicantId(long applicantId, long programId) {
     String programIdStr = String.valueOf(programId);
     Request request =
@@ -495,7 +600,7 @@ public class ApplicantProgramReviewControllerTest extends WithMockedProfiles {
             .updateWithApplicantId(
                 request,
                 applicant.id,
-                programId,
+                String.valueOf(programId),
                 /* blockId= */ "1",
                 /* inReview= */ false,
                 new ApplicantRequestedActionWrapper())

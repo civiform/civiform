@@ -52,6 +52,7 @@ GET     /admin/programs/:programId/blocks                                       
 GET     /admin/programs/:programId/blocks/readonly                                                      controllers.admin.AdminProgramBlocksController.readOnlyIndex(programId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/show                                       controllers.admin.AdminProgramBlocksController.show(request: Request, programId: Long, blockDefinitionId: Long)
 GET     /admin/programs/:programId/blocks/:blockDefinitionId/edit                                       controllers.admin.AdminProgramBlocksController.edit(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/hx/questionBank                             controllers.admin.AdminProgramBlocksController.hxQuestionBankPartial(request: Request, programId: Long, blockDefinitionId: Long, mode: String)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId                                            controllers.admin.AdminProgramBlocksController.update(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks                                                               controllers.admin.AdminProgramBlocksController.create(request: Request, programId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/move                                       controllers.admin.AdminProgramBlocksController.move(request: Request, programId: Long, blockDefinitionId: Long)
@@ -80,6 +81,8 @@ POST    /admin/programs/:programId/blocks/:blockDefinitionId/predicates/:predica
 # A controller for adding and removing questions from program blocks
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions                                                              controllers.admin.AdminProgramBlockQuestionsController.create(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/hx/addEnumerator                                                       controllers.admin.AdminProgramBlockQuestionsController.hxCreateEnumerator(request: Request, programId: Long, blockDefinitionId: Long)
+POST    /admin/programs/:programId/blocks/:blockDefinitionId/hx/selectInitialQuestion                                               controllers.admin.AdminProgramBlockQuestionsController.hxSelectInitialQuestion(request: Request, programId: Long, blockDefinitionId: Long)
+GET     /admin/programs/:programId/blocks/:blockDefinitionId/hx/clearInitialQuestion                                                controllers.admin.AdminProgramBlockQuestionsController.hxClearInitialQuestionSlot(request: Request, programId: Long, blockDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/delete                                 controllers.admin.AdminProgramBlockQuestionsController.delete(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/setOptional                            controllers.admin.AdminProgramBlockQuestionsController.setOptional(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
 POST    /admin/programs/:programId/blocks/:blockDefinitionId/questions/:questionDefinitionId/move                                   controllers.admin.AdminProgramBlockQuestionsController.move(request: Request, programId: Long, blockDefinitionId: Long, questionDefinitionId: Long)
@@ -90,7 +93,6 @@ GET     /admin/questions                                                       c
 # Should have a `type` query param, like: /admin/questions/new?type=name. Defaults to text.
 GET     /admin/questions/new                                                   controllers.admin.AdminQuestionController.newOne(request: Request, type: String ?= "text", redirectUrl: String, enumeratorQuestion: java.util.Optional[String], isRepeatingBlock: java.util.Optional[String])
 GET     /admin/questions/:id/edit                                              controllers.admin.AdminQuestionController.edit(request: Request, id: Long, redirectUrl: String ?= "")
-GET     /admin/questions/:id                                                   controllers.admin.AdminQuestionController.show(request: Request, id: Long)
 POST    /admin/questions/:id                                                   controllers.admin.AdminQuestionController.update(request: Request, id: Long, type: String)
 POST    /admin/questions                                                       controllers.admin.AdminQuestionController.create(request: Request, type: String)
 POST    /admin/questions/:id/discard                                           controllers.admin.AdminQuestionController.discardDraft(request: Request, id: Long)
@@ -109,6 +111,8 @@ POST    /admin/questions/:questionName/translations/:locale                    c
 
 # Routes for a CiviForm admin to manage program image
 GET     /admin/programs/:programId/image/:editStatus                           controllers.admin.AdminProgramImageController.index(request: Request, programId: Long, editStatus: String)
+POST    /admin/programs/:programId/image/upload/:editStatus                    controllers.admin.AdminProgramImageController.uploadProgramImage(request: Request, programId: Long, editStatus: String)
+POST    /admin/programs/:programId/image/delete/:editStatus                    controllers.admin.AdminProgramImageController.deleteProgramImage(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/image/description/:editStatus               controllers.admin.AdminProgramImageController.updateDescription(request: Request, programId: Long, editStatus: String)
 GET     /admin/programs/:programId/image/file/:editStatus                      controllers.admin.AdminProgramImageController.updateFileKey(request: Request, programId: Long, editStatus: String)
 POST    /admin/programs/:programId/image/file/delete/:editStatus               controllers.admin.AdminProgramImageController.deleteFileKey(request: Request, programId: Long, editStatus: String)
@@ -205,10 +209,13 @@ GET     /programs/:programParam/blocks/:blockId/edit                            
 GET     /programs/:programParam/blocks/:blockId/review                                                                            controllers.applicant.ApplicantProgramBlocksController.review(request: Request, programParam: String, blockId: String, questionName: java.util.Optional[String])
 POST    /programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper                            controllers.applicant.ApplicantProgramBlocksController.confirmAddress(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.previous(request: Request, programParam: String, previousBlockIndex: Int, inReview: Boolean)
-GET     /programs/:programParam/blocks/:blockId/addFile/:inReview                                                                 controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programParam: String, blockId: String, inReview: Boolean)
-GET     /programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                                                     controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programParam: String, blockId: String, fileKey: String, inReview: Boolean)
-POST    /programs/:programId/blocks/:blockId/hx/selectFileForUpload                                                               controllers.applicant.ApplicantProgramBlocksController.hxSelectFileForUpload(request: Request, programId: Long, blockId: String)
-POST    /programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                           controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /programs/:programId/blocks/:blockId/addFile/:inReview                                                                    controllers.applicant.ApplicantProgramBlocksController.addFile(request: Request, programId: Long, blockId: String, inReview: Boolean)
+GET     /programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview                                                        controllers.applicant.ApplicantProgramBlocksController.removeFile(request: Request, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
+POST    /programs/:programId/blocks/:blockId/hx/selectFileForUpload                                                               controllers.applicant.FileUploadController.hxSelectFileForUpload(request: Request, programId: Long, blockId: String)
+POST    /programs/:programId/blocks/:blockId/hx/removeFile                                                                        controllers.applicant.FileUploadController.hxRemoveFile(request: Request, programId: Long, blockId: String)
+POST    /programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                                        controllers.applicant.ApplicantProgramBlocksController.update(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /programs/:programParam/ineligible                                                                                        controllers.applicant.ApplicantProgramIneligibleController.ineligible(request: Request, programParam: String, blockId: java.util.Optional[String])
+GET     /programs/:programParam/blocks/:blockId/addressCorrection/:inReview/:applicantRequestedActionWrapper                      controllers.applicant.ApplicantAddressCorrectionController.addressCorrection(request: Request, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # Routes for handling GeoJSON
 POST    /geoJson/hx/getData                          controllers.geojson.GeoJsonApiController.hxGetData(request: Request)
@@ -231,9 +238,13 @@ GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/edit    
 GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/review                                                    controllers.applicant.ApplicantProgramBlocksController.reviewWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, questionName: java.util.Optional[String])
 POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/confirmAddress/:inReview/:applicantRequestedActionWrapper    controllers.applicant.ApplicantProgramBlocksController.confirmAddressWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 GET     /applicants/:applicantId/programs/:programParam/blocks/:previousBlockIndex/previous/:inReview                             controllers.applicant.ApplicantProgramBlocksController.previousWithApplicantId(request: Request, applicantId: Long, programParam: String, previousBlockIndex: Int, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/addFile/:inReview                                         controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean)
-GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/removeFile/:fileKey/:inReview                             controllers.applicant.ApplicantProgramBlocksController.removeFileWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, fileKey: String, inReview: Boolean)
-POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                   controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/addFile/:inReview                                            controllers.applicant.ApplicantProgramBlocksController.addFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, inReview: Boolean)
+GET     /applicants/:applicantId/programs/:programId/blocks/:blockId/removeFile/:fileKey/:inReview                                controllers.applicant.ApplicantProgramBlocksController.removeFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String, fileKey: String, inReview: Boolean)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/hx/selectFileForUpload                                       controllers.applicant.FileUploadController.hxSelectFileForUploadWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String)
+POST    /applicants/:applicantId/programs/:programId/blocks/:blockId/hx/removeFile                                                controllers.applicant.FileUploadController.hxRemoveFileWithApplicantId(request: Request, applicantId: Long, programId: Long, blockId: String)
+POST    /applicants/:applicantId/programs/:programParam/blocks/:blockId/:inReview/:applicantRequestedActionWrapper                controllers.applicant.ApplicantProgramBlocksController.updateWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
+GET     /applicants/:applicantId/programs/:programParam/ineligible                                                                controllers.applicant.ApplicantProgramIneligibleController.ineligibleWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: java.util.Optional[String])
+GET     /applicants/:applicantId/programs/:programParam/blocks/:blockId/addressCorrection/:inReview/:applicantRequestedActionWrapper                          controllers.applicant.ApplicantAddressCorrectionController.addressCorrectionWithApplicantId(request: Request, applicantId: Long, programParam: String, blockId: String, inReview: Boolean, applicantRequestedActionWrapper: controllers.applicant.ApplicantRequestedActionWrapper)
 
 # API
 GET     /api/v1/checkAuth                                   controllers.api.CiviFormApiController.checkAuth()
@@ -243,6 +254,8 @@ GET     /api/v1/admin/programs/:programSlug/applications    controllers.api.Prog
 GET     /docs/api/programs                                  controllers.docs.ApiDocsController.index(request: Request)
 GET     /docs/api/programs/:programSlug/active              controllers.docs.ApiDocsController.activeDocsForSlug(request: Request, programSlug: String)
 GET     /docs/api/programs/:programSlug/draft               controllers.docs.ApiDocsController.draftDocsForSlug(request: Request, programSlug: String)
+GET     /docs/api/programs/redirect                         controllers.docs.ApiDocsController.getApiDocsRedirect(request: Request, programSlug: java.util.Optional[String], stage: java.util.Optional[String])
+
 GET     /docs/api/schemas                                   controllers.docs.OpenApiSchemaController.getSchemaUIRedirect(request: Request, programSlug: java.util.Optional[String], stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 GET     /docs/api/schemas/:programSlug/yaml                 controllers.docs.OpenApiSchemaController.getSchemaByProgramSlug(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
 GET     /docs/api/schemas/:programSlug                      controllers.docs.OpenApiSchemaController.getSchemaUI(request: Request, programSlug: String, stage: java.util.Optional[String], openApiVersion: java.util.Optional[String])
@@ -255,7 +268,7 @@ GET     /programAdmin                                       controllers.admin.Pr
 
 # Upsell methods
 GET     /download                                           controllers.applicant.UpsellController.download(request: Request, applicationId: Long, applicantId: Long)
-GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: Long, programId: Long, applicationId: Long, redirectTo: String, submitTime: String)
+GET     /considerSignIn                                     controllers.applicant.UpsellController.considerRegister(request: Request, applicantId: java.util.Optional[java.lang.Long], programParam: String, applicationId: Long, redirectTo: String, submitTime: String)
 
 # Authentication callback from local auth - nonfederated.  Requires CSRF token.
 # Provides client name as url parameter.
@@ -276,7 +289,7 @@ POST    /callback/:client_name                              controllers.Callback
 GET     /logBackIn                                          controllers.LoginController.logBackIn(request: Request, redirectTo: java.util.Optional[String])
 GET     /adminLogin                                         controllers.LoginController.adminLogin(request: Request)
 GET     /applicantLogin                                     controllers.LoginController.applicantLogin(request: Request, redirectTo: java.util.Optional[String])
-GET     /idcsRegister                                       controllers.LoginController.register(request: Request)
+GET     /idcsRegister                                       controllers.LoginController.register(request: Request, redirectTo: java.util.Optional[String])
 
 # Log out of application
 GET     /logout                                             @org.pac4j.play.LogoutController.logout(request: Request)
@@ -307,6 +320,7 @@ GET     /dev/addressChecker                                 controllers.dev.Addr
 POST    /dev/addressChecker/hx/correctAddress               controllers.dev.AddressCheckerController.hxCorrectAddress(request: Request)
 POST    /dev/addressChecker/hx/checkServiceArea             controllers.dev.AddressCheckerController.hxCheckServiceArea(request: Request)
 POST    /dev/runDurableJob                                  controllers.dev.DevToolsController.runDurableJob(request: Request)
+GET     /dev/logBlankLines                                  controllers.dev.DevToolsController.logBlankLines()
 
 # Change feature flags
 GET     /dev/feature/:flag/disable                          controllers.dev.FeatureFlagOverrideController.disable(request: Request, flag: String)

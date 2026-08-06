@@ -17,6 +17,7 @@ import models.DisplayMode;
 import org.apache.commons.lang3.StringUtils;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
+import play.mvc.Call;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.mvc.Results;
@@ -182,12 +183,12 @@ public final class ProgramSlugHandler {
    *
    * @param programParam The program parameter (either slug or numeric ID)
    * @param applicantId The applicant ID for slug resolution
-   * @param programSlugUrlEnabled Whether program slug URLs feature is enabled
+   * @param programSlugUrlsEnabled Whether program slug URLs feature is enabled
    * @return CompletionStage containing the resolved program ID
    */
   public CompletionStage<Long> resolveProgramParam(
-      String programParam, Long applicantId, Boolean programSlugUrlEnabled) {
-    if (programSlugUrlEnabled) {
+      String programParam, Long applicantId, Boolean programSlugUrlsEnabled) {
+    if (programSlugUrlsEnabled) {
       if (StringUtils.isNumeric(programParam)) {
         // This should have been previously handled by the caller, since we don't support program
         // ids (numeric) when feature is enabled and call comes directly from the URL
@@ -307,8 +308,14 @@ public final class ProgramSlugHandler {
       String programSlug,
       Http.Request request,
       CiviFormProfile profile) {
+    final Call reviewRoute;
+    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      reviewRoute = applicantRoutes.review(profile, applicantId, programSlug);
+    } else {
+      reviewRoute = applicantRoutes.review(profile, applicantId, programId);
+    }
     return controller
-        .redirect(applicantRoutes.review(profile, applicantId, programId))
+        .redirect(reviewRoute)
         .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
         // If we had a redirectTo session key that redirected us here, remove it so that it doesn't
         // get used again.

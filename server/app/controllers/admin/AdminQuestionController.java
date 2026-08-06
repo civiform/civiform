@@ -8,18 +8,19 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import controllers.FlashKey;
-import forms.EnumeratorQuestionForm;
-import forms.MapFilterForm;
-import forms.MapQuestionForm;
-import forms.MultiOptionQuestionForm;
-import forms.QuestionForm;
-import forms.QuestionFormBuilder;
+import forms.questions.EnumeratorQuestionForm;
+import forms.questions.MapFilterForm;
+import forms.questions.MapQuestionForm;
+import forms.questions.MultiOptionQuestionForm;
+import forms.questions.QuestionForm;
+import forms.questions.QuestionFormBuilder;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import mapping.admin.questions.QuestionFormPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -27,6 +28,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.GeoJsonDataRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -50,7 +52,10 @@ import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
+import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionEditView;
+import views.admin.questions.QuestionFormPageView;
+import views.admin.questions.QuestionFormPageViewModel;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -66,6 +71,8 @@ public final class AdminQuestionController extends CiviFormController {
 
   private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
   private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
+  private final GeoJsonDataRepository geoJsonDataRepository;
+  private final QuestionFormPageView questionFormPageView;
 
   @Inject
   public AdminQuestionController(
@@ -78,7 +85,9 @@ public final class AdminQuestionController extends CiviFormController {
       FormFactory formFactory,
       MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
       MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      GeoJsonDataRepository geoJsonDataRepository,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
+      QuestionFormPageView questionFormPageView) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -88,6 +97,8 @@ public final class AdminQuestionController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.questionFormPageView = checkNotNull(questionFormPageView);
   }
 
   /**
@@ -146,37 +157,6 @@ public final class AdminQuestionController extends CiviFormController {
         .as(Http.MimeTypes.HTML);
   }
 
-  /**
-   * Return a HTML page displaying all configurations of a question without the ability to update
-   * it.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(Request request, long id) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
-
-              Optional<QuestionDefinition> maybeEnumerationQuestion =
-                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-              try {
-                return ok(
-                    editView.renderViewQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
-              } catch (InvalidQuestionTypeException e) {
-                return badRequest(
-                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-              }
-            },
-            classLoaderExecutionContext.current());
-  }
-
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(
@@ -198,6 +178,43 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      try {
+        QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+        questionForm.setRedirectUrl(redirectUrl);
+        // Outside a repeating block the enumerator is locked to "does not
+        // repeat"; inside one, a provided enumerator is preselected and
+        // locked.
+        boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
+        if (!isRepeatingBlock) {
+          questionForm.setEnumeratorSelectEnabled(false);
+        } else {
+          enumeratorQuestionOptional.ifPresent(
+              enumeratorId -> {
+                questionForm.setEnumeratorId(enumeratorId);
+                questionForm.setEnumeratorSelectEnabled(false);
+              });
+        }
+        ReadOnlyQuestionService roService =
+            service.getReadOnlyQuestionService().toCompletableFuture().join();
+        MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+        QuestionFormPageViewModel model =
+            new QuestionFormPageMapper()
+                .mapNew(
+                    questionForm,
+                    enumeratorQuestionDefinitions,
+                    mapSettings,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    settingsManifest.getEnumeratorImprovementsEnabled(request),
+                    roService,
+                    Optional.empty());
+        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      } catch (UnsupportedQuestionTypeException e) {
+        return badRequest(e.getMessage());
+      }
+    }
+
     try {
       boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
       return ok(
@@ -233,17 +250,34 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.getMessage());
     }
 
-    boolean requireLegacyRepeatedEntitySelector =
-        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
 
     ErrorAnd<QuestionDefinition, CiviFormError> result =
-        service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
+        service.create(questionDefinition, enumeratorImprovementsEnabled);
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
+      String errorText = joinErrors(result.getErrors());
       ReadOnlyQuestionService roService =
           service.getReadOnlyQuestionService().toCompletableFuture().join();
       ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
           roService.getUpToDateEnumeratorQuestions();
+
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+        QuestionFormPageViewModel model =
+            new QuestionFormPageMapper()
+                .mapNew(
+                    questionForm,
+                    enumeratorQuestionDefinitions,
+                    mapSettings,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    settingsManifest.getEnumeratorImprovementsEnabled(request),
+                    roService,
+                    Optional.of(errorText));
+        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
       return ok(
           editView.renderNewQuestionForm(
               request, questionForm, enumeratorQuestionDefinitions, errorMessage));
@@ -309,12 +343,7 @@ public final class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              QuestionDefinition questionDefinition;
-              try {
-                questionDefinition = readOnlyService.getQuestionDefinition(id);
-              } catch (QuestionNotFoundException e) {
-                return badRequest(e.toString());
-              }
+              QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
 
               // Handle case someone tries to edit a live question that already has a draft version.
               // In this case we should redirect to the draft version.
@@ -331,6 +360,29 @@ public final class AdminQuestionController extends CiviFormController {
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+
+              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+                try {
+                  QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+                  if (!redirectUrl.isBlank()) {
+                    questionForm.setRedirectUrl(redirectUrl);
+                  }
+                  Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                  QuestionFormPageViewModel model =
+                      buildEditQuestionPageModel(
+                          id,
+                          questionForm,
+                          maybeEnumerationQuestion,
+                          readOnlyService,
+                          request,
+                          errorMessage);
+                  return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+                } catch (InvalidQuestionTypeException e) {
+                  return badRequest(
+                      invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+                }
+              }
+
               try {
                 Optional<ToastMessage> message =
                     request
@@ -374,12 +426,7 @@ public final class AdminQuestionController extends CiviFormController {
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    Optional<QuestionDefinition> maybeExisting;
-    try {
-      maybeExisting = Optional.of(roService.getQuestionDefinition(id));
-    } catch (QuestionNotFoundException e) {
-      maybeExisting = Optional.empty();
-    }
+    Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
 
     QuestionDefinition questionDefinition;
     try {
@@ -392,10 +439,10 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      boolean requireLegacyRepeatedEntitySelector =
-          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+      boolean enumeratorImprovementsEnabled =
+          settingsManifest.getEnumeratorImprovementsEnabled(request);
       errorAndUpdatedQuestionDefinition =
-          service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
+          service.update(maybeExisting, questionDefinition, enumeratorImprovementsEnabled);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
@@ -410,10 +457,23 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      ToastMessage errorMessage =
-          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
+      String errorText = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
       Optional<QuestionDefinition> maybeEnumerationQuestion =
           maybeGetEnumerationQuestion(roService, questionDefinition);
+
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        QuestionFormPageViewModel model =
+            buildEditQuestionPageModel(
+                id,
+                questionForm,
+                maybeEnumerationQuestion,
+                roService,
+                request,
+                Optional.of(errorText));
+        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
+      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
       return ok(
           editView.renderEditQuestionForm(
               request, id, questionForm, maybeEnumerationQuestion, errorMessage));
@@ -658,6 +718,57 @@ public final class AdminQuestionController extends CiviFormController {
     updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
   }
 
+  private QuestionFormPageViewModel buildEditQuestionPageModel(
+      long questionId,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Request request,
+      Optional<String> errorMessage) {
+    MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+    return new QuestionFormPageMapper()
+        .mapEdit(
+            questionId,
+            questionForm,
+            maybeEnumerationQuestion,
+            mapSettings,
+            settingsManifest.getApiBridgeEnabled(request),
+            settingsManifest.getEnumeratorImprovementsEnabled(request),
+            readOnlyQuestionService,
+            errorMessage);
+  }
+
+  /**
+   * Builds the view model for the MAP question settings section, which the page template renders
+   * via the shared {@code MapQuestionSettingsPartial} - the same template the GeoJSON hx endpoint
+   * swaps in - so the initial page render and subsequent endpoint-driven refreshes stay in sync.
+   * Returns {@code null} for non-MAP questions, whose config is rendered inline in the page
+   * template.
+   */
+  private MapQuestionSettingsPartialViewModel buildMapSettingsViewModel(QuestionForm questionForm) {
+    if (!(questionForm instanceof MapQuestionForm mapQuestionForm)) {
+      return null;
+    }
+
+    ImmutableList<String> possibleKeys =
+        mapQuestionForm.getGeoJsonEndpoint().isEmpty()
+            ? ImmutableList.of()
+            : geoJsonDataRepository
+                .getMostRecentGeoJsonDataRowForEndpoint(mapQuestionForm.getGeoJsonEndpoint())
+                .join()
+                .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+                .orElse(ImmutableList.of());
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
+        possibleKeys);
+  }
+
   private String invalidQuestionTypeMessage(String questionType) {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
@@ -673,14 +784,7 @@ public final class AdminQuestionController extends CiviFormController {
     return questionDefinition
         .getEnumeratorId()
         .flatMap(
-            enumeratorId -> {
-              try {
-                return Optional.of(readOnlyQuestionService.getQuestionDefinition(enumeratorId));
-              } catch (QuestionNotFoundException e) {
-                throw new RuntimeException(
-                    "This repeated question's enumerator id reference does not refer to a real"
-                        + " question!");
-              }
-            });
+            enumeratorId ->
+                Optional.of(readOnlyQuestionService.getQuestionDefinition(enumeratorId)));
   }
 }

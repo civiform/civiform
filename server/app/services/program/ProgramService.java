@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -1604,23 +1605,27 @@ public final class ProgramService {
   /**
    * Update a {@link BlockDefinition} to include additional questions.
    *
+   * <p>Questions in {@code questionIds} are added in the specified order.
+   *
+   * <p>Enforces that the block is correctly configured and will not allow incorrect configurations,
+   * such as tombstoned questions, multiple enumerators, other questions with enumerators.
+   *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @param questionIds the questions to add
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
    *     real Block.
-   * @throws QuestionNotFoundException when questionIds does not correspond to real Questions.
    * @throws CantAddQuestionToBlockException if one of the questions can't be added to the block.
    */
   public ProgramDefinition addQuestionsToBlock(
       long programId,
       long blockDefinitionId,
       ImmutableList<Long> questionIds,
-      boolean enumeratorImprovementsEnabled)
+      boolean enumeratorImprovementsEnabled,
+      boolean fileUploadQuestionImprovementsEnabled)
       throws CantAddQuestionToBlockException,
-          QuestionNotFoundException,
           ProgramNotFoundException,
           ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
@@ -1635,8 +1640,13 @@ public final class ProgramService {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    Set<Long> newFlowEnumIds = new HashSet<>();
     for (long questionId : questionIds) {
       QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+      if (questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorInitialQuestionId().isPresent()) {
+        newFlowEnumIds.add(questionId);
+      }
 
       // If this is a repeated block and the question is not repeated
       // Create a new question that is a copy and save that question before adding it to the block.
@@ -1650,6 +1660,8 @@ public final class ProgramService {
 
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
+      boolean isInitialQuestion =
+          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false);
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -1657,12 +1669,28 @@ public final class ProgramService {
                   programDefinition,
                   blockDefinition,
                   question.getQuestionDefinition(),
-                  enumeratorImprovementsEnabled);
+                  enumeratorImprovementsEnabled,
+                  fileUploadQuestionImprovementsEnabled,
+                  isInitialQuestion);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
       }
       updatedBlockQuestions.add(question);
+
+      // If we just added an enumerator question, reflect it in blockDefinition so the next
+      // iteration's canAddQuestion sees it (e.g. the initial question's enumeratorId match).
+      if (questionDefinition.isEnumerator()) {
+        blockDefinition =
+            blockDefinition.toBuilder()
+                .setProgramQuestionDefinitions(
+                    ImmutableList.<ProgramQuestionDefinition>builder()
+                        .addAll(blockDefinition.programQuestionDefinitions())
+                        .add(question)
+                        .build())
+                .setIsEnumerator(Optional.of(true))
+                .build();
+      }
     }
 
     ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
@@ -1697,7 +1725,7 @@ public final class ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @param questionIds question IDs to be removed from the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1710,7 +1738,7 @@ public final class ProgramService {
   public ProgramDefinition removeQuestionsFromBlock(
       long programId,
       long blockDefinitionId,
-      ImmutableList<Long> questionIds,
+      List<Long> questionIds,
       SettingsManifest settingsManifest,
       Request request)
       throws QuestionNotFoundException,
@@ -1992,14 +2020,9 @@ public final class ProgramService {
                   if (programRepository.getFullProgramDefinitionFromCache(programId).isPresent()) {
                     return programRepository.getFullProgramDefinitionFromCache(programId).get();
                   }
-                  try {
-                    return syncProgramDefinitionQuestions(
-                        programDef, programToQuestionService.get(programId));
-                    /* END TEMP BUG FIX */
-                  } catch (QuestionNotFoundException e) {
-                    throw new RuntimeException(
-                        String.format("Question not found for Program %s", programDef.id()), e);
-                  }
+                  return syncProgramDefinitionQuestions(
+                      programDef, programToQuestionService.get(programId));
+                  /* END TEMP BUG FIX */
                 })
             .collect(ImmutableList.toImmutableList()));
   }
@@ -2254,34 +2277,20 @@ public final class ProgramService {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             roQuestionService -> {
-              try {
-                return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
-              } catch (QuestionNotFoundException e) {
-                throw new RuntimeException(
-                    String.format("Question not found for Program %s", programDefinition.id()), e);
-              }
+              return syncProgramDefinitionQuestions(programDefinition, roQuestionService);
             },
             classLoaderExecutionContext.current());
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
       ProgramDefinition programDefinition, VersionModel version) {
-    try {
-      return syncProgramDefinitionQuestions(
-          programDefinition,
-          questionService.getReadOnlyVersionedQuestionService(version, versionRepository));
-    } catch (QuestionNotFoundException e) {
-      throw new RuntimeException(
-          String.format(
-              "Question not found for Program %s at Version %s",
-              programDefinition.id(), version.id),
-          e);
-    }
+    return syncProgramDefinitionQuestions(
+        programDefinition,
+        questionService.getReadOnlyVersionedQuestionService(version, versionRepository));
   }
 
   private ProgramDefinition syncProgramDefinitionQuestions(
-      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ProgramDefinition programDefinition, ReadOnlyQuestionService roQuestionService) {
     ProgramDefinition.Builder programDefinitionBuilder = programDefinition.toBuilder();
     ImmutableList.Builder<BlockDefinition> blockListBuilder = ImmutableList.builder();
 
@@ -2298,8 +2307,7 @@ public final class ProgramService {
   private BlockDefinition syncBlockDefinitionQuestions(
       long programDefinitionId,
       BlockDefinition blockDefinition,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ReadOnlyQuestionService roQuestionService) {
     BlockDefinition.Builder blockBuilder = blockDefinition.toBuilder();
 
     ImmutableList.Builder<ProgramQuestionDefinition> pqdListBuilder = ImmutableList.builder();
@@ -2316,8 +2324,7 @@ public final class ProgramService {
   private ProgramQuestionDefinition syncProgramQuestionDefinition(
       long programDefinitionId,
       ProgramQuestionDefinition pqd,
-      ReadOnlyQuestionService roQuestionService)
-      throws QuestionNotFoundException {
+      ReadOnlyQuestionService roQuestionService) {
     QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(pqd.id());
     return pqd.loadCompletely(programDefinitionId, questionDefinition);
   }
@@ -2361,7 +2368,7 @@ public final class ProgramService {
           Optional.of(
               programDefinition
                   .getBlockDefinition(blockDefinition.enumeratorId().get())
-                  .getEnumerationQuestionDefinition()
+                  .getEnumeratorQuestionDefinition()
                   .getId());
       // Create the copy question, handle potential errors below
       ErrorAnd<QuestionDefinition, CiviFormError> maybeCopy =

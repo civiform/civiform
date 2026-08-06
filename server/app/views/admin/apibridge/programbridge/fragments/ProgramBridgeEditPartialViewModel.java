@@ -10,7 +10,7 @@ import services.applicant.question.Scalar;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 import views.admin.apibridge.programbridge.ProgramSchemaField;
 
 /** Holds data to render the program api bridge edit form */

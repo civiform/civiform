@@ -20,6 +20,7 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
+import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.settings.SettingsManifest;
@@ -59,14 +60,15 @@ public class FileController extends CiviFormController {
               // uploaded it.
               boolean hasFileNameAcl =
                   ApplicantFileNameFormatter.isApplicantOwnedFileKey(decodedFileKey, applicantId);
+
+              Optional<StoredFileModel> storedFile =
+                  storedFileRepository.lookupFile(decodedFileKey).toCompletableFuture().join();
+
               if (!hasFileNameAcl) {
                 // Check the file ACL which may include other applicants
                 // given access.
                 boolean hasStoredFileAcl =
-                    storedFileRepository
-                        .lookupFile(decodedFileKey)
-                        .toCompletableFuture()
-                        .join()
+                    storedFile
                         .map(StoredFileModel::getAcls)
                         .map(acls -> acls.hasApplicantReadPermission(applicantId))
                         .orElse(false);
@@ -75,7 +77,12 @@ public class FileController extends CiviFormController {
                 }
               }
 
-              return redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey));
+              String downloadUrl =
+                  applicantStorageClient.getPresignedUrlString(
+                      decodedFileKey,
+                      FileUploadQuestion.getUploadedFileName(storedFile, decodedFileKey));
+
+              return redirect(downloadUrl);
             },
             classLoaderExecutionContext.current())
         .exceptionally(
@@ -139,10 +146,14 @@ public class FileController extends CiviFormController {
 
     // An admin is eligible if they are a global admin with the program access flag turned on
     // or if they have been explicitly given read permission to the program.
+    String downloadUrl =
+        applicantStorageClient.getPresignedUrlString(
+            decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile, decodedFileKey));
+
     return ((adminAccount.getGlobalAdmin()
                 && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
             || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
-        ? redirect(applicantStorageClient.getPresignedUrlString(decodedFileKey))
+        ? redirect(downloadUrl)
         : unauthorized();
   }
 }

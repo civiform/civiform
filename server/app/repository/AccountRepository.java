@@ -5,7 +5,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.CiviFormProfile;
-import auth.NewGuestMergeLaunchStage;
 import auth.oidc.IdTokens;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Strings;
@@ -152,7 +151,7 @@ public final class AccountRepository {
   }
 
   /**
-   * Returns the most recent Applicant identified by Account, creating one if necessary.
+   * Returns the oldest Applicant identified by Account, creating one if necessary.
    *
    * <p>If no applicant exists, this is probably an account waiting for a trusted intermediary, so
    * we create one.
@@ -162,7 +161,7 @@ public final class AccountRepository {
         () -> {
           Optional<ApplicantModel> applicantOpt =
               account.getApplicants().stream()
-                  .max(Comparator.comparing(ApplicantModel::getWhenCreated));
+                  .min(Comparator.comparing(ApplicantModel::getWhenCreated));
           return applicantOpt.orElseGet(
               () -> new ApplicantModel().setAccount(account).saveAndReturn());
         });
@@ -284,30 +283,6 @@ public final class AccountRepository {
 
     newer.getApplicantData().mergeFrom(older.getApplicantData());
     return newer;
-  }
-
-  /**
-   * Merge data from {@code mergeFrom} to {@code mergeTo}.
-   *
-   * <p>This is part of an in-progress and incomplete method.
-   *
-   * @param newMergeStage what launch stage the new merge feature is at. Must be DRY_RUN OR ENABLED.
-   */
-  public void mergeApplicants(
-      ApplicantModel mergeFrom, ApplicantModel mergeTo, NewGuestMergeLaunchStage newMergeStage) {
-    boolean logOnly =
-        switch (newMergeStage) {
-          case DRY_RUN -> true;
-          case ENABLED -> false;
-          default ->
-              throw new IllegalArgumentException(
-                  "New merge launch stage should not be " + newMergeStage);
-        };
-    // TODO(#11389): Implement new merge logic.
-    logger.error("New merge logic is not implemented");
-    if (logOnly) {
-      logger.info("New Merge Logic Dry Run");
-    }
   }
 
   public List<TrustedIntermediaryGroupModel> listTrustedIntermediaryGroups() {
@@ -531,9 +506,12 @@ public final class AccountRepository {
 
   /** Delete guest accounts that have no data and were created before the provided maximum age. */
   public int deleteUnusedGuestAccounts(int minAgeInDays) {
-    // TODO(#12167): Handle that Accounts can have multiple Applicants.
+    // First, identify all unused guest applicants: those with no applications, on guest accounts
+    // (no authority_id), and older than the minimum age. Then delete those applicants. Finally,
+    // only delete accounts where ALL applicants have been removed — this handles the case where
+    // an Account has multiple Applicants and only some qualify for cleanup.
     String sql =
-        "WITH unused_accounts AS ( "
+        "WITH unused_applicants AS ( "
             + "  SELECT applicants.account_id AS account_id, applicants.id AS applicant_id "
             + "  FROM applicants"
             + "  LEFT JOIN applications ON applicants.id = applications.applicant_id "
@@ -546,10 +524,15 @@ public final class AccountRepository {
             + "), "
             + "applicants_deleted AS ("
             + "  DELETE FROM applicants"
-            + "  WHERE applicants.id IN (SELECT applicant_id FROM unused_accounts) "
+            + "  WHERE applicants.id IN (SELECT applicant_id FROM unused_applicants) "
             + ") "
             + "DELETE FROM accounts "
-            + "WHERE accounts.id IN (SELECT account_id FROM unused_accounts);";
+            + "WHERE accounts.id IN (SELECT account_id FROM unused_applicants) "
+            + "AND NOT EXISTS ( "
+            + "  SELECT 1 FROM applicants "
+            + "  WHERE applicants.account_id = accounts.id "
+            + "  AND applicants.id NOT IN (SELECT applicant_id FROM unused_applicants) "
+            + ");";
 
     return database.sqlUpdate(sql).execute();
   }

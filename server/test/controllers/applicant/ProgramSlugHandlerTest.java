@@ -528,6 +528,60 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showProgramPreview_withProgramSlugFlag_disabledProgram_redirectsToReviewPage() {
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("disabled program", DisplayMode.DISABLED).buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+    Request request = fakeRequestBuilder().build();
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            instanceOf(ProgramOverviewView.class),
+            instanceOf(MessagesApi.class),
+            mockSettingsManifest,
+            instanceOf(ProgramRepository.class));
+    Result result =
+        handler
+            .showProgramPreview(controller, request, programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    assertThat(result.redirectLocation())
+        .contains(
+            controllers.applicant.routes.ApplicantProgramReviewController.review(
+                    programDefinition.slug())
+                .url());
+  }
+
+  @Test
   public void showProgram_withExternalProgram_returnsBadRequest() {
     // Create an external program
     ProgramModel externalProgram =
@@ -565,7 +619,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(programId, applicant.id, /* programSlugUrlEnabled= */ false);
+            .resolveProgramParam(programId, applicant.id, /* programSlugUrlsEnabled= */ false);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
   }
@@ -579,7 +633,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        program.slug(), applicant.id, /* programSlugUrlEnabled= */ false))
+                        program.slug(), applicant.id, /* programSlugUrlsEnabled= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'test-program' to a numeric value");
   }
@@ -591,7 +645,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(programId, applicant.id, /* programSlugUrlEnabled= */ false);
+            .resolveProgramParam(programId, applicant.id, /* programSlugUrlsEnabled= */ false);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(123L);
   }
@@ -605,7 +659,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        program.slug(), applicant.id, /* programSlugUrlEnabled= */ false))
+                        program.slug(), applicant.id, /* programSlugUrlsEnabled= */ false))
         .isInstanceOf(RuntimeException.class)
         .hasMessage("Could not parse value from 'test-program' to a numeric value");
   }
@@ -619,7 +673,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
             () ->
                 instanceOf(ProgramSlugHandler.class)
                     .resolveProgramParam(
-                        programId, applicant.id, /* programSlugUrlEnabled= */ true))
+                        programId, applicant.id, /* programSlugUrlsEnabled= */ true))
         .isInstanceOf(IllegalStateException.class)
         .hasMessage("Numeric program parameter should have been handled by the caller");
   }
@@ -631,7 +685,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     CompletionStage<Long> result =
         instanceOf(ProgramSlugHandler.class)
-            .resolveProgramParam(program.slug(), applicant.id, /* programSlugUrlEnabled= */ true);
+            .resolveProgramParam(program.slug(), applicant.id, /* programSlugUrlsEnabled= */ true);
 
     assertThat(result.toCompletableFuture().get()).isEqualTo(program.id());
   }

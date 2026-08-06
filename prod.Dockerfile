@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1@sha256:4a43a54dd1fedceb30ba47e76cfcf2b47304f4161c0caeac2db1c61804ea3c91
+# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
 # For production images, use the adoptium.net official JRE & JDK docker images.
-FROM eclipse-temurin:25.0.2_10-jdk-alpine@sha256:da683f4f02f9427597d8fa162b73b8222fe08596dcebaf23e4399576ff8b037e AS stage1
+FROM eclipse-temurin:25.0.3_9-jdk-alpine@sha256:5ecfde8e5ecde5954ea3721155b345ef56c1d579b940c761318ad4c05959a151 AS stage1
 
 ARG SBT_VERSION
 ENV SBT_VERSION="${SBT_VERSION}"
@@ -14,6 +14,8 @@ RUN set -o pipefail && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
     apk add --no-cache --update bash wget npm git && \
+    # npm >= 12 required by engines/engine-strict
+    npm install -g npm@^12 && \
     mkdir -p "$SBT_HOME" && \
     wget -qO - "${SBT_URL}" | tar xz -C "${INSTALL_DIR}" && \
     echo -ne "- with sbt $SBT_VERSION\n" >> /root/.built
@@ -24,7 +26,6 @@ ENV PROJECT_LOC="${PROJECT_HOME}/${PROJECT_NAME}"
 
 COPY "${PROJECT_NAME}" "${PROJECT_LOC}"
 RUN cd "${PROJECT_LOC}" && \
-    npm install -g npm && \
     npm ci && \
     npm run build && \
     sbt update && \
@@ -34,7 +35,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM eclipse-temurin:25.0.2_10-jre-alpine@sha256:f10d6259d0798c1e12179b6bf3b63cea0d6843f7b09c9f9c9c422c50e44379ec AS stage2
+FROM eclipse-temurin:25.0.3_9-jre-alpine@sha256:28db6fdf60e38945e43d840c0333aeaec66c15943070104f7586fd3c9d1665b0 AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.

@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import javax.inject.Inject;
 import play.mvc.Controller;
-import play.mvc.Http.HeaderNames;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import services.settings.SettingsManifest;
@@ -27,14 +26,14 @@ public final class FeatureFlagOverrideController extends Controller {
   }
 
   public Result enable(Request request, String rawFlagName) {
-    return updateFlag(request, rawFlagName, "true");
+    return updateFlag(rawFlagName, "true");
   }
 
   public Result disable(Request request, String rawFlagName) {
-    return updateFlag(request, rawFlagName, "false");
+    return updateFlag(rawFlagName, "false");
   }
 
-  private Result updateFlag(Request request, String rawFlagName, String newValue) {
+  private Result updateFlag(String rawFlagName, String newValue) {
     var flagName = rawFlagName.toUpperCase(Locale.ROOT);
     var currentSettings =
         settingsService.loadSettings().toCompletableFuture().join().orElse(ImmutableMap.of());
@@ -50,6 +49,6 @@ public final class FeatureFlagOverrideController extends Controller {
     newSettings.put(flagName, newValue);
     settingsService.updateSettings(newSettings.build(), "dev mode");
 
-    return redirect(request.header(HeaderNames.REFERER).orElse("/"));
+    return ok(String.format("Set feature flag %s to %s.", flagName, newValue));
   }
 }

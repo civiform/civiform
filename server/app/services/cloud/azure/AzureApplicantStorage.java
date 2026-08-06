@@ -75,13 +75,13 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
 
   @Override
   public String getPresignedUrlString(String fileKey) {
-    return getPresignedUrlString(fileKey, /* prefixedOriginalFileName= */ Optional.empty());
+    return getPresignedUrlString(fileKey, /* originalFileName= */ Optional.empty());
   }
 
   @Override
-  public String getPresignedUrlString(String fileKey, Optional<String> prefixedOriginalFileName) {
+  public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
     String blobUrl = client.getBlobUrl(fileKey);
-    String sasToken = client.getSasToken(fileKey, prefixedOriginalFileName);
+    String sasToken = client.getSasToken(fileKey, originalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {

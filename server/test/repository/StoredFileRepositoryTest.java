@@ -10,6 +10,7 @@ import java.util.List;
 import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
+import services.cloud.ApplicantFileNameFormatter;
 import support.ProgramBuilder;
 
 public class StoredFileRepositoryTest extends ResetPostgres {
@@ -66,6 +67,47 @@ public class StoredFileRepositoryTest extends ResetPostgres {
     StoredFileModel result = repo.lookupFile(file.getName()).toCompletableFuture().join().get();
 
     assertThat(result).isEqualTo(file);
+  }
+
+  @Test
+  public void lookupFilesByApplicant() {
+    // Verify only Applicant 1 is returned and does not substring match on 10.
+    long applicantId = 1L;
+    long supersetApplicantId = 10L;
+
+    StoredFileModel applicantFile1 =
+        new StoredFileModel()
+            .setName(
+                ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+                    applicantId, /* programId= */ 20L, /* blockId= */ "5"));
+    applicantFile1.save();
+
+    StoredFileModel applicantFile2 =
+        new StoredFileModel()
+            .setName(
+                ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+                    applicantId, /* programId= */ 30L, /* blockId= */ "6"));
+    applicantFile2.save();
+
+    StoredFileModel supersetApplicantFile =
+        new StoredFileModel()
+            .setName(
+                ApplicantFileNameFormatter.formatFileUploadQuestionFilename(
+                    supersetApplicantId, /* programId= */ 20L, /* blockId= */ "5"));
+    supersetApplicantFile.save();
+
+    List<StoredFileModel> result =
+        repo.lookupFilesByApplicant(applicantId).toCompletableFuture().join();
+
+    assertThat(result).containsExactlyInAnyOrder(applicantFile1, applicantFile2);
+  }
+
+  @Test
+  public void lookupFilesByApplicant_noFiles_returnsEmpty() {
+    List<StoredFileModel> result =
+        repo.lookupFilesByApplicant(/* applicantId= */ 99L).toCompletableFuture().join();
+
+    assertThat(result).isEmpty();
   }
 
   /**

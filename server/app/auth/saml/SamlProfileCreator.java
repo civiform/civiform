@@ -30,6 +30,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
+import repository.StoredFileRepository;
 
 public class SamlProfileCreator extends AuthenticatorProfileCreator {
 
@@ -50,12 +51,17 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Client client,
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
+      Provider<StoredFileRepository> storedFileRepositoryProvider,
       DatabaseExecutionContext dbExecutionContext) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
-        new CiviFormProfileMerger(profileFactory, applicantRepositoryProvider, dbExecutionContext);
+        new CiviFormProfileMerger(
+            profileFactory,
+            applicantRepositoryProvider,
+            storedFileRepositoryProvider,
+            dbExecutionContext);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
     // TODO(#12696): Handle enhanced logout.

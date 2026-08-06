@@ -1,7 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
   ClientInformation,
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -10,6 +9,7 @@ import {
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
 } from '../support'
+import {waitForAnyModalLocator} from '../support/wait'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Pre-Screener Upsell Tests', () => {
@@ -140,9 +140,8 @@ test.describe('Pre-Screener Upsell Tests', () => {
 
     await applicantQuestions.clickApplyToProgramsButton()
 
-    await validateScreenshot(page, 'upsell-pre-screener-login', {
-      fullPage: false,
-    })
+    const modal = await waitForAnyModalLocator(page)
+    await validateScreenshot(modal, 'upsell-pre-screener-login')
 
     await validateAccessibility(page)
   })
@@ -236,7 +235,6 @@ test.describe('Pre-Screener Upsell Tests', () => {
     adminSettings,
     applicantQuestions,
   }) => {
-    await enableFeatureFlag(page, 'CUSTOM_THEME_COLORS_ENABLED')
     await adminSettings.gotoAdminSettings()
 
     await adminSettings.setStringSetting('THEME_COLOR_PRIMARY', '#6d4bfa')

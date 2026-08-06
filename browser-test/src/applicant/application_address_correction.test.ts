@@ -101,6 +101,12 @@ test.describe('address correction single-block, single-address program', () => {
         )
       })
 
+      await test.step('Selecting from the language dropdown re-renders the translated address correction page', async () => {
+        await selectApplicantLanguage(page, 'fr')
+        await applicantQuestions.expectFrenchVerifyAddressPage(true)
+        await selectApplicantLanguage(page, 'en-US')
+      })
+
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
@@ -108,7 +114,6 @@ test.describe('address correction single-block, single-address program', () => {
           'Address In Area',
         )
         await applicantQuestions.clickSubmitApplication()
-        await logout(page)
       })
     })
 
@@ -130,7 +135,7 @@ test.describe('address correction single-block, single-address program', () => {
           'CA',
           '92373',
         )
-        await page.getByText('متابعة').click()
+        await page.getByRole('button', {name: 'متابعة'}).click()
       })
 
       await test.step('Validate address correction page rendered right to left', async () => {
@@ -178,7 +183,6 @@ test.describe('address correction single-block, single-address program', () => {
       await test.step('Confirm user can confirm address and submit', async () => {
         await applicantQuestions.clickConfirmAddress()
         await applicantQuestions.clickSubmitApplication()
-        await logout(page)
       })
     })
 
@@ -222,8 +226,6 @@ test.describe('address correction single-block, single-address program', () => {
         await applicantQuestions.clickConfirmAddress()
         await applicantQuestions.clickSubmitApplication()
       })
-
-      await logout(page)
     })
 
     test('prompts user to edit if an Esri error response object is returned from the Esri service', async ({
@@ -251,7 +253,6 @@ test.describe('address correction single-block, single-address program', () => {
     })
 
     test('skips address correction screen if address exactly matches suggestions', async ({
-      page,
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
@@ -269,8 +270,6 @@ test.describe('address correction single-block, single-address program', () => {
       await test.step('Validate review page is shown', async () => {
         await applicantQuestions.expectReviewPage()
       })
-
-      await logout(page)
     })
   }
 
@@ -302,8 +301,6 @@ test.describe('address correction single-block, single-address program', () => {
       )
       await applicantQuestions.clickSubmitApplication()
     })
-
-    await logout(page)
   })
 })
 
@@ -375,8 +372,6 @@ test.describe('require address correction when address is pre-filled', () => {
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectVerifyAddressPage(true)
       })
-
-      await logout(page)
     })
   }
 })
@@ -437,7 +432,6 @@ if (isLocalDevEnvironment()) {
     })
 
     test('skips address correction if optional address question is not answered', async ({
-      page,
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
@@ -451,8 +445,6 @@ if (isLocalDevEnvironment()) {
 
         await applicantQuestions.clickSubmitApplication()
       })
-
-      await logout(page)
     })
   })
 
@@ -526,7 +518,6 @@ if (isLocalDevEnvironment()) {
     })
 
     test('can correct address multi-block, multi-address program', async ({
-      page,
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
@@ -563,8 +554,6 @@ if (isLocalDevEnvironment()) {
         )
         await applicantQuestions.clickSubmitApplication()
       })
-
-      await logout(page)
     })
   })
 
@@ -628,7 +617,6 @@ if (isLocalDevEnvironment()) {
     })
 
     test('can correct address single-block, multi-address program', async ({
-      page,
       applicantQuestions,
     }) => {
       await test.step('Answer address question', async () => {
@@ -669,8 +657,6 @@ if (isLocalDevEnvironment()) {
         )
         await applicantQuestions.clickSubmitApplication()
       })
-
-      await logout(page)
     })
   })
 
@@ -910,7 +896,6 @@ if (isLocalDevEnvironment()) {
       })
 
       test('clicking back saves address and goes to previous block if the user enters an address that exactly matches suggestions', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -943,8 +928,6 @@ if (isLocalDevEnvironment()) {
             'Address In Area',
           )
         })
-
-        await logout(page)
       })
     })
 
@@ -1002,7 +985,6 @@ if (isLocalDevEnvironment()) {
       })
 
       test('address correction page saves original address when selected and redirects to review', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -1039,12 +1021,9 @@ if (isLocalDevEnvironment()) {
             'Legit Address',
           )
         })
-
-        await logout(page)
       })
 
       test('address correction page saves suggested address when selected and redirects to review', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -1080,12 +1059,9 @@ if (isLocalDevEnvironment()) {
             'Address With No Service Area Features',
           )
         })
-
-        await logout(page)
       })
 
       test('address correction page saves original address when no suggestions offered and redirects to review', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -1119,12 +1095,9 @@ if (isLocalDevEnvironment()) {
             'Bogus Address',
           )
         })
-
-        await logout(page)
       })
 
       test('clicking review saves address and goes to review page if the user enters an address that exactly matches suggestions', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -1154,8 +1127,6 @@ if (isLocalDevEnvironment()) {
             'Address In Area',
           )
         })
-
-        await logout(page)
       })
     })
 
@@ -1334,7 +1305,6 @@ if (isLocalDevEnvironment()) {
       })
 
       test('clicking next saves address and goes to next block if the user enters an address that exactly matches suggestions', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Answer address question', async () => {
@@ -1367,8 +1337,6 @@ if (isLocalDevEnvironment()) {
             'Address In Area',
           )
         })
-
-        await logout(page)
       })
     })
 

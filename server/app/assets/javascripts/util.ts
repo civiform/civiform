@@ -58,17 +58,22 @@ const md = new MarkdownIt({
   linkify: true,
   breaks: true,
 })
+// linkify-it v6 (via markdown-it v15) disabled fuzzyLink by default. Re-enable it
+// so bare domains like www.example.com keep auto-linking in admin-authored text.
+md.linkify.set({fuzzyLink: true})
 
 /**
  * Parses text with markdown into HTML with some additional styles applied
  *
  * @param {string} text The text to parse into HTML.
  */
-export function formatTextHtml(text: string): Element {
+export function formatTextHtml(text: string): DocumentFragment {
   const parsedHtml = formatText(text)
   const html = parser.parseFromString(parsedHtml, 'text/html')
 
-  return html.body
+  const fragment = document.createDocumentFragment()
+  fragment.append(...html.body.childNodes)
+  return fragment
 }
 
 export function formatText(text: string): string {

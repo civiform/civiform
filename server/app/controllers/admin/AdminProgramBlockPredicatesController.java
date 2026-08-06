@@ -65,8 +65,6 @@ import services.program.predicate.PredicateGenerator;
 import services.program.predicate.PredicateLogicalOperator;
 import services.program.predicate.PredicateUseCase;
 import services.program.predicate.SelectedValue;
-import services.question.QuestionService;
-import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
@@ -103,7 +101,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
-  private final QuestionService questionService;
   private final ProgramPredicatesEditView legacyPredicatesEditView;
   private final ProgramPredicateConfigureView legacyPredicatesConfigureView;
   private final EditPredicatePageView editPredicatePageView;
@@ -142,7 +139,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public AdminProgramBlockPredicatesController(
       PredicateGenerator predicateGenerator,
       ProgramService programService,
-      QuestionService questionService,
       ProgramPredicatesEditView legacyPredicatesEditView,
       ProgramPredicateConfigureView legacyPredicatesConfigureView,
       EditPredicatePageView editPredicatePageView,
@@ -159,7 +155,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
-    this.questionService = checkNotNull(questionService);
     this.legacyPredicatesEditView = checkNotNull(legacyPredicatesEditView);
     this.legacyPredicatesConfigureView = checkNotNull(legacyPredicatesConfigureView);
     this.editPredicatePageView = checkNotNull(editPredicatePageView);
@@ -200,7 +195,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
-      if (settingsManifest.getExpandedFormLogicEnabled(request)) {
+      if (settingsManifest.getExpandedFormLogicEnabled()) {
         Optional<PredicateDefinition> maybePredicateDefinition =
             getAvailablePredicateDefinition(programDefinition, blockDefinitionId, predicateUseCase);
 
@@ -308,15 +303,11 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
     try {
       PredicateDefinition predicateDefinition =
           predicateGenerator.legacyGeneratePredicateDefinition(
               programService.getFullProgramDefinition(programId),
-              formFactory.form().bindFromRequest(request),
-              roQuestionService);
+              formFactory.form().bindFromRequest(request));
 
       programService.setBlockVisibilityPredicate(
           programId, blockDefinitionId, Optional.of(predicateDefinition));
@@ -325,9 +316,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     } catch (ProgramBlockDefinitionNotFoundException e) {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-    } catch (IllegalPredicateOrderingException
-        | QuestionNotFoundException
-        | ProgramQuestionDefinitionNotFoundException e) {
+    } catch (IllegalPredicateOrderingException | ProgramQuestionDefinitionNotFoundException e) {
       return redirect(
               routes.AdminProgramBlockPredicatesController.editVisibility(
                   programId, blockDefinitionId))
@@ -670,17 +659,13 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
-
     try {
       EligibilityDefinition eligibility =
           EligibilityDefinition.builder()
               .setPredicate(
                   predicateGenerator.legacyGeneratePredicateDefinition(
                       programService.getFullProgramDefinition(programId),
-                      formFactory.form().bindFromRequest(request),
-                      roQuestionService))
+                      formFactory.form().bindFromRequest(request)))
               .build();
 
       programService.setBlockEligibilityDefinition(
@@ -691,7 +676,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException
-        | QuestionNotFoundException
         | ProgramQuestionDefinitionNotFoundException
         | EligibilityNotValidForProgramTypeException e) {
       return redirect(
@@ -768,9 +752,9 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         toastMessage = "Eligibility message set to " + newMessage;
       }
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     }
     final String indexUrl =
         routes.AdminProgramBlockPredicatesController.editEligibility(programId, blockDefinitionId)
@@ -783,13 +767,10 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updatePredicate(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     requestChecker.throwIfProgramNotDraft(programId);
-
-    ReadOnlyQuestionService roQuestionService =
-        questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
     try {
       DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -820,11 +801,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
-              programService.getFullProgramDefinition(programId),
-              form,
-              roQuestionService,
-              settingsManifest,
-              request);
+              programService.getFullProgramDefinition(programId), form, settingsManifest, request);
       if (predicateDefinition.getQuestions().isEmpty()) {
         // If there are no questions in the predicate, that means there are no conditions and we
         // should remove the predicate.
@@ -862,7 +839,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       return notFound(
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (IllegalPredicateOrderingException
-        | QuestionNotFoundException
         | ProgramQuestionDefinitionNotFoundException
         | EligibilityNotValidForProgramTypeException
         | BadRequestException e) {
@@ -888,7 +864,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -968,7 +944,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -1028,7 +1004,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
     DynamicForm form = formFactory.form().bindFromRequest(request);
@@ -1087,7 +1063,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -1147,7 +1123,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -1221,7 +1197,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteAllConditions(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled(request)) {
+    if (!settingsManifest.getExpandedFormLogicEnabled()) {
       return notFound("Expanded form logic is not enabled.");
     }
 
@@ -1463,7 +1439,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<Long> presentSubconditionIds =
           getSortedMatchesFromKeys(subconditionIdPattern, formData);
 
-      /// Keep going until we run out of user-entered subconditions.
+      // Keep going until we run out of user-entered subconditions.
       for (long subconditionId : presentSubconditionIds) {
         String subconditionFieldPrefix =
             String.format("condition-%d-subcondition-%d", conditionId, subconditionId);

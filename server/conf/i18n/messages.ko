@@ -551,6 +551,39 @@ content.disabledProgramInfo=죄송합니다. 이용하려는 프로그램은 중
 button.homePage=홈페이지로 돌아가기
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN PROGRAM IMAGE - admin-facing text for uploading a program summary card image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Title of the admin page where a program''s summary image and alt text are set.
+title.adminProgramImage=이미지 업로드
+# Link text to return to program editing from the program image page.
+link.adminProgramImage.back=뒤로 가기
+# Hint under the file input about maximum upload size for a program summary image.
+content.adminProgramImage.hintMaxSize=업로드 가능한 이미지의 최대 크기는 1MB입니다.
+# Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
+content.adminProgramImage.hintCrop=이미지가 16:9 비율에 맞춰 자동으로 잘립니다. 오른쪽의 프로그램 카드 미리보기에는 저장된 이미지가 표시됩니다.
+# Label for the field where the admin enters alt text for the program summary image.
+label.adminProgramImage.altText=이미지 설명(대체 텍스트) 입력
+# Button to leave the program image step and continue program setup (creation flow).
+button.adminProgramImage.continue=계속
+# Button to save and return when editing an existing program (non-creation flow).
+button.adminProgramImage.save=저장
+# Button to delete an uploaded program image
+button.adminProgramImage.delete=이미지 삭제
+# Message shown when alt text is required but missing.
+validation.adminProgramImage.altTextRequired=프로그램 이미지를 업로드할 때는 이미지 설명이 필요합니다.
+# Toast after saving a program image and alt text together.
+toast.adminProgramImage.imageAndDescriptionSaved=이미지가 다음 설명과 함께 저장됨: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminProgramImage.descriptionSet=이미지 설명이 다음으로 설정됨: {0}
+# Error when alt text cannot be cleared while an image remains.
+toast.adminProgramImage.descriptionNotRemovable=이미지가 존재하여 설명을 제거할 수 없습니다. 설명을 삭제하기 전에 이미지를 삭제해 주세요.
+# Toast after deleting a program image
+toast.adminProgramImage.imageRemoved=이미지 제거됨
+# Message when the program card preview cannot be rendered.
+content.adminProgramImage.cardPreviewError=카드 미리보기 생성 오류
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
@@ -669,7 +702,7 @@ validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정�
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=주소 확인
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=주소를 찾을 수 없습니다.
+content.confirmAddressLine1.v2=주소 확인이 필요합니다.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=주소의 철자를 확인하거나 제공된 목록에서 주소를 선택하세요.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -780,6 +813,10 @@ placeholder.entityName={0} 이름
 validation.fileRequired=파일을 선택하세요.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+# Shown when an HTMX file upload request fails (any non-success response).
+validation.fileUploadRequestFailed=파일을 업로드할 수 없습니다. 다시 시도해 주세요.
 # Text shown on a tag while a file is uploading.
 label.uploading=업로드 중
 # Label applied to a list of uploaded files
@@ -1170,25 +1207,35 @@ input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} repeated set
+input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+label.repeatedSet.initialQuestion=
+# Description explaining what the initial question is and what the "Add question" button does
+description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=먼저 반복 세트 질문을 추가해야 반복 질문을 추가할 수 있습니다. 반복 세트 질문을 추가하려면 상위 화면으로 이동해 주세요.
+# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=반복 세트를 생성하면 질문 은행에 새 질문이 추가됩니다.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different repeated set are not available to be added.
+alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new repeated set
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
@@ -1197,8 +1244,6 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=상위 라벨
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=하위 라벨
-# Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
@@ -1208,7 +1253,7 @@ text.repeatedQuestions.description=신청자가 나열한 각 대상 또는 개�
 # Heading above the repeated set question in the program block editor
 heading.repeatedSet.question=
 # Heading shown above repeated questions in the question bank that are already associated with this repeated set
-heading.repeatedSet.previouslyUsed=Previously used for this repeated set
+heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=반복 질문
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
@@ -1229,7 +1274,10 @@ button.addRepeatedScreen=
 button.addNestedRepeatedSet=중첩된 반복 세트 추가
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
-
+# A tooltip shown to admins when the delete screen button is disabled
+tooltip.deleteScreenDisabled=
+# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
@@ -1280,6 +1328,83 @@ reportingProgram.timeToCompleteP75=완료 시간 (p75)
 reportingProgram.timeToCompleteP99=완료 시간 (p99)
 # Text on button to download CSV file
 reportingProgram.downloadCsv=CSV 다운로드
+
+#------------------------------------------------------------------------------#
+#  ADMIN API DOCS                                                              #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminApiDocs.pageTitle=API 문서
+
+# Aria label for the nav that switches between API docs sub-pages.
+adminApiDocs.tabs.ariaLabel=API 문서 섹션
+# Tab label for the main API docs page.
+adminApiDocs.tabs.docs=문서
+# Tab label for the schema viewer page.
+adminApiDocs.tabs.schema=스키마 뷰어
+
+# Intro paragraph as text before the external-docs link.
+adminApiDocs.intro.beforeLink=이 페이지에는 활성화된 프로그램 및 초안 프로그램에 대한 프로그램별 API 문서가 포함되어 있습니다. 인증, 페이지네이션, 각 필드의 허용값에 대한 자세한 문서는
+# Visible text of the external-docs link in the intro paragraph.
+adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
+# Intro paragraph as text after the external-docs link.
+adminApiDocs.intro.afterLink=에서 확인할 수 있습니다.
+
+# Heading on the collapsible "How does this work?" accordion.
+adminApiDocs.accordion.heading=어떤 방식인가요?
+# First paragraph inside the accordion.
+adminApiDocs.accordion.paragraph1=API 응답 미리보기는 특정 프로그램에 대해 API 응답이 어떻게 표시되는지 보여주는 예시입니다. 모든 데이터는 가상의 데이터입니다. 단일 선택 및 다중 선택 질문의 샘플 답변은 이용 가능한 응답 중에서 선택됩니다.
+# Second paragraph inside the accordion as text before the shareable link.
+adminApiDocs.accordion.paragraph2.beforeLink=API 문서를 확인해야 하는 사용자에게
+# Second paragraph inside the accordion as text after the shareable link.
+adminApiDocs.accordion.paragraph2.afterLink=링크를 공유할 수 있습니다. 로그인하지 않아도 접근할 수 있으므로 이 페이지를 보는 데 CiviForm 관리자 또는 프로그램 관리자 권한이 필요하지 않습니다.
+
+# Label for the program selector.
+adminApiDocs.selectProgram=프로그램 선택:
+# Label for the program-version selector.
+adminApiDocs.selectVersion=버전 선택:
+# Option label for the active version of a program.
+adminApiDocs.version.active=활성화
+# Option label for the draft version of a program.
+adminApiDocs.version.draft=초안
+
+# Message shown when the requested program + version combination does not exist.
+adminApiDocs.notFound=프로그램을 찾을 수 없습니다. API 문서에 접근하기 전에 프로그램을 생성하고 게시해 주세요.
+# Heading for the list of questions on the selected program.
+adminApiDocs.questions=질문
+# Label for a question's admin name
+adminApiDocs.adminName=관리자 이름
+# Label for a question's type (text, number, etc.).
+adminApiDocs.type=유형
+# Label for a question's display text.
+adminApiDocs.text=텍스트
+# Label for a multi-option question's answer options.
+adminApiDocs.options=옵션
+# Label preceding the list of a question's currently-available options.
+adminApiDocs.currentOptions=현재 옵션:
+# Label preceding the list of every option the question has ever had.
+adminApiDocs.allOptions=가능한 모든 옵션:
+# Heading above the JSON preview of the API response.
+adminApiDocs.responsePreview=API 응답 미리보기
+
+#------------------------------------------------------------------------------#
+#  ADMIN SCHEMA VIEWER                                                         #
+#------------------------------------------------------------------------------#
+
+# Admin API Docs page title
+adminSchemaViewer.pageTitle=API 스키마 뷰어
+# First intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro1=이 페이지는 OpenAPI 스키마를 시각적으로 보여줍니다. 버전 2(이전의 Swagger 2)와 버전 3 모두 이용 가능합니다.
+# Second intro paragraph on the OpenAPI schema viewer page.
+adminSchemaViewer.intro2=이전 형식이 필요한 경우가 아니라면 버전 3을 사용할 것을 권장합니다.
+# Label for the program selector on the schema viewer page.
+adminSchemaViewer.selectProgram=프로그램:
+# Label for the program-status selector on the schema viewer page.
+adminSchemaViewer.selectStatus=상태:
+# Label for the OpenAPI version selector on the schema viewer page.
+adminSchemaViewer.selectVersion=OpenAPI 버전:
+# Error generating OpenAPI YAML
+adminSchemaViewer.yamlError='{2}' 단계에서 '{1}' 프로그램에 대한 OpenAPI 버전 '{0}'을(를) 생성할 수 없습니다.
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #

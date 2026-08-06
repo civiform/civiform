@@ -6,7 +6,7 @@ import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import services.geo.esri.EsriServiceAreaValidationOption;
-import views.admin.BaseViewModel;
+import views.BaseViewModel;
 
 @Data
 @Builder

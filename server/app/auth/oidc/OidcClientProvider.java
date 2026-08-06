@@ -202,7 +202,7 @@ public abstract class OidcClientProvider implements Provider<OidcClient> {
     // from the auth request.
     config.setResponseMode(responseMode);
     config.setResponseType(responseType);
-    config.setPreferredJwsAlgorithm(JWSAlgorithm.RS256);
+    config.setIdTokenSigningAlgorithm(JWSAlgorithm.RS256);
 
     config.setUseNonce(true);
     config.setWithState(getUseCsrf());

@@ -278,12 +278,25 @@ public abstract class QuestionDefinition {
    *
    * <p>If a question definition does not have an enumeratorId, it is not repeated.
    *
-   * @return the {@link QuestionDefinition#id} for this question definition's enumerator, if it
-   *     exists.
+   * @return the {@link QuestionDefinition#getId()}} for this question definition's enumerator, if
+   *     it exists.
    */
   @JsonIgnore
   public final Optional<Long> getEnumeratorId() {
     return config.enumeratorId();
+  }
+
+  /**
+   * The id of the non-enumerator question that will be shown repeatedly on the enumerator screen as
+   * a way to get the list of repeated entities. Only present on enumerator questions via the
+   * new-flow.
+   *
+   * <p>For example, the enumerator question "List your household members", may have an initial
+   * question asking for the name of each household member.
+   */
+  @JsonIgnore
+  public final Optional<Long> getEnumeratorInitialQuestionId() {
+    return config.enumeratorInitialQuestionId();
   }
 
   /**
@@ -382,8 +395,7 @@ public abstract class QuestionDefinition {
   }
 
   public final ImmutableSet<CiviFormError> validate(
-      Optional<QuestionDefinition> previousDefinition,
-      boolean requireLegacyRepeatedEntitySelector) {
+      Optional<QuestionDefinition> previousDefinition, boolean enumeratorImprovementsEnabled) {
     if (previousDefinition.isPresent()
         && previousDefinition.get().getQuestionType() != getQuestionType()) {
       throw new IllegalArgumentException(
@@ -413,7 +425,7 @@ public abstract class QuestionDefinition {
               String.format("Administrative identifier '%s' is not allowed", getName())));
     }
 
-    if (requireLegacyRepeatedEntitySelector
+    if (!enumeratorImprovementsEnabled
         && isRepeated()
         && !questionTextContainsRepeatedEntityNameFormatString()) {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
@@ -435,7 +447,7 @@ public abstract class QuestionDefinition {
    */
   public final ImmutableSet<CiviFormError> validate(
       Optional<QuestionDefinition> previousDefinition) {
-    return validate(previousDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return validate(previousDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   @Override

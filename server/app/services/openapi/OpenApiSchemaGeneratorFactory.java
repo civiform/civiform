@@ -7,16 +7,9 @@ import services.openapi.v3.OpenApi3SchemaGenerator;
 public final class OpenApiSchemaGeneratorFactory {
   public static OpenApiSchemaGenerator createGenerator(
       OpenApiVersion openApiVersion, OpenApiSchemaSettings openApiSchemaSettings) {
-    switch (openApiVersion) {
-      case SWAGGER_V2 -> {
-        return new Swagger2SchemaGenerator(openApiSchemaSettings);
-      }
-      case OPENAPI_V3_0 -> {
-        return new OpenApi3SchemaGenerator(openApiSchemaSettings);
-      }
-      default -> {
-        throw new RuntimeException(String.format("'%s' is not supported", openApiVersion));
-      }
-    }
+    return switch (openApiVersion) {
+      case SWAGGER_V2 -> new Swagger2SchemaGenerator(openApiSchemaSettings);
+      case OPENAPI_V3_0 -> new OpenApi3SchemaGenerator(openApiSchemaSettings);
+    };
   }
 }
