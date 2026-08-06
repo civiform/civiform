@@ -101,6 +101,12 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconCloseModal.thtest");
   }
 
+  /** Legacy source: ApiKeyCredentialsView API documentation link (LinkElement.setIcon). */
+  @Test
+  public void iconOpenInNew_link() {
+    ThymeleafFragmentTester.run(DIR + "iconOpenInNewLink.thtest");
+  }
+
   /** Legacy source: ViewUtils.makeSvgTextButton ("Edit"). */
   @Test
   public void iconEdit_svgTextButton() {
