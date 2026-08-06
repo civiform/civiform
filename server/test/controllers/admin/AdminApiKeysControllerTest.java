@@ -8,12 +8,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
+import annotations.BindingAnnotations.EnUsLang;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
+import play.i18n.Messages;
+import play.inject.BindingKey;
 import play.mvc.Http;
 import play.mvc.Result;
 import play.twirl.api.Content;
@@ -23,9 +26,12 @@ import repository.VersionRepository;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.apikeys.ApiKeyCredentialsPageView;
 import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexView;
+import views.admin.apikeys.ApiKeyNewOnePageView;
 import views.admin.apikeys.ApiKeyNewOneView;
 
 public class AdminApiKeysControllerTest extends ResetPostgres {
@@ -52,17 +58,24 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
     CiviFormProfile mockProfile = mock(CiviFormProfile.class);
     when(profileUtils.currentUserProfile(any())).thenReturn(mockProfile);
 
+    Messages enUsMessages =
+        instanceOf(new BindingKey<>(Messages.class).qualifiedWith(EnUsLang.class).asScala());
+
     controller =
         new AdminApiKeysController(
             instanceOf(ApiKeyService.class),
             instanceOf(ApiKeyIndexView.class),
             apiKeyNewOneView,
             instanceOf(ApiKeyCredentialsView.class),
+            instanceOf(ApiKeyNewOnePageView.class),
+            instanceOf(ApiKeyCredentialsPageView.class),
             instanceOf(ProgramService.class),
             instanceOf(play.data.FormFactory.class),
             profileUtils,
             instanceOf(VersionRepository.class),
-            instanceOf(ProgramRepository.class));
+            instanceOf(ProgramRepository.class),
+            instanceOf(SettingsManifest.class),
+            enUsMessages);
   }
 
   @Test
