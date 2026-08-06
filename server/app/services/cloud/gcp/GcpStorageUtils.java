@@ -42,7 +42,8 @@ public final class GcpStorageUtils extends AbstractS3StorageUtils {
                       .bucket(bucketName)
                       .region(region))
           .get()
-          .url()
+          .endpointUrl()
+          .toUri()
           .toString();
     } catch (ExecutionException | InterruptedException e) {
       logger.warn("Unable to create an S3 action link. Return empty string.", e);
