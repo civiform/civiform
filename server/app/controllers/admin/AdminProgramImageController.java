@@ -173,7 +173,7 @@ public final class AdminProgramImageController extends CiviFormController {
       try {
         programService.setSummaryImageFileKey(programId, fileKey);
       } catch (ProgramNotFoundException e) {
-        return notFound(e.toString());
+        return notFound();
       }
     }
 
@@ -181,7 +181,7 @@ public final class AdminProgramImageController extends CiviFormController {
       programService.setSummaryImageDescription(
           programId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (ImageDescriptionNotRemovableException e) {
       return redirect(indexUrl)
           .flashing(FlashKey.ERROR, messages.at("toast.adminProgramImage.descriptionNotRemovable"));
@@ -236,7 +236,7 @@ public final class AdminProgramImageController extends CiviFormController {
         toastMessage = "Image description set to " + newDescription;
       }
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (ImageDescriptionNotRemovableException e) {
       toastType = "error";
       toastMessage = e.getMessage();

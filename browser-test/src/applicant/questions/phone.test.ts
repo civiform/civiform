@@ -1,25 +1,20 @@
 import {Page} from '@playwright/test'
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
   AdminPrograms,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS, Seeding} from '../../support/seeding'
 
 test.describe('phone question for applicant flow', () => {
   test.describe('single phone question', () => {
     const programName = 'Test program for single phone q'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
-      await setUpForSingleQuestion(
-        programName,
-        page,
-        adminQuestions,
-        adminPrograms,
-      )
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await setUpForSingleQuestion(programName, page, seeding, adminPrograms)
     })
 
     test('validate screenshot', async ({page, applicantQuestions}) => {
@@ -184,12 +179,10 @@ test.describe('phone question for applicant flow', () => {
   test.describe('multiple phone questions', () => {
     const programName = 'Test program for multiple phone qs'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'firstphoneq',
-      })
       await adminQuestions.addPhoneQuestion({
         questionName: 'secondphoneq',
       })
@@ -199,7 +192,7 @@ test.describe('phone question for applicant flow', () => {
         programName,
         'Optional question block',
         ['secondphoneq'],
-        'firstphoneq', // optional
+        SAMPLE_QUESTIONS.phone, // optional
       )
       await adminPrograms.publishAllDrafts()
 
@@ -259,17 +252,15 @@ test.describe('phone question for applicant flow', () => {
   async function setUpForSingleQuestion(
     programName: string,
     page: Page,
-    adminQuestions: AdminQuestions,
+    seeding: Seeding,
     adminPrograms: AdminPrograms,
   ) {
     // As admin, create program with a free form text question.
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addPhoneQuestion({
-      questionName: 'phone-q',
-    })
     await adminPrograms.addAndPublishProgramWithQuestions(
-      ['phone-q'],
+      [SAMPLE_QUESTIONS.phone],
       programName,
     )
 

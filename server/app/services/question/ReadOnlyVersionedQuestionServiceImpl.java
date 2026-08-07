@@ -6,7 +6,6 @@ import models.VersionModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import repository.VersionRepository;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -15,7 +14,8 @@ import services.question.types.QuestionDefinition;
  * Implementation class for {@link ReadOnlyQuestionService} interface. It contains all questions
  * that are in the specified version.
  *
- * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel)}.
+ * <p>See {@link QuestionService#getReadOnlyVersionedQuestionService(VersionModel,
+ * VersionRepository)}.
  */
 public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuestionService {
 
@@ -62,7 +62,7 @@ public final class ReadOnlyVersionedQuestionServiceImpl implements ReadOnlyQuest
   }
 
   @Override
-  public QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException {
+  public QuestionDefinition getQuestionDefinition(long id) {
     if (questionsById.containsKey(id)) {
       return questionsById.get(id);
     }

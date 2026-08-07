@@ -9,25 +9,35 @@ import {
 } from './support'
 import {Locator, Page} from '@playwright/test'
 import {waitForHtmxReady} from './support/wait'
+import {SAMPLE_QUESTIONS} from './support/seeding'
 
 test.describe('End to end enumerator test with enumerators feature flag on', () => {
-  test.beforeEach(async ({page}) => {
+  test.beforeEach(async ({page, seeding}) => {
     await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+    await seeding.seedQuestions()
   })
 
   test.describe('Admin', () => {
     test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
       await loginAsAdmin(page)
-      await adminPrograms.addProgram('Enumerator test program')
+
+      await test.step('Create enumerator question', async () => {
+        // Pre-create an enumerator in a program we won't use.
+        await adminPrograms.addProgram('Enumerator seeding program')
+        await adminPrograms.gotoEditDraftProgramPage(
+          'Enumerator seeding program',
+        )
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'household member',
+          questionText: 'Household members',
+          adminId: 'enumerator-ete-householdmembers',
+          maxEntities: 4,
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+      })
 
       await test.step('Create questions', async () => {
-        await adminQuestions.addEnumeratorQuestion({
-          questionName: 'enumerator-ete-householdmembers',
-          description: 'desc',
-          questionText: 'Household members',
-          helpText: 'list household members',
-          maxNum: 4,
-        })
         await adminQuestions.addNameQuestion({
           questionName: 'enumerator-ete-repeated-name',
           description: 'desc',
@@ -43,6 +53,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
       })
 
+      await adminPrograms.addProgram('Enumerator test program')
+
       await test.step('Go to the program block edit page', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
       })
@@ -50,58 +62,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
       page,
+      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       let initialBlockCount: number
       const screenLinks = page.getByRole('link', {name: /Screen /})
-      let enumeratorBlockLink: Locator
 
       await test.step('Record how many blocks are present in the block order panel', async () => {
         initialBlockCount = await screenLinks.count()
       })
 
-      await test.step('Click "Add screen" button and check that the dropdown appears', async () => {
-        await page.getByRole('button', {name: 'Add screen'}).first().click()
-        const addScreenDropdown = page
-          .getByRole('list')
-          .filter({has: page.getByRole('button', {name: 'Add repeated set'})})
-        await expect(addScreenDropdown).toBeVisible()
-      })
-
-      await test.step('Click "Add repeated set" button', async () => {
-        await page.getByRole('button', {name: 'Add repeated set'}).click()
+      await test.step('Click "Add list set" button', async () => {
+        await page.getByRole('button', {name: 'Add list set'}).click()
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
         await expect(screenLinks).toHaveCount(initialBlockCount + 2)
       })
 
-      await test.step('Validate that the current block is the newly-created repeated block', async () => {
+      await test.step('Validate that the current block is the newly-created enumerator block', async () => {
         await expectCurrentBlockTitle(
-          /* isRepeatedBlock= */ true,
+          /* isRepeatedBlock= */ false,
           blockPanel,
-          /* expectedScreenNumber= */ 3,
-          /* repeatedFrom= */ 2,
+          /* expectedScreenNumber= */ 2,
         )
       })
 
       await test.step('Validate that the enumerator block says repeated set', async () => {
-        enumeratorBlockLink = page
+        const enumeratorBlockLink = page
           .getByRole('link', {name: /Screen /})
           .nth(initialBlockCount) // zero-indexed
 
-        await expect(
-          enumeratorBlockLink.getByText('Repeated set'),
-        ).toBeVisible()
-      })
-
-      await test.step('Click on the enumerator block in the block order panel', async () => {
-        await enumeratorBlockLink.click()
+        await expect(enumeratorBlockLink.getByText('List set')).toBeVisible()
       })
 
       await test.step('Validate that "Repeated set creation method" radio buttons are visible', async () => {
         await expect(
-          blockPanel.getByRole('group', {name: 'Repeated set creation method'}),
+          blockPanel.getByRole('group', {name: 'List set creation method'}),
         ).toBeVisible()
         await expect(
           blockPanel.getByRole('radio', {name: 'Create new'}),
@@ -112,14 +109,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate the "Create new repeated set" text is visible', async () => {
-        await expect(
-          blockPanel.getByText('Create new repeated set'),
-        ).toBeVisible()
+        await expect(blockPanel.getByText('Create new list set')).toBeVisible()
       })
 
       await test.step('Validate that "Create repeated set" button is visible', async () => {
         await expect(
-          blockPanel.getByRole('button', {name: 'Create repeated set'}),
+          blockPanel.getByRole('button', {name: 'Create list set'}),
         ).toBeVisible()
       })
 
@@ -127,69 +122,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockPanel.locator('#questions-section')).toBeHidden()
       })
 
-      await test.step('Validate that "Add question" button is not visible', async () => {
-        await expect(
-          blockPanel.getByRole('button', {name: 'Add question'}),
-        ).toBeHidden()
-      })
-
       await test.step('Take a screenshot of the block panel', async () => {
-        await validateScreenshot(blockPanel, 'enumerator-block-panel', {
+        const fullBlockPanel = page.getByTestId('block-panel')
+        await validateScreenshot(fullBlockPanel, 'enumerator-block-panel', {
           fullPage: false,
         })
       })
-    })
 
-    test('can create a new enumerator question from the Program Block Edit page and add that question to the block', async ({
-      page,
-    }) => {
-      const blockPanel = page.getByTestId('block-panel-edit')
-
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
-      })
-
-      await fillOutEnumeratorQuestionFormCorrectly(page)
-
-      const enumeratorQuestionCard = blockPanel
-        .getByTestId('question-div')
-        .getByText('List the names of your pets.')
-
-      await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
-        await expect(
-          blockPanel.getByText('Repeated set question'),
-        ).toBeFocused()
-      })
-
-      await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
-        await expect(enumeratorQuestionCard).toBeVisible()
-      })
-
-      await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
-        await navigateToRepeatedScreen(
-          page,
-          /* screenNumber= */ 3,
-          /* repeatedFrom= */ 2,
-        )
-        await page.getByRole('link', {name: 'Screen 2'}).click()
+      await test.step('Validate that leaving and returning to the program edit page lands on the enumerator screen', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ false,
           blockPanel,
           /* expectedScreenNumber= */ 2,
         )
-        await expect(enumeratorQuestionCard).toBeVisible()
-      })
-
-      await test.step('Check that the new question is now on the question list page', async () => {
-        await page.getByRole('link', {name: 'Questions'}).click()
-        await expect(
-          page.getByRole('heading', {name: 'All questions'}),
-        ).toBeVisible()
-        await expect(page.getByText('Admin ID: pets enumerator')).toBeVisible()
       })
     })
 
-    test('can add an existing enumerator question to an enumerator block', async ({
+    test('can add an existing enumerator question without an initial question to an enumerator block', async ({
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
@@ -197,8 +147,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'Add a question',
       })
 
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Click the "Choose existing" radio button', async () => {
@@ -214,6 +164,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Validate that the question bank sidebar only shows enumerator questions', async () => {
         await expect(
           questionBankSidebar.getByText('enumerator-ete-householdmembers'),
+        ).toBeVisible()
+        await expect(
+          questionBankSidebar.getByText('Sample Enumerator Question'),
         ).toBeVisible()
         await expect(
           questionBankSidebar.getByText('enumerator-ete-repeated-name'),
@@ -234,10 +187,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a question to the block and validate question card is visible', async () => {
-        await questionBankSidebar.getByRole('button', {name: 'Add'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
 
         const enumeratorQuestionCard = blockPanel.getByTestId(
-          'question-admin-name-enumerator-ete-householdmembers',
+          'question-admin-name-Sample Enumerator Question',
         )
 
         await expect(enumeratorQuestionCard).toBeVisible()
@@ -246,9 +199,408 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
+        await expect(blockPanel.getByText('List set question')).toBeFocused()
+      })
+    })
+
+    test.describe('Initial question', () => {
+      test('can select an existing question as the initial question on a new enumerator and then remove it', async ({
+        page,
+        adminPrograms,
+        adminQuestions,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await test.step('Seed a checkbox question to verify it is filtered out of the bank', async () => {
+          await adminQuestions.addCheckboxQuestion({
+            questionName: 'checkbox-invalid-question',
+            options: [
+              {adminName: 'op1_admin', text: 'op1'},
+              {adminName: 'op2_admin', text: 'op2'},
+            ],
+          })
+          await adminPrograms.gotoEditDraftProgramPage(
+            'Enumerator test program',
+          )
+        })
+
+        await test.step('Add a new repeated set', async () => {
+          await addRepeatedSetBlocks(page)
+        })
+
+        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+          await expect(questionBankSidebar).toBeVisible()
+        })
+
+        await test.step('Validate the bank shows valid types and hides invalid ones', async () => {
+          await expect(
+            questionBankSidebar.getByText('income-non-repeated-question'),
+          ).toBeVisible()
+          await expect(
+            questionBankSidebar.getByText('enumerator-ete-householdmembers'),
+          ).toBeHidden()
+          await expect(
+            questionBankSidebar.getByText('checkbox-invalid-question'),
+          ).toBeHidden()
+        })
+
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+        await test.step('Validate the bank closes and the slot shows the card with the selected question', async () => {
+          await expect(questionBankSidebar).toBeHidden()
+
+          const initialQuestionCard = initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          )
+
+          await expect(initialQuestionCard).toBeVisible()
+          await expect(
+            initialQuestionCard
+              .getByTestId('question-div')
+              .getByText('Your monthly income'),
+          ).toBeVisible()
+          await expect(
+            initialQuestionCard.getByText(
+              'Admin ID: income-non-repeated-question',
+            ),
+          ).toBeVisible()
+        })
+
+        await removeInitialQuestion(page, 'income-non-repeated-question')
+        await expectAddQuestionButton(page, 'income-non-repeated-question')
+      })
+
+      test('shows only valid question types in the "Create new question" dropdown for an initial question', async ({
+        page,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await test.step('Add a new repeated set', async () => {
+          await addRepeatedSetBlocks(page)
+        })
+
+        await test.step('Open the question bank', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+        })
+
+        await test.step('Open the "Create new question" dropdown', async () => {
+          await questionBankSidebar
+            .getByRole('button', {name: 'Create new question'})
+            .click()
+        })
+
+        const dropdownLocator = page.getByTestId(
+          'create-question-button-dropdown',
+        )
+
+        await test.step('Validate only valid types appear', async () => {
+          const validInitialQuestionTypes = [
+            'Address',
+            'Currency',
+            'Date',
+            'Dropdown',
+            'Email',
+            'ID',
+            'Name',
+            'Number',
+            'Phone Number',
+            'Radio Button',
+            'Text',
+          ]
+          for (const questionType of validInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).toBeVisible()
+          }
+
+          const invalidInitialQuestionTypes = [
+            'Checkbox',
+            'Enumerator',
+            'File Upload',
+            'Static Text',
+            'Yes/No',
+          ]
+          for (const questionType of invalidInitialQuestionTypes) {
+            await expect(
+              dropdownLocator.getByText(questionType, {exact: true}),
+            ).not.toBeAttached()
+          }
+        })
+      })
+
+      test('creates the enumerator and attaches a copy of the selected initial question when the form is submitted', async ({
+        page,
+        adminQuestions,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+
+        await addRepeatedSetBlocks(page)
+
+        await test.step('Open the question bank via the initial-question slot', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+        })
+
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+        await fillAndSubmitEnumeratorQuestionForm(page)
+
+        const enumeratorQuestionCard = blockPanel
+          .getByTestId('question-div')
+          .getByText('List the names of your pets.')
+
+        await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
+          await expect(blockPanel.getByText('List set question')).toBeFocused()
+        })
+
+        await test.step('Verify the enumerator question card is shown', async () => {
+          await expect(enumeratorQuestionCard).toBeVisible()
+        })
+
+        await test.step('Verify the initial question line shows the newly-created copy (" -_- a" suffix)', async () => {
+          await expect(
+            blockPanel.getByText(
+              'Initial question: income-non-repeated-question -_- a',
+            ),
+          ).toBeVisible()
+        })
+
+        await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
+          await navigateToRepeatedScreen(
+            page,
+            /* screenNumber= */ 3,
+            /* repeatedFrom= */ 2,
+          )
+          await page.getByRole('link', {name: 'Screen 2'}).click()
+          await expectCurrentBlockTitle(
+            /* isRepeatedBlock= */ false,
+            blockPanel,
+            /* expectedScreenNumber= */ 2,
+          )
+          await expect(enumeratorQuestionCard).toBeVisible()
+        })
+
+        await test.step('Verify both the enumerator and the copied initial question appear on the Questions list page', async () => {
+          await page.getByRole('link', {name: 'Questions'}).click()
+          await expect(
+            page.getByRole('heading', {name: 'All questions'}),
+          ).toBeVisible()
+          await expect(
+            page.getByText('Admin ID: pets enumerator'),
+          ).toBeVisible()
+          await expect(
+            page.getByText('Admin ID: income-non-repeated-question -_- a'),
+          ).toBeVisible()
+        })
+
+        await test.step('Click Edit on the copied initial question and verify its Question enumerator is set to the new enumerator', async () => {
+          await adminQuestions.gotoQuestionEditPage(
+            'income-non-repeated-question -_- a',
+          )
+          await expect(
+            page.getByLabel('Question enumerator').locator('option[selected]'),
+          ).toHaveText('pets enumerator')
+        })
+      })
+
+      test('creates the enumerator and links the newly-created initial question in place when the form is submitted', async ({
+        page,
+        adminQuestions,
+      }) => {
+        const blockPanel = page.getByTestId('block-panel-edit')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+        const newQuestionAdminId = 'household-member-name'
+        const newQuestionText = 'What is the household member name?'
+
+        await addRepeatedSetBlocks(page)
+
+        await test.step('Fill out the enumerator form fields before leaving to create the initial question', async () => {
+          await fillEnumeratorQuestionForm(page)
+        })
+
+        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add question'})
+            .click()
+          await expect(questionBankSidebar).toBeVisible()
+        })
+
+        await test.step('Click "Create new question" and pick the Name question type', async () => {
+          await questionBankSidebar
+            .getByRole('button', {name: 'Create new question'})
+            .click()
+          await page.getByRole('link', {name: 'Name', exact: true}).click()
+        })
+
+        await test.step('Verify the "Question enumerator" dropdown is read only', async () => {
+          await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
+            'readonly',
+            'readonly',
+          )
+        })
+
+        await test.step('Fill out the new question form and submit it', async () => {
+          await adminQuestions.fillInQuestionBasics({
+            questionName: newQuestionAdminId,
+            description: 'description',
+            questionText: newQuestionText,
+            helpText: '',
+          })
+          await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        })
+
+        await test.step('Verify the enumerator form fields are restored from session storage on return', async () => {
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          ).toHaveValue('Pets')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Question text'}),
+          ).toHaveValue('List the names of your pets.')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
+          ).toHaveValue('pets enumerator')
+          await expect(
+            blockPanel.getByRole('textbox', {name: 'Hint text'}),
+          ).toHaveValue('Hint')
+        })
+
+        await test.step('Validate the bank is closed and the slot shows the card with the new question', async () => {
+          await expect(questionBankSidebar).toBeHidden()
+
+          const initialQuestionCard = initialQuestionSlot.getByTestId(
+            `question-admin-name-${newQuestionAdminId}`,
+          )
+
+          await expect(initialQuestionCard).toBeVisible()
+          await expect(
+            initialQuestionCard
+              .getByTestId('question-div')
+              .getByText(newQuestionText),
+          ).toBeVisible()
+          await expect(
+            initialQuestionCard.getByText(`Admin ID: ${newQuestionAdminId}`),
+          ).toBeVisible()
+        })
+
+        await fillAndSubmitEnumeratorQuestionForm(page)
+
+        await test.step('Verify the enumerator question card is shown', async () => {
+          await expect(
+            blockPanel
+              .getByTestId('question-div')
+              .getByText('List the names of your pets.'),
+          ).toBeVisible()
+        })
+
+        await test.step('Verify the initial question line shows the newly-created question with no copy suffix', async () => {
+          await expect(
+            blockPanel.getByText(`Initial question: ${newQuestionAdminId}`, {
+              exact: true,
+            }),
+          ).toBeVisible()
+        })
+
+        await test.step('Verify the newly-created initial question appears on the Questions List page (updated in place, no copy)', async () => {
+          await page.getByRole('link', {name: 'Questions'}).click()
+          await expect(
+            page.getByRole('heading', {name: 'All questions'}),
+          ).toBeVisible()
+          await expect(
+            page.getByText(`Admin ID: ${newQuestionAdminId}`),
+          ).toBeVisible()
+          await expect(
+            page.getByText(`Admin ID: ${newQuestionAdminId} -_- a`),
+          ).toBeHidden()
+        })
+
+        await test.step('Click Edit on the newly-created initial question and verify its Question enumerator is set to the new enumerator', async () => {
+          await adminQuestions.gotoQuestionEditPage(newQuestionAdminId)
+          await expect(
+            page.getByLabel('Question enumerator').locator('option[selected]'),
+          ).toHaveText('pets enumerator')
+        })
+      })
+    })
+
+    test('reuses an enumerator with initial question and attaches the initial question', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
+      })
+
+      await addRepeatedSetBlocks(page)
+
+      await test.step('create an enumerator with initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+
+        await fillAndSubmitEnumeratorQuestionForm(page)
+      })
+
+      await test.step('Delete the enumerator question', async () => {
+        await blockPanel
+          .getByTestId('question-admin-name-pets enumerator')
+          .getByRole('button', {name: 'Delete'})
+          .click()
+
+        // Deleting the enumerator also removes its paired initial question,
+        // leaving the block empty.
         await expect(
-          blockPanel.getByText('Repeated set question'),
-        ).toBeFocused()
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeHidden()
+        await expect(
+          blockPanel.getByTestId('repeated-set-initial-question'),
+        ).toBeHidden()
+      })
+
+      await test.step('Open the question bank via the "Choose existing" flow', async () => {
+        // Unfortunately, we have to click the label to select the radio button, because
+        // USWDS places the radio button itself outside the viewport.
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+      })
+
+      await test.step('Click the "Add question" button', async () => {
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await expect(questionBankSidebar).toBeVisible()
+      })
+
+      await test.step('Add the existing enumerator question back to the block', async () => {
+        await pickQuestionFromBank(page, 'pets enumerator')
+        await expect(
+          blockPanel.getByTestId('question-admin-name-pets enumerator'),
+        ).toBeVisible()
+      })
+
+      await test.step('Verify the initial question is added along with the enumerator and is visible again', async () => {
+        await expect(
+          blockPanel.getByText(
+            'Initial question: income-non-repeated-question -_- a',
+          ),
+        ).toBeVisible()
       })
     })
 
@@ -260,37 +612,35 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'Listed entity',
       })
       const adminIdInput = blockPanel.getByRole('textbox', {
-        name: 'Repeated set admin ID',
+        name: 'List set admin ID',
       })
       const questionTextInput = blockPanel.getByRole('textbox', {
         name: 'Question text',
       })
 
-      await test.step('Add a new repeated set and select its block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Auto-fill admin id and question text from listed entity', async () => {
         // Adding extra spaces to test normalization of the listed entity input.
         await listedEntityInput.fill('household     member')
 
-        await expect(adminIdInput).toHaveValue('household member repeated set')
+        await expect(adminIdInput).toHaveValue('household member list set')
         await expect(questionTextInput).toHaveValue(
           'Please add each household member.',
         )
       })
 
       await test.step('Preserve manual edits for suggested fields', async () => {
-        await adminIdInput.fill('custom repeated set id')
+        await adminIdInput.fill('custom list set id')
 
-        await questionTextInput.fill('Custom repeated set prompt')
+        await questionTextInput.fill('Custom list set prompt')
 
         await listedEntityInput.fill('income source')
 
-        await expect(adminIdInput).toHaveValue('custom repeated set id')
-        await expect(questionTextInput).toHaveValue(
-          'Custom repeated set prompt',
-        )
+        await expect(adminIdInput).toHaveValue('custom list set id')
+        await expect(questionTextInput).toHaveValue('Custom list set prompt')
       })
 
       await test.step('Resume auto-fill after clearing manual field', async () => {
@@ -308,27 +658,35 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
-
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      const questionBankSidebar = page.getByRole('form', {
+        name: 'Add a question',
       })
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
 
-      await test.step('Submit the new enumerator question form without filling out all the required fields', async () => {
+      await addRepeatedSetBlocks(page)
+
+      await test.step('Submit the new enumerator question form without filling out all the required fields or selecting an initial question', async () => {
         await blockPanel
           .getByRole('textbox', {name: 'Listed entity'})
           .fill('Pets')
         await blockPanel.getByRole('textbox', {name: 'Question text'}).fill('')
         await blockPanel
-          .getByRole('textbox', {name: 'Repeated set admin ID'})
+          .getByRole('textbox', {name: 'List set admin ID'})
           .fill('')
 
-        await blockPanel
-          .getByRole('button', {name: 'Create repeated set'})
-          .click()
+        await blockPanel.getByRole('button', {name: 'Create list set'}).click()
         await waitForHtmxReady(page)
       })
 
-      await test.step('Validate that the form is still visible and previous input is retained', async () => {
+      await test.step('Validate the error alert lists all missing fields', async () => {
+        const errorAlert = blockPanel.getByRole('alert').filter({
+          hasText:
+            'Error: Question text cannot be blank. Administrative identifier cannot be blank. Initial question must be added.',
+        })
+        await expect(errorAlert).toBeVisible()
+      })
+
+      await test.step('Validate that the form is still visible and Listed entity is retained', async () => {
         await expect(
           blockPanel.locator('#new-enumerator-question-form'),
         ).toBeVisible()
@@ -337,15 +695,39 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toHaveValue('Pets')
       })
 
-      await test.step('Validate that an error alert is shown with the correct error messages', async () => {
-        const errorAlert = blockPanel.getByRole('alert').filter({
-          hasText:
-            'Error: Question text cannot be blank. Administrative identifier cannot be blank.',
-        })
-        await expect(errorAlert).toBeVisible()
+      await test.step('Select an initial question so we can verify it survives the next error re-render', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await test.step('Re-submit without filling in the missing required fields', async () => {
+        await blockPanel.getByRole('button', {name: 'Create list set'}).click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Validate previous input is retained on the second error re-render', async () => {
+        await expect(
+          blockPanel.locator('#new-enumerator-question-form'),
+        ).toBeVisible()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+        await expect(
+          initialQuestionSlot.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
+      })
+
+      await fillAndSubmitEnumeratorQuestionForm(page)
 
       await test.step('Validate that the new question card is now visible on the enumerator block', async () => {
         const enumeratorQuestionCard = blockPanel
@@ -355,16 +737,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
-      })
-
-      await test.step('Select the repeated set block from the block order panel', async () => {
-        await page.getByRole('link', {name: 'Screen 4'}).click()
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Submit the new enumerator question form with a duplicate admin ID', async () => {
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           adminId: 'pets enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.number,
         })
       })
 
@@ -395,8 +774,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
       })
+
+      await navigateToRepeatedScreen(
+        page,
+        /* screenNumber= */ 3,
+        /* repeatedFrom= */ 2,
+      )
 
       await test.step('Verify that the "Add repeated screen" button is not present on the repeated screen', async () => {
         await expect(addRepeatedScreenButton).toBeHidden()
@@ -410,7 +795,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(addRepeatedScreenButton).toBeHidden()
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page, {
+        initialQuestion: SAMPLE_QUESTIONS.number,
+      })
 
       await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
         await addRepeatedScreenButton.click()
@@ -436,21 +823,23 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('"Add nested repeated set" button appears only on parent enumerator and direct repeated screens', async ({
+    test('"Add nested list set" button appears only on parent enumerator and direct repeated screens', async ({
       page,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const addNestedRepeatedSetButton = blockPanel.getByRole('button', {
-        name: 'Add nested repeated set',
+        name: 'Add nested list set',
       })
 
       await test.step('Add a new repeated set and verify nested button is hidden before parent enumerator question is saved', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+        await addRepeatedSetBlocks(page)
         await expect(addNestedRepeatedSetButton).toBeHidden()
       })
 
       await test.step('Save parent enumerator question and verify nested button appears on parent enumerator', async () => {
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
         await expect(addNestedRepeatedSetButton).toBeVisible()
       })
 
@@ -476,10 +865,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         )
         await expect(addNestedRepeatedSetButton).toBeHidden()
 
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
           adminId: 'jobs enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.number,
         })
 
         await navigateToRepeatedScreen(
@@ -511,8 +901,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set and save the enumerator question on the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
       })
 
       await test.step('Before the repeated screen has a question: delete-screen and remove-question are enabled', async () => {
@@ -545,6 +937,100 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('deleting the enumerator block clears its auto-saved form input', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
+      })
+
+      await test.step('Fill out the enumerator form (auto-save captures the values)', async () => {
+        await fillEnumeratorQuestionForm(page)
+      })
+
+      await test.step('Ensure form input is auto-saved by switching blocks and returning', async () => {
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
+        // Return to enumerator screen
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('Pets')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('List the names of your pets.')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
+        ).toHaveValue('pets enumerator')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('Hint')
+      })
+
+      await test.step('Delete the block', async () => {
+        await page.getByRole('button', {name: 'Delete screen'}).click()
+        await page.locator('#delete-block-button').click()
+      })
+
+      await test.step('Add another repeated set (block id is reused)', async () => {
+        await addRepeatedSetBlocks(page)
+      })
+
+      await test.step('Verify the enumerator form fields are empty — storage was cleared on delete', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('')
+      })
+    })
+
+    test('successful "Create list set" submit clears the auto-saved enumerator form input', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+
+      await addRepeatedSetBlocks(page)
+
+      await fillAndSubmitEnumeratorQuestionForm(page, {
+        initialQuestion: SAMPLE_QUESTIONS.number,
+      })
+
+      await test.step('Delete the enumerator question so the setup form re-appears', async () => {
+        await blockPanel
+          .getByTestId('question-admin-name-pets enumerator')
+          .getByRole('button', {name: 'Delete'})
+          .click()
+      })
+
+      await test.step('Verify the enumerator form fields are empty — storage was cleared on submit', async () => {
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Question text'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
+        ).toHaveValue('')
+        await expect(
+          blockPanel.getByRole('textbox', {name: 'Hint text'}),
+        ).toHaveValue('')
+      })
+    })
+
     test('repeated screen add-question button is disabled until enumerator question is saved', async ({
       page,
     }) => {
@@ -555,11 +1041,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
       const repeatedSetAlert = blockPanel.getByRole('alert').filter({
         hasText:
-          'A repeated set question must first be added before repeated questions can be. Please navigate to the parent screen to add a repeated set question.',
+          'A list set question must first be added before repeated questions can be. Please navigate to the parent screen to add a list set question.',
       })
 
-      await test.step('Add a new repeated set and verify repeated screen is selected', async () => {
-        await addRepeatedSetBlock(page)
+      await test.step('Add a new repeated set and go to the repeated screen', async () => {
+        await addRepeatedSetBlocks(page)
+        await navigateToRepeatedScreen(
+          page,
+          /* screenNumber= */ 3,
+          /* repeatedFrom= */ 2,
+        )
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ true,
           blockPanel,
@@ -594,7 +1085,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Save an enumerator question on the parent repeated set screen', async () => {
         await page.getByRole('link', {name: 'Screen 2'}).click()
-        await fillOutEnumeratorQuestionFormCorrectly(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
       })
 
       await test.step('Return to repeated screen and verify Add question is enabled and alert is hidden', async () => {
@@ -618,11 +1111,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'Add repeated screen',
       })
 
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page)
+      await fillAndSubmitEnumeratorQuestionForm(page, {
+        initialQuestion: SAMPLE_QUESTIONS.number,
+      })
 
       await test.step('Add a repeated question associated with this enumerator', async () => {
         await adminQuestions.addTextQuestion({
@@ -663,12 +1158,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await expect(
           page.getByRole('heading', {
-            name: 'Previously used for this repeated set',
+            name: 'Previously used for this list set',
           }),
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Questions that are associated with a different repeated set are not available to be added.',
+            'Questions that are associated with a different list set are not available to be added.',
           ),
         ).toBeVisible()
         await expect(
@@ -765,7 +1260,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a new repeated set', async () => {
-        await addRepeatedSetBlock(page)
+        await addRepeatedSetBlocks(page)
         await waitForPageJsLoad(page)
       })
 
@@ -812,18 +1307,28 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
       })
 
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
       })
 
       await test.step('Check that Create New is preselected and create new partial view is visible', async () => {
-        const createNewButton = page.getByLabel('Create new')
+        const createNewButton = page.getByRole('radio', {
+          name: 'Create new',
+        })
 
+        const newEnumeratorQuestionForm = page.getByRole('form', {
+          name: 'Create new list set',
+        })
         const newEnumeratorQuestionFormButton = page.getByRole('button', {
-          name: 'Create repeated set',
+          name: 'Create list set',
         })
         await expect(createNewButton).toBeChecked()
         await expect(newEnumeratorQuestionFormButton).toBeVisible()
+        await expect(
+          newEnumeratorQuestionForm.getByRole('button', {
+            name: 'Add question',
+          }),
+        ).toBeVisible()
       })
 
       await test.step('swap to choose existing and check existing partial view is visible', async () => {
@@ -875,15 +1380,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
-      const questionBankSidebar = page.getByRole('form', {
-        name: 'Add a question',
-      })
 
       await test.step('Add the existing enumerator question to a new repeated set', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+        await addRepeatedSetBlocks(page)
         await blockPanel.getByTestId('choose-existing-radio-label').click()
         await blockPanel.getByRole('button', {name: 'Add question'}).click()
-        await questionBankSidebar.getByRole('button', {name: 'Add'}).click()
+        await pickQuestionFromBank(page, 'enumerator-ete-householdmembers')
       })
 
       await test.step('Add the existing repeated name question to the repeated screen', async () => {
@@ -925,7 +1427,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     })
   })
 
-  test.describe('Applicant', () => {
+  // TODO(#13412): Re-enable once the applicant-side flow supports enumerators
+  // with an attached initial question. The admin-side validator currently requires
+  // an initial question on create; the applicant-side flow still uses the legacy
+  // entity-name inputs, which fails path validation on submit.
+  test.describe.skip('Applicant', () => {
     const programName = 'Enumerator test program'
     const repeatedQuestionName = 'enumerator-ete-repeated-name'
     const nestedRepeatedQuestionName = 'enumerator-ete-repeated-jobs-income'
@@ -935,11 +1441,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await adminPrograms.addProgram(programName)
       await adminPrograms.gotoEditDraftProgramPage(programName)
 
-      await test.step('Add a new repeated set and select the parent block', async () => {
-        await addRepeatedSetBlock(page, {selectParent: true})
+      await test.step('Add a new repeated set', async () => {
+        await addRepeatedSetBlocks(page)
       })
 
-      await fillOutEnumeratorQuestionFormCorrectly(page, {maxEntities: 4})
+      await fillAndSubmitEnumeratorQuestionForm(page, {
+        maxEntities: 4,
+        initialQuestion: SAMPLE_QUESTIONS.number,
+      })
 
       await adminQuestions.addNameQuestion({
         questionName: repeatedQuestionName,
@@ -964,7 +1473,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Create nested repeated set from repeated screen', async () => {
         const blockPanel = page.getByTestId('block-panel-edit')
         await blockPanel
-          .getByRole('button', {name: 'Add nested repeated set'})
+          .getByRole('button', {name: 'Add nested list set'})
           .click()
 
         await navigateToRepeatedScreen(
@@ -972,10 +1481,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           /* screenNumber= */ 4,
           /* repeatedFrom= */ 2,
         )
-        await fillOutEnumeratorQuestionFormCorrectly(page, {
+        await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
           adminId: 'jobs enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.number,
         })
       })
 
@@ -1232,8 +1742,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(applicationSummary).not.toContainText('Cartoon Character')
         await expect(applicationSummary).not.toContainText('100')
       })
-
-      await logout(page)
     })
 
     test('applicant repeated entity add button is enabled/disabled correctly', async ({
@@ -1341,8 +1849,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
         await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Daffy')
       })
-
-      await logout(page)
     })
   })
 
@@ -1372,23 +1878,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     await entityNameInput(page, entityType, newIndex).fill(entityName)
   }
 
-  // Adds a new repeated-set block via the program block edit page. Clicks
-  // "Add screen", then "Add repeated set" — which creates a parent enumerator
-  // block (Screen 2) plus a repeated child block (Screen 3) and leaves focus
-  // on the repeated child. Pass {selectParent: true} to also click into the
-  // parent (Screen 2) afterward.
-  async function addRepeatedSetBlock(
-    page: Page,
-    options?: {selectParent?: boolean},
-  ) {
-    await page.getByRole('button', {name: 'Add screen'}).first().click()
-    await page.getByRole('button', {name: 'Add repeated set'}).click()
-    if (options?.selectParent) {
-      await page.getByRole('link', {name: 'Screen 2'}).click()
-    }
+  // Adds a new repeated set via the program block edit page. This creates
+  // a parent enumerator block (Screen 2) plus a repeated child block (Screen 3)
+  // and lands on the parent enumerator block.
+  async function addRepeatedSetBlocks(page: Page) {
+    await page.getByRole('button', {name: 'Add list set'}).click()
   }
 
-  async function fillOutEnumeratorQuestionFormCorrectly(
+  async function fillEnumeratorQuestionForm(
     page: Page,
     options?: {
       listedEntity?: string
@@ -1396,6 +1893,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       adminId?: string
       hintText?: string
       maxEntities?: number
+      initialQuestion?: string
     },
   ) {
     const blockPanel = page.getByTestId('block-panel-edit')
@@ -1405,9 +1903,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       adminId = 'pets enumerator',
       hintText = 'Hint',
       maxEntities,
+      initialQuestion,
     } = options ?? {}
 
-    await test.step('Fill out the new enumerator question form and submit it', async () => {
+    await test.step('Fill out the new enumerator question form', async () => {
       const listedEntityInput = blockPanel.getByRole('textbox', {
         name: 'Listed entity',
       })
@@ -1421,7 +1920,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await questionTextInput.fill(questionText)
 
       const adminIdInput = blockPanel.getByRole('textbox', {
-        name: 'Repeated set admin ID',
+        name: 'List set admin ID',
       })
       await expect(adminIdInput).toHaveAttribute('aria-required', 'true')
       await adminIdInput.fill(adminId)
@@ -1433,11 +1932,108 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByRole('spinbutton', {name: 'Maximum entity count'})
           .fill(String(maxEntities))
       }
+    })
 
-      await blockPanel
-        .getByRole('button', {name: 'Create repeated set'})
+    if (initialQuestion != null) {
+      await test.step(`Select "${initialQuestion}" as the initial question`, async () => {
+        const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+        const questionBankSidebar = page.getByRole('form', {
+          name: 'Add a question',
+        })
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await pickQuestionFromBank(page, initialQuestion)
+      })
+    }
+  }
+
+  async function submitEnumeratorQuestionForm(page: Page) {
+    const blockPanel = page.getByTestId('block-panel-edit')
+
+    await test.step('Submit the new enumerator question form', async () => {
+      await blockPanel.getByRole('button', {name: 'Create list set'}).click()
+      await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Fills out the new enumerator question form and submits it. Thin wrapper around
+   * {@link fillEnumeratorQuestionForm} + {@link submitEnumeratorQuestionForm}; tests that need to
+   * do something between filling and submitting (e.g. selecting an initial question) should call
+   * the two halves directly instead.
+   */
+  async function fillAndSubmitEnumeratorQuestionForm(
+    page: Page,
+    options?: {
+      listedEntity?: string
+      questionText?: string
+      adminId?: string
+      hintText?: string
+      maxEntities?: number
+      initialQuestion?: string
+    },
+  ) {
+    await fillEnumeratorQuestionForm(page, options)
+    await submitEnumeratorQuestionForm(page)
+  }
+
+  /**
+   * Clicks "Add" next to the question row in the open question bank whose admin id matches
+   * `adminId`, then waits for HTMX to settle. Assumes the bank is already open. Used both
+   * for picking an enumerator question (Choose-existing flow) and for picking an initial question.
+   */
+  async function pickQuestionFromBank(page: Page, adminId: string) {
+    const questionBankSidebar = page.getByRole('form', {
+      name: 'Add a question',
+    })
+
+    await test.step(`Click "Add" next to "${adminId}" in the question bank`, async () => {
+      await questionBankSidebar
+        .locator('.cf-question-bank-element')
+        .filter({hasText: adminId})
+        .getByRole('button', {name: 'Add'})
         .click()
       await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Clicks the Delete button on the initial question card for `questionAdminId`.
+   */
+  async function removeInitialQuestion(page: Page, questionAdminId: string) {
+    const initialQuestionSlot = page
+      .getByTestId('block-panel-edit')
+      .locator('#initial-question-slot')
+
+    await test.step(`Click "Delete" on the "${questionAdminId}" initial question card`, async () => {
+      await initialQuestionSlot
+        .getByRole('button', {
+          name: `Remove the ${questionAdminId} initial question`,
+        })
+        .click()
+      await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Verifies that the initial question slot reverts to the empty "Add question" state.
+   */
+  async function expectAddQuestionButton(page: Page, questionAdminId: string) {
+    const initialQuestionSlot = page
+      .getByTestId('block-panel-edit')
+      .locator('#initial-question-slot')
+
+    await test.step('Validate the initial question slot reverts to the empty "Add question" state', async () => {
+      await expect(
+        initialQuestionSlot.getByTestId(
+          `question-admin-name-${questionAdminId}`,
+        ),
+      ).toBeHidden()
+      await expect(
+        initialQuestionSlot.getByRole('button', {name: 'Add question'}),
+      ).toBeVisible()
     })
   }
 

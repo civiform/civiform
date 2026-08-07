@@ -725,4 +725,189 @@ public class ApplicantRoutesTest extends ResetPostgres {
                 .url())
         .isEqualTo(expectedUrl);
   }
+
+  @Test
+  public void testIneligibleRoute() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+    String expectedIneligibleUrl =
+        String.format("/programs/%d/ineligible?blockId=%s", PROGRAM_ID, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .showIneligible(applicantProfile, APPLICANT_ID, PROGRAM_ID, Optional.of(BLOCK_ID))
+                .url())
+        .isEqualTo(expectedIneligibleUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testIneligibleRoute_WithApplicantId(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedIneligibleUrl =
+        String.format(
+            "/applicants/%d/programs/%d/ineligible?blockId=%s", APPLICANT_ID, PROGRAM_ID, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .showIneligible(adminProfile, APPLICANT_ID, PROGRAM_ID, Optional.of(BLOCK_ID))
+                .url())
+        .isEqualTo(expectedIneligibleUrl);
+  }
+
+  @Test
+  public void testIneligibleRoute_withProgramSlug() {
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+    String expectedIneligibleUrl =
+        String.format("/programs/%s/ineligible?blockId=%s", PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .showIneligible(applicantProfile, APPLICANT_ID, PROGRAM_SLUG, Optional.of(BLOCK_ID))
+                .url())
+        .isEqualTo(expectedIneligibleUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testIneligibleRoute_withProgramSlug_WithApplicantId(ADMIN_TYPE adminType) {
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedIneligibleUrl =
+        String.format(
+            "/applicants/%d/programs/%s/ineligible?blockId=%s",
+            APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID);
+    assertThat(
+            new ApplicantRoutes()
+                .showIneligible(adminProfile, APPLICANT_ID, PROGRAM_SLUG, Optional.of(BLOCK_ID))
+                .url())
+        .isEqualTo(expectedIneligibleUrl);
+  }
+
+  @Test
+  public void testAddressCorrectionRoute() {
+    // These params don't affect the method so the values are arbitrary
+    boolean inReview = true;
+    ApplicantRequestedAction applicantRequestedAction =
+        ApplicantRequestedAction.valueOf("NEXT_BLOCK");
+
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedAddressCorrectionUrl =
+        String.format(
+            "/programs/%d/blocks/%s/addressCorrection/%s/%s",
+            PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
+    assertThat(
+            new ApplicantRoutes()
+                .showAddressCorrection(
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    BLOCK_ID,
+                    inReview,
+                    applicantRequestedAction)
+                .url())
+        .isEqualTo(expectedAddressCorrectionUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testAddressCorrectionRoute_WithApplicantId(ADMIN_TYPE adminType) {
+    // These params don't affect the method so the values are arbitrary
+    boolean inReview = true;
+    ApplicantRequestedAction applicantRequestedAction =
+        ApplicantRequestedAction.valueOf("PREVIOUS_BLOCK");
+
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedAddressCorrectionUrl =
+        String.format(
+            "/applicants/%d/programs/%d/blocks/%s/addressCorrection/%s/%s",
+            APPLICANT_ID, PROGRAM_ID, BLOCK_ID, inReview, applicantRequestedAction);
+    assertThat(
+            new ApplicantRoutes()
+                .showAddressCorrection(
+                    adminProfile,
+                    APPLICANT_ID,
+                    PROGRAM_ID,
+                    BLOCK_ID,
+                    inReview,
+                    applicantRequestedAction)
+                .url())
+        .isEqualTo(expectedAddressCorrectionUrl);
+  }
+
+  @Test
+  public void testAddressCorrectionRoute_withProgramSlug() {
+    // These params don't affect the method so the values are arbitrary
+    boolean inReview = true;
+    ApplicantRequestedAction applicantRequestedAction =
+        ApplicantRequestedAction.valueOf("REVIEW_PAGE");
+
+    CiviFormProfileData profileData = new CiviFormProfileData(APPLICANT_ACCOUNT_ID, clock);
+    profileData.addRole(Role.ROLE_APPLICANT.toString());
+    profileData.addAttribute(
+        ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, String.valueOf(APPLICANT_ID));
+    CiviFormProfile applicantProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedAddressCorrectionUrl =
+        String.format(
+            "/programs/%s/blocks/%s/addressCorrection/%s/%s",
+            PROGRAM_SLUG, BLOCK_ID, inReview, applicantRequestedAction);
+    assertThat(
+            new ApplicantRoutes()
+                .showAddressCorrection(
+                    applicantProfile,
+                    APPLICANT_ID,
+                    PROGRAM_SLUG,
+                    BLOCK_ID,
+                    inReview,
+                    applicantRequestedAction)
+                .url())
+        .isEqualTo(expectedAddressCorrectionUrl);
+  }
+
+  @Test
+  @Parameters({"TI", "CIVIFORM"})
+  public void testAddressCorrectionRoute_withProgramSlug_WithApplicantId(ADMIN_TYPE adminType) {
+    // These params don't affect the method so the values are arbitrary
+    boolean inReview = true;
+    ApplicantRequestedAction applicantRequestedAction =
+        ApplicantRequestedAction.valueOf("NEXT_BLOCK");
+
+    CiviFormProfileData profileData = new CiviFormProfileData(TI_ACCOUNT_ID, clock);
+    profileData.addRole(getRoleForAdmin(adminType));
+    CiviFormProfile adminProfile = profileFactory.wrapProfileData(profileData);
+
+    String expectedAddressCorrectionUrl =
+        String.format(
+            "/applicants/%d/programs/%s/blocks/%s/addressCorrection/%s/%s",
+            APPLICANT_ID, PROGRAM_SLUG, BLOCK_ID, inReview, applicantRequestedAction);
+    assertThat(
+            new ApplicantRoutes()
+                .showAddressCorrection(
+                    adminProfile,
+                    APPLICANT_ID,
+                    PROGRAM_SLUG,
+                    BLOCK_ID,
+                    inReview,
+                    applicantRequestedAction)
+                .url())
+        .isEqualTo(expectedAddressCorrectionUrl);
+  }
 }

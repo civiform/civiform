@@ -59,7 +59,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:name="${model.name()}"
             th:label="${model.label()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="description">Description</label>
 <span id="error-message-description" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -75,7 +75,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             name="description"
             label="Description" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="description">Description</label>
 <span id="error-message-description" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -96,7 +96,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:disabled="${model.disabled()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -113,7 +113,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Comments"
             disabled="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -134,7 +134,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:readonly="${model.readonly()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="notes">Notes</label>
 <span id="error-message-notes" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -151,7 +151,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Notes"
             readonly="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="notes">Notes</label>
 <span id="error-message-notes" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -177,7 +177,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:value="${model.value()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -194,7 +194,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Comments"
             value="Initial text content" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -220,7 +220,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:placeholder="${model.placeholder()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="notes">Notes</label>
 <span id="error-message-notes" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -237,7 +237,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Notes"
             placeholder="Enter your notes here" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="notes">Notes</label>
 <span id="error-message-notes" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -263,7 +263,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:help-text="${model.helpText()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="bio">Biography</label>
 <div id="help-text-bio" class="usa-hint">Please provide a brief biography</div>
@@ -281,7 +281,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Biography"
             help-text="Please provide a brief biography" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="bio">Biography</label>
 <div id="help-text-bio" class="usa-hint">Please provide a brief biography</div>
@@ -310,7 +310,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:is-valid="${model.isValid()}"
             th:validation-message="${model.validationMessage()}" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="message">Message</label>
 <span id="error-message-message" class="usa-error-message" role="alert">Message is required</span>
@@ -328,7 +328,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             is-valid="false"
             validation-message="Message is required" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="message">Message</label>
 <span id="error-message-message" class="usa-error-message" role="alert">Message is required</span>
@@ -357,7 +357,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:is-valid="${model.isValid()}"
             th:validation-message="${model.validationMessage()}" />
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="feedback">Feedback</label>
 <div id="help-text-feedback" class="usa-hint">Tell us what you think</div>
@@ -379,7 +379,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:required="${model.required()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="terms">Terms</label>
 <span id="error-message-terms" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -396,7 +396,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Terms"
             required="true" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="terms">Terms</label>
 <span id="error-message-terms" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -417,11 +417,11 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:size="${model.size()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="summary">Summary</label>
 <span id="error-message-summary" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--small" id="summary" name="summary"></textarea>
+<textarea class="usa-textarea usa-input--small" id="summary" name="summary"></textarea>
 </div>
 """);
 
@@ -434,11 +434,11 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             label="Summary"
             size="small" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="summary">Summary</label>
 <span id="error-message-summary" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--small" id="summary" name="summary"></textarea>
+<textarea class="usa-textarea usa-input--small" id="summary" name="summary"></textarea>
 </div>
 """);
   }
@@ -459,11 +459,11 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:size="${model.size()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="description">Description</label>
 <span id="error-message-description" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--medium" id="description" name="description"></textarea>
+<textarea class="usa-textarea usa-input--medium" id="description" name="description"></textarea>
 </div>
 """);
   }
@@ -497,12 +497,12 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:minlength="${model.minLength()}"
             th:maxlength="${model.maxLength()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="feedback">Feedback</label>
 <div id="help-text-feedback" class="usa-hint">Please be specific</div>
 <span id="error-message-feedback" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
+<textarea class="usa-textarea usa-input--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
 </div>
 """);
 
@@ -521,12 +521,12 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             minlength="1"
             maxlength="10" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="feedback">Feedback</label>
 <div id="help-text-feedback" class="usa-hint">Please be specific</div>
 <span id="error-message-feedback" class="usa-error-message" role="alert" hidden="hidden"></span>
-<textarea class="usa-textarea usa-textarea--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
+<textarea class="usa-textarea usa-input--md" id="feedback" name="feedback" placeholder="Enter your feedback" required="required" aria-describedby="help-text-feedback" minlength="1" maxlength="10">Initial feedback</textarea>
 </div>
 """);
   }
@@ -544,7 +544,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             data-testid="tracking-textarea"
             data-analytics="track-me" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="tracking">Tracking</label>
 <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -563,7 +563,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:data-testid="${model.id()}"
             th:data-analytics="${model.name()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="tracking">Tracking</label>
 <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -584,7 +584,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             aria-label="Comment box" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -602,7 +602,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:aria-label="${model.label()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="comments">Comments</label>
 <span id="error-message-comments" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -627,7 +627,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:label="${model.label()}"
             th:is-valid="${model.isValid()}" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="complex">Biography</label>
 <span id="error-message-user-profile-bio" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -646,7 +646,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             name="mixedTextarea"
             label="Mixed Textarea" />
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="mixed">Mixed Textarea</label>
 <span id="error-message-mixedTextarea" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -667,7 +667,7 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
             th:validation-class="${model.getClassName()}"
             validation-field="description"/>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="description">Description</label>
 <span id="error-message-description" class="usa-error-message" role="alert" hidden="hidden"></span>

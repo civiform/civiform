@@ -7,7 +7,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
-import forms.EnumeratorQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -192,7 +192,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
-      context.setVariable("isYesNoQuestionEnabled", settingsManifest.getYesNoQuestionEnabled());
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }

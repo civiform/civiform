@@ -55,9 +55,7 @@ import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
 import services.monitoring.MonitoringMetricCounters;
-import services.program.BlockDefinition;
 import services.program.PathNotInBlockException;
-import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
@@ -66,7 +64,6 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 import views.applicant.blocks.ApplicantProgramBlockEditView;
-import views.applicant.ineligible.ApplicantIneligibleView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.trustedintermediary.ApplicationBaseViewParams;
 
@@ -89,8 +86,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
   private final String baseUrl;
-  private final ApplicantIneligibleView applicantIneligibleView;
-  private final AddressCorrectionBlockView addressCorrectionBlockView;
   private final AddressSuggestionJsonSerializer addressSuggestionJsonSerializer;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -112,8 +107,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ProfileUtils profileUtils,
       Config configuration,
       SettingsManifest settingsManifest,
-      ApplicantIneligibleView applicantIneligibleView,
-      AddressCorrectionBlockView addressCorrectionBlockView,
       AddressSuggestionJsonSerializer addressSuggestionJsonSerializer,
       ProgramService programService,
       VersionRepository versionRepository,
@@ -130,12 +123,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     this.storedFileRepository = checkNotNull(storedFileRepository);
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.addressSuggestionJsonSerializer = checkNotNull(addressSuggestionJsonSerializer);
     this.applicantRoutes = checkNotNull(applicantRoutes);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
     this.applicantProgramBlockEditView = checkNotNull(applicantProgramBlockEditView);
-    this.addressCorrectionBlockView = checkNotNull(addressCorrectionBlockView);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
     this.metricCounters = checkNotNull(metricCounters);
@@ -524,7 +515,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                             return unauthorized();
                           }
                           if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
+                            return notFound();
                           }
                           throw new RuntimeException(cause);
                         }
@@ -641,7 +632,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
                 throw new RuntimeException(cause);
               }
@@ -1338,9 +1329,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                         programId,
                         blockId,
                         inReview,
-                        roApplicantProgramService,
-                        thisBlockUpdated,
-                        personalInfo,
                         applicantRequestedAction));
       }
     }
@@ -1348,17 +1336,24 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        return renderIneligiblePage(
-            request,
-            submittingProfile,
-            applicantId,
-            personalInfo,
-            roApplicantProgramService,
-            programDefinition,
-            blockId);
+        if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+          return supplyAsync(
+              () ->
+                  redirect(
+                      applicantRoutes.showIneligible(
+                          submittingProfile,
+                          applicantId,
+                          programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                          Optional.of(blockId))));
+        }
+        return supplyAsync(
+            () ->
+                redirect(
+                    applicantRoutes.showIneligible(
+                        submittingProfile, applicantId, programId, Optional.of(blockId))));
       }
     } catch (ProgramNotFoundException e) {
-      return supplyAsync(() -> notFound(e.toString()));
+      return supplyAsync(() -> notFound());
     }
 
     Map<String, String> flashingMap = new HashMap<>();
@@ -1373,37 +1368,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         roApplicantProgramService,
         flashingMap,
         settingsManifest.getProgramSlugUrlsEnabled(request));
-  }
-
-  private CompletionStage<Result> renderIneligiblePage(
-      Request request,
-      CiviFormProfile profile,
-      long applicantId,
-      ApplicantPersonalInfo personalInfo,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      ProgramDefinition programDefinition,
-      String blockId) {
-    Optional<BlockDefinition> blockDefinition;
-    try {
-      blockDefinition = Optional.of(programDefinition.getBlockDefinition(blockId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-    return supplyAsync(
-        () -> {
-          ApplicantIneligibleView.Params params =
-              ApplicantIneligibleView.Params.builder()
-                  .setRequest(request)
-                  .setApplicantId(applicantId)
-                  .setProfile(profile)
-                  .setApplicantPersonalInfo(personalInfo)
-                  .setProgramDefinition(programDefinition)
-                  .setBlockDefinition(blockDefinition)
-                  .setRoApplicantProgramService(roApplicantProgramService)
-                  .setMessages(messagesApi.preferred(request))
-                  .build();
-          return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-        });
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1506,9 +1470,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       long programId,
       String blockId,
       boolean inReview,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      Block thisBlockUpdated,
-      ApplicantPersonalInfo personalInfo,
       ApplicantRequestedAction applicantRequestedAction) {
     ImmutableList<AddressSuggestion> suggestions = addressSuggestionGroup.getAddressSuggestions();
 
@@ -1528,35 +1489,23 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
           suggestions,
           applicantRequestedAction);
     } else {
-      String json = addressSuggestionJsonSerializer.serialize(suggestions);
-
-      Boolean isEligibilityEnabledOnThisBlock =
-          thisBlockUpdated.getLeafAddressNodeServiceAreaIds().isPresent();
-
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-      ApplicationBaseViewParams applicationParams =
-          buildApplicationBaseViewParams(
-              request,
-              applicantId,
-              programId,
-              blockId,
-              inReview,
-              roApplicantProgramService,
-              thisBlockUpdated,
-              personalInfo,
-              ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
-              applicantRoutes,
-              profile);
+      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        return CompletableFuture.completedFuture(
+            redirect(
+                applicantRoutes.showAddressCorrection(
+                    profile,
+                    applicantId,
+                    programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                    blockId,
+                    inReview,
+                    applicantRequestedAction)));
+      }
       return CompletableFuture.completedFuture(
-          ok(addressCorrectionBlockView.render(
-                  request,
-                  applicationParams,
-                  addressSuggestionGroup,
-                  applicantRequestedAction,
-                  isEligibilityEnabledOnThisBlock,
-                  json))
-              .as(Http.MimeTypes.HTML));
+          redirect(
+              applicantRoutes.showAddressCorrection(
+                  profile, applicantId, programId, blockId, inReview, applicantRequestedAction)));
     }
   }
 

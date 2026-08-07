@@ -19,11 +19,9 @@ import durablejobs.RecurringJobScheduler;
 import durablejobs.StartupDurableJobRunner;
 import durablejobs.StartupJobScheduler;
 import durablejobs.jobs.AddCategoryAndTranslationsJob;
-import durablejobs.jobs.CalculateEligibilityDeterminationJob;
 import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
-import durablejobs.jobs.SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
 import durablejobs.jobs.UnusedProgramImagesCleanupJob;
 import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
@@ -35,20 +33,15 @@ import org.apache.pekko.actor.ActorSystem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
-import play.cache.AsyncCacheApi;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import repository.GeoJsonDataRepository;
 import repository.PersistedDurableJobRepository;
-import repository.ProgramRepository;
 import repository.ReportingRepository;
 import repository.VersionRepository;
 import scala.concurrent.ExecutionContext;
-import services.applicant.ApplicantService;
 import services.cloud.PublicStorageClient;
 import services.geojson.GeoJsonClient;
-import services.program.ProgramService;
-import services.settings.SettingsManifest;
 
 /**
  * Configures {@link durablejobs.DurableJob}s with their {@link DurableJobName} and, if they are
@@ -123,8 +116,6 @@ public final class DurableJobModule extends AbstractModule {
   @RecurringJobsProviderName
   public DurableJobRegistry provideRecurringDurableJobRegistry(
       AccountRepository accountRepository,
-      ApplicantService applicantService,
-      ProgramService programService,
       @BindingAnnotations.Now Provider<LocalDateTime> nowProvider,
       PersistedDurableJobRepository persistedDurableJobRepository,
       PublicStorageClient publicStorageClient,
@@ -164,13 +155,7 @@ public final class DurableJobModule extends AbstractModule {
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
-    durableJobRegistry.register(
-        DurableJobName.CALCULATE_ELIGIBILITY_DETERMINATION_JOB,
-        JobType.RECURRING,
-        persistedDurableJob ->
-            new CalculateEligibilityDeterminationJob(
-                applicantService, programService, persistedDurableJob),
-        new RecurringJobExecutionTimeResolvers.Sunday2Am());
+    // TODO(#12749): Re-register CalculateEligibilityDeterminationJob once bugs are fixed
 
     if (config.getBoolean("durable_jobs.map_refresh")) {
       durableJobRegistry.register(
@@ -188,9 +173,6 @@ public final class DurableJobModule extends AbstractModule {
   @StartupJobsProviderName
   public DurableJobRegistry provideStartupDurableJobRegistry(
       CategoryRepository categoryRepository,
-      ProgramRepository programRepository,
-      AsyncCacheApi programCache,
-      SettingsManifest settingsManifest,
       CategoryTranslationFileParser categoryTranslationFileParser,
       Provider<ObjectMapper> mapperProvider) {
     var durableJobRegistry = new DurableJobRegistry();
@@ -210,13 +192,6 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.UPDATE_LAST_ACTIVITY_TIME_FOR_ACCOUNTS_20250825,
         JobType.RUN_ONCE,
         UpdateLastActivityTimeForAccounts::new);
-
-    durableJobRegistry.registerStartupJob(
-        DurableJobName.SET_IS_ENUMERATOR_ON_BLOCKS_WITH_ENUMERATOR_QUESTION_20260106,
-        JobType.RUN_ONCE,
-        persistedDurableJob ->
-            new SetIsEnumeratorOnBlocksWithEnumeratorQuestionJob(
-                persistedDurableJob, programRepository, programCache, settingsManifest));
 
     return durableJobRegistry;
   }

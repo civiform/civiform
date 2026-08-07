@@ -165,8 +165,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     emailClient.send(toAddress, subject, body);
 
-    assertThrows(
-        ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
+    UserItemRequestBuilder userItemRequestBuilder = graphClient.users().byUserId(GRAPH_ACCOUNT_ID);
+    assertThrows(ApiException.class, () -> userItemRequestBuilder.sendMail());
   }
 
   @Test
@@ -184,8 +184,8 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     emailClient.send(toAddress, subject, body);
 
-    assertThrows(
-        ApiException.class, () -> graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail());
+    UserItemRequestBuilder userItemRequestBuilder = graphClient.users().byUserId(GRAPH_ACCOUNT_ID);
+    assertThrows(ApiException.class, () -> userItemRequestBuilder.sendMail());
   }
 
   @Test

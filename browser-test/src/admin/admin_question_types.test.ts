@@ -70,7 +70,7 @@ test.describe('Admin question list on questions page with enumerator improvement
     await expectAllQuestionTypesExceptEnumerator(dropdownLocator)
     await expect(
       dropdownLocator.getByText('Enumerator', {exact: true}),
-    ).toBeVisible()
+    ).not.toBeAttached()
   })
 })
 

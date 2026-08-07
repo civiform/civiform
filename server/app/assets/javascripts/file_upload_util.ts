@@ -15,13 +15,13 @@ const FILE_NAME_DIGIT_SUFFIX_REGEX = /(.*)(-\d*)(\..*)?$/
 const FILE_NAME_REGEX = /(.*)(\..*)$/
 
 /**
- * Returns true if the file currently uploaded to {@code inputElement} is too large
+ * Returns true if the file currently uploaded to `inputElement` is too large
  * and false otherwise. This will also return false if there is no file uploaded to
- * the {@code inputElement}.
+ * the `inputElement`.
  *
  * @param inputElement the HTMLInputElement that contains the file. Requirements:
  *   - Must be `type="file"`.
- *   - Must have an attribute with key {@code MAX_FILE_SIZE_MB_ATTR}. The attribute's
+ *   - Must have an attribute with key `MAX_FILE_SIZE_MB_ATTR`. The attribute's
  *     value must be a number representing the max size in megabytes allowed by this
  *     input element.
  *
@@ -93,7 +93,7 @@ export const getUniqueName = (name: string, existingNames: string[]) => {
   return name
 }
 
-/** Shows the error in the specified {@code errorDiv}. */
+/** Shows the error in the specified `errorDiv`. */
 export const showError = (
   errorDiv: HTMLElement | null,
   fileInput: HTMLInputElement,
@@ -117,7 +117,7 @@ export const showError = (
   }
 }
 
-/** Hides the error in the specified {@code errorDiv}. */
+/** Hides the error in the specified `errorDiv`. */
 export const hideError = (
   errorDiv: HTMLElement | null,
   fileInput: HTMLInputElement,

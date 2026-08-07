@@ -23,8 +23,8 @@ import views.style.StyleUtils;
  * <p>Utility class for rendering a modal box.
  *
  * <p>Note that this is deprecated in favor of the USWDS modal component. Prefer using {@link
- * views.ViewUtils#makeUSWDSModal} instead of this class. See
- * https://github.com/civiform/civiform/issues/6264.
+ * views.ViewUtils#makeUswdsModal(ContainerTag, String, String, String, boolean, String, String)}
+ * instead of this class. See https://github.com/civiform/civiform/issues/6264.
  */
 @AutoValue
 public abstract class Modal {

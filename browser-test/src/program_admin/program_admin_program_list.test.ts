@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -63,10 +62,6 @@ test.describe('Program admin program list', () => {
 })
 
 test.describe('Translation tag showing as expected', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'translation_management_improvement_enabled')
-  })
-
   const programName = 'Program for translation tags'
 
   test('Tag translation incomplete and complete shows up as expected', async ({

@@ -59,7 +59,14 @@ public class QuestionModel extends BaseModel {
   /** Different versions of the same question are linked by their immutable name. */
   private @Constraints.Required String name;
 
+  /** The ID of an enumerator question that this question repeats on. */
   private Long enumeratorId;
+
+  /**
+   * For enumerator questions: the ID of their associated initial question. Used only in the new
+   * enumerator flow.
+   */
+  private Long enumeratorInitialQuestionId;
 
   private @Constraints.Required String description;
 
@@ -178,6 +185,7 @@ public class QuestionModel extends BaseModel {
             .setId(id)
             .setName(name)
             .setEnumeratorId(Optional.ofNullable(enumeratorId))
+            .setEnumeratorInitialQuestionId(Optional.ofNullable(enumeratorInitialQuestionId))
             .setDescription(description)
             .setQuestionType(QuestionType.valueOf(questionType))
             .setQuestionText(questionText)
@@ -292,6 +300,7 @@ public class QuestionModel extends BaseModel {
     if (questionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
       EnumeratorQuestionDefinition enumerator = (EnumeratorQuestionDefinition) questionDefinition;
       enumeratorEntityType = enumerator.getEntityType();
+      enumeratorInitialQuestionId = enumerator.getEnumeratorInitialQuestionId().orElse(null);
     }
 
     // We must ensure we always initTags here. Otherwise, if we aren't

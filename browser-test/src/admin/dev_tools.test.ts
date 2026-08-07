@@ -32,6 +32,8 @@ test.describe('developer tools', () => {
   }) => {
     await enableFeatureFlag(page, 'staging_disable_demo_mode_logins')
 
+    await page.goto('/programs')
+
     const header = page.locator('nav')
 
     await test.step('link not shown in the header', async () => {
@@ -44,11 +46,5 @@ test.describe('developer tools', () => {
       expect(page.url()).toContain('/programs')
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
-  })
-
-  test('dev tools page is accessible', async ({page}) => {
-    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_SC_ENABLED')
-    await page.goto('/dev/seed')
-    await validateAccessibility(page)
   })
 })

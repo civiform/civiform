@@ -8,6 +8,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 
 test.describe('Id question for applicant flow', () => {
   test.describe('single id question', () => {
@@ -105,14 +106,12 @@ test.describe('Id question for applicant flow', () => {
   test.describe('multiple id questions', () => {
     const programName = 'Test program for multiple ids'
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminQuestions, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
       await adminQuestions.addIdQuestion({
         questionName: 'my-id-q',
-      })
-      await adminQuestions.addIdQuestion({
-        questionName: 'your-id-q',
       })
 
       await adminPrograms.addProgram(programName)
@@ -120,7 +119,7 @@ test.describe('Id question for applicant flow', () => {
         programName,
         'Optional question block',
         ['my-id-q'],
-        'your-id-q', // optional
+        SAMPLE_QUESTIONS.id, // optional
       )
       await adminPrograms.publishAllDrafts()
 

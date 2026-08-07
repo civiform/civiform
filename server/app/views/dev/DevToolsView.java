@@ -62,7 +62,8 @@ public class DevToolsView extends BaseHtmlView {
                     .with(createIconsSection())
                     .condWith(deploymentType.isDev(), createEmailSection())
                     .with(createAddressToolsSection())
-                    .with(createSessionToolsSection()));
+                    .with(createSessionToolsSection())
+                    .with(createDebugToolsSection()));
 
     HtmlBundle bundle = layout.getBundle(request).setTitle(title).addMainContent(content);
     return layout.render(bundle);
@@ -200,6 +201,16 @@ public class DevToolsView extends BaseHtmlView {
             createLink(
                 "📜 View current Play session",
                 controllers.dev.routes.SessionDisplayController.index().url()));
+  }
+
+  private SectionTag createDebugToolsSection() {
+    return section()
+        .with(h2("Debug Tools"))
+        .with(p("Debugging aids"))
+        .withClasses("flex", "flex-col", "gap-4", "border", "border-black", "p-4")
+        .with(
+            createLink(
+                "Log blank lines to console", routes.DevToolsController.logBlankLines().url()));
   }
 
   private FormTag createForm(Request request, String buttonId, String buttonText, String url) {

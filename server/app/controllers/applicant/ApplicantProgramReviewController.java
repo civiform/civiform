@@ -15,7 +15,6 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-import models.ApplicationModel;
 import org.apache.commons.lang3.StringUtils;
 import org.pac4j.play.java.Secure;
 import play.i18n.Messages;
@@ -32,17 +31,14 @@ import services.MessageKey;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;
-import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicationNotEligibleException;
 import services.applicant.exception.ApplicationOutOfDateException;
 import services.applicant.exception.ApplicationSubmissionException;
 import services.applicant.exception.DuplicateApplicationException;
 import services.monitoring.MonitoringMetricCounters;
-import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
-import views.applicant.ineligible.ApplicantIneligibleView;
 import views.applicant.review.ApplicantProgramSummaryView;
 
 /**
@@ -58,7 +54,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final MessagesApi messagesApi;
   private final ApplicantProgramSummaryView summaryView;
-  private final ApplicantIneligibleView applicantIneligibleView;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
   private final ProgramSlugHandler programSlugHandler;
@@ -72,7 +67,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
       ClassLoaderExecutionContext classLoaderExecutionContext,
       MessagesApi messagesApi,
       ApplicantProgramSummaryView summaryView,
-      ApplicantIneligibleView applicantIneligibleView,
       ProfileUtils profileUtils,
       SettingsManifest settingsManifest,
       ProgramService programService,
@@ -86,7 +80,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.messagesApi = checkNotNull(messagesApi);
     this.summaryView = checkNotNull(summaryView);
-    this.applicantIneligibleView = checkNotNull(applicantIneligibleView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.programService = checkNotNull(programService);
     this.programSlugHandler = checkNotNull(programSlugHandler);
@@ -199,7 +192,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                             return redirectToHome();
                           }
                           if (cause instanceof ProgramNotFoundException) {
-                            return notFound(cause.toString());
+                            return notFound();
                           }
                           throw new RuntimeException(cause);
                         }
@@ -304,20 +297,10 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
-    CompletableFuture<ApplicationModel> submitAppFuture =
-        applicantService
-            .submitApplication(applicantId, programId, submittingProfile, request)
-            .toCompletableFuture();
-    CompletableFuture<ReadOnlyApplicantProgramService> readOnlyApplicantProgramServiceFuture =
-        applicantService
-            .getReadOnlyApplicantProgramService(applicantId, programId)
-            .toCompletableFuture();
-    CompletableFuture<ApplicantPersonalInfo> applicantPersonalInfo =
-        applicantService.getPersonalInfo(applicantId).toCompletableFuture();
-    return CompletableFuture.allOf(readOnlyApplicantProgramServiceFuture, submitAppFuture)
+    return applicantService
+        .submitApplication(applicantId, programId, submittingProfile, request)
         .thenApplyAsync(
-            (v) -> {
-              ApplicationModel application = submitAppFuture.join();
+            (application) -> {
               Long applicationId = application.id;
 
               final String programParam;
@@ -339,8 +322,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
             classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
-              ReadOnlyApplicantProgramService roApplicantProgramService =
-                  readOnlyApplicantProgramServiceFuture.join();
               if (ex instanceof CompletionException) {
                 Throwable cause = ex.getCause();
                 if (cause instanceof ApplicationSubmissionException) {
@@ -350,7 +331,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
@@ -371,26 +352,24 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-                  try {
-                    ProgramDefinition programDefinition =
-                        programService.getFullProgramDefinition(programId);
-                    return renderIneligiblePage(
-                        request,
-                        submittingProfile,
-                        applicantId,
-                        applicantPersonalInfo.join(),
-                        roApplicantProgramService,
-                        programDefinition);
-                  } catch (ProgramNotFoundException e) {
-                    notFound(e.toString());
+                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                    return redirect(
+                        applicantRoutes.showIneligible(
+                            submittingProfile,
+                            applicantId,
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)),
+                            Optional.empty()));
                   }
+                  return redirect(
+                      applicantRoutes.showIneligible(
+                          submittingProfile, applicantId, programId, Optional.empty()));
                 }
                 if (cause instanceof DuplicateApplicationException) {
                   final Call reviewPage;
@@ -399,7 +378,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                         applicantRoutes.review(
                             submittingProfile,
                             applicantId,
-                            roApplicantProgramService.getProgramSlug());
+                            programSlugHandler.getProgramSlug(String.valueOf(programId)));
                   } else {
                     reviewPage = applicantRoutes.review(submittingProfile, applicantId, programId);
                   }
@@ -409,26 +388,6 @@ public class ApplicantProgramReviewController extends CiviFormController {
               }
               throw new RuntimeException(ex);
             });
-  }
-
-  private Result renderIneligiblePage(
-      Request request,
-      CiviFormProfile profile,
-      long applicantId,
-      ApplicantPersonalInfo personalInfo,
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      ProgramDefinition programDefinition) {
-    ApplicantIneligibleView.Params params =
-        ApplicantIneligibleView.Params.builder()
-            .setRequest(request)
-            .setApplicantId(applicantId)
-            .setProfile(profile)
-            .setApplicantPersonalInfo(personalInfo)
-            .setProgramDefinition(programDefinition)
-            .setRoApplicantProgramService(roApplicantProgramService)
-            .setMessages(messagesApi.preferred(request))
-            .build();
-    return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
   }
 
   /**
@@ -449,7 +408,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                 try {
                   programSlug = programService.getSlug(programId);
                 } catch (ProgramNotFoundException e) {
-                  return notFound(e.toString());
+                  return notFound();
                 }
                 reviewPage = applicantRoutes.review(profile, applicantId, programSlug).url();
               } else {

@@ -3,12 +3,13 @@ package services.migration;
 import static org.assertj.core.api.Assertions.assertThat;
 import static support.TestQuestionBank.createDropdownQuestionDefinition;
 import static support.TestQuestionBank.createQuestionDefinition;
+import static support.TestQuestionBank.createQuestionDefinitionWithEnumId;
+import static support.TestQuestionBank.createQuestionDefinitionWithEnumInitialId;
 import static support.TestQuestionBank.createYesNoQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
-import java.util.Optional;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -36,11 +37,11 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
 
   // Use TestQuestionBank static methods for creating test questions
   private static final QuestionDefinition NAME_QUESTION =
-      createQuestionDefinition("name", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
+      createQuestionDefinition("name", 1L, QuestionType.TEXT);
   private static final QuestionDefinition AGE_QUESTION =
-      createQuestionDefinition("age", 2L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
+      createQuestionDefinition("age", 2L, QuestionType.TEXT);
   private static final QuestionDefinition REPEATED_NAME_QUESTION =
-      createQuestionDefinition("repeated_name", 3L, QuestionType.TEXT, Optional.of(1L));
+      createQuestionDefinitionWithEnumId("repeated_name", 3L, QuestionType.TEXT, 1L);
   private static final String PROGRAM_NAME_1 = "Program 1";
 
   @Test
@@ -110,8 +111,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             .withOptionalQuestion(NAME_QUESTION)
             .withRequiredQuestionDefinition(AGE_QUESTION)
             .withRequiredQuestionDefinition(
-                createQuestionDefinition(
-                    "phone", 3L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty()))
+                createQuestionDefinition("phone", 3L, QuestionType.TEXT))
             .buildDefinition();
     ImmutableList<QuestionDefinition> questions = ImmutableList.of(NAME_QUESTION);
 
@@ -274,8 +274,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_mixedQuestionTypes_onlyValidatesYesNo() {
     QuestionDefinition textQuestion =
-        createQuestionDefinition(
-            "text-question", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
+        createQuestionDefinition("text-question", 1L, QuestionType.TEXT);
     QuestionDefinition dropdownQuestion =
         createDropdownQuestionDefinition(
             "dropdown-question", 2L, ImmutableList.of("custom-option-1", "custom-option-2"));
@@ -319,8 +318,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
   @Test
   public void validateYesNoQuestions_noYesNoQuestions_noErrors() {
     QuestionDefinition textQuestion =
-        createQuestionDefinition(
-            "text-question", 1L, QuestionType.TEXT, /* enumeratorId= */ Optional.empty());
+        createQuestionDefinition("text-question", 1L, QuestionType.TEXT);
     QuestionDefinition dropdownQuestion =
         createDropdownQuestionDefinition(
             "dropdown-question", 2L, ImmutableList.of("option-1", "option-2"));
@@ -411,6 +409,228 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             "YES_NO question 'valid-required-invalid-extra-question' contains invalid option"
                 + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
                 + " allowed.");
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_validReference_noErrors() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 11L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 10L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "member-name", 10L, QuestionType.TEXT, /* enumeratorId= */ 11L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(initialQuestion, enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_nonEnumeratorWithField_returnsError() {
+    QuestionDefinition initialQuestion =
+        createQuestionDefinition("seed-name", 10L, QuestionType.TEXT);
+    QuestionDefinition textWithField =
+        createQuestionDefinitionWithEnumInitialId(
+            "wrong-type", 12L, QuestionType.TEXT, /* enumeratorInitialQuestionId= */ 10L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(initialQuestion, textWithField),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Question 'wrong-type' has an enumeratorInitialQuestionId but is not an enumerator \
+            question.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_referencedQuestionMissing_returnsError() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 11L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 99L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' references an enumeratorInitialQuestionId 99 that is \
+            not in the import.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_referencesAnotherEnumerator_returnsError() {
+    QuestionDefinition otherEnumerator =
+        createQuestionDefinition("vehicles", 20L, QuestionType.ENUMERATOR);
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 21L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 20L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(otherEnumerator, enumerator),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' references question 'vehicles' as its initial \
+            question, but that question is itself an enumerator.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_initialQuestionMissingBackReference_returnsError() {
+    QuestionDefinition initialQuestion =
+        createQuestionDefinition("orphan-name", 51L, QuestionType.TEXT);
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 50L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 51L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' references question 'orphan-name' as its initial \
+            question, but that question does not reference it back as its enumeratorId.\
+            """);
+  }
+
+  @Test
+  public void
+      validateNewFlowEnumerators_initialQuestionBackReferencesDifferentEnumerator_returnsError() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 60L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 61L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "wrong-parent-name", 61L, QuestionType.TEXT, /* enumeratorId= */ 999L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' references question 'wrong-parent-name' as its \
+            initial question, but that question does not reference it back as its enumeratorId.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_enumeratorInBankInitialInImport_returnsError() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 70L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 71L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "member-name", 71L, QuestionType.TEXT, /* enumeratorId= */ 70L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(enumerator.getName()));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' (question bank) and its initial question \
+            'member-name' (import) are in different data sources and must be in the same.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_enumeratorInImportInitialInBank_returnsError() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 80L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 81L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "member-name", 81L, QuestionType.TEXT, /* enumeratorId= */ 80L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(initialQuestion.getName()));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            """
+            Enumerator question 'household' (import) and its initial question 'member-name' \
+            (question bank) are in different data sources and must be in the same.\
+            """);
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_bothInBank_noErrors() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 90L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 91L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "member-name", 91L, QuestionType.TEXT, /* enumeratorId= */ 90L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of(
+                enumerator.getName(), initialQuestion.getName()));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_bothInImport_noErrors() {
+    QuestionDefinition enumerator =
+        createQuestionDefinitionWithEnumInitialId(
+            "household", 100L, QuestionType.ENUMERATOR, /* enumeratorInitialQuestionId= */ 101L);
+    QuestionDefinition initialQuestion =
+        createQuestionDefinitionWithEnumId(
+            "member-name", 101L, QuestionType.TEXT, /* enumeratorId= */ 100L);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, initialQuestion),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateNewFlowEnumerators_noField_noErrors() {
+    QuestionDefinition enumerator =
+        createQuestionDefinition("household", 40L, QuestionType.ENUMERATOR);
+    QuestionDefinition text = createQuestionDefinition("name", 41L, QuestionType.TEXT);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateNewFlowEnumerators(
+            /* questions= */ ImmutableList.of(enumerator, text),
+            /* existingAdminNames= */ ImmutableList.of());
+
+    assertThat(errors).isEmpty();
   }
 
   @Test

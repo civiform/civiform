@@ -48,22 +48,10 @@
         "type": "string",
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
-          {
-            "val": "#f12345",
-            "should_match": true
-          },
-          {
-            "val": "#c13",
-            "should_match": true
-          },
-          {
-            "val": "cccccc",
-            "should_match": false
-          },
-          {
-            "val": "",
-            "should_match": true
-          }
+          {"val": "#f12345", "should_match": true},
+          {"val": "#c13", "should_match": true},
+          {"val": "cccccc", "should_match": false},
+          {"val": "", "should_match": true}
         ]
       },
       "THEME_COLOR_PRIMARY_DARK": {
@@ -73,22 +61,10 @@
         "required": false,
         "regex": "(^#(?:[0-9a-fA-F]{3}){1,2}$)|^$",
         "regex_tests": [
-          {
-            "val": "#f12345",
-            "should_match": true
-          },
-          {
-            "val": "#c13",
-            "should_match": true
-          },
-          {
-            "val": "cccccc",
-            "should_match": false
-          },
-          {
-            "val": "",
-            "should_match": true
-          }
+          {"val": "#f12345", "should_match": true},
+          {"val": "#c13", "should_match": true},
+          {"val": "cccccc", "should_match": false},
+          {"val": "", "should_match": true}
         ]
       }
     }
@@ -308,10 +284,7 @@
             "mode": "ADMIN_READABLE",
             "description": "What identity provider to use for admins.",
             "type": "string",
-            "values": [
-              "adfs",
-              "generic-oidc-admin"
-            ],
+            "values": ["adfs", "generic-oidc-admin"],
             "required": false
           },
           "Active Directory Federation Services": {
@@ -491,10 +464,7 @@
         "mode": "HIDDEN",
         "description": "The provider to use for sending emails.",
         "type": "string",
-        "values": [
-          "aws-ses",
-          "graph-api"
-        ]
+        "values": ["aws-ses", "graph-api"]
       },
       "GRAPH_API_EMAIL_ACCOUNT": {
         "mode": "HIDDEN",
@@ -508,12 +478,7 @@
             "mode": "HIDDEN",
             "description": "What static file storage provider to use.",
             "type": "string",
-            "values": [
-              "s3",
-              "aws-s3",
-              "azure-blob",
-              "gcp-s3"
-            ]
+            "values": ["s3", "aws-s3", "azure-blob", "gcp-s3"]
           },
           "AWS_S3_BUCKET_NAME": {
             "mode": "HIDDEN",
@@ -712,18 +677,9 @@
         "type": "string",
         "regex": "^(http://|https://).+",
         "regex_tests": [
-          {
-            "val": "http://my-civiform.org",
-            "should_match": true
-          },
-          {
-            "val": "https://my-civiform.org",
-            "should_match": true
-          },
-          {
-            "val": "my-civiform.org",
-            "should_match": false
-          }
+          {"val": "http://my-civiform.org", "should_match": true},
+          {"val": "https://my-civiform.org", "should_match": true},
+          {"val": "my-civiform.org", "should_match": false}
         ]
       },
       "IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL": {
@@ -744,18 +700,9 @@
     "type": "string",
     "regex": "^(http://|https://).+",
     "regex_tests": [
-      {
-        "val": "http://my-civiform.org",
-        "should_match": true
-      },
-      {
-        "val": "https://my-civiform.org",
-        "should_match": true
-      },
-      {
-        "val": "my-civiform.org",
-        "should_match": false
-      }
+      {"val": "http://my-civiform.org", "should_match": true},
+      {"val": "https://my-civiform.org", "should_match": true},
+      {"val": "my-civiform.org", "should_match": false}
     ],
     "required": true
   },
@@ -765,18 +712,9 @@
     "type": "string",
     "regex": "^(?!http://|https://).+",
     "regex_tests": [
-      {
-        "val": "my-civiform.org",
-        "should_match": true
-      },
-      {
-        "val": "http://my-civiform.org",
-        "should_match": false
-      },
-      {
-        "val": "https://my-civiform.org",
-        "should_match": false
-      }
+      {"val": "my-civiform.org", "should_match": true},
+      {"val": "http://my-civiform.org", "should_match": false},
+      {"val": "https://my-civiform.org", "should_match": false}
     ]
   },
   "CIVIFORM_SUPPORTED_LANGUAGES": {
@@ -814,10 +752,7 @@
     "mode": "ADMIN_READABLE",
     "description": "Where to find the IP address for incoming requests. Default is \"DIRECT\" where the IP address of the request is the originating IP address. If \"FORWARDED\" then request has been reverse proxied and the originating IP address is stored in the X-Forwarded-For header.",
     "type": "string",
-    "values": [
-      "DIRECT",
-      "FORWARDED"
-    ]
+    "values": ["DIRECT", "FORWARDED"]
   },
   "NUM_TRUSTED_PROXIES": {
     "mode": "ADMIN_READABLE",
@@ -829,6 +764,7 @@
     "description": "Specifies the allowed file types that can be uploaded. Uses any valid [file type specifiers](https://developer.mozilla.org/en-US/docs/Web/HTML/Attributes/accept#unique_file_type_specifiers). Multiple are separated by commas. Default: \"image/*,.pdf\"",
     "type": "string"
   },
+
   "Observability": {
     "group_description": "Configuration options for CiviForm observability features.",
     "members": {
@@ -841,6 +777,11 @@
         "mode": "ADMIN_READABLE",
         "description": "The Google Analytics tracking ID.  If set, Google Analytics JavaScript scripts are added to the CiviForm pages.",
         "type": "string"
+      },
+      "LEAK_DETECTION_THRESHOLD": {
+        "mode": "ADMIN_READABLE",
+        "description": "How long in milliseconds a database connection can be borrowed from the pool before a warning log is generated indicating a potential connection leak. Minimum value is 2000.",
+        "type": "int"
       }
     }
   },
@@ -976,12 +917,6 @@
         "description": "Enables civiform admins to set up a customized eligibility message per screen.",
         "type": "bool"
       },
-      "CUSTOM_THEME_COLORS_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enable using custom theme colors in the applicant UI.",
-        "type": "bool",
-        "required": false
-      },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables suffix dropdown field in name question.",
@@ -993,20 +928,8 @@
         "type": "bool",
         "required": false
       },
-      "YES_NO_QUESTION_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables being able to add a new yes/no question.",
-        "type": "bool",
-        "required": false
-      },
-      "EXTERNAL_PROGRAM_CARDS_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enable showing external program cards.",
-        "type": "bool",
-        "required": false
-      },
       "EXPANDED_FORM_LOGIC_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
+        "mode": "ADMIN_READABLE",
         "description": "Enables new visibility/eligibility condition editing UI and expanded logic capabilities for admin.",
         "type": "bool",
         "required": false
@@ -1028,6 +951,12 @@
         "description": "Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
+      },
+      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enables translation management improvement phase one",
+        "type": "bool",
+        "required": false
       }
     }
   },
@@ -1037,12 +966,6 @@
       "PROGRAM_SLUG_URLS_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs.",
-        "type": "bool",
-        "required": false
-      },
-      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables translation management improvement phase one",
         "type": "bool",
         "required": false
       },
@@ -1064,21 +987,15 @@
         "type": "bool",
         "required": false
       },
-      "IMAGES_IN_QUESTION_FEATURE_ENABLED": {
+      "ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables images in question feature.",
+        "description": "(NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf.",
         "type": "bool",
         "required": false
       },
-      "ADMIN_UI_MIGRATION_SC_ENABLED": {
+      "ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
-        "type": "bool",
-        "required": false
-      },
-      "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf.",
+        "description": "(NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using new UX Designs.",
         "type": "bool",
         "required": false
       },

@@ -112,7 +112,7 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
       ImmutableList<String> durableJobOptions =
           ImmutableList.copyOf(DurableJobName.values()).stream()
               .map(DurableJobName::toString)
@@ -240,6 +240,22 @@ public class DevToolsController extends Controller {
   /** Remove all content from the program and question tables. */
   public Result clearHeadless() {
     return clearInternal() ? ok() : internalServerError();
+  }
+
+  /**
+   * Log blank lines to create visual spacing the log file.
+   *
+   * <p>Normally a developer could just press enter as desired, but in our setup that terminates the
+   * local server.
+   */
+  public Result logBlankLines() {
+    // Log enough so that it'll be visibly discoverable when scrolling through logs.
+    // Note the HTTP request for this handler will also be logged next to
+    // this, so multiple calls won't result in a larger unbroken section.
+    for (int i = 0; i < 5; ++i) {
+      logger.info("");
+    }
+    return ok();
   }
 
   /**

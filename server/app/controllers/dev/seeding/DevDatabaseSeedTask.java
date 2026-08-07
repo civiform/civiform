@@ -69,7 +69,6 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionService;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.QuestionDefinition;
 import services.statuses.DuplicateStatusException;
 import services.statuses.StatusDefinitions;
@@ -220,7 +219,6 @@ public final class DevDatabaseSeedTask {
 
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
-        | QuestionNotFoundException
         | CantAddQuestionToBlockException
         | ProgramQuestionDefinitionNotFoundException e) {
       throw new RuntimeException(e);
@@ -435,7 +433,6 @@ public final class DevDatabaseSeedTask {
     } catch (ProgramNotFoundException
         | ProgramBlockDefinitionNotFoundException
         | IllegalPredicateOrderingException
-        | QuestionNotFoundException
         | CantAddQuestionToBlockException
         | ProgramQuestionDefinitionNotFoundException
         | DuplicateStatusException e) {

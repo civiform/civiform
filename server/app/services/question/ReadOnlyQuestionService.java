@@ -1,7 +1,6 @@
 package services.question;
 
 import com.google.common.collect.ImmutableList;
-import services.question.exceptions.QuestionNotFoundException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 
@@ -26,10 +25,6 @@ public interface ReadOnlyQuestionService {
   /** Get the data object about the questions that are in the active or draft version. */
   ActiveAndDraftQuestions getActiveAndDraftQuestions();
 
-  /**
-   * Gets the question definition for a ID.
-   *
-   * @throws QuestionNotFoundException if the question for the ID does not exist.
-   */
-  QuestionDefinition getQuestionDefinition(long id) throws QuestionNotFoundException;
+  /** Gets the question definition for an ID. */
+  QuestionDefinition getQuestionDefinition(long id);
 }

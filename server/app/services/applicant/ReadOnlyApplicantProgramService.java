@@ -622,7 +622,7 @@ public final class ReadOnlyApplicantProgramService {
       if (blockDefinition.hasEnumeratorQuestion()) {
         // Get all the repeated entities enumerated by this enumerator question.
         EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-            blockDefinition.getEnumerationQuestionDefinition();
+            blockDefinition.getEnumeratorQuestionDefinition();
         ImmutableList<RepeatedEntity> repeatedEntities =
             maybeRepeatedEntity
                 .map(

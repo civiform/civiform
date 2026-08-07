@@ -74,15 +74,15 @@ public final class QuestionService {
    * <p>NOTE: This does not update the version.
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> create(QuestionDefinition questionDefinition) {
-    return create(questionDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return create(questionDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   public ErrorAnd<QuestionDefinition, CiviFormError> create(
-      QuestionDefinition questionDefinition, boolean requireLegacyRepeatedEntitySelector) {
+      QuestionDefinition questionDefinition, boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> validationErrors =
         questionDefinition.validate(
             /* previousDefinition= */ Optional.empty(),
-            /* requireLegacyRepeatedEntitySelector= */ requireLegacyRepeatedEntitySelector);
+            /* enumeratorImprovementsEnabled= */ enumeratorImprovementsEnabled);
 
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
@@ -161,8 +161,7 @@ public final class QuestionService {
    */
   public ErrorAnd<QuestionDefinition, CiviFormError> update(QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
-    return update(
-        Optional.empty(), updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+    return update(Optional.empty(), updatedDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   /**
@@ -187,19 +186,19 @@ public final class QuestionService {
       Optional<QuestionDefinition> previousDefinition, QuestionDefinition updatedDefinition)
       throws InvalidUpdateException {
     return update(
-        previousDefinition, updatedDefinition, /* requireLegacyRepeatedEntitySelector= */ true);
+        previousDefinition, updatedDefinition, /* enumeratorImprovementsEnabled= */ false);
   }
 
   public ErrorAnd<QuestionDefinition, CiviFormError> update(
       Optional<QuestionDefinition> previousDefinition,
       QuestionDefinition updatedDefinition,
-      boolean requireLegacyRepeatedEntitySelector)
+      boolean enumeratorImprovementsEnabled)
       throws InvalidUpdateException {
     if (!updatedDefinition.isPersisted()) {
       throw new InvalidUpdateException("question definition is not persisted");
     }
     ImmutableSet<CiviFormError> validationErrors =
-        updatedDefinition.validate(previousDefinition, requireLegacyRepeatedEntitySelector);
+        updatedDefinition.validate(previousDefinition, enumeratorImprovementsEnabled);
 
     Optional<QuestionModel> maybeQuestion =
         questionRepository.lookupQuestion(updatedDefinition.getId()).toCompletableFuture().join();
@@ -245,7 +244,60 @@ public final class QuestionService {
             .setEnumeratorId(enumeratorId)
             .build();
 
-    return create(copy, /* requireLegacyRepeatedEntitySelector= */ false);
+    return create(copy, /* enumeratorImprovementsEnabled= */ true);
+  }
+
+  /** The persisted initial question and the enumerator question linked to it. */
+  public record EnumAndInitialQuestion(
+      QuestionDefinition enumeratorQuestion, QuestionDefinition initialQuestion) {}
+
+  /**
+   * Attach an initial question to an enumerator question, establishing the mutual connection.
+   *
+   * <p>If {@code initialQuestionWasNewlyCreated}, the existing initial question is updated in place
+   * to set its enumeratorId. Otherwise, a copy of the initial question is created with the
+   * enumeratorId set. In either case the enumerator question is then updated to point at the
+   * persisted initial question via enumeratorInitialQuestionId.
+   */
+  public EnumAndInitialQuestion copyOrUpdateInitialQuestionAndAttachToEnumerator(
+      QuestionDefinition enumeratorQuestion,
+      QuestionDefinition originalInitialQuestion,
+      boolean initialQuestionWasNewlyCreated)
+      throws InvalidUpdateException, UnsupportedQuestionTypeException {
+    final QuestionDefinition persistedInitialQuestion;
+    if (initialQuestionWasNewlyCreated) {
+      QuestionDefinition updatedInitialQuestion =
+          questionRepository.updateEnumeratorId(
+              originalInitialQuestion, enumeratorQuestion.getId());
+      QuestionModel persisted = questionRepository.createOrUpdateDraft(updatedInitialQuestion);
+      persistedInitialQuestion = questionRepository.getQuestionDefinition(persisted);
+    } else {
+      ErrorAnd<QuestionDefinition, CiviFormError> copyResult =
+          createCopy(originalInitialQuestion, Optional.of(enumeratorQuestion.getId()));
+      if (copyResult.isError()) {
+        throw new RuntimeException(
+            String.format(
+                "Could not create copy of initial question %s", originalInitialQuestion.getName()));
+      }
+      persistedInitialQuestion = copyResult.getResult();
+    }
+
+    QuestionDefinition enumeratorQuestionWithInitialId =
+        new QuestionDefinitionBuilder(enumeratorQuestion)
+            .setEnumeratorInitialQuestionId(Optional.of(persistedInitialQuestion.getId()))
+            .build();
+    ErrorAnd<QuestionDefinition, CiviFormError> updatedEnumeratorQuestion =
+        update(
+            /* previousDefinition= */ Optional.of(enumeratorQuestion),
+            /* updatedDefinition= */ enumeratorQuestionWithInitialId);
+    if (updatedEnumeratorQuestion.isError()) {
+      throw new RuntimeException(
+          String.format(
+              "Could not link enumerator question %s to initial question %s",
+              enumeratorQuestion.getName(), persistedInitialQuestion.getName()));
+    }
+    return new EnumAndInitialQuestion(
+        updatedEnumeratorQuestion.getResult(), persistedInitialQuestion);
   }
 
   /** If this question is archived but a new version has not been published yet, un-archive it. */

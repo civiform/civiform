@@ -213,7 +213,7 @@ public final class UpsellController extends CiviFormController {
                   return unauthorized();
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
               }
               throw new RuntimeException(ex);
@@ -258,10 +258,10 @@ public final class UpsellController extends CiviFormController {
                   return unauthorized(cause.toString());
                 }
                 if (cause instanceof ProgramNotFoundException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
                 if (cause instanceof NoSuchElementException) {
-                  return notFound(cause.toString());
+                  return notFound();
                 }
               }
               throw new RuntimeException(ex);

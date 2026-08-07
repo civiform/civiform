@@ -66,6 +66,11 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   }
 
   @Override
+  Optional<Long> enumeratorInitialQuestionId() {
+    return Optional.empty();
+  }
+
+  @Override
   Optional<Instant> lastModifiedTime() {
     return Optional.empty();
   }
@@ -136,6 +141,18 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setEnumeratorId(Optional<Long> enumeratorId) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setEnumeratorInitialQuestionId(
+        long enumeratorInitialQuestionId) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setEnumeratorInitialQuestionId(
+        Optional<Long> enumeratorInitialQuestionId) {
       return this;
     }
 

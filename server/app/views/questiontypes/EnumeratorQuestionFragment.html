@@ -9,10 +9,10 @@
   class="cf-question-enumerator cf-applicant-question-field"
   th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
   data-testid="questionRoot"
-  th:aria-labelledby="|${questionId}-title ${questionId}-description|"
 >
   <fieldset
     class="usa-fieldset"
+    th:aria-labelledby="|${questionId}-title ${questionId}-description|"
     th:aria-describedby="${questionId} + '-description'"
   >
     <!--/* Title and Help Text */-->
@@ -73,7 +73,7 @@
 <div
   th:fragment="enumeratorField(fieldId, inputId, path, existingEntity, visibleIndex, deleteButtonId, hidden)"
   class="cf-enumerator-field maxw-mobile-lg"
-  th:classappend="${hidden ? 'hidden' : ''}"
+  th:classappend="${hidden ? 'display-none' : ''}"
   th:id="${fieldId}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
 >
@@ -118,5 +118,5 @@
   id="enumerator-delete-template"
   name="delete_entity[]"
   disabled
-  class="hidden"
+  class="display-none"
 />

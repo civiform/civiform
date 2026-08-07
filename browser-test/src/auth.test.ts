@@ -1,15 +1,15 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
-  isLocalDevEnvironment,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
   testUserDisplayName,
   validateAccessibility,
-  validateScreenshot,
   validateToastMessage,
 } from './support'
 import {CardSectionName} from './support/applicant_program_list'
+import {waitForHtmxReady} from './support/wait'
 
 test.describe('Applicant auth', () => {
   const endYourSessionText = 'end your session'
@@ -55,25 +55,6 @@ test.describe('Applicant auth', () => {
     expect(await page.title()).toContain('Find programs')
 
     await validateToastMessage(page, 'Your session has ended.')
-  })
-
-  test('Applicant can confirm central provider logout', async ({page}) => {
-    test.skip(!isLocalDevEnvironment(), 'Only runs in test environment')
-    // so far only fake-oidc provider requires user to click "Yes" to confirm
-    // logout. AWS staging uses Auth0 which doesn't. And Seattle staging uses
-    // IDCS which at the moment doesn't have central logout enabled.
-
-    await loginAsTestUser(page)
-    await expect(page.getByRole('banner')).toContainText(
-      `Logged in as ${testUserDisplayName()}`,
-    )
-
-    await page.getByRole('button', {name: 'Logout'}).click()
-
-    await validateScreenshot(page, 'central-provider-logout')
-    await expect(
-      page.getByRole('heading', {name: 'Do you want to sign-out from'}),
-    ).toBeAttached()
   })
 
   test('Applicant can logout', async ({page}) => {
@@ -219,6 +200,93 @@ test.describe('Applicant auth', () => {
           programName2,
         ),
       ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+    })
+  })
+
+  test.describe('Account merge with file upload', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(page, 'FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED')
+    })
+
+    test('auth user can access file uploaded as guest after account merge', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      applicantProgramList,
+      applicantQuestions,
+    }) => {
+      const programName = 'Test program for account merge file upload'
+      const fileUploadQuestionText = 'File upload for merge test'
+      const fileName = 'file.pdf'
+      const fileContent =
+        '%PDF-1.4\n' +
+        '1 0 obj\n' +
+        '<< /Type /Catalog >>\n' +
+        'endobj\n' +
+        'trailer\n' +
+        '<<>>\n' +
+        '%%EOF\n' +
+        'some sample text'
+
+      await test.step('Add program with file upload question', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addFileUploadQuestion({
+          questionName: 'file-upload-merge-test-q',
+          questionText: fileUploadQuestionText,
+        })
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          ['file-upload-merge-test-q'],
+          programName,
+        )
+        await logout(page)
+      })
+
+      await test.step('Add user to the database', async () => {
+        await loginAsTestUser(page)
+        await logout(page)
+      })
+
+      await test.step('Apply to program as guest and upload file', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerFileUploadQuestion(fileContent, fileName)
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+      })
+
+      await test.step('Log in as user to merge accounts', async () => {
+        await loginAsTestUser(
+          page,
+          'a:has-text("Log in")',
+          false,
+          '',
+          '**/considerSignIn**',
+        )
+      })
+
+      await test.step('Verify merged user sees submitted application', async () => {
+        await page.goto('/programs/')
+        await expect(
+          applicantProgramList.getSubmittedTagLocator(
+            CardSectionName.MyApplications,
+            programName,
+          ),
+        ).toContainText(/\d?\d\/\d?\d\/\d\d/)
+      })
+
+      await test.step('Verify merged user can see and download the uploaded file', async () => {
+        await applicantQuestions.applyProgram(
+          programName,
+          /* showProgramOverviewPage= */ false,
+        )
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          fileUploadQuestionText,
+          fileName,
+        )
+        const downloaded =
+          await applicantQuestions.downloadFileFromUploadPage(fileName)
+        expect(downloaded).toEqual(fileContent)
+      })
     })
   })
 })

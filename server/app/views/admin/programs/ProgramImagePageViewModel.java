@@ -21,8 +21,8 @@ public final class ProgramImagePageViewModel implements BaseViewModel {
   private final int maxFileSizeMb;
 
   /**
-   * Card preview params when {@link ProgramCardPreview} succeeds. Empty means preview could not be
-   * built (see controller); this page treats empty as a failed load for the error banner.
+   * Card preview params when ProgramCardPreview succeeds. Empty means preview could not be built
+   * (see controller); this page treats empty as a failed load for the error banner.
    */
   private final Optional<ProgramCardParams> programCardParams;
 

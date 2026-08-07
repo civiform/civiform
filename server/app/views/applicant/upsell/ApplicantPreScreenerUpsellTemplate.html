@@ -33,6 +33,7 @@
               <div th:if="${eligiblePrograms.size() eq 0}">
                 <!-- utext is necessary to insert a hyperlink into a localized string. -->
                 <p
+                  class="margin-0"
                   th:utext="${isTrustedIntermediary} ?
                   #{content.preScreenerNoMatchingProgramsTi(${moreResourcesLinkHtml})} :
                   #{content.preScreenerNoMatchingPrograms(${moreResourcesLinkHtml})}"
@@ -54,9 +55,9 @@
                   <!-- We need h4 style for the headings, but accessibility checker doesn't allow skipping from h2 to h4 -->
                   <h3
                     th:text="${ep.getTitle()}"
-                    class="cf-prose-h4 cf-applicant-cif-eligible-program-name"
+                    class="cf-prose-h4 cf-applicant-cif-eligible-program-name margin-0"
                   ></h3>
-                  <p th:text="${ep.getShortDescription()}"></p>
+                  <p class="margin-0" th:text="${ep.getShortDescription()}"></p>
                 </div>
               </th:block>
 

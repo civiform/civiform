@@ -462,6 +462,85 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void deleteUnusedGuestAccounts_multipleApplicants_onlyOneUnused_onlyDeletesUnusedOne() {
+    // When an account has two applicants and only one qualifies for cleanup,
+    // the unused applicant should be deleted but the account should be kept
+    // because the other applicant still references it.
+    var testProgram = resourceCreator.insertActiveProgram("test-program");
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(10, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
+
+    // Create a guest account with two applicants
+    AccountModel sharedAccount = resourceCreator.insertAccount();
+    sharedAccount.save();
+
+    ApplicantModel unusedApplicant = resourceCreator.insertApplicant();
+    unusedApplicant.setAccount(sharedAccount);
+    unusedApplicant.setWhenCreated(timeInPast);
+    unusedApplicant.save();
+
+    ApplicantModel usedApplicant = resourceCreator.insertApplicant();
+    usedApplicant.setAccount(sharedAccount);
+    usedApplicant.setWhenCreated(timeInPast);
+    usedApplicant.save();
+
+    sharedAccount.setApplicants(ImmutableList.of(unusedApplicant, usedApplicant));
+    sharedAccount.save();
+
+    // Give the used applicant an application so it won't be cleaned up
+    resourceCreator.insertApplication(usedApplicant, testProgram, LifecycleStage.DRAFT);
+
+    var numberDeleted = repo.deleteUnusedGuestAccounts(/* minAgeInDays= */ 5);
+    var remainingApplicants = repo.listApplicants().toCompletableFuture().join();
+    var remainingAccounts = repo.listAccounts();
+
+    // The unused applicant should be deleted
+    assertThat(remainingApplicants).doesNotContain(unusedApplicant);
+    // The used applicant should remain
+    assertThat(remainingApplicants).contains(usedApplicant);
+    // The account should NOT be deleted because the used applicant still references it
+    assertThat(remainingAccounts).contains(sharedAccount);
+    // No accounts deleted (only applicants were cleaned up)
+    assertThat(numberDeleted).isEqualTo(0);
+  }
+
+  @Test
+  public void deleteUnusedGuestAccounts_multipleApplicants_allUnused_allDeleted() {
+    // When an account has two applicants and both qualify for cleanup,
+    // both applicants and the account should be deleted.
+    LocalDateTime now = LocalDateTime.now(Clock.systemUTC());
+    Instant timeInPast = now.minus(10, ChronoUnit.DAYS).toInstant(ZoneOffset.UTC);
+
+    // Create a guest account with two applicants, both unused
+    AccountModel sharedAccount = resourceCreator.insertAccount();
+    sharedAccount.save();
+
+    ApplicantModel unusedApplicant1 = resourceCreator.insertApplicant();
+    unusedApplicant1.setAccount(sharedAccount);
+    unusedApplicant1.setWhenCreated(timeInPast);
+    unusedApplicant1.save();
+
+    ApplicantModel unusedApplicant2 = resourceCreator.insertApplicant();
+    unusedApplicant2.setAccount(sharedAccount);
+    unusedApplicant2.setWhenCreated(timeInPast);
+    unusedApplicant2.save();
+
+    sharedAccount.setApplicants(ImmutableList.of(unusedApplicant1, unusedApplicant2));
+    sharedAccount.save();
+
+    var numberDeleted = repo.deleteUnusedGuestAccounts(/* minAgeInDays= */ 5);
+    var remainingApplicants = repo.listApplicants().toCompletableFuture().join();
+    var remainingAccounts = repo.listAccounts();
+
+    // Both applicants should be deleted
+    assertThat(remainingApplicants).doesNotContain(unusedApplicant1);
+    assertThat(remainingApplicants).doesNotContain(unusedApplicant2);
+    // The account should also be deleted since all applicants are gone
+    assertThat(remainingAccounts).doesNotContain(sharedAccount);
+    assertThat(numberDeleted).isEqualTo(1);
+  }
+
+  @Test
   public void addIdTokenAndPrune() {
     AccountModel account = new AccountModel();
     String fakeEmail = "fake email";

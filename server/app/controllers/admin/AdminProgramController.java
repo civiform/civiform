@@ -247,7 +247,7 @@ public final class AdminProgramController extends CiviFormController {
       }
       return redirect(controllers.admin.routes.AdminProgramBlocksController.index(idToEdit).url());
     } catch (ProgramNotFoundException e) {
-      return notFound(e.toString());
+      return notFound();
     } catch (RuntimeException e) {
       return badRequest(e.toString());
     }

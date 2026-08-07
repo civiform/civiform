@@ -90,11 +90,9 @@
       ></div>
     </th:block>
     <th:block th:case="'Yes/No'">
-      <div th:if="${isYesNoQuestionEnabled}">
-        <div
-          th:replace="~{questiontypes/YesNoQuestionFragment :: yes_no(${question}, ${questionRendererParams})}"
-        ></div>
-      </div>
+      <div
+        th:replace="~{questiontypes/YesNoQuestionFragment :: yes_no(${question}, ${questionRendererParams})}"
+      ></div>
     </th:block>
   </th:block>
 </div>

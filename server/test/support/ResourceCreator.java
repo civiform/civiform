@@ -126,6 +126,21 @@ public class ResourceCreator {
     return enumQuestion;
   }
 
+  public QuestionModel insertRepeatedTextQuestion(String name, QuestionModel enumerator) {
+    QuestionDefinition definition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setEnumeratorId(Optional.of(enumerator.id))
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.save();
+    return question;
+  }
+
   public QuestionModel insertQuestion() {
     String name = UUID.randomUUID().toString();
     QuestionDefinition definition =

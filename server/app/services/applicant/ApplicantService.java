@@ -94,7 +94,6 @@ import services.program.ProgramType;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
-import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
@@ -122,7 +121,6 @@ public final class ApplicantService {
   private final String baseUrl;
   private final boolean isStaging;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
-  private final SettingsManifest settingsManifest;
   private final String stagingProgramAdminNotificationMailingList;
   private final String stagingTiNotificationMailingList;
   private final String stagingApplicantNotificationMailingList;
@@ -151,8 +149,7 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ApiBridgeProcessor apiBridgeProcessor,
-      SettingsManifest settingsManifest) {
+      ApiBridgeProcessor apiBridgeProcessor) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -170,7 +167,6 @@ public final class ApplicantService {
 
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.isStaging = checkNotNull(deploymentType).isStaging();
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.stagingProgramAdminNotificationMailingList =
         checkNotNull(configuration).getString("staging_program_admin_notification_mailing_list");
     this.stagingTiNotificationMailingList =
@@ -1165,7 +1161,7 @@ public final class ApplicantService {
    *     criteria.
    *     <p>Does not include the Pre-Screener Form.
    *     <p>"Appropriate programs" those returned by {@link #relevantProgramsForApplicant(long,
-   *     auth.CiviFormProfile)}.
+   *     CiviFormProfile, Request)}.
    */
   public CompletionStage<ImmutableList<ApplicantProgramData>> maybeEligibleProgramsForApplicant(
       long applicantId, CiviFormProfile requesterProfile, Request request) {
@@ -1372,8 +1368,7 @@ public final class ApplicantService {
           if (programType.equals(ProgramType.PRE_SCREENER_FORM)) {
             relevantPrograms.setPreScreenerForm(applicantProgramDataBuilder.build());
           } else if (programType.equals(ProgramType.DEFAULT)
-              || (programType.equals(ProgramType.EXTERNAL)
-                  && settingsManifest.getExternalProgramCardsEnabled())) {
+              || programType.equals(ProgramType.EXTERNAL)) {
             unappliedPrograms.add(applicantProgramDataBuilder.build());
           }
         });
@@ -1434,7 +1429,7 @@ public final class ApplicantService {
   private ImmutableList<ApplicantProgramData> sortByProgramId(
       ImmutableList<ApplicantProgramData> programs) {
     return programs.stream()
-        .sorted(Comparator.comparing(p -> p.program().id()))
+        .sorted(Comparator.comparingLong(p -> p.program().id()))
         .collect(ImmutableList.toImmutableList());
   }
 
@@ -2040,7 +2035,7 @@ public final class ApplicantService {
 
   /**
    * Checks the block for any {@link PhoneQuestion}. If any are found grab the phone number from the
-   * formData and call the {@link PhoneValidationUtils#validatePhoneNumberWithCountryCode} to
+   * formData and call the {@link PhoneValidationUtils#validatePhoneNumber(Optional, Optional)} to
    * calculate the country code.
    */
   public CompletionStage<ImmutableMap<String, String>> setPhoneCountryCode(
