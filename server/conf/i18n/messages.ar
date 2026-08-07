@@ -691,6 +691,7 @@ label.zipcode=الرمز البريدي
 validation.streetRequired=يُرجى إدخال اسم ورقم صالحَين للشارع.
 validation.cityRequired=يُرجى إدخال المدينة.
 validation.currencyMisformatted=يجب أن تكون العملة بأحد التنسيقات التالية: 1000 أو 1,000 أو 1000.30 أو 1,000.30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=يُرجى إدخال الولاية.
 validation.invalidZipcode=يُرجى إدخال رمز بريدي صالح مؤلف من 5 أرقام.
 validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل باستخدام رقم صندوق البريد.
@@ -880,6 +881,7 @@ validation.lastNameRequired=يُرجى إدخال اسم العائلة.
 validation.numberTooBig=يجب ألا يتجاوز العدد {0}.
 validation.numberTooSmall=يجب ألا يقل العدد عن {0}.
 validation.numberNonInteger=يجب أن يكون العدد موجبًا وصحيحًا وأن يتضمن أرقامًا بين 0 و9 فقط.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
