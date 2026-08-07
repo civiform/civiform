@@ -691,6 +691,7 @@ label.zipcode=ዚፕ ኮድ
 validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
 validation.cityRequired=እባክዎ ከተማ ያስገቡ።
 validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=እባክዎ ክልል ያስገቡ።
 validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
 validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
@@ -880,6 +881,7 @@ validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ�
 validation.numberTooBig=ቢበዛ {0} መሆን አለበት።
 validation.numberTooSmall=ቢያንስ {0} መሆን አለበት።
 validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
