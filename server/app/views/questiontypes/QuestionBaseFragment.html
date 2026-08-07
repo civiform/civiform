@@ -34,7 +34,7 @@
   th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
   <!--/* Question title */-->
-  <label class="usa-label display-flex" th:for="${inputId}">
+  <label class="usa-label display-flex" th:id="${questionId} + '-title'" th:for="${inputId}">
     <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 
