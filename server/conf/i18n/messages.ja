@@ -691,6 +691,7 @@ label.zipcode=郵便番号
 validation.streetRequired=ストリートネームとストリートナンバーを正しく入力してください。
 validation.cityRequired=市区町村を入力してください。
 validation.currencyMisformatted=通貨は、1000、1,000、1000.30、1,000.30 のいずれかの形式にする必要があります。
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=州を入力してください。
 validation.invalidZipcode=5 桁の有効な郵便番号を入力してください。
 validation.noPoBox=住所を正しく入力してください。私書箱は指定できません。
@@ -880,6 +881,7 @@ validation.lastNameRequired=名前（姓）を入力してください。
 validation.numberTooBig=最大で {0} にする必要があります。
 validation.numberTooSmall={0} 以上にする必要があります。
 validation.numberNonInteger=数は正の整数でなければならず、0～9 の数字のみ使用できます。
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
