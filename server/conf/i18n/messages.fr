@@ -691,6 +691,7 @@ label.zipcode=Code postal
 validation.streetRequired=Veuillez saisir un nom de rue et un numéro valides.
 validation.cityRequired=Veuillez saisir la ville.
 validation.currencyMisformatted=Formats de devise acceptés : 1 000 1 000 1 000,30 1 000,30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=Veuillez saisir l''État.
 validation.invalidZipcode=Veuillez saisir un code postal à 5 chiffres valide.
 validation.noPoBox=Veuillez saisir une adresse valide. Les boîtes postales ne sont pas acceptées.
@@ -880,6 +881,7 @@ validation.lastNameRequired=Veuillez saisir votre nom de famille.
 validation.numberTooBig=Doit être inférieur ou égal à {0}.
 validation.numberTooSmall=Doit être supérieur ou égal à {0}.
 validation.numberNonInteger=Le nombre doit être un nombre entier positif composé uniquement des chiffres de 0 à 9.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
