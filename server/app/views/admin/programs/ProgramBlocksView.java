@@ -403,8 +403,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             messages));
 
     if (viewAllowsEditingProgram()) {
-      ret.condWith(
-          !settingsManifest.getEnumeratorImprovementsEnabled(request),
+      ret.with(
           ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
               .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
               .withType("submit")
@@ -412,28 +411,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .withForm(CREATE_BLOCK_FORM_ID));
       ret.condWith(
           settingsManifest.getEnumeratorImprovementsEnabled(request),
-          ViewUtils.makeSvgTextButton("Add screen", Icons.ADD)
-              .withId("add-screen")
-              .attr("aria-controls", "add-screen-dropdown")
-              .attr("aria-expanded", "false")
-              .withClasses(
-                  ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4", ReferenceClasses.WITH_DROPDOWN),
-          ul().withId("add-screen-dropdown")
-              .withClasses(
-                  "hidden", "border", "border-gray-10", "margin-left-205", "margin-right-4")
-              .with(
-                  li(
-                      button("Add screen")
-                          .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "width-full")
-                          .withType("submit")
-                          .withId("add-block-button")
-                          .withForm(CREATE_BLOCK_FORM_ID)),
-                  li(
-                      button(messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()))
-                          .withClasses(ButtonStyles.CLEAR_WITH_ICON_FOR_DROPDOWN, "width-full")
-                          .withType("submit")
-                          .withId("add-enumerator-block-button")
-                          .withForm(CREATE_ENUMERATOR_BLOCK_FORM_ID))));
+          ViewUtils.makeSvgTextButton(
+                  messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()), Icons.ADD)
+              .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
+              .withType("submit")
+              .withId("add-enumerator-block-button")
+              .withForm(CREATE_ENUMERATOR_BLOCK_FORM_ID));
     }
     return ret;
   }
@@ -967,7 +950,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .withId("repeated-set-question-section-heading")
                 .withClasses("text-lg", "font-bold", "margin-bottom-05")
                 .withTabindex(-1),
-            p(messages.at(MessageKey.TEXT_REPEATED_SET_QUESTION_DESCRIPTION.getKeyName()))
+            p(messages.at(MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))
                 .withClasses("text-gray-cool-50", "font-ui-sm"),
             enumeratorQuestionCard);
   }
@@ -1243,7 +1226,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     /* text= */ "Error: "
                         + errorMessages.stream()
                             .map(CiviFormError::message)
-                            .collect(Collectors.joining(".  "))
+                            .collect(Collectors.joining(". "))
                         + ".",
                     /* title= */ Optional.empty(),
                     /* hidden= */ errorMessages.isEmpty())

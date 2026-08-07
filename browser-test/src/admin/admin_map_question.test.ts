@@ -1,11 +1,19 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   waitForPageJsLoad,
 } from '../support'
 
 test.describe('Create and edit map question', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   if (isLocalDevEnvironment()) {
     test('Map question form', async ({page, adminQuestions}) => {
       await test.step('Navigate to map question creation form', async () => {

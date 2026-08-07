@@ -1,15 +1,17 @@
 # syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
-FROM ubuntu:26.04@sha256:b7f48194d4d8b763a478a621cdc81c27be222ba2206ca3ca6bc42b49685f3d9e
+FROM ubuntu:26.04@sha256:3131b4cc82a783df6c9df078f86e01819a13594b865c2cad47bd1bca2b7063bb
 
 RUN apt-get update -y && \
     apt-get install -y ca-certificates curl gnupg && \
     # Add nodejs to repo
     curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg && \
-    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_22.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
+    echo "deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_24.x nodistro main" | tee /etc/apt/sources.list.d/nodesource.list && \
     # Cleanup packages and update the repos
     apt-get update && \
     # Install the packages
     apt-get install -y nodejs fonts-ubuntu && \
+    # node 24 bundles npm 11; engines/engine-strict require npm >= 12
+    npm install -g npm@^12 && \
     # Smoke tests
     node --version && \
     npm --version && \

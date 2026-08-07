@@ -1,0 +1,35 @@
+<!--/*
+  Labeled textarea field, legacy FieldWithLabel-parity markup for migrated admin pages.
+
+  Field ids: callers pass a fixed id, or generate a random 8-character
+  alphabetic id with ${model.randomFieldId()} so labels stay associated
+  with inputs.
+*/-->
+<div
+  th:fragment="textareaField(id, name, label, value, required, markdown)"
+  class="mb-2"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(${required})}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <textarea
+      maxlength="10000"
+      th:attr="aria-required=${required} ? 'true'"
+      th:id="${id}"
+      th:name="${name}"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      th:text="${value}"
+    ></textarea>
+    <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+  <th:block th:if="${markdown}">
+    <span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/MarkdownIndicator :: markdownIndicator('Markdown is supported, ')}"
+    ></span>
+  </th:block>
+</div>

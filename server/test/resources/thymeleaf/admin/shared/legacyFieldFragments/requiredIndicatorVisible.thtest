@@ -1,0 +1,8 @@
+%NAME requiredIndicator - visible
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<span th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"></span>
+# ----------------------------------------------------------------------
+%OUTPUT
+<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span>

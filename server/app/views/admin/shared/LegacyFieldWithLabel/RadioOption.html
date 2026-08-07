@@ -1,0 +1,16 @@
+<!--/* Label-wrapped radio option, legacy FieldWithLabel-parity markup for migrated admin pages. */-->
+<label
+  th:fragment="radioOption(id, name, label, value, checked)"
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  th:for="${id}"
+  ><input
+    type="radio"
+    th:value="${value}"
+    maxlength="10000"
+    aria-required="true"
+    th:id="${id}"
+    th:name="${name}"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+    th:checked="${checked}"
+  />[[${label}]]</label
+>

@@ -5,10 +5,13 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers.Labels;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Lists;
 import controllers.FlashKey;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.questions.EnumeratorQuestionForm;
 import forms.questions.QuestionFormBuilder;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -25,6 +28,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.MessageKey;
 import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalApiBridgeStateException;
@@ -101,6 +105,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
     ImmutableList.Builder<Long> idBuilder = new ImmutableList.Builder<Long>();
     boolean addedEnumeratorQuestion = false;
     for (Long qId : questionIds) {
+      // TODO(#13638): This is likely an unnecessary database lookup when the
+      // cache can be used, as well the resulting IDs are passed to addQuestionsToBlock which uses
+      // a cached view which is error prone as it is a different source than this.
       Optional<QuestionModel> latestQuestion = versionRepository.getLatestVersionOfQuestion(qId);
       if (latestQuestion.isEmpty()) {
         return notFound(String.format("Question ID %s not found", qId));
@@ -174,8 +181,25 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
-    Optional<QuestionDefinition> optionalOriginalInitialQuestion = Optional.empty();
-    if (initialQuestionIdFromForm.isPresent()) {
+    final Optional<QuestionDefinition> optionalOriginalInitialQuestion;
+    final ErrorAnd<QuestionDefinition, CiviFormError> result;
+
+    // The initial question is required, but isn't attached to the enumerator question yet
+    // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
+    // Otherwise, resolve the referenced question and create the enumerator normally.
+    if (initialQuestionIdFromForm.isEmpty()) {
+      optionalOriginalInitialQuestion = Optional.empty();
+      result =
+          ErrorAnd.error(
+              ImmutableSet.<CiviFormError>builder()
+                  .addAll(pendingEnumeratorQuestion.validate())
+                  .add(
+                      CiviFormError.of(
+                          messages.at(
+                              MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED
+                                  .getKeyName())))
+                  .build());
+    } else {
       QuestionDefinition originalInitialQuestion =
           questionService
               .getReadOnlyQuestionServiceSync()
@@ -185,10 +209,10 @@ public class AdminProgramBlockQuestionsController extends Controller {
             String.format("Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
       }
       optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
+      result =
+          questionService.create(
+              pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
     }
-
-    ErrorAnd<QuestionDefinition, CiviFormError> result =
-        questionService.create(pendingEnumeratorQuestion);
     // If there are validation errors in the repeated set form
     if (result.isError()) {
       return ok(
@@ -209,27 +233,22 @@ public class AdminProgramBlockQuestionsController extends Controller {
     QuestionDefinition persistedEnumeratorQuestion = result.getResult();
 
     final ImmutableList<Long> questionIds;
-    // TODO (#13548): Remove this condition once initialQuestionId is required
-    if (optionalOriginalInitialQuestion.isEmpty()) {
-      questionIds = ImmutableList.of(persistedEnumeratorQuestion.getId());
-    } else {
-      try {
-        EnumAndInitialQuestion enumAndInitialQuestion =
-            questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
-                persistedEnumeratorQuestion,
-                optionalOriginalInitialQuestion.get(),
-                questionForm.getInitialQuestionWasNewlyCreated());
-        // The enumerator question now includes the enumeratorInitialQuestionId
-        persistedEnumeratorQuestion = enumAndInitialQuestion.enumeratorQuestion();
-        // The enum must come before the initial question as the validation
-        // will require the enum to be present for the initial question.
-        questionIds =
-            ImmutableList.of(
-                enumAndInitialQuestion.enumeratorQuestion().getId(),
-                enumAndInitialQuestion.initialQuestion().getId());
-      } catch (InvalidUpdateException | UnsupportedQuestionTypeException | RuntimeException e) {
-        return internalServerError(e.getMessage());
-      }
+    try {
+      EnumAndInitialQuestion enumAndInitialQuestion =
+          questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
+              persistedEnumeratorQuestion,
+              optionalOriginalInitialQuestion.get(),
+              questionForm.getInitialQuestionWasNewlyCreated());
+      // The enumerator question now includes the enumeratorInitialQuestionId
+      persistedEnumeratorQuestion = enumAndInitialQuestion.enumeratorQuestion();
+      // The enum must come before the initial question as the validation
+      // will require the enum to be present for the initial question.
+      questionIds =
+          ImmutableList.of(
+              enumAndInitialQuestion.enumeratorQuestion().getId(),
+              enumAndInitialQuestion.initialQuestion().getId());
+    } catch (InvalidUpdateException | UnsupportedQuestionTypeException | RuntimeException e) {
+      return internalServerError(e.getMessage());
     }
 
     final long enumeratorQuestionId = persistedEnumeratorQuestion.getId();
@@ -349,13 +368,16 @@ public class AdminProgramBlockQuestionsController extends Controller {
       Request request, long programId, long blockDefinitionId, long questionDefinitionId) {
     requestChecker.throwIfProgramNotDraft(programId);
 
+    List<Long> idsToDelete = Lists.newArrayList(questionDefinitionId);
+    // Delete an enumerator's initial question also. They are treated as pair.
+    questionService
+        .getReadOnlyQuestionServiceSync()
+        .getQuestionDefinition(questionDefinitionId)
+        .getEnumeratorInitialQuestionId()
+        .ifPresent(idsToDelete::add);
     try {
       programService.removeQuestionsFromBlock(
-          programId,
-          blockDefinitionId,
-          ImmutableList.of(questionDefinitionId),
-          settingsManifest,
-          request);
+          programId, blockDefinitionId, idsToDelete, settingsManifest, request);
     } catch (IllegalPredicateOrderingException | IllegalApiBridgeStateException e) {
       return redirect(
               controllers.admin.routes.AdminProgramBlocksController.edit(

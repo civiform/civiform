@@ -141,7 +141,7 @@ public final class OpenApiSchemaController {
                 Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
             .url();
 
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
       return ok(schemaPageView.render(
               request,
               SchemaPageMapper.map(

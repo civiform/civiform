@@ -147,8 +147,6 @@ test.describe('Program admin review of submitted applications', () => {
       await adminQuestions.expectActiveQuestionExist('monthly-income-q')
     })
 
-    await adminQuestions.goToViewQuestionPage('date-q')
-
     await test.step('Log in as test user', async () => {
       await logout(page)
       await loginAsTestUser(page)

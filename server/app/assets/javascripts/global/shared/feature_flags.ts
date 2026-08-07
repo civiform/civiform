@@ -1,6 +1,5 @@
 export const DEFAULTS = {
-  isAdminUiMigrationScEnabled: false,
-  isAdminUiMigrationScExtendedEnabled: false,
+  isAdminUiMigrationUxRedesignScEnabled: false,
   isFileUploadQuestionImprovementsEnabled: false,
 } as const
 
