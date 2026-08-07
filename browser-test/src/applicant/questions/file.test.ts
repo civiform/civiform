@@ -88,6 +88,27 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
     })
 
+    // After a file is uploaded, screen readers should announce the count of already-uploaded
+    // files rather than the browser-native "No file selected" text.
+    test('screen reader status span appears after file upload', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await applicantQuestions.answerFileUploadQuestion('some file', 'file.pdf')
+
+      // The visually-hidden SR status span (inside the already-OOB-swapped file list)
+      // should now be present and contain the file count.
+      // Note: usa-sr-only hides elements via CSS (position/clip), not display:none,
+      // so Playwright treats the span as visible even though it's visually hidden.
+      await expect(
+        page.locator('[id^="cf-fileupload-sr-status-"]'),
+      ).toBeVisible()
+      await expect(
+        page.locator('[id^="cf-fileupload-sr-status-"]'),
+      ).toContainText('1 file already uploaded')
+    })
+
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     test('missing file error disappears when file uploaded', async ({
       applicantQuestions,
