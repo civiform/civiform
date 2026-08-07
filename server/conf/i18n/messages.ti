@@ -691,6 +691,7 @@ label.zipcode=ZIP Code
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
 validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
@@ -880,6 +881,7 @@ validation.lastNameRequired=Please enter your last name.
 validation.numberTooBig=Must be at most {0}.
 validation.numberTooSmall=Must be at least {0}.
 validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
@@ -1192,17 +1194,17 @@ session.length.warning.message.loggedIn=Your session is about to expire. Please 
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
 #------------------------------------------------------------------------------#
 
-# Heading for the repeated set creation method radio buttons
+# Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=
-# Option for allowing an admin to create a new repeated set
+# Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=
-# Option for allowing an admin to choose an existing repeated set
+# Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=
-# Label for the new repeated set form
+# Label for the new list set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=
-# Label for the text input field asking for the admin identifier of the repeated set
+# Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
@@ -1216,21 +1218,21 @@ input.repeatedSet.hintText=
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
-# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+# Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=
 # Description explaining what the initial question is and what the "Add question" button does
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
-# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+# Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=
-# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a repeated set will add a new question to the question bank.
-# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+# Alert shown to notify admin that creating a new list set will add a new question to the question bank
+alert.repeatedSet.newQuestion=Creating a list set will add a new question to the question bank.
+# Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=
-# Submission button for creating a new repeated set
+# Submission button for creating a new list set
 button.repeatedSet.submitNew=
-# Button for admins to add a new repeated set
+# Button for admins to add a new list set
 button.repeatedSet.addNew=
 # Button label on the initial question card that clears the selection
 button.repeatedSet.initialQuestion.delete=
@@ -1250,9 +1252,9 @@ text.repeatedSet.screenNameDescription=
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
-# Heading above the repeated set question in the program block editor
+# Heading above the list set question in the program block editor
 heading.repeatedSet.question=
-# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+# Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
@@ -1264,19 +1266,19 @@ description.repeatedSet.adminId=
 description.repeatedSet.questionText=
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=
-#An informative description below the option to create a new repeated set question
+#An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=
 # A button for admins to add a repeated screen to a program
 button.addRepeatedScreen=
-# A button for admins to add a nested repeated set to a program
+# A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=
-# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+# A tooltip shown to admins when the delete question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
