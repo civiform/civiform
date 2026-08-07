@@ -1127,11 +1127,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enables image to be shown in a static question. */
-  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
-    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
-  }
-
   /** (NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf. */
   public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", request);
@@ -1152,6 +1147,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
     return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables an image to be shown in a static question. */
+  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
+    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2420,12 +2420,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "IMAGES_IN_QUESTION_FEATURE_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables images in question feature.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
                           "ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html"
                               + " to Thymeleaf.",
@@ -2452,7 +2446,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicant-guest merging strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "IMAGES_IN_QUESTION_FEATURE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables an image to be shown in a static"
+                              + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(
