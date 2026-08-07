@@ -691,6 +691,7 @@ label.zipcode=PLZ
 validation.streetRequired=Please enter valid street name and number.
 validation.cityRequired=Please enter city.
 validation.currencyMisformatted=Currency must be one of the following formats: 1000 1,000 1000.30 1,000.30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=Please enter state.
 validation.invalidZipcode=Please enter valid 5-digit ZIP code.
 validation.noPoBox=Please enter a valid address. We do not accept PO Boxes.
@@ -880,6 +881,7 @@ validation.lastNameRequired=Please enter your last name.
 validation.numberTooBig=Must be at most {0}.
 validation.numberTooSmall=Must be at least {0}.
 validation.numberNonInteger=Number must be a positive whole number and can only contain numeric characters 0-9.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
