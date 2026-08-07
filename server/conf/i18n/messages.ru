@@ -691,6 +691,7 @@ label.zipcode=Почтовый индекс
 validation.streetRequired=Укажите действительное название улицы и номер дома.
 validation.cityRequired=Укажите город.
 validation.currencyMisformatted=Укажите сумму в одном из следующих форматов (без точки с запятой): 1000; 1,000; 1000.30; 1,000.30.
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=Укажите штат.
 validation.invalidZipcode=Введите действительный 5-значный почтовый индекс.
 validation.noPoBox=Введите действительный адрес. Не указывайте номер абонентского ящика.
@@ -880,6 +881,7 @@ validation.lastNameRequired=Укажите фамилию.
 validation.numberTooBig=Число не должно быть больше {0}.
 validation.numberTooSmall=Число не должно быть меньше {0}.
 validation.numberNonInteger=Укажите положительное целое число, которое состоит только из цифр от 0 до 9.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
