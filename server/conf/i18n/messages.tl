@@ -691,6 +691,7 @@ label.zipcode=Zip code
 validation.streetRequired=Maaari lamang na ilagay ang wasto na pangalan ng kalye, at ang numero.
 validation.cityRequired=Maaari lamang na ilagay ang Lungsod.
 validation.currencyMisformatted=Ang currency ay dapat nasa isa sa mga sumusunod na format: 1000 1,000 1000.30 1,000.30
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=Maaari lamang na ilagay ang Estado.
 validation.invalidZipcode=Maaari lamang na ilagay ang 5-bilang na ZIP code.
 validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi natanggap ng mga PO Box.
@@ -880,6 +881,7 @@ validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.
 validation.numberTooBig=Dapat ay hindi hihigit sa {0}.
 validation.numberTooSmall=Dapat ay hindi bababa sa {0}.
 validation.numberNonInteger=Dapat ay naglalaman lamang ng mga numero.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
