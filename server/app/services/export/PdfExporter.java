@@ -31,6 +31,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import org.apache.commons.lang3.math.NumberUtils;
 import services.DateConverter;
 import services.TranslationNotFoundException;
 import services.applicant.AnswerData;
@@ -529,26 +530,11 @@ public final class PdfExporter {
   }
 
   private Integer getNumber(String text) {
-    if (text == null) {
-      return null;
-    }
-    try {
-      return Integer.parseInt(text);
-    } catch (NumberFormatException e) {
-      return null;
-    }
+    return NumberUtils.createInteger(text);
   }
 
   private boolean isNumber(String text) {
-    if (text == null) {
-      return false;
-    }
-    try {
-      Integer.parseInt(text);
-      return true;
-    } catch (NumberFormatException e) {
-      return false;
-    }
+    return NumberUtils.isDigits(text);
   }
 
   /**
