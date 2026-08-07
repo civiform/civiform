@@ -691,6 +691,7 @@ label.zipcode=우편번호
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.
 validation.cityRequired=시/군/구를 입력하세요.
 validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
+validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
 validation.stateRequired=시/도를 입력하세요.
 validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
 validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
@@ -880,6 +881,7 @@ validation.lastNameRequired=성을 입력하세요.
 validation.numberTooBig=최댓값은 {0}입니다.
 validation.numberTooSmall=최솟값은 {0}입니다.
 validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
+validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
