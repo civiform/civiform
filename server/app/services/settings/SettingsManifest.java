@@ -1127,6 +1127,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
+  /** (NOT FOR PRODUCTION USE) Enables image to be shown in a static question. */
+  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
+    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf. */
   public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled(RequestHeader request) {
     return getBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", request);
