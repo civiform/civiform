@@ -1010,6 +1010,12 @@
         "description": "(NOT FOR PRODUCTION USE) Enable dry run logging for the new applicant-guest merging strategy.",
         "type": "bool",
         "required": false
+      },
+      "IMAGES_IN_QUESTION_FEATURE_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "(NOT FOR PRODUCTION USE) Enables an image to be shown in a static question.",
+        "type": "bool",
+        "required": false
       }
     }
   }
