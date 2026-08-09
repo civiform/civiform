@@ -48,7 +48,7 @@
     "@azure/storage-blob": "^12.27.0",
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
-    "dompurify": "3.4.12",
+    "dompurify": "3.4.13",
     "maplibre-gl": "^5.6.1",
     "markdown-it": "15.0.0",
     "swagger-ui-dist": "^5.18.2"
