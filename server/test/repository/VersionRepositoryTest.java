@@ -107,7 +107,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     // Publish and ensure that both the program and question aren't carried forward.
     // The result map is empty because the only program/question were tombstoned.
-    assertThat(versionRepository.previewPublishNewSynchronizedVersion()).isEmpty();
+    assertThat(versionRepository.previewPublishNewVersion()).isEmpty();
 
     // Ensure that the Active and Draft versions are still as expected after the preview.
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
@@ -173,7 +173,7 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     // First, preview the changes and ensure no versions are updated.
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> previewResult =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(oldDraft.id);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(oldActive.id);
     assertThat(versionRepository.getDraftVersionOrCreate().getPrograms().stream().map(p -> p.id))
@@ -229,7 +229,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_doesNotMutateDatabase() {
+  public void previewPublishNewVersion_doesNotMutateDatabase() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
     question.addVersion(versionRepository.getActiveVersion()).save();
     ProgramBuilder.newDraftProgram("foo")
@@ -248,7 +248,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .map(q -> q.id)
             .collect(ImmutableList.toImmutableList());
 
-    versionRepository.previewPublishNewSynchronizedVersion();
+    versionRepository.previewPublishNewVersion();
 
     assertThat(versionRepository.getDraftVersionOrCreate().id).isEqualTo(draftId);
     assertThat(versionRepository.getActiveVersion().id).isEqualTo(activeId);
@@ -263,7 +263,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_draftProgramWithDraftQuestion() {
+  public void previewPublishNewVersion_draftProgramWithDraftQuestion() {
     QuestionModel activeQuestion = resourceCreator.insertQuestion("q1");
     activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
     QuestionModel draftQuestion = resourceCreator.insertQuestion("q1");
@@ -274,7 +274,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactly("q1");
     assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
@@ -282,7 +282,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_draftProgramReferencingActiveVersionQuestion() {
+  public void previewPublishNewVersion_draftProgramReferencingActiveVersionQuestion() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
     question.addVersion(versionRepository.getActiveVersion()).save();
     ProgramBuilder.newDraftProgram("program")
@@ -291,7 +291,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactly("q1");
     assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
@@ -299,7 +299,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_activeProgramWithDraftUsesOnlyDraftVersion() {
+  public void previewPublishNewVersion_activeProgramWithDraftUsesOnlyDraftVersion() {
     QuestionModel q1 = resourceCreator.insertQuestion("q1");
     q1.addVersion(versionRepository.getActiveVersion()).save();
     QuestionModel q2 = resourceCreator.insertQuestion("q2");
@@ -315,7 +315,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result).doesNotContainKey("q1");
     assertThat(result.keySet()).containsExactly("q2");
@@ -324,7 +324,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_activeProgramWithoutDraftIncluded() {
+  public void previewPublishNewVersion_activeProgramWithoutDraftIncluded() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
     question.addVersion(versionRepository.getActiveVersion()).save();
     ProgramBuilder.newActiveProgram("program")
@@ -334,7 +334,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.getDraftVersionOrCreate();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactly("q1");
     assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
@@ -342,7 +342,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_tombstonedActiveProgramExcluded() {
+  public void previewPublishNewVersion_tombstonedActiveProgramExcluded() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
     question.addVersion(versionRepository.getActiveVersion()).save();
     ProgramModel activeProgram =
@@ -355,23 +355,23 @@ public class VersionRepositoryTest extends ResetPostgres {
     draft.save();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_programWithNoQuestionsAddsNoEntries() {
+  public void previewPublishNewVersion_programWithNoQuestionsAddsNoEntries() {
     ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_unreferencedQuestionsNotInResult() {
+  public void previewPublishNewVersion_unreferencedQuestionsNotInResult() {
     QuestionModel activeQuestion = resourceCreator.insertQuestion("active-unreferenced");
     activeQuestion.addVersion(versionRepository.getActiveVersion()).save();
     QuestionModel draftQuestion = resourceCreator.insertQuestion("draft-unreferenced");
@@ -379,13 +379,13 @@ public class VersionRepositoryTest extends ResetPostgres {
     ProgramBuilder.newDraftProgram("empty-program").withBlock("Screen 1").build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result).isEmpty();
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_programWithMultipleQuestionsAllMapped() {
+  public void previewPublishNewVersion_programWithMultipleQuestionsAllMapped() {
     QuestionModel q1 = resourceCreator.insertQuestion("q1");
     q1.addVersion(versionRepository.getActiveVersion()).save();
     QuestionModel q2 = resourceCreator.insertQuestion("q2");
@@ -401,7 +401,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactlyInAnyOrder("q1", "q2", "q3");
     assertThat(result.get("q1").stream().map(PublishProgramPreview::adminName))
@@ -413,7 +413,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_multipleProgramsReferencingSameQuestion() {
+  public void previewPublishNewVersion_multipleProgramsReferencingSameQuestion() {
     QuestionModel question = resourceCreator.insertQuestion("shared-q");
     question.addVersion(versionRepository.getActiveVersion()).save();
 
@@ -427,7 +427,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactly("shared-q");
     assertThat(result.get("shared-q").stream().map(PublishProgramPreview::adminName))
@@ -435,7 +435,7 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void previewPublishNewSynchronizedVersion_fieldsPopulated() {
+  public void previewPublishNewVersion_fieldsPopulated() {
     QuestionModel question = resourceCreator.insertQuestion("q1");
     question.addVersion(versionRepository.getActiveVersion()).save();
     ProgramModel program =
@@ -445,7 +445,7 @@ public class VersionRepositoryTest extends ResetPostgres {
             .build();
 
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
+        versionRepository.previewPublishNewVersion();
 
     assertThat(result.keySet()).containsExactly("q1");
     assertThat(result.get("q1")).isNotNull();

@@ -101,8 +101,7 @@ public final class VersionRepository {
    * active version. If a question is not used it is not in the returned data. The returned data is
    * the minimal information needed by callers.
    */
-  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
-      previewPublishNewSynchronizedVersion() {
+  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>> previewPublishNewVersion() {
     // Building the mapping is fairly straightforward:
     // 1. For all Draft Programs, map their questions to the program.
     // 2. For all Active Programs not in the Draft, do the same

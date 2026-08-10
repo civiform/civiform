@@ -46,7 +46,7 @@ public final class ActiveAndDraftQuestions {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName = repository.previewPublishNewSynchronizedVersion();
+    this.referencingDraftProgramsByName = repository.previewPublishNewVersion();
 
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionDefinitionsForVersion(active).stream()
