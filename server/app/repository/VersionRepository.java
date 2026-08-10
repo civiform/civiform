@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.FetchConfig;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -643,7 +644,16 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return version.getPrograms();
+    return database
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.findList")
+        .fetch(
+            "categories", FetchConfig.ofQuery()) // ← batch secondary query, not N individual ones
+        .where()
+        .in("versions", version) // or use the join table
+        .findList()
+        .stream()
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**
