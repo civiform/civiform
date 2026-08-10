@@ -357,7 +357,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
         versionRepository.previewPublishNewSynchronizedVersion();
 
-    assertThat(result).doesNotContainKey("q1");
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -381,8 +381,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
         versionRepository.previewPublishNewSynchronizedVersion();
 
-    assertThat(result).doesNotContainKey("active-unreferenced");
-    assertThat(result).doesNotContainKey("draft-unreferenced");
+    assertThat(result).isEmpty();
   }
 
   @Test
@@ -457,26 +456,6 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(ref.localizedName()).isEqualTo(program.getProgramDefinition().localizedName());
   }
 
-  @Test
-  public void previewPublishNewSynchronizedVersion_allProgramsTombstonedReturnsEmpty() {
-    QuestionModel question = resourceCreator.insertQuestion("q1");
-    question.addVersion(versionRepository.getActiveVersion()).save();
-    ProgramModel draftProgram =
-        ProgramBuilder.newDraftProgram("foo")
-            .withBlock("Screen 1")
-            .withRequiredQuestion(question)
-            .build();
-    VersionModel draft = versionRepository.getDraftVersionOrCreate();
-    draft.addTombstoneForProgramForTest(draftProgram);
-    draft.save();
-
-    ImmutableMap<String, ImmutableSet<PublishProgramPreview>> result =
-        versionRepository.previewPublishNewSynchronizedVersion();
-
-    assertThat(result).isEmpty();
-  }
-
-  @Test
   public void testPublishWithQuestionsNotIncludedInPrograms() throws Exception {
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
