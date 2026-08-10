@@ -104,6 +104,7 @@ public final class ProgramRepository {
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
+        .fetch("categories")
         .where()
         .eq("id", id)
         .findOneOrEmpty();
