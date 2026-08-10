@@ -1,5 +1,12 @@
 import {Feature, FeatureCollection, GeoJsonProperties, Point} from 'geojson'
-import {GeoJSONSource, LngLatLike, Map as MapLibreMap, Popup} from 'maplibre-gl'
+import {
+  GeoJSONSource,
+  LngLatLike,
+  Map as MapLibreMap,
+  Popup,
+  setWorkerUrl,
+} from 'maplibre-gl'
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?worker&url'
 import {
   featureMatchesFilters,
   getFilters,
@@ -55,6 +62,13 @@ import {
   POPUP_LAYER,
   CF_LOCATION_CHECKBOX_INPUT,
 } from '@/mapquestion/map_util'
+
+// MapLibre v6 ships ESM-only and cannot locate its worker through a bundler's
+// module graph, so bundler consumers must set the worker URL once before any
+// Map is constructed. Use `?worker&url` rather than plain `?url`: the worker
+// imports a sibling shared module, which plain `?url` omits from production
+// builds, so tiles would load in dev but not in prod.
+setWorkerUrl(maplibreWorkerUrl)
 
 export const init = (): void => {
   const mapDataObject = window.app?.data?.maps || {}
@@ -579,7 +593,7 @@ export const updateSelectedMarker = (
       },
     )
 
-    source.setData({
+    void source.setData({
       ...featureCollection,
       features: updatedFeatures,
     })
