@@ -456,6 +456,7 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(ref.localizedName()).isEqualTo(program.getProgramDefinition().localizedName());
   }
 
+  @Test
   public void testPublishWithQuestionsNotIncludedInPrograms() throws Exception {
     QuestionModel firstQuestion = resourceCreator.insertQuestion("first-question");
     firstQuestion.addVersion(versionRepository.getActiveVersion()).save();
