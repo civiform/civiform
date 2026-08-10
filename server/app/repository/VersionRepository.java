@@ -650,7 +650,7 @@ public final class VersionRepository {
         .fetch(
             "categories", FetchConfig.ofQuery()) // ← batch secondary query, not N individual ones
         .where()
-        .in("versions", version) // or use the join table
+        .in("versions", version)
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
