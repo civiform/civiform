@@ -99,6 +99,46 @@ public class ApplicantDataTest extends ResetPostgres {
   }
 
   @Test
+  public void isDuplicate_ignoresSiblingScoreKeys() {
+    // A previously submitted snapshot of a scoring program carries score keys as siblings of the
+    // answers plus the root total_score; a live applicant answering identically does not. The
+    // comparison must be score-blind. The unscored radio (selection without score) exercises the
+    // filtered delete against partial matches.
+    ApplicantData submittedSnapshot =
+        new ApplicantData(
+            "{\"applicant\":{\"color\":{\"selection\":3,\"score\":7},"
+                + "\"toppings\":{\"selections\":[1,9,2],\"scores\":[5,null,2]},"
+                + "\"unscored_radio\":{\"selection\":8}},"
+                + "\"total_score\":14}");
+    ApplicantData liveApplicant =
+        new ApplicantData(
+            "{\"applicant\":{\"color\":{\"selection\":3},"
+                + "\"toppings\":{\"selections\":[1,9,2]},"
+                + "\"unscored_radio\":{\"selection\":8}}}");
+
+    assertThat(liveApplicant.isDuplicateOf(submittedSnapshot)).isTrue();
+    assertThat(submittedSnapshot.isDuplicateOf(liveApplicant)).isTrue();
+  }
+
+  @Test
+  public void isDuplicate_keepsQuestionKeysNamedLikeScoreKeys() {
+    // Question admin names may legitimately produce keys called score/scores/total_score below
+    // `applicant`. The scrub only removes score keys that sit next to a selection/selections
+    // scalar, and only the root-level total_score, so these question subtrees stay compared.
+    ApplicantData data1 =
+        new ApplicantData(
+            "{\"applicant\":{\"score\":{\"text\":\"a\"},\"scores\":{\"text\":\"b\"},"
+                + "\"total_score\":{\"text\":\"c\"}}}");
+    ApplicantData data2 =
+        new ApplicantData(
+            "{\"applicant\":{\"score\":{\"text\":\"a\"},\"scores\":{\"text\":\"b\"},"
+                + "\"total_score\":{\"text\":\"DIFFERENT\"}}}");
+
+    assertThat(data1.isDuplicateOf(data2)).isFalse();
+    assertThat(data1.isDuplicateOf(new ApplicantData(data1.asJsonString()))).isTrue();
+  }
+
+  @Test
   public void putServiceAreaInclusionEntities_setsCorrectValues() {
     Path path = Path.create("applicant.address").join(Scalar.SERVICE_AREAS.name()).asArrayElement();
     ImmutableList<ServiceAreaInclusion> entityNames =

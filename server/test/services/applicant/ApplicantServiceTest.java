@@ -1085,6 +1085,33 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void stageAndUpdateIfValid_pathEndingInReservedScoreKey_isRejected() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            "applicant.color.score", "9999",
+            "applicant.toppings.scores[0]", "9999",
+            "total_score", "9999");
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved score key");
+  }
+
+  @Test
   public void createApplicant_createsANewApplicant() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
