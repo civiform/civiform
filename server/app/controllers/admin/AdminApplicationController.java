@@ -296,7 +296,10 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ true);
+        pdfExporterService.generateApplicationPdf(
+            application,
+            /* isAdmin= */ true,
+            /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request));
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
