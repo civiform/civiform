@@ -16,6 +16,7 @@ import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -34,8 +35,9 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
       Config configuration,
       AccountRepository accountRepository,
       CategoryRepository categoryRepository,
-      MessagesApi messagesApi) {
-    super(configuration, accountRepository, categoryRepository, messagesApi);
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
+    super(configuration, accountRepository, categoryRepository, messagesApi, settingsManifest);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
   }
 
@@ -102,8 +104,8 @@ public final class ProgramMetaDataEditView extends ProgramFormBuilder {
 
     FormTag formTag =
         programForm.isPresent()
-            ? buildProgramForm(programForm.get(), programEditStatus)
-            : buildProgramForm(existingProgram, programEditStatus);
+            ? buildProgramForm(request, programForm.get(), programEditStatus)
+            : buildProgramForm(request, existingProgram, programEditStatus);
 
     HtmlBundle htmlBundle =
         layout
