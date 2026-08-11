@@ -644,13 +644,19 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
+    ImmutableList<Long> programIds =
+        version.getPrograms().stream().map(p -> p.id).collect(ImmutableList.toImmutableList());
+    if (programIds.isEmpty()) {
+      return ImmutableList.of();
+    }
+    // Eagerly fetch categories in a single batch query to avoid N+1
     return database
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findList")
-        .fetch(
-            "categories", FetchConfig.ofQuery()) // ← batch secondary query, not N individual ones
+        .fetch("categories", FetchConfig.ofQuery())
         .where()
-        .in("versions", version)
+        .where()
+        .in("id", programIds)
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
