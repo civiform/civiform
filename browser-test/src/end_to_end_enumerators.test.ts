@@ -876,9 +876,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page,
           /* screenNumber= */ 6,
           /* repeatedFrom= */ 5,
-          {
-            childLabel: '[child label]',
-          },
         )
         await expect(addNestedRepeatedSetButton).toBeHidden()
       })
@@ -1251,7 +1248,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('Enumerator block name edit retains prefix', async ({
+    test('Enumerator screen name modal shows description and hides the parent label', async ({
       page,
       adminPrograms,
     }) => {
@@ -1270,32 +1267,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         /* repeatedFrom= */ 2,
       )
 
-      const modalPrefix = page.getByTestId('name-prefix')
-
-      await test.step('check for correct enumerator description and uneditable prefix in screen editing modal', async () => {
+      await test.step('Open the screen editing modal', async () => {
         await page
           .getByRole('button', {name: 'Edit screen name and description'})
           .click()
-        const modalDescription = page.getByTestId(
-          'repeated-set-prefix-description',
-        )
-        await expect(modalDescription).toBeVisible()
-        await expect(modalPrefix).toBeVisible()
       })
 
-      await test.step('edit screen name, exit, and ensure prefix is still the same', async () => {
-        await expect(modalPrefix).toHaveText('[parent label] -')
-
-        await page.getByRole('textbox', {name: 'Screen name'}).fill('name')
-
-        await page.getByRole('button', {name: 'Save'}).click()
-
-        await page
-          .getByRole('button', {name: 'Edit screen name and description'})
-          .click()
-
-        const currentModalPrefix = page.getByTestId('name-prefix')
-        await expect(currentModalPrefix).toHaveText('[parent label] -')
+      await test.step('Verify the screen name description is shown and the parent label is not', async () => {
+        await expect(
+          page.getByText(
+            'Applicants will see the listed entity they answered from the initial question as' +
+              ' part of the screen name.',
+            {exact: false},
+          ),
+        ).toBeVisible()
+        await expect(page.getByText('[parent label]')).toHaveCount(0)
       })
     })
 
@@ -1503,9 +1489,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page,
           /* screenNumber= */ 5,
           /* repeatedFrom= */ 4,
-          {
-            childLabel: '[child label]',
-          },
         )
         await adminPrograms.addQuestionFromQuestionBank(
           nestedRepeatedQuestionName,
@@ -2052,7 +2035,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     } else {
       await expect(
         blockPanel.getByText(
-          `[parent label] - Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
+          `Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
         ),
       ).toBeVisible()
     }
@@ -2062,20 +2045,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     page: Page,
     screenNumber: number,
     repeatedFrom: number,
-    options?: {
-      parentLabel?: string
-      childLabel?: string
-    },
   ) {
-    const {parentLabel = '[parent label]', childLabel} = options ?? {}
-    const repeatedLabel = childLabel
-      ? `${parentLabel} - ${childLabel}`
-      : parentLabel
-
     await test.step('Navigate to repeated screen', async () => {
       await page
         .getByRole('link', {
-          name: `${repeatedLabel} - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
+          name: `Screen ${screenNumber} (repeated from ${repeatedFrom})`,
         })
         .click()
     })
