@@ -62,17 +62,13 @@ public class ApplicationScoreMetadataTest {
   }
 
   @Test
-  public void isMetadataPath_matchesOnlyTheMetadataRoot() {
-    assertThat(ApplicationScoreMetadata.isMetadataPath(Path.create("application_metadata")))
-        .isTrue();
+  public void scoreKeysAreDeliberatelyNotScalars() {
+    // Score storage must stay out of question scalar sets, predicates, API bridges, and
+    // scalar-driven schema generation by construction (D4). Adding these as Scalars would leak
+    // them into all of those surfaces.
     assertThat(
-            ApplicationScoreMetadata.isMetadataPath(
-                Path.create("application_metadata.option_scoring.total_score")))
-        .isTrue();
-    assertThat(ApplicationScoreMetadata.isMetadataPath(Path.create("application_metadata[0].x")))
-        .isTrue();
-    assertThat(ApplicationScoreMetadata.isMetadataPath(Path.create("applicant.total_score")))
-        .isFalse();
-    assertThat(ApplicationScoreMetadata.isMetadataPath(Path.empty())).isFalse();
+            java.util.Arrays.stream(services.applicant.question.Scalar.values())
+                .map(Enum::name))
+        .doesNotContain("SCORE", "SCORES", "TOTAL_SCORE");
   }
 }
