@@ -5,6 +5,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
@@ -135,6 +136,10 @@ public final class ProgramMigrationService {
   public ErrorAnd<ProgramMigrationWrapper, String> deserialize(
       String programJson, ImmutableMap<String, String> duplicateHandling) {
     try {
+      Optional<String> scoreNodeError = validateOptionScoreNodes(programJson);
+      if (scoreNodeError.isPresent()) {
+        return ErrorAnd.error(ImmutableSet.of(scoreNodeError.get()));
+      }
       ProgramMigrationWrapper programMigrationWrapper =
           objectMapper.readValue(programJson, ProgramMigrationWrapper.class);
       if (!duplicateHandling.isEmpty()) {
@@ -156,6 +161,35 @@ public final class ProgramMigrationService {
   }
 
   /**
+   * Validates {@code questions[*].questionOptions[*].score} nodes on the raw JSON tree, before
+   * Jackson binding would coerce them. Each score must be absent, JSON null, or a JSON number
+   * that is finite as a double; strings, booleans, and double-overflowing values are rejected.
+   * The check is deliberately scoped to score nodes so the migration mapper's coercion rules for
+   * other fields are unaffected.
+   *
+   * @return an error message, or empty if all score nodes are valid
+   */
+  private Optional<String> validateOptionScoreNodes(String programJson)
+      throws JsonProcessingException {
+    JsonNode questions = objectMapper.readTree(programJson).path("questions");
+    for (JsonNode question : questions) {
+      for (JsonNode option : question.path("questionOptions")) {
+        JsonNode score = option.path("score");
+        if (score.isMissingNode() || score.isNull()) {
+          continue;
+        }
+        if (!score.isNumber() || !Double.isFinite(score.asDouble())) {
+          return Optional.of(
+              String.format(
+                  "Option score '%s' on option '%s' must be a number.",
+                  score.asText(), option.path("adminName").asText()));
+        }
+      }
+    }
+    return Optional.empty();
+  }
+
+  /**
    * Validates questions before they are rendered to the admin.
    *
    * @param program The program definition being validated.
@@ -172,6 +206,7 @@ public final class ProgramMigrationService {
         .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
         .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
         .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
+        .addAll(QuestionValidationUtils.validateOptionScores(questions))
         .addAll(
             QuestionValidationUtils.validateRepeatedQuestions(
                 program, questions, existingAdminNames))

@@ -103,6 +103,46 @@ final class QuestionValidationUtils {
   }
 
   /**
+   * Validates imported answer-option scores: a score may only appear on question types that support
+   * option scores (never on YES_NO questions), and must be a finite number. The finiteness check
+   * is defensive; {@link ProgramMigrationService} already rejects non-numeric and
+   * double-overflowing score nodes on the raw JSON tree before binding.
+   */
+  static ImmutableSet<CiviFormError> validateOptionScores(
+      ImmutableList<QuestionDefinition> questions) {
+    return questions.stream()
+        .filter(question -> question.getQuestionType().isMultiOptionType())
+        .map(question -> (MultiOptionQuestionDefinition) question)
+        .flatMap(
+            question ->
+                question.getOptions().stream()
+                    .filter(option -> option.score().isPresent())
+                    .flatMap(
+                        option -> {
+                          if (!QuestionType.supportsOptionScores(question.getQuestionType())) {
+                            return Stream.of(
+                                CiviFormError.of(
+                                    String.format(
+                                        "Question '%s' of type %s cannot have a score on option"
+                                            + " '%s'.",
+                                        question.getName(),
+                                        question.getQuestionType(),
+                                        option.adminName())));
+                          }
+                          if (!Double.isFinite(option.score().get())) {
+                            return Stream.of(
+                                CiviFormError.of(
+                                    String.format(
+                                        "Option score on option '%s' of question '%s' must be a"
+                                            + " finite number.",
+                                        option.adminName(), question.getName())));
+                          }
+                          return Stream.<CiviFormError>empty();
+                        }))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
    * Ensures that repeated questions (1) each have an associated enumerator, and (2) only exists in
    * the question bank if the associated enumerator also already exists in the question bank.
    */
