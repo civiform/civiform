@@ -5,10 +5,14 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.apikeys.ApiKeyIndexPageMapper;
+import mapping.admin.apikeys.ApiKeyStatus;
+import models.ApiKeyModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -16,10 +20,14 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
 import repository.VersionRepository;
+import services.DateConverter;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import views.admin.apikeys.ApiKeyCredentialsView;
+import views.admin.apikeys.ApiKeyIndexPageView;
+import views.admin.apikeys.ApiKeyIndexPageViewModel;
 import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOneView;
 
@@ -30,9 +38,12 @@ public class AdminApiKeysController extends CiviFormController {
   private final ApiKeyIndexView indexView;
   private final ApiKeyNewOneView newOneView;
   private final ApiKeyCredentialsView apiKeyCredentialsView;
+  private final ApiKeyIndexPageView indexPageView;
   private final ProgramService programService;
   private final FormFactory formFactory;
   private final ProgramRepository programRepository;
+  private final DateConverter dateConverter;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminApiKeysController(
@@ -40,49 +51,40 @@ public class AdminApiKeysController extends CiviFormController {
       ApiKeyIndexView indexView,
       ApiKeyNewOneView newOneView,
       ApiKeyCredentialsView apiKeyCredentialsView,
+      ApiKeyIndexPageView indexPageView,
       ProgramService programService,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      ProgramRepository programRepository) {
+      ProgramRepository programRepository,
+      DateConverter dateConverter,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.apiKeyService = checkNotNull(apiKeyService);
     this.indexView = checkNotNull(indexView);
     this.newOneView = checkNotNull(newOneView);
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
+    this.indexPageView = checkNotNull(indexPageView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
     this.programRepository = checkNotNull(programRepository);
+    this.dateConverter = checkNotNull(dateConverter);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    return ok(
-        indexView.render(
-            request,
-            /* selectedStatus= */ "Active",
-            apiKeyService.listActiveApiKeys(),
-            programService.getAllProgramNames()));
+    return renderIndex(request, ApiKeyStatus.ACTIVE, apiKeyService.listActiveApiKeys());
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexRetired(Http.Request request) {
-    return ok(
-        indexView.render(
-            request,
-            /* selectedStatus= */ "Retired",
-            apiKeyService.listRetiredApiKeys(),
-            programService.getAllProgramNames()));
+    return renderIndex(request, ApiKeyStatus.RETIRED, apiKeyService.listRetiredApiKeys());
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexExpired(Http.Request request) {
-    return ok(
-        indexView.render(
-            request,
-            /* selectedStatus= */ "Expired",
-            apiKeyService.listExpiredApiKeys(),
-            programService.getAllProgramNames()));
+    return renderIndex(request, ApiKeyStatus.EXPIRED, apiKeyService.listExpiredApiKeys());
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -127,5 +129,18 @@ public class AdminApiKeysController extends CiviFormController {
             request,
             programService.getAllNonExternalProgramNames(),
             Optional.of(result.getForm())));
+  }
+
+  private Result renderIndex(
+      Http.Request request, ApiKeyStatus selectedStatus, ImmutableList<ApiKeyModel> apiKeys) {
+    ImmutableSet<String> allProgramNames = programService.getAllProgramNames();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ApiKeyIndexPageViewModel model =
+          new ApiKeyIndexPageMapper().map(selectedStatus, apiKeys, allProgramNames, dateConverter);
+      return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
+    return ok(indexView.render(request, selectedStatus.displayName(), apiKeys, allProgramNames));
   }
 }

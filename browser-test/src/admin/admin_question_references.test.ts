@@ -1,7 +1,14 @@
 import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('view program references from question view', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows no results for an unreferenced question', async ({
     page,
     adminQuestions,
