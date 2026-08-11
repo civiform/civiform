@@ -28,8 +28,13 @@ public final class ActiveAndDraftQuestions {
           String, Pair<Optional<QuestionDefinition>, Optional<QuestionDefinition>>>
       versionedByName;
   private final ImmutableMap<String, DeletionStatus> deletionStatusByName;
+  // TODO(#13814): This variable name and utility smells and needs to be cleaned up. In particular,
+  // the data here overlaps with
+  // referencingActiveProgramsByName and that is possibly not desired in how
+  // it is consumed. It's also odd that we rely on a view of publishing the
+  // draft, and not just the draft itself.
   private final ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
-      referencingDraftProgramsByName;
+      publishPreviewProgramsByName;
   private final ImmutableMap<String, ImmutableSet<ProgramDefinition>>
       referencingActiveProgramsByName;
   private final boolean draftVersionHasAnyEdits;
@@ -46,7 +51,7 @@ public final class ActiveAndDraftQuestions {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     this.referencingActiveProgramsByName = repository.buildReferencingProgramsMap(active);
-    this.referencingDraftProgramsByName = repository.previewPublishNewVersion();
+    this.publishPreviewProgramsByName = repository.previewPublishNewVersion();
 
     ImmutableMap<String, QuestionDefinition> activeNameToQuestion =
         repository.getQuestionDefinitionsForVersion(active).stream()
@@ -84,7 +89,7 @@ public final class ActiveAndDraftQuestions {
                     questionName -> {
                       ImmutableSet<?> referencesToExamine =
                           draftVersionHasAnyEdits
-                              ? referencingDraftProgramsByName.getOrDefault(
+                              ? publishPreviewProgramsByName.getOrDefault(
                                   questionName, ImmutableSet.of())
                               : referencingActiveProgramsByName.getOrDefault(
                                   questionName, ImmutableSet.of());
@@ -126,7 +131,7 @@ public final class ActiveAndDraftQuestions {
   public ReferencingPrograms getReferencingPrograms(String name) {
     return ReferencingPrograms.builder()
         .setActiveReferences(referencingActiveProgramsByName.getOrDefault(name, ImmutableSet.of()))
-        .setDraftReferences(referencingDraftProgramsByName.getOrDefault(name, ImmutableSet.of()))
+        .setDraftReferences(publishPreviewProgramsByName.getOrDefault(name, ImmutableSet.of()))
         .build();
   }
 
