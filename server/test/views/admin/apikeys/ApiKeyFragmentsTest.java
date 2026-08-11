@@ -24,4 +24,24 @@ public class ApiKeyFragmentsTest {
   public void apiKeyCard_retired() {
     ThymeleafFragmentTester.run(DIR + "apiKeyCardRetired.thtest");
   }
+
+  @Test
+  public void inputField_textWithValue() {
+    ThymeleafFragmentTester.run(DIR + "inputFieldText.thtest");
+  }
+
+  @Test
+  public void inputField_dateWithError() {
+    ThymeleafFragmentTester.run(DIR + "inputFieldDateWithError.thtest");
+  }
+
+  @Test
+  public void programCheckbox_unchecked() {
+    ThymeleafFragmentTester.run(DIR + "programCheckboxUnchecked.thtest");
+  }
+
+  @Test
+  public void programCheckbox_checked() {
+    ThymeleafFragmentTester.run(DIR + "programCheckboxChecked.thtest");
+  }
 }
