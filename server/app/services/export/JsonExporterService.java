@@ -325,7 +325,7 @@ public final class JsonExporterService {
     Path apiPath = contextualizedPath.asNestedEntitiesPath();
     if (applicantQuestion.getType() != QuestionType.CHECKBOX) {
       // Unanswered, unscored option, and scoring-not-applied all read as absent and emit null.
-      return ImmutableMap.of(
+      return ImmutableMap.<Path, Optional<?>>of(
           apiPath.join(SCORE_PROPERTY),
           snapshot.readDouble(ApplicationScoreMetadata.scorePath(contextualizedPath)));
     }
@@ -333,7 +333,7 @@ public final class JsonExporterService {
     Path scoresApiPath = apiPath.join(SCORES_PROPERTY);
     if (totalScore.isEmpty()) {
       // Scoring was not applied to this application: null.
-      return ImmutableMap.of(scoresApiPath, Optional.empty());
+      return ImmutableMap.<Path, Optional<?>>of(scoresApiPath, Optional.empty());
     }
     Optional<ImmutableList<Long>> selections =
         snapshot.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
@@ -343,7 +343,7 @@ public final class JsonExporterService {
         || storedScores.isEmpty()
         || selections.get().size() != storedScores.get().size()) {
       // Scoring applied but unanswered (or corrupt metadata): empty array.
-      return ImmutableMap.of(
+      return ImmutableMap.<Path, Optional<?>>of(
           scoresApiPath, Optional.of(new NullableDoubleArray(ImmutableList.of())));
     }
     // Pair the unchanged stored selection ids with the persisted scores (first occurrence wins),
@@ -362,7 +362,8 @@ public final class JsonExporterService {
             .filter(option -> selectedIds.contains(option.id()))
             .map(QuestionOption::id)
             .forEach(optionId -> emittedScores.add(scoreByOptionId.get(optionId)));
-    return ImmutableMap.of(scoresApiPath, Optional.of(new NullableDoubleArray(emittedScores)));
+    return ImmutableMap.<Path, Optional<?>>of(
+        scoresApiPath, Optional.of(new NullableDoubleArray(emittedScores)));
   }
 
   private CfJsonDocumentContext convertExportDataToJson(
