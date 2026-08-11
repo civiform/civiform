@@ -1,31 +1,10 @@
 /*
-* * * * * ==============================
-* * * * * ==============================
-* * * * * ==============================
-* * * * * ==============================
-========================================
-========================================
-========================================
-----------------------------------------
-USWDS THEME CUSTOM STYLES
-----------------------------------------
-Custom project SASS goes here.
-
-i.e.
-@include u-padding-right('05');
-----------------------------------------
-To use a USWDS mixin with a USWDS design token,
-do this:  @include <mixin name>('<design-token>')
-See the radio-option below as an example.
+This contains styles specific to the applicant-facing (North Star) UI:
+question rendering, the applicant home page, program cards, the review
+page, RTL support, and the map question.
 */
 
 @use 'uswds-core' as *;
-
-// Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
-// This prevents a flash of the modal content on page load.
-.usa-modal:not(.usa-modal-wrapper .usa-modal) {
-  display: none;
-}
 
 /*
  * TextFormatter renders markdown into bare <p> tags that templates can't
@@ -59,67 +38,8 @@ See the radio-option below as an example.
   margin: 0;
 }
 
-// Prevents improper scaling on mobile devices
-body,
-html {
-  overflow-x: hidden;
-}
-
 .cf-alert {
   margin: 0 auto;
-}
-
-.usa-alert .usa-alert__heading {
-  font-weight: font-weight('bold');
-}
-
-// -- start
-// Backwards compatible step for migrating tailwind to keep some SVGs correctly
-// sized. This is shared in admin and applicant sides so until we rewrite SVG
-// support or migrate the admin we'll use the same settings from tailwind.
-svg {
-  &.w-auto {
-    width: auto;
-  }
-  &.h-5 {
-    height: 1.25rem;
-  }
-}
-// -- end
-
-/* Override margin values to support RTL languages. */
-.usa-identifier__logos {
-  margin-right: 0;
-  margin-inline-end: 1rem;
-}
-
-.cf-header-logo {
-  padding-inline-end: 1rem;
-}
-
-/* Rather than having a focus outline around the checkbox or radio button,
-it is around the label */
-.usa-checkbox__input:focus + [class*='__label']::before,
-.usa-radio__input:focus + [class*='__label']::before {
-  outline: 2px solid rgba(0, 0, 0, 0);
-  outline-offset: 2px;
-}
-
-.cf-radio-option:focus-within,
-.usa-checkbox__input:focus + [class*='__label'],
-.usa-radio__input:focus + [class*='__label'] {
-  @include u-border('blue-40v');
-  @include u-border('05');
-}
-
-/* By default, the USWDS checkbox input element is positioned off-screen and the label
- is styled to look like a checkbox.  This causes a problem with screen reader
- linear navigation because the screen reader navigation outline (different than focus outline)
- does not show.  These styles set that navigation outline around the label yet make it invisible
- when the screen reader linear navigation isn't being used.*/
-.usa-checkbox__input {
-  @include u-left('auto');
-  opacity: 0;
 }
 
 // Category filters on applicant home page
@@ -144,36 +64,10 @@ it is around the label */
 }
 
 /*
- * Make the file input element for program image upload fill the area it's given.
- * (This overrides the default USWDS style of a max-width of 30rem.)
- */
-#program-image-upload-file-input .usa-file-input {
-  max-width: none;
-}
-
-.cf-question-error-message {
-  @include u-text('secondary-dark', 'bold');
-  @include u-font('sans', 'xs');
-  @include u-padding-top('05');
-}
-
-.cf-question-field-with-error {
-  @include u-border-left('05', 'secondary-dark');
-}
-
-/*
  * Add padding to the left of the group question when there is an error
  * to make room for the error border.
  */
 [class^='cf-question'].cf-question-field-with-error {
-  @include u-padding-left('105');
-}
-
-/*
- * Less padding when there is a field-level error, since we add a border and
- * still want the inputs to line up.
- */
-.cf-applicant-question-field.cf-question-field-with-error {
   @include u-padding-left('105');
 }
 
@@ -183,21 +77,6 @@ it is around the label */
  */
 .usa-input-group--error > .usa-input:focus {
   outline-offset: units(1);
-}
-
-/**
- * Reduce default padding on labels within question to match spacing mocks.
- */
-.cf-applicant-question-field .usa-label {
-  @include u-margin-top('105');
-}
-
-/**
- * Remove top margin because other surrounding elements add this margin.
- */
-.usa-legend,
-.cf-question-date .usa-memorable-date .usa-form-group {
-  margin-top: 0;
 }
 
 .cf-no-margin-padding {
@@ -238,15 +117,6 @@ it is around the label */
 // because we sometimes get enough spacing from the margin below section cards.
 .usa-prose section.cf-below-cards {
   @include u-margin-top(0);
-}
-
-// Tailwind removes list style from unordered and ordered lists.
-ul.usa-list {
-  list-style-type: disc;
-}
-
-ol.usa-list {
-  list-style-type: decimal;
 }
 
 .content-spacing {
@@ -303,10 +173,6 @@ ol.usa-list {
 }
 
 .cf-zero-top-margin {
-  margin-top: 0;
-}
-
-.usa-form .usa-button.zero-top-margin {
   margin-top: 0;
 }
 
@@ -368,19 +234,6 @@ ol.usa-list {
   margin-bottom: 0;
 }
 
-// Styles for desktop
-@media (min-width: 64em) {
-  // The USWDS header doesn't give enough space for the logo and title, so we add some.
-  .usa-header--basic .usa-navbar {
-    width: 50%;
-  }
-
-  .usa-header--basic .usa-nav {
-    @include u-padding-top(4);
-    @include u-padding-bottom(2);
-  }
-}
-
 // Styles the header to be vertically aligned
 .usa-header--basic .usa-nav-container {
   align-items: center;
@@ -391,11 +244,6 @@ ol.usa-list {
   // Hide the logo on mobile and tablet
   .cf-header-logo {
     display: none;
-  }
-
-  .usa-nav .usa-button,
-  .usa-nav span {
-    margin-top: 8px;
   }
 
   .usa-nav .grid-row * {
@@ -420,25 +268,14 @@ ol.usa-list {
   }
 }
 
-.usa-header--basic .usa-button {
-  @include u-line-height('sans', 2);
+/* Override margin values to support RTL languages. */
+.usa-identifier__logos {
+  margin-right: 0;
+  margin-inline-end: 1rem;
 }
 
-/**
- * Default form styles add a bottom margin to forms, but we don't want that for the language
- * selector as it would mess with header styles.
- */
-
-.usa-header--basic form {
-  @include u-margin-bottom(0);
-}
-
-/**
- * We use h1 instead of h4 as a progress bar heading for a11y reasons, but we want to keep the
- * USWDS styles, so we ignore the default line height of h1 elements.
- */
-h1.usa-step-indicator__heading {
-  line-height: inherit;
+.cf-header-logo {
+  padding-inline-end: 1rem;
 }
 
 .usa-footer__primary-content .usa-footer__primary-link {
@@ -465,18 +302,6 @@ h1.usa-step-indicator__heading {
 // Custom gap for use on flexbox since there isn't one currently defined in default USWDS utility classes.
 .cf-flex-gap {
   gap: units(1);
-}
-
-// Let the body expand to fill the entire viewport
-body {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
-// Allow main content to grow and push footer down
-main {
-  flex: 1 0 auto;
 }
 
 // Mobile
@@ -795,6 +620,10 @@ main {
   color: color('blue-60v') !important;
 }
 
+.usa-button.usa-button--unstyled.cf-map-question-filter-button {
+  background-color: transparent;
+}
+
 // Map question filtering - hide filtered out locations
 .cf-filter-hidden {
   display: none;
@@ -888,44 +717,6 @@ main {
     pointer-events: none;
     cursor: default;
   }
-}
-
-// Toast notification styles
-// If you make any changes here, you should also update the toast styles in
-// admin/app/assets/stylesheets/northstar/_uswds-theme-custom-styles.scss
-.cf-toast-container {
-  position: absolute;
-  left: 50%;
-  transform: translateX(-50%);
-  top: 1.5rem;
-}
-
-.cf-toast-message {
-  box-shadow:
-    0 10px 15px -3px rgb(0 0 0 / 0.1),
-    0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
-  color: color('gray-cool-70');
-  transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.bg-cf-toast-alert {
-  background-color: #e5e7eb; // Tailwind gray-200
-}
-
-.bg-cf-toast-error {
-  background-color: #f87171; // Tailwind red-400
-}
-
-.bg-cf-toast-success {
-  background-color: #a7f3d0; // Tailwind green-200
-}
-
-.bg-cf-toast-warning {
-  background-color: color('yellow-10v');
-}
-
-.opacity-40:hover {
-  opacity: 1;
 }
 
 // Remove focus outline from main content when focused via skip navigation
