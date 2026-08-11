@@ -216,26 +216,15 @@ public final class VersionRepository {
   /**
    * Publish a new version of all programs and questions. All DRAFT programs/questions will become
    * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
+   *
+   * <p>Note: Due to Ebean's persistence cache, data looked up from the database multiple times in a
+   * transaction results in the same java object. This means that the active and draft versions this
+   * method changes, will also change the same objects the caller may have already looked up and
+   * hold references to.
+   *
+   * <p>Any caller needs to manage their references to these data items.
    */
   public void publishNewSynchronizedVersion() {
-    /*
-     A few transaction notes about this method:
-
-     Due to Ebean's persistence cache, data looked up from the database
-     multiple times in a transaction results in the same java object. This
-     means that the active and draft versions we are about to change, will
-     also change the same objects the caller may have already looked up and hold references to.
-
-     For PUBLISH_CHANGES, the caller does nothing else, so this is not a
-     concern currently.
-
-     For DRY_RUN, things are more complicated as the caller ActiveAndDraftQuestions does hold those
-     objects and this method makes temporary changes to those objects; which is
-     atypical. To support this we save the data that is actually needed in
-     the 'preview' process, then undo the changes, reset the version objects
-     and return the saved data.
-    */
-
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       VersionModel draft = getDraftVersionOrCreate();
