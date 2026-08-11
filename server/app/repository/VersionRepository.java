@@ -644,19 +644,13 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    ImmutableList<Long> programIds =
-        version.getPrograms().stream().map(p -> p.id).collect(ImmutableList.toImmutableList());
-    if (programIds.isEmpty()) {
-      return ImmutableList.of();
-    }
-    // Eagerly fetch categories in a single batch query to avoid N+1
     return database
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findList")
-        .fetch("categories", FetchConfig.ofQuery())
+        .fetch("categories", FetchConfig.ofQuery()) // Eagerly fetches categories
         .where()
-        .where()
-        .in("id", programIds)
+        // 1. Tell Ebean to join the M2M table and filter by the version ID
+        .eq("versions.id", version.id)
         .findList()
         .stream()
         .collect(ImmutableList.toImmutableList());
