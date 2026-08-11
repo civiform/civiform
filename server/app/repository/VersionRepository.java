@@ -222,7 +222,7 @@ public final class VersionRepository {
    * method changes, will also change the same objects the caller may have already looked up and
    * hold references to.
    *
-   * <p>Any caller needs to manage their references to these data items.
+   * <p>Any caller needs to manage their references to these data items appropriately.
    */
   public void publishNewSynchronizedVersion() {
     try (Transaction transaction =
