@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -73,45 +74,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                               .addProperty(
                                   "payload",
                                   new ArraySchema()
-                                      .items(
-                                          new ObjectSchema()
-                                              .addProperty("applicant_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "application",
-                                                  buildApplicationDefinitions(programDefinition))
-                                              .addProperty("application_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "application_note",
-                                                  new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "create_time",
-                                                  new StringSchema().format("date-time"))
-                                              .addProperty(
-                                                  "language", new StringSchema().example("en-US"))
-                                              .addProperty(
-                                                  "program_name",
-                                                  new StringSchema().example("program-name-123"))
-                                              .addProperty(
-                                                  "program_version_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "revision_state",
-                                                  new StringSchema().example("CURRENT"))
-                                              .addProperty(
-                                                  "status", new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "status_last_modified_time",
-                                                  new StringSchema()
-                                                      .format("date-time")
-                                                      .nullable(true))
-                                              .addProperty(
-                                                  "submit_time",
-                                                  new StringSchema().format("date-time"))
-                                              .addProperty("submitter_type", new StringSchema())
-                                              .addProperty(
-                                                  "ti_email", new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "ti_organization",
-                                                  new StringSchema().nullable(true))))
+                                      .items(buildResultItemSchema(programDefinition)))
                               .addProperty("nextPageToken", new StringSchema()))
                       .addSecuritySchemes(
                           "basicAuth",
@@ -241,6 +204,33 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
     return result.build();
   }
 
+  /** Builds the schema of one payload item. */
+  private ObjectSchema buildResultItemSchema(ProgramDefinition programDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    ObjectSchema resultItem = new ObjectSchema();
+    resultItem.addProperty("applicant_id", new IntegerSchema());
+    resultItem.addProperty("application", buildApplicationDefinitions(programDefinition));
+    resultItem.addProperty("application_id", new IntegerSchema());
+    resultItem.addProperty("application_note", new StringSchema().nullable(true));
+    resultItem.addProperty("create_time", new StringSchema().format("date-time"));
+    resultItem.addProperty("language", new StringSchema().example("en-US"));
+    resultItem.addProperty("program_name", new StringSchema().example("program-name-123"));
+    resultItem.addProperty("program_version_id", new IntegerSchema());
+    resultItem.addProperty("revision_state", new StringSchema().example("CURRENT"));
+    resultItem.addProperty("status", new StringSchema().nullable(true));
+    resultItem.addProperty(
+        "status_last_modified_time", new StringSchema().format("date-time").nullable(true));
+    resultItem.addProperty("submit_time", new StringSchema().format("date-time"));
+    resultItem.addProperty("submitter_type", new StringSchema());
+    resultItem.addProperty("ti_email", new StringSchema().nullable(true));
+    resultItem.addProperty("ti_organization", new StringSchema().nullable(true));
+    if (openApiSchemaSettings.includeScores()) {
+      // Null when the application predates scoring or scoring wasn't applied; double precision.
+      resultItem.addProperty("total_score", new NumberSchema().format("double").nullable(true));
+    }
+    return resultItem;
+  }
+
   /***
    * Entry point to start building the program specific definitions for questions
    */
@@ -290,6 +280,21 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
               fieldName,
               getPropertyFromType(
                   definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
+        }
+        // Score properties are deliberately not question scalars, so they are added here rather
+        // than picked up by the scalar loop.
+        if (openApiSchemaSettings.includeScores()
+            && QuestionType.supportsOptionScores(questionDefinition.getQuestionType())) {
+          if (questionDefinition.getQuestionType() == QuestionType.CHECKBOX) {
+            containerDefinition.addProperty(
+                "scores",
+                new ArraySchema()
+                    .items(new NumberSchema().format("double").nullable(true))
+                    .nullable(true));
+          } else {
+            containerDefinition.addProperty(
+                "score", new NumberSchema().format("double").nullable(true));
+          }
         }
       } else {
         var enumeratorProperties =
