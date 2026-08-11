@@ -207,6 +207,7 @@ public final class AdminQuestionController extends CiviFormController {
                     mapSettings,
                     settingsManifest.getApiBridgeEnabled(request),
                     settingsManifest.getEnumeratorImprovementsEnabled(request),
+                    settingsManifest.getAnswerOptionScoringEnabled(request),
                     roService,
                     Optional.empty());
         return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
@@ -248,16 +249,7 @@ public final class AdminQuestionController extends CiviFormController {
     // silently dropped by the builder below.
     ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
     if (!scoreErrors.isEmpty()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(scoreErrors));
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
-          service
-              .getReadOnlyQuestionService()
-              .toCompletableFuture()
-              .join()
-              .getUpToDateEnumeratorQuestions();
-      return ok(
-          editView.renderNewQuestionForm(
-              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+      return renderNewQuestionFormWithError(request, questionForm, joinErrors(scoreErrors));
     }
 
     QuestionDefinition questionDefinition;
@@ -274,31 +266,7 @@ public final class AdminQuestionController extends CiviFormController {
     ErrorAnd<QuestionDefinition, CiviFormError> result =
         service.create(questionDefinition, enumeratorImprovementsEnabled);
     if (result.isError()) {
-      String errorText = joinErrors(result.getErrors());
-      ReadOnlyQuestionService roService =
-          service.getReadOnlyQuestionService().toCompletableFuture().join();
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
-          roService.getUpToDateEnumeratorQuestions();
-
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
-        QuestionFormPageViewModel model =
-            new QuestionFormPageMapper()
-                .mapNew(
-                    questionForm,
-                    enumeratorQuestionDefinitions,
-                    mapSettings,
-                    settingsManifest.getApiBridgeEnabled(request),
-                    settingsManifest.getEnumeratorImprovementsEnabled(request),
-                    roService,
-                    Optional.of(errorText));
-        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
-      return ok(
-          editView.renderNewQuestionForm(
-              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+      return renderNewQuestionFormWithError(request, questionForm, joinErrors(result.getErrors()));
     }
 
     try {
@@ -452,13 +420,13 @@ public final class AdminQuestionController extends CiviFormController {
     // silently dropped by the builder below.
     ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
     if (!scoreErrors.isEmpty()) {
-      return ok(
-          editView.renderEditQuestionForm(
-              request,
-              id,
-              questionForm,
-              maybeGetEnumerationQuestion(roService, maybeExisting.get()),
-              ToastMessage.errorNonLocalized(joinErrors(scoreErrors))));
+      return renderEditQuestionFormWithError(
+          request,
+          id,
+          questionForm,
+          maybeGetEnumerationQuestion(roService, maybeExisting.get()),
+          roService,
+          joinErrors(scoreErrors));
     }
 
     QuestionDefinition questionDefinition;
@@ -491,26 +459,13 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      String errorText = joinErrors(errorAndUpdatedQuestionDefinition.getErrors());
-      Optional<QuestionDefinition> maybeEnumerationQuestion =
-          maybeGetEnumerationQuestion(roService, questionDefinition);
-
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        QuestionFormPageViewModel model =
-            buildEditQuestionPageModel(
-                id,
-                questionForm,
-                maybeEnumerationQuestion,
-                roService,
-                request,
-                Optional.of(errorText));
-        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
-      return ok(
-          editView.renderEditQuestionForm(
-              request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+      return renderEditQuestionFormWithError(
+          request,
+          id,
+          questionForm,
+          maybeGetEnumerationQuestion(roService, questionDefinition),
+          roService,
+          joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
     }
     try {
       service.setExportState(
@@ -539,6 +494,68 @@ public final class AdminQuestionController extends CiviFormController {
       return multiOptionQuestionForm.getBuilder(scoringEnabled);
     }
     return questionForm.getBuilder();
+  }
+
+  /**
+   * Re-renders the new-question form with a form-level error, honoring the j2html-to-Thymeleaf
+   * migration flag.
+   */
+  private Result renderNewQuestionFormWithError(
+      Request request, QuestionForm questionForm, String errorText) {
+    ReadOnlyQuestionService roService =
+        service.getReadOnlyQuestionService().toCompletableFuture().join();
+    ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
+        roService.getUpToDateEnumeratorQuestions();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+      QuestionFormPageViewModel model =
+          new QuestionFormPageMapper()
+              .mapNew(
+                  questionForm,
+                  enumeratorQuestionDefinitions,
+                  mapSettings,
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request),
+                  settingsManifest.getAnswerOptionScoringEnabled(request),
+                  roService,
+                  Optional.of(errorText));
+      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
+    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
+    return ok(
+        editView.renderNewQuestionForm(
+            request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+  }
+
+  /**
+   * Re-renders the edit-question form with a form-level error, honoring the j2html-to-Thymeleaf
+   * migration flag.
+   */
+  private Result renderEditQuestionFormWithError(
+      Request request,
+      Long id,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService roService,
+      String errorText) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      QuestionFormPageViewModel model =
+          buildEditQuestionPageModel(
+              id,
+              questionForm,
+              maybeEnumerationQuestion,
+              roService,
+              request,
+              Optional.of(errorText));
+      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
+    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
+    return ok(
+        editView.renderEditQuestionForm(
+            request, id, questionForm, maybeEnumerationQuestion, errorMessage));
   }
 
   /**
@@ -810,6 +827,7 @@ public final class AdminQuestionController extends CiviFormController {
             mapSettings,
             settingsManifest.getApiBridgeEnabled(request),
             settingsManifest.getEnumeratorImprovementsEnabled(request),
+            settingsManifest.getAnswerOptionScoringEnabled(request),
             readOnlyQuestionService,
             errorMessage);
   }

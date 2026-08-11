@@ -278,6 +278,15 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
+   * Converts a bound score string to its input display value, formatted without trailing zeros.
+   * Blank (unscored) and unparseable values render an empty input; invalid submissions are
+   * re-rendered alongside a form-level error from {@link #getOptionScoreErrors}.
+   */
+  public static Optional<String> formatScoreForDisplay(String scoreAsString) {
+    return parseScore(scoreAsString).map(QuestionOption::formatScore);
+  }
+
+  /**
    * Parses an admin-entered score. Blank means unscored. Parsing goes through {@link BigDecimal}
    * rather than {@link Double#parseDouble} as a server-side backstop against crafted posts: it
    * accepts plain and exponent decimal notation but rejects the NaN/Infinity/hex/suffix forms
