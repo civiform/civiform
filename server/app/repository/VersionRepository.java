@@ -96,62 +96,136 @@ public final class VersionRepository {
   }
 
   /**
-   * Publish a new version of all programs and questions. All DRAFT programs/questions will become
-   * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
+   * Simulates publishing a new version of all programs and questions.
+   *
+   * <p>Returns a map from question name to the set of programs that would reference it in the new
+   * active version. If a question is not used it is not in the returned data. The returned data is
+   * the minimal information needed by callers.
    */
-  public void publishNewSynchronizedVersion() {
-    publishNewSynchronizedVersion(PublishMode.PUBLISH_CHANGES);
+  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>> previewPublishNewVersion() {
+    // Building the mapping is fairly straightforward:
+    // 1. For all Draft Programs, map their questions to the program.
+    // 2. For all Active Programs not in the Draft, do the same
+    // 3. Skip Tombstoned Programs - While the application no longer
+    // supports Tombstoning programs, we still need to handle the fact that the
+    // data supports it.
+    //
+    // This relies on a few application invariants:
+    // * Programs can NOT reference a Tombstoned Question
+    // * When a Question becomes a Draft, all referencing programs are
+    // also updated as Drafts.
+    //   * This means all programs referenced in 1 & 2 above will
+    //   reference the same version of any given question
+    return transactionManager.execute(
+        () -> {
+          VersionModel draft =
+              getDraftVersion()
+                  .orElseThrow(
+                      () -> new IllegalStateException("Called when no draft exists to preview."));
+          VersionModel active = getActiveVersion();
+
+          // Combine Active and Draft questions into one lookup table.
+          ImmutableMap<Long, String> combinedQuestionIdToName =
+              buildQuestionIdToNameMap(active, draft);
+
+          Map<String, Set<PublishProgramPreview>> questionToProgramResultMap = Maps.newHashMap();
+
+          // 1. For all Draft Programs, map their questions to the program.
+          reverseMapDraftProgramQuestions(
+              draft, combinedQuestionIdToName, questionToProgramResultMap);
+
+          // 2. For all Active Programs not in the Draft, do the same.
+          reverseMapUniqueActiveProgramQuestions(
+              draft, active, combinedQuestionIdToName, questionToProgramResultMap);
+
+          return questionToProgramResultMap.entrySet().stream()
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      Entry::getKey, e -> ImmutableSet.copyOf(e.getValue())));
+        });
+  }
+
+  /** Build a map from question ID to name for all questions in {@code active} and {@code draft}. */
+  private ImmutableMap<Long, String> buildQuestionIdToNameMap(
+      VersionModel active, VersionModel draft) {
+    ImmutableMap<Long, String> activeQuestionIdToName = getQuestionIdToNameMap(active);
+    ImmutableMap<Long, String> draftQuestionIdToName = getQuestionIdToNameMap(draft);
+    Map<Long, String> combinedQuestionIdToNameMap = Maps.newHashMap();
+    combinedQuestionIdToNameMap.putAll(activeQuestionIdToName);
+    combinedQuestionIdToNameMap.putAll(draftQuestionIdToName);
+    return ImmutableMap.copyOf(combinedQuestionIdToNameMap);
   }
 
   /**
-   * Simulates publishing a new version of all programs and questions. All DRAFT programs/questions
-   * will become ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the
-   * next version. This method will not mutate the database and will return a copy of relevant data
-   * from the updated Version corresponding to what would be the new ACTIVE version.
+   * Map all draft program questions to the program names that use them.
+   *
+   * <p>Skips tombstoned questions.
+   *
+   * @param questionIdToName map from question ID to name.
+   * @param questionToProgramDataMap map to populate data into.
    */
-  public ImmutableMap<String, ImmutableSet<PublishProgramPreview>>
-      previewPublishNewSynchronizedVersion() {
-    return publishNewSynchronizedVersion(PublishMode.DRY_RUN)
-        .orElseThrow(
-            () ->
-                new IllegalStateException(
-                    "publishNewSynchronizedVersion did not return a Dry Run version."));
-  }
-
-  private enum PublishMode {
-    DRY_RUN,
-    PUBLISH_CHANGES,
-  }
-
-  private Optional<ImmutableMap<String, ImmutableSet<PublishProgramPreview>>>
-      publishNewSynchronizedVersion(PublishMode publishMode) {
-    /*
-     A few transaction notes about this method:
-
-     Due to Ebean's persistence cache, data looked up from the database
-     multiple times in a transaction results in the same java object. This
-     means that the active and draft versions we are about to change, will
-     also change the same objects the caller may have already looked up and hold references to.
-
-     For PUBLISH_CHANGES, the caller does nothing else, so this is not a
-     concern currently.
-
-     For DRY_RUN, things are more complicated as the caller ActiveAndDraftQuestions does hold those
-     objects and this method makes temporary changes to those objects; which is
-     atypical. To support this we save the data that is actually needed in
-     the 'preview' process, then undo the changes, reset the version objects
-     and return the saved data.
-    */
-
-    if (publishMode.equals(PublishMode.DRY_RUN) && DB.currentTransaction() != null) {
-      // Savepoints are required to roll back the temporary changes if in a
-      // transaction already.
-      DB.currentTransaction().setNestedUseSavepoint();
+  private void reverseMapDraftProgramQuestions(
+      VersionModel draft,
+      ImmutableMap<Long, String> questionIdToName,
+      Map<String, Set<PublishProgramPreview>> questionToProgramDataMap) {
+    for (ProgramModel program : getProgramsForVersion(draft)) {
+      ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+      if (draft.programIsTombstoned(def.adminName())) {
+        continue;
+      }
+      PublishProgramPreview ref =
+          new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
+      for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
+        questionToProgramDataMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+      }
     }
+  }
 
-    // Regardless of whether changes are published or not, we still perform
-    // this operation inside of a transaction in order to ensure we have
-    // consistent reads.
+  /**
+   * Map all active program questions to the program names that use them.
+   *
+   * <p>Skips any programs present or tombstoned in {@code draft} as the draft versions may have
+   * altered them.
+   *
+   * @param questionIdToName map from question ID to name.
+   * @param questionToProgramDataMap map to populate data into.
+   */
+  private void reverseMapUniqueActiveProgramQuestions(
+      VersionModel draft,
+      VersionModel active,
+      ImmutableMap<Long, String> questionIdToName,
+      Map<String, Set<PublishProgramPreview>> questionToProgramDataMap) {
+    ImmutableSet<String> draftProgramNames = getProgramNamesForVersion(draft);
+    for (ProgramModel program : getProgramsForVersion(active)) {
+      ProgramDefinition def = programRepository.getShallowProgramDefinition(program);
+      // Skip programs in the Draft.
+      if (draftProgramNames.contains(def.adminName())
+          // Tombstoning is no longer supported so we can't assume
+          // if it is included in the draft program names, so verify the
+          // status explicitly.
+          || draft.programIsTombstoned(def.adminName())) {
+        continue;
+      }
+      PublishProgramPreview ref =
+          new PublishProgramPreview(def.adminName(), def.displayMode(), def.localizedName());
+      for (String questionName : getProgramQuestionNames(def, questionIdToName)) {
+        questionToProgramDataMap.computeIfAbsent(questionName, k -> Sets.newHashSet()).add(ref);
+      }
+    }
+  }
+
+  /**
+   * Publish a new version of all programs and questions. All DRAFT programs/questions will become
+   * ACTIVE, and all ACTIVE programs/questions without a draft will be copied to the next version.
+   *
+   * <p>Note: Due to Ebean's persistence cache, data looked up from the database multiple times in a
+   * transaction results in the same java object. This means that the active and draft versions this
+   * method changes, will also change the same objects the caller may have already looked up and
+   * hold references to.
+   *
+   * <p>Any caller needs to manage their references to these data items appropriately.
+   */
+  public void publishNewSynchronizedVersion() {
     try (Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
       VersionModel draft = getDraftVersionOrCreate();
@@ -226,45 +300,16 @@ public final class VersionRepository {
       active.setLifecycleStage(LifecycleStage.OBSOLETE);
       draft.setLifecycleStage(LifecycleStage.ACTIVE);
 
-      return switch (publishMode) {
-        case PUBLISH_CHANGES -> {
-          Preconditions.checkState(
-              !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
-              "Must have at least 1 program or question in the draft version.");
-          draft.save();
-          active.save();
-          draft.refresh();
-          active.refresh();
-          validateProgramQuestionState();
-          transaction.commit();
-          yield Optional.empty();
-        }
-        case DRY_RUN -> {
-          // Capture the dry run data to return before resetting everything done above.
-          // See the comment at the top of the method for more info.
-          var dryRunNewActive = buildDryRunPublishedVersion(draft);
-          transaction.rollback();
-          draft.refresh();
-          active.refresh();
-          yield Optional.of(dryRunNewActive);
-        }
-      };
+      Preconditions.checkState(
+          !getProgramsForVersion(draft).isEmpty() || !getQuestionsForVersion(draft).isEmpty(),
+          "Must have at least 1 program or question in the draft version.");
+      draft.save();
+      active.save();
+      draft.refresh();
+      active.refresh();
+      validateProgramQuestionState();
+      transaction.commit();
     }
-  }
-
-  private ImmutableMap<String, ImmutableSet<PublishProgramPreview>> buildDryRunPublishedVersion(
-      VersionModel version) {
-    return buildReferencingProgramsMap(version).entrySet().stream()
-        .collect(
-            ImmutableMap.toImmutableMap(
-                Entry::getKey,
-                e ->
-                    e.getValue().stream()
-                        .map(
-                            p ->
-                                new PublishProgramPreview(
-                                    p.adminName(), p.displayMode(), p.localizedName()))
-                        .collect(ImmutableSet.toImmutableSet())));
   }
 
   /**
