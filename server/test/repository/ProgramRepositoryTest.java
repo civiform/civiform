@@ -38,8 +38,10 @@ import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.question.QuestionAnswerer;
+import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
@@ -399,6 +401,55 @@ public class ProgramRepositoryTest extends ResetPostgres {
     // still have the same admin associated.
     ProgramModel newDraft = repo.createOrUpdateDraft(withAdmins);
     assertThat(repo.getProgramAdministrators(newDraft.id)).containsExactly(admin);
+  }
+
+  @Test
+  public void createOrUpdateDraft_programModelWithNullQuestion_doesNotSaveNullQuestionToDraft() {
+    // This test demonstrates the bug: createOrUpdateDraft(ProgramModel) calls
+    // getShallowProgramDefinition which, on a cache miss, falls back to
+    // program.getProgramDefinition(). That definition can contain null-question sentinels.
+    // On the update-existing-draft path there is no null-question guard, so the incomplete
+    // definition is persisted directly to the DB.
+
+    // Create an active program (no questions) and an initial draft so that the second
+    // createOrUpdateDraft call takes the update-existing-draft path (lines 250-267).
+    ProgramModel activeProgram = resourceCreator.insertActiveProgram("nullQuestionProg");
+    repo.createOrUpdateDraft(activeProgram);
+
+    // Build a ProgramModel whose getProgramDefinition() contains a null-question sentinel.
+    // toProgram() sets this.programDefinition directly (no DB round-trip), so
+    // getProgramDefinition() on this model returns the null-question definition.
+    QuestionDefinition nullQuestionDef =
+        new TestQuestionBank(false).nullQuestion().getQuestionDefinition();
+    BlockDefinition blockWithNullQuestion =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Screen 1")
+            .setDescription("Screen 1")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen 1"))
+            .setProgramQuestionDefinitions(
+                ImmutableList.of(
+                    ProgramQuestionDefinition.create(
+                        nullQuestionDef, Optional.of(activeProgram.getProgramDefinition().id()))))
+            .build();
+    ProgramModel programWithNullQuestion =
+        activeProgram.getProgramDefinition().toBuilder()
+            .setBlockDefinitions(ImmutableList.of(blockWithNullQuestion))
+            .build()
+            .toProgram();
+
+    // getShallowProgramDefinition falls back to getProgramDefinition() (cache is disabled for
+    // null-question definitions). The update-existing-draft path saves it without a guard.
+    ProgramModel updatedDraft = repo.createOrUpdateDraft(programWithNullQuestion);
+
+    // The saved draft must not contain null-question sentinels, but it does — demonstrating
+    // the bug.
+    assertThat(
+            updatedDraft.getProgramDefinition().blockDefinitions().stream()
+                .noneMatch(BlockDefinition::hasNullQuestion))
+        // Should be isTrue()
+        .isFalse();
   }
 
   @Test
