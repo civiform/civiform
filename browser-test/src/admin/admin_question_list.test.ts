@@ -2,12 +2,20 @@ import {test, expect} from '../support/civiform_fixtures'
 import {
   AdminPrograms,
   AdminQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
 
 test.describe('Admin question list', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('sorts by last updated, preferring draft over active', async ({
     page,
     adminPrograms,
@@ -472,6 +480,13 @@ test.describe('Admin question list', () => {
 test.describe('Translation tag shows up as expected', () => {
   const questionName = 'Question for translation tags'
   const questionHelpText = 'Question help text'
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
 
   test('Tag translation incomplete and complete shows up as expected', async ({
     page,

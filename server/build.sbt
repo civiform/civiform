@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.51.2",
-      "software.amazon.awssdk" % "ses" % "2.51.2",
+      "software.amazon.awssdk" % "s3" % "2.51.3",
+      "software.amazon.awssdk" % "ses" % "2.51.3",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.2.1",
+      "org.checkerframework" % "dataflow-errorprone" % "4.2.2",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
