@@ -12,6 +12,11 @@ import com.google.common.collect.Maps;
 import com.google.inject.Inject;
 import controllers.CiviFormController;
 import java.util.Map.Entry;
+import mapping.admin.migration.AdminImportErrorListPartialMapper;
+import mapping.admin.migration.AdminImportErrorPartialMapper;
+import mapping.admin.migration.AdminImportPageMapper;
+import mapping.admin.migration.AdminImportProgramDataPartialMapper;
+import mapping.admin.migration.AdminImportProgramSavedPartialMapper;
 import models.DisplayMode;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
@@ -33,6 +38,13 @@ import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
+import views.PartialView;
+import views.admin.migration.AdminImportErrorListPartialViewModel;
+import views.admin.migration.AdminImportErrorPartialViewModel;
+import views.admin.migration.AdminImportPageView;
+import views.admin.migration.AdminImportProgramDataPartialViewModel;
+import views.admin.migration.AdminImportProgramSavedPartialViewModel;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
@@ -52,32 +64,57 @@ public class AdminImportController extends CiviFormController {
   private final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
   private final AdminImportView adminImportView;
   private final AdminImportViewPartial adminImportViewPartial;
+  private final AdminImportPageView adminImportPageView;
+  private final PartialView<AdminImportErrorPartialViewModel> adminImportErrorPartialView;
+  private final PartialView<AdminImportErrorListPartialViewModel> adminImportErrorListPartialView;
+  private final PartialView<AdminImportProgramDataPartialViewModel>
+      adminImportProgramDataPartialView;
+  private final PartialView<AdminImportProgramSavedPartialViewModel>
+      adminImportProgramSavedPartialView;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramRepository programRepository;
   private final ProgramService programService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminImportController(
       AdminImportView adminImportView,
       AdminImportViewPartial adminImportViewPartial,
+      AdminImportPageView adminImportPageView,
+      PartialView<AdminImportErrorPartialViewModel> adminImportErrorPartialView,
+      PartialView<AdminImportErrorListPartialViewModel> adminImportErrorListPartialView,
+      PartialView<AdminImportProgramDataPartialViewModel> adminImportProgramDataPartialView,
+      PartialView<AdminImportProgramSavedPartialViewModel> adminImportProgramSavedPartialView,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      ProgramService programService) {
+      ProgramService programService,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.adminImportView = checkNotNull(adminImportView);
     this.adminImportViewPartial = checkNotNull(adminImportViewPartial);
+    this.adminImportPageView = checkNotNull(adminImportPageView);
+    this.adminImportErrorPartialView = checkNotNull(adminImportErrorPartialView);
+    this.adminImportErrorListPartialView = checkNotNull(adminImportErrorListPartialView);
+    this.adminImportProgramDataPartialView = checkNotNull(adminImportProgramDataPartialView);
+    this.adminImportProgramSavedPartialView = checkNotNull(adminImportProgramSavedPartialView);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programRepository = checkNotNull(programRepository);
     this.programService = checkNotNull(programService);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return ok(adminImportPageView.render(request, new AdminImportPageMapper().map()))
+          .as(Http.MimeTypes.HTML);
+    }
+
     return ok(adminImportView.render(request));
   }
 
@@ -89,6 +126,9 @@ public class AdminImportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxImportProgram(Http.Request request) {
+    boolean thymeleafEnabled =
+        settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request);
+
     Form<AdminProgramImportForm> form =
         formFactory
             .form(AdminProgramImportForm.class)
@@ -104,6 +144,12 @@ public class AdminImportController extends CiviFormController {
           programMigrationService.deserialize(jsonString);
 
       if (deserializeResult.isError()) {
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request,
+              "Error processing JSON",
+              deserializeResult.getErrors().stream().findFirst().orElseThrow());
+        }
         return ok(
             adminImportViewPartial
                 .renderError(
@@ -115,6 +161,10 @@ public class AdminImportController extends CiviFormController {
       ProgramMigrationWrapper programMigrationWrapper = deserializeResult.getResult();
 
       if (programMigrationWrapper.getProgram() == null) {
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request, "Error processing JSON", "JSON did not have a top-level \"program\" field");
+        }
         return ok(
             adminImportViewPartial
                 .renderError(
@@ -130,6 +180,12 @@ public class AdminImportController extends CiviFormController {
       String adminName = program.adminName();
       boolean programExists = programRepository.checkProgramAdminNameExists(adminName);
       if (programExists) {
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request,
+              "This program already exists in our system.",
+              "Please check your file and and try again.");
+        }
         return ok(
             adminImportViewPartial
                 .renderError(
@@ -141,6 +197,12 @@ public class AdminImportController extends CiviFormController {
       // Prevent admin from importing a program with visiblity set to "Visible to selected trusted
       // intermediaries only" since we don't migrate TI groups
       if (program.displayMode() == DisplayMode.SELECT_TI) {
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request,
+              "Display mode 'SELECT_TI' is not allowed.",
+              "Please select another program display mode and try again");
+        }
         return ok(
             adminImportViewPartial
                 .renderError(
@@ -153,6 +215,12 @@ public class AdminImportController extends CiviFormController {
       for (BlockDefinition blockDefintion : program.blockDefinitions()) {
         long blockId = blockDefintion.id();
         if (blockId < 1) {
+          if (thymeleafEnabled) {
+            return renderThymeleafImportError(
+                request,
+                "Block definition ids must be greater than 0.",
+                "Please check your block definition ids and try again.");
+          }
           return ok(
               adminImportViewPartial
                   .renderError(
@@ -186,6 +254,10 @@ public class AdminImportController extends CiviFormController {
         // field in program migration. The existing error strings were created for the program
         // create/edit UI which has a URL field that is generated from the admin name.
         String errorString = joinErrors(programErrors).replace("URL", "admin name");
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request, "One or more program errors occured:", errorString);
+        }
         return ok(
             adminImportViewPartial
                 .renderError("One or more program errors occured:", errorString)
@@ -193,6 +265,14 @@ public class AdminImportController extends CiviFormController {
       }
 
       if (questions == null) {
+        if (thymeleafEnabled) {
+          return renderThymeleafProgramData(
+              request,
+              program,
+              questions,
+              /* duplicateQuestionNames= */ ImmutableList.of(),
+              jsonString);
+        }
         return ok(
             adminImportViewPartial
                 .renderProgramData(
@@ -210,6 +290,13 @@ public class AdminImportController extends CiviFormController {
       ImmutableSet<CiviFormError> questionErrors =
           programMigrationService.validateQuestions(program, questions, existingAdminNames);
       if (!questionErrors.isEmpty()) {
+        if (thymeleafEnabled) {
+          return ok(adminImportErrorListPartialView.render(
+                  request,
+                  new AdminImportErrorListPartialMapper()
+                      .map("One or more question errors occured:", joinErrors(questionErrors))))
+              .as(Http.MimeTypes.HTML);
+        }
         return ok(
             adminImportViewPartial
                 .renderErrorWithLineBreaks(
@@ -223,12 +310,22 @@ public class AdminImportController extends CiviFormController {
         return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
       }
 
+      if (thymeleafEnabled) {
+        return renderThymeleafProgramData(
+            request, program, questions, existingAdminNames, serializeResult.getResult());
+      }
       return ok(
           adminImportViewPartial
               .renderProgramData(
                   request, program, questions, existingAdminNames, serializeResult.getResult())
               .render());
     } catch (RuntimeException e) {
+      if (thymeleafEnabled) {
+        return renderThymeleafImportError(
+            request,
+            "There was an error rendering your program.",
+            "Please check your data and try again. Error: " + e.getMessage());
+      }
       return ok(
           adminImportViewPartial
               .renderError(
@@ -245,8 +342,17 @@ public class AdminImportController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(LargeFormUrlEncodedBodyParser.class)
   public Result hxSaveProgram(Http.Request request) {
+    boolean thymeleafEnabled =
+        settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request);
+
     ErrorAnd<ProgramMigrationWrapper, String> deserializeResult = getDeserializeResult(request);
     if (deserializeResult.isError()) {
+      if (thymeleafEnabled) {
+        return renderThymeleafImportError(
+            request,
+            "Error processing JSON",
+            deserializeResult.getErrors().stream().findFirst().orElseThrow());
+      }
       return ok(
           adminImportViewPartial
               .renderError(
@@ -266,6 +372,12 @@ public class AdminImportController extends CiviFormController {
           programMigrationService.saveImportedProgram(
               programOnJson, questionsOnJson, duplicateHandlingOptions);
       if (savedProgram.isError()) {
+        if (thymeleafEnabled) {
+          return renderThymeleafImportError(
+              request,
+              "Error saving program",
+              savedProgram.getErrors().stream().findFirst().orElseThrow());
+        }
         return ok(
             adminImportViewPartial
                 .renderError(
@@ -276,12 +388,25 @@ public class AdminImportController extends CiviFormController {
       ProgramDefinition savedProgramDefinition =
           programRepository.getShallowProgramDefinition(savedProgram.getResult());
 
+      if (thymeleafEnabled) {
+        return ok(adminImportProgramSavedPartialView.render(
+                request,
+                new AdminImportProgramSavedPartialMapper()
+                    .map(savedProgramDefinition.adminName(), savedProgramDefinition.id())))
+            .as(Http.MimeTypes.HTML);
+      }
       return ok(
           adminImportViewPartial
               .renderProgramSaved(savedProgramDefinition.adminName(), savedProgramDefinition.id())
               .render());
     } catch (RuntimeException error) {
       logger.error("Error saving program", error);
+      if (thymeleafEnabled) {
+        return renderThymeleafImportError(
+            request,
+            "Unable to save program. Please try again or contact your IT team for support.",
+            "Error: " + error.toString());
+      }
       return ok(
           adminImportViewPartial
               .renderError(
@@ -289,6 +414,28 @@ public class AdminImportController extends CiviFormController {
                   "Error: " + error.toString())
               .render());
     }
+  }
+
+  /** Renders the Thymeleaf import-error partial. */
+  private Result renderThymeleafImportError(
+      Http.Request request, String title, String errorMessage) {
+    return ok(adminImportErrorPartialView.render(
+            request, new AdminImportErrorPartialMapper().map(title, errorMessage)))
+        .as(Http.MimeTypes.HTML);
+  }
+
+  /** Renders the Thymeleaf program-preview partial. */
+  private Result renderThymeleafProgramData(
+      Http.Request request,
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      ImmutableList<String> duplicateQuestionNames,
+      String json) {
+    return ok(adminImportProgramDataPartialView.render(
+            request,
+            new AdminImportProgramDataPartialMapper()
+                .map(program, questions, duplicateQuestionNames, json)))
+        .as(Http.MimeTypes.HTML);
   }
 
   @VisibleForTesting

@@ -1,0 +1,19 @@
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportErrorPartialViewModel"*/-->
+<!--/*
+  An htmx partial swapped into #program-data when import fails. Markup and class strings mirror the legacy view exactly.
+*/-->
+<div id="program-data">
+  <div class="usa-alert usa-alert--error" aria-live="polite" role="alert">
+    <div class="usa-alert__body">
+      <h4 class="usa-alert__heading" th:text="${model.title}"></h4>
+      <p class="usa-alert__text" th:text="${model.errorMessage}"></p>
+    </div>
+  </div>
+  <button
+    type="button"
+    th:attr="data-redirect-to=${model.tryAgainUrl}"
+    class="my-5 usa-button usa-button--outline"
+  >
+    Try again
+  </button>
+</div>
