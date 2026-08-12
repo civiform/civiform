@@ -4190,7 +4190,7 @@ public class ProgramServiceTest extends ResetPostgres {
             /* isNested= */ false,
             /* enumeratorImprovementsEnabled= */ true);
 
-    assertThat(result.getResult().namePrefix().get()).isEqualTo("[parent label] - ");
+    assertThat(result.getResult().namePrefix().get()).isEqualTo("[parent entity] - ");
 
     ErrorAnd<BlockDefinition, CiviFormError> nestedBlock =
         ps.createEmptyBlockDefinition(
@@ -4201,6 +4201,6 @@ public class ProgramServiceTest extends ResetPostgres {
             /* enumeratorImprovementsEnabled= */ true);
 
     assertThat(nestedBlock.getResult().namePrefix().get())
-        .isEqualTo("[parent label] - [child label] - ");
+        .isEqualTo("[parent entity] - [child entity] - ");
   }
 }
