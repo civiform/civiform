@@ -1151,7 +1151,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
 
   /**
    * (NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and
-   * score output on submitted applications for programs that opt in.
+   * score output on pdf downloads for admin for submitted applications to programs that opt in.
    */
   public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
     return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
@@ -2453,8 +2453,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "ANSWER_OPTION_SCORING_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option"
-                              + " question answer options and score output on submitted"
-                              + " applications for programs that opt in.",
+                              + " question answer options and score output on pdf downloads for"
+                              + " admin for submitted applications to programs that opt in.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE))))
