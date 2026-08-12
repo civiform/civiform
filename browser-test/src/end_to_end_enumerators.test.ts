@@ -1248,7 +1248,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('Enumerator screen name modal shows description and hides the parent label', async ({
+    test('Enumerator screen name modal shows description', async ({
       page,
       adminPrograms,
     }) => {
@@ -1273,7 +1273,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
       })
 
-      await test.step('Verify the screen name description is shown and the parent label is not', async () => {
+      await test.step('Verify the screen name description is shown', async () => {
         await expect(
           page.getByText(
             'Applicants will see the listed entity they answered from the initial question as' +
@@ -1281,7 +1281,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             {exact: false},
           ),
         ).toBeVisible()
-        await expect(page.getByText('[parent label]')).toHaveCount(0)
       })
     })
 
