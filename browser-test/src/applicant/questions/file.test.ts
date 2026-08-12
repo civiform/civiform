@@ -107,7 +107,10 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       })
 
       await test.step('After 1 file: SR span shows singular count', async () => {
-        await applicantQuestions.answerFileUploadQuestion('some file', 'file.pdf')
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file.pdf',
+        )
         await waitForHtmxReady(page)
 
         await expect(srStatus).toBeVisible()
