@@ -1246,7 +1246,7 @@ text.nestedRepeatedSet=
 text.repeatedSet.prefix=заголовок родительского элемента
 # An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
 text.repeatedSet.nestedPrefix=заголовок дочернего элемента
-#An additional description explaining the uneditable prefix within the screen editing modal
+# Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
