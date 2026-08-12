@@ -17,6 +17,7 @@ import static j2html.TagCreator.template;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
+import com.google.inject.TypeLiteral;
 import controllers.geojson.routes;
 import forms.questions.MapQuestionForm;
 import forms.questions.QuestionForm;
@@ -49,6 +50,7 @@ import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.BaseHtmlView;
 import views.HtmlBundle;
+import views.PartialView;
 import views.ViewUtils;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -545,7 +547,8 @@ public final class QuestionEditView extends BaseHtmlView {
 
       return QuestionConfig.buildQuestionConfigUsingThymeleaf(
           request,
-          new MapQuestionSettingsPartialView(baseViewDeps),
+          new PartialView<>(
+              baseViewDeps, TypeLiteral.get(MapQuestionSettingsPartialViewModel.class)),
           getMapQuestionSettingsPartialViewModel((MapQuestionForm) questionForm, possibleKeys));
     }
     return QuestionConfig.buildQuestionConfig(questionForm, messages, settingsManifest, request);

@@ -51,9 +51,8 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
+import views.PartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
-import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionEditView;
@@ -74,8 +73,10 @@ public final class AdminQuestionController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
 
-  private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
-  private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
+  private final PartialView<MapQuestionSettingsFiltersPartialViewModel>
+      mapQuestionSettingsFiltersPartialView;
+  private final PartialView<MapQuestionSettingsFiltersListPartialViewModel>
+      mapQuestionSettingsFiltersListPartialView;
   private final GeoJsonDataRepository geoJsonDataRepository;
   private final QuestionFormPageView questionFormPageView;
   private final QuestionsListPageView questionsListPageView;
@@ -91,8 +92,9 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       SettingsManifest settingsManifest,
       FormFactory formFactory,
-      MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
-      MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
+      PartialView<MapQuestionSettingsFiltersPartialViewModel> mapQuestionSettingsFiltersPartialView,
+      PartialView<MapQuestionSettingsFiltersListPartialViewModel>
+          mapQuestionSettingsFiltersListPartialView,
       GeoJsonDataRepository geoJsonDataRepository,
       ClassLoaderExecutionContext classLoaderExecutionContext,
       QuestionFormPageView questionFormPageView,
