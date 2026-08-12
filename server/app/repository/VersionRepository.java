@@ -682,7 +682,7 @@ public final class VersionRepository {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
+          String.valueOf(version.id), () -> getProgramsForVersionWithoutCache(version));
     }
     return getProgramsForVersionWithoutCache(version);
   }
