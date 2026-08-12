@@ -1,0 +1,42 @@
+%NAME enumInput - unset setting selects the blank placeholder option
+%TEMPLATE_MODE HTML
+%CONTEXT
+allowableValues = @com.google.common.collect.ImmutableList@of('AWS', 'AZURE')
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: enumInput('abcdefgh', 'STORAGE_SERVICE_NAME', '', ${allowableValues}, true)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mt-2">
+  <div class="mb-2" data-testid="enum-STORAGE_SERVICE_NAME">
+    <label for="abcdefgh" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <select
+        maxlength="10000"
+        id="abcdefgh"
+        name="STORAGE_SERVICE_NAME"
+        disabled="disabled"
+        readonly="readonly"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5 read-only:text-gray-500 read-only:bg-gray-100"
+      >
+        <option value="" selected="selected"></option>
+        <optgroup label="">
+          <option
+            class="cf-multi-option-question-option cf-multi-option-value"
+            value="AWS"
+          >AWS</option>
+          <option
+            class="cf-multi-option-question-option cf-multi-option-value"
+            value="AZURE"
+          >AZURE</option>
+        </optgroup>
+      </select>
+      <div id="abcdefgh-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+    <div class="text-xs mt-2 text-gray-600">
+      Read-only
+    </div>
+  </div>
+</div>

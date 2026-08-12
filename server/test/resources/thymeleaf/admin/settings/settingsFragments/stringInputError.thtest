@@ -1,0 +1,27 @@
+%NAME stringInput - a failed update renders the rejected value and its error message
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: stringInput('abcdefgh', 'THEME_COLOR_PRIMARY', '#19baff', false, 'This color does not have enough contrast to be legible with white text.')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mt-2">
+  <div class="mb-2" data-testid="string-THEME_COLOR_PRIMARY">
+    <label for="abcdefgh" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="#19baff"
+        maxlength="10000"
+        id="abcdefgh"
+        name="THEME_COLOR_PRIMARY"
+        placeholder="empty"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="abcdefgh-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+    <div class="text-red-600 text-xs">This color does not have enough contrast to be legible with white text.</div>
+  </div>
+</div>

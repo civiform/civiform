@@ -1,0 +1,27 @@
+%NAME numberInput - unset INT setting drops the value attribute, matching legacy j2html
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: numberInput('abcdefgh', 'SESSION_INACTIVITY_TIMEOUT_MINUTES', null, false)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mt-2">
+  <div class="mb-2" data-testid="int-SESSION_INACTIVITY_TIMEOUT_MINUTES">
+    <label for="abcdefgh" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="number"
+        inputmode="decimal"
+        step="any"
+        maxlength="10000"
+        id="abcdefgh"
+        name="SESSION_INACTIVITY_TIMEOUT_MINUTES"
+        placeholder="empty"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="abcdefgh-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
+</div>

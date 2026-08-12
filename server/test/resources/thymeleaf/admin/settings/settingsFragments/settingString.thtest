@@ -1,0 +1,31 @@
+%NAME setting - a STRING setting renders its name, markdown description and the string input
+%TEMPLATE_MODE HTML
+%CONTEXT
+model = @views.admin.settings.AdminSettingsIndexPageViewModel@builder().build()
+setting = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+            .variableName('WHITELABEL_LOGO_URL') \
+            .descriptionHtml('<p>The logo shown in the header.</p>') \
+            .inputTypeName('STRING') \
+            .value('https://example.com/logo.png') \
+            .readOnly(false) \
+            .errorMessage('Invalid URL.') \
+            .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"></div>
+# ----------------------------------------------------------------------
+# Swaps the real inputs for a fake that prints the arguments it was passed, so
+# the test pins the dispatch and the wiring without repeating the input markup
+# (which has its own thtests) or the random field id.
+%INPUT[admin/settings/fragments/SettingInputs]
+<div
+  th:fragment="stringInput(id, name, value, readOnly, errorMessage)"
+  th:text="|stringInput(${name}, ${value}, readOnly=${readOnly}, error=${errorMessage})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div data-testid="WHITELABEL_LOGO_URL-container" class="md:max-w-lg max-w-md">
+  <div class="font-semibold break-all">WHITELABEL_LOGO_URL</div>
+  <div class="text-sm"><p>The logo shown in the header.</p></div>
+  <div>stringInput(WHITELABEL_LOGO_URL, https://example.com/logo.png, readOnly=false, error=Invalid URL.)</div>
+</div>

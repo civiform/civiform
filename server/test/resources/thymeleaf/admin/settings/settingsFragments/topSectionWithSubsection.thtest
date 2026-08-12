@@ -1,0 +1,46 @@
+%NAME topSection - anchored h2, settings grid, then subsections rendered under an h3
+%TEMPLATE_MODE HTML
+%CONTEXT
+section = (#logo = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+                     .variableName('WHITELABEL_LOGO_URL').build(), \
+           #favicon = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+                        .variableName('FAVICON_URL').build(), \
+           #subsection = @views.admin.settings.AdminSettingsIndexPageViewModel$Section@builder() \
+                           .name('Favicon') \
+                           .slug('favicon') \
+                           .settings(@com.google.common.collect.ImmutableList@of(#favicon)) \
+                           .subsections(@com.google.common.collect.ImmutableList@of()) \
+                           .build(), \
+           @views.admin.settings.AdminSettingsIndexPageViewModel$Section@builder() \
+             .name('Branding') \
+             .slug('branding') \
+             .settings(@com.google.common.collect.ImmutableList@of(#logo)) \
+             .subsections(@com.google.common.collect.ImmutableList@of(#subsection)) \
+             .build())
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingsSection :: topSection(${section})}"></div>
+# ----------------------------------------------------------------------
+# Each setting is faked down to its variable name; the real setting markup has
+# its own thtests.
+%INPUT[admin/settings/fragments/Setting]
+<div th:fragment="setting(setting)" th:text="|setting(${setting.variableName})|"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div>
+  <h2
+    id="branding"
+    class="text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"
+  >Branding</h2>
+  <div class="grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-8">
+    <div>setting(WHITELABEL_LOGO_URL)</div>
+  </div>
+  <div>
+    <h3
+      class="text-l font-bold py-2 mt-4 underline underline-offset-2"
+    >Favicon</h3>
+    <div class="grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-8">
+      <div>setting(FAVICON_URL)</div>
+    </div>
+  </div>
+</div>

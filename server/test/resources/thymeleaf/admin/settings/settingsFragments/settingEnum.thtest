@@ -1,0 +1,28 @@
+%NAME setting - an ENUM setting passes its allowable values to the select
+%TEMPLATE_MODE HTML
+%CONTEXT
+model = @views.admin.settings.AdminSettingsIndexPageViewModel@builder().build()
+setting = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+            .variableName('STORAGE_SERVICE_NAME') \
+            .descriptionHtml('<p>Where uploaded files are stored.</p>') \
+            .inputTypeName('ENUM') \
+            .value('AZURE') \
+            .allowableValues(@com.google.common.collect.ImmutableList@of('AWS', 'AZURE')) \
+            .readOnly(false) \
+            .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/settings/fragments/SettingInputs]
+<div
+  th:fragment="enumInput(id, name, value, allowableValues, readOnly)"
+  th:text="|enumInput(${name}, ${value}, ${allowableValues}, readOnly=${readOnly})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div data-testid="STORAGE_SERVICE_NAME-container" class="md:max-w-lg max-w-md">
+  <div class="font-semibold break-all">STORAGE_SERVICE_NAME</div>
+  <div class="text-sm"><p>Where uploaded files are stored.</p></div>
+  <div>enumInput(STORAGE_SERVICE_NAME, AZURE, [AWS, AZURE], readOnly=false)</div>
+</div>

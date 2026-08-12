@@ -1,0 +1,26 @@
+%NAME stringInput - editable setting renders its value and the "empty" placeholder
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: stringInput('abcdefgh', 'WHITELABEL_LOGO_URL', 'https://example.com/logo.png', false, null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mt-2">
+  <div class="mb-2" data-testid="string-WHITELABEL_LOGO_URL">
+    <label for="abcdefgh" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <input
+        type="text"
+        value="https://example.com/logo.png"
+        maxlength="10000"
+        id="abcdefgh"
+        name="WHITELABEL_LOGO_URL"
+        placeholder="empty"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div id="abcdefgh-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
+</div>

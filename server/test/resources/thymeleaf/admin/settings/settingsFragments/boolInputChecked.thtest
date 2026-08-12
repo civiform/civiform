@@ -1,0 +1,38 @@
+%NAME boolInput - an enabled setting checks True and leaves False unchecked
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: boolInput('abcdefgh', 'ijklmnop', 'ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS', true, false, null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div>
+  <div class="flex mt-2">
+    <label
+      for="abcdefgh"
+      data-testid="enable-ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS"
+      class="mr-4 px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+      ><input
+        type="radio"
+        value="true"
+        maxlength="10000"
+        id="abcdefgh"
+        name="ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS"
+        class="h-4 w-4 mr-4 align-middle self-center flex-none"
+        checked="checked"
+      />True</label
+    >
+    <label
+      for="ijklmnop"
+      data-testid="disable-ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+      ><input
+        type="radio"
+        value="false"
+        maxlength="10000"
+        id="ijklmnop"
+        name="ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS"
+        class="h-4 w-4 mr-4 align-middle self-center flex-none"
+      />False</label
+    >
+  </div>
+</div>
