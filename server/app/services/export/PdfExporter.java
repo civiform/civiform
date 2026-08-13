@@ -272,6 +272,7 @@ public final class PdfExporter {
                         .contains(answerData.questionDefinition().getId()))
                 .orElse(false)) {
 
+
               String eligibilityText = answerData.isEligible() ? "Meets eligibility" : "Doesn't meet eligibility";
               eligibility = new Paragraph(smallGrayFontSelector.process(eligibilityText));
               eligibility.setAlignment(Paragraph.ALIGN_RIGHT);
@@ -475,11 +476,15 @@ public final class PdfExporter {
     document.add(Chunk.NEWLINE);
 
     // Block-level information
-    document.add(text(block.name(), h2FontSelector, indentationLevel));
+    document.add(text(block.localizedName().getOrDefault(prefferedLocale.toLocale()), h2FontSelector, indentationLevel));
     document.add(
-        text("Admin description: " + block.description(), smallGrayFontSelector, indentationLevel));
+        text("Admin description: " + block.localizedDescription().getOrDefault(prefferedLocale.toLocale()), smallGrayFontSelector, indentationLevel));
     document.add(Chunk.NEWLINE);
-
+    if(block.localizedEligibilityMessage().isPresent()){
+    document.add(
+      text("Eligibility message: " + block.localizedEligibilityMessage().get().getOrDefault(prefferedLocale.toLocale()), smallGrayFontSelector, indentationLevel));
+    }
+    document.add(Chunk.NEWLINE);
     // Visibility & eligibility information
     if (block.visibilityPredicate().isPresent()) {
       renderPredicate(
