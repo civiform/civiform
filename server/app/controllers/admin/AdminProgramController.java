@@ -62,7 +62,6 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramFormPageView programFormPageView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
-  private final MessagesApi messagesApi;
   private final SettingsManifest settingsManifest;
   private final CategoryRepository categoryRepository;
   private final AccountRepository accountRepository;
@@ -81,6 +80,10 @@ public final class AdminProgramController extends CiviFormController {
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
+      MessagesApi messagesApi,
+      CategoryRepository categoryRepository,
+      AccountRepository accountRepository,
+      Config configuration,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
@@ -91,7 +94,6 @@ public final class AdminProgramController extends CiviFormController {
     this.programFormPageView = checkNotNull(programFormPageView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.messagesApi = checkNotNull(messagesApi);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -234,7 +236,6 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
             applicationSteps,
-            messagesApi.preferred(request),
             settingsManifest.getEnumeratorImprovementsEnabled(request));
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
