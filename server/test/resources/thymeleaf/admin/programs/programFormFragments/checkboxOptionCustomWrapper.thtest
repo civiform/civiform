@@ -1,0 +1,18 @@
+%NAME uswdsCheckboxOption - custom wrapper classes replace usa-checkbox (category option)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption('checkbox-category-Health', 'categories[]', '1', true, false, 'Health', 'grid-col-12 tablet:grid-col-6')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="grid-col-12 tablet:grid-col-6">
+  <input
+    id="checkbox-category-Health"
+    class="usa-checkbox__input usa-checkbox__input--tile"
+    type="checkbox"
+    name="categories[]"
+    value="1"
+    checked="checked"
+  />
+  <label for="checkbox-category-Health" class="usa-checkbox__label">Health</label>
+</div>
