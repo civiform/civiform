@@ -2,10 +2,13 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
+import static play.test.Helpers.contentAsBytes;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -14,9 +17,12 @@ import auth.CiviFormProfile;
 import auth.CiviFormProfileData;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.inject.util.Providers;
+import com.itextpdf.text.pdf.PdfReader;
+import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import controllers.admin.AdminApplicationControllerTest.ProfileUtilsNoOpTester.ProfileTester;
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -35,6 +41,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.pac4j.core.context.session.SessionStore;
 import play.data.FormFactory;
 import play.i18n.MessagesApi;
@@ -97,8 +104,10 @@ public class AdminApplicationControllerTest extends ResetPostgres {
               Optional.of(
                   LocalizedStrings.create(
                       ImmutableMap.of(
-                          Locale.US, "A translatable email body",
-                          Locale.FRENCH, "A translatable email body (French)"))))
+                          Locale.US,
+                          "A translatable email body",
+                          Locale.FRENCH,
+                          "A translatable email body (French)"))))
           .build();
 
   private static final ImmutableList<Status> ORIGINAL_STATUSES =
@@ -798,6 +807,129 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getCreateTime()).isAfter(start);
     // verify application has the latest note
     assertThat(application.getLatestNote().get()).isEqualTo(noteText);
+  }
+
+  @Test
+  public void download_test_generatesScore() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    controller =
+        makeNoOpProfileControllerWithMockedSettingsManitfest(
+            Optional.of(adminAccount), program.getProgramDefinition().adminName());
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
+            .build();
+
+    // Execute
+    Result result = controller.download(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType().get()).isEqualTo("application/pdf");
+    // Get the raw body bytes from the result
+    byte[] body = contentAsBytes(result, mat).toArray();
+    // Verify it is a valid PDF by checking the magic number "%PDF"
+    assertThat(body).startsWith(new byte[] {0x25, 0x50, 0x44, 0x46});
+    StringBuilder textFromPDF = new StringBuilder();
+    PdfReader pdfReader = new PdfReader(body);
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).contains("Total Calculated Score: 0");
+  }
+
+  @Test
+  public void download_test_noScoreWhenProgramAbsent() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    ProgramModel program = ProgramBuilder.newActiveProgram("test name", "test description").build();
+    controller =
+        makeNoOpProfileControllerWithMockedSettingsManitfest(Optional.of(adminAccount), "");
+    repo.createOrUpdateStatusDefinitions(
+        program.getProgramDefinition().adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                Map.of(
+                    "redirectUri",
+                    "/",
+                    // Only "on" is a valid checkbox state.
+                    "sendEmail",
+                    "",
+                    "currentStatus",
+                    UNSET_STATUS_TEXT,
+                    "newStatus",
+                    APPROVED_STATUS.statusText()))
+            .build();
+
+    // Execute
+    Result result = controller.download(request, program.id, application.id);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType().get()).isEqualTo("application/pdf");
+    // Get the raw body bytes from the result
+    byte[] body = contentAsBytes(result, mat).toArray();
+    // Verify it is a valid PDF by checking the magic number "%PDF"
+    assertThat(body).startsWith(new byte[] {0x25, 0x50, 0x44, 0x46});
+    StringBuilder textFromPDF = new StringBuilder();
+    PdfReader pdfReader = new PdfReader(body);
+    textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
+    pdfReader.close();
+    List<String> linesFromPDF = Splitter.on('\n').splitToList(textFromPDF.toString());
+    assertThat(textFromPDF).isNotNull();
+    assertThat(linesFromPDF.get(0)).doesNotContain("Total Calculated Score: 0");
+  }
+
+  AdminApplicationController makeNoOpProfileControllerWithMockedSettingsManitfest(
+      Optional<AccountModel> adminAccount, String programName) {
+    ProfileTester profileTester =
+        new ProfileTester(
+            instanceOf(DatabaseExecutionContext.class),
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(CiviFormProfileData.class),
+            instanceOf(SettingsManifest.class),
+            adminAccount,
+            instanceOf(AccountRepository.class));
+    ProfileUtils profileUtilsNoOpTester =
+        new ProfileUtilsNoOpTester(instanceOf(SessionStore.class), profileFactory, profileTester);
+    SettingsManifest settingsManifest = Mockito.mock(SettingsManifest.class);
+    when(settingsManifest.getAllowedProgramsForSummingInPdf(any()))
+        .thenReturn(Optional.of(ImmutableList.of(programName)));
+    return new AdminApplicationController(
+        instanceOf(ProgramService.class),
+        instanceOf(ApplicantService.class),
+        instanceOf(CsvExporterService.class),
+        instanceOf(FormFactory.class),
+        instanceOf(JsonExporterService.class),
+        instanceOf(PdfExporterService.class),
+        instanceOf(ProgramApplicationView.class),
+        instanceOf(ProgramAdminApplicationService.class),
+        profileUtilsNoOpTester,
+        instanceOf(MessagesApi.class),
+        instanceOf(DateConverter.class),
+        Providers.of(LocalDateTime.now(ZoneId.systemDefault())),
+        instanceOf(VersionRepository.class),
+        instanceOf(StatusService.class),
+        instanceOf(ProgramApplicationTableView.class),
+        settingsManifest);
   }
 
   @Test
