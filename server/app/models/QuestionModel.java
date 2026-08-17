@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
@@ -99,6 +100,35 @@ public class QuestionModel extends BaseModel {
   private @Constraints.Required QuestionDisplayMode displayMode;
 
   private UUID concurrencyToken;
+
+  /**
+   * A localized description of the image (used as alt text).
+   *
+   * <p>Note: If the question doesn't have an image, the field here will be null but the
+   * corresponding field in {@link QuestionDefinition} will be {@code Optional.empty}. (Ebean
+   * doesn't support optional fields, which is why it's null instead of Optional in this model.) Be
+   * sure to convert between null and Optional when going between this model and {@link
+   * QuestionDefinition}..
+   */
+  @DbJsonB @Nullable private LocalizedStrings localizedImageDescription;
+
+  /**
+   * A list of keys used to fetch the question's image from cloud storage. This must be a mutable
+   * collection so we can add to the list later.
+   */
+  @DbArray private List<String> imageFileKeys = new ArrayList<>();
+
+  @Nullable
+  public LocalizedStrings getLocalizedImageDescription() {
+    return localizedImageDescription;
+  }
+
+  public ImmutableList<String> getImageFileKeys() {
+    if (this.imageFileKeys == null) {
+      return ImmutableList.of();
+    }
+    return ImmutableList.copyOf(this.imageFileKeys);
+  }
 
   @ManyToMany(mappedBy = "questions")
   @JoinTable(
@@ -200,11 +230,31 @@ public class QuestionModel extends BaseModel {
       builder.setConcurrencyToken(concurrencyToken);
     }
 
+    setLocalizedImageDescription(builder);
+    setImageFileKeys(builder);
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
 
     this.questionDefinition = builder.build();
+  }
+
+  private void setLocalizedImageDescription(QuestionDefinitionBuilder builder) {
+    if (localizedImageDescription != null) {
+      builder.setLocalizedImageDescription(Optional.of(localizedImageDescription));
+    } else {
+      // See docs on `this.localizedImageDescription` -- a null field here means an
+      // Optional.empty field for the question definition.
+      builder.setLocalizedImageDescription(Optional.empty());
+    }
+  }
+
+  private void setImageFileKeys(QuestionDefinitionBuilder builder) {
+    if (imageFileKeys != null && !imageFileKeys.isEmpty()) {
+      builder.setImageFileKeys(Optional.of(ImmutableList.copyOf(imageFileKeys)));
+    } else {
+      builder.setImageFileKeys(Optional.empty());
+    }
   }
 
   /**
@@ -303,6 +353,18 @@ public class QuestionModel extends BaseModel {
       enumeratorInitialQuestionId = enumerator.getEnumeratorInitialQuestionId().orElse(null);
     }
 
+    if (questionDefinition.getLocalizedImageDescription().isPresent()) {
+      localizedImageDescription = questionDefinition.getLocalizedImageDescription().get();
+    } else {
+      localizedImageDescription = null;
+    }
+
+    if (questionDefinition.getImageFileKeys().isPresent()) {
+      imageFileKeys = new ArrayList<>(questionDefinition.getImageFileKeys().get());
+    } else {
+      imageFileKeys = new ArrayList<>();
+    }
+
     // We must ensure we always initTags here. Otherwise, if we aren't
     // adding the tag, and we're needing to remove the universal tag
     // from an existing question, we'd end up with the questionTags field
@@ -313,7 +375,8 @@ public class QuestionModel extends BaseModel {
       initTags();
     }
 
-    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after
+    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this
+    // must come after
     // we have done initTags above, either in this function or in addTag previously.
     questionDefinition
         .getPrimaryApplicantInfoTags()

@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Locale;
@@ -97,6 +98,16 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
   @Override
   Optional<ImmutableSet<QuestionSetting>> questionSettings() {
+    return Optional.empty();
+  }
+
+  @Override
+  Optional<LocalizedStrings> localizedImageDescription() {
+    return Optional.empty();
+  }
+
+  @Override
+  Optional<ImmutableList<String>> imageFileKeys() {
     return Optional.empty();
   }
 
@@ -203,6 +214,29 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     QuestionDefinitionConfig.Builder setQuestionHelpTextInternal(
         LocalizedStrings questionHelpText) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setLocalizedImageDescription(
+        LocalizedStrings localizedImageDescription) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setLocalizedImageDescription(
+        Optional<LocalizedStrings> localizedImageDescription) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setImageFileKeys(ImmutableList<String> imageFileKeys) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setImageFileKeys(
+        Optional<ImmutableList<String>> imageFileKeys) {
       return this;
     }
 

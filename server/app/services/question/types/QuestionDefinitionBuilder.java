@@ -123,6 +123,28 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setLocalizedImageDescription(
+      LocalizedStrings localizedImageDescription) {
+    builder.setLocalizedImageDescription(localizedImageDescription);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setLocalizedImageDescription(
+      Optional<LocalizedStrings> localizedImageDescription) {
+    builder.setLocalizedImageDescription(localizedImageDescription);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setImageFileKeys(ImmutableList<String> imageFileKeys) {
+    builder.setImageFileKeys(imageFileKeys);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setImageFileKeys(Optional<ImmutableList<String>> imageFileKeys) {
+    builder.setImageFileKeys(imageFileKeys);
+    return this;
+  }
+
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
     builder.setQuestionText(builder.build().questionText().updateTranslation(locale, text));
     return this;
@@ -278,7 +300,8 @@ public final class QuestionDefinitionBuilder {
             builder.build(), questionOptions, MultiOptionQuestionType.RADIO_BUTTON);
       }
       case ENUMERATOR -> {
-        // This shouldn't happen, but protects us in case there are enumerator questions in the prod
+        // This shouldn't happen, but protects us in case there are enumerator questions
+        // in the prod
         // database that don't have entity type specified.
         if (entityType == null || entityType.isEmpty()) {
           entityType =
