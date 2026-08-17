@@ -1013,7 +1013,7 @@
       },
       "ANSWER_OPTION_SCORING_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and score output on pdf downloads for admin for submitted applications to programs that opt in.",
+        "description": "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and sums all scores on pdf downloads, csv exports, and JSON exports of submitted applications for admins and TIs on programs that opt in.",
         "type": "bool",
         "required": false
       },
