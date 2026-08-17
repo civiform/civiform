@@ -10,6 +10,7 @@ import com.google.inject.Key;
 import com.google.inject.TypeLiteral;
 import org.junit.Before;
 import org.junit.Test;
+import support.FakeOutsidePartialViewModel;
 import views.shared.BaseViewDeps;
 import views.testdata.FakeEditPartialViewModel;
 
@@ -35,6 +36,16 @@ public class PartialViewTest {
         new PartialView<>(baseViewDeps, TypeLiteral.get(FakeEditPartialViewModel.class));
 
     assertThat(view.pageTemplate()).isEqualTo("testdata/FakeEditPartial");
+  }
+
+  @Test
+  public void pageTemplate_modelOutsideViewsPackage_throws() {
+    PartialView<FakeOutsidePartialViewModel> view =
+        new PartialView<>(baseViewDeps, TypeLiteral.get(FakeOutsidePartialViewModel.class));
+
+    assertThatThrownBy(view::pageTemplate)
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("must be in the views package");
   }
 
   @Test
