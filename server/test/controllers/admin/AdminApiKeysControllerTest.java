@@ -26,9 +26,11 @@ import services.program.ProgramService;
 import services.program.ProgramType;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.apikeys.ApiKeyCredentialsPageView;
 import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexPageView;
 import views.admin.apikeys.ApiKeyIndexView;
+import views.admin.apikeys.ApiKeyNewOnePageView;
 import views.admin.apikeys.ApiKeyNewOneView;
 
 public class AdminApiKeysControllerTest extends ResetPostgres {
@@ -62,6 +64,8 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
             apiKeyNewOneView,
             instanceOf(ApiKeyCredentialsView.class),
             instanceOf(ApiKeyIndexPageView.class),
+            instanceOf(ApiKeyNewOnePageView.class),
+            instanceOf(ApiKeyCredentialsPageView.class),
             instanceOf(ProgramService.class),
             instanceOf(play.data.FormFactory.class),
             profileUtils,

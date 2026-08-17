@@ -7,6 +7,7 @@ import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.TypeLiteral;
 import forms.questions.CheckboxQuestionForm;
 import forms.questions.DateQuestionForm;
 import forms.questions.MapQuestionForm;
@@ -31,7 +32,7 @@ import services.question.types.DateQuestionDefinition.DateValidationOption.DateT
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
-import views.admin.questions.MapQuestionSettingsPartialView;
+import views.PartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionConfig;
 import views.shared.BaseViewDeps;
@@ -68,8 +69,10 @@ public class QuestionConfigTest extends ResetPostgres {
               .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
               .build();
 
-      MapQuestionSettingsPartialView view =
-          new MapQuestionSettingsPartialView(instanceOf(BaseViewDeps.class));
+      PartialView<MapQuestionSettingsPartialViewModel> view =
+          new PartialView<>(
+              instanceOf(BaseViewDeps.class),
+              TypeLiteral.get(MapQuestionSettingsPartialViewModel.class));
 
       Optional<DivTag> mapConfig =
           QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
@@ -275,8 +278,10 @@ public class QuestionConfigTest extends ResetPostgres {
             .possibleKeys(ImmutableList.of("name_key", "address_key", "url_key"))
             .build();
 
-    MapQuestionSettingsPartialView view =
-        new MapQuestionSettingsPartialView(instanceOf(BaseViewDeps.class));
+    PartialView<MapQuestionSettingsPartialViewModel> view =
+        new PartialView<>(
+            instanceOf(BaseViewDeps.class),
+            TypeLiteral.get(MapQuestionSettingsPartialViewModel.class));
 
     Optional<DivTag> maybeConfig =
         QuestionConfig.buildQuestionConfigUsingThymeleaf(request, view, model);
