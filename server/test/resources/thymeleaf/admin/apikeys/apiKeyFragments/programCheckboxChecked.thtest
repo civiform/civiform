@@ -1,0 +1,25 @@
+%NAME programCheckbox - previously granted, so the box stays checked
+%TEMPLATE_MODE HTML
+%CONTEXT
+# ProgramCheckbox(id, name, label, checked)
+program = @views.admin.apikeys.ApiKeyNewOnePageViewModel$ProgramCheckbox@builder() \
+    .id("utility-discount").name("grant-program-read[utility-discount]") \
+    .label("Utility Discount").checked(true).build()
+# ----------------------------------------------------------------------
+%INPUT
+<label th:replace="~{admin/apikeys/fragments/ApiKeyFormFields :: programCheckbox(${program})}"></label>
+# ----------------------------------------------------------------------
+%OUTPUT
+<label
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  for="utility-discount"
+  ><input
+    type="checkbox"
+    value="true"
+    maxlength="10000"
+    id="utility-discount"
+    name="grant-program-read[utility-discount]"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+    checked="checked"
+  />Utility Discount</label
+>

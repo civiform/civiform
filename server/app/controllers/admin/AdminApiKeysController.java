@@ -10,7 +10,9 @@ import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.apikeys.ApiKeyCredentialsPageMapper;
 import mapping.admin.apikeys.ApiKeyIndexPageMapper;
+import mapping.admin.apikeys.ApiKeyNewOnePageMapper;
 import mapping.admin.apikeys.ApiKeyStatus;
 import models.ApiKeyModel;
 import org.pac4j.play.java.Secure;
@@ -25,10 +27,14 @@ import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
 import services.settings.SettingsManifest;
+import views.admin.apikeys.ApiKeyCredentialsPageView;
+import views.admin.apikeys.ApiKeyCredentialsPageViewModel;
 import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexPageView;
 import views.admin.apikeys.ApiKeyIndexPageViewModel;
 import views.admin.apikeys.ApiKeyIndexView;
+import views.admin.apikeys.ApiKeyNewOnePageView;
+import views.admin.apikeys.ApiKeyNewOnePageViewModel;
 import views.admin.apikeys.ApiKeyNewOneView;
 
 /** Controller for admins managing ApiKeys. */
@@ -39,6 +45,8 @@ public class AdminApiKeysController extends CiviFormController {
   private final ApiKeyNewOneView newOneView;
   private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ApiKeyIndexPageView indexPageView;
+  private final ApiKeyNewOnePageView newOnePageView;
+  private final ApiKeyCredentialsPageView credentialsPageView;
   private final ProgramService programService;
   private final FormFactory formFactory;
   private final ProgramRepository programRepository;
@@ -52,6 +60,8 @@ public class AdminApiKeysController extends CiviFormController {
       ApiKeyNewOneView newOneView,
       ApiKeyCredentialsView apiKeyCredentialsView,
       ApiKeyIndexPageView indexPageView,
+      ApiKeyNewOnePageView newOnePageView,
+      ApiKeyCredentialsPageView credentialsPageView,
       ProgramService programService,
       FormFactory formFactory,
       ProfileUtils profileUtils,
@@ -65,6 +75,8 @@ public class AdminApiKeysController extends CiviFormController {
     this.newOneView = checkNotNull(newOneView);
     this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.indexPageView = checkNotNull(indexPageView);
+    this.newOnePageView = checkNotNull(newOnePageView);
+    this.credentialsPageView = checkNotNull(credentialsPageView);
     this.programService = checkNotNull(programService);
     this.formFactory = checkNotNull(formFactory);
     this.programRepository = checkNotNull(programRepository);
@@ -100,6 +112,12 @@ public class AdminApiKeysController extends CiviFormController {
   public Result newOne(Http.Request request) {
     ImmutableSet<String> programNames = programRepository.getAllNonExternalProgramNames();
 
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ApiKeyNewOnePageViewModel model =
+          new ApiKeyNewOnePageMapper().map(programNames, /* maybeForm= */ Optional.empty());
+      return ok(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     if (programNames.isEmpty()) {
       return ok(newOneView.renderNoPrograms(request));
     } else {
@@ -115,6 +133,17 @@ public class AdminApiKeysController extends CiviFormController {
     ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile);
 
     if (result.isSuccessful()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        ApiKeyCredentialsPageViewModel model =
+            new ApiKeyCredentialsPageMapper()
+                .map(
+                    result.getApiKey(),
+                    result.getEncodedCredentials(),
+                    result.getKeyId(),
+                    result.getKeySecret());
+        return created(credentialsPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
       return created(
           apiKeyCredentialsView.render(
               request,
@@ -122,6 +151,13 @@ public class AdminApiKeysController extends CiviFormController {
               result.getEncodedCredentials(),
               result.getKeyId(),
               result.getKeySecret()));
+    }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ApiKeyNewOnePageViewModel model =
+          new ApiKeyNewOnePageMapper()
+              .map(programService.getAllNonExternalProgramNames(), Optional.of(result.getForm()));
+      return badRequest(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
     return badRequest(
