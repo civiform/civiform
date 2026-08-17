@@ -1,0 +1,44 @@
+%NAME boolInput - read-only setting disables both radios and renders the note and error
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/SettingInputs :: boolInput('abcdefgh', 'ijklmnop', 'FEATURE_FLAG_OVERRIDES_ENABLED', false, true, 'Must be true or false.')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div>
+  <div class="flex mt-2">
+    <label
+      for="abcdefgh"
+      data-testid="enable-FEATURE_FLAG_OVERRIDES_ENABLED"
+      class="mr-4 px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option bg-gray-100 text-gray-500"
+      ><input
+        type="radio"
+        value="true"
+        maxlength="10000"
+        id="abcdefgh"
+        name="FEATURE_FLAG_OVERRIDES_ENABLED"
+        disabled="disabled"
+        class="h-4 w-4 mr-4 align-middle self-center flex-none"
+      />True</label
+    >
+    <label
+      for="ijklmnop"
+      data-testid="disable-FEATURE_FLAG_OVERRIDES_ENABLED"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option bg-gray-100 text-gray-500"
+      ><input
+        type="radio"
+        value="false"
+        maxlength="10000"
+        id="ijklmnop"
+        name="FEATURE_FLAG_OVERRIDES_ENABLED"
+        disabled="disabled"
+        class="h-4 w-4 mr-4 align-middle self-center flex-none"
+        checked="checked"
+      />False</label
+    >
+  </div>
+  <div class="text-xs mt-2 text-gray-600">
+    Read-only
+  </div>
+  <div class="text-red-600 text-xs">Must be true or false.</div>
+</div>
