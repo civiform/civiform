@@ -27,10 +27,9 @@ import services.AlertType;
 import services.apibridge.ApiBridgeService;
 import services.apibridge.ApiBridgeServiceDto;
 import services.settings.SettingsManifest;
-import views.admin.apibridge.MessagePartialView;
+import views.PartialView;
 import views.admin.apibridge.MessagePartialViewModel;
 import views.admin.apibridge.discovery.DiscoveryAddCommand;
-import views.admin.apibridge.discovery.DiscoveryDetailsPartialView;
 import views.admin.apibridge.discovery.DiscoveryDetailsPartialViewModel;
 import views.admin.apibridge.discovery.DiscoveryPageView;
 import views.admin.apibridge.discovery.DiscoveryPageViewModel;
@@ -46,8 +45,8 @@ public class DiscoveryController extends Controller {
   private final ApiBridgeService apiBridgeService;
   private final FormFactory formFactory;
   private final DiscoveryPageView discoveryPageView;
-  private final DiscoveryDetailsPartialView discoveryDetailsPartialView;
-  private final MessagePartialView messagePartialView;
+  private final PartialView<DiscoveryDetailsPartialViewModel> discoveryDetailsPartialView;
+  private final PartialView<MessagePartialViewModel> messagePartialView;
 
   @Inject
   public DiscoveryController(
@@ -58,8 +57,8 @@ public class DiscoveryController extends Controller {
       ApiBridgeService apiBridgeService,
       FormFactory formFactory,
       DiscoveryPageView discoveryPageView,
-      DiscoveryDetailsPartialView discoveryDetailsPartialView,
-      MessagePartialView messagePartialView) {
+      PartialView<DiscoveryDetailsPartialViewModel> discoveryDetailsPartialView,
+      PartialView<MessagePartialViewModel> messagePartialView) {
 
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);

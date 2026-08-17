@@ -34,13 +34,12 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
-import views.admin.apibridge.MessagePartialView;
+import views.PartialView;
 import views.admin.apibridge.MessagePartialViewModel;
 import views.admin.apibridge.programbridge.EditPageView;
 import views.admin.apibridge.programbridge.EditPageViewModel;
 import views.admin.apibridge.programbridge.ProgramBridgeEditCommand;
 import views.admin.apibridge.programbridge.ProgramBridgeSaveCommand;
-import views.admin.apibridge.programbridge.fragments.ProgramBridgeEditPartialView;
 import views.admin.apibridge.programbridge.fragments.ProgramBridgeEditPartialViewModel;
 
 /**
@@ -54,10 +53,10 @@ public class ProgramBridgeController extends Controller {
   private final ProgramBridgeService programBridgeService;
   private final FormFactory formFactory;
   private final EditPageView editView;
-  private final ProgramBridgeEditPartialView programBridgeEditPartialView;
+  private final PartialView<ProgramBridgeEditPartialViewModel> programBridgeEditPartialView;
   private final VersionRepository versionRepository;
   private final ApiBridgeConfigurationRepository apiBridgeConfigurationRepository;
-  private final MessagePartialView messagePartialView;
+  private final PartialView<MessagePartialViewModel> messagePartialView;
   private final ObjectMapper mapper;
 
   @Inject
@@ -68,10 +67,10 @@ public class ProgramBridgeController extends Controller {
       ProgramBridgeService programBridgeService,
       FormFactory formFactory,
       EditPageView editView,
-      ProgramBridgeEditPartialView programBridgeEditPartialView,
+      PartialView<ProgramBridgeEditPartialViewModel> programBridgeEditPartialView,
       VersionRepository versionRepository,
       ApiBridgeConfigurationRepository apiBridgeConfigurationRepository,
-      MessagePartialView messagePartialView,
+      PartialView<MessagePartialViewModel> messagePartialView,
       ObjectMapper mapper) {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.settingsManifest = checkNotNull(settingsManifest);
