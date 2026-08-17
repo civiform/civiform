@@ -94,7 +94,7 @@ public final class CiviFormProfileMerger {
     // as the guest to submit data.
     boolean useGuestProfile =
         optionalGuestProfile.isPresent()
-            && !optionalGuestProfile.get().getApplicant().join().getApplications().isEmpty();
+            && !optionalGuestProfile.get().getApplicantSync().getApplications().isEmpty();
 
     if (!useGuestProfile) {
       // Easy merge case - we have an existing applicant, but no guest profile (or a guest profile
@@ -114,7 +114,7 @@ public final class CiviFormProfileMerger {
     // Merge guest applicant data with already existing account in database.
     // TODO(#11304#issuecomment-3233634460): this merges the older account
     // into the newer which is incorrect.
-    ApplicantModel guestApplicant = sessionGuestProfile.getApplicant().join();
+    ApplicantModel guestApplicant = sessionGuestProfile.getApplicantSync();
     AccountModel existingAccount = applicantInDatabase.getAccount();
 
     if (newMergeStage.equals(NewGuestMergeLaunchStage.ENABLED)

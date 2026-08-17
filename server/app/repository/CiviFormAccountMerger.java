@@ -597,12 +597,7 @@ public final class CiviFormAccountMerger {
    * @return a log message indicating what changes occurred.
    */
   private String mergeGuestFilesIntoCfUser(Long cfUserId, Long guestUserId, boolean applyChanges) {
-    var guestFiles =
-        storedFileRepositoryProvider
-            .get()
-            .lookupFilesByApplicant(guestUserId)
-            .toCompletableFuture()
-            .join();
+    var guestFiles = storedFileRepositoryProvider.get().lookupFilesByApplicantSync(guestUserId);
     StringJoiner fileIds = new StringJoiner(", ");
     for (StoredFileModel file : guestFiles) {
       fileIds.add(file.id.toString());
