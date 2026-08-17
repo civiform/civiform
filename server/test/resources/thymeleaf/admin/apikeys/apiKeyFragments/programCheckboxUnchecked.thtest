@@ -1,0 +1,24 @@
+%NAME programCheckbox - not granted, so the box is unchecked
+%TEMPLATE_MODE HTML
+%CONTEXT
+# ProgramCheckbox(id, name, label, checked)
+program = @views.admin.apikeys.ApiKeyNewOnePageViewModel$ProgramCheckbox@builder() \
+    .id("housing-voucher").name("grant-program-read[housing-voucher]") \
+    .label("Housing Voucher").checked(false).build()
+# ----------------------------------------------------------------------
+%INPUT
+<label th:replace="~{admin/apikeys/fragments/ApiKeyFormFields :: programCheckbox(${program})}"></label>
+# ----------------------------------------------------------------------
+%OUTPUT
+<label
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  for="housing-voucher"
+  ><input
+    type="checkbox"
+    value="true"
+    maxlength="10000"
+    id="housing-voucher"
+    name="grant-program-read[housing-voucher]"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+  />Housing Voucher</label
+>
