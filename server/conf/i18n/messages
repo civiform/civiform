@@ -1242,10 +1242,6 @@ button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial questi
 text.repeatedSet=List set
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested list set
-# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=parent label
-# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=child label
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
 #An additional description explaining what the add question button does
