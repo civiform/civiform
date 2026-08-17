@@ -105,6 +105,12 @@ input.singleFileUploadHint=Pumili ng file
 input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
+# Screen reader text for the file input when exactly 1 file has already been uploaded.
+# Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
+input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+# Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
+# Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
+input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Susunod
 # The button text for navigating to the previous screen in the form.
