@@ -39,7 +39,6 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import play.i18n.Messages;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
@@ -51,7 +50,6 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.MessageKey;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.TranslationLocales;
@@ -407,7 +405,6 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
       ImmutableList<ApplicationStep> applicationSteps,
-      Messages messages,
       boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
@@ -432,7 +429,6 @@ public final class ProgramService {
             /* maybeEnumeratorBlockId= */ Optional.empty(),
             /* isEnumerator= */ Optional.empty(),
             /* isNested= */ false,
-            messages,
             enumeratorImprovementsEnabled);
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
@@ -1369,14 +1365,11 @@ public final class ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId,
-      Optional<Boolean> isEnumerator,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, Optional<Boolean> isEnumerator, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException {
     try {
       return addBlockToProgram(
-          programId, Optional.empty(), isEnumerator, messages, enumeratorImprovementsEnabled);
+          programId, Optional.empty(), isEnumerator, enumeratorImprovementsEnabled);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1399,16 +1392,12 @@ public final class ProgramService {
    *     an enumerator block in the Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
-      long programId,
-      long enumeratorBlockId,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, long enumeratorBlockId, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(
         programId,
         Optional.of(enumeratorBlockId),
         /* isEnumerator= */ Optional.empty(),
-        messages,
         enumeratorImprovementsEnabled);
   }
 
@@ -1428,16 +1417,12 @@ public final class ProgramService {
    *     correspond to an enumerator block in the Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addNestedRepeatedSetToProgram(
-      long programId,
-      long parentEnumeratorBlockId,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, long parentEnumeratorBlockId, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(
         programId,
         Optional.of(parentEnumeratorBlockId),
         /* isEnumerator= */ Optional.of(true),
-        messages,
         enumeratorImprovementsEnabled);
   }
 
@@ -1445,7 +1430,6 @@ public final class ProgramService {
       long programId,
       Optional<Long> enumeratorBlockId,
       Optional<Boolean> isEnumerator,
-      Messages messages,
       boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
@@ -1465,7 +1449,6 @@ public final class ProgramService {
                     .enumeratorId()
                     .isPresent()
                 : false,
-            messages,
             enumeratorImprovementsEnabled);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
@@ -2230,7 +2213,6 @@ public final class ProgramService {
       Optional<Long> maybeEnumeratorBlockId,
       Optional<Boolean> isEnumerator,
       boolean isNested,
-      Messages messages,
       boolean enumeratorImprovementsEnabled) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
@@ -2239,15 +2221,11 @@ public final class ProgramService {
     String blockDescription = String.format("Screen %d description", blockId);
     Optional<String> namePrefix = Optional.empty();
     if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {
+      // Placeholder tokens for a repeated block's name prefix. These are never displayed: admins
+      // see the bare block name, and Block.getLocalizedName() replaces each token with the
+      // applicant's listed entity name.
       namePrefix =
-          Optional.of(
-              isNested
-                  ? String.format(
-                      "[%s] - [%s] - ",
-                      messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()),
-                      messages.at(MessageKey.TEXT_REPEATED_SET_NESTED_PREFIX.getKeyName()))
-                  : String.format(
-                      "[%s] - ", messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName())));
+          Optional.of(isNested ? "[parent entity] - [child entity] - " : "[parent entity] - ");
     }
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
