@@ -8,6 +8,7 @@ import org.apache.commons.io.FilenameUtils;
  * <p>See {@link ApplicantFileNameFormatter} for formatting applicant file names.
  */
 public final class PublicFileNameFormatter {
+  private static final String QUESTION_IMAGE_FILE_KEY_PREFIX = "question-image/question-";
   private static final String PROGRAM_IMAGE_FILE_KEY_PREFIX = "program-summary-image/program-";
 
   /**
@@ -38,6 +39,14 @@ public final class PublicFileNameFormatter {
     }
     String sanitizedFileName = sanitizeProgramImageFileName(originalFileName);
     return String.format("%s%d/%s", PROGRAM_IMAGE_FILE_KEY_PREFIX, programId, sanitizedFileName);
+  }
+
+  public static String formatPublicQuestionImageFileKey(long questionId, String originalFileName) {
+    if (questionId <= 0) {
+      throw new IllegalArgumentException("'programId' must be greater than zero.");
+    }
+    String sanitizedFileName = sanitizeProgramImageFileName(originalFileName);
+    return String.format("%s%d/%s", QUESTION_IMAGE_FILE_KEY_PREFIX, questionId, sanitizedFileName);
   }
 
   /** Strips path components and disallowed characters from an uploaded program image filename. */
