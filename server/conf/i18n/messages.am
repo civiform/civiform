@@ -1233,7 +1233,7 @@ alert.repeatedSet.addQuestionDisabled=
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a list set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=
 # Submission button for creating a new list set
