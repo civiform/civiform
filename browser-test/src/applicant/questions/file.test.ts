@@ -141,7 +141,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await expect(page.getByLabel('Drag file here')).toHaveAttribute(
+      await expect(page.locator('input[type="file"]')).toHaveAttribute(
         'aria-required',
       )
       await validateAccessibility(page)
