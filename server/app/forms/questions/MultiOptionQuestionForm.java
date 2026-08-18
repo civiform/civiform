@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.OptionalInt;
 import java.util.OptionalLong;
+import java.util.stream.Stream;
 import services.CiviFormError;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -238,29 +239,42 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
    * Returns validation problems with the submitted option scores, as form errors rather than
    * exceptions so the edit view can re-render with a message.
    *
-   * <p>Each score list must be parallel to its option list, and every non-blank entry must parse
-   * as a finite decimal number. The cardinality check is unconditional: callers only validate
-   * scores when the score inputs were rendered, so a missing or short list is a crafted post (or
-   * a mid-edit flag flip) and must error rather than silently build unscored options — for an
-   * existing question that would wipe its stored scores.
+   * <p>Every option should have exactly one matching score, in the same order. If there are 5
+   * options, there should be 5 scores. Every non-blank entry must parse as a finite decimal number.
+   * This is only called for relevant question types that include at least one scored option when
+   * the ANSWER_OPTION_SCORING_ENABLED flag is enabled.
    */
   public ImmutableSet<CiviFormError> getOptionScoreErrors() {
     ImmutableSet.Builder<CiviFormError> errors = ImmutableSet.builder();
-    if (optionScores.size() != options.size()) {
+
+    // Checks that either all options are scored or none of them are
+    boolean anyScored =
+        Stream.concat(optionScores.stream(), newOptionScores.stream())
+            .anyMatch(score -> !isBlank(score));
+    boolean anyBlank =
+        Stream.concat(optionScores.stream(), newOptionScores.stream())
+            .anyMatch(MultiOptionQuestionForm::isBlank);
+    if (anyScored && anyBlank) {
       errors.add(
-          CiviFormError.of("The number of option scores does not match the number of options"));
+          CiviFormError.of("When creating a scored question, all options must include scores."));
+    }
+
+    // Checks for missing indexed fields
+    if (optionScores.size() != options.size()) {
+      errors.add(CiviFormError.of("The number of option scores must match the number of options"));
     }
     if (newOptionScores.size() != newOptions.size()) {
       errors.add(
-          CiviFormError.of(
-              "The number of new option scores does not match the number of new options"));
+          CiviFormError.of("The number of new option scores must match the number of new options"));
     }
+
     for (String scoreAsString : optionScores) {
       addParseErrorIfInvalid(errors, scoreAsString);
     }
     for (String scoreAsString : newOptionScores) {
       addParseErrorIfInvalid(errors, scoreAsString);
     }
+
     return errors.build();
   }
 
@@ -278,11 +292,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
-   * Parses an admin-entered score. Blank means unscored. Parsing goes through {@link BigDecimal}
-   * rather than {@link Double#parseDouble} as a server-side backstop against crafted posts: it
-   * accepts plain and exponent decimal notation but rejects the NaN/Infinity/hex/suffix forms
-   * Double.parseDouble tolerates, and the finite check rejects double-overflowing exponents.
-   * Invalid input surfaces as empty here and as errors in {@link #getOptionScoreErrors}.
+   * Parses an admin-entered score, returning empty if blank or invalid. Uses {@link BigDecimal}
+   * instead of {@link Double#parseDouble} so malicious input like "NaN", "Infinity", or hex/suffix
+   * forms can't sneak through; the finite check also catches values that overflow to infinity.
    */
   private static Optional<Double> parseScore(String scoreAsString) {
     if (isBlank(scoreAsString)) {

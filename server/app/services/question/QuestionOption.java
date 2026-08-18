@@ -164,10 +164,10 @@ public abstract class QuestionOption {
   }
 
   /**
-   * Canonical admin-facing rendering of a score value: plain decimal notation with trailing
-   * zeros stripped, so {@code 2.0} renders as {@code 2} and {@code 1.50} as {@code 1.5}. Used
-   * everywhere a score is displayed (question form inputs, PDFs, CSV cells); JSON output emits
-   * raw numbers instead.
+   * Canonical admin-facing rendering of a score value: plain decimal notation with trailing zeros
+   * stripped, so {@code 2.0} renders as {@code 2} and {@code 1.50} as {@code 1.5}. Used everywhere
+   * a score is displayed (question form inputs, PDFs, CSV cells); JSON output emits raw numbers
+   * instead.
    */
   public static String formatScore(double score) {
     return BigDecimal.valueOf(score).stripTrailingZeros().toPlainString();

@@ -948,6 +948,45 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptionAdminNames[0]", "first_admin")
             .put("newOptionAdminNames[1]", "second_admin")
             .put("newOptionScores[0]", "5.5")
+            .put("newOptionScores[1]", "7.25")
+            .build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData);
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(requestBuilder.build(), "dropdown");
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
+    MultiOptionQuestionDefinition definition =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(newQuestionId)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    assertThat(definition.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(5.5), Optional.of(7.25));
+  }
+
+  @Test
+  public void create_withoutOptionScores_flagEnabled_saves() {
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", "scored dropdown")
+            .put("questionDescription", "desc")
+            .put("questionType", "DROPDOWN")
+            .put("questionText", "Pick one")
+            .put("questionHelpText", "help")
+            .put("newOptions[0]", "first")
+            .put("newOptions[1]", "second")
+            .put("newOptionAdminNames[0]", "first_admin")
+            .put("newOptionAdminNames[1]", "second_admin")
+            .put("newOptionScores[0]", "")
             .put("newOptionScores[1]", "")
             .build();
     RequestBuilder requestBuilder =
@@ -970,7 +1009,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .get()
                 .getQuestionDefinition();
     assertThat(definition.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(5.5), Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -1007,7 +1046,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void create_withInvalidScore_flagEnabled_rendersErrorWithoutSaving() {
+  public void create_withInvalidScore_flagEnabled_rendersErrorWithoutSaving_nonNumeric() {
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
             .put("questionName", "invalid score dropdown")
@@ -1036,6 +1075,39 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_withInvalidScore_flagEnabled_rendersErrorWithoutSaving_mismatchedCount() {
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", "invalid score dropdown")
+            .put("questionDescription", "desc")
+            .put("questionType", "DROPDOWN")
+            .put("questionText", "Pick one")
+            .put("questionHelpText", "help")
+            .put("newOptions[0]", "first")
+            .put("newOptionAdminNames[0]", "first_admin")
+            .put("newOptionScores[0]", "1")
+            .put("newOptions[1]", "second")
+            .put("newOptionAdminNames[1]", "second_admin")
+            .put("newOptionScores[1]", "")
+            .build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build();
+
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    Result result = controller.create(request, "dropdown");
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped)
+        .contains("When creating a scored question, all options must include scores.");
+    assertThat(retrieveAllQuestionIds().size()).isEqualTo(questionIdsBefore.size());
+  }
+
+  @Test
   public void update_withOptionScores_flagEnabled_savesScores() {
     QuestionDefinition definition = createScoredDropdownDefinition();
     QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
@@ -1054,6 +1126,53 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("optionAdminNames[0]", "chocolate_admin")
             .put("optionAdminNames[1]", "strawberry_admin")
             .put("optionScores[0]", "9.75")
+            .put("optionScores[1]", "10.0")
+            .put("nextAvailableId", "3")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
+            .build();
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData);
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.id, definition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    MultiOptionQuestionDefinition found =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(question.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    // Option 1's score is updated; option 2's blank input clears its stored score.
+    assertThat(found.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(9.75), Optional.of(10.0));
+  }
+
+  @Test
+  public void update_withoutOptionScores_flagEnabled_clearsScores() {
+    QuestionDefinition definition = createScoredDropdownDefinition();
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("options[1]", "strawberry")
+            .put("optionIds[0]", "1")
+            .put("optionIds[1]", "2")
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_admin")
+            .put("optionScores[0]", "")
             .put("optionScores[1]", "")
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
@@ -1079,7 +1198,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .getQuestionDefinition();
     // Option 1's score is updated; option 2's blank input clears its stored score.
     assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(9.75), Optional.empty());
+        .containsExactly(Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -1124,13 +1243,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .getQuestionDefinition();
     // The stored scores survive the flag-off edit; the crafted values are discarded.
     assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(3.5), Optional.empty());
+        .containsExactly(Optional.of(3.5), Optional.of(5.0));
   }
 
   @Test
   public void update_withoutScoreFields_flagEnabled_rendersErrorWithoutWipingScores() {
     // A crafted post omitting optionScores[] entirely (the rendered form always submits them)
-    // must fail cardinality validation, not silently rebuild every option unscored.
+    // must fail validation, not silently rebuild every option unscored.
     QuestionDefinition definition = createScoredDropdownDefinition();
     QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
@@ -1163,8 +1282,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
-    assertThat(unescaped)
-        .contains("The number of option scores does not match the number of options");
+    assertThat(unescaped).contains("The number of option scores must match the number of options");
     MultiOptionQuestionDefinition found =
         (MultiOptionQuestionDefinition)
             questionRepo
@@ -1174,11 +1292,11 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .get()
                 .getQuestionDefinition();
     assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(3.5), Optional.empty());
+        .containsExactly(Optional.of(3.5), Optional.of(5.0));
   }
 
   @Test
-  public void update_withInvalidScore_flagEnabled_rendersErrorWithoutSaving() {
+  public void update_withInvalidScore_flagEnabled_rendersErrorWithoutSaving_nonNumeric() {
     QuestionDefinition definition = createScoredDropdownDefinition();
     QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
 
@@ -1223,7 +1341,57 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .get()
                 .getQuestionDefinition();
     assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(3.5), Optional.empty());
+        .containsExactly(Optional.of(3.5), Optional.of(5.0));
+  }
+
+  @Test
+  public void update_withInvalidScore_flagEnabled_rendersErrorWithoutSaving_mismatchedCount() {
+    QuestionDefinition definition = createScoredDropdownDefinition();
+    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
+
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", definition.getName())
+            .put("questionDescription", definition.getDescription())
+            .put("questionType", definition.getQuestionType().name())
+            .put("questionText", "new question text")
+            .put("questionHelpText", "new help text")
+            .put("options[0]", "chocolate")
+            .put("options[1]", "strawberry")
+            .put("optionIds[0]", "1")
+            .put("optionIds[1]", "2")
+            .put("optionAdminNames[0]", "chocolate_admin")
+            .put("optionAdminNames[1]", "strawberry_admin")
+            .put("optionScores[0]", "1")
+            .put("optionScores[1]", "")
+            .put("nextAvailableId", "3")
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put("concurrencyToken", question.getConcurrencyToken().toString())
+            .build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build();
+
+    Result result =
+        controller.update(request, question.id, definition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
+    assertThat(unescaped)
+        .contains("When creating a scored question, all options must include scores.");
+    MultiOptionQuestionDefinition found =
+        (MultiOptionQuestionDefinition)
+            questionRepo
+                .lookupQuestion(question.id)
+                .toCompletableFuture()
+                .join()
+                .get()
+                .getQuestionDefinition();
+    assertThat(found.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(3.5), Optional.of(5.0));
   }
 
   private MultiOptionQuestionDefinition createScoredDropdownDefinition() {
@@ -1249,7 +1417,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 /* adminName= */ "strawberry_admin",
                 /* optionText= */ LocalizedStrings.of(Locale.US, "strawberry"),
                 /* displayInAnswerOptions= */ Optional.of(true),
-                /* score= */ Optional.empty()));
+                /* score= */ Optional.of(5.0)));
     return new MultiOptionQuestionDefinition(
         config, questionOptions, MultiOptionQuestionType.DROPDOWN);
   }

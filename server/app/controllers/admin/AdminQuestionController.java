@@ -685,9 +685,10 @@ public final class AdminQuestionController extends CiviFormController {
       ImmutableList<QuestionOption> updatedQuestionOptions,
       boolean scoringEnabled) {
 
-    // When scores don't apply to this edit (flag off or unsupported type), existing options keep
+    // When scores don't apply to this edit (ANSWER_OPTION_SCORING_ENABLED flag off or unsupported
+    // type), existing options keep
     // their stored score via toBuilder() below, so an edit made while the flag is off cannot drop
-    // a stored score, and crafted score fields are discarded.
+    // a stored score.
     boolean applyScores =
         scoringEnabled
             && QuestionType.supportsOptionScores(currentQuestionDefinition.getQuestionType());

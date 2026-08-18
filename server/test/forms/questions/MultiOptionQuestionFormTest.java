@@ -239,7 +239,7 @@ public class MultiOptionQuestionFormTest {
                 /* adminName= */ "two admin",
                 /* optionText= */ LocalizedStrings.of(Locale.US, "option 2"),
                 /* displayInAnswerOptions= */ Optional.of(true),
-                /* score= */ Optional.empty()),
+                /* score= */ Optional.of(4.0)),
             QuestionOption.create(
                 /* id= */ 5L,
                 /* displayOrder= */ 2L,
@@ -254,10 +254,9 @@ public class MultiOptionQuestionFormTest {
   public void constructor_withQd_populatesOptionScoresInDisplayOrder() {
     MultiOptionQuestionForm form = new CheckboxQuestionForm(definitionWithScoredOptions());
 
-    // Blank means unscored; scores are parallel to options.
     assertThat(form.getOptions()).containsExactly("option 1", "option 2", "option 5");
     // Whole values populate without a trailing .0 (formatScore).
-    assertThat(form.getOptionScores()).containsExactly("3.5", "", "-2");
+    assertThat(form.getOptionScores()).containsExactly("3.5", "4", "-2");
   }
 
   @Test
@@ -272,7 +271,7 @@ public class MultiOptionQuestionFormTest {
     form.setOptions(ImmutableList.of("one", "two", "three"));
     form.setOptionAdminNames(ImmutableList.of("one admin", "two admin", "three admin"));
     form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
-    form.setOptionScores(ImmutableList.of("4", "", "0"));
+    form.setOptionScores(ImmutableList.of("4", "2", "0"));
     form.setNewOptions(ImmutableList.of("four"));
     form.setNewOptionAdminNames(ImmutableList.of("four admin"));
     form.setNewOptionScores(ImmutableList.of("-7.25"));
@@ -281,8 +280,31 @@ public class MultiOptionQuestionFormTest {
         (MultiOptionQuestionDefinition) form.getBuilder(/* scoringEnabled= */ true).build();
 
     assertThat(questionDefinition.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(
-            Optional.of(4.0), Optional.empty(), Optional.of(0.0), Optional.of(-7.25));
+        .containsExactly(Optional.of(4.0), Optional.of(2.0), Optional.of(0.0), Optional.of(-7.25));
+  }
+
+  @Test
+  public void getBuilder_scoringEnabled_allowsAllBlankScores() throws Exception {
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
+    form.setQuestionName("name");
+    form.setQuestionDescription("description");
+    form.setQuestionText("What is the question text?");
+    form.setQuestionHelpText("help text");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
+    form.setOptions(ImmutableList.of("one", "two", "three"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin", "three admin"));
+    form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
+    form.setOptionScores(ImmutableList.of("", "", ""));
+    form.setNewOptions(ImmutableList.of("four"));
+    form.setNewOptionAdminNames(ImmutableList.of("four admin"));
+    form.setNewOptionScores(ImmutableList.of(""));
+
+    MultiOptionQuestionDefinition questionDefinition =
+        (MultiOptionQuestionDefinition) form.getBuilder(/* scoringEnabled= */ true).build();
+
+    assertThat(questionDefinition.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.empty(), Optional.empty(), Optional.empty(), Optional.empty());
   }
 
   @Test
@@ -311,6 +333,27 @@ public class MultiOptionQuestionFormTest {
   }
 
   @Test
+  public void getOptionScoreErrors_mismatchedScoreCount_returnsError() {
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
+    form.setQuestionName("name");
+    form.setQuestionDescription("description");
+    form.setQuestionText("What is the question text?");
+    form.setQuestionHelpText("help text");
+    form.setMinChoicesRequired("");
+    form.setMaxChoicesAllowed("");
+    form.setOptions(ImmutableList.of("one", "two"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin"));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
+    form.setOptionScores(ImmutableList.of("1", "2", ""));
+
+    assertThat(form.getOptionScoreErrors())
+        .extracting(CiviFormError::message)
+        .containsExactly(
+            "When creating a scored question, all options must include scores.",
+            "The number of option scores must match the number of options");
+  }
+
+  @Test
   public void getOptionScoreErrors_missingScoreLists_returnsError() {
     // Score validation only runs when the score inputs were rendered, so a post with options but
     // no score fields at all is a crafted post; it must error rather than silently build unscored
@@ -328,7 +371,7 @@ public class MultiOptionQuestionFormTest {
 
     assertThat(form.getOptionScoreErrors())
         .extracting(CiviFormError::message)
-        .containsExactly("The number of option scores does not match the number of options");
+        .containsExactly("The number of option scores must match the number of options");
   }
 
   @Test
@@ -371,7 +414,7 @@ public class MultiOptionQuestionFormTest {
     form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
     // Fractional, exponent-notation, and beyond-32-bit values are all valid decimals; blank
     // stays "unscored".
-    form.setOptionScores(ImmutableList.of("1.5", "", "2147483648"));
+    form.setOptionScores(ImmutableList.of("1.5", "-3", "2147483648"));
     form.setNewOptions(ImmutableList.of("four"));
     form.setNewOptionAdminNames(ImmutableList.of("four admin"));
     form.setNewOptionScores(ImmutableList.of("-0.125"));
@@ -408,7 +451,7 @@ public class MultiOptionQuestionFormTest {
     assertThat(form.getOptionScoreErrors())
         .extracting(CiviFormError::message)
         .containsExactlyInAnyOrder(
-            "The number of option scores does not match the number of options",
-            "The number of new option scores does not match the number of new options");
+            "The number of option scores must match the number of options",
+            "The number of new option scores must match the number of new options");
   }
 }
