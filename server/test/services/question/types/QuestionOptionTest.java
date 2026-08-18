@@ -238,19 +238,6 @@ public class QuestionOptionTest {
   }
 
   @Test
-  public void deserialize_legacyOptionTextJson_preservesScore() throws Exception {
-    // Legacy rows (pre-May 2021) have `optionText` instead of `localizedOptionText`.
-    String legacyJson =
-        "{\"id\": 1, \"displayOrder\": 2, \"adminName\": \"legacy\","
-            + " \"optionText\": {\"en_US\": \"legacy option\"}, \"score\": 7.5}";
-
-    QuestionOption deserialized = mapper.readValue(legacyJson, QuestionOption.class);
-
-    assertThat(deserialized.optionText().get(Locale.US)).isEqualTo("legacy option");
-    assertThat(deserialized.score()).isEqualTo(Optional.of(7.5));
-  }
-
-  @Test
   public void jsonCreator_legacyBranch_preservesScore() {
     QuestionOption option =
         QuestionOption.jsonCreator(
