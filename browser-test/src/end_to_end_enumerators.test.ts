@@ -882,6 +882,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         )
         await expect(addNestedRepeatedSetButton).toBeHidden()
       })
+
+      await test.step('Verify the alignment of the arrow icons in the block order panel', async () => {
+        await validateScreenshot(
+          page.getByTestId('block-panel'),
+          'block-order-panel-with-child-enumerator',
+          {
+            fullPage: false,
+          },
+        )
+      })
     })
 
     test('enumerator question and enumerator block cannot be deleted once the child repeated screen has a question', async ({

@@ -490,9 +490,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       }
       blockContent
           .withId(genericBlockDivId + blockDefinition.id())
-          // Indented (repeated/nested) screens show a subdirectory arrow at the start of the row.
-          // Only one arrow is shown regardless of nesting depth. Gated on the enumerator
-          // improvements feature flag.
           .with(
               iff(
                   isIndentedScreen,
@@ -512,7 +509,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               a().withClasses(
                       "w-5",
                       "h-5",
-                      // Indented screens rely on the row's 10px gap for spacing, so the icon drops
+                      // Indented screens rely on the row's gap for spacing, so the icon drops
                       // its own right margin there.
                       isIndentedScreen ? "" : "mr-0", // style for tablet and mobile
                       isIndentedScreen ? "" : "lg:mr-2", // style for desktop
