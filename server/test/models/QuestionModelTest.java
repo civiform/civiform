@@ -496,4 +496,90 @@ public class QuestionModelTest extends ResetPostgres {
     assertThat(phoneFound.containsTag(PrimaryApplicantInfoTag.APPLICANT_PHONE.getQuestionTag()))
         .isTrue();
   }
+
+  @Test
+  public void canSerializeLocalizedImageDescription_withValue() {
+    LocalizedStrings description =
+        LocalizedStrings.of(Locale.US, "Alt text", Locale.FRANCE, "Texte alternatif");
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setLocalizedImageDescription(description)
+                .build());
+    QuestionModel question = new QuestionModel(questionDefinition);
+    assertThat(question.getLocalizedImageDescription()).isEqualTo(description);
+
+    question.save();
+
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(found.getLocalizedImageDescription()).isEqualTo(description);
+    assertThat(found.getQuestionDefinition().getLocalizedImageDescription()).hasValue(description);
+  }
+
+  @Test
+  public void canSerializeLocalizedImageDescription_empty() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    QuestionModel question = new QuestionModel(questionDefinition);
+    assertThat(question.getLocalizedImageDescription()).isNull();
+
+    question.save();
+
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(found.getLocalizedImageDescription()).isNull();
+    assertThat(found.getQuestionDefinition().getLocalizedImageDescription()).isEmpty();
+  }
+
+  @Test
+  public void canSerializeImageFileKeys_withValues() {
+    ImmutableList<String> imageFileKeys =
+        ImmutableList.of("questions/1/image1.png", "questions/1/image2.png");
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setImageFileKeys(imageFileKeys)
+                .build());
+    QuestionModel question = new QuestionModel(questionDefinition);
+    assertThat(question.getImageFileKeys()).isEqualTo(imageFileKeys);
+
+    question.save();
+
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(found.getImageFileKeys()).isEqualTo(imageFileKeys);
+    assertThat(found.getQuestionDefinition().getImageFileKeys()).hasValue(imageFileKeys);
+  }
+
+  @Test
+  public void canSerializeImageFileKeys_empty() {
+    QuestionDefinition questionDefinition =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    QuestionModel question = new QuestionModel(questionDefinition);
+    assertThat(question.getImageFileKeys()).isEmpty();
+
+    question.save();
+
+    QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    assertThat(found.getImageFileKeys()).isEmpty();
+    assertThat(found.getQuestionDefinition().getImageFileKeys()).isEmpty();
+  }
 }

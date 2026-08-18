@@ -112,11 +112,8 @@ public class QuestionModel extends BaseModel {
    */
   @DbJsonB @Nullable private LocalizedStrings localizedImageDescription;
 
-  /**
-   * A list of keys used to fetch the question's image from cloud storage. This must be a mutable
-   * collection so we can add to the list later.
-   */
-  @DbArray private List<String> imageFileKeys = new ArrayList<>();
+  /** A list of keys used to fetch the question's image from cloud storage. */
+  @DbJsonB private ImmutableList<String> imageFileKeys = ImmutableList.of();
 
   @Nullable
   public LocalizedStrings getLocalizedImageDescription() {
@@ -127,7 +124,7 @@ public class QuestionModel extends BaseModel {
     if (this.imageFileKeys == null) {
       return ImmutableList.of();
     }
-    return ImmutableList.copyOf(this.imageFileKeys);
+    return this.imageFileKeys;
   }
 
   @ManyToMany(mappedBy = "questions")
@@ -251,7 +248,7 @@ public class QuestionModel extends BaseModel {
 
   private void setImageFileKeys(QuestionDefinitionBuilder builder) {
     if (imageFileKeys != null && !imageFileKeys.isEmpty()) {
-      builder.setImageFileKeys(Optional.of(ImmutableList.copyOf(imageFileKeys)));
+      builder.setImageFileKeys(Optional.of(imageFileKeys));
     } else {
       builder.setImageFileKeys(Optional.empty());
     }
@@ -360,9 +357,9 @@ public class QuestionModel extends BaseModel {
     }
 
     if (questionDefinition.getImageFileKeys().isPresent()) {
-      imageFileKeys = new ArrayList<>(questionDefinition.getImageFileKeys().get());
+      imageFileKeys = questionDefinition.getImageFileKeys().get();
     } else {
-      imageFileKeys = new ArrayList<>();
+      imageFileKeys = ImmutableList.of();
     }
 
     // We must ensure we always initTags here. Otherwise, if we aren't

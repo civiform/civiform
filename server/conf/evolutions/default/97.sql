@@ -4,7 +4,7 @@ ALTER TABLE questions
 ADD COLUMN IF NOT EXISTS localized_image_description jsonb;
 
 ALTER TABLE questions
-ADD COLUMN IF NOT EXISTS image_file_keys VARCHAR[];
+ADD COLUMN IF NOT EXISTS image_file_keys jsonb;
 
 # --- !Downs
 ALTER TABLE questions
