@@ -10,6 +10,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.inject.TypeLiteral;
 import io.ebean.DB;
 import io.ebean.Database;
 import models.ApplicationStatusesModel;
@@ -29,11 +30,19 @@ import services.program.ProgramDefinition;
 import services.program.ProgramService;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
+import views.PartialView;
+import views.admin.migration.AdminImportErrorListPartialViewModel;
+import views.admin.migration.AdminImportErrorPartialViewModel;
+import views.admin.migration.AdminImportPageView;
+import views.admin.migration.AdminImportProgramDataPartialViewModel;
+import views.admin.migration.AdminImportProgramSavedPartialViewModel;
 import views.admin.migration.AdminImportView;
 import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
+import views.shared.BaseViewDeps;
 
 public class AdminImportControllerTest extends ResetPostgres {
   private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
@@ -47,12 +56,26 @@ public class AdminImportControllerTest extends ResetPostgres {
         new AdminImportController(
             instanceOf(AdminImportView.class),
             instanceOf(AdminImportViewPartial.class),
+            instanceOf(AdminImportPageView.class),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(AdminImportErrorPartialViewModel.class)),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(AdminImportErrorListPartialViewModel.class)),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(AdminImportProgramDataPartialViewModel.class)),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(AdminImportProgramSavedPartialViewModel.class)),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
-            instanceOf(ProgramService.class));
+            instanceOf(ProgramService.class),
+            instanceOf(SettingsManifest.class));
     database = DB.getDefault();
   }
 

@@ -1,6 +1,5 @@
 package mapping.admin.questions;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -471,36 +470,12 @@ public final class QuestionsListPageMapper {
         .collect(ImmutableList.toImmutableList());
   }
 
-  /**
-   * The legacy icon name for a question type: the Icons enum constant lowercased, mirroring
-   * Icons.getIconTypeFromQuestionType.
-   */
   private static String questionTypeIconName(QuestionType type) {
-    return switch (type) {
-      case ADDRESS -> "address";
-      case CHECKBOX -> "checkbox";
-      case CURRENCY -> "currency";
-      case DATE -> "date";
-      case DROPDOWN -> "dropdown";
-      case EMAIL -> "email";
-      case FILEUPLOAD -> "fileupload";
-      case ID -> "id";
-      case MAP -> "map";
-      case NAME -> "name";
-      case NUMBER -> "number";
-      case RADIO_BUTTON, YES_NO -> "radio_button";
-      case ENUMERATOR -> "enumerator";
-      case STATIC -> "annotation";
-      case TEXT -> "text";
-      case PHONE -> "phone";
-      default -> "unknown";
-    };
+    return QuestionTypeIconFragments.questionTypeIconName(type);
   }
 
-  /** The question type's icon fragment name in LegacySvgFragments.html ("iconAddress", ...). */
   private static String questionTypeIconFragment(QuestionType type) {
-    return "icon"
-        + CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, questionTypeIconName(type));
+    return QuestionTypeIconFragments.questionTypeIconFragment(type);
   }
 
   private static String formatForAdmins(String text) {

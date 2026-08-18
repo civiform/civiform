@@ -244,4 +244,16 @@ public class LegacySvgFragmentsTest {
   public void iconAddress_questionCard() {
     ThymeleafFragmentTester.run(DIR + "iconAddressQuestionCard.thtest");
   }
+
+  /** Legacy source: AdminImportView back button (Icons.svg(Icons.ARROW_LEFT)). */
+  @Test
+  public void iconArrowLeft_importPageBackLink() {
+    ThymeleafFragmentTester.run(DIR + "iconArrowLeft.thtest");
+  }
+
+  /** Legacy source: LinkElement.opensInNewTab icon ("existing question" links on import). */
+  @Test
+  public void iconOpenInNew_existingQuestionLink() {
+    ThymeleafFragmentTester.run(DIR + "iconOpenInNew.thtest");
+  }
 }
