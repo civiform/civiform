@@ -378,8 +378,8 @@ public abstract class QuestionDefinition {
   }
 
   @JsonIgnore
-  public final Optional<ImmutableList<String>> getImageFileKeys() {
-    return config.imageFileKeys();
+  public final Optional<String> getImageFileKey() {
+    return config.imageFileKey();
   }
 
   /** Get the default validation predicates for this question type. */

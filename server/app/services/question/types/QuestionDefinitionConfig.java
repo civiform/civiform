@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Optional;
@@ -66,8 +65,8 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("localizedImageDescription")
   abstract Optional<LocalizedStrings> localizedImageDescription();
 
-  @JsonProperty("imageFileKeys")
-  abstract Optional<ImmutableList<String>> imageFileKeys();
+  @JsonProperty("imageFileKey")
+  abstract Optional<String> imageFileKey();
 
   @JsonIgnore
   abstract Optional<UUID> concurrencyToken();
@@ -176,12 +175,12 @@ public abstract class QuestionDefinitionConfig {
     public abstract Builder setLocalizedImageDescription(
         Optional<LocalizedStrings> localizedImageDescription);
 
-    public Builder setImageFileKeys(ImmutableList<String> imageFileKeys) {
-      return setImageFileKeys(Optional.of(imageFileKeys));
+    public Builder setImageFileKey(String imageFileKey) {
+      return setImageFileKey(Optional.of(imageFileKey));
     }
 
-    @JsonProperty("imageFileKeys")
-    public abstract Builder setImageFileKeys(Optional<ImmutableList<String>> imageFileKeys);
+    @JsonProperty("imageFileKey")
+    public abstract Builder setImageFileKey(Optional<String> imageFileKey);
 
     public abstract QuestionDefinitionConfig build();
   }

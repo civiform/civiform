@@ -112,19 +112,25 @@ public class QuestionModel extends BaseModel {
    */
   @DbJsonB @Nullable private LocalizedStrings localizedImageDescription;
 
-  /** A list of keys used to fetch the question's image from cloud storage. */
-  @DbJsonB private ImmutableList<String> imageFileKeys = ImmutableList.of();
+  /**
+   * A key used to fetch the question's image from cloud storage.
+   *
+   * <p>Note: If the question doesn't have an image, the field here will be null but the
+   * corresponding field in {@link QuestionDefinition} will be {@code Optional.empty}. (Ebean
+   * doesn't support optional fields, which is why it's null instead of Optional in this model.) Be
+   * sure to convert between null and Optional when going between this model and {@link
+   * QuestionDefinition}..
+   */
+  @Nullable private String imageFileKey;
 
   @Nullable
   public LocalizedStrings getLocalizedImageDescription() {
     return localizedImageDescription;
   }
 
-  public ImmutableList<String> getImageFileKeys() {
-    if (this.imageFileKeys == null) {
-      return ImmutableList.of();
-    }
-    return this.imageFileKeys;
+  @Nullable
+  public String getImageFileKey() {
+    return imageFileKey;
   }
 
   @ManyToMany(mappedBy = "questions")
@@ -228,7 +234,7 @@ public class QuestionModel extends BaseModel {
     }
 
     setLocalizedImageDescription(builder);
-    setImageFileKeys(builder);
+    setImageFileKey(builder);
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
@@ -246,11 +252,13 @@ public class QuestionModel extends BaseModel {
     }
   }
 
-  private void setImageFileKeys(QuestionDefinitionBuilder builder) {
-    if (imageFileKeys != null && !imageFileKeys.isEmpty()) {
-      builder.setImageFileKeys(Optional.of(imageFileKeys));
+  private void setImageFileKey(QuestionDefinitionBuilder builder) {
+    if (imageFileKey != null) {
+      builder.setImageFileKey(Optional.of(imageFileKey));
     } else {
-      builder.setImageFileKeys(Optional.empty());
+      // See docs on `this.imageFileKey` -- a null field here means an
+      // Optional.empty field for the question definition.
+      builder.setImageFileKey(Optional.empty());
     }
   }
 
@@ -356,10 +364,10 @@ public class QuestionModel extends BaseModel {
       localizedImageDescription = null;
     }
 
-    if (questionDefinition.getImageFileKeys().isPresent()) {
-      imageFileKeys = questionDefinition.getImageFileKeys().get();
+    if (questionDefinition.getImageFileKey().isPresent()) {
+      imageFileKey = questionDefinition.getImageFileKey().get();
     } else {
-      imageFileKeys = ImmutableList.of();
+      imageFileKey = null;
     }
 
     // We must ensure we always initTags here. Otherwise, if we aren't

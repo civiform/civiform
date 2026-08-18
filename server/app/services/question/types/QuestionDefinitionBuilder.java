@@ -135,13 +135,13 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
-  public QuestionDefinitionBuilder setImageFileKeys(ImmutableList<String> imageFileKeys) {
-    builder.setImageFileKeys(imageFileKeys);
+  public QuestionDefinitionBuilder setImageFileKey(String imageFileKey) {
+    builder.setImageFileKey(imageFileKey);
     return this;
   }
 
-  public QuestionDefinitionBuilder setImageFileKeys(Optional<ImmutableList<String>> imageFileKeys) {
-    builder.setImageFileKeys(imageFileKeys);
+  public QuestionDefinitionBuilder setImageFileKey(Optional<String> imageFileKey) {
+    builder.setImageFileKey(imageFileKey);
     return this;
   }
 

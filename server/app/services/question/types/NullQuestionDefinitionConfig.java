@@ -1,6 +1,5 @@
 package services.question.types;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
 import java.util.Locale;
@@ -107,7 +106,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   }
 
   @Override
-  Optional<ImmutableList<String>> imageFileKeys() {
+  Optional<String> imageFileKey() {
     return Optional.empty();
   }
 
@@ -230,13 +229,12 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     }
 
     @Override
-    public QuestionDefinitionConfig.Builder setImageFileKeys(ImmutableList<String> imageFileKeys) {
+    public QuestionDefinitionConfig.Builder setImageFileKey(String imageFileKey) {
       return this;
     }
 
     @Override
-    public QuestionDefinitionConfig.Builder setImageFileKeys(
-        Optional<ImmutableList<String>> imageFileKeys) {
+    public QuestionDefinitionConfig.Builder setImageFileKey(Optional<String> imageFileKey) {
       return this;
     }
 

@@ -4,11 +4,11 @@ ALTER TABLE questions
 ADD COLUMN IF NOT EXISTS localized_image_description jsonb;
 
 ALTER TABLE questions
-ADD COLUMN IF NOT EXISTS image_file_keys jsonb;
+ADD COLUMN IF NOT EXISTS image_file_key varchar;
 
 # --- !Downs
 ALTER TABLE questions
 DROP COLUMN IF EXISTS localized_image_description;
 
 ALTER TABLE questions
-DROP COLUMN IF EXISTS image_file_keys;
+DROP COLUMN IF EXISTS image_file_key;

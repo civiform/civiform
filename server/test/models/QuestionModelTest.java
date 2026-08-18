@@ -541,9 +541,8 @@ public class QuestionModelTest extends ResetPostgres {
   }
 
   @Test
-  public void canSerializeImageFileKeys_withValues() {
-    ImmutableList<String> imageFileKeys =
-        ImmutableList.of("questions/1/image1.png", "questions/1/image2.png");
+  public void canSerializeImageFileKey_withValue() {
+    String imageFileKey = "questions/1/image1.png";
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -551,20 +550,20 @@ public class QuestionModelTest extends ResetPostgres {
                 .setDescription("")
                 .setQuestionText(LocalizedStrings.of())
                 .setQuestionHelpText(LocalizedStrings.empty())
-                .setImageFileKeys(imageFileKeys)
+                .setImageFileKey(imageFileKey)
                 .build());
     QuestionModel question = new QuestionModel(questionDefinition);
-    assertThat(question.getImageFileKeys()).isEqualTo(imageFileKeys);
+    assertThat(question.getImageFileKey()).isEqualTo(imageFileKey);
 
     question.save();
 
     QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(found.getImageFileKeys()).isEqualTo(imageFileKeys);
-    assertThat(found.getQuestionDefinition().getImageFileKeys()).hasValue(imageFileKeys);
+    assertThat(found.getImageFileKey()).isEqualTo(imageFileKey);
+    assertThat(found.getQuestionDefinition().getImageFileKey()).hasValue(imageFileKey);
   }
 
   @Test
-  public void canSerializeImageFileKeys_empty() {
+  public void canSerializeImageFileKey_empty() {
     QuestionDefinition questionDefinition =
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
@@ -574,12 +573,12 @@ public class QuestionModelTest extends ResetPostgres {
                 .setQuestionHelpText(LocalizedStrings.empty())
                 .build());
     QuestionModel question = new QuestionModel(questionDefinition);
-    assertThat(question.getImageFileKeys()).isEmpty();
+    assertThat(question.getImageFileKey()).isNull();
 
     question.save();
 
     QuestionModel found = repo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    assertThat(found.getImageFileKeys()).isEmpty();
-    assertThat(found.getQuestionDefinition().getImageFileKeys()).isEmpty();
+    assertThat(found.getImageFileKey()).isNull();
+    assertThat(found.getQuestionDefinition().getImageFileKey()).isEmpty();
   }
 }
