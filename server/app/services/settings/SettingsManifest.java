@@ -1149,6 +1149,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
   }
 
+  /**
+   * (NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and
+   * sums all scores on pdf downloads, csv exports, and JSON exports of submitted applications for
+   * admins and TIs on programs that opt in.
+   */
+  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
+    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables an image to be shown in a static question. */
+  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
+    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
+  }
+
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
       ImmutableMap.<String, SettingsSection>builder()
           .put(
@@ -2441,7 +2455,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicant-guest merging strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "ANSWER_OPTION_SCORING_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option"
+                              + " question answer options and sums all scores on pdf downloads, csv"
+                              + " exports, and JSON exports of submitted applications for admins"
+                              + " and TIs on programs that opt in.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMAGES_IN_QUESTION_FEATURE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables an image to be shown in a static"
+                              + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

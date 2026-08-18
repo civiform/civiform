@@ -13,6 +13,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.FetchConfig;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -278,6 +279,11 @@ public final class VersionRepository {
           // save causing the "updated" timestamp to be changed for a Question. We intend for
           // that timestamp only to be updated for actual changes to the question.
           .forEach(draft::addQuestion);
+
+      // Save the draft to flush the added programs and questions to the database.
+      // This is necessary because subsequent calls to getProgramsForVersion(draft)
+      // rely on database queries that need to see these newly added associations.
+      draft.save();
 
       // Remove any questions / programs both added and archived in the current version.
       getQuestionsForVersion(draft).stream()
@@ -676,7 +682,7 @@ public final class VersionRepository {
     // Only set the version cache for active and obsolete versions
     if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
       return programsByVersionCache.getOrElseUpdate(
-          String.valueOf(version.id), version::getPrograms);
+          String.valueOf(version.id), () -> getProgramsForVersionWithoutCache(version));
     }
     return getProgramsForVersionWithoutCache(version);
   }
@@ -688,7 +694,18 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return version.getPrograms();
+    return database
+        .find(ProgramModel.class)
+        // We set the label to 'models.ProgramModel' to ensure Ebean records the metric
+        // under the same name as it did when this used version.getPrograms() lazy loading.
+        // This keeps MetricsControllerTest passing and maintains metric continuity.
+        .setLabel("models.ProgramModel")
+        .fetch("categories", FetchConfig.ofQuery())
+        .where()
+        .eq("versions.id", version.id)
+        .findList()
+        .stream()
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**

@@ -148,10 +148,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         program,
         blockDefinition.id(),
         new BlockForm(
-            blockDefinition.getFullName(),
-            blockDefinition.description(),
-            blockDefinition.namePrefix().orElse(""),
-            blockDefinition.isRepeated()),
+            blockDefinition.name(), blockDefinition.description(), blockDefinition.isRepeated()),
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
@@ -175,8 +172,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String title =
         viewAllowsEditingProgram()
-            ? String.format("Edit %s", blockDefinition.getFullName())
-            : String.format("View %s", blockDefinition.getFullName());
+            ? String.format("Edit %s", blockDefinition.name())
+            : String.format("View %s", blockDefinition.name());
     Long programId = programDefinition.id();
 
     String blockUpdateAction =
@@ -450,7 +447,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 ? messages.at(MessageKey.TEXT_NESTED_REPEATED_SET.getKeyName())
                 : messages.at(MessageKey.TEXT_REPEATED_SET.getKeyName());
       }
-      String blockName = blockDefinition.getFullName();
+      String blockName = blockDefinition.name();
       // indentation value for enums and repeaters
       int listIndentationFactor = level * INDENTATION_FACTOR_INCREASE_ON_LEVEL;
       DivTag blockContent =
@@ -654,7 +651,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
-            blockDefinition.getFullName(),
+            blockDefinition.name(),
             allQuestions,
             settingsManifest.getExpandedFormLogicEnabled());
 
@@ -666,7 +663,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   program,
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
-                  blockDefinition.getFullName(),
+                  blockDefinition.name(),
                   allQuestions,
                   settingsManifest.getExpandedFormLogicEnabled()));
     }
@@ -2074,7 +2071,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                  div(join(blockDefinition.getFullName(), " includes ", b(listItemsInBlock + ".")))
+                  div(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
                       .withClasses("mb-2"),
                   div("Are you sure you want to delete this screen?").withClasses("mb-4")),
               submitButton("Delete")
@@ -2090,7 +2087,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .setModalId("block-delete-modal")
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(deleteBlockForm)
-        .setModalTitle(String.format("Delete %s?", blockDefinition.getFullName()))
+        .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
         .build();
@@ -2110,102 +2107,36 @@ public final class ProgramBlocksView extends ProgramBaseView {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
-    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
-      blockDescriptionForm
-          .withId("block-edit-form")
-          .with(
-              div(
-                      h1("The screen name and description will help a user understand which part of"
-                              + " an application they are on.")
-                          .withClasses("text-base", "mb-2"),
-                      div(
-                          label("Screen name")
-                              .attr("for", "block-name-input")
-                              .withClasses(
-                                  "pointer-events-none",
-                                  "text-gray-600",
-                                  "text-base",
-                                  "px-1",
-                                  "py-2"),
-                          iff(
-                              blockForm.isRepeated(),
-                              p(messages.at(
-                                      MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION
-                                          .getKeyName()))
-                                  .withClasses(
-                                      "text-xs", "text-gray-500", "pb-3", "text-base", "px-1")
-                                  .attr("data-testid", "repeated-set-prefix-description")),
-                          div()
-                              .withClasses("flex")
-                              .condWith(
-                                  blockForm.isRepeated(),
-                                  label(blockForm.getNamePrefix())
-                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2")
-                                      .attr("data-testid", "name-prefix"))
-                              .with(
-                                  input()
-                                      .attr("maxlength", 10000)
-                                      .withName("name")
-                                      .withValue(blockDefinition.name())
-                                      .withId("block-name-input")
-                                      .withClasses(
-                                          "flex-auto",
-                                          "px-3",
-                                          "bg-white",
-                                          "text-black",
-                                          "text-lg",
-                                          "py-2",
-                                          "block",
-                                          "outline-none",
-                                          "box-border",
-                                          "m-auto",
-                                          "border",
-                                          "border-gray-500",
-                                          "rounded-lg",
-                                          "focus:border-civiform-blue",
-                                          "placeholder-gray-500"),
-                                  div()
-                                      .withId("block-name-textarea-errors")
-                                      .withClasses("text-red-600", "text-xs", "p-1", "hidden"))),
-                      FieldWithLabel.textArea()
-                          .setId("block-description-textarea")
-                          .setFieldName("description")
-                          .setLabelText("Screen description")
-                          .setValue(blockForm.getDescription())
-                          .getTextareaTag())
-                  .withClasses("mx-4"),
-              submitButton("Save")
-                  .withId("update-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                  .isDisabled());
-    } else {
-      blockDescriptionForm
-          .withId("block-edit-form")
-          .with(
-              div(
-                      h1("The screen name and description will help a user understand which part of"
-                              + " an application they are on.")
-                          .withClasses("text-base", "mb-2"),
-                      FieldWithLabel.input()
-                          .setId("block-name-input")
-                          .setFieldName("name")
-                          .setLabelText("Screen name")
-                          .setValue(blockDefinition.name())
-                          .getInputTag(),
-                      FieldWithLabel.textArea()
-                          .setId("block-description-textarea")
-                          .setFieldName("description")
-                          .setLabelText("Screen description")
-                          .setValue(blockForm.getDescription())
-                          .getTextareaTag())
-                  .withClasses("mx-4"),
-              submitButton("Save")
-                  .withId("update-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                  .isDisabled());
+    FieldWithLabel screenNameField =
+        FieldWithLabel.input()
+            .setId("block-name-input")
+            .setFieldName("name")
+            .setLabelText("Screen name")
+            .setValue(blockDefinition.name());
+    if (settingsManifest.getEnumeratorImprovementsEnabled(request) && blockForm.isRepeated()) {
+      screenNameField.setSubLabelText(
+          messages.at(MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION.getKeyName()));
     }
+    blockDescriptionForm
+        .withId("block-edit-form")
+        .with(
+            div(
+                    h1("The screen name and description will help a user understand which part of"
+                            + " an application they are on.")
+                        .withClasses("text-base", "mb-2"),
+                    screenNameField.getInputTag(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Screen description")
+                        .setValue(blockForm.getDescription())
+                        .getTextareaTag())
+                .withClasses("mx-4"),
+            submitButton("Save")
+                .withId("update-block-button")
+                .withClasses(
+                    "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                .isDisabled());
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);

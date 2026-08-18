@@ -43,13 +43,13 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
-      "org.commonmark" % "commonmark" % "0.29.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.29.0",
+      "org.commonmark" % "commonmark" % "0.30.0",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.30.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.51.3",
-      "software.amazon.awssdk" % "ses" % "2.51.3",
+      "software.amazon.awssdk" % "s3" % "2.53.1",
+      "software.amazon.awssdk" % "ses" % "2.53.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.36",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.37",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -146,7 +146,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.6.1",
+      "ch.qos.logback" % "logback-classic" % "1.6.3",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
