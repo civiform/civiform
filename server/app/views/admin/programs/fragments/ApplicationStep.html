@@ -1,0 +1,21 @@
+<!--/*
+  One "How to apply" application step (title input + description textarea),
+  mirroring the legacy ProgramFormBuilder buildApplicationStepDiv helper.
+
+  index is the zero-based step index: field names use it directly
+  (applicationSteps[0][title]) while ids and labels use the one-based number
+  (apply-step-1-title, "Step 1 title"). The step fields keep FieldWithLabel's
+  default "mb-2" wrapper because the legacy builder never overrode it.
+*/-->
+<div
+  th:fragment="applicationStep(index, title, description, required, disabled)"
+  th:with="stepNumber=${index + 1}"
+  th:id="|apply-step-${stepNumber}-div|"
+>
+  <div
+    th:replace="~{admin/programs/fragments/TextField :: textField(|apply-step-${stepNumber}-title|, |applicationSteps[${index}][title]|, |Step ${stepNumber} title|, ${title}, ${required}, ${disabled}, '10000', 'mb-2')}"
+  ></div>
+  <div
+    th:replace="~{admin/programs/fragments/TextareaField :: textareaField(|apply-step-${stepNumber}-description|, |applicationSteps[${index}][description]|, |Step ${stepNumber} description|, ${description}, ${required}, ${disabled}, true, 'mb-2')}"
+  ></div>
+</div>
