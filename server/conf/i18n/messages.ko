@@ -1201,7 +1201,7 @@ session.length.warning.message.loggedIn=세션이 곧 만료됩니다. 작업을
 #------------------------------------------------------------------------------#
 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
-ariaLabel.indentedPage=Indented page
+ariaLabel.indentedPage=
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=
 # Option for allowing an admin to create a new list set
