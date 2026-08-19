@@ -226,11 +226,11 @@ public final class PdfExporter {
                   Long score = scoreByOptionId.get(option.id());
                   String optionText = option.optionText().getDefault();
                   return score == null
-                      ? optionText
+                      ? ""
                       : String.format("%s (Score: %d)", optionText, score);
                 })
             .collect(Collectors.joining(", "));
-    if (scoreText.isEmpty()) {
+    if (scoreText.trim().replace(",", "").isEmpty()) {
       return Optional.empty();
     }
     return Optional.of(
