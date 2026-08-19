@@ -241,10 +241,11 @@ public final class UpsellController extends CiviFormController {
                         applicantId, applicationId));
               }
 
-              // Applicants must never see scores, regardless of flag or program settings.
+              // Applicants must never see scores, regardless of flag or program settings, but TIs should see scores on pdf downloads.
+              boolean isTiSubmitting = application.getSubmitterEmail().isPresent();
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
-                      application, /* isAdmin= */ false, /* includeScores= */ false);
+                      application, /* isAdmin= */ false, /* includeScores= */ isTiSubmitting);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

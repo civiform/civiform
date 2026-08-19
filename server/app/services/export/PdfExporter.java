@@ -124,8 +124,10 @@ public final class PdfExporter {
     // snapshot is a fresh private copy of the application's stored data.
     ApplicantData snapshot = application.getApplicantData();
     Optional<Long> totalScore = snapshot.readLong(ApplicationScoreMetadata.totalScorePath());
+    
+    boolean isAdminOrTi = isAdmin || application.getSubmitterEmail().isPresent();
     Optional<ApplicantData> scoreData =
-        isAdmin && includeScores && totalScore.isPresent()
+      isAdminOrTi && includeScores && totalScore.isPresent()
             ? Optional.of(snapshot)
             : Optional.empty();
 
