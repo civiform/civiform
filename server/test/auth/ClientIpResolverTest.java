@@ -19,7 +19,7 @@ public class ClientIpResolverTest {
 
   @Test
   public void resolveClientIp_direct() {
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("DIRECT"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.DIRECT));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request =
@@ -31,7 +31,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_forwarded() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
@@ -42,7 +42,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_forwarded_no_header() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request = fakeRequestBuilder().remoteAddress("3.3.3.3").build();
@@ -55,7 +55,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_overload_singleProxy() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2").build();
@@ -66,7 +66,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_overload_multipleProxies_singleHeader() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(2));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request = fakeRequestBuilder().addXForwardedFor("3.3.3.3, 2.2.2.2, 1.1.1.1").build();
@@ -77,7 +77,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_overload_multipleProxies_multipleHeaders() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(2));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request =
@@ -92,7 +92,7 @@ public class ClientIpResolverTest {
   @Test
   public void resolveClientIp_overload_proxyConfigurationError() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(2));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     Request request = fakeRequestBuilder().addXForwardedFor("1.1.1.1").build();
@@ -107,7 +107,7 @@ public class ClientIpResolverTest {
   @Test
   public void getClientIpType_forwarded() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     assertThat(clientIpResolver.getClientIpType()).isEqualTo(ClientIpType.FORWARDED);
@@ -116,7 +116,7 @@ public class ClientIpResolverTest {
   @Test
   public void getClientIpType_direct() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("DIRECT"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.DIRECT));
     var clientIpResolver = new ClientIpResolver(MOCK_SETTINGS_MANIFEST);
 
     assertThat(clientIpResolver.getClientIpType()).isEqualTo(ClientIpType.DIRECT);
