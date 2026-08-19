@@ -432,11 +432,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
+      boolean enumeratorImprovementsEnabled =
+          settingsManifest.getEnumeratorImprovementsEnabled(request);
+      // Repeated screens get the subdirectory-arrow treatment when the flag is
+      // on: an arrow at the start of the row and collapsed (rather than reserved) empty
+      // visibility-icon space.
+      boolean isIndentedScreen = enumeratorImprovementsEnabled && level >= 1;
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
-          && blockDefinition.getIsEnumerator()) {
+      if (enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator()) {
         questionCountText =
             (level > 0)
                 ? messages.at(MessageKey.TEXT_NESTED_REPEATED_SET.getKeyName())
@@ -469,20 +474,43 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     programDefinition.id(), blockDefinition.id())
                 .url();
       }
-      // Show icon with blocks that have visibility conditions.
-      // Icon is always added for spacing, but is only visible for blocks that have visibility
-      // conditions.
-      String showOrHideVisibilityIcon =
-          blockDefinition.visibilityPredicate().isEmpty() ? "invisible" : "";
+      // Show the icon on blocks that have visibility conditions. On top-level screens the empty
+      // space is reserved ("invisible") for alignment; on indented screens it is collapsed
+      // ("hidden") so the screen name sits directly after the arrow.
+      String showOrHideVisibilityIcon;
+      if (!blockDefinition.visibilityPredicate().isEmpty()) {
+        showOrHideVisibilityIcon = "";
+      } else if (isIndentedScreen) {
+        showOrHideVisibilityIcon = "hidden";
+      } else {
+        showOrHideVisibilityIcon = "invisible";
+      }
       blockContent
           .withId(genericBlockDivId + blockDefinition.id())
+          .with(
+              iff(
+                  isIndentedScreen,
+                  Icons.svg(Icons.SUBDIRECTORY_ARROW_RIGHT)
+                      .withClasses(
+                          "w-6",
+                          "h-6",
+                          "self-start",
+                          "flex-shrink-0",
+                          level == 1 ? "ml-6" : "double-indentation")
+                      .attr("aria-hidden", "false")
+                      .attr("role", "img")
+                      .attr(
+                          "aria-label",
+                          messages.at(MessageKey.ARIA_LABEL_INDENTED_PAGE.getKeyName()))))
           .with(
               a().withClasses(
                       "w-5",
                       "h-5",
-                      "mr-0", // style for tablet and mobile
-                      "lg:mr-2", // style for desktop
-                      "self-center",
+                      // Indented screens rely on the row's gap for spacing, so the icon drops
+                      // its own right margin there.
+                      isIndentedScreen ? "" : "mr-0", // style for tablet and mobile
+                      isIndentedScreen ? "" : "lg:mr-2", // style for desktop
+                      isIndentedScreen ? "self-start" : "self-center",
                       "flex-shrink-0",
                       showOrHideVisibilityIcon)
                   .withHref(switchBlockLink)

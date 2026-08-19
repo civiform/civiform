@@ -75,6 +75,10 @@
     -moz-appearance: textfield;
   }
 
+  .double-indentation {
+    margin-left: 2.75rem;
+  }
+
   /**
    * USWDS's alignment strategy makes alerts look a little odd for us, so override
    * to remove the extra margin to make the alert body left-justified. It doesn't

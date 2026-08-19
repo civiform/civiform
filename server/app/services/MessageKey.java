@@ -52,6 +52,7 @@ public enum MessageKey {
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_REPEATED_SET_PREVIOUSLY_USED("alert.repeatedSet.previouslyUsed"),
   ALERT_SUBMITTED("alert.submitted"), // North Star only
+  ARIA_LABEL_INDENTED_PAGE("ariaLabel.indentedPage"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
   BANNER_NEW_CLIENT_CREATED("banner.newClientCreated"),
