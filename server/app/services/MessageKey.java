@@ -77,6 +77,7 @@ public enum MessageKey {
   BUTTON_ADD_QUESTION("button.addQuestion"),
   BUTTON_BACK_TO_CLIENT_LIST("button.backToClientList"),
   BUTTON_CANCEL("button.cancel"),
+  BUTTON_CONTINUE_TO_CHILD_SCREEN("button.continueToChildScreen"),
   BUTTON_CLOSE("button.close"),
   BUTTON_CREATE_ACCOUNT("button.createAccount"),
   BUTTON_LOGIN("button.login"),

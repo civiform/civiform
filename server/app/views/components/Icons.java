@@ -45,6 +45,7 @@ public enum Icons {
       "M7 8h10M7 12h4m1 8l-4-4H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-3l-4"
           + " 4z"),
   ARROW_LEFT(24, "m12 20-8-8 8-8 1.425 1.4-5.6 5.6H20v2H7.825l5.6 5.6Z"),
+  ARROW_FORWARD(24, "M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8z"),
   // Subdirectory arrow (↳): a vertical stroke on the left turning into a rightward arrow.
   SUBDIRECTORY_ARROW_RIGHT(24, "M19 15l-6 6-1.42-1.42L15.17 16H4V4h2v10h9.17l-3.59-3.58L13 9l6 6z"),
   CAKE(
