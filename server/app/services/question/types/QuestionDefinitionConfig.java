@@ -179,6 +179,7 @@ public abstract class QuestionDefinitionConfig {
       return setImageFileKey(Optional.of(imageFileKey));
     }
 
+    @JsonIgnore
     public abstract Builder setImageFileKey(Optional<String> imageFileKey);
 
     public abstract QuestionDefinitionConfig build();
