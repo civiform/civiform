@@ -218,18 +218,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
 
     @Override
     public QuestionDefinitionConfig.Builder setLocalizedImageDescription(
-        LocalizedStrings localizedImageDescription) {
-      return this;
-    }
-
-    @Override
-    public QuestionDefinitionConfig.Builder setLocalizedImageDescription(
         Optional<LocalizedStrings> localizedImageDescription) {
-      return this;
-    }
-
-    @Override
-    public QuestionDefinitionConfig.Builder setImageFileKey(String imageFileKey) {
       return this;
     }
 
