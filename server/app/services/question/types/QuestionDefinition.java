@@ -372,6 +372,16 @@ public abstract class QuestionDefinition {
             .collect(ImmutableSet.toImmutableSet()));
   }
 
+  @JsonIgnore
+  public final Optional<LocalizedStrings> getLocalizedImageDescription() {
+    return config.localizedImageDescription();
+  }
+
+  @JsonIgnore
+  public final Optional<String> getImageFileKey() {
+    return config.imageFileKey();
+  }
+
   /** Get the default validation predicates for this question type. */
   @JsonIgnore
   abstract ValidationPredicates getDefaultValidationPredicates();
