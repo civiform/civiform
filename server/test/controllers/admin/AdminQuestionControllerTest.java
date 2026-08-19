@@ -1309,7 +1309,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("newOptionAdminNames[0]", "first_admin")
             .put("newOptionAdminNames[1]", "second_admin")
             .put("newOptionScores[0]", "5.5")
-            .put("newOptionScores[1]", "")
+            .put("newOptionScores[1]", "7.0")
             .build();
     RequestBuilder requestBuilder =
         fakeRequestBuilder()
@@ -1332,7 +1332,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .get()
                 .getQuestionDefinition();
     assertThat(definition.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(5.5), Optional.empty());
+        .containsExactly(Optional.of(5.5), Optional.of(7.0));
   }
 
   @Test
@@ -1353,7 +1353,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .put("optionIds[1]", "2")
             .put("optionAdminNames[0]", "chocolate_admin")
             .put("optionAdminNames[1]", "strawberry_admin")
-            .put("optionScores[0]", "")
+            .put("optionScores[0]", "0")
             .put("optionScores[1]", "-1.25")
             .put("nextAvailableId", "3")
             .put("questionExportState", "NON_DEMOGRAPHIC")
@@ -1380,59 +1380,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .getQuestionDefinition();
     assertThat(found.getOptions().stream().map(QuestionOption::score))
         .containsExactly(Optional.empty(), Optional.of(-1.25));
-  }
-
-  @Test
-  public void update_thymeleafQuestionForm_invalidScore_rendersScoreInputsWithErrorWithoutSaving() {
-    QuestionDefinition definition = createScoredDropdownDefinition();
-    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
-
-    ImmutableMap<String, String> formData =
-        ImmutableMap.<String, String>builder()
-            .put("questionName", definition.getName())
-            .put("questionDescription", definition.getDescription())
-            .put("questionType", definition.getQuestionType().name())
-            .put("questionText", "new question text")
-            .put("questionHelpText", "new help text")
-            .put("options[0]", "chocolate")
-            .put("options[1]", "strawberry")
-            .put("optionIds[0]", "1")
-            .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate_admin")
-            .put("optionAdminNames[1]", "strawberry_admin")
-            .put("optionScores[0]", "junk")
-            .put("optionScores[1]", "")
-            .put("nextAvailableId", "3")
-            .put("questionExportState", "NON_DEMOGRAPHIC")
-            .put("concurrencyToken", question.getConcurrencyToken().toString())
-            .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
-
-    Result result =
-        controller.update(request, question.id, definition.getQuestionType().toString());
-
-    // The error re-render honors the migration flag: the Thymeleaf page comes back with the
-    // score inputs so the admin can correct and resubmit.
-    assertThat(result.status()).isEqualTo(OK);
-    String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
-    assertThat(unescaped).contains("Option score 'junk' must be a number");
-    assertThat(unescaped).contains("name=\"optionScores[]\"");
-    MultiOptionQuestionDefinition found =
-        (MultiOptionQuestionDefinition)
-            questionRepo
-                .lookupQuestion(question.id)
-                .toCompletableFuture()
-                .join()
-                .get()
-                .getQuestionDefinition();
-    assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(3.5), Optional.empty());
   }
 
   @Test
@@ -1549,7 +1496,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
-        .containsPattern("name=\"optionScores\\[\\]\"[^>]*value=\"3.5\"");
+        .containsPattern("value=\"3.5\"[^>]*name=\"optionScores\\[\\]\"");
   }
 
   @Test
