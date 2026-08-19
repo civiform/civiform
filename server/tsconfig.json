@@ -17,7 +17,9 @@
       "@pages/*": ["./app/assets/javascripts/pages/*"]
     },
     "strict": true,
-    "types": ["vitest"]
+    // vite/client supplies the ambient types for Vite's asset query imports,
+    // such as the `?worker&url` import used to locate the MapLibre worker.
+    "types": ["vitest", "vite/client"]
   },
   "include": ["app/assets/javascripts/**/*.ts"]
 }
