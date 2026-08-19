@@ -1200,6 +1200,8 @@ session.length.warning.message.loggedIn=Ваш сеанс скоро закон�
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
 #------------------------------------------------------------------------------#
 
+# A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
+ariaLabel.indentedPage=Indented page
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=
 # Option for allowing an admin to create a new list set
