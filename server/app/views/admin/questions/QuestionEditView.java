@@ -312,8 +312,9 @@ public final class QuestionEditView extends BaseHtmlView {
   }
 
   /**
-   * Whether score inputs should render for this request and question type: the scoring flag is on
-   * and the type supports option scores (which excludes Yes/No).
+   * Whether score inputs should render for this request and question type. Score inputs should
+   * render if the ANSWER_OPTION_SCORING_ENABLED flag is on and the type supports option scores (all
+   * multi-option question types except Yes/No questions).
    */
   private boolean showScores(Request request, QuestionType questionType) {
     return settingsManifest.getAnswerOptionScoringEnabled(request)

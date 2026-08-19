@@ -155,8 +155,7 @@ public final class QuestionFormPageMapper {
             questionType.equals(QuestionType.YES_NO)
                 ? YesNoConfigMapper.buildYesNoConfig((MultiOptionQuestionForm) questionForm)
                 : null)
-        .showScores(
-            answerOptionScoringEnabled && QuestionType.supportsOptionScores(questionType))
+        .showScores(answerOptionScoringEnabled && QuestionType.supportsOptionScores(questionType))
         .errorMessage(errorToastMessage)
         .errorToastId(errorToastMessage.isPresent() ? UUID.randomUUID().toString() : null);
   }

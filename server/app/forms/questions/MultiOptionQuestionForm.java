@@ -301,11 +301,9 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
   }
 
   /**
-   * Parses an admin-entered score. Blank means unscored. Parsing goes through {@link BigDecimal}
-   * rather than {@link Double#parseDouble} as a server-side backstop against crafted posts: it
-   * accepts plain and exponent decimal notation but rejects the NaN/Infinity/hex/suffix forms
-   * Double.parseDouble tolerates, and the finite check rejects double-overflowing exponents.
-   * Invalid input surfaces as empty here and as errors in {@link #getOptionScoreErrors}.
+   * Parses an admin-entered score, returning empty if blank or invalid. Uses {@link BigDecimal}
+   * instead of {@link Double#parseDouble} so malicious input like "NaN", "Infinity", or hex/suffix
+   * forms can't sneak through; the finite check also catches values that overflow to infinity.
    */
   private static Optional<Double> parseScore(String scoreAsString) {
     if (isBlank(scoreAsString)) {

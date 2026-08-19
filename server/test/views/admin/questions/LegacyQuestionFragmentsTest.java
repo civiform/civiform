@@ -98,8 +98,8 @@ public class LegacyQuestionFragmentsTest {
 
   /**
    * With showScores on (the answer-option-scoring flag and a supported question type), the row
-   * grows to six grid rows and renders a never-readonly score input posting to optionScores[],
-   * with the pre-formatted display value.
+   * grows to six grid rows and renders a never-readonly score input posting to optionScores[], with
+   * the pre-formatted display value.
    */
   @Test
   public void multiOptionRow_scoredOption() {

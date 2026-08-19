@@ -193,10 +193,8 @@ public class QuestionConfigTest extends ResetPostgres {
     assertThat(result).contains("Score");
     assertThat(result).contains("cf-multi-option-score-input");
     assertThat(result).contains("grid-rows-6");
-    assertThat(result)
-        .containsPattern("name=\"optionScores\\[\\]\"[^>]*value=\"4.25\"");
-    assertThat(result)
-        .containsPattern("name=\"newOptionScores\\[\\]\"[^>]*value=\"-2.5\"");
+    assertThat(result).containsPattern("name=\"optionScores\\[\\]\"[^>]*value=\"4.25\"");
+    assertThat(result).containsPattern("name=\"newOptionScores\\[\\]\"[^>]*value=\"-2.5\"");
     // The unscored option renders an empty score input, keeping the lists parallel.
     Matcher scoreInputs = Pattern.compile("name=\"optionScores\\[\\]\"").matcher(result);
     assertThat(scoreInputs.results().count()).isEqualTo(2);

@@ -96,7 +96,7 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   private final YesNoConfig yesNoConfig;
 
   // CHECKBOX / DROPDOWN / RADIO_BUTTON: whether the per-option score inputs render (the
-  // answer-option-scoring flag is on and the question type supports scores).
+  // ANSWER_OPTION_SCORING_ENABLED flag is on and the question type supports scores).
   private final boolean showScores;
 
   // Error message shown as a toast (already carries the "Error: " prefix)
@@ -141,9 +141,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   /**
-   * The display value for the score input at {@code index} of a bound score list, formatted
-   * without trailing zeros. Null (attribute omitted) when the entry is missing, blank, or
-   * unparseable; a null-padded or short list from a sparse crafted post is tolerated.
+   * The display value for the score input at {@code index} of a bound score list, formatted without
+   * trailing zeros. Null (attribute omitted) when the entry is missing, blank, or unparseable.
    */
   public String scoreDisplayValue(List<String> scores, int index) {
     if (index >= scores.size()) {
