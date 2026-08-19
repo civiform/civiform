@@ -227,39 +227,18 @@ public class QuestionModel extends BaseModel {
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
             .setDisplayMode(displayMode)
-            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
+            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags))
+            .setImageFileKey(Optional.ofNullable(imageFileKey))
+            .setLocalizedImageDescription(Optional.ofNullable(localizedImageDescription));
 
     if (concurrencyToken != null) {
       builder.setConcurrencyToken(concurrencyToken);
     }
-
-    setLocalizedImageDescription(builder);
-    setImageFileKey(builder);
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
 
     this.questionDefinition = builder.build();
-  }
-
-  private void setLocalizedImageDescription(QuestionDefinitionBuilder builder) {
-    if (localizedImageDescription != null) {
-      builder.setLocalizedImageDescription(Optional.of(localizedImageDescription));
-    } else {
-      // See docs on `this.localizedImageDescription` -- a null field here means an
-      // Optional.empty field for the question definition.
-      builder.setLocalizedImageDescription(Optional.empty());
-    }
-  }
-
-  private void setImageFileKey(QuestionDefinitionBuilder builder) {
-    if (imageFileKey != null) {
-      builder.setImageFileKey(Optional.of(imageFileKey));
-    } else {
-      // See docs on `this.imageFileKey` -- a null field here means an
-      // Optional.empty field for the question definition.
-      builder.setImageFileKey(Optional.empty());
-    }
   }
 
   /**
@@ -358,17 +337,8 @@ public class QuestionModel extends BaseModel {
       enumeratorInitialQuestionId = enumerator.getEnumeratorInitialQuestionId().orElse(null);
     }
 
-    if (questionDefinition.getLocalizedImageDescription().isPresent()) {
-      localizedImageDescription = questionDefinition.getLocalizedImageDescription().get();
-    } else {
-      localizedImageDescription = null;
-    }
-
-    if (questionDefinition.getImageFileKey().isPresent()) {
-      imageFileKey = questionDefinition.getImageFileKey().get();
-    } else {
-      imageFileKey = null;
-    }
+    localizedImageDescription = questionDefinition.getLocalizedImageDescription().orElse(null);
+    imageFileKey = questionDefinition.getImageFileKey().orElse(null);
 
     // We must ensure we always initTags here. Otherwise, if we aren't
     // adding the tag, and we're needing to remove the universal tag
@@ -380,8 +350,7 @@ public class QuestionModel extends BaseModel {
       initTags();
     }
 
-    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this
-    // must come after
+    // Add QuestionTags for PrimaryApplicantInfoTags in the list. Note that this must come after
     // we have done initTags above, either in this function or in addTag previously.
     questionDefinition
         .getPrimaryApplicantInfoTags()

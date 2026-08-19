@@ -65,7 +65,7 @@ public abstract class QuestionDefinitionConfig {
   @JsonProperty("localizedImageDescription")
   abstract Optional<LocalizedStrings> localizedImageDescription();
 
-  @JsonProperty("imageFileKey")
+  @JsonIgnore
   abstract Optional<String> imageFileKey();
 
   @JsonIgnore
@@ -179,7 +179,6 @@ public abstract class QuestionDefinitionConfig {
       return setImageFileKey(Optional.of(imageFileKey));
     }
 
-    @JsonProperty("imageFileKey")
     public abstract Builder setImageFileKey(Optional<String> imageFileKey);
 
     public abstract QuestionDefinitionConfig build();
