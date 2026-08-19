@@ -300,7 +300,7 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     const programName = 'Test program for multiple file upload'
     const fileUploadQuestionText = 'Required file upload question'
 
-    test('hides upload button at max', async ({
+    test('shows error when uploading more than max files', async ({
       applicantQuestions,
       applicantFileQuestion,
       page,
@@ -325,25 +325,47 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
 
       await applicantQuestions.applyProgram(programName)
 
-      await test.step('Adding maximum files disables file input', async () => {
+      await test.step('Adding more files than maximum shows error message', async () => {
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload.png',
         )
         await applicantQuestions.answerFileUploadQuestionFromAssets(
           'file-upload-second.png',
         )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-third.png',
+        )
+        await applicantFileQuestion.expectFileLimitErrorShown()
+        await applicantFileQuestion.expectFileInputFocused()
+
         await applicantFileQuestion.expectFileNameDisplayed('file-upload.png')
         await applicantFileQuestion.expectFileNameDisplayed(
           'file-upload-second.png',
         )
 
-        await applicantFileQuestion.expectFileInputDisabled()
+        await validateScreenshot(
+          page.locator('.cf-question-fileupload'),
+          'file-limit-error-message',
+        )
       })
 
-      await test.step('Removing a file shows file input again', async () => {
+      await test.step('Removing a file removes file limit error', async () => {
         await applicantFileQuestion.removeFileUpload('file-upload.png')
         await waitForHtmxReady(page)
-        await applicantFileQuestion.expectFileInputEnabled()
+        await applicantFileQuestion.expectFileLimitErrorHidden()
+      })
+
+      await test.step("File limit error doesn't block continuing", async () => {
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload.png',
+        )
+        await applicantQuestions.answerFileUploadQuestionFromAssets(
+          'file-upload-third.png',
+        )
+        await applicantFileQuestion.expectFileLimitErrorShown()
+
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
       })
     })
 
