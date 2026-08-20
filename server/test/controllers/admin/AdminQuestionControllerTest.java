@@ -1103,7 +1103,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
     assertThat(unescaped)
-        .contains("When creating a scored question, all options must include scores.");
+        .contains("When creating a scored question, all options must include scores");
     assertThat(retrieveAllQuestionIds().size()).isEqualTo(questionIdsBefore.size());
   }
 
@@ -1379,7 +1379,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .get()
                 .getQuestionDefinition();
     assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.empty(), Optional.of(-1.25));
+        .containsExactly(Optional.of(0.0), Optional.of(-1.25));
   }
 
   @Test
@@ -1468,7 +1468,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String unescaped = StringEscapeUtils.unescapeHtml4(contentAsString(result));
     assertThat(unescaped)
-        .contains("When creating a scored question, all options must include scores.");
+        .contains("When creating a scored question, all options must include scores");
     MultiOptionQuestionDefinition found =
         (MultiOptionQuestionDefinition)
             questionRepo

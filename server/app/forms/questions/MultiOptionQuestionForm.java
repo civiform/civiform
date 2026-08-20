@@ -256,7 +256,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
             .anyMatch(MultiOptionQuestionForm::isBlank);
     if (anyScored && anyBlank) {
       errors.add(
-          CiviFormError.of("When creating a scored question, all options must include scores."));
+          CiviFormError.of("When creating a scored question, all options must include scores"));
     }
 
     // Checks for missing indexed fields

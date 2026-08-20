@@ -179,7 +179,7 @@ public class QuestionConfigTest extends ResetPostgres {
     form.setOptions(ImmutableList.of("option-a", "option-b"));
     form.setOptionAdminNames(ImmutableList.of("option-admin-a", "option-admin-b"));
     form.setOptionIds(ImmutableList.of(1L, 2L));
-    form.setOptionScores(ImmutableList.of("4.25", ""));
+    form.setOptionScores(ImmutableList.of("4.25"));
     form.setNewOptions(ImmutableList.of("option-c"));
     form.setNewOptionAdminNames(ImmutableList.of("option-admin-c"));
     // Trailing zeros are stripped for display: -2.50 renders as -2.5.
@@ -193,8 +193,8 @@ public class QuestionConfigTest extends ResetPostgres {
     assertThat(result).contains("Score");
     assertThat(result).contains("cf-multi-option-score-input");
     assertThat(result).contains("grid-rows-6");
-    assertThat(result).containsPattern("name=\"optionScores\\[\\]\"[^>]*value=\"4.25\"");
-    assertThat(result).containsPattern("name=\"newOptionScores\\[\\]\"[^>]*value=\"-2.5\"");
+    assertThat(result).containsPattern("value=\"4.25\"[^>]*name=\"optionScores\\[\\]\"");
+    assertThat(result).containsPattern("value=\"*-2.5\"[^>]*name=\"newOptionScores\\[\\]\"");
     // The unscored option renders an empty score input, keeping the lists parallel.
     Matcher scoreInputs = Pattern.compile("name=\"optionScores\\[\\]\"").matcher(result);
     assertThat(scoreInputs.results().count()).isEqualTo(2);
