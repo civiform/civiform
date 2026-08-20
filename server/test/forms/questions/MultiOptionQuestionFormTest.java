@@ -349,8 +349,7 @@ public class MultiOptionQuestionFormTest {
     assertThat(form.getOptionScoreErrors())
         .extracting(CiviFormError::message)
         .containsExactly(
-            "When creating a scored question, all options must include scoresWhen creating a scored"
-                + " question, all options must include scores",
+            "When creating a scored question, all options must include scores",
             "The number of option scores must match the number of options");
   }
 
