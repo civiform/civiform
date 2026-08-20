@@ -1279,7 +1279,7 @@ button.addRepeatedScreen=
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 # A tooltip shown to admins when the delete screen button is disabled
