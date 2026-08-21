@@ -1,0 +1,98 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminExportPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy widescreen flex row, so this div
+         is the direct child of <main> in the legacy j2html DOM. */-->
+  <div class="pt-10 px-20">
+    <div class="flex items-center mb-5">
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconArrowLeft('mr-2 w-5 h-5')}"
+      ></svg>
+      <a th:href="${model.backUrl}" class="usa-link">Back to all programs</a>
+    </div>
+
+    <h1 class="mb-2">Export a program</h1>
+    <p>
+      To export a program, either copy the JSON file content or download the
+      JSON file to your local device.
+    </p>
+    <hr class="usa-hr my-5" />
+
+    <div id="json-preview">
+      <h2 th:text="|JSON export for ${model.adminName}|"></h2>
+      <form method="POST" th:action="${model.downloadUrl}">
+        <input
+          type="hidden"
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <div class="flex my-5">
+          <!--/* copy-json-button is wired up by admin_export_view.ts, which
+                 reads the JSON from the #program-json textarea below. */-->
+          <button
+            type="button"
+            id="copy-json-button"
+            class="usa-button usa-button--outline mr-2"
+          >
+            Copy JSON
+          </button>
+          <button type="submit" class="usa-button usa-button--outline">
+            Download JSON
+          </button>
+        </div>
+
+        <!--/* JSON preview, disabled to prevent admins from editing it. The legacy
+               FieldWithLabel had no label text, so it rendered an empty sr-only
+               label holding a hidden required indicator, plus name="" on the
+               textarea; both are reproduced here. */-->
+        <div class="mb-2">
+          <label for="program-json" class="sr-only"
+            ><span
+              th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+            ></span
+          ></label>
+          <div class="flex flex-col">
+            <textarea
+              rows="12"
+              maxlength="10000"
+              id="program-json"
+              name=""
+              disabled
+              class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+              th:text="${model.programJson}"
+            ></textarea>
+            <div
+              id="program-json-errors"
+              class="text-red-600 text-xs p-1 hidden"
+            ></div>
+          </div>
+        </div>
+
+        <!--/* Disabled fields aren't included in the form body, so this hidden
+               twin carries the JSON that downloadJson binds. The container is
+               class="hidden" only: the legacy withClass("hidden") call REPLACED
+               the mb-2 the FieldWithLabel container normally has. */-->
+        <div class="hidden" th:with="fieldId=${model.randomFieldId()}">
+          <label th:for="${fieldId}" class="sr-only"
+            ><span
+              th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+            ></span
+          ></label>
+          <div class="flex flex-col">
+            <textarea
+              maxlength="10000"
+              th:id="${fieldId}"
+              name="programJson"
+              class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+              th:text="${model.programJson}"
+            ></textarea>
+            <div
+              th:id="|${fieldId}-errors|"
+              class="text-red-600 text-xs p-1 hidden"
+            ></div>
+          </div>
+        </div>
+      </form>
+    </div>
+  </div>
+</th:block>
