@@ -56,3 +56,7 @@ Guidelines:
 
 **Additional context**
 Add any other context about the problem here.
+
+## Issue resolution process
+- Issues will be triaged weekly and addressed based on severity
+- An assignee will be added when the bug is being actively worked on. The issue may be assigned back to you if further information is needed. Reassign and add a comment to this ticket when that information is provided. 
