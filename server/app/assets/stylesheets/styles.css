@@ -61,7 +61,7 @@
     @apply bg-white text-gray-400 border border-gray-400;
   }
 
-  button[aria-expanded='true'] > .cf-accordion-button {
+  button[aria-expanded='true']>.cf-accordion-button {
     @apply rotate-180;
   }
 
@@ -71,6 +71,7 @@
     -webkit-appearance: none;
     margin: 0;
   }
+
   input[type='number'] {
     -moz-appearance: textfield;
   }
@@ -100,11 +101,13 @@
   .cf-question-bank-hidden .cf-question-bank-panel {
     @apply translate-x-full;
   }
+
   .cf-question-bank-hidden .cf-question-bank-glasspane {
     @apply opacity-0;
   }
 
   @media screen and (min-width: 640px) {
+
     /* When expanded, the banner header was moving to the center because of margin-auto */
     .usa-banner__header--expanded .usa-banner__inner {
       margin-left: 0px;
@@ -117,6 +120,7 @@
   input[type='checkbox']:focus {
     @apply outline-none;
   }
+
   /* Mimics the focus outline styles from the checkbox or radio input on the label */
   .cf-radio-option:focus-within {
     @apply border-4;
@@ -132,9 +136,7 @@
   }
 
   .filter-chip {
-    @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm
-     has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
-      has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
+    @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100 has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
   }
 
   /* The purpose of these classes are to help reduce the page load size cause by duplication of all these on each question. */
@@ -163,6 +165,7 @@
   .question-bank-add-button:hover {
     background-color: #e5e7eb;
   }
+
   .question-bank-info-cell {
     font-weight: bold;
     align-items: center;
@@ -219,4 +222,10 @@
     color: #fff;
   }
 
+  /* Hide duplicate instructions and boxes when USWDS double-initializes and nests elements inside .usa-file-input__input */
+  .usa-file-input__input .usa-file-input__instructions,
+  .usa-file-input__input .usa-file-input__box,
+  .usa-file-input__input .usa-sr-only {
+    display: none !important;
+  }
 }
