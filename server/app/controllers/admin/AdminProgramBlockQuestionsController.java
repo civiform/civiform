@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static views.ViewUtils.ProgramDisplayType.DRAFT;
 
 import auth.Authorizers.Labels;
+import auth.oidc.applicant.IdcsApplicantProfileCreator;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -18,6 +19,8 @@ import java.util.OptionalLong;
 import javax.inject.Inject;
 import models.QuestionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -25,6 +28,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.TransactionManager;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
@@ -65,6 +69,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final SettingsManifest settingsManifest;
   private final MessagesApi messagesApi;
   private final ProgramBlocksView blockEditView;
+  private final TransactionManager transactionManager;
+  public final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   @Inject
   public AdminProgramBlockQuestionsController(
@@ -75,7 +81,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
       RequestChecker requestChecker,
       SettingsManifest settingsManifest,
       MessagesApi messagesApi,
-      ProgramBlocksView.Factory programBlockViewFactory) {
+      ProgramBlocksView.Factory programBlockViewFactory,
+      TransactionManager transactionManager) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
@@ -84,6 +91,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.messagesApi = checkNotNull(messagesApi);
     this.blockEditView = checkNotNull(programBlockViewFactory.create(DRAFT));
+    this.transactionManager = checkNotNull(transactionManager);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -159,150 +167,168 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxCreateEnumerator(Request request, long programId, long blockId) {
-    Messages messages = messagesApi.preferred(request);
-    requestChecker.throwIfProgramNotDraft(programId);
+    return transactionManager.execute(
+        () -> {
+          // top of stack for transaction.
+          Messages messages = messagesApi.preferred(request);
+          requestChecker.throwIfProgramNotDraft(programId);
 
-    // Create the new enumerator question in the same way as in AdminQuestionController#create.
-    EnumeratorQuestionForm questionForm;
-    try {
-      questionForm =
-          (EnumeratorQuestionForm)
-              QuestionFormBuilder.createFromRequest(request, formFactory, QuestionType.ENUMERATOR);
-    } catch (InvalidQuestionTypeException e) {
-      return badRequest(e.getMessage());
-    }
+          // Create the new enumerator question in the same way as in
+          // AdminQuestionController#create.
+          EnumeratorQuestionForm questionForm;
+          try {
+            questionForm =
+                (EnumeratorQuestionForm)
+                    QuestionFormBuilder.createFromRequest(
+                        request, formFactory, QuestionType.ENUMERATOR);
+          } catch (InvalidQuestionTypeException e) {
+            return badRequest(e.getMessage());
+          }
 
-    final QuestionDefinition pendingEnumeratorQuestion;
-    try {
-      pendingEnumeratorQuestion = questionForm.getBuilder().build();
-    } catch (UnsupportedQuestionTypeException e) {
-      // Valid question type that is not yet fully supported.
-      return badRequest(e.getMessage());
-    }
+          final QuestionDefinition pendingEnumeratorQuestion;
+          try {
+            pendingEnumeratorQuestion = questionForm.getBuilder().build();
+          } catch (UnsupportedQuestionTypeException e) {
+            // Valid question type that is not yet fully supported.
+            return badRequest(e.getMessage());
+          }
 
-    final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
-    final Optional<QuestionDefinition> optionalOriginalInitialQuestion;
-    final ErrorAnd<QuestionDefinition, CiviFormError> result;
+          final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
+          final Optional<QuestionDefinition> optionalOriginalInitialQuestion;
+          final ErrorAnd<QuestionDefinition, CiviFormError> result;
 
-    // The initial question is required, but isn't attached to the enumerator question yet
-    // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
-    // Otherwise, resolve the referenced question and create the enumerator normally.
-    if (initialQuestionIdFromForm.isEmpty()) {
-      optionalOriginalInitialQuestion = Optional.empty();
-      result =
-          ErrorAnd.error(
-              ImmutableSet.<CiviFormError>builder()
-                  .addAll(pendingEnumeratorQuestion.validate())
-                  .add(
-                      CiviFormError.of(
-                          messages.at(
-                              MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED
-                                  .getKeyName())))
-                  .build());
-    } else {
-      QuestionDefinition originalInitialQuestion =
-          questionService
-              .getReadOnlyQuestionServiceSync()
-              .getQuestionDefinition(initialQuestionIdFromForm.getAsLong());
-      if (originalInitialQuestion instanceof NullQuestionDefinition) {
-        return notFound(
-            String.format("Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
-      }
-      optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
-      result =
-          questionService.create(
-              pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
-    }
-    // If there are validation errors in the repeated set form
-    if (result.isError()) {
-      return ok(
-          blockEditView
-              .renderEnumeratorSetupSection(
-                  request,
-                  messages,
-                  programId,
-                  blockId,
-                  Optional.of(questionForm),
-                  result.getErrors(),
-                  /* optionalInitialQuestion= */ optionalOriginalInitialQuestion,
-                  /* initialQuestionWasNewlyCreated= */ questionForm
-                      .getInitialQuestionWasNewlyCreated())
-              .render());
-    }
-
-    QuestionDefinition persistedEnumeratorQuestion = result.getResult();
-
-    final ImmutableList<Long> questionIds;
-    try {
-      EnumAndInitialQuestion enumAndInitialQuestion =
-          questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
-              persistedEnumeratorQuestion,
-              optionalOriginalInitialQuestion.get(),
-              questionForm.getInitialQuestionWasNewlyCreated());
-      // The enumerator question now includes the enumeratorInitialQuestionId
-      persistedEnumeratorQuestion = enumAndInitialQuestion.enumeratorQuestion();
-      // The enum must come before the initial question as the validation
-      // will require the enum to be present for the initial question.
-      questionIds =
-          ImmutableList.of(
-              enumAndInitialQuestion.enumeratorQuestion().getId(),
-              enumAndInitialQuestion.initialQuestion().getId());
-    } catch (InvalidUpdateException | UnsupportedQuestionTypeException | RuntimeException e) {
-      return internalServerError(e.getMessage());
-    }
-
-    final long enumeratorQuestionId = persistedEnumeratorQuestion.getId();
-
-    final ProgramDefinition programDefinition;
-    final BlockDefinition blockDefinition;
-    final ProgramQuestionDefinition programQuestionDefinition;
-
-    try {
-      programDefinition =
-          programService.addQuestionsToBlock(
-              programId,
-              blockId,
-              questionIds,
-              settingsManifest.getEnumeratorImprovementsEnabled(request),
-              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
-      blockDefinition = programDefinition.getBlockDefinition(blockId);
-      programQuestionDefinition =
-          blockDefinition.programQuestionDefinitions().stream()
-              .filter(pqd -> pqd.id() == enumeratorQuestionId)
-              .findFirst()
-              .orElseThrow(
-                  () ->
-                      new ProgramQuestionDefinitionNotFoundException(
-                          programId, blockId, enumeratorQuestionId));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
-    } catch (CantAddQuestionToBlockException e) {
-      return notFound(e.externalMessage());
-    } catch (ProgramQuestionDefinitionNotFoundException e) {
-      return notFound("ProgramQuestionDefinition not found.");
-    }
-
-    return ok(
-        blockEditView
-            .renderEnumeratorSectionWithSelectedQuestion(
-                messages,
-                /* optionalEnumeratorQuestionCard= */ Optional.of(
-                    blockEditView.renderQuestion(
-                        /* optionalCsrfTag= */ Optional.empty(),
-                        programDefinition,
-                        blockDefinition,
-                        persistedEnumeratorQuestion,
-                        programQuestionDefinition,
-                        /* questionIndex= */ 0,
-                        blockDefinition.getQuestionCount(),
+          // The initial question is required, but isn't attached to the enumerator question yet
+          // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
+          // Otherwise, resolve the referenced question and create the enumerator normally.
+          if (initialQuestionIdFromForm.isEmpty()) {
+            optionalOriginalInitialQuestion = Optional.empty();
+            result =
+                ErrorAnd.error(
+                    ImmutableSet.<CiviFormError>builder()
+                        .addAll(pendingEnumeratorQuestion.validate())
+                        .add(
+                            CiviFormError.of(
+                                messages.at(
+                                    MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED
+                                        .getKeyName())))
+                        .build());
+          } else {
+            // Reads from the db
+            QuestionDefinition originalInitialQuestion =
+                questionService
+                    .getReadOnlyQuestionServiceSync()
+                    .getQuestionDefinition(initialQuestionIdFromForm.getAsLong());
+            if (originalInitialQuestion instanceof NullQuestionDefinition) {
+              return notFound(
+                  String.format(
+                      "Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+            }
+            optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
+            // Manages its own trans with failure, but the failure is likely
+            // misguided.
+            result =
+                questionService.create(
+                    pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
+          }
+          // If there are validation errors in the repeated set form
+          if (result.isError()) {
+            return ok(
+                // db access, maybe don't want in trans, maybe ok
+                blockEditView
+                    .renderEnumeratorSetupSection(
                         request,
-                        messages)),
-                /* blockHasEnumeratorQuestion= */ true,
-                blockDefinition,
-                programId)
-            .render());
+                        messages,
+                        programId,
+                        blockId,
+                        Optional.of(questionForm),
+                        result.getErrors(),
+                        /* optionalInitialQuestion= */ optionalOriginalInitialQuestion,
+                        /* initialQuestionWasNewlyCreated= */ questionForm
+                            .getInitialQuestionWasNewlyCreated())
+                    .render());
+          }
+
+          QuestionDefinition persistedEnumeratorQuestion = result.getResult();
+
+          final ImmutableList<Long> questionIds;
+          try {
+            EnumAndInitialQuestion enumAndInitialQuestion =
+                // db and transactions
+                questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
+                    persistedEnumeratorQuestion,
+                    optionalOriginalInitialQuestion.get(),
+                    questionForm.getInitialQuestionWasNewlyCreated());
+            // The enumerator question now includes the enumeratorInitialQuestionId
+            persistedEnumeratorQuestion = enumAndInitialQuestion.enumeratorQuestion();
+            // The enum must come before the initial question as the validation
+            // will require the enum to be present for the initial question.
+            questionIds =
+                ImmutableList.of(
+                    enumAndInitialQuestion.enumeratorQuestion().getId(),
+                    enumAndInitialQuestion.initialQuestion().getId());
+          } catch (InvalidUpdateException | UnsupportedQuestionTypeException | RuntimeException e) {
+            return internalServerError(e.getMessage());
+          }
+
+          // Can get here with existing fixes.  Everything is in a
+          // transaction before here and there's 1 subsequent lookup,
+          // then there's a large gap outside it then the transaction resumes.
+          logger.error("After initial creation");
+          final long enumeratorQuestionId = persistedEnumeratorQuestion.getId();
+
+          final ProgramDefinition programDefinition;
+          final BlockDefinition blockDefinition;
+          final ProgramQuestionDefinition programQuestionDefinition;
+
+          try {
+            programDefinition =
+                // does async work.
+                programService.addQuestionsToBlock(
+                    programId,
+                    blockId,
+                    questionIds,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request),
+                    settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+            blockDefinition = programDefinition.getBlockDefinition(blockId);
+            programQuestionDefinition =
+                blockDefinition.programQuestionDefinitions().stream()
+                    .filter(pqd -> pqd.id() == enumeratorQuestionId)
+                    .findFirst()
+                    .orElseThrow(
+                        () ->
+                            new ProgramQuestionDefinitionNotFoundException(
+                                programId, blockId, enumeratorQuestionId));
+          } catch (ProgramNotFoundException e) {
+            return notFound(String.format("Program ID %d not found.", programId));
+          } catch (ProgramBlockDefinitionNotFoundException e) {
+            return notFound(
+                String.format("Block ID %d not found for Program %d", blockId, programId));
+          } catch (CantAddQuestionToBlockException e) {
+            return notFound(e.externalMessage());
+          } catch (ProgramQuestionDefinitionNotFoundException e) {
+            return notFound("ProgramQuestionDefinition not found.");
+          }
+
+          return ok(
+              blockEditView
+                  .renderEnumeratorSectionWithSelectedQuestion(
+                      messages,
+                      /* optionalEnumeratorQuestionCard= */ Optional.of(
+                          blockEditView.renderQuestion(
+                              /* optionalCsrfTag= */ Optional.empty(),
+                              programDefinition,
+                              blockDefinition,
+                              persistedEnumeratorQuestion,
+                              programQuestionDefinition,
+                              /* questionIndex= */ 0,
+                              blockDefinition.getQuestionCount(),
+                              request,
+                              messages)),
+                      /* blockHasEnumeratorQuestion= */ true,
+                      blockDefinition,
+                      programId)
+                  .render());
+        });
   }
 
   /**

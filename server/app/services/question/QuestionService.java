@@ -14,6 +14,10 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+
+import io.ebean.BeanState;
+import io.ebean.DB;
+import io.ebean.Transaction;
 import models.GeoJsonDataModel;
 import models.QuestionModel;
 import models.QuestionTag;
@@ -84,9 +88,12 @@ public final class QuestionService {
             /* previousDefinition= */ Optional.empty(),
             /* enumeratorImprovementsEnabled= */ enumeratorImprovementsEnabled);
 
+    boolean calledInTransaction = Transaction.current() != null;
     return transactionManager.execute(
         /* synchronousWork= */ () -> {
+          // DB access.
           ImmutableSet<CiviFormError> conflictErrors = checkConflicts(questionDefinition);
+          // DB access.
           ImmutableSet<CiviFormError> databaseErrors = checkDatabaseErrors(questionDefinition);
           ImmutableSet<CiviFormError> errors =
               ImmutableSet.<CiviFormError>builder()
@@ -98,10 +105,28 @@ public final class QuestionService {
             return ErrorAnd.error(errors);
           }
           QuestionModel question = new QuestionModel(questionDefinition);
-          question.addVersion(versionRepositoryProvider.get().getDraftVersionOrCreate());
+          VersionModel draftVersion = versionRepositoryProvider.get().getDraftVersionOrCreate();
+          question.addVersion(draftVersion);
           questionRepository.insertQuestionSync(question);
+          // The versions_questions row is written from the question side, which leaves the draft
+          // version's in-memory question list stale. Within an enclosing transaction that list is
+          // shared for the rest of the request, so a later draft lookup (see
+          // QuestionRepository#createOrUpdateDraft) would miss this question and insert a
+          // duplicate. Refresh to resync, as createOrUpdateDraft does after its own insert.
+          //draftVersion.refresh();
+        if(calledInTransaction) {
+          // If this method is in a larger transaction then invalidate the
+          // VersionModels lazy-loaded and cached view of questions since we
+          // just added one.
+          // Maybe we don't need to do the transaction check though.
+          BeanState beanState = DB.beanState(draftVersion);
+          beanState.setPropertyLoaded("questions", false);
+
+        }
           return ErrorAnd.of(question.getQuestionDefinition());
         },
+        // this makes nesting hard, but also this is not specifically correct
+        // as many DB accesses are done beyond the statement..
         /* onSerializationFailure= */ () -> {
           return ErrorAnd.error(
               ImmutableSet.of(
@@ -269,9 +294,11 @@ public final class QuestionService {
       QuestionDefinition updatedInitialQuestion =
           questionRepository.updateEnumeratorId(
               originalInitialQuestion, enumeratorQuestion.getId());
+      // transaction, second call in the higher flow.
       QuestionModel persisted = questionRepository.createOrUpdateDraft(updatedInitialQuestion);
       persistedInitialQuestion = questionRepository.getQuestionDefinition(persisted);
     } else {
+      // transaction, second call in the higher flow.
       ErrorAnd<QuestionDefinition, CiviFormError> copyResult =
           createCopy(originalInitialQuestion, Optional.of(enumeratorQuestion.getId()));
       if (copyResult.isError()) {
@@ -286,6 +313,7 @@ public final class QuestionService {
         new QuestionDefinitionBuilder(enumeratorQuestion)
             .setEnumeratorInitialQuestionId(Optional.of(persistedInitialQuestion.getId()))
             .build();
+    // transactions
     ErrorAnd<QuestionDefinition, CiviFormError> updatedEnumeratorQuestion =
         update(
             /* previousDefinition= */ Optional.of(enumeratorQuestion),

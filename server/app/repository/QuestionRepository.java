@@ -77,12 +77,16 @@ public final class QuestionRepository {
   }
 
   public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {
+    Transaction txn = Transaction.current();
+    logger.error("Passing through transaction! " + (txn != null ? "SET" :
+      "not set"));
     return supplyAsync(
         () ->
             database
                 .find(QuestionModel.class)
                 .setLabel("QuestionModel.findById")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
+                .usingTransaction(txn)
                 .setId(id)
                 .findOneOrEmpty(),
         dbExecutionContext);
