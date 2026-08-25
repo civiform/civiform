@@ -14,7 +14,6 @@ import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.StoredFileRepository;
 
@@ -28,7 +27,6 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
   private final Provider<StoredFileRepository> storedFileRepositoryProvider;
-  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String baseUrl;
 
   @Inject
@@ -36,13 +34,11 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
       Config configuration,
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
-      Provider<StoredFileRepository> storedFileRepositoryProvider,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      Provider<StoredFileRepository> storedFileRepositoryProvider) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
     this.storedFileRepositoryProvider = storedFileRepositoryProvider;
-    this.classLoaderExecutionContext = classLoaderExecutionContext;
     this.baseUrl = configuration.getString("base_url");
   }
 
@@ -75,8 +71,7 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
             client,
             profileFactory,
             applicantRepositoryProvider,
-            storedFileRepositoryProvider,
-            classLoaderExecutionContext));
+            storedFileRepositoryProvider));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");

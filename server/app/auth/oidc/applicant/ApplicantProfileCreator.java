@@ -20,7 +20,6 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import services.PhoneValidationResult;
 import services.PhoneValidationUtils;
 
@@ -40,9 +39,8 @@ public abstract class ApplicantProfileCreator extends CiviformOidcProfileCreator
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
-    super(configuration, client, params, classLoaderExecutionContext);
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
+    super(configuration, client, params);
     this.standardClaimsAttributeNames = checkNotNull(standardClaimsAttributeNames);
   }
 

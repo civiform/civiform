@@ -21,7 +21,6 @@ import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.credentials.OidcCredentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an IDCS
@@ -34,14 +33,8 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration oidcConfiguration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
-    super(
-        oidcConfiguration,
-        client,
-        params,
-        standardClaimsAttributeNames,
-        classLoaderExecutionContext);
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
+    super(oidcConfiguration, client, params, standardClaimsAttributeNames);
   }
 
   @Override

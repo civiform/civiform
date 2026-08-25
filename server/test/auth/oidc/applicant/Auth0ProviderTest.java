@@ -23,7 +23,6 @@ import org.pac4j.core.context.session.SessionStore;
 import org.pac4j.core.exception.http.FoundAction;
 import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.ResetPostgres;
@@ -63,8 +62,7 @@ public class Auth0ProviderTest extends ResetPostgres {
     auth0Provider =
         new Auth0ClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
-            instanceOf(ClassLoaderExecutionContext.class));
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository));
   }
 
   @Test

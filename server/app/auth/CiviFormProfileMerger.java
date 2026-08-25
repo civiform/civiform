@@ -1,14 +1,11 @@
 package auth;
 
-import static java.util.concurrent.CompletableFuture.supplyAsync;
-
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.CiviFormAccountMerger;
 import repository.StoredFileRepository;
@@ -20,18 +17,15 @@ public final class CiviFormProfileMerger {
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
   private final CiviFormAccountMerger accountMerger;
-  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final TransactionManager transactionManager;
 
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
-      Provider<StoredFileRepository> storedFileRepositoryProvider,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      Provider<StoredFileRepository> storedFileRepositoryProvider) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
     this.accountMerger = new CiviFormAccountMerger(storedFileRepositoryProvider);
-    this.classLoaderExecutionContext = classLoaderExecutionContext;
     this.transactionManager = new TransactionManager();
   }
 
@@ -55,22 +49,18 @@ public final class CiviFormProfileMerger {
       Optional<CiviFormProfile> optionalGuestProfile,
       Function<Optional<CiviFormProfile>, UserProfile> mergeFunction,
       NewGuestMergeLaunchStage newMergeStage) {
-    return supplyAsync(
-            () ->
-                transactionManager.execute(
-                    () -> {
-                      // Merge the applicant with the guest profile.
-                      Optional<CiviFormProfile> optionalApplicantProfile =
-                          mergeApplicantAndGuestProfile(
-                              optionalApplicantInDatabase, optionalGuestProfile, newMergeStage);
+    return transactionManager.execute(
+        () -> {
+          // Merge the applicant with the guest profile.
+          Optional<CiviFormProfile> optionalApplicantProfile =
+              mergeApplicantAndGuestProfile(
+                  optionalApplicantInDatabase, optionalGuestProfile, newMergeStage);
 
-                      // Let the caller finish the merge process. The merge
-                      // function will handle the profile missing as
-                      // appropriate.
-                      return Optional.of(mergeFunction.apply(optionalApplicantProfile));
-                    }),
-            classLoaderExecutionContext.current())
-        .join();
+          // Let the caller finish the merge process. The merge
+          // function will handle the profile missing as
+          // appropriate.
+          return Optional.of(mergeFunction.apply(optionalApplicantProfile));
+        });
   }
 
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(

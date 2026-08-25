@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 
 /**
  * This class implements a `Provider` of a generic `OidcClient` for use in authenticating and
@@ -17,7 +16,6 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
  */
 public class GenericOidcClientProvider extends OidcClientProvider {
 
-  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private static final String ATTRIBUTE_PREFIX = "admin_generic_oidc_";
   private static final ImmutableList<String> DEFAULT_SCOPES =
       ImmutableList.of("openid", "profile", "email");
@@ -32,10 +30,8 @@ public class GenericOidcClientProvider extends OidcClientProvider {
   private static final String USE_CSRF = "use_csrf";
 
   @Inject
-  GenericOidcClientProvider(
-      OidcClientProviderParams params, ClassLoaderExecutionContext classLoaderExecutionContext) {
+  GenericOidcClientProvider(OidcClientProviderParams params) {
     super(params);
-    this.classLoaderExecutionContext = classLoaderExecutionContext;
   }
 
   @Override
@@ -51,7 +47,7 @@ public class GenericOidcClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new GenericOidcProfileCreator(config, client, params, classLoaderExecutionContext);
+    return new GenericOidcProfileCreator(config, client, params);
   }
 
   @Override

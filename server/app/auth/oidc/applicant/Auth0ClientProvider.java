@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;
 import org.pac4j.oidc.client.OidcClient;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 
 /**
  * Provider for auth0.com. Auth0 mostly implements OIDC protocol so it relies on base implementation
@@ -19,9 +18,8 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 public class Auth0ClientProvider extends GenericOidcClientProvider {
 
   @Inject
-  public Auth0ClientProvider(
-      OidcClientProviderParams params, ClassLoaderExecutionContext classLoaderExecutionContext) {
-    super(params, classLoaderExecutionContext);
+  public Auth0ClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override

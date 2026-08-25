@@ -16,7 +16,6 @@ import org.junit.Test;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
@@ -43,8 +42,7 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
             client_config,
             client,
             OidcClientProviderParams.create(
-                serverConfig, profileFactory, () -> accountRepository, () -> storedFileRepository),
-            instanceOf(ClassLoaderExecutionContext.class));
+                serverConfig, profileFactory, () -> accountRepository, () -> storedFileRepository));
   }
 
   @Test

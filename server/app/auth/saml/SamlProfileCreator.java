@@ -28,7 +28,6 @@ import org.pac4j.saml.config.SAML2Configuration;
 import org.pac4j.saml.profile.SAML2Profile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.StoredFileRepository;
 
@@ -51,17 +50,13 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
       SAML2Client client,
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
-      Provider<StoredFileRepository> storedFileRepositoryProvider,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      Provider<StoredFileRepository> storedFileRepositoryProvider) {
     super();
     this.profileFactory = Preconditions.checkNotNull(profileFactory);
     this.applicantRepositoryProvider = Preconditions.checkNotNull(applicantRepositoryProvider);
     this.civiFormProfileMerger =
         new CiviFormProfileMerger(
-            profileFactory,
-            applicantRepositoryProvider,
-            storedFileRepositoryProvider,
-            classLoaderExecutionContext);
+            profileFactory, applicantRepositoryProvider, storedFileRepositoryProvider);
     this.saml2Client = client;
     this.saml2Configuration = configuration;
     // TODO(#12696): Handle enhanced logout.

@@ -4,7 +4,6 @@ import auth.oidc.OidcClientProviderParams;
 import auth.oidc.StandardClaimsAttributeNames;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -16,8 +15,7 @@ public class GenericApplicantProfileCreator extends ApplicantProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      StandardClaimsAttributeNames standardClaimsAttributeNames,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
-    super(configuration, client, params, standardClaimsAttributeNames, classLoaderExecutionContext);
+      StandardClaimsAttributeNames standardClaimsAttributeNames) {
+    super(configuration, client, params, standardClaimsAttributeNames);
   }
 }

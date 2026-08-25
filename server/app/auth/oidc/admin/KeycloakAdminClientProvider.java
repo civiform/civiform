@@ -9,7 +9,6 @@ import java.util.Optional;
 import org.pac4j.oidc.config.KeycloakOidcConfiguration;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.Environment;
-import play.libs.concurrent.ClassLoaderExecutionContext;
 
 /**
  * WARNING! This is EXPERIMENTAL only and not production ready
@@ -18,11 +17,8 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
  */
 public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
   @Inject
-  public KeycloakAdminClientProvider(
-      OidcClientProviderParams params,
-      Environment env,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
-    super(params, classLoaderExecutionContext);
+  public KeycloakAdminClientProvider(OidcClientProviderParams params, Environment env) {
+    super(params);
 
     if (env.isProd()) {
       throw new UnsupportedOperationException(
