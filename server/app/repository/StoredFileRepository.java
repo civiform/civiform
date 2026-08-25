@@ -11,6 +11,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+
+import io.ebean.Transaction;
 import models.StoredFileModel;
 import services.cloud.ApplicantFileNameFormatter;
 
@@ -60,12 +62,14 @@ public final class StoredFileRepository {
     // The strict prefix of the file name from the start of the name pattern.
     String fileNamePrefix =
         ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(applicantId);
+    Transaction txn = Transaction.current();
     return supplyAsync(
         () ->
             database
                 .find(StoredFileModel.class)
                 .setLabel("StoredFile.findListByApplicant")
                 .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicant"))
+                .usingTransaction(txn)
                 .where()
                 // Note: The indexes only support exact and prefix pattern
                 // matches as this is doing.
