@@ -26,9 +26,9 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.play.PlayWebContext;
 import play.api.test.Helpers;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
 
@@ -64,7 +64,7 @@ public class LoginGovClientProviderTest extends ResetPostgres {
         new LoginGovClientProvider(
             OidcClientProviderParams.create(
                 config, profileFactory, () -> accountRepository, () -> storedFileRepository),
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(ClassLoaderExecutionContext.class));
   }
 
   @Test

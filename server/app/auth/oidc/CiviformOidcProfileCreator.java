@@ -27,8 +27,8 @@ import org.pac4j.oidc.profile.OidcProfile;
 import org.pac4j.oidc.profile.creator.OidcProfileCreator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
 /**
@@ -49,7 +49,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
       OidcConfiguration configuration,
       OidcClient client,
       OidcClientProviderParams params,
-      DatabaseExecutionContext dbExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     super(Preconditions.checkNotNull(configuration), Preconditions.checkNotNull(client));
     this.profileFactory = Preconditions.checkNotNull(params.profileFactory());
     this.accountRepositoryProvider = Preconditions.checkNotNull(params.accountRepositoryProvider());
@@ -58,7 +58,7 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
             profileFactory,
             accountRepositoryProvider,
             Preconditions.checkNotNull(params.storedFileRepositoryProvider()),
-            dbExecutionContext);
+            classLoaderExecutionContext);
     this.settingsManifest =
         new SettingsManifest(Preconditions.checkNotNull(params.configuration()));
   }

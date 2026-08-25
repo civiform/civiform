@@ -8,9 +8,9 @@ import javax.inject.Provider;
 import models.AccountModel;
 import models.ApplicantModel;
 import org.pac4j.core.profile.UserProfile;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
 import repository.CiviFormAccountMerger;
-import repository.DatabaseExecutionContext;
 import repository.StoredFileRepository;
 import repository.TransactionManager;
 
@@ -20,18 +20,18 @@ public final class CiviFormProfileMerger {
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
   private final CiviFormAccountMerger accountMerger;
-  private final DatabaseExecutionContext dbExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final TransactionManager transactionManager;
 
   public CiviFormProfileMerger(
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
       Provider<StoredFileRepository> storedFileRepositoryProvider,
-      DatabaseExecutionContext dbExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     this.profileFactory = profileFactory;
     this.applicantRepositoryProvider = applicantRepositoryProvider;
     this.accountMerger = new CiviFormAccountMerger(storedFileRepositoryProvider);
-    this.dbExecutionContext = dbExecutionContext;
+    this.classLoaderExecutionContext = classLoaderExecutionContext;
     this.transactionManager = new TransactionManager();
   }
 
@@ -69,7 +69,7 @@ public final class CiviFormProfileMerger {
                       // appropriate.
                       return Optional.of(mergeFunction.apply(optionalApplicantProfile));
                     }),
-            dbExecutionContext)
+            classLoaderExecutionContext.current())
         .join();
   }
 

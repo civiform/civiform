@@ -14,8 +14,8 @@ import org.pac4j.saml.client.SAML2Client;
 import org.pac4j.saml.config.SAML2Configuration;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.StoredFileRepository;
 
 // TODO(#3856): Update with a non deprecated saml impl.
@@ -28,7 +28,7 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> applicantRepositoryProvider;
   private final Provider<StoredFileRepository> storedFileRepositoryProvider;
-  private final DatabaseExecutionContext dbExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final String baseUrl;
 
   @Inject
@@ -37,12 +37,12 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
       ProfileFactory profileFactory,
       Provider<AccountRepository> applicantRepositoryProvider,
       Provider<StoredFileRepository> storedFileRepositoryProvider,
-      DatabaseExecutionContext dbExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.applicantRepositoryProvider = checkNotNull(applicantRepositoryProvider);
     this.storedFileRepositoryProvider = storedFileRepositoryProvider;
-    this.dbExecutionContext = dbExecutionContext;
+    this.classLoaderExecutionContext = classLoaderExecutionContext;
     this.baseUrl = configuration.getString("base_url");
   }
 
@@ -76,7 +76,7 @@ public class LoginRadiusClientProvider implements Provider<SAML2Client> {
             profileFactory,
             applicantRepositoryProvider,
             storedFileRepositoryProvider,
-            dbExecutionContext));
+            classLoaderExecutionContext));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.setCallbackUrl(baseUrl + "/callback");

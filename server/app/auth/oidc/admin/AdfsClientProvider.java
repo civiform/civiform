@@ -12,8 +12,8 @@ import java.util.Collections;
 import org.pac4j.core.http.callback.PathParameterCallbackUrlResolver;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.StoredFileRepository;
 
 /** Provider class for the AD OIDC Client. */
@@ -24,7 +24,7 @@ public class AdfsClientProvider implements Provider<OidcClient> {
   private final ProfileFactory profileFactory;
   private final Provider<AccountRepository> accountRepositoryProvider;
   private final Provider<StoredFileRepository> storedFileRepositoryProvider;
-  private final DatabaseExecutionContext dbExecutionContext;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   public AdfsClientProvider(
@@ -32,12 +32,12 @@ public class AdfsClientProvider implements Provider<OidcClient> {
       ProfileFactory profileFactory,
       Provider<AccountRepository> accountRepositoryProvider,
       Provider<StoredFileRepository> storedFileRepositoryProvider,
-      DatabaseExecutionContext dbExecutionContext) {
+      ClassLoaderExecutionContext classLoaderExecutionContext) {
     this.configuration = checkNotNull(configuration);
     this.profileFactory = checkNotNull(profileFactory);
     this.accountRepositoryProvider = checkNotNull(accountRepositoryProvider);
     this.storedFileRepositoryProvider = storedFileRepositoryProvider;
-    this.dbExecutionContext = dbExecutionContext;
+    this.classLoaderExecutionContext = classLoaderExecutionContext;
     this.baseUrl = configuration.getString("base_url");
   }
 
@@ -99,7 +99,7 @@ public class AdfsClientProvider implements Provider<OidcClient> {
                 profileFactory,
                 accountRepositoryProvider,
                 storedFileRepositoryProvider),
-            dbExecutionContext));
+            classLoaderExecutionContext));
 
     client.setCallbackUrlResolver(new PathParameterCallbackUrlResolver());
     client.init();
