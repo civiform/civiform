@@ -6,13 +6,12 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 import com.google.common.collect.ImmutableList;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.Transaction;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
-
-import io.ebean.Transaction;
 import models.StoredFileModel;
 import services.cloud.ApplicantFileNameFormatter;
 
