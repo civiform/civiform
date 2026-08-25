@@ -4,6 +4,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 
 import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
+import forms.questions.MultiOptionQuestionForm;
 import forms.questions.QuestionForm;
 import java.util.List;
 import java.util.Locale;
@@ -94,6 +95,10 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   // YES_NO: the option rows to render. Null for other question types.
   private final YesNoConfig yesNoConfig;
 
+  // CHECKBOX / DROPDOWN / RADIO_BUTTON: whether the per-option score inputs render (the
+  // ANSWER_OPTION_SCORING_ENABLED flag is on and the question type supports scores).
+  private final boolean showScores;
+
   // Error message shown as a toast (already carries the "Error: " prefix)
   private final Optional<String> errorMessage;
   // Random id for the toast container. Null when there is no error message.
@@ -133,6 +138,17 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
    */
   public String randomFieldId() {
     return RandomStringUtils.randomAlphabetic(8);
+  }
+
+  /**
+   * The display value for the score input at {@code index} of a bound score list, formatted without
+   * trailing zeros. Null (attribute omitted) when the entry is missing, blank, or unparseable.
+   */
+  public String scoreDisplayValue(List<String> scores, int index) {
+    if (index >= scores.size()) {
+      return null;
+    }
+    return MultiOptionQuestionForm.formatScoreForDisplay(scores.get(index)).orElse(null);
   }
 
   /** Whether there is a type-specific question config section. */

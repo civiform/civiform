@@ -1,6 +1,7 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  enableFeatureFlag,
   disableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
@@ -604,6 +605,54 @@ test.describe('normal question lifecycle', () => {
       await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
         'readonly',
       )
+    })
+  })
+
+  test('radio and checkbox questions show optional score fields when flag enabled', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('radio button question', async () => {
+      await adminQuestions.startCreatingQuestion(
+        '#create-radio_button-question',
+      )
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputShown(0)
+    })
+
+    await test.step('checkbox question', async () => {
+      await adminQuestions.startCreatingQuestion('#create-checkbox-question')
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputShown(0)
+    })
+  })
+
+  test('radio and dropdown questions hide optional score fields when flag disabled', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await disableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('radio button question', async () => {
+      await adminQuestions.startCreatingQuestion(
+        '#create-radio_button-question',
+      )
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
+    })
+
+    await test.step('checkbox question', async () => {
+      await adminQuestions.startCreatingQuestion('#create-checkbox-question')
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
     })
   })
 })
