@@ -28,6 +28,7 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     // Build enumerator options
@@ -51,6 +52,7 @@ public final class QuestionFormPageMapper {
             mapSettings,
             apiBridgeEnabled,
             enumeratorImprovementsEnabled,
+            imagesInQuestionFeatureEnabled,
             readOnlyQuestionService,
             errorMessage)
         .editMode(false)
@@ -67,6 +69,7 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     String enumeratorDisplayName =
@@ -77,6 +80,7 @@ public final class QuestionFormPageMapper {
             mapSettings,
             apiBridgeEnabled,
             enumeratorImprovementsEnabled,
+            imagesInQuestionFeatureEnabled,
             readOnlyQuestionService,
             errorMessage)
         .editMode(true)
@@ -92,6 +96,7 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     QuestionType questionType = questionForm.getQuestionType();
@@ -144,6 +149,7 @@ public final class QuestionFormPageMapper {
         .showDisplayModeFields(showDisplayModeFields)
         .displayMode(questionForm.getDisplayMode().getValue())
         .enumeratorImprovementsEnabled(enumeratorImprovementsEnabled)
+        .imagesInQuestionFeatureEnabled(imagesInQuestionFeatureEnabled)
         .showPrimaryApplicantInfo(showPrimaryApplicantInfo)
         .paiTags(paiTags)
         .yesNoConfig(

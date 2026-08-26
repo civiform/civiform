@@ -71,7 +71,6 @@
     -webkit-appearance: none;
     margin: 0;
   }
-
   input[type='number'] {
     -moz-appearance: textfield;
   }
@@ -101,7 +100,6 @@
   .cf-question-bank-hidden .cf-question-bank-panel {
     @apply translate-x-full;
   }
-
   .cf-question-bank-hidden .cf-question-bank-glasspane {
     @apply opacity-0;
   }
@@ -119,7 +117,6 @@
   input[type='checkbox']:focus {
     @apply outline-none;
   }
-
   /* Mimics the focus outline styles from the checkbox or radio input on the label */
   .cf-radio-option:focus-within {
     @apply border-4;
@@ -136,8 +133,8 @@
 
   .filter-chip {
     @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm
-    has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
-    has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
+     has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
+      has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
   }
 
   /* The purpose of these classes are to help reduce the page load size cause by duplication of all these on each question. */
@@ -166,7 +163,6 @@
   .question-bank-add-button:hover {
     background-color: #e5e7eb;
   }
-
   .question-bank-info-cell {
     font-weight: bold;
     align-items: center;
@@ -229,4 +225,5 @@
   .usa-file-input__input .usa-sr-only {
     display: none !important;
   }
+
 }

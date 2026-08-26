@@ -68,7 +68,7 @@
       </th:block>
 
       <th:block
-        th:if="${model.editMode and model.questionTypeName == 'STATIC'}"
+        th:if="${model.editMode and model.questionTypeName == 'STATIC' and model.imagesInQuestionFeatureEnabled}"
       >
         <div class="usa-form-group">
           <label class="usa-label" for="question-image-input"

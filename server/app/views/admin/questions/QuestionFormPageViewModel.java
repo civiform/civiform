@@ -99,6 +99,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   // Random id for the toast container. Null when there is no error message.
   private final String errorToastId;
 
+  private final boolean imagesInQuestionFeatureEnabled;
+
   /** Page title/heading, with the type label lowercased. */
   public String getTitle() {
     return String.format(
