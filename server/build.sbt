@@ -29,7 +29,7 @@ lazy val root = (project in file("."))
       javaJdbc,
       javaWs,
       // Collections
-      "com.google.guava" % "guava" % "33.6.0-jre",
+      "com.google.guava" % "guava" % "33.7.1-jre",
       "com.google.auto" % "auto-common" % "1.2.2",
 
       // JSON libraries
@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.53.1",
-      "software.amazon.awssdk" % "ses" % "2.53.1",
+      "software.amazon.awssdk" % "s3" % "2.54.1",
+      "software.amazon.awssdk" % "ses" % "2.54.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -79,7 +79,7 @@ lazy val root = (project in file("."))
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.6.0-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.7.1-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
@@ -133,13 +133,13 @@ lazy val root = (project in file("."))
 
       // Explicitly include Pekko libraries that otherwise would be
       // incompatible due to version mismatches with the default versions.
-      "org.apache.pekko" %% "pekko-actor-typed" % "1.6.0",
-      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.6.0",
-      "org.apache.pekko" %% "pekko-slf4j" % "1.6.0",
-      "org.apache.pekko" %% "pekko-stream-testkit" % "1.6.0",
+      "org.apache.pekko" %% "pekko-actor-typed" % "1.7.0",
+      "org.apache.pekko" %% "pekko-serialization-jackson" % "1.7.0",
+      "org.apache.pekko" %% "pekko-slf4j" % "1.7.0",
+      "org.apache.pekko" %% "pekko-stream-testkit" % "1.7.0",
 
       // Apache library for byte detection
-      "org.apache.tika" % "tika-core" % "3.3.2",
+      "org.apache.tika" % "tika-core" % "4.0.0",
 
       // Url detector for program descriptions.
       "com.linkedin.urls" % "url-detector" % "0.1.17",
@@ -156,11 +156,11 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.53",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.54",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.46",
 
       // JSON Schema validation
-      "com.networknt" % "json-schema-validator" % "2.0.4",
+      "com.networknt" % "json-schema-validator" % "2.0.7",
 
       // Logstash to write JSON formatted log lines with logback
       "net.logstash.logback" % "logstash-logback-encoder" % "8.1"

@@ -28,7 +28,7 @@
     "@typescript-eslint/parser": "8.67.0",
     "@vitest/coverage-v8": "^4.0.16",
     "autoprefixer": "^10.4.16",
-    "eslint": "10.8.1",
+    "eslint": "10.9.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
@@ -48,7 +48,7 @@
     "@azure/storage-blob": "^12.27.0",
     "@uswds/uswds": "^3.6.0",
     "cleave.js": "1.6.0",
-    "dompurify": "3.4.13",
+    "dompurify": "3.4.14",
     "maplibre-gl": "^5.6.1",
     "markdown-it": "15.0.0",
     "swagger-ui-dist": "^5.18.2"

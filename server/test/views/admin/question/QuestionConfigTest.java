@@ -3,6 +3,7 @@ package views.admin.question;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static play.test.Helpers.stubMessagesApi;
 
 import com.google.common.collect.ImmutableList;
@@ -169,6 +170,65 @@ public class QuestionConfigTest extends ResetPostgres {
     assertThat(result).contains("existing-option-admin-b");
     assertThat(result).contains("new-option-admin-c");
     assertThat(result).contains("new-option-admin-d");
+  }
+
+  @Test
+  public void checkboxForm_scoringFlagEnabled_rendersScoreInputsWithValues() {
+    when(settingsManifest.getAnswerOptionScoringEnabled(request)).thenReturn(true);
+    CheckboxQuestionForm form = new CheckboxQuestionForm();
+    form.setOptions(ImmutableList.of("option-a", "option-b"));
+    form.setOptionAdminNames(ImmutableList.of("option-admin-a", "option-admin-b"));
+    form.setOptionIds(ImmutableList.of(1L, 2L));
+    form.setOptionScores(ImmutableList.of("4.25"));
+    form.setNewOptions(ImmutableList.of("option-c"));
+    form.setNewOptionAdminNames(ImmutableList.of("option-admin-c"));
+    // Trailing zeros are stripped for display: -2.50 renders as -2.5.
+    form.setNewOptionScores(ImmutableList.of("-2.50"));
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).contains("Score");
+    assertThat(result).contains("cf-multi-option-score-input");
+    assertThat(result).contains("grid-rows-6");
+    assertThat(result).containsPattern("value=\"4.25\"[^>]*name=\"optionScores\\[\\]\"");
+    assertThat(result).containsPattern("value=\"*-2.5\"[^>]*name=\"newOptionScores\\[\\]\"");
+    // The unscored option renders an empty score input, keeping the lists parallel.
+    Matcher scoreInputs = Pattern.compile("name=\"optionScores\\[\\]\"").matcher(result);
+    assertThat(scoreInputs.results().count()).isEqualTo(2);
+  }
+
+  @Test
+  public void checkboxForm_scoringFlagDisabled_rendersNoScoreInputs() {
+    CheckboxQuestionForm form = new CheckboxQuestionForm();
+    form.setOptions(ImmutableList.of("option-a"));
+    form.setOptionAdminNames(ImmutableList.of("option-admin-a"));
+    form.setOptionIds(ImmutableList.of(1L));
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).doesNotContain("optionScores[]");
+    assertThat(result).doesNotContain("cf-multi-option-score-input");
+    assertThat(result).contains("grid-rows-4");
+  }
+
+  @Test
+  public void yesNoForm_scoringFlagEnabled_rendersNoScoreInputs() {
+    when(settingsManifest.getAnswerOptionScoringEnabled(request)).thenReturn(true);
+    YesNoQuestionForm form = new YesNoQuestionForm();
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).doesNotContain("optionScores[]");
+    assertThat(result).doesNotContain("cf-multi-option-score-input");
   }
 
   @Test

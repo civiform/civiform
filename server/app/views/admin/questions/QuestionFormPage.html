@@ -13,7 +13,7 @@
     <!--/* Markup cloned by the client when adding a new multi-option answer. */-->
     <template id="multi-option-question-answer-template">
       <div
-        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', '', '', ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', '', '', ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.showScores}, null, ${model.randomFieldId()})}"
       ></div>
     </template>
 
