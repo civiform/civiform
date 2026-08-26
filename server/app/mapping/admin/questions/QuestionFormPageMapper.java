@@ -156,7 +156,8 @@ public final class QuestionFormPageMapper {
         .enumeratorImprovementsEnabled(enumeratorImprovementsEnabled)
         .showPrimaryApplicantInfo(showPrimaryApplicantInfo)
         .paiTags(paiTags)
-        .imagesInQuestionFeatureEnabled(imagesInQuestionFeatureEnabled)
+        .imagesInQuestionFeatureEnabled(
+            imagesInQuestionFeatureEnabled && QuestionType.STATIC.equals(questionType))
         .yesNoConfig(
             questionType.equals(QuestionType.YES_NO)
                 ? YesNoConfigMapper.buildYesNoConfig((MultiOptionQuestionForm) questionForm)
