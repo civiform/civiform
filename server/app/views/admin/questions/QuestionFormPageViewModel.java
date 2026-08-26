@@ -125,6 +125,10 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
         : routes.AdminQuestionController.create(questionTypeName).url();
   }
 
+  public String getTranslationUrl() {
+    return routes.AdminQuestionTranslationsController.redirectToFirstLocale(questionName).url();
+  }
+
   public String getPreviewUrl() {
     return controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel)
         .url();

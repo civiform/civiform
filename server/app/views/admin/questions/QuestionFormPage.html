@@ -93,16 +93,7 @@
           >
           <div class="usa-hint" id="question-image-description-hint">
             Image description is required before uploading an image.
-            <a
-              th:if="${model.editMode and !#strings.isEmpty(model.questionName)}"
-              th:href="|/admin/questions/${model.questionName}/translations/edit|"
-              class="usa-link"
-              >Manage translations.</a
-            >
-            <a
-              th:unless="${model.editMode and !#strings.isEmpty(model.questionName)}"
-              href="#"
-              class="usa-link"
+            <a th:href="${model.getTranslationUrl()}" class="usa-link"
               >Manage translations.</a
             >
           </div>
