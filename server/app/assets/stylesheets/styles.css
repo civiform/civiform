@@ -61,7 +61,7 @@
     @apply bg-white text-gray-400 border border-gray-400;
   }
 
-  button[aria-expanded='true']>.cf-accordion-button {
+  button[aria-expanded='true'] > .cf-accordion-button {
     @apply rotate-180;
   }
 
@@ -107,7 +107,6 @@
   }
 
   @media screen and (min-width: 640px) {
-
     /* When expanded, the banner header was moving to the center because of margin-auto */
     .usa-banner__header--expanded .usa-banner__inner {
       margin-left: 0px;
@@ -136,7 +135,9 @@
   }
 
   .filter-chip {
-    @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100 has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
+    @apply border border-gray-700 rounded-full mr-2 mb-2 text-sm
+    has-[:checked]:bg-blue-100 has-[:checked]:border-blue-100
+    has-[:checked]:font-semibold has-[:checked]:text-blue-900 flex;
   }
 
   /* The purpose of these classes are to help reduce the page load size cause by duplication of all these on each question. */
