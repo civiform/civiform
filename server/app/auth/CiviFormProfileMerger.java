@@ -1,5 +1,7 @@
 package auth;
 
+import static java.util.concurrent.CompletableFuture.supplyAsync;
+
 import java.util.Optional;
 import java.util.function.Function;
 import javax.inject.Provider;
@@ -53,18 +55,22 @@ public final class CiviFormProfileMerger {
       Optional<CiviFormProfile> optionalGuestProfile,
       Function<Optional<CiviFormProfile>, UserProfile> mergeFunction,
       NewGuestMergeLaunchStage newMergeStage) {
-    return transactionManager.execute(
-        () -> {
-          // Merge the applicant with the guest profile.
-          Optional<CiviFormProfile> optionalApplicantProfile =
-              mergeApplicantAndGuestProfile(
-                  optionalApplicantInDatabase, optionalGuestProfile, newMergeStage);
+    return supplyAsync(
+            () ->
+                transactionManager.execute(
+                    () -> {
+                      // Merge the applicant with the guest profile.
+                      Optional<CiviFormProfile> optionalApplicantProfile =
+                          mergeApplicantAndGuestProfile(
+                              optionalApplicantInDatabase, optionalGuestProfile, newMergeStage);
 
-          // Let the caller finish the merge process. The merge
-          // function will handle the profile missing as
-          // appropriate.
-          return Optional.of(mergeFunction.apply(optionalApplicantProfile));
-        });
+                      // Let the caller finish the merge process. The merge
+                      // function will handle the profile missing as
+                      // appropriate.
+                      return Optional.of(mergeFunction.apply(optionalApplicantProfile));
+                    }),
+            dbExecutionContext)
+        .join();
   }
 
   private Optional<CiviFormProfile> mergeApplicantAndGuestProfile(
