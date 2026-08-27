@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.54.1",
-      "software.amazon.awssdk" % "ses" % "2.54.1",
+      "software.amazon.awssdk" % "s3" % "2.54.2",
+      "software.amazon.awssdk" % "ses" % "2.54.2",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -157,7 +157,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.54",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.46",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.47",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.7",

@@ -104,6 +104,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   // Random id for the toast container. Null when there is no error message.
   private final String errorToastId;
 
+  private final boolean imagesInQuestionFeatureEnabled;
+
   /** Page title/heading, with the type label lowercased. */
   public String getTitle() {
     return String.format(
@@ -121,6 +123,10 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
     return editMode
         ? routes.AdminQuestionController.update(questionId, questionTypeName).url()
         : routes.AdminQuestionController.create(questionTypeName).url();
+  }
+
+  public String getTranslationUrl() {
+    return routes.AdminQuestionTranslationsController.redirectToFirstLocale(questionName).url();
   }
 
   public String getPreviewUrl() {
