@@ -173,6 +173,13 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    boolean demoBannerEnabled = settingsManifest.getDemoBannerEnabled(request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (demoBannerEnabled) {
+      context.setVariable(
+          "demoBannerLearnMoreUrl", settingsManifest.getDemoBannerLearnMoreUrl(request).orElse(""));
+    }
+
     maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);

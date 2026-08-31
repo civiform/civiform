@@ -80,15 +80,22 @@
   </head>
 
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
+
   <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
     <th:block
       th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/Banner}"
-    ></th:block>
+    >
+    </th:block>
     <th:block
       th:unless="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
     ></th:block>
+    <th:block th:if="${layoutParams.addDemoModeBanner()}">
+      <div
+        th:replace="~{applicant/shared/NavigationFragment :: demoBanner}"
+      ></div>
+    </th:block>
 
     <div
       class="cf-admin-page-wrapper spacing-0 bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
@@ -98,7 +105,8 @@
       <th:block
         th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/AdminCommonHeader}"
-      ></th:block>
+      >
+      </th:block>
 
       <!--/* Heading */-->
       <section
@@ -165,12 +173,14 @@
       <th:block
         th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/Footer}"
-      ></th:block>
+      >
+      </th:block>
 
       <!--/* Google Tag Manager */-->
       <th:block
         th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-      ></th:block>
+      >
+      </th:block>
 
       <!--/* Scripts to be added at the end */-->
       <script

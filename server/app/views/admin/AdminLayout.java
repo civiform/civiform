@@ -178,6 +178,9 @@ public final class AdminLayout extends BaseHtmlLayout {
             .condWith(
                 !settingsManifest.getShowNotProductionBannerEnabled(request),
                 getGovBanner(Optional.empty()))
+            .condWith(
+                settingsManifest.getDemoBannerEnabled(request),
+                getDemoBanner(request, messagesApi.preferred(request)))
             .withClasses("position-fixed", "top-0", "width-full", "z-10");
 
     HeaderTag headerAccordion =

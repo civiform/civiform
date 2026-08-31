@@ -128,4 +128,35 @@ public class BaseHtmlLayoutTest extends ResetPostgres {
     String contentDiv = String.format("<div class=\"%s", "usa-banner__content");
     assertThat(banner.render()).contains(contentDiv);
   }
+
+  @Test
+  public void getDemoBanner_returnsBannerWithHeadingAndBody() {
+    play.i18n.Messages messages = instanceOf(play.i18n.MessagesApi.class).preferred(fakeRequest());
+    j2html.tags.specialized.DivTag banner = layout.getDemoBanner(fakeRequest(), messages);
+
+    String rendered = banner.render();
+    assertThat(rendered).contains("This is a demo site");
+    assertThat(rendered).contains("Demo mode informational alert");
+    assertThat(rendered).contains("Do not enter actual or personal data in this demo site.");
+  }
+
+  @Test
+  public void getDemoBanner_withLearnMoreUrl_containsLink() {
+    HashMap<String, String> config = new HashMap<>(DEFAULT_CONFIG);
+    config.put("demo_banner_learn_more_url", "https://example.com/demo-info");
+    layout =
+        new BaseHtmlLayout(
+            instanceOf(ViewUtils.class),
+            new SettingsManifest(ConfigFactory.parseMap(config)),
+            instanceOf(DeploymentType.class),
+            instanceOf(BundledAssetsFinder.class));
+
+    play.i18n.Messages messages = instanceOf(play.i18n.MessagesApi.class).preferred(fakeRequest());
+    j2html.tags.specialized.DivTag banner = layout.getDemoBanner(fakeRequest(), messages);
+
+    String rendered = banner.render();
+    assertThat(rendered).contains("This is a demo site");
+    assertThat(rendered).contains("https://example.com/demo-info");
+    assertThat(rendered).contains("here");
+  }
 }

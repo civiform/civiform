@@ -65,6 +65,11 @@
     <th:block
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
     ></th:block>
+    <th:block th:if="${layoutParams.addDemoModeBanner()}">
+      <div
+        th:replace="~{applicant/shared/NavigationFragment :: demoBanner}"
+      ></div>
+    </th:block>
 
     <!--/* Main */-->
     <main

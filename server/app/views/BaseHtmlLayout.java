@@ -1,9 +1,11 @@
 package views;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h4;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
@@ -14,11 +16,14 @@ import static j2html.TagCreator.script;
 import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
+import static j2html.TagCreator.text;
 import static j2html.TagCreator.title;
 import static views.BaseHtmlView.getCsrfToken;
 
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
+import j2html.tags.DomContent;
+import j2html.tags.specialized.ATag;
 import j2html.tags.specialized.DivTag;
 import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.ScriptTag;
@@ -383,5 +388,39 @@ public class BaseHtmlLayout {
                 ? maybeMessages.get().at(MessageKey.BANNER_TITLE.getKeyName())
                 : "This is an official government website.")
         .with(div().withClass("usa-accordion").with(bannerHeader, bannerContent));
+  }
+
+  /**
+   * Creates the demo banner which warns users that they are in a demo environment.
+   *
+   * @return a html div tag
+   */
+  public DivTag getDemoBanner(Http.RequestHeader request, Messages messages) {
+    Optional<String> maybeLearnMoreUrl = settingsManifest.getDemoBannerLearnMoreUrl(request);
+
+    DomContent textContent;
+    if (maybeLearnMoreUrl.isPresent() && !maybeLearnMoreUrl.get().isBlank()) {
+      String learnMoreUrl = maybeLearnMoreUrl.get();
+      ATag moreInfoLink =
+          a(messages.at("banner.demoBanner.linkText"))
+              .withHref(learnMoreUrl)
+              .withClasses("usa-link");
+      textContent = rawHtml(messages.at("banner.demoBanner.bodyWithLink", moreInfoLink.render()));
+    } else {
+      textContent = text(messages.at("banner.demoBanner.body"));
+    }
+
+    return div(
+        section(
+                div(div(
+                            h4(messages.at("label.demoBanner.heading"))
+                                .withClass("usa-alert__heading"),
+                            p(textContent).withClass("usa-alert__text"))
+                        .withClass("usa-alert__body"))
+                    .withClass("usa-alert"))
+            .withClasses(
+                "usa-site-alert", "usa-site-alert--info", "usa-site-alert--slim", "cf-alert")
+            .attr("role", "region")
+            .attr("aria-label", messages.at("label.demoBanner.label")));
   }
 }

@@ -139,4 +139,48 @@ public class AdminLayoutTest extends ResetPostgres {
     assertThat(html).doesNotContain("session-inactivity-warning-modal");
     assertThat(html).doesNotContain("session-length-warning-modal");
   }
+
+  @Test
+  public void getBundle_includesDemoBanner_whenEnabled() {
+    Http.Request request = fakeRequestBuilder().build();
+    when(settingsManifest.getDemoBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(request)).thenReturn(Optional.empty());
+
+    HtmlBundle bundle = adminLayout.getBundle(new HtmlBundle(request));
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).contains("This is a demo site");
+    assertThat(html).contains("Demo mode informational alert");
+    assertThat(html).contains("Do not enter actual or personal data in this demo site.");
+  }
+
+  @Test
+  public void getBundle_includesDemoBannerWithLearnMoreUrl_whenConfigured() {
+    Http.Request request = fakeRequestBuilder().build();
+    when(settingsManifest.getDemoBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(request))
+        .thenReturn(Optional.of("https://example.com/demo-learn-more"));
+
+    HtmlBundle bundle = adminLayout.getBundle(new HtmlBundle(request));
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).contains("This is a demo site");
+    assertThat(html).contains("https://example.com/demo-learn-more");
+    assertThat(html).contains("here");
+  }
+
+  @Test
+  public void getBundle_doesNotIncludeDemoBanner_whenDisabled() {
+    Http.Request request = fakeRequestBuilder().build();
+    when(settingsManifest.getDemoBannerEnabled(request)).thenReturn(false);
+
+    HtmlBundle bundle = adminLayout.getBundle(new HtmlBundle(request));
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).doesNotContain("This is a demo site");
+    assertThat(html).doesNotContain("Demo mode informational alert");
+  }
 }

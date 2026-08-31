@@ -782,6 +782,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
   }
 
+  /** The HREF for providing more information for the demo informational banner. */
+  public Optional<String> getDemoBannerLearnMoreUrl(RequestHeader request) {
+    return getString("DEMO_BANNER_LEARN_MORE_URL", request);
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -1088,6 +1093,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   /** Enable showing an immigration status informational banner to applicants. */
   public boolean getImmigrationStatusInfoBannerEnabled(RequestHeader request) {
     return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
+  }
+
+  /** Enable showing a demo informational banner to applicants and admins. */
+  public boolean getDemoBannerEnabled(RequestHeader request) {
+    return getBool("DEMO_BANNER_ENABLED", request);
   }
 
   /** Enable session timeout based on inactivity and maximum duration. */
@@ -2117,6 +2127,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " informational banner.",
                           /* isRequired= */ false,
                           SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DEMO_BANNER_LEARN_MORE_URL",
+                          "The HREF for providing more information for the demo informational"
+                              + " banner.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Observability",
@@ -2376,6 +2393,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "IMMIGRATION_STATUS_INFO_BANNER_ENABLED",
                           "Enable showing an immigration status informational banner to"
                               + " applicants.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DEMO_BANNER_ENABLED",
+                          "Enable showing a demo informational banner to applicants and admins.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),

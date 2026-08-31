@@ -1118,6 +1118,21 @@ banner.immigrationStatusInfoBanner.bodyWithLink=We will not ask about your citiz
 banner.immigrationStatusInfoBanner.linkText=here
 
 #------------------------------------------------------------------------------#
+# DEMO BANNER - alert explaining that this is a demo environment               #
+#------------------------------------------------------------------------------#
+
+# Header for demo banner alert
+label.demoBanner.heading=This is a demo site
+# Aria-label for demo banner alert
+label.demoBanner.label=Demo mode informational alert
+# Text in the demo banner explaining that this is a demo environment when no learn more link is configured
+banner.demoBanner.body=Do not enter actual or personal data in this demo site.
+# Text in the demo banner explaining that this is a demo environment - the placeholder says 'here' and is a link to more information
+banner.demoBanner.bodyWithLink=Do not enter actual or personal data in this demo site. You can learn more {0}.
+# Link for more info about the demo banner
+banner.demoBanner.linkText=here
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
