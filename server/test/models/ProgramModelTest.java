@@ -47,6 +47,20 @@ public class ProgramModelTest extends ResetPostgres {
   }
 
   @Test
+  public void usesScoring_roundTripsThroughDatabase() {
+    ProgramModel scoringProgram =
+        support.ProgramBuilder.newDraftProgram("scoring program").withUsesScoring(true).build();
+    ProgramModel plainProgram = support.ProgramBuilder.newDraftProgram("plain program").build();
+
+    ProgramModel foundScoring =
+        repo.lookupProgram(scoringProgram.id).toCompletableFuture().join().get();
+    ProgramModel foundPlain = repo.lookupProgram(plainProgram.id).toCompletableFuture().join().get();
+
+    assertThat(foundScoring.getProgramDefinition().usesScoring()).isTrue();
+    assertThat(foundPlain.getProgramDefinition().usesScoring()).isFalse();
+  }
+
+  @Test
   public void canSaveProgram() throws UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition =
         new QuestionDefinitionBuilder()
