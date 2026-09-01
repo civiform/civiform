@@ -368,8 +368,7 @@ public class ProgramModel extends BaseModel {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setLoginOnly(loginOnly)
-            // Rows created before the uses_scoring evolution may load a null column value.
-            .setUsesScoring(usesScoring != null && usesScoring)
+            .setUsesScoring(usesScoring)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
             .setApplicationSteps(ImmutableList.copyOf(applicationSteps))

@@ -1909,37 +1909,6 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .containsExactly(expectedBlockA, expectedBlockB, expectedBlockC, expectedBlockD);
   }
 
-  private ProgramDefinition minimalProgramDefinition(boolean usesScoring) {
-    ProgramDefinition.Builder builder =
-        ProgramDefinition.builder()
-            .setId(123L)
-            .setAdminName("uses-scoring-test")
-            .setAdminDescription("Admin description")
-            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
-            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
-            .setLocalizedShortDescription(
-                LocalizedStrings.of(Locale.US, "This program is for testing."))
-            .setLocalizedConfirmationMessage(LocalizedStrings.withEmptyDefault())
-            .setExternalLink("")
-            .setDisplayMode(DisplayMode.PUBLIC)
-            .setBlockDefinitions(ImmutableList.of())
-            .setProgramType(ProgramType.DEFAULT)
-            .setEligibilityIsGating(true)
-            .setLoginOnly(false)
-            .setAcls(new ProgramAcls())
-            .setCategories(ImmutableList.of())
-            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
-            .setBridgeDefinitions(ImmutableMap.of());
-    if (usesScoring) {
-      builder.setUsesScoring(true);
-    }
-    return builder.build();
-  }
-
-  private static ObjectMapper migrationStyleObjectMapper() {
-    return new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
-  }
-
   @Test
   public void usesScoring_unset_buildsAndReadsFalse() {
     // Builders that never call setUsesScoring must still build (deserialization-safe default).
@@ -1983,5 +1952,36 @@ public class ProgramDefinitionTest extends ResetPostgres {
     ProgramDefinition result = objectMapper.readValue(node.toString(), ProgramDefinition.class);
 
     assertThat(result.usesScoring()).isFalse();
+  }
+
+  private ProgramDefinition minimalProgramDefinition(boolean usesScoring) {
+    ProgramDefinition.Builder builder =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("uses-scoring-test")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedConfirmationMessage(LocalizedStrings.withEmptyDefault())
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setBlockDefinitions(ImmutableList.of())
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setLoginOnly(false)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of());
+    if (usesScoring) {
+      builder.setUsesScoring(true);
+    }
+    return builder.build();
+  }
+
+  private static ObjectMapper migrationStyleObjectMapper() {
+    return new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
   }
 }
