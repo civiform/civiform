@@ -3,10 +3,15 @@ package parsers.admin;
 import com.google.common.collect.ImmutableList;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.inject.Inject;
+import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.util.ByteString;
 import parsers.FileTypeSpecifier;
+import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
+import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
+import play.http.DefaultHttpErrorHandler;
 import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.Http;
@@ -22,6 +27,20 @@ public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipar
       Pattern.compile("/admin/questions/(\\d+)/edit/([^/]+)(/|$)");
 
   private long questionId;
+
+  @Inject
+  public QuestionImageStreamingMultipartBodyParser(
+      Materializer materializer,
+      DefaultHttpErrorHandler errorHandler,
+      MultipartUploadSinks streamingMultipartUploadSinks,
+      FileTypeValidation fileTypeValidation) {
+    super(
+        materializer,
+        errorHandler,
+        streamingMultipartUploadSinks,
+        fileTypeValidation,
+        MAX_FILE_SIZE);
+  }
 
   @Override
   public Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>> apply(
