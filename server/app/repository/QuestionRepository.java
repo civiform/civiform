@@ -305,6 +305,7 @@ public final class QuestionRepository {
    * <p>Questions collide if they share a name or a {@link QuestionDefinition#getQuestionNameKey()}.
    */
   public Optional<QuestionModel> findConflictingQuestion(QuestionDefinition newQuestionDefinition) {
+    // TODO(#13871): Optimize this so it doesn't read every question in the db.
     ConflictDetector conflictDetector = new ConflictDetector(newQuestionDefinition);
     database
         .find(QuestionModel.class)
