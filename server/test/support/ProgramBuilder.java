@@ -154,6 +154,7 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -272,6 +273,7 @@ public class ProgramBuilder {
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
@@ -304,6 +306,7 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));

@@ -220,49 +220,6 @@ public class ProgramModel extends BaseModel {
 
   /**
    * Construct a new Program object with the given program name, description, and block definitions.
-   * Includes program categories. The program does not use answer-option scoring.
-   */
-  public ProgramModel(
-      String adminName,
-      String adminDescription,
-      String defaultDisplayName,
-      String defaultDisplayDescription,
-      String defaultShortDescription,
-      String defaultConfirmationMessage,
-      String externalLink,
-      String displayMode,
-      ImmutableList<ProgramNotificationPreference> notificationPreferences,
-      ImmutableList<BlockDefinition> blockDefinitions,
-      VersionModel associatedVersion,
-      ProgramType programType,
-      boolean eligibilityIsGating,
-      boolean loginOnly,
-      ProgramAcls programAcls,
-      ImmutableList<CategoryModel> categories,
-      ImmutableList<ApplicationStep> applicationSteps) {
-    this(
-        adminName,
-        adminDescription,
-        defaultDisplayName,
-        defaultDisplayDescription,
-        defaultShortDescription,
-        defaultConfirmationMessage,
-        externalLink,
-        displayMode,
-        notificationPreferences,
-        blockDefinitions,
-        associatedVersion,
-        programType,
-        eligibilityIsGating,
-        loginOnly,
-        /* usesScoring= */ false,
-        programAcls,
-        categories,
-        applicationSteps);
-  }
-
-  /**
-   * Construct a new Program object with the given program name, description, and block definitions.
    * Includes program categories.
    */
   public ProgramModel(
