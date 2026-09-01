@@ -28,6 +28,8 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean answerOptionScoringEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     // Build enumerator options
@@ -51,6 +53,8 @@ public final class QuestionFormPageMapper {
             mapSettings,
             apiBridgeEnabled,
             enumeratorImprovementsEnabled,
+            answerOptionScoringEnabled,
+            imagesInQuestionFeatureEnabled,
             readOnlyQuestionService,
             errorMessage)
         .editMode(false)
@@ -67,6 +71,8 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean answerOptionScoringEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     String enumeratorDisplayName =
@@ -77,6 +83,8 @@ public final class QuestionFormPageMapper {
             mapSettings,
             apiBridgeEnabled,
             enumeratorImprovementsEnabled,
+            answerOptionScoringEnabled,
+            imagesInQuestionFeatureEnabled,
             readOnlyQuestionService,
             errorMessage)
         .editMode(true)
@@ -92,6 +100,8 @@ public final class QuestionFormPageMapper {
       MapQuestionSettingsPartialViewModel mapSettings,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled,
+      boolean answerOptionScoringEnabled,
+      boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage) {
     QuestionType questionType = questionForm.getQuestionType();
@@ -146,10 +156,13 @@ public final class QuestionFormPageMapper {
         .enumeratorImprovementsEnabled(enumeratorImprovementsEnabled)
         .showPrimaryApplicantInfo(showPrimaryApplicantInfo)
         .paiTags(paiTags)
+        .imagesInQuestionFeatureEnabled(
+            imagesInQuestionFeatureEnabled && QuestionType.STATIC.equals(questionType))
         .yesNoConfig(
             questionType.equals(QuestionType.YES_NO)
                 ? YesNoConfigMapper.buildYesNoConfig((MultiOptionQuestionForm) questionForm)
                 : null)
+        .showScores(answerOptionScoringEnabled && QuestionType.supportsOptionScores(questionType))
         .errorMessage(errorToastMessage)
         .errorToastId(errorToastMessage.isPresent() ? UUID.randomUUID().toString() : null);
   }

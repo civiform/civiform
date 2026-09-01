@@ -6,7 +6,7 @@ adminValidation.multiOptionAdminError=Admin names can only contain lowercase let
 adminValidation.multiOptionEmpty=Multi option questions cannot have blank options.
 # ----------------------------------------------------------------------
 %INPUT
-<div th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, null, '', '', 'field-1', 'field-2', 'field-3')}"></div>
+<div th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, null, '', '', 'field-1', 'field-2', 'field-3', false, null, 'field-4')}"></div>
 # ----------------------------------------------------------------------
 %OUTPUT
 <div

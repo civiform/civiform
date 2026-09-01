@@ -11,6 +11,16 @@
   labels: ["dependencies"],
   // Amount of time to wait after a release before opening a PR, to avoid chasing yanked or broken releases.
   minimumReleaseAge: "3 days",
+
+  // Throttle requests to Maven Central to reduce the chance of hitting its rate limits.
+  hostRules: [
+    {
+      matchHost: "repo.maven.apache.org",
+      concurrentRequestLimit: 2,
+      maxRequestsPerSecond: 1,
+    },
+  ],
+
   // These files deviate from standard compose naming convention. 
   // This makes sure renovate finds them.
   "docker-compose": {
@@ -24,6 +34,18 @@
     ],
   },
   packageRules: [
+    {
+      // These are locally-built images, not images published to Docker Hub.
+      // Prevent Renovate from attempting Docker Hub lookups for them.
+      matchDatasources: ["docker"],
+      matchPackageNames: [
+        "civiform",
+        "civiform-dev",
+        "civiform-mock-web-services",
+        "civiform-oidc-provider",
+      ],
+      enabled: false,
+    },
     {
       groupName: "autovalue",
       matchPackageNames: ["com.google.auto.value:{/,}**"],

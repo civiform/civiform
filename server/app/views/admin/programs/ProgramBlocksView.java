@@ -148,10 +148,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         program,
         blockDefinition.id(),
         new BlockForm(
-            blockDefinition.getFullName(),
-            blockDefinition.description(),
-            blockDefinition.namePrefix().orElse(""),
-            blockDefinition.isRepeated()),
+            blockDefinition.name(), blockDefinition.description(), blockDefinition.isRepeated()),
         blockDefinition,
         blockDefinition.programQuestionDefinitions(),
         message,
@@ -175,8 +172,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     String title =
         viewAllowsEditingProgram()
-            ? String.format("Edit %s", blockDefinition.getFullName())
-            : String.format("View %s", blockDefinition.getFullName());
+            ? String.format("Edit %s", blockDefinition.name())
+            : String.format("View %s", blockDefinition.name());
     Long programId = programDefinition.id();
 
     String blockUpdateAction =
@@ -435,17 +432,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
+      boolean enumeratorImprovementsEnabled =
+          settingsManifest.getEnumeratorImprovementsEnabled(request);
+      // Repeated screens get the subdirectory-arrow treatment when the flag is
+      // on: an arrow at the start of the row and collapsed (rather than reserved) empty
+      // visibility-icon space.
+      boolean isIndentedScreen = enumeratorImprovementsEnabled && level >= 1;
       // TODO: Not i18n safe.
       int numQuestions = blockDefinition.getQuestionCount();
       String questionCountText = String.format("Question count: %d", numQuestions);
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
-          && blockDefinition.getIsEnumerator()) {
+      if (enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator()) {
         questionCountText =
             (level > 0)
                 ? messages.at(MessageKey.TEXT_NESTED_REPEATED_SET.getKeyName())
                 : messages.at(MessageKey.TEXT_REPEATED_SET.getKeyName());
       }
-      String blockName = blockDefinition.getFullName();
+      String blockName = blockDefinition.name();
       // indentation value for enums and repeaters
       int listIndentationFactor = level * INDENTATION_FACTOR_INCREASE_ON_LEVEL;
       DivTag blockContent =
@@ -472,20 +474,43 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     programDefinition.id(), blockDefinition.id())
                 .url();
       }
-      // Show icon with blocks that have visibility conditions.
-      // Icon is always added for spacing, but is only visible for blocks that have visibility
-      // conditions.
-      String showOrHideVisibilityIcon =
-          blockDefinition.visibilityPredicate().isEmpty() ? "invisible" : "";
+      // Show the icon on blocks that have visibility conditions. On top-level screens the empty
+      // space is reserved ("invisible") for alignment; on indented screens it is collapsed
+      // ("hidden") so the screen name sits directly after the arrow.
+      String showOrHideVisibilityIcon;
+      if (!blockDefinition.visibilityPredicate().isEmpty()) {
+        showOrHideVisibilityIcon = "";
+      } else if (isIndentedScreen) {
+        showOrHideVisibilityIcon = "hidden";
+      } else {
+        showOrHideVisibilityIcon = "invisible";
+      }
       blockContent
           .withId(genericBlockDivId + blockDefinition.id())
+          .with(
+              iff(
+                  isIndentedScreen,
+                  Icons.svg(Icons.SUBDIRECTORY_ARROW_RIGHT)
+                      .withClasses(
+                          "w-6",
+                          "h-6",
+                          "self-start",
+                          "flex-shrink-0",
+                          level == 1 ? "ml-6" : "double-indentation")
+                      .attr("aria-hidden", "false")
+                      .attr("role", "img")
+                      .attr(
+                          "aria-label",
+                          messages.at(MessageKey.ARIA_LABEL_INDENTED_PAGE.getKeyName()))))
           .with(
               a().withClasses(
                       "w-5",
                       "h-5",
-                      "mr-0", // style for tablet and mobile
-                      "lg:mr-2", // style for desktop
-                      "self-center",
+                      // Indented screens rely on the row's gap for spacing, so the icon drops
+                      // its own right margin there.
+                      isIndentedScreen ? "" : "mr-0", // style for tablet and mobile
+                      isIndentedScreen ? "" : "lg:mr-2", // style for desktop
+                      isIndentedScreen ? "self-start" : "self-center",
                       "flex-shrink-0",
                       showOrHideVisibilityIcon)
                   .withHref(switchBlockLink)
@@ -626,7 +651,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             program.id(),
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
-            blockDefinition.getFullName(),
+            blockDefinition.name(),
             allQuestions,
             settingsManifest.getExpandedFormLogicEnabled());
 
@@ -638,7 +663,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   program,
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
-                  blockDefinition.getFullName(),
+                  blockDefinition.name(),
                   allQuestions,
                   settingsManifest.getExpandedFormLogicEnabled()));
     }
@@ -750,7 +775,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockHasEnumeratorQuestion,
                 request,
                 messages,
-                program.id(),
+                program,
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
                 optionalNewInitialQuestion));
@@ -873,7 +898,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockHasEnumeratorQuestion,
       Request request,
       Messages messages,
-      Long programId,
+      ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalEnumeratorQuestionCard,
       Optional<QuestionDefinition> optionalNewInitialQuestion) {
@@ -882,7 +907,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       return renderEnumeratorSetupSection(
           request,
           messages,
-          programId,
+          program.id(),
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
@@ -895,7 +920,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           optionalEnumeratorQuestionCard,
           blockHasEnumeratorQuestion,
           blockDefinition,
-          programId);
+          program);
     }
   }
 
@@ -904,19 +929,41 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
-      long programId) {
+      ProgramDefinition program) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             renderInitialQuestionDebugLine(blockDefinition),
+            renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
                 blockHasEnumeratorQuestion,
                 /* optionalParentEnumeratorBlock= */ Optional.empty(),
                 shouldShowNestedButton))
         .withId("repeated-set-question-section")
-        .attr("data-clear-enumerator-form-storage", programId + ":" + blockDefinition.id());
+        .attr("data-clear-enumerator-form-storage", program.id() + ":" + blockDefinition.id());
+  }
+
+  /**
+   * Renders a button that navigates to the first repeated (child) screen of the given enumerator
+   * block. Hidden when the enumerator block has no repeated screens.
+   */
+  private DomContent renderContinueToChildScreenButton(
+      Messages messages, ProgramDefinition program, BlockDefinition blockDefinition) {
+    Optional<BlockDefinition> firstRepeatedBlock =
+        program.getBlockDefinitionsForEnumerator(blockDefinition.id()).stream().findFirst();
+    if (firstRepeatedBlock.isEmpty()) {
+      return div();
+    }
+    String continueUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(
+                program.id(), firstRepeatedBlock.get().id())
+            .url();
+    return a().withHref(continueUrl)
+        .withClasses("usa-button", "margin-top-2")
+        .withText(messages.at(MessageKey.BUTTON_CONTINUE_TO_CHILD_SCREEN.getKeyName()))
+        .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
   }
 
   // TODO(#13393): Remove this debug line entirely once the UX migration of the
@@ -2046,7 +2093,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           .withId("block-delete-form")
           .with(
               div(
-                  div(join(blockDefinition.getFullName(), " includes ", b(listItemsInBlock + ".")))
+                  div(join(blockDefinition.name(), " includes ", b(listItemsInBlock + ".")))
                       .withClasses("mb-2"),
                   div("Are you sure you want to delete this screen?").withClasses("mb-4")),
               submitButton("Delete")
@@ -2062,7 +2109,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .setModalId("block-delete-modal")
         .setLocation(Modal.Location.ADMIN_FACING)
         .setContent(deleteBlockForm)
-        .setModalTitle(String.format("Delete %s?", blockDefinition.getFullName()))
+        .setModalTitle(String.format("Delete %s?", blockDefinition.name()))
         .setTriggerButtonContent(deleteScreenButton)
         .setWidth(Modal.Width.THIRD)
         .build();
@@ -2082,102 +2129,36 @@ public final class ProgramBlocksView extends ProgramBaseView {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
         form(csrfTag).withMethod(HttpVerbs.POST).withAction(blockUpdateAction);
-    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
-      blockDescriptionForm
-          .withId("block-edit-form")
-          .with(
-              div(
-                      h1("The screen name and description will help a user understand which part of"
-                              + " an application they are on.")
-                          .withClasses("text-base", "mb-2"),
-                      div(
-                          label("Screen name")
-                              .attr("for", "block-name-input")
-                              .withClasses(
-                                  "pointer-events-none",
-                                  "text-gray-600",
-                                  "text-base",
-                                  "px-1",
-                                  "py-2"),
-                          iff(
-                              blockForm.isRepeated(),
-                              p(messages.at(
-                                      MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION
-                                          .getKeyName()))
-                                  .withClasses(
-                                      "text-xs", "text-gray-500", "pb-3", "text-base", "px-1")
-                                  .attr("data-testid", "repeated-set-prefix-description")),
-                          div()
-                              .withClasses("flex")
-                              .condWith(
-                                  blockForm.isRepeated(),
-                                  label(blockForm.getNamePrefix())
-                                      .withClasses("text-black", "text-lg", "flex-auto", "py-2")
-                                      .attr("data-testid", "name-prefix"))
-                              .with(
-                                  input()
-                                      .attr("maxlength", 10000)
-                                      .withName("name")
-                                      .withValue(blockDefinition.name())
-                                      .withId("block-name-input")
-                                      .withClasses(
-                                          "flex-auto",
-                                          "px-3",
-                                          "bg-white",
-                                          "text-black",
-                                          "text-lg",
-                                          "py-2",
-                                          "block",
-                                          "outline-none",
-                                          "box-border",
-                                          "m-auto",
-                                          "border",
-                                          "border-gray-500",
-                                          "rounded-lg",
-                                          "focus:border-civiform-blue",
-                                          "placeholder-gray-500"),
-                                  div()
-                                      .withId("block-name-textarea-errors")
-                                      .withClasses("text-red-600", "text-xs", "p-1", "hidden"))),
-                      FieldWithLabel.textArea()
-                          .setId("block-description-textarea")
-                          .setFieldName("description")
-                          .setLabelText("Screen description")
-                          .setValue(blockForm.getDescription())
-                          .getTextareaTag())
-                  .withClasses("mx-4"),
-              submitButton("Save")
-                  .withId("update-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                  .isDisabled());
-    } else {
-      blockDescriptionForm
-          .withId("block-edit-form")
-          .with(
-              div(
-                      h1("The screen name and description will help a user understand which part of"
-                              + " an application they are on.")
-                          .withClasses("text-base", "mb-2"),
-                      FieldWithLabel.input()
-                          .setId("block-name-input")
-                          .setFieldName("name")
-                          .setLabelText("Screen name")
-                          .setValue(blockDefinition.name())
-                          .getInputTag(),
-                      FieldWithLabel.textArea()
-                          .setId("block-description-textarea")
-                          .setFieldName("description")
-                          .setLabelText("Screen description")
-                          .setValue(blockForm.getDescription())
-                          .getTextareaTag())
-                  .withClasses("mx-4"),
-              submitButton("Save")
-                  .withId("update-block-button")
-                  .withClasses(
-                      "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
-                  .isDisabled());
+    FieldWithLabel screenNameField =
+        FieldWithLabel.input()
+            .setId("block-name-input")
+            .setFieldName("name")
+            .setLabelText("Screen name")
+            .setValue(blockDefinition.name());
+    if (settingsManifest.getEnumeratorImprovementsEnabled(request) && blockForm.isRepeated()) {
+      screenNameField.setSubLabelText(
+          messages.at(MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION.getKeyName()));
     }
+    blockDescriptionForm
+        .withId("block-edit-form")
+        .with(
+            div(
+                    h1("The screen name and description will help a user understand which part of"
+                            + " an application they are on.")
+                        .withClasses("text-base", "mb-2"),
+                    screenNameField.getInputTag(),
+                    FieldWithLabel.textArea()
+                        .setId("block-description-textarea")
+                        .setFieldName("description")
+                        .setLabelText("Screen description")
+                        .setValue(blockForm.getDescription())
+                        .getTextareaTag())
+                .withClasses("mx-4"),
+            submitButton("Save")
+                .withId("update-block-button")
+                .withClasses(
+                    "mx-4", "my-1", "inline", "opacity-100", StyleUtils.disabled("opacity-50"))
+                .isDisabled());
     ButtonTag editScreenButton =
         ViewUtils.makeSvgTextButton("Edit screen name and description", Icons.EDIT)
             .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON);

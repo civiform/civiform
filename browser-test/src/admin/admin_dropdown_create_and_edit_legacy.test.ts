@@ -1,5 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {disableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from '../support'
+import {
+  enableFeatureFlag,
+  disableFeatureFlag,
+  loginAsAdmin,
+  waitForPageJsLoad,
+} from '../support'
 
 test.describe('create dropdown question with options', () => {
   test.beforeEach(async ({page}) => {
@@ -123,6 +128,132 @@ test.describe('create dropdown question with options', () => {
     await adminQuestions.expectExistingMultiOptionAnswer(1, {
       adminName: 'mango_admin',
       text: 'mango',
+    })
+  })
+
+  test('options scoring works correctly', async ({page, adminQuestions}) => {
+    const questionName = 'favorite ice cream'
+
+    await test.step(`setup`, async () => {
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+
+      await loginAsAdmin(page)
+
+      await page.click('text=Questions')
+      await waitForPageJsLoad(page)
+
+      await page.click('#create-question-button')
+      await page.click('#create-dropdown-question')
+      await waitForPageJsLoad(page)
+
+      // Fill in basic info
+      await page.fill('text=Question Text', 'questionText')
+      await page.fill('text=Question help text', 'helpText')
+      await page.fill('text=Administrative identifier', questionName)
+      await page.fill(
+        'text=Question note for administrative use only',
+        'description',
+      )
+    })
+
+    await test.step(`add options with scores`, async () => {
+      // Add three options
+      await page.click('#add-new-option')
+      await adminQuestions.fillMultiOptionAnswer(0, {
+        adminName: 'chocolate_admin',
+        text: 'chocolate',
+        score: '1',
+      })
+      await page.click('#add-new-option')
+      await adminQuestions.fillMultiOptionAnswer(1, {
+        adminName: 'vanilla_admin',
+        text: 'vanilla',
+        score: '2',
+      })
+      await page.click('#add-new-option')
+      await adminQuestions.fillMultiOptionAnswer(2, {
+        adminName: 'strawberry_admin',
+        text: 'strawberry',
+        score: '3',
+      })
+      await adminQuestions.clickSubmitButtonAndNavigate('Create')
+      await adminQuestions.expectDraftQuestionExist(questionName)
+    })
+
+    await test.step(`edit the question and check scores were preserved`, async () => {
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestions.expectExistingMultiOptionAnswer(0, {
+        adminName: 'chocolate_admin',
+        text: 'chocolate',
+        score: '1',
+      })
+      await adminQuestions.expectExistingMultiOptionAnswer(1, {
+        adminName: 'vanilla_admin',
+        text: 'vanilla',
+        score: '2',
+      })
+      await adminQuestions.expectExistingMultiOptionAnswer(2, {
+        adminName: 'strawberry_admin',
+        text: 'strawberry',
+        score: '3',
+      })
+    })
+
+    await test.step(`trigger missing score error`, async () => {
+      await adminQuestions.changeMultiOptionScore(1, '')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await expect(
+        page.getByRole('alert').filter({
+          hasText:
+            'Error: When creating a scored question, all options must include scores.',
+        }),
+      ).toBeVisible()
+    })
+
+    await test.step(`remove all scores and submit successfully`, async () => {
+      await adminQuestions.changeMultiOptionScore(0, '')
+      await adminQuestions.changeMultiOptionScore(1, '')
+      await adminQuestions.changeMultiOptionScore(2, '')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminQuestions.expectDraftQuestionExist(questionName)
+    })
+
+    await test.step(`confirm scores are preserved even when flag is turned off`, async () => {
+      // add scores back in
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestions.changeMultiOptionScore(0, '4')
+      await adminQuestions.changeMultiOptionScore(1, '5')
+      await adminQuestions.changeMultiOptionScore(2, '6')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminQuestions.expectDraftQuestionExist(questionName)
+
+      // disable flag and edit question
+      await disableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestions.expectMultiOptionScoreInputHidden(1)
+      await adminQuestions.expectMultiOptionScoreInputHidden(2)
+      await adminQuestions.expectMultiOptionScoreInputHidden(3)
+      await adminQuestions.changeMultiOptionAnswer(0, 'pistachio')
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+
+      // toggle flag on, edit question, see old scores preserved
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestions.expectExistingMultiOptionAnswer(0, {
+        adminName: 'chocolate_admin',
+        text: 'pistachio',
+        score: '4',
+      })
+      await adminQuestions.expectExistingMultiOptionAnswer(1, {
+        adminName: 'vanilla_admin',
+        text: 'vanilla',
+        score: '5',
+      })
+      await adminQuestions.expectExistingMultiOptionAnswer(2, {
+        adminName: 'strawberry_admin',
+        text: 'strawberry',
+        score: '6',
+      })
     })
   })
 })

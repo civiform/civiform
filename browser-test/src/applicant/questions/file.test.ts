@@ -88,6 +88,47 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
       await applicantQuestions.expectReviewPage()
     })
 
+    // After a file is uploaded, screen readers should announce the count of already-uploaded
+    // files rather than the browser-native "No file selected" text.
+    // The span is absent (not in DOM) with 0 files, present with singular text for 1 file,
+    // and present with plural text for 2+ files.
+    test('screen reader status reflects file count', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      // Note: usa-sr-only hides elements via CSS (position/clip), not display:none,
+      // so Playwright treats the span as visible even though it is visually hidden.
+      const srStatus = page.locator('[id^="cf-fileupload-sr-status-"]')
+
+      await test.step('Before upload: SR span is absent so browser uses native "No file selected"', async () => {
+        await expect(srStatus).not.toBeAttached()
+      })
+
+      await test.step('After 1 file: SR span shows singular count', async () => {
+        await applicantQuestions.answerFileUploadQuestion(
+          'some file',
+          'file.pdf',
+        )
+        await waitForHtmxReady(page)
+
+        await expect(srStatus).toBeVisible()
+        await expect(srStatus).toContainText('1 file already uploaded')
+      })
+
+      await test.step('After 2 files: SR span shows plural count', async () => {
+        await applicantQuestions.answerFileUploadQuestion(
+          'another file',
+          'file2.pdf',
+        )
+        await waitForHtmxReady(page)
+
+        await expect(srStatus).toBeVisible()
+        await expect(srStatus).toContainText('2 files already uploaded')
+      })
+    })
+
     /** Regression test for https://github.com/civiform/civiform/issues/6516. */
     test('missing file error disappears when file uploaded', async ({
       applicantQuestions,

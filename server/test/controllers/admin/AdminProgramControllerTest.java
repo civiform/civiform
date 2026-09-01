@@ -21,7 +21,6 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ProgramRepository;
@@ -88,7 +87,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
-            instanceOf(MessagesApi.class),
             instanceOf(SettingsManifest.class));
   }
 
