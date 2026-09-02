@@ -8,7 +8,6 @@ import static com.google.common.collect.Iterables.getOnlyElement;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -72,10 +71,7 @@ import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import services.settings.SettingsManifest;
 import views.PartialView;
-import views.admin.programs.ProgramPredicateConfigureView;
-import views.admin.programs.ProgramPredicatesEditView;
 import views.admin.programs.predicates.ConditionListPartialViewModel;
 import views.admin.programs.predicates.EditConditionPartialViewModel;
 import views.admin.programs.predicates.EditPredicatePageView;
@@ -99,15 +95,12 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
   private final PredicateGenerator predicateGenerator;
   private final ProgramService programService;
-  private final ProgramPredicatesEditView legacyPredicatesEditView;
-  private final ProgramPredicateConfigureView legacyPredicatesConfigureView;
   private final EditPredicatePageView editPredicatePageView;
   private final PartialView<FailedRequestPartialViewModel> failedRequestPartialView;
   private final PartialView<ConditionListPartialViewModel> conditionListPartialView;
   private final PartialView<SubconditionListPartialViewModel> subconditionListPartialView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
-  private final SettingsManifest settingsManifest;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final GeoJsonDataRepository geoJsonDataRepository;
 
@@ -137,8 +130,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   public AdminProgramBlockPredicatesController(
       PredicateGenerator predicateGenerator,
       ProgramService programService,
-      ProgramPredicatesEditView legacyPredicatesEditView,
-      ProgramPredicateConfigureView legacyPredicatesConfigureView,
       EditPredicatePageView editPredicatePageView,
       PartialView<FailedRequestPartialViewModel> failedRequestPartialView,
       PartialView<ConditionListPartialViewModel> conditionListPartialView,
@@ -148,20 +139,16 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
-      GeoJsonDataRepository geoJsonDataRepository,
-      SettingsManifest settingsManifest) {
+      GeoJsonDataRepository geoJsonDataRepository) {
     super(profileUtils, versionRepository);
     this.predicateGenerator = checkNotNull(predicateGenerator);
     this.programService = checkNotNull(programService);
-    this.legacyPredicatesEditView = checkNotNull(legacyPredicatesEditView);
-    this.legacyPredicatesConfigureView = checkNotNull(legacyPredicatesConfigureView);
     this.editPredicatePageView = checkNotNull(editPredicatePageView);
     this.failedRequestPartialView = checkNotNull(failedRequestPartialView);
     this.conditionListPartialView = checkNotNull(conditionListPartialView);
     this.subconditionListPartialView = checkNotNull(subconditionListPartialView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
   }
@@ -193,35 +180,29 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
       ImmutableList<QuestionDefinition> predicateQuestions =
           getAvailablePredicateQuestionDefinitions(
               programDefinition, blockDefinitionId, predicateUseCase);
-      if (settingsManifest.getExpandedFormLogicEnabled()) {
-        Optional<PredicateDefinition> maybePredicateDefinition =
-            getAvailablePredicateDefinition(programDefinition, blockDefinitionId, predicateUseCase);
+      Optional<PredicateDefinition> maybePredicateDefinition =
+          getAvailablePredicateDefinition(programDefinition, blockDefinitionId, predicateUseCase);
 
-        ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
-            buildConditionsListFromPredicateDefinition(
-                programId, blockDefinitionId, predicateUseCase, maybePredicateDefinition);
+      ImmutableList<EditConditionPartialViewModel> populatedConditionsList =
+          buildConditionsListFromPredicateDefinition(
+              programId, blockDefinitionId, predicateUseCase, maybePredicateDefinition);
 
-        EditPredicatePageViewModel model =
-            EditPredicatePageViewModel.builder()
-                .programDefinition(programDefinition)
-                .blockDefinition(blockDefinition)
-                .predicateUseCase(predicateUseCase)
-                .operatorScalarMap(getOperatorScalarMap())
-                .prePopulatedConditions(populatedConditionsList)
-                .hasAvailableQuestions(!predicateQuestions.isEmpty())
-                .rootLogicalOperator(getRootLogicalOperator(maybePredicateDefinition))
-                .eligibilityMessage(
-                    blockDefinition
-                        .localizedEligibilityMessage()
-                        .map(LocalizedStrings::getDefault)
-                        .orElse(""))
-                .build();
-        return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      return ok(
-          legacyPredicatesEditView.render(
-              request, programDefinition, blockDefinition, predicateQuestions, predicateUseCase));
+      EditPredicatePageViewModel model =
+          EditPredicatePageViewModel.builder()
+              .programDefinition(programDefinition)
+              .blockDefinition(blockDefinition)
+              .predicateUseCase(predicateUseCase)
+              .operatorScalarMap(getOperatorScalarMap())
+              .prePopulatedConditions(populatedConditionsList)
+              .hasAvailableQuestions(!predicateQuestions.isEmpty())
+              .rootLogicalOperator(getRootLogicalOperator(maybePredicateDefinition))
+              .eligibilityMessage(
+                  blockDefinition
+                      .localizedEligibilityMessage()
+                      .map(LocalizedStrings::getDefault)
+                      .orElse(""))
+              .build();
+      return ok(editPredicatePageView.render(request, model)).as(Http.MimeTypes.HTML);
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -229,239 +210,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
           String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
     } catch (QuestionNotFoundException e) {
       return notFound(e.getLocalizedMessage());
-    }
-  }
-
-  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
-      long programId, long blockDefinitionId, PredicateUseCase predicateUseCase)
-      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
-    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-    return getAvailablePredicateQuestionDefinitions(
-        programDefinition, blockDefinitionId, predicateUseCase);
-  }
-
-  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
-      ProgramDefinition programDefinition,
-      long blockDefinitionId,
-      PredicateUseCase predicateUseCase)
-      throws ProgramBlockDefinitionNotFoundException {
-    return switch (predicateUseCase) {
-      case ELIGIBILITY ->
-          programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
-      case VISIBILITY ->
-          programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId);
-    };
-  }
-
-  private Optional<PredicateDefinition> getAvailablePredicateDefinition(
-      ProgramDefinition programDefinition,
-      long blockDefinitionId,
-      PredicateUseCase predicateUseCase)
-      throws ProgramBlockDefinitionNotFoundException {
-    BlockDefinition blockDefinition =
-        programDefinition.blockDefinitions().stream()
-            .filter(block -> block.id() == blockDefinitionId)
-            .findFirst()
-            .orElseThrow(
-                () ->
-                    new ProgramBlockDefinitionNotFoundException(
-                        programDefinition.id(), blockDefinitionId));
-
-    return switch (predicateUseCase) {
-      case ELIGIBILITY ->
-          blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
-      case VISIBILITY -> blockDefinition.visibilityPredicate();
-    };
-  }
-
-  /**
-   * Creates a map of {@link Operater} name to a list of {@link Scalar} names that the operator can
-   * be used with. This is used on the client for filtering operator options based on a selected
-   * scalar.
-   */
-  @VisibleForTesting
-  static ImmutableMap<String, ImmutableList<String>> getOperatorScalarMap() {
-    return Arrays.stream(Operator.values())
-        .collect(
-            ImmutableMap.toImmutableMap(
-                Operator::name,
-                operator ->
-                    operator.getOperableTypes().stream()
-                        .map(Enum::name)
-                        .collect(ImmutableList.toImmutableList())));
-  }
-
-  /**
-   * POST endpoint for updating show-hide configurations.
-   *
-   * <p>TODO(#11764): Clean this up once expanded form logic is fully rolled out and this endpoint
-   * is unused in favor of updatePredicate.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateVisibility(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    try {
-      PredicateDefinition predicateDefinition =
-          predicateGenerator.legacyGeneratePredicateDefinition(
-              programService.getFullProgramDefinition(programId),
-              formFactory.form().bindFromRequest(request));
-
-      programService.setBlockVisibilityPredicate(
-          programId, blockDefinitionId, Optional.of(predicateDefinition));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(
-          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-    } catch (IllegalPredicateOrderingException | ProgramQuestionDefinitionNotFoundException e) {
-      return redirect(
-              routes.AdminProgramBlockPredicatesController.editVisibility(
-                  programId, blockDefinitionId))
-          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
-    }
-
-    return redirect(
-            routes.AdminProgramBlockPredicatesController.editVisibility(
-                programId, blockDefinitionId))
-        .flashing(FlashKey.SUCCESS, "Saved visibility condition");
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result configureNewVisibilityPredicate(
-      Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    DynamicForm form = formFactory.form().bindFromRequest(request);
-
-    try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
-
-      return ok(
-          legacyPredicatesConfigureView.renderNewVisibility(
-              request,
-              programDefinition,
-              blockDefinition,
-              getQuestionDefinitionsForForm(programDefinition, blockDefinition, form)));
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result configureExistingVisibilityPredicate(
-      Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
-
-      ImmutableList<Long> visibilityQuestionIds =
-          blockDefinition
-              .visibilityPredicate()
-              .orElseThrow(
-                  () ->
-                      new RuntimeException(
-                          String.format(
-                              "Block %d has no visibility predicate", blockDefinition.id())))
-              .getQuestions();
-
-      ImmutableList<QuestionDefinition> visibilityQuestionDefinitions =
-          getQuestionDefinitions(
-              programDefinition,
-              blockDefinition,
-              /* selectionPredicate= */ (QuestionDefinition questionDefinition) ->
-                  visibilityQuestionIds.contains(questionDefinition.getId()));
-
-      return ok(
-          legacyPredicatesConfigureView.renderExistingVisibility(
-              request, programDefinition, blockDefinition, visibilityQuestionDefinitions));
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result configureNewEligibilityPredicate(
-      Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    DynamicForm form = formFactory.form().bindFromRequest(request);
-
-    try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
-
-      return ok(
-          legacyPredicatesConfigureView.renderNewEligibility(
-              request,
-              programDefinition,
-              blockDefinition,
-              getQuestionDefinitionsForForm(programDefinition, blockDefinition, form)));
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result configureExistingEligibilityPredicate(
-      Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    try {
-      ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
-      BlockDefinition blockDefinition = programDefinition.getBlockDefinition(blockDefinitionId);
-
-      ImmutableList<Long> eligibilityQuestionIds =
-          blockDefinition
-              .eligibilityDefinition()
-              .orElseThrow(
-                  () ->
-                      new RuntimeException(
-                          String.format(
-                              "Block %d has no eligibility definition", blockDefinition.id())))
-              .predicate()
-              .getQuestions();
-
-      ImmutableList<QuestionDefinition> eligibilityQuestionDefinitions =
-          getQuestionDefinitions(
-              programDefinition,
-              blockDefinition,
-              /* selectionPredicate= */ (QuestionDefinition questionDefinition) ->
-                  eligibilityQuestionIds.contains(questionDefinition.getId()));
-
-      return ok(
-          legacyPredicatesConfigureView.renderExistingEligibility(
-              request, programDefinition, blockDefinition, eligibilityQuestionDefinitions));
-    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
-    }
-  }
-
-  private ImmutableList<QuestionDefinition> getQuestionDefinitionsForForm(
-      ProgramDefinition programDefinition, BlockDefinition blockDefinition, DynamicForm form) {
-    return getQuestionDefinitions(
-        programDefinition,
-        blockDefinition,
-        (QuestionDefinition questionDefinition) ->
-            form.rawData().containsKey(String.format("question-%d", questionDefinition.getId())));
-  }
-
-  private ImmutableList<QuestionDefinition> getQuestionDefinitions(
-      ProgramDefinition programDefinition,
-      BlockDefinition blockDefinition,
-      Predicate<QuestionDefinition> selectionPredicate) {
-
-    try {
-      return programDefinition
-          .getAvailablePredicateQuestionDefinitions(blockDefinition.id())
-          .stream()
-          .filter(selectionPredicate)
-          .collect(ImmutableList.toImmutableList());
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      throw new RuntimeException(e);
     }
   }
 
@@ -542,6 +290,65 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
         .selectedQuestionType(Optional.of(selectedQuestion.getQuestionType().getLabel()))
         .valueOptions(getValueOptionsForQuestion(selectedQuestion, userEnteredValue))
         .build();
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
+      long programId, long blockDefinitionId, PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
+    return getAvailablePredicateQuestionDefinitions(
+        programDefinition, blockDefinitionId, predicateUseCase);
+  }
+
+  private ImmutableList<QuestionDefinition> getAvailablePredicateQuestionDefinitions(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
+    return switch (predicateUseCase) {
+      case ELIGIBILITY ->
+          programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockDefinitionId);
+      case VISIBILITY ->
+          programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockDefinitionId);
+    };
+  }
+
+  private Optional<PredicateDefinition> getAvailablePredicateDefinition(
+      ProgramDefinition programDefinition,
+      long blockDefinitionId,
+      PredicateUseCase predicateUseCase)
+      throws ProgramBlockDefinitionNotFoundException {
+    BlockDefinition blockDefinition =
+        programDefinition.blockDefinitions().stream()
+            .filter(block -> block.id() == blockDefinitionId)
+            .findFirst()
+            .orElseThrow(
+                () ->
+                    new ProgramBlockDefinitionNotFoundException(
+                        programDefinition.id(), blockDefinitionId));
+
+    return switch (predicateUseCase) {
+      case ELIGIBILITY ->
+          blockDefinition.eligibilityDefinition().map(EligibilityDefinition::predicate);
+      case VISIBILITY -> blockDefinition.visibilityPredicate();
+    };
+  }
+
+  /**
+   * Creates a map of {@link Operater} name to a list of {@link Scalar} names that the operator can
+   * be used with. This is used on the client for filtering operator options based on a selected
+   * scalar.
+   */
+  @VisibleForTesting
+  static ImmutableMap<String, ImmutableList<String>> getOperatorScalarMap() {
+    return Arrays.stream(Operator.values())
+        .collect(
+            ImmutableMap.toImmutableMap(
+                Operator::name,
+                operator ->
+                    operator.getOperableTypes().stream()
+                        .map(Enum::name)
+                        .collect(ImmutableList.toImmutableList())));
   }
 
   /**
@@ -648,46 +455,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
     return ImmutableList.copyOf(subconditionsList);
   }
 
-  /**
-   * POST endpoint for updating eligibility configurations. TODO(#11764): Clean this up once
-   * expanded form logic is fully rolled out and this endpoint is unused in favor of
-   * updatePredicate.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public Result updateEligibility(Request request, long programId, long blockDefinitionId) {
-    requestChecker.throwIfProgramNotDraft(programId);
-
-    try {
-      EligibilityDefinition eligibility =
-          EligibilityDefinition.builder()
-              .setPredicate(
-                  predicateGenerator.legacyGeneratePredicateDefinition(
-                      programService.getFullProgramDefinition(programId),
-                      formFactory.form().bindFromRequest(request)))
-              .build();
-
-      programService.setBlockEligibilityDefinition(
-          programId, blockDefinitionId, Optional.of(eligibility));
-    } catch (ProgramNotFoundException e) {
-      return notFound(String.format("Program ID %d not found.", programId));
-    } catch (ProgramBlockDefinitionNotFoundException e) {
-      return notFound(
-          String.format("Block ID %d not found for Program %d", blockDefinitionId, programId));
-    } catch (IllegalPredicateOrderingException
-        | ProgramQuestionDefinitionNotFoundException
-        | EligibilityNotValidForProgramTypeException e) {
-      return redirect(
-              routes.AdminProgramBlockPredicatesController.editEligibility(
-                  programId, blockDefinitionId))
-          .flashing(FlashKey.ERROR, e.getLocalizedMessage());
-    }
-
-    return redirect(
-            routes.AdminProgramBlockPredicatesController.editEligibility(
-                programId, blockDefinitionId))
-        .flashing(FlashKey.SUCCESS, "Saved eligibility condition");
-  }
-
   /** POST endpoint for deleting show-hide configurations. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result destroyVisibility(long programId, long blockDefinitionId) {
@@ -765,9 +532,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result updatePredicate(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
@@ -799,7 +563,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
-              programService.getFullProgramDefinition(programId), form, settingsManifest, request);
+              programService.getFullProgramDefinition(programId), form, request);
       if (predicateDefinition.getQuestions().isEmpty()) {
         // If there are no questions in the predicate, that means there are no conditions and we
         // should remove the predicate.
@@ -862,9 +626,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
     ImmutableMap<String, String> formData = ImmutableMap.copyOf(form.rawData());
@@ -942,9 +703,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxEditSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
+
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null || form.get("subconditionId") == null) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
@@ -1002,9 +761,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
+
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null) {
       return ok(failedRequestPartialView.render(request, new FailedRequestPartialViewModel()))
@@ -1061,9 +818,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteCondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors() || form.get("conditionId") == null) {
@@ -1121,9 +875,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteSubcondition(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
 
     DynamicForm form = formFactory.form().bindFromRequest(request);
     if (form.hasErrors()
@@ -1195,9 +946,6 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteAllConditions(
       Request request, long programId, long blockDefinitionId, String predicateUseCase) {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      return notFound("Expanded form logic is not enabled.");
-    }
 
     return ok(conditionListPartialView.render(
             request,

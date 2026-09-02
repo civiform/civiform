@@ -255,7 +255,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickSaveAndExitButton()
@@ -272,7 +271,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -401,7 +399,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
       await expect(page.locator('#edit-predicate')).toContainText(
         'Applicants who do not meet the minimum requirements will be blocked from submitting an application.',
@@ -479,7 +476,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await expect(page.locator('#edit-predicate')).toContainText(
@@ -531,7 +527,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 2',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await expect(
@@ -630,7 +625,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -977,7 +971,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -1109,7 +1102,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -1212,7 +1204,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.clickAddConditionButton()
@@ -1396,7 +1387,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       // Add conditions and subconditions
@@ -1445,7 +1435,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
     })
 
@@ -1505,7 +1494,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.expectNoAddConditionButton()
@@ -1519,7 +1507,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockVisibilityPredicatePage(
         programName,
         'Screen 2',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await adminPredicates.expectNoAddConditionButton()
@@ -1561,7 +1548,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await expect(page.getByLabel(eligibilityMessageLabel)).toBeVisible()
@@ -1576,7 +1562,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await expect(page.getByLabel(eligibilityMessageLabel)).toHaveValue(
@@ -1591,7 +1576,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       await expect(page.getByLabel(eligibilityMessageLabel)).toBeEmpty()
@@ -1625,7 +1609,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.expectCondition(1)
@@ -1689,7 +1672,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         /* blockName= */ 'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       // Cancel button shouldn't show a dialog, and should navigate us back automatically
@@ -1702,7 +1684,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         /* blockName= */ 'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
 
       page.once('dialog', (dialog) => dialog.accept())
@@ -1723,7 +1704,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         /* blockName= */ 'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
       const editEligibilityURL = page.url()
 
@@ -1746,7 +1726,6 @@ test.describe('create and edit predicates', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         /* blockName= */ 'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
       await adminPredicates.clickAddConditionButton()
       await adminPredicates.clickDeleteConditionButton(1)

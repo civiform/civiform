@@ -3,14 +3,11 @@ package views.admin.programs.predicates;
 import com.google.inject.Inject;
 import views.admin.AdminLayout;
 import views.admin.TransitionalLayoutBaseView;
-import views.admin.programs.ProgramPredicateConfigureView;
-import views.admin.programs.ProgramPredicatesEditView;
 import views.shared.LayoutDeps;
 
 /**
  * Page view for rendering EditPredicatePageView.html. This page is used for editing predicates of a
- * block in a program and replaces {@link ProgramPredicatesEditView} and {@link
- * ProgramPredicateConfigureView}.
+ * block in a program.
  */
 public class EditPredicatePageView extends TransitionalLayoutBaseView<EditPredicatePageViewModel> {
   @Inject

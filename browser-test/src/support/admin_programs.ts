@@ -776,7 +776,9 @@ export class AdminPrograms {
    */
   async expectReadOnlyProgramBlock(blockId: string) {
     // The block info shows us we are viewing a block.
-    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    await expect(
+      this.page.locator('id=block-info-display-' + blockId),
+    ).toBeVisible()
     // The absence of one of the edit buttons ensures it is the read only view.
     await expect(
       this.page.locator('id=block-description-modal-button'),
@@ -1067,24 +1069,18 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
-    } else {
-      await this.expectEditVisibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.VISIBILITY)
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
@@ -1092,11 +1088,7 @@ export class AdminPrograms {
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
     await waitForHtmxReady(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
-    } else {
-      await this.expectEditEligibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
   }
 
   async goToProgramDescriptionPage(

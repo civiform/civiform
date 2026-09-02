@@ -74,72 +74,14 @@ export class AdminPredicates {
     )
   }
 
-  async updateEligibilityMessage(
-    eligibilityMsg: string,
-    expandedFormLogicEnabled: boolean = false,
-  ) {
-    if (expandedFormLogicEnabled) {
-      await this.page
-        .getByLabel('Display message shown to ineligible applicants')
-        .fill(eligibilityMsg)
-      await this.clickSaveAndExitButton()
-    } else {
-      await this.page.getByLabel('Eligibility Message').fill(eligibilityMsg)
-      await this.page
-        .getByRole('button', {name: 'Save eligibility message'})
-        .click()
-    }
+  async updateEligibilityMessage(eligibilityMsg: string) {
+    await this.page
+      .getByLabel('Display message shown to ineligible applicants')
+      .fill(eligibilityMsg)
+    await this.clickSaveAndExitButton()
   }
 
-  // (Overload) Add predicates using the legacy predicate view
-  // If expandedFormLogicEnabled is false or not provided, will add predicates using the legacy view.
-  // If expandedFormLogicEnabled is true, will add predicates using the updated predicate logic view.
-  async addPredicates(...predicateSpecs: PredicateSpec[]): Promise<void>
-
-  async addPredicates(
-    expandedFormLogicEnabled: boolean,
-    ...predicateSpecs: PredicateSpec[]
-  ): Promise<void>
-
-  async addPredicates(
-    expandedFormLogicOrSpec: boolean | PredicateSpec,
-    ...predicateSpecs: PredicateSpec[]
-  ) {
-    // Set default flag value.
-    let expandedFormLogicEnabled = false
-    // Deal with the overload by checking the type of the first parameter.
-    // If it's a boolean, it's the expandedFormLogicEnabled flag.
-    // Else it's a PredicateSpec and we should add it to the list of specs to configure.
-    if (typeof expandedFormLogicOrSpec === 'boolean') {
-      expandedFormLogicEnabled = expandedFormLogicOrSpec
-    } else {
-      predicateSpecs.unshift(expandedFormLogicOrSpec)
-    }
-
-    if (expandedFormLogicEnabled) {
-      await this.addSubconditionsFromPredicateSpecs(predicateSpecs)
-      return
-    }
-
-    for (const predicateSpec of predicateSpecs) {
-      await this.selectQuestionForPredicate(predicateSpec.questionName)
-    }
-
-    await this.clickAddConditionButton()
-    const totalRowsNeeded = predicateSpecs[0]?.values?.length ?? 0
-    await this.addValueRows(Math.max(totalRowsNeeded - 1, 0))
-
-    for (const predicateSpec of predicateSpecs) {
-      await this.configurePredicate(predicateSpec)
-    }
-
-    await this.clickSaveConditionButton()
-  }
-
-  // Add subconditions in new predicate view, given a list of legacy PredicateSpecs.
-  private async addSubconditionsFromPredicateSpecs(
-    predicateSpecs: PredicateSpec[],
-  ) {
+  async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (let i = 0; i < predicateSpecs.length; i++) {
       const conditionId = i + 1
       await this.addAndExpectCondition(conditionId)

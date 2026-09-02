@@ -4,8 +4,6 @@ import static com.google.common.collect.ImmutableList.toImmutableList;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.LinkedHashMultimap;
-import com.google.common.collect.Multimap;
 import com.google.common.math.DoubleMath;
 import controllers.BadRequestException;
 import java.time.LocalDate;
@@ -23,18 +21,9 @@ import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramQuestionDefinitionNotFoundException;
-import services.settings.SettingsManifest;
 
 /** Creates {@link PredicateDefinition}s from form inputs. */
 public final class PredicateGenerator {
-
-  // Example form keys:
-  // group-0-question-123-predicateValue
-  // group-1-question-456-predicateValues[0]
-  private static final Pattern LEGACY_SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN =
-      Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValue$");
-  private static final Pattern LEGACY_MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN =
-      Pattern.compile("^group-(\\d+)-question-(\\d+)-predicateValues\\[\\d+\\]$");
   // Example form keys:
   // condition-1-subcondition-1-value
   // condition-1-subcondition-2-values[0]
@@ -42,193 +31,6 @@ public final class PredicateGenerator {
       Pattern.compile("^condition-(\\d+)-subcondition-(\\d+)-value$");
   private static final Pattern MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN =
       Pattern.compile("^condition-(\\d+)-subcondition-(\\d+)-values\\[\\d+\\]$");
-
-  /**
-   * Generates a {@link PredicateDefinition} from the given form.
-   *
-   * <p>Determines {@link PredicateDefinition.PredicateFormat} based on form contents. If the form
-   * contains a single leaf node then it generates a SINGLE_QUESTION, otherwise a
-   * OR_OF_SINGLE_LAYER_ANDS. For each question a single scalar and operator are selected with one
-   * or more values. The values for all questions are grouped into rows containing one value for
-   * each question. Note that the group IDs are not persisted explicitly since they are used for
-   * grouping values which is accomplished structurally in the resulting predicate's AST.
-   *
-   * <p>Requires the form to have the following keys:
-   *
-   * <ul>
-   *   <li>{@code predicateAction} - a {@link PredicateAction}
-   *   <li>{@code question-QID-scalar} - a {@link Scalar} for the question identified by QID
-   *   <li>{@code question-QID-operator} - an {@link Operator} for the question identified by QID
-   *   <li>{@code group-GID-question-QID-predicateValue} - a {@link PredicateValue} identifying a
-   *       leaf node on a given AND node. The GID specifies the AND node and the QID specifies the
-   *       leaf node.
-   *   <li>{@code group-GID-question-QID-predicateValues[VID]} - a single value in a multi-value
-   *       {@link PredicateValue}. The VID distinguishes the key from the others in the same leaf
-   *       node and is otherwise unused.
-   * </ul>
-   *
-   * <p>TODO(#11764): This method generated predicates in the legacy format and can be removed once
-   * expanded form logic is fully rolled out.
-   *
-   * @param programDefinition the program this predicate is being generated for.
-   * @param predicateForm contains key-value pairs specifying the predicate.
-   * @throws BadRequestException if the form is invalid.
-   */
-  public PredicateDefinition legacyGeneratePredicateDefinition(
-      ProgramDefinition programDefinition, DynamicForm predicateForm)
-      throws ProgramQuestionDefinitionNotFoundException {
-    final PredicateAction predicateAction;
-
-    try {
-      predicateAction = PredicateAction.valueOf(predicateForm.get("predicateAction"));
-    } catch (IllegalArgumentException e) {
-      throw new BadRequestException(
-          String.format(
-              "Missing or unknown predicateAction: %s", predicateForm.get("predicateAction")));
-    }
-
-    Multimap<Integer, LeafExpressionNode> leafNodes =
-        legacyGetLeafNodes(programDefinition, predicateForm);
-
-    return switch (detectFormat(leafNodes)) {
-      case MULTIPLE_CONDITIONS ->
-          PredicateDefinition.create(
-              PredicateExpressionNode.create(
-                  OrNode.create(
-                      leafNodes.keySet().stream()
-                          // Sorting here ensures the AND nodes are created in the same order as
-                          // value groups/rows in the UI.
-                          // This ensures the edit UI will show the value rows in the original
-                          // order.
-                          .sorted()
-                          .map(leafNodes::get)
-                          .map(
-                              leafNodeGroup ->
-                                  leafNodeGroup.stream()
-                                      .map(PredicateExpressionNode::create)
-                                      .collect(toImmutableList()))
-                          .map(AndNode::create)
-                          .map(PredicateExpressionNode::create)
-                          .collect(toImmutableList()))),
-              predicateAction);
-      case SINGLE_CONDITION -> {
-        LeafExpressionNode singleQuestionNode =
-            leafNodes.entries().stream().map(Map.Entry::getValue).findFirst().get();
-
-        yield PredicateDefinition.create(
-            PredicateExpressionNode.create(singleQuestionNode), predicateAction);
-      }
-    };
-  }
-
-  /**
-   * Generates LeafExpressionNodes from the form input
-   *
-   * @throws ProgramQuestionDefinitionNotFoundException if a parsed questionId is not in the {@link
-   *     ProgramDefinition}
-   */
-  private static Multimap<Integer, LeafExpressionNode> legacyGetLeafNodes(
-      ProgramDefinition programDefinition, DynamicForm predicateForm)
-      throws ProgramQuestionDefinitionNotFoundException {
-    Multimap<Integer, LeafExpressionNode> leafNodes = LinkedHashMultimap.create();
-    HashSet<String> consumedKeys = new HashSet<>();
-
-    for (String key : predicateForm.rawData().keySet()) {
-      Matcher singleValueMatcher = LEGACY_SINGLE_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
-      Matcher multiValueMatcher = LEGACY_MULTI_PREDICATE_VALUE_FORM_KEY_PATTERN.matcher(key);
-
-      Matcher matcher =
-          singleValueMatcher.find()
-              ? singleValueMatcher
-              : multiValueMatcher.find() ? multiValueMatcher : null;
-      if (matcher == null) {
-        continue;
-      }
-      final int groupId = Integer.parseInt(matcher.group(1));
-      final long questionId = Long.parseLong(matcher.group(2));
-
-      // Validate the questionId - throws an exception
-      programDefinition.getProgramQuestionDefinition(questionId);
-
-      final Scalar scalar =
-          getScalar(predicateForm, String.format("question-%d-scalar", questionId));
-      final Operator operator =
-          getOperator(predicateForm, String.format("question-%d-operator", questionId));
-      final PredicateValue predicateValue;
-
-      if (scalar.equals(Scalar.SERVICE_AREAS)) {
-        ProgramQuestionDefinition questionDefinition =
-            programDefinition.getProgramQuestionDefinition(questionId);
-        if (!questionDefinition.getQuestionDefinition().isAddress()) {
-          throw new BadRequestException(String.format("%d is not an address question", questionId));
-        }
-
-        if (!questionDefinition.addressCorrectionEnabled()) {
-          throw new BadRequestException(
-              String.format(
-                  "Address correction not enabled for Question ID %d in program ID %d",
-                  questionId, programDefinition.id()));
-        }
-      }
-
-      if (matcher == singleValueMatcher) {
-        String secondKey =
-            String.format("group-%d-question-%d-predicateSecondValue", groupId, questionId);
-        consumedKeys.add(secondKey);
-        predicateValue =
-            parsePredicateValue(
-                scalar,
-                operator,
-                predicateForm.get(key),
-                Optional.ofNullable(predicateForm.get(secondKey)),
-                ImmutableList.of());
-      } else if (matcher == multiValueMatcher && !consumedKeys.contains(key)) {
-        // For the first encountered key of a multivalued question, we process all the keys now for
-        // the question, then skip them later.
-        ImmutableList<String> multiSelectKeys =
-            predicateForm.rawData().keySet().stream()
-                .filter(
-                    filteredKey ->
-                        filteredKey.startsWith(
-                            String.format(
-                                "group-%d-question-%d-predicateValues", groupId, questionId)))
-                .sorted()
-                .collect(ImmutableList.toImmutableList());
-
-        consumedKeys.addAll(multiSelectKeys);
-
-        ImmutableList<String> rawPredicateValues =
-            multiSelectKeys.stream()
-                .map(predicateForm.rawData()::get)
-                .collect(ImmutableList.toImmutableList());
-
-        predicateValue =
-            parsePredicateValue(
-                scalar,
-                operator,
-                /* value= */ "",
-                /* secondValue= */ Optional.empty(),
-                rawPredicateValues);
-      } else {
-        continue;
-      }
-
-      LeafExpressionNode leafNode =
-          scalar.equals(Scalar.SERVICE_AREAS)
-              ? LeafAddressServiceAreaExpressionNode.create(
-                  questionId, predicateValue.value(), operator)
-              : LeafOperationExpressionNode.builder()
-                  .setQuestionId(questionId)
-                  .setScalar(scalar)
-                  .setOperator(operator)
-                  .setComparedValue(predicateValue)
-                  .build();
-
-      leafNodes.put(groupId, leafNode);
-    }
-
-    return leafNodes;
-  }
 
   /**
    * Generates a {@link PredicateDefinition} from the given form.
@@ -260,14 +62,8 @@ public final class PredicateGenerator {
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
-      ProgramDefinition programDefinition,
-      DynamicForm predicateForm,
-      SettingsManifest settingsManifest,
-      Request request)
+      ProgramDefinition programDefinition, DynamicForm predicateForm, Request request)
       throws ProgramQuestionDefinitionNotFoundException {
-    if (!settingsManifest.getExpandedFormLogicEnabled()) {
-      throw new BadRequestException("Expanded form logic is not enabled for this request.");
-    }
     final PredicateAction predicateAction;
 
     try {
@@ -515,13 +311,6 @@ public final class PredicateGenerator {
               "Bad operator %s for predicate update form: %s",
               rawOperatorValue.get(), predicateForm.rawData()));
     }
-  }
-
-  private static PredicateDefinition.PredicateFormat detectFormat(
-      Multimap<Integer, LeafExpressionNode> leafNodes) {
-    return leafNodes.size() > 1
-        ? PredicateDefinition.PredicateFormat.MULTIPLE_CONDITIONS
-        : PredicateDefinition.PredicateFormat.SINGLE_CONDITION;
   }
 
   /**

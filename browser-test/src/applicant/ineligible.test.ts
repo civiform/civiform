@@ -35,17 +35,13 @@ test.describe('Ineligible Page Tests', () => {
         await adminPrograms.goToEditBlockEligibilityPredicatePage(
           programName,
           'Screen 1',
-          /* expandedFormLogicEnabled= */ true,
         )
-        await adminPredicates.addPredicates(
-          /* expandedFormLogicEnabled= */ true,
-          {
-            questionName: eligibilityQuestionId,
-            scalar: 'number',
-            operator: 'is greater than',
-            value: '0',
-          },
-        )
+        await adminPredicates.addPredicates({
+          questionName: eligibilityQuestionId,
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '0',
+        })
 
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(programName)
@@ -138,12 +134,8 @@ test.describe('Ineligible Page Tests', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         'Screen 1',
-        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(
-        eligibilityMsg,
-        /* expandedFormLogicEnabled= */ true,
-      )
+      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
       await adminPrograms.publishProgram(programName)
       await logout(page)
     })
