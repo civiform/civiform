@@ -402,6 +402,12 @@
               <span
                 th:lang="${language.key.code()}"
                 th:text="${language.value}"
+              ></span
+              ><span
+                lang="en"
+                class="usa-sr-only"
+                th:if="${language.value.chars().anyMatch(c -> c > 0x024F)}"
+                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH)}"
               ></span>
             </button>
           </li>
