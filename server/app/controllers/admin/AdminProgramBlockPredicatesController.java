@@ -563,7 +563,7 @@ public class AdminProgramBlockPredicatesController extends CiviFormController {
 
       PredicateDefinition predicateDefinition =
           predicateGenerator.generatePredicateDefinition(
-              programService.getFullProgramDefinition(programId), form, request);
+              programService.getFullProgramDefinition(programId), form);
       if (predicateDefinition.getQuestions().isEmpty()) {
         // If there are no questions in the predicate, that means there are no conditions and we
         // should remove the predicate.

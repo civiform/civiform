@@ -1168,18 +1168,6 @@ export class AdminPrograms {
     expect(toastMessages).toContain('Error: ')
   }
 
-  async expectEditVisibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Visibility condition for ' + blockName,
-    )
-  }
-
-  async expectEditEligibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Eligibility condition for ' + blockName,
-    )
-  }
-
   async expectEditPredicatePage(predicateType: PredicateType) {
     await expect(
       this.page.getByText('Edit ' + predicateType + ' conditions'),

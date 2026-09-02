@@ -16,7 +16,6 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import play.data.DynamicForm;
-import play.mvc.Http.Request;
 import services.applicant.question.Scalar;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
@@ -62,7 +61,7 @@ public final class PredicateGenerator {
    * @throws BadRequestException if the form is invalid.
    */
   public PredicateDefinition generatePredicateDefinition(
-      ProgramDefinition programDefinition, DynamicForm predicateForm, Request request)
+      ProgramDefinition programDefinition, DynamicForm predicateForm)
       throws ProgramQuestionDefinitionNotFoundException {
     final PredicateAction predicateAction;
 

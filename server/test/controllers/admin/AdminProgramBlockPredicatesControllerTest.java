@@ -182,55 +182,6 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withFirstBlock_displaysEmptyList() {
-    Result result =
-        controller.editVisibility(
-            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 1L);
-
-    assertThat(result.status()).isEqualTo(OK);
-    String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Visibility condition for Screen 1");
-    assertThat(content).contains("This screen is always shown.");
-    assertThat(content)
-        .contains(
-            "There are no available questions with which to set a visibility condition for this"
-                + " screen.");
-  }
-
-  @Test
-  public void editEligibility_withFirstBlock_displaysFirstBlock() {
-    Result result =
-        controller.editEligibility(
-            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 1L);
-
-    assertThat(result.status()).isEqualTo(OK);
-    String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Eligibility condition for Screen 1");
-    assertThat(content).contains("This screen does not have any eligibility conditions");
-    assertThat(content).contains("Admin ID: applicant name");
-    assertThat(content).contains("what is your name?");
-  }
-
-  @Test
-  public void edit_withThirdBlock_displaysQuestionsFromFirstAndSecondBlock() {
-    Result result =
-        controller.editVisibility(
-            fakeRequest(), programWithThreeBlocks.id, /* blockDefinitionId= */ 3L);
-
-    assertThat(result.status()).isEqualTo(OK);
-    String content = Helpers.contentAsString(result);
-    assertThat(content).contains("Visibility condition for Screen 3");
-    assertThat(content).contains("Admin ID: applicant name");
-    assertThat(content).contains("what is your name?");
-    assertThat(content).contains("Admin ID: applicant address");
-    assertThat(content).contains("What is your address?");
-    assertThat(content).contains("Admin ID: applicant ice cream");
-    assertThat(content).contains("Select your favorite ice cream flavor");
-    assertThat(content).doesNotContain("Admin ID: applicant favorite color");
-    assertThat(content).doesNotContain("What is your favorite color?");
-  }
-
-  @Test
   public void update_activeProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(

@@ -54,12 +54,6 @@ export class AdminPredicates {
     this.page = page
   }
 
-  async addValueRows(count: number) {
-    for (let i = 0; i < count; i++) {
-      await this.page.click('#predicate-add-value-row')
-    }
-  }
-
   async clickEditPredicateButton(predicateType: 'visibility' | 'eligibility') {
     await this.page.click(
       `button:has-text("Edit existing ${predicateType} condition")`,
@@ -124,10 +118,6 @@ export class AdminPredicates {
     }
 
     await this.clickSaveAndExitButton()
-  }
-
-  async selectQuestionForPredicate(questionName: string) {
-    await this.page.click(`label:has-text("Admin ID: ${questionName}")`)
   }
 
   async clickAddConditionButton() {
@@ -344,16 +334,6 @@ export class AdminPredicates {
     expect(toastMessages).toContain(`One or more ${type} is missing`)
   }
 
-  async getQuestionId(questionName: string): Promise<string> {
-    const questionNameField = this.page.getByTestId(questionName)
-    await expect(questionNameField).toHaveCount(1)
-
-    const questionId = await questionNameField.getAttribute('data-question-id')
-    expect(questionId).not.toBeNull()
-
-    return questionId as string
-  }
-
   // Gets the displayed question text for a given question name if it's present in the subcondition dropdown options.
   async getQuestionText(
     conditionId: number,
@@ -369,48 +349,6 @@ export class AdminPredicates {
     expect(questionText).not.toBeNull()
 
     return questionText
-  }
-
-  /**
-   * Configures a predicate with the given inputs. For the values, it uses the first defined parameter in this order:
-   * 1. complexValues
-   * 2. values
-   * 3. value
-   */
-  async configurePredicate({
-    questionName,
-    action,
-    scalar,
-    operator,
-    value,
-    values,
-    complexValues,
-  }: PredicateSpec) {
-    const questionId = await this.getQuestionId(questionName)
-
-    if (action != null) {
-      await this.page.selectOption(`.cf-predicate-action select`, {
-        label: action,
-      })
-    }
-    await this.page.selectOption(
-      `.cf-scalar-select[data-question-id="${questionId}"] select`,
-      {
-        label: scalar,
-      },
-    )
-    await this.page.selectOption(
-      `.cf-operator-select[data-question-id="${questionId}"] select`,
-      {
-        label: operator,
-      },
-    )
-
-    const valuesToSet = this.coalesceValueOptions(complexValues, values, value)
-    let groupNum = 1
-    for (const valueToSet of valuesToSet) {
-      await this.legacyFillValue(scalar, valueToSet, groupNum++, questionId)
-    }
   }
 
   /**
@@ -482,59 +420,6 @@ export class AdminPredicates {
   async expectSubconditionsEqual(subconditions: SubconditionSpec[]) {
     for (const subcondition of subconditions) {
       await this.expectSubconditionEquals(subcondition)
-    }
-  }
-
-  coalesceValueOptions(
-    complexValues?: PredicateValue[],
-    values?: string[],
-    value?: string,
-  ): PredicateValue[] {
-    if (complexValues) {
-      return complexValues
-    }
-    if (values) {
-      return values.map((v) => ({value: v}))
-    }
-    if (value) {
-      return [{value: value}]
-    }
-    return []
-  }
-
-  async legacyFillValue(
-    scalar: string,
-    valueToSet: PredicateValue,
-    groupNum: number,
-    questionId: string,
-  ) {
-    // Service areas are the only value input that use a select
-    if (scalar === 'service area') {
-      const valueSelect = this.page.locator(
-        `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-      )
-      await valueSelect.selectOption({label: valueToSet.value})
-      return
-    }
-
-    const valueInput = this.page.locator(
-      `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-    )
-
-    if ((await valueInput.count()) > 0) {
-      await valueInput.fill(valueToSet.value || '')
-    } else {
-      const valueArray = valueToSet.value.split(',')
-      for (const value of valueArray) {
-        await this.page.getByLabel(value).check()
-      }
-    }
-
-    const secondValueInput = this.page.locator(
-      `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
-    )
-    if ((await secondValueInput.count()) > 0) {
-      await secondValueInput.fill(valueToSet.secondValue || '')
     }
   }
 
