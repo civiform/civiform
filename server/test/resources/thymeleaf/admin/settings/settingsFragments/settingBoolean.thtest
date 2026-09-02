@@ -1,0 +1,30 @@
+%NAME setting - a BOOLEAN setting renders the radios and passes its checked state through
+%TEMPLATE_MODE HTML
+%CONTEXT
+model = @views.admin.settings.AdminSettingsIndexPageViewModel@builder().build()
+setting = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+            .variableName('ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS') \
+            .descriptionHtml('<p>Whether CiviForm admins can access programs.</p>') \
+            .inputTypeName('BOOLEAN') \
+            .checked(true) \
+            .readOnly(false) \
+            .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/settings/fragments/SettingInputs]
+<div
+  th:fragment="boolInput(trueId, falseId, name, checked, readOnly, errorMessage)"
+  th:text="|boolInput(${name}, checked=${checked}, readOnly=${readOnly})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div
+  data-testid="ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS-container"
+  class="md:max-w-lg max-w-md"
+>
+  <div class="font-semibold break-all">ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS</div>
+  <div class="text-sm"><p>Whether CiviForm admins can access programs.</p></div>
+  <div>boolInput(ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS, checked=true, readOnly=false)</div>
+</div>

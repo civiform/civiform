@@ -1,0 +1,30 @@
+%NAME setting - an INT setting renders the number input
+%TEMPLATE_MODE HTML
+%CONTEXT
+model = @views.admin.settings.AdminSettingsIndexPageViewModel@builder().build()
+setting = @views.admin.settings.AdminSettingsIndexPageViewModel$Setting@builder() \
+            .variableName('SESSION_INACTIVITY_TIMEOUT_MINUTES') \
+            .descriptionHtml('<p>Minutes of inactivity before a session ends.</p>') \
+            .inputTypeName('INT') \
+            .value('30') \
+            .readOnly(true) \
+            .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/settings/fragments/SettingInputs]
+<div
+  th:fragment="numberInput(id, name, value, readOnly)"
+  th:text="|numberInput(${name}, ${value}, readOnly=${readOnly})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div
+  data-testid="SESSION_INACTIVITY_TIMEOUT_MINUTES-container"
+  class="md:max-w-lg max-w-md"
+>
+  <div class="font-semibold break-all">SESSION_INACTIVITY_TIMEOUT_MINUTES</div>
+  <div class="text-sm"><p>Minutes of inactivity before a session ends.</p></div>
+  <div>numberInput(SESSION_INACTIVITY_TIMEOUT_MINUTES, 30, readOnly=true)</div>
+</div>
