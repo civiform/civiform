@@ -8,6 +8,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -72,6 +73,57 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkAuthorization_ti_passesForManagedClientId() {
+    ApplicantModel client = resourceCreator.insertApplicant();
+    AccountModel clientAccount = resourceCreator.insertAccount();
+    client.setAccount(clientAccount);
+    client.save();
+
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
+    clientAccount.setManagedByGroup(group);
+    clientAccount.save();
+
+    AccountModel tiAccount = resourceCreator.insertAccount();
+    tiAccount.setMemberOfGroup(group);
+    tiAccount.save();
+
+    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccount);
+
+    tiProfile.checkAuthorization(client.id).join(); // should not throw
+  }
+
+  @Test
+  public void checkAuthorization_ti_failsForUnmanagedClientId() {
+    ApplicantModel clientOne = resourceCreator.insertApplicant();
+    AccountModel clientOneAccount = resourceCreator.insertAccount();
+    clientOne.setAccount(clientOneAccount);
+    clientOne.save();
+
+    TrustedIntermediaryGroupModel tiGroupOne = resourceCreator.insertTrustedIntermediaryGroup();
+    clientOneAccount.setManagedByGroup(tiGroupOne);
+    clientOneAccount.save();
+    AccountModel tiAccountOne = resourceCreator.insertAccount();
+    tiAccountOne.setMemberOfGroup(tiGroupOne);
+    tiAccountOne.save();
+
+    ApplicantModel clientTwo = resourceCreator.insertApplicant();
+    AccountModel clientTwoAccount = resourceCreator.insertAccount();
+    clientTwo.setAccount(clientTwoAccount);
+    clientTwo.save();
+
+    TrustedIntermediaryGroupModel tiGroupTwo = resourceCreator.insertTrustedIntermediaryGroup();
+    clientOneAccount.setManagedByGroup(tiGroupTwo);
+    clientOneAccount.save();
+    AccountModel tiAccountTwo = resourceCreator.insertAccount();
+    tiAccountTwo.setMemberOfGroup(tiGroupTwo);
+    tiAccountTwo.save();
+
+    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccountOne);
+    assertThatThrownBy(() -> tiProfile.checkAuthorization(clientTwo.id).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
