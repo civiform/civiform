@@ -387,18 +387,24 @@ public final class QuestionService {
     }
     question.save();
 
-    // Note: The above section removed the question from the draft version and saved it, so that the
-    // enmasse program update below sees the relevant latest version of the question.  However if
-    // there's an error below, Those pertinent configurations are left invalid which will break the
+    // Note: The above section removed the question from the draft version and saved
+    // it, so that the
+    // enmasse program update below sees the relevant latest version of the
+    // question. However if
+    // there's an error below, Those pertinent configurations are left invalid which
+    // will break the
     // site.
-    // TODO(#2047): Address errors that occur after this point so that program/question state isn't
+    // TODO(#2047): Address errors that occur after this point so that
+    // program/question state isn't
     // left invalid.
 
-    // Update any repeated questions that may have referenced the discarded question.
+    // Update any repeated questions that may have referenced the discarded
+    // question.
     questionRepository.updateAllRepeatedQuestions(
         /* newEnumeratorId= */ activeId, /* oldEnumeratorId= */ draftId);
 
-    // Update any programs that reference the discarded question to the latest revision for all of
+    // Update any programs that reference the discarded question to the latest
+    // revision for all of
     // its referenced questions.
     versionRepositoryProvider.get().updateProgramsThatReferenceQuestion(draftId);
   }
@@ -595,5 +601,48 @@ public final class QuestionService {
       }
     }
     return true;
+  }
+
+  /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
+  public QuestionDefinition setImageFileKey(
+      long questionId, String fileKey, LocalizedStrings localizedImageDescription)
+      throws QuestionNotFoundException {
+    Optional<QuestionModel> maybeQuestion =
+        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+    if (maybeQuestion.isEmpty()) {
+      throw new QuestionNotFoundException(questionId);
+    }
+
+    QuestionDefinition questionDefinition =
+        questionRepository.getQuestionDefinition(maybeQuestion.get());
+
+    QuestionDefinition updatedQuestionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setImageFileKey(Optional.of(fileKey))
+            .setLocalizedImageDescription(localizedImageDescription)
+            .build();
+
+    QuestionModel updatedQuestion =
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+    return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  /** Removes the image file key for the given question so that no image is associated with it. */
+  public QuestionDefinition deleteImageFileKey(long questionId) throws QuestionNotFoundException {
+    Optional<QuestionModel> maybeQuestion =
+        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+    if (maybeQuestion.isEmpty()) {
+      throw new QuestionNotFoundException(questionId);
+    }
+
+    QuestionDefinition questionDefinition =
+        questionRepository.getQuestionDefinition(maybeQuestion.get());
+
+    QuestionDefinition updatedQuestionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition).setImageFileKey(Optional.empty()).build();
+
+    QuestionModel updatedQuestion =
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+    return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 }

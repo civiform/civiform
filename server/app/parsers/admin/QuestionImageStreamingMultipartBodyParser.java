@@ -24,7 +24,7 @@ public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipar
 
   // Matches /admin/questions/questionId/edit in the request path.
   private static final Pattern QUESTION_IMAGE_UPLOAD_PATH_PATTERN =
-      Pattern.compile("/admin/questions/(\\d+)/edit/([^/]+)(/|$)");
+      Pattern.compile("/admin/questions/(\\d+)/image/upload(/|$)");
 
   private long questionId;
 
