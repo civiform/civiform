@@ -5,7 +5,7 @@ title: '[spike] Description'
 ---
 
 ## Question
-What are we trying to find out? What problem are we exploring solving?
+What are we trying to find out? What problem are we exploring?
 
 ## Timebox
 How much time are we going to give this before putting it down, even if we're not fully "done" yet? (1 day, 3 days, 1 sprint)
