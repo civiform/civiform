@@ -121,7 +121,6 @@ test.describe('Applicant navigation flow', () => {
       )
 
       test('when address is eligible show hidden screen', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
@@ -156,12 +155,10 @@ test.describe('Applicant navigation flow', () => {
           )
 
           await applicantQuestions.clickSubmitApplication()
-          await logout(page)
         })
       })
 
       test('when address is not eligible do not show hidden screen', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
@@ -193,12 +190,10 @@ test.describe('Applicant navigation flow', () => {
           )
 
           await applicantQuestions.clickSubmitApplication()
-          await logout(page)
         })
       })
 
       test('hide screen when address changes from eligible to not eligible', async ({
-        page,
         applicantQuestions,
       }) => {
         await test.step('Fill out application with an eligible address', async () => {
@@ -249,7 +244,6 @@ test.describe('Applicant navigation flow', () => {
           )
 
           await applicantQuestions.clickSubmitApplication()
-          await logout(page)
         })
       })
     })

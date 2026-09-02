@@ -24,6 +24,7 @@ import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramService;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.AddressQuestionDefinition;
@@ -153,6 +154,7 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -271,6 +273,7 @@ public class ProgramBuilder {
             /* programType */ programType,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             /* appplicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));
@@ -303,6 +306,7 @@ public class ProgramBuilder {
             ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             new ProgramAcls(),
             /* categories= */ ImmutableList.of(),
             ImmutableList.of(new ApplicationStep("title", "description")));
@@ -382,6 +386,11 @@ public class ProgramBuilder {
 
   public ProgramBuilder withAcls(ProgramAcls programAcls) {
     builder.setAcls(programAcls);
+    return this;
+  }
+
+  public ProgramBuilder withUsesScoring(boolean usesScoring) {
+    builder.setUsesScoring(usesScoring);
     return this;
   }
 
@@ -533,10 +542,22 @@ public class ProgramBuilder {
       return this;
     }
 
+    /**
+     * Adds a question to the block, marking the block as an enumerator when the question is an
+     * enumerator question. Mirrors {@link ProgramService.addQuestionsToBlock}, which sets
+     * isEnumerator whenever an enumerator question is added to a block.
+     */
+    private void addQuestion(ProgramQuestionDefinition pqd) {
+      blockDefBuilder.addQuestion(pqd);
+      if (pqd.getQuestionDefinition().isEnumerator()) {
+        blockDefBuilder.setIsEnumerator(Optional.of(true));
+      }
+    }
+
     /** Add a required question to the block. */
     public BlockBuilder withRequiredQuestion(QuestionModel question) {
       QuestionRepository questionRepository = injector.instanceOf(QuestionRepository.class);
-      blockDefBuilder.addQuestion(
+      addQuestion(
           ProgramQuestionDefinition.create(
               questionRepository.getQuestionDefinition(question),
               Optional.of(programBuilder.programDefinitionId)));
@@ -551,7 +572,7 @@ public class ProgramBuilder {
         throw new IllegalArgumentException("Only address questions can be address corrected.");
       }
 
-      blockDefBuilder.addQuestion(
+      addQuestion(
           ProgramQuestionDefinition.create(
               questionRepository.getQuestionDefinition(question),
               Optional.of(programBuilder.programDefinitionId),
@@ -566,7 +587,7 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withOptionalQuestion(QuestionDefinition question) {
-      blockDefBuilder.addQuestion(
+      addQuestion(
           ProgramQuestionDefinition.create(
                   question, Optional.of(programBuilder.programDefinitionId))
               .setOptional(true));
@@ -579,7 +600,7 @@ public class ProgramBuilder {
     }
 
     public BlockBuilder withQuestionDefinition(QuestionDefinition question, boolean optional) {
-      blockDefBuilder.addQuestion(
+      addQuestion(
           ProgramQuestionDefinition.create(
                   question, Optional.of(programBuilder.programDefinitionId))
               .setOptional(optional));
@@ -608,6 +629,13 @@ public class ProgramBuilder {
                           questionDefinition, Optional.of(programBuilder.programDefinitionId)))
               .collect(ImmutableList.toImmutableList());
       blockDefBuilder.setProgramQuestionDefinitions(pqds);
+      // Mark the block as an enumerator when any question is an enumerator question, mirroring
+      // {@link ProgramService}.
+      if (pqds.stream()
+          .map(ProgramQuestionDefinition::getQuestionDefinition)
+          .anyMatch(QuestionDefinition::isEnumerator)) {
+        blockDefBuilder.setIsEnumerator(Optional.of(true));
+      }
       return this;
     }
 
@@ -668,7 +696,7 @@ public class ProgramBuilder {
      */
     public BlockBuilder withRepeatedBlock(String name, String description) {
       BlockDefinition thisBlock = blockDefBuilder.build();
-      if (!thisBlock.hasEnumeratorQuestion()) {
+      if (!thisBlock.getIsEnumerator()) {
         throw new RuntimeException(
             "Cannot create a repeated block if this block is not an enumerator.");
       }

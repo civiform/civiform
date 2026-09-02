@@ -220,10 +220,6 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
 ])
 
 test.describe('create and edit predicates', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'expanded_form_logic_enabled')
-  })
-
   test('Create and edit a new predicate', async ({
     page,
     adminQuestions,

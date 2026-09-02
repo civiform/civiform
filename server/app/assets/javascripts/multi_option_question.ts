@@ -28,6 +28,12 @@ export class MultiOptionQuestion {
     const container = document.getElementById(this.containerId)
     if (container == null) return
 
+    if (container.dataset.multiOptionInitialized != null) {
+      return
+    }
+
+    container.dataset.multiOptionInitialized = 'true'
+
     // Wire server-rendered options already in the DOM.
     container
       .querySelectorAll('.cf-multi-option-question-option')

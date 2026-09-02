@@ -20,6 +20,8 @@ import java.util.Locale;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import mapping.admin.questions.QuestionFormPageMapper;
+import mapping.admin.questions.QuestionsListPageMapper;
 import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import play.data.FormFactory;
@@ -27,10 +29,13 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.GeoJsonDataRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
+import services.DateConverter;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
@@ -46,11 +51,15 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.admin.questions.MapQuestionSettingsFiltersListPartialView;
+import views.PartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
-import views.admin.questions.MapQuestionSettingsFiltersPartialView;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
+import views.admin.questions.MapQuestionSettingsPartialViewModel;
 import views.admin.questions.QuestionEditView;
+import views.admin.questions.QuestionFormPageView;
+import views.admin.questions.QuestionFormPageViewModel;
+import views.admin.questions.QuestionsListPageView;
+import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
 import views.components.ToastMessage;
@@ -64,8 +73,15 @@ public final class AdminQuestionController extends CiviFormController {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
 
-  private final MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView;
-  private final MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView;
+  private final PartialView<MapQuestionSettingsFiltersPartialViewModel>
+      mapQuestionSettingsFiltersPartialView;
+  private final PartialView<MapQuestionSettingsFiltersListPartialViewModel>
+      mapQuestionSettingsFiltersListPartialView;
+  private final GeoJsonDataRepository geoJsonDataRepository;
+  private final QuestionFormPageView questionFormPageView;
+  private final QuestionsListPageView questionsListPageView;
+  private final TranslationLocales translationLocales;
+  private final DateConverter dateConverter;
 
   @Inject
   public AdminQuestionController(
@@ -76,9 +92,15 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionEditView editView,
       SettingsManifest settingsManifest,
       FormFactory formFactory,
-      MapQuestionSettingsFiltersPartialView mapQuestionSettingsFiltersPartialView,
-      MapQuestionSettingsFiltersListPartialView mapQuestionSettingsFiltersListPartialView,
-      ClassLoaderExecutionContext classLoaderExecutionContext) {
+      PartialView<MapQuestionSettingsFiltersPartialViewModel> mapQuestionSettingsFiltersPartialView,
+      PartialView<MapQuestionSettingsFiltersListPartialViewModel>
+          mapQuestionSettingsFiltersListPartialView,
+      GeoJsonDataRepository geoJsonDataRepository,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
+      QuestionFormPageView questionFormPageView,
+      QuestionsListPageView questionsListPageView,
+      TranslationLocales translationLocales,
+      DateConverter dateConverter) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -88,6 +110,11 @@ public final class AdminQuestionController extends CiviFormController {
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.mapQuestionSettingsFiltersPartialView = mapQuestionSettingsFiltersPartialView;
     this.mapQuestionSettingsFiltersListPartialView = mapQuestionSettingsFiltersListPartialView;
+    this.geoJsonDataRepository = checkNotNull(geoJsonDataRepository);
+    this.questionFormPageView = checkNotNull(questionFormPageView);
+    this.questionsListPageView = checkNotNull(questionsListPageView);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.dateConverter = checkNotNull(dateConverter);
   }
 
   /**
@@ -99,12 +126,27 @@ public final class AdminQuestionController extends CiviFormController {
     return service
         .getReadOnlyQuestionService()
         .thenApplyAsync(
-            readOnlyService ->
-                ok(
-                    listView.render(
-                        readOnlyService.getActiveAndDraftQuestions(),
-                        filter.map(TextFormatter::sanitizeHtml),
-                        request)),
+            readOnlyService -> {
+              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+                QuestionsListPageViewModel model =
+                    new QuestionsListPageMapper()
+                        .map(
+                            readOnlyService.getActiveAndDraftQuestions(),
+                            filter.map(TextFormatter::sanitizeHtml),
+                            translationLocales,
+                            question -> service.isTranslationComplete(translationLocales, question),
+                            dateConverter,
+                            settingsManifest.getEnumeratorImprovementsEnabled(request),
+                            request.flash().get(FlashKey.SUCCESS),
+                            request.flash().get(FlashKey.ERROR));
+                return ok(questionsListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+              }
+              return ok(
+                  listView.render(
+                      readOnlyService.getActiveAndDraftQuestions(),
+                      filter.map(TextFormatter::sanitizeHtml),
+                      request));
+            },
             classLoaderExecutionContext.current());
   }
 
@@ -146,32 +188,6 @@ public final class AdminQuestionController extends CiviFormController {
         .as(Http.MimeTypes.HTML);
   }
 
-  /**
-   * Return a HTML page displaying all configurations of a question without the ability to update
-   * it.
-   */
-  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
-  public CompletionStage<Result> show(Request request, long id) {
-    return service
-        .getReadOnlyQuestionService()
-        .thenApplyAsync(
-            readOnlyService -> {
-              QuestionDefinition questionDefinition = readOnlyService.getQuestionDefinition(id);
-
-              Optional<QuestionDefinition> maybeEnumerationQuestion =
-                  maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
-              try {
-                return ok(
-                    editView.renderViewQuestionForm(
-                        request, questionDefinition, maybeEnumerationQuestion));
-              } catch (InvalidQuestionTypeException e) {
-                return badRequest(
-                    invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-              }
-            },
-            classLoaderExecutionContext.current());
-  }
-
   /** Return a HTML page containing a form to create a new question in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(
@@ -193,6 +209,45 @@ public final class AdminQuestionController extends CiviFormController {
             .toCompletableFuture()
             .join()
             .getUpToDateEnumeratorQuestions();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      try {
+        QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+        questionForm.setRedirectUrl(redirectUrl);
+        // Outside a repeating block the enumerator is locked to "does not
+        // repeat"; inside one, a provided enumerator is preselected and
+        // locked.
+        boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
+        if (!isRepeatingBlock) {
+          questionForm.setEnumeratorSelectEnabled(false);
+        } else {
+          enumeratorQuestionOptional.ifPresent(
+              enumeratorId -> {
+                questionForm.setEnumeratorId(enumeratorId);
+                questionForm.setEnumeratorSelectEnabled(false);
+              });
+        }
+        ReadOnlyQuestionService roService =
+            service.getReadOnlyQuestionService().toCompletableFuture().join();
+        MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+        QuestionFormPageViewModel model =
+            new QuestionFormPageMapper()
+                .mapNew(
+                    questionForm,
+                    enumeratorQuestionDefinitions,
+                    mapSettings,
+                    settingsManifest.getApiBridgeEnabled(request),
+                    settingsManifest.getEnumeratorImprovementsEnabled(request),
+                    settingsManifest.getAnswerOptionScoringEnabled(request),
+                    settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                    roService,
+                    Optional.empty());
+        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      } catch (UnsupportedQuestionTypeException e) {
+        return badRequest(e.getMessage());
+      }
+    }
+
     try {
       boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
       return ok(
@@ -220,28 +275,30 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+
+    // Invalid scores surface as form validation errors and re-render the form, rather than being
+    // silently dropped by the builder below.
+    ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
+    if (!scoreErrors.isEmpty()) {
+      return renderNewQuestionFormWithError(request, questionForm, joinErrors(scoreErrors));
+    }
+
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = questionForm.getBuilder().build();
+      questionDefinition = getBuilder(questionForm, scoringEnabled).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
     }
 
-    boolean requireLegacyRepeatedEntitySelector =
-        !settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
 
     ErrorAnd<QuestionDefinition, CiviFormError> result =
-        service.create(questionDefinition, requireLegacyRepeatedEntitySelector);
+        service.create(questionDefinition, enumeratorImprovementsEnabled);
     if (result.isError()) {
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-      ReadOnlyQuestionService roService =
-          service.getReadOnlyQuestionService().toCompletableFuture().join();
-      ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
-          roService.getUpToDateEnumeratorQuestions();
-      return ok(
-          editView.renderNewQuestionForm(
-              request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+      return renderNewQuestionFormWithError(request, questionForm, joinErrors(result.getErrors()));
     }
 
     try {
@@ -321,6 +378,29 @@ public final class AdminQuestionController extends CiviFormController {
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+
+              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+                try {
+                  QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+                  if (!redirectUrl.isBlank()) {
+                    questionForm.setRedirectUrl(redirectUrl);
+                  }
+                  Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                  QuestionFormPageViewModel model =
+                      buildEditQuestionPageModel(
+                          id,
+                          questionForm,
+                          maybeEnumerationQuestion,
+                          readOnlyService,
+                          request,
+                          errorMessage);
+                  return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+                } catch (InvalidQuestionTypeException e) {
+                  return badRequest(
+                      invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
+                }
+              }
+
               try {
                 Optional<ToastMessage> message =
                     request
@@ -366,9 +446,25 @@ public final class AdminQuestionController extends CiviFormController {
 
     Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
 
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+
+    // Invalid scores surface as form validation errors and re-render the form, rather than being
+    // silently dropped by the builder below.
+    ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
+    if (!scoreErrors.isEmpty()) {
+      return renderEditQuestionFormWithError(
+          request,
+          id,
+          questionForm,
+          maybeGetEnumerationQuestion(roService, maybeExisting.get()),
+          roService,
+          joinErrors(scoreErrors));
+    }
+
     QuestionDefinition questionDefinition;
     try {
-      questionDefinition = getBuilder(maybeExisting, questionForm).setId(id).build();
+      questionDefinition =
+          getBuilder(maybeExisting, questionForm, scoringEnabled).setId(id).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Failed while trying to update a question that was already created for the given question
       // type
@@ -377,10 +473,10 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      boolean requireLegacyRepeatedEntitySelector =
-          !settingsManifest.getEnumeratorImprovementsEnabled(request);
+      boolean enumeratorImprovementsEnabled =
+          settingsManifest.getEnumeratorImprovementsEnabled(request);
       errorAndUpdatedQuestionDefinition =
-          service.update(maybeExisting, questionDefinition, requireLegacyRepeatedEntitySelector);
+          service.update(maybeExisting, questionDefinition, enumeratorImprovementsEnabled);
     } catch (InvalidUpdateException e) {
       // Ill-formed update request.
       return badRequest(e.toString());
@@ -395,13 +491,13 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     if (errorAndUpdatedQuestionDefinition.isError()) {
-      ToastMessage errorMessage =
-          ToastMessage.errorNonLocalized(joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
-      Optional<QuestionDefinition> maybeEnumerationQuestion =
-          maybeGetEnumerationQuestion(roService, questionDefinition);
-      return ok(
-          editView.renderEditQuestionForm(
-              request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+      return renderEditQuestionFormWithError(
+          request,
+          id,
+          questionForm,
+          maybeGetEnumerationQuestion(roService, questionDefinition),
+          roService,
+          joinErrors(errorAndUpdatedQuestionDefinition.getErrors()));
     }
     try {
       service.setExportState(
@@ -421,12 +517,100 @@ public final class AdminQuestionController extends CiviFormController {
     return result;
   }
 
+  /**
+   * Builds the {@link QuestionDefinitionBuilder} for a form response, threading the scoring flag
+   * into multi-option forms. When the flag is off, submitted scores are discarded.
+   */
+  private QuestionDefinitionBuilder getBuilder(QuestionForm questionForm, boolean scoringEnabled) {
+    if (questionForm instanceof MultiOptionQuestionForm multiOptionQuestionForm) {
+      return multiOptionQuestionForm.getBuilder(scoringEnabled);
+    }
+    return questionForm.getBuilder();
+  }
+
+  /**
+   * Re-renders the new-question form with a form-level error, honoring the j2html-to-Thymeleaf
+   * migration flag.
+   */
+  private Result renderNewQuestionFormWithError(
+      Request request, QuestionForm questionForm, String errorText) {
+    ReadOnlyQuestionService roService =
+        service.getReadOnlyQuestionService().toCompletableFuture().join();
+    ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
+        roService.getUpToDateEnumeratorQuestions();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+      QuestionFormPageViewModel model =
+          new QuestionFormPageMapper()
+              .mapNew(
+                  questionForm,
+                  enumeratorQuestionDefinitions,
+                  mapSettings,
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request),
+                  settingsManifest.getAnswerOptionScoringEnabled(request),
+                  settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                  roService,
+                  Optional.of(errorText));
+      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
+    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
+    return ok(
+        editView.renderNewQuestionForm(
+            request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+  }
+
+  /**
+   * Re-renders the edit-question form with a form-level error, honoring the j2html-to-Thymeleaf
+   * migration flag.
+   */
+  private Result renderEditQuestionFormWithError(
+      Request request,
+      Long id,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService roService,
+      String errorText) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      QuestionFormPageViewModel model =
+          buildEditQuestionPageModel(
+              id,
+              questionForm,
+              maybeEnumerationQuestion,
+              roService,
+              request,
+              Optional.of(errorText));
+      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
+    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
+    return ok(
+        editView.renderEditQuestionForm(
+            request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+  }
+
+  /**
+   * Returns validation errors for submitted option scores. Only relevant when the scoring flag is
+   * on and the question type supports scores; crafted score fields on other requests are ignored.
+   */
+  private ImmutableSet<CiviFormError> getOptionScoreErrors(
+      QuestionForm questionForm, boolean scoringEnabled) {
+    if (!scoringEnabled
+        || !(questionForm instanceof MultiOptionQuestionForm multiOptionQuestionForm)
+        || !QuestionType.supportsOptionScores(questionForm.getQuestionType())) {
+      return ImmutableSet.of();
+    }
+    return multiOptionQuestionForm.getOptionScoreErrors();
+  }
+
   private QuestionDefinitionBuilder getBuilder(
-      Optional<QuestionDefinition> existing, QuestionForm questionForm) {
-    QuestionDefinitionBuilder updated = questionForm.getBuilder();
+      Optional<QuestionDefinition> existing, QuestionForm questionForm, boolean scoringEnabled) {
+    QuestionDefinitionBuilder updated = getBuilder(questionForm, scoringEnabled);
 
     if (existing.isPresent()) {
-      updateDefaultLocalizations(existing.get(), updated, questionForm);
+      updateDefaultLocalizations(existing.get(), updated, questionForm, scoringEnabled);
     }
 
     return updated;
@@ -439,7 +623,8 @@ public final class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizations(
       QuestionDefinition currentQuestionDefinition,
       QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
-      QuestionForm questionForm) {
+      QuestionForm questionForm,
+      boolean scoringEnabled) {
     // Instead of overwriting all localizations, we just want to overwrite the one
     // for the default locale (the only one possible to change in the edit form).
     updatedQuestionDefinitionBuilder.setQuestionText(
@@ -478,7 +663,8 @@ public final class AdminQuestionController extends CiviFormController {
       updateDefaultLocalizationForOptions(
           updatedQuestionDefinitionBuilder,
           (MultiOptionQuestionDefinition) currentQuestionDefinition,
-          updatedQuestionOptions);
+          updatedQuestionOptions,
+          scoringEnabled);
     }
 
     if (questionForm instanceof MapQuestionForm) {
@@ -515,7 +701,16 @@ public final class AdminQuestionController extends CiviFormController {
   private void updateDefaultLocalizationForOptions(
       QuestionDefinitionBuilder updatedQuestionDefinitionBuilder,
       MultiOptionQuestionDefinition currentQuestionDefinition,
-      ImmutableList<QuestionOption> updatedQuestionOptions) {
+      ImmutableList<QuestionOption> updatedQuestionOptions,
+      boolean scoringEnabled) {
+
+    // When scores don't apply to this edit (ANSWER_OPTION_SCORING_ENABLED flag off or unsupported
+    // type), existing options keep
+    // their stored score via toBuilder() below, so an edit made while the flag is off cannot drop
+    // a stored score.
+    boolean applyScores =
+        scoringEnabled
+            && QuestionType.supportsOptionScores(currentQuestionDefinition.getQuestionType());
 
     var existingOptions = currentQuestionDefinition.getOptions();
     ImmutableList.Builder<QuestionOption> newOptionsListBuilder = ImmutableList.builder();
@@ -535,24 +730,31 @@ public final class AdminQuestionController extends CiviFormController {
               .equals(updatedQuestionOptionText.getDefault())) {
         // If there's an existing option with the same ID and same default locale text, then use it
         // and only update the displayOrder, preserving the adminName and translations.
-        newOptionsListBuilder.add(
+        QuestionOption.Builder optionBuilder =
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
-                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
-                .build());
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions());
+        if (applyScores) {
+          optionBuilder.setScore(updatedQuestionOption.score());
+        }
+        newOptionsListBuilder.add(optionBuilder.build());
       } else if (maybeExistingOptionWithSameId.isPresent()) {
         // If there's an existing option with the same ID but different text, then use it
         // and update the displayOrder and default locale text, preserving the adminName but
         // clearing any existing translations.
-        newOptionsListBuilder.add(
+        QuestionOption.Builder optionBuilder =
             maybeExistingOptionWithSameId.get().toBuilder()
                 .setDisplayOrder(updatedQuestionOption.displayOrder())
                 .setOptionText(updatedQuestionOptionText)
-                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions())
-                .build());
+                .setDisplayInAnswerOptions(updatedQuestionOption.displayInAnswerOptions());
+        if (applyScores) {
+          optionBuilder.setScore(updatedQuestionOption.score());
+        }
+        newOptionsListBuilder.add(optionBuilder.build());
       } else {
         // If there wasn't an option with the same ID, treat it as a new
-        // option with a new adminName, displayOrder, and text.
+        // option with a new adminName, displayOrder, and text. Its score is already stripped by
+        // the form builder when scores don't apply.
         newOptionsListBuilder.add(updatedQuestionOption);
       }
     }
@@ -641,6 +843,59 @@ public final class AdminQuestionController extends CiviFormController {
     }
 
     updatedQuestionDefinitionBuilder.setQuestionSettings(newSettingsListBuilder.build());
+  }
+
+  private QuestionFormPageViewModel buildEditQuestionPageModel(
+      long questionId,
+      QuestionForm questionForm,
+      Optional<QuestionDefinition> maybeEnumerationQuestion,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      Request request,
+      Optional<String> errorMessage) {
+    MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+    return new QuestionFormPageMapper()
+        .mapEdit(
+            questionId,
+            questionForm,
+            maybeEnumerationQuestion,
+            mapSettings,
+            settingsManifest.getApiBridgeEnabled(request),
+            settingsManifest.getEnumeratorImprovementsEnabled(request),
+            settingsManifest.getAnswerOptionScoringEnabled(request),
+            settingsManifest.getImagesInQuestionFeatureEnabled(request),
+            readOnlyQuestionService,
+            errorMessage);
+  }
+
+  /**
+   * Builds the view model for the MAP question settings section, which the page template renders
+   * via the shared {@code MapQuestionSettingsPartial} - the same template the GeoJSON hx endpoint
+   * swaps in - so the initial page render and subsequent endpoint-driven refreshes stay in sync.
+   * Returns {@code null} for non-MAP questions, whose config is rendered inline in the page
+   * template.
+   */
+  private MapQuestionSettingsPartialViewModel buildMapSettingsViewModel(QuestionForm questionForm) {
+    if (!(questionForm instanceof MapQuestionForm mapQuestionForm)) {
+      return null;
+    }
+
+    ImmutableList<String> possibleKeys =
+        mapQuestionForm.getGeoJsonEndpoint().isEmpty()
+            ? ImmutableList.of()
+            : geoJsonDataRepository
+                .getMostRecentGeoJsonDataRowForEndpoint(mapQuestionForm.getGeoJsonEndpoint())
+                .join()
+                .map(geoJsonDataModel -> geoJsonDataModel.getGeoJson().getPossibleKeys())
+                .orElse(ImmutableList.of());
+
+    return new MapQuestionSettingsPartialViewModel(
+        mapQuestionForm.getMaxLocationSelections(),
+        mapQuestionForm.getLocationName(),
+        mapQuestionForm.getLocationAddress(),
+        mapQuestionForm.getLocationDetailsUrl(),
+        mapQuestionForm.getFilters(),
+        mapQuestionForm.getLocationTag(),
+        possibleKeys);
   }
 
   private String invalidQuestionTypeMessage(String questionType) {

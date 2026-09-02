@@ -1,0 +1,27 @@
+%NAME inputField - text field with a submitted value and no error
+%TEMPLATE_MODE HTML
+%INPUT
+<div th:replace="~{admin/apikeys/fragments/ApiKeyFormFields :: inputField('keyName', 'API key name', 'text', 'my key', null)}"></div>
+# ----------------------------------------------------------------------
+# No error means no a11y attributes and a hidden, empty error container, as
+# FieldWithLabel rendered it.
+%OUTPUT
+<div class="mb-2">
+  <label
+    for="keyName"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >API key name<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <input
+      type="text"
+      value="my key"
+      maxlength="10000"
+      id="keyName"
+      name="keyName"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    />
+    <div id="keyName-errors" class="text-red-600 text-xs p-1 hidden">
+    </div>
+  </div>
+</div>

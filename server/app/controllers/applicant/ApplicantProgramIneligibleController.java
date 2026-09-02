@@ -124,58 +124,76 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
-            programId -> {
-              return supplyAsync(
-                      () -> {
-                        ReadOnlyApplicantProgramService roApplicantProgramService =
-                            applicantService
-                                .getReadOnlyApplicantProgramService(applicantId, programId)
-                                .toCompletableFuture()
-                                .join();
-                        CiviFormProfile profile = profileUtils.currentUserProfile(request);
-                        ApplicantPersonalInfo personalInfo =
-                            applicantService
-                                .getPersonalInfo(applicantId)
-                                .toCompletableFuture()
-                                .join();
+            programId ->
+                checkApplicantAuthorization(request, applicantId)
+                    .thenCompose(
+                        v ->
+                            supplyAsync(
+                                    () -> {
+                                      ReadOnlyApplicantProgramService roApplicantProgramService =
+                                          applicantService
+                                              .getReadOnlyApplicantProgramService(
+                                                  applicantId, programId)
+                                              .toCompletableFuture()
+                                              .join();
+                                      CiviFormProfile profile =
+                                          profileUtils.currentUserProfile(request);
+                                      ApplicantPersonalInfo personalInfo =
+                                          applicantService
+                                              .getPersonalInfo(applicantId)
+                                              .toCompletableFuture()
+                                              .join();
 
-                        ProgramDefinition programDefinition;
-                        Optional<BlockDefinition> blockDefinition = Optional.empty();
-                        try {
-                          programDefinition = programService.getFullProgramDefinition(programId);
-                          if (blockId.isPresent()) {
-                            blockDefinition =
-                                Optional.of(programDefinition.getBlockDefinition(blockId.get()));
-                          }
-                        } catch (ProgramNotFoundException
-                            | ProgramBlockDefinitionNotFoundException
-                            | NoSuchElementException e) {
-                          return notFound();
-                        }
-                        ApplicantIneligibleView.Params params =
-                            ApplicantIneligibleView.Params.builder()
-                                .setRequest(request)
-                                .setApplicantId(applicantId)
-                                .setProfile(profile)
-                                .setApplicantPersonalInfo(personalInfo)
-                                .setProgramDefinition(programDefinition)
-                                .setBlockDefinition(blockDefinition)
-                                .setRoApplicantProgramService(roApplicantProgramService)
-                                .setMessages(messagesApi.preferred(request))
-                                .build();
-                        return ok(applicantIneligibleView.render(params)).as(Http.MimeTypes.HTML);
-                      })
-                  .exceptionally(
-                      ex -> {
-                        Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
-                        if (cause instanceof ProgramNotFoundException) {
-                          return notFound();
-                        }
-                        if (cause instanceof MissingOptionalException) {
-                          return unauthorized();
-                        }
-                        throw new RuntimeException(cause);
-                      });
+                                      ProgramDefinition programDefinition;
+                                      Optional<BlockDefinition> blockDefinition = Optional.empty();
+                                      try {
+                                        programDefinition =
+                                            programService.getFullProgramDefinition(programId);
+                                        if (blockId.isPresent()) {
+                                          blockDefinition =
+                                              Optional.of(
+                                                  programDefinition.getBlockDefinition(
+                                                      blockId.get()));
+                                        }
+                                      } catch (ProgramNotFoundException
+                                          | ProgramBlockDefinitionNotFoundException
+                                          | NoSuchElementException e) {
+                                        return notFound();
+                                      }
+                                      ApplicantIneligibleView.Params params =
+                                          ApplicantIneligibleView.Params.builder()
+                                              .setRequest(request)
+                                              .setApplicantId(applicantId)
+                                              .setProfile(profile)
+                                              .setApplicantPersonalInfo(personalInfo)
+                                              .setProgramDefinition(programDefinition)
+                                              .setBlockDefinition(blockDefinition)
+                                              .setRoApplicantProgramService(
+                                                  roApplicantProgramService)
+                                              .setMessages(messagesApi.preferred(request))
+                                              .build();
+                                      return ok(applicantIneligibleView.render(params))
+                                          .as(Http.MimeTypes.HTML);
+                                    })
+                                .exceptionally(
+                                    ex -> {
+                                      Throwable cause =
+                                          (ex instanceof CompletionException) ? ex.getCause() : ex;
+                                      if (cause instanceof ProgramNotFoundException) {
+                                        return notFound();
+                                      }
+                                      if (cause instanceof MissingOptionalException) {
+                                        return unauthorized();
+                                      }
+                                      throw new RuntimeException(cause);
+                                    })))
+        .exceptionally(
+            ex -> {
+              Throwable cause = (ex instanceof CompletionException) ? ex.getCause() : ex;
+              if (cause instanceof SecurityException) {
+                return forbidden();
+              }
+              throw new RuntimeException(cause);
             });
   }
 }

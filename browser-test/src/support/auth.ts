@@ -11,7 +11,7 @@ import {dismissToast, validateToastMessage} from './helpers'
 /**
  * Different auth strategies that are being exercised in this test. Each strategy
  * requires different logic for login (which fields to fill and button to click on
- * login page) and logout (some logout flows require confirmation).
+ * login page).
  */
 enum AuthStrategy {
   FAKE_OIDC = 'fake-oidc',
@@ -23,15 +23,8 @@ export const logout = async (page: Page, closeToast = true) => {
   await test.step('Logout', async () => {
     await page.locator('#logout-button').click()
     // If the user logged in through OIDC previously - during logout they are
-    // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-    // logout.
-    if (page.url().match('dev-oidc.*/session/end')) {
-      const pageContent = await page.locator('html').textContent()
-      if (pageContent!.includes('Do you want to sign-out from')) {
-        // OIDC central provider confirmation page
-        await page.locator('button:has-text("Yes")').click()
-      }
-    }
+    // redirected through the dev-oidc:PORT/session/end page, which confirms
+    // the logout automatically.
 
     // Logout is handled by the play framework so it doesn't land on a
     // page with civiform js where we should waitForPageJsLoad. Because
@@ -163,30 +156,13 @@ async function loginAsTestUserFakeOidc(
   await page.locator(loginButton).click()
   await page.waitForURL('**/interaction/*')
 
-  // If the user has previously signed in to the provider, a prompt is shown
-  // to reauthorize rather than sign-in. In this case, click "Continue" instead
-  // and skip filling out any login information. If we want to support logging
-  // in as multiple users, this will need to be adjusted.
-  const pageText = await page.locator('html').innerText()
-  if (
-    pageText.includes(
-      'the client is asking you to confirm previously given authorization',
-    )
-  ) {
-    throw new Error(
-      'Unexpected reauthorization page. Central logout should fully logout user.',
-    )
-  }
-
   await page.locator('input[name=login]').fill(TEST_USER_LOGIN)
   await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
 
+  // The provider auto-grants all requested scopes and claims (see
+  // test-support/test_oidc_provider.js), so after sign-in there is no consent
+  // screen and the browser is redirected straight back to CiviForm.
   await page.locator('button:has-text("Sign-in"):not([disabled])').click()
-  await page.waitForURL('**/interaction/*')
-
-  // A screen is shown prompting the user to authorize a set of scopes.
-  // This screen is skipped if the user has already logged in once.
-  await page.locator('button:has-text("Continue")').click()
   await waitForPageJsLoad(page)
   if (url) {
     await page.waitForURL(url)

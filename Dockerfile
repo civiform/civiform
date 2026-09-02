@@ -1,6 +1,6 @@
-# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
+# syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
 
-FROM eclipse-temurin:25.0.3_9-jdk-alpine@sha256:30d9f87d702c2c1c601ed0d31e0c88ea1ea474ee7676cda7b7a59e759181c4dd
+FROM eclipse-temurin:25.0.4_7-jdk-alpine@sha256:09349d79941fd53bb3d487b393ca118d8853c08c09193f416fe6a8718df9e732
 
 ARG SBT_VERSION
 ENV SBT_VERSION="${SBT_VERSION}"
@@ -23,10 +23,9 @@ RUN set -o pipefail && \
   apk update && \
   apk add --upgrade apk-tools && \
   apk upgrade --available && \
-  apk add --no-cache --update bash wget npm git
-
-# Install npm (node)
-RUN npm install -g npm
+  apk add --no-cache --update bash wget npm git && \
+  # npm >= 12 required by engines/engine-strict
+  npm install -g npm@^12
 
 # Download sbt
 RUN set -o pipefail && \

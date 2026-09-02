@@ -24,20 +24,26 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramService;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
+import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramBlocksView;
 
 public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
   private AdminProgramBlockQuestionsController controller;
+  private ProgramService programService;
 
   @Before
   public void setUp() {
     controller = instanceOf(AdminProgramBlockQuestionsController.class);
+    programService = instanceOf(ProgramService.class);
   }
 
   @Test
@@ -73,20 +79,55 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void create_addEnumeratorWithInitialQuestion_addsInitialQuestionToBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    var enumeratorQuestionModel =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long enumeratorId = enumeratorQuestionModel.id;
+    long initialQuestionId =
+        enumeratorQuestionModel
+            .getQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .orElseThrow();
+
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    // Execute. Submit only the enumerator question to the block.
+    Request request =
+        fakeRequestBuilder()
+            .call(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
+            .build();
+    Result result = controller.create(request, program.id, 1);
+
+    // Verify.
+    assertThat(result.status()).withFailMessage(contentAsString(result)).isEqualTo(SEE_OTHER);
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions().stream().map(ProgramQuestionDefinition::id))
+        .containsExactly(enumeratorId, initialQuestionId);
+  }
+
+  @Test
   public void hxCreateEnumerator_addsNewEnumeratorQuestionToBlock()
       throws ProgramBlockDefinitionNotFoundException {
-
+    QuestionDefinition initialQuestion =
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
     ProgramModel program = programBuilder.withEnumeratorBlock().build();
 
     Request request =
         fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
                     "questionName", "pets enumerator",
                     "questionText", "List your pets.",
-                    "questionHelpText", "help text"))
+                    "questionHelpText", "help text",
+                    "initialQuestionId", String.valueOf(initialQuestion.getId())))
             .build();
 
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
@@ -99,6 +140,115 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxCreateEnumerator_withExistingInitialQuestion_createsCopyAndAddsBothToBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    QuestionDefinition initialQuestion =
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text",
+                    "initialQuestionId", String.valueOf(initialQuestion.getId())))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(2);
+    QuestionDefinition enumeratorOnBlock =
+        blockAfter.programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition initialOnBlock =
+        blockAfter.programQuestionDefinitions().get(1).getQuestionDefinition();
+    assertThat(enumeratorOnBlock.isEnumerator()).isTrue();
+    // A copy of the initial question was created with " -_- a" suffix.
+    assertThat(initialOnBlock.getName()).isEqualTo(initialQuestion.getName() + " -_- a");
+    assertThat(initialOnBlock.getEnumeratorId()).contains(enumeratorOnBlock.getId());
+    // The enumerator links to the persisted initial question copy.
+    assertThat(enumeratorOnBlock.getEnumeratorInitialQuestionId()).contains(initialOnBlock.getId());
+  }
+
+  @Test
+  public void hxCreateEnumerator_withNewlyCreatedInitialQuestion_updatesInPlaceAndAddsBothToBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    // Mimic a question just created via the "Create new question" flow — a draft that hasn't
+    // been attached to any enumerator yet.
+    QuestionDefinition initialQuestion =
+        testQuestionBank
+            .maybeSave(
+                new TextQuestionDefinition(
+                    QuestionDefinitionConfig.builder()
+                        .setName("newly-created-initial-question")
+                        .setDescription("desc")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "?"))
+                        .build()),
+                LifecycleStage.DRAFT)
+            .getQuestionDefinition();
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text",
+                    "initialQuestionId", String.valueOf(initialQuestion.getId()),
+                    "initialQuestionWasNewlyCreated", "true"))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(2);
+    QuestionDefinition enumeratorOnBlock =
+        blockAfter.programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition initialOnBlock =
+        blockAfter.programQuestionDefinitions().get(1).getQuestionDefinition();
+    assertThat(enumeratorOnBlock.isEnumerator()).isTrue();
+    // Update-in-place: same id, no " -_- a" suffix on the name.
+    assertThat(initialOnBlock.getId()).isEqualTo(initialQuestion.getId());
+    assertThat(initialOnBlock.getName()).isEqualTo(initialQuestion.getName());
+    assertThat(initialOnBlock.getEnumeratorId()).contains(enumeratorOnBlock.getId());
+    assertThat(enumeratorOnBlock.getEnumeratorInitialQuestionId()).contains(initialOnBlock.getId());
+  }
+
+  @Test
+  public void hxCreateEnumerator_withUnknownInitialQuestionId_returnsNotFound() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text",
+                    "initialQuestionId", "99999"))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
   public void hxCreateEnumerator_withIncompleteForm_returnsEnumeratorFormWithErrorMessage()
       throws ProgramBlockDefinitionNotFoundException {
 
@@ -108,9 +258,10 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Request request =
         fakeRequestBuilder()
             .bodyForm(
+                // Missing questionText and initialQuestionId
                 ImmutableMap.of(
                     "entityType", "Pets",
-                    "questionName", "pets enumerator", // Missing questionText
+                    "questionName", "pets enumerator",
                     "questionHelpText", "help text"))
             .build();
 
@@ -119,7 +270,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains("<div id=\"enumerator-setup\" class=\"maxw-mobile-lg\">");
-    assertThat(contentAsString(result)).contains("Error: Question text cannot be blank.");
+    assertThat(contentAsString(result))
+        .contains("Error: Question text cannot be blank. Initial question must be added.");
   }
 
   @Test
@@ -202,6 +354,26 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxClearInitialQuestionSlot_returnsEmptySlot() {
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Result result = controller.hxClearInitialQuestionSlot(fakeRequest(), program.id, 1);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("id=\"initial-question-slot\"");
+    assertThat(content).contains("Add question");
+  }
+
+  @Test
+  public void hxClearInitialQuestionSlot_withActiveProgram_throws() {
+    Long programId = resourceCreator.insertActiveProgram("active program").id;
+    assertThatThrownBy(
+            () -> controller.hxClearInitialQuestionSlot(fakeRequest(), programId, /* blockId= */ 1))
+        .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
   public void create_withActiveProgram_throws() {
     Long programId = resourceCreator.insertActiveProgram("active program").id;
     assertThatThrownBy(() -> controller.create(fakeRequest(), programId, /* blockId= */ 1))
@@ -219,6 +391,68 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
                     /* blockDefinitionId= */ 1,
                     /* questionDefinitionId= */ 1))
         .isInstanceOf(NotChangeableException.class);
+  }
+
+  @Test
+  public void delete_removesQuestionFromBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock("block1")
+            .withRequiredQuestionDefinition(nameQuestion)
+            .build();
+
+    Result result =
+        controller.delete(
+            fakeRequest(), program.id, /* blockDefinitionId= */ 1, nameQuestion.getId());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .isEmpty();
+  }
+
+  @Test
+  public void delete_enumeratorWithInitialQuestion_removesBothFromBlock()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    var enumeratorQuestionModel =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long enumeratorId = enumeratorQuestionModel.id;
+
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    // Add the enumerator (and its paired initial question) to the block.
+    Request createRequest =
+        fakeRequestBuilder()
+            .call(
+                controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
+            .build();
+    controller.create(createRequest, program.id, 1);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .hasSize(2);
+
+    // Execute. Delete only the enumerator question.
+    Result result =
+        controller.delete(fakeRequest(), program.id, /* blockDefinitionId= */ 1, enumeratorId);
+
+    // Verify. Both the enumerator and its initial question are removed from the block.
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .isEmpty();
   }
 
   @Test

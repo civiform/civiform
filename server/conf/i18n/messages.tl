@@ -702,7 +702,6 @@ validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi nat
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Kumpirmahin ang iyong address
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Hindi namin nahanap ang iyong address.
 content.confirmAddressLine1.v2=Kailangan ang kompirmasyon ng address.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Pakitingnan kung tama ang spelling ng address mo o pumili ng opsyon sa listahang ibinigay.
@@ -814,6 +813,8 @@ placeholder.entityName={0} Palayaw
 validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Hindi namin mai-upload ang iyong file. Mangyaring subukang muli.
 # Text shown on a tag while a file is uploading.
@@ -1221,6 +1222,8 @@ label.repeatedSet.initialQuestion=
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
+# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Ang paggawa ng isang inuulit na set ay magdaragdag ng bagong tanong sa kaban ng mga tanong.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
@@ -1229,16 +1232,14 @@ alert.repeatedSet.previouslyUsed=
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
-# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=magulang na label
-# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=anak na label
-# Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does

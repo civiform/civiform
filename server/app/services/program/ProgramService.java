@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
@@ -38,7 +39,6 @@ import models.ProgramNotificationPreference;
 import models.VersionModel;
 import modules.MainModule;
 import org.apache.commons.lang3.StringUtils;
-import play.i18n.Messages;
 import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import repository.AccountRepository;
@@ -50,7 +50,6 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
-import services.MessageKey;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
 import services.TranslationLocales;
@@ -406,7 +405,6 @@ public final class ProgramService {
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
       ImmutableList<ApplicationStep> applicationSteps,
-      Messages messages,
       boolean enumeratorImprovementsEnabled) {
     ImmutableSet<CiviFormError> errors =
         validateProgramDataForCreate(
@@ -431,7 +429,6 @@ public final class ProgramService {
             /* maybeEnumeratorBlockId= */ Optional.empty(),
             /* isEnumerator= */ Optional.empty(),
             /* isNested= */ false,
-            messages,
             enumeratorImprovementsEnabled);
     if (maybeEmptyBlock.isError()) {
       return ErrorAnd.error(maybeEmptyBlock.getErrors());
@@ -462,6 +459,7 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             loginOnly,
+            /* usesScoring= */ false,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
@@ -1368,14 +1366,11 @@ public final class ProgramService {
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addBlockToProgram(
-      long programId,
-      Optional<Boolean> isEnumerator,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, Optional<Boolean> isEnumerator, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException {
     try {
       return addBlockToProgram(
-          programId, Optional.empty(), isEnumerator, messages, enumeratorImprovementsEnabled);
+          programId, Optional.empty(), isEnumerator, enumeratorImprovementsEnabled);
     } catch (ProgramBlockDefinitionNotFoundException e) {
       throw new RuntimeException(
           "The ProgramBlockDefinitionNotFoundException should never be thrown when the enumerator"
@@ -1398,16 +1393,12 @@ public final class ProgramService {
    *     an enumerator block in the Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addRepeatedBlockToProgram(
-      long programId,
-      long enumeratorBlockId,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, long enumeratorBlockId, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(
         programId,
         Optional.of(enumeratorBlockId),
         /* isEnumerator= */ Optional.empty(),
-        messages,
         enumeratorImprovementsEnabled);
   }
 
@@ -1427,16 +1418,12 @@ public final class ProgramService {
    *     correspond to an enumerator block in the Program.
    */
   public ErrorAnd<ProgramBlockAdditionResult, CiviFormError> addNestedRepeatedSetToProgram(
-      long programId,
-      long parentEnumeratorBlockId,
-      Messages messages,
-      boolean enumeratorImprovementsEnabled)
+      long programId, long parentEnumeratorBlockId, boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     return addBlockToProgram(
         programId,
         Optional.of(parentEnumeratorBlockId),
         /* isEnumerator= */ Optional.of(true),
-        messages,
         enumeratorImprovementsEnabled);
   }
 
@@ -1444,7 +1431,6 @@ public final class ProgramService {
       long programId,
       Optional<Long> enumeratorBlockId,
       Optional<Boolean> isEnumerator,
-      Messages messages,
       boolean enumeratorImprovementsEnabled)
       throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
     ProgramDefinition programDefinition = getFullProgramDefinition(programId);
@@ -1464,7 +1450,6 @@ public final class ProgramService {
                     .enumeratorId()
                     .isPresent()
                 : false,
-            messages,
             enumeratorImprovementsEnabled);
     if (maybeBlockDefinition.isError()) {
       return ErrorAnd.errorAnd(
@@ -1604,9 +1589,14 @@ public final class ProgramService {
   /**
    * Update a {@link BlockDefinition} to include additional questions.
    *
+   * <p>Questions in {@code questionIds} are added in the specified order.
+   *
+   * <p>Enforces that the block is correctly configured and will not allow incorrect configurations,
+   * such as tombstoned questions, multiple enumerators, other questions with enumerators.
+   *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs for the block
+   * @param questionIds the questions to add
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1634,8 +1624,13 @@ public final class ProgramService {
     ReadOnlyQuestionService roQuestionService =
         questionService.getReadOnlyQuestionService().toCompletableFuture().join();
 
+    Set<Long> newFlowEnumIds = new HashSet<>();
     for (long questionId : questionIds) {
       QuestionDefinition questionDefinition = roQuestionService.getQuestionDefinition(questionId);
+      if (questionDefinition.isEnumerator()
+          && questionDefinition.getEnumeratorInitialQuestionId().isPresent()) {
+        newFlowEnumIds.add(questionId);
+      }
 
       // If this is a repeated block and the question is not repeated
       // Create a new question that is a copy and save that question before adding it to the block.
@@ -1649,6 +1644,8 @@ public final class ProgramService {
 
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
+      boolean isInitialQuestion =
+          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false);
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()
@@ -1657,12 +1654,27 @@ public final class ProgramService {
                   blockDefinition,
                   question.getQuestionDefinition(),
                   enumeratorImprovementsEnabled,
-                  fileUploadQuestionImprovementsEnabled);
+                  fileUploadQuestionImprovementsEnabled,
+                  isInitialQuestion);
       if (canAddQuestion != AddQuestionResult.ELIGIBLE) {
         throw new CantAddQuestionToBlockException(
             programDefinition, blockDefinition, question.getQuestionDefinition(), canAddQuestion);
       }
       updatedBlockQuestions.add(question);
+
+      // If we just added an enumerator question, reflect it in blockDefinition so the next
+      // iteration's canAddQuestion sees it (e.g. the initial question's enumeratorId match).
+      if (questionDefinition.isEnumerator()) {
+        blockDefinition =
+            blockDefinition.toBuilder()
+                .setProgramQuestionDefinitions(
+                    ImmutableList.<ProgramQuestionDefinition>builder()
+                        .addAll(blockDefinition.programQuestionDefinitions())
+                        .add(question)
+                        .build())
+                .setIsEnumerator(Optional.of(true))
+                .build();
+      }
     }
 
     ImmutableList<ProgramQuestionDefinition> updatedBlockQuestionsList =
@@ -1697,7 +1709,7 @@ public final class ProgramService {
    *
    * @param programId the ID of the program to update
    * @param blockDefinitionId the ID of the block to update
-   * @param questionIds an {@link ImmutableList} of question IDs to be removed from the block
+   * @param questionIds question IDs to be removed from the block
    * @return the updated {@link ProgramDefinition}
    * @throws ProgramNotFoundException when programId does not correspond to a real Program.
    * @throws ProgramBlockDefinitionNotFoundException when blockDefinitionId does not correspond to a
@@ -1710,7 +1722,7 @@ public final class ProgramService {
   public ProgramDefinition removeQuestionsFromBlock(
       long programId,
       long blockDefinitionId,
-      ImmutableList<Long> questionIds,
+      List<Long> questionIds,
       SettingsManifest settingsManifest,
       Request request)
       throws QuestionNotFoundException,
@@ -2202,7 +2214,6 @@ public final class ProgramService {
       Optional<Long> maybeEnumeratorBlockId,
       Optional<Boolean> isEnumerator,
       boolean isNested,
-      Messages messages,
       boolean enumeratorImprovementsEnabled) {
     String blockName =
         maybeEnumeratorBlockId.isPresent()
@@ -2211,15 +2222,11 @@ public final class ProgramService {
     String blockDescription = String.format("Screen %d description", blockId);
     Optional<String> namePrefix = Optional.empty();
     if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {
+      // Placeholder tokens for a repeated block's name prefix. These are never displayed: admins
+      // see the bare block name, and Block.getLocalizedName() replaces each token with the
+      // applicant's listed entity name.
       namePrefix =
-          Optional.of(
-              isNested
-                  ? String.format(
-                      "[%s] - [%s] - ",
-                      messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName()),
-                      messages.at(MessageKey.TEXT_REPEATED_SET_NESTED_PREFIX.getKeyName()))
-                  : String.format(
-                      "[%s] - ", messages.at(MessageKey.TEXT_REPEATED_SET_PREFIX.getKeyName())));
+          Optional.of(isNested ? "[parent entity] - [child entity] - " : "[parent entity] - ");
     }
     BlockDefinition blockDefinition =
         BlockDefinition.builder()

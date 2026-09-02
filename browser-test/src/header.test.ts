@@ -121,6 +121,7 @@ test.describe('Header', () => {
 
   test('Government name hidden', async ({page}) => {
     await enableFeatureFlag(page, 'hide_civic_entity_name_in_header')
+    await page.goto('/programs')
 
     await test.step('Header on desktop shows logo and hides gov name', async () => {
       await page.setViewportSize({width: 1280, height: 720})

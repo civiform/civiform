@@ -1,7 +1,14 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, waitForPageJsLoad} from '../support'
+import {enableFeatureFlag, loginAsAdmin, waitForPageJsLoad} from '../support'
 
 test.describe('Create date question with validation parameters', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('Edit date question with date validation settings', async ({
     page,
     adminQuestions,

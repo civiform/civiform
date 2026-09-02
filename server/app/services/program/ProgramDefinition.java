@@ -19,6 +19,7 @@ import java.util.ArrayDeque;
 import java.util.Arrays;
 import java.util.Deque;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -139,6 +140,20 @@ public abstract class ProgramDefinition {
    */
   @JsonProperty("eligibilityIsGating")
   public abstract boolean eligibilityIsGating();
+
+  /**
+   * Internal storage for {@link #usesScoring()}. Optional so that program exports created before
+   * the property existed still deserialize; a missing property reads as false. Use {@link
+   * #usesScoring()} instead.
+   */
+  @JsonProperty("usesScoring")
+  abstract Optional<Boolean> usesScoringInternal();
+
+  /** Whether the program applies answer-option scores to submitted applications. */
+  @JsonIgnore
+  public final boolean usesScoring() {
+    return usesScoringInternal().orElse(false);
+  }
 
   @JsonProperty("acls")
   public abstract ProgramAcls acls();
@@ -286,7 +301,7 @@ public abstract class ProgramDefinition {
   }
 
   /** Returns true if any question id in the list is used by an api bridge configuration */
-  public boolean isQuestionsListUsedByApiBridge(ImmutableList<Long> questionIds) {
+  public boolean isQuestionsListUsedByApiBridge(List<Long> questionIds) {
     ImmutableList<String> questionNamesUsedByBridges =
         bridgeDefinitions().values().stream()
             .flatMap(x -> Stream.concat(x.inputFields().stream(), x.outputFields().stream()))
@@ -909,6 +924,13 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
+
+    @JsonProperty("usesScoring")
+    abstract Builder setUsesScoringInternal(Optional<Boolean> usesScoring);
+
+    public final Builder setUsesScoring(boolean usesScoring) {
+      return setUsesScoringInternal(Optional.of(usesScoring));
+    }
 
     @JsonProperty("loginOnly")
     public abstract Builder setLoginOnly(boolean loginOnly);

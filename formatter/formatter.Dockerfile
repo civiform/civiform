@@ -1,11 +1,13 @@
-# syntax=docker/dockerfile:1@sha256:87999aa3d42bdc6bea60565083ee17e86d1f3339802f543c0d03998580f9cb89
-FROM eclipse-temurin:25.0.3_9-jdk-alpine@sha256:30d9f87d702c2c1c601ed0d31e0c88ea1ea474ee7676cda7b7a59e759181c4dd
+# syntax=docker/dockerfile:1@sha256:ecfaec9ed6d810b56388c508f4121597bfbba70d41a6dfeee4d8cad5f295fc32
+FROM eclipse-temurin:25.0.4_7-jdk-alpine@sha256:09349d79941fd53bb3d487b393ca118d8853c08c09193f416fe6a8718df9e732
 
 ENV JAVA_FORMATTER_URL="https://github.com/google/google-java-format/releases/download/v1.34.1/google-java-format-1.34.1-all-deps.jar"
 
 RUN wget $JAVA_FORMATTER_URL -O /fmt.jar && \
     apk update && \
     apk add --no-cache --update bash wget npm shfmt git py3-pip py3-yapf && \
+    # npm >= 12 required by engines/engine-strict
+    npm install -g npm@^12 && \
     apk cache clean
 
 # Below we pre-install nodejs depdendencies for various

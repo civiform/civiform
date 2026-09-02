@@ -894,6 +894,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * How long in milliseconds a database connection can be borrowed from the pool before a warning
+   * log is generated indicating a potential connection leak. Minimum value is 2000.
+   */
+  public Optional<Integer> getLeakDetectionThreshold() {
+    return getInt("LEAK_DETECTION_THRESHOLD");
+  }
+
+  /**
    * A cryptographic [secret salt](https://en.wikipedia.org/wiki/Salt_(cryptography)) used for
    * salting API keys before storing their hash values in the database. This value should be kept
    * strictly secret. If one suspects the secret has been leaked or otherwise comprised it should be
@@ -1054,11 +1062,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
   }
 
-  /** Enable using custom theme colors in the applicant UI. */
-  public boolean getCustomThemeColorsEnabled() {
-    return getBool("CUSTOM_THEME_COLORS_ENABLED");
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -1069,22 +1072,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /** Enables being able to add a new yes/no question. */
-  public boolean getYesNoQuestionEnabled() {
-    return getBool("YES_NO_QUESTION_ENABLED");
-  }
-
-  /** Enable showing external program cards. */
-  public boolean getExternalProgramCardsEnabled() {
-    return getBool("EXTERNAL_PROGRAM_CARDS_ENABLED");
-  }
-
   /**
    * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
    * admin.
    */
-  public boolean getExpandedFormLogicEnabled(RequestHeader request) {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED", request);
+  public boolean getExpandedFormLogicEnabled() {
+    return getBool("EXPANDED_FORM_LOGIC_ENABLED");
   }
 
   /** Enables a dropdown for login that has both applicant and admin login. */
@@ -1102,14 +1095,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
+  /** Enables translation management improvement phase one */
+  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
   public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
-  }
-
-  /** (NOT FOR PRODUCTION USE) Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
@@ -1134,14 +1127,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf. */
-  public boolean getAdminUiMigrationScEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_SC_ENABLED", request);
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf. */
+  public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", request);
   }
 
-  /** (NOT FOR PRODUCTION USE) Enable extended options in the admin UI migration in Thymeleaf. */
-  public boolean getAdminUiMigrationScExtendedEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED", request);
+  /** (NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using new UX Designs. */
+  public boolean getAdminUiMigrationUxRedesignScEnabled(RequestHeader request) {
+    return getBool("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
@@ -1154,6 +1147,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
     return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
+  }
+
+  /**
+   * (NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and
+   * sums all scores on pdf downloads, csv exports, and JSON exports of submitted applications for
+   * admins and TIs on programs that opt in.
+   */
+  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
+    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
+  }
+
+  /** (NOT FOR PRODUCTION USE) Enables an image to be shown in a static question. */
+  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
+    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =
@@ -2131,6 +2138,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " scripts are added to the CiviForm pages.",
                           /* isRequired= */ false,
                           SettingType.STRING,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "LEAK_DETECTION_THRESHOLD",
+                          "How long in milliseconds a database connection can be borrowed from the"
+                              + " pool before a warning log is generated indicating a potential"
+                              + " connection leak. Minimum value is 2000.",
+                          /* isRequired= */ false,
+                          SettingType.INT,
                           SettingMode.ADMIN_READABLE))))
           .put(
               "Data Export API",
@@ -2333,12 +2348,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "CUSTOM_THEME_COLORS_ENABLED",
-                          "Enable using custom theme colors in the applicant UI.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",
                           /* isRequired= */ false,
@@ -2351,24 +2360,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "YES_NO_QUESTION_ENABLED",
-                          "Enables being able to add a new yes/no question.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "EXTERNAL_PROGRAM_CARDS_ENABLED",
-                          "Enable showing external program cards.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "EXPANDED_FORM_LOGIC_ENABLED",
                           "Enables new visibility/eligibility condition editing UI and expanded"
                               + " logic capabilities for admin.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
+                          SettingMode.ADMIN_READABLE),
                       SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
@@ -2387,7 +2384,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable session timeout based on inactivity and maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
+                          "Enables translation management improvement phase one",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2400,13 +2403,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "PROGRAM_SLUG_URLS_ENABLED",
                           "(NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in"
                               + " URLs.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
-                      SettingDescription.create(
-                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables translation management improvement"
-                              + " phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2433,15 +2429,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ADMIN_UI_MIGRATION_SC_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration in Thymeleaf.",
+                          "ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html"
+                              + " to Thymeleaf.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "ADMIN_UI_MIGRATION_SC_EXTENDED_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enable extended options in the admin UI"
-                              + " migration in Thymeleaf.",
+                          "ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using"
+                              + " new UX Designs.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
@@ -2458,7 +2455,23 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " applicant-guest merging strategy.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "ANSWER_OPTION_SCORING_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option"
+                              + " question answer options and sums all scores on pdf downloads, csv"
+                              + " exports, and JSON exports of submitted applications for admins"
+                              + " and TIs on programs that opt in.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "IMAGES_IN_QUESTION_FEATURE_ENABLED",
+                          "(NOT FOR PRODUCTION USE) Enables an image to be shown in a static"
+                              + " question.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Miscellaneous",
               SettingsSection.create(

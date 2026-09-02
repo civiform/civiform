@@ -25,7 +25,10 @@
     ></div>
 
     <div class="padding-bottom-2">
-      <h3 class="font-family-serif" th:text="#{map.availableLocations}"></h3>
+      <h3
+        class="font-family-serif font-serif-md text-normal margin-0"
+        th:text="#{map.availableLocations}"
+      ></h3>
       <div
         th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
         class="text-gray-50"
@@ -37,7 +40,9 @@
       th:class="|cf-map-question-filters-container ${mapQuestion.getFilters().size() > 0 ? '' : ' display-none'}|"
       th:aria-hidden="${mapQuestion.getFilters().size() > 0 ? 'false' : 'true'}"
     >
-      <fieldset class="grid-row grid-gap cf-map-question-filter-fieldset">
+      <fieldset
+        class="usa-fieldset grid-row grid-gap cf-map-question-filter-fieldset"
+      >
         <legend
           class="usa-legend text-bold"
           th:text="#{map.filterLegendText}"
@@ -314,7 +319,7 @@
             th:if="${isPreview}"
             class="square-mobile display-flex flex-align-center flex-justify-center"
           >
-            <p th:text="#{map.mapPreviewText}"></p>
+            <p class="margin-0" th:text="#{map.mapPreviewText}"></p>
           </div>
         </div>
       </div>
@@ -322,13 +327,13 @@
     <!-- Selected locations section -->
     <div class="margin-top-3">
       <h3
-        class="font-family-serif"
+        class="font-family-serif font-serif-md text-normal margin-0"
         th:text="#{map.selectedLocationsHeading}"
       ></h3>
       <p
         th:if="${isPreview}"
         th:text="#{map.noSelectionsMessage}"
-        class="cf-selected-locations-message"
+        class="cf-selected-locations-message margin-0"
       ></p>
       <div
         th:if="${mapQuestion.hasTagText()}"
@@ -368,7 +373,7 @@
       th:data-map-id="${mapId}"
     >
       <p
-        class="cf-selected-locations-message"
+        class="cf-selected-locations-message margin-0"
         th:if="${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().isPresent()}"
         th:with="totalLocationsSelected=1,
             maxLocationSelectionsAllowed=${mapQuestion.getQuestionDefinition().getMapValidationPredicates().maxLocationSelections().getAsInt()}"

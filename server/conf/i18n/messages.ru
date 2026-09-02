@@ -702,7 +702,6 @@ validation.noPoBox=Введите действительный адрес. Не 
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=Подтвердите свой адрес
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1=Нам не удалось найти указанный адрес.
 content.confirmAddressLine1.v2=Требуется подтверждение адреса.
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=Проверьте его на наличие ошибок или выберите вариант из списка предложенных.
@@ -814,6 +813,8 @@ placeholder.entityName=Название записи ({0})
 validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
+# Error shown when an applicant uploads more files than the maximum allowed.
+validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Мы не смогли загрузить ваш файл. Попробуйте еще раз.
 # Text shown on a tag while a file is uploading.
@@ -1221,6 +1222,8 @@ label.repeatedSet.initialQuestion=
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Перед добавлением повторяющихся вопросов необходимо добавить вопросы для повторяющегося набора. Чтобы сделать это, перейдите на основной экран.
+# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
 alert.repeatedSet.newQuestion=При создании повторяющегося набора новый вопрос будет добавлен в банк.
 # Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
@@ -1229,16 +1232,14 @@ alert.repeatedSet.previouslyUsed=
 button.repeatedSet.submitNew=
 # Button for admins to add a new repeated set
 button.repeatedSet.addNew=
+# Button label on the initial question card that clears the selection
+button.repeatedSet.initialQuestion.delete=
+# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
-# An uneditable prefix for the enumerator screen name representing the repeated object that will be enumerated
-text.repeatedSet.prefix=заголовок родительского элемента
-# An uneditable prefix for the enumerator screen name representing the nested repeated object that will be enumerated
-text.repeatedSet.nestedPrefix=заголовок дочернего элемента
-# Instructions for admins on how to add or change the repeated set question in a program block
-text.repeatedSet.questionDescription=
 #An additional description explaining the uneditable prefix within the screen editing modal
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does

@@ -157,7 +157,7 @@ public class EligibilityAlertSettingsCalculatorTest {
     return fakeRequest();
   }
 
-  private record ParamValue(
+  protected record ParamValue(
       boolean isTi,
       boolean isFastForwarded,
       boolean isApplicationEligible,

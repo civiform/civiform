@@ -7,6 +7,8 @@ test.describe('Ineligible Page Tests', () => {
   })
 
   test('View "Not Production" banner', async ({page}) => {
+    await page.goto('/programs')
+
     await test.step('Verify banner', async () => {
       await expect(
         page.getByText(

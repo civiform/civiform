@@ -123,13 +123,9 @@ test.describe('Session timeout for applicants', () => {
 
 const confirmUserIsLoggedOut = async (page: Page) => {
   // If the user logged in through OIDC previously - during logout they are
-  // redirected to dev-oidc:PORT/session/end page. There they need to confirm
-  // logout.
+  // redirected through the dev-oidc:PORT/session/end page, which confirms
+  // the logout automatically and redirects back to the programs index page.
   if (page.url().match('dev-oidc.*/session/end')) {
-    const pageContent = await page.textContent('html')
-    if (pageContent!.includes('Do you want to sign-out from')) {
-      // OIDC central provider confirmation page
-      await page.getByRole('button', {name: 'Yes'}).click()
-    }
+    await page.waitForURL('**/programs')
   }
 }

@@ -28,7 +28,6 @@ import play.cache.AsyncCacheApi;
 import play.cache.NamedCache;
 import play.data.DynamicForm;
 import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Http.Request;
@@ -66,7 +65,6 @@ public class DevToolsController extends Controller {
   private final TransactionManager transactionManager = new TransactionManager();
   private final FormFactory formFactory;
   private final DevToolsPageView devToolsPageView;
-  private final MessagesApi messagesApi;
 
   @Inject
   public DevToolsController(
@@ -78,7 +76,6 @@ public class DevToolsController extends Controller {
       Clock clock,
       DeploymentType deploymentType,
       FormFactory formFactory,
-      MessagesApi messagesApi,
       @NamedCache("version-questions") AsyncCacheApi questionsByVersionCache,
       @NamedCache("version-programs") AsyncCacheApi programsByVersionCache,
       @NamedCache("program") AsyncCacheApi programCache,
@@ -104,7 +101,6 @@ public class DevToolsController extends Controller {
     this.deploymentType = checkNotNull(deploymentType);
     this.formFactory = checkNotNull(formFactory);
     this.devToolsPageView = checkNotNull(devToolsPageView);
-    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /**
@@ -112,7 +108,7 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (settingsManifest.getAdminUiMigrationScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
       ImmutableList<String> durableJobOptions =
           ImmutableList.copyOf(DurableJobName.values()).stream()
               .map(DurableJobName::toString)
@@ -185,13 +181,9 @@ public class DevToolsController extends Controller {
           devDatabaseSeedTask.seedQuestions();
       devDatabaseSeedTask.seedProgramCategories();
       devDatabaseSeedTask.insertMinimalSampleProgram(
-          createdSampleQuestions,
-          messagesApi.preferred(request),
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled(request));
       devDatabaseSeedTask.insertComprehensiveSampleProgram(
-          createdSampleQuestions,
-          messagesApi.preferred(request),
-          settingsManifest.getEnumeratorImprovementsEnabled(request));
+          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled(request));
 
       return true;
     } catch (RuntimeException ex) {
@@ -240,6 +232,22 @@ public class DevToolsController extends Controller {
   /** Remove all content from the program and question tables. */
   public Result clearHeadless() {
     return clearInternal() ? ok() : internalServerError();
+  }
+
+  /**
+   * Log blank lines to create visual spacing the log file.
+   *
+   * <p>Normally a developer could just press enter as desired, but in our setup that terminates the
+   * local server.
+   */
+  public Result logBlankLines() {
+    // Log enough so that it'll be visibly discoverable when scrolling through logs.
+    // Note the HTTP request for this handler will also be logged next to
+    // this, so multiple calls won't result in a larger unbroken section.
+    for (int i = 0; i < 5; ++i) {
+      logger.info("");
+    }
+    return ok();
   }
 
   /**

@@ -27,6 +27,38 @@ See the radio-option below as an example.
   display: none;
 }
 
+/*
+ * TextFormatter renders markdown into bare <p> tags that templates can't
+ * attach utility classes to. Tailwind's base reset used to zero their margins;
+ * keep that behavior inside the containers that hold markdown output.
+ * :where() keeps specificity at (0,0,1), so USWDS component rules (e.g.
+ * .usa-alert__text, .usa-prose > * + *) win exactly as they did before.
+ */
+:where(
+    .cf-applicant-question-text,
+    .cf-applicant-question-help-text,
+    .cf-applicant-summary-row,
+    .usa-alert__body,
+    .usa-checkbox__label,
+    .usa-radio__label,
+    .usa-label,
+    .usa-intro,
+    .usa-process-list__item
+  )
+  p {
+  margin: 0;
+}
+
+/*
+ * Tailwind's base reset hid the native number-input steppers app-wide.
+ * Keep them hidden on the number question input.
+ */
+.cf-question-number input::-webkit-outer-spin-button,
+.cf-question-number input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
 // Prevents improper scaling on mobile devices
 body,
 html {
@@ -560,6 +592,7 @@ main {
 // Add white border to login dropdown options specifically
 .usa-language__submenu {
   border-width: 0.05rem;
+  border-style: solid;
   border-color: color('white');
 }
 
@@ -615,18 +648,21 @@ main {
   .usa-alert:not(.usa-alert--warning, .usa-alert--success) {
     border-left-width: 0px;
     border-right-width: 8px;
+    border-right-style: solid;
     border-right-color: color($theme-color-info);
   }
 
   .usa-alert--warning {
     border-left-width: 0px;
     border-right-width: 8px;
+    border-right-style: solid;
     border-right-color: color($theme-color-warning);
   }
 
   .usa-alert--success {
     border-left-width: 0px;
     border-right-width: 8px;
+    border-right-style: solid;
     border-right-color: color($theme-color-success);
   }
 

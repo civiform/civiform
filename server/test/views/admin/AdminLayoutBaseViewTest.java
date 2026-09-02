@@ -11,7 +11,7 @@ import views.BaseViewModel;
 import views.shared.LayoutDeps;
 
 public class AdminLayoutBaseViewTest extends WithMockedProfiles {
-  private record CustomViewModel() implements BaseViewModel {}
+  protected record CustomViewModel() implements BaseViewModel {}
 
   public static class CustomView extends AdminLayoutBaseView<CustomViewModel> {
     private final String pageTemplate;

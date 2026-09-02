@@ -1,15 +1,19 @@
 {
   "name": "civiform-formatter",
+  "engines": {
+    "node": ">=24.0.0",
+    "npm": ">=12.0.0"
+  },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "8.60.1",
-    "@typescript-eslint/parser": "8.60.1",
-    "eslint": "10.4.1",
+    "@typescript-eslint/eslint-plugin": "8.68.0",
+    "@typescript-eslint/parser": "8.68.0",
+    "eslint": "10.9.0",
     "eslint-config-google": "0.14.0",
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "4.1.5",
-    "eslint-plugin-playwright": "2.10.4",
-    "prettier": "3.8.4",
-    "sql-formatter": "15.8.0",
+    "eslint-plugin-playwright": "2.11.0",
+    "prettier": "3.9.6",
+    "sql-formatter": "15.8.2",
     "typescript": "6.0.3"
   }
 }

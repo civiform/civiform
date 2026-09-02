@@ -1,6 +1,7 @@
 package forms.questions;
 
 import java.util.OptionalInt;
+import java.util.OptionalLong;
 import services.LocalizedStrings;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -11,6 +12,9 @@ public class EnumeratorQuestionForm extends QuestionForm {
   private String entityType;
   private OptionalInt minEntities;
   private OptionalInt maxEntities;
+  // Only populated by the "Create repeated set" flow on the block edit page; unused elsewhere.
+  private OptionalLong initialQuestionId;
+  private boolean initialQuestionWasNewlyCreated;
   public static final int MAX_ENUM_ENTITIES_ALLOWED = 50;
 
   public EnumeratorQuestionForm() {
@@ -18,6 +22,8 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = "";
     this.minEntities = OptionalInt.empty();
     this.maxEntities = OptionalInt.empty();
+    this.initialQuestionId = OptionalLong.empty();
+    this.initialQuestionWasNewlyCreated = false;
   }
 
   public EnumeratorQuestionForm(EnumeratorQuestionDefinition qd) {
@@ -25,6 +31,8 @@ public class EnumeratorQuestionForm extends QuestionForm {
     this.entityType = qd.getEntityType().isEmpty() ? "" : qd.getEntityType().getDefault();
     this.minEntities = qd.getMinEntities();
     this.maxEntities = qd.getMaxEntities();
+    this.initialQuestionId = OptionalLong.empty();
+    this.initialQuestionWasNewlyCreated = false;
   }
 
   @Override
@@ -60,6 +68,25 @@ public class EnumeratorQuestionForm extends QuestionForm {
 
   public void setEntityType(String entityType) {
     this.entityType = entityType;
+  }
+
+  public OptionalLong getInitialQuestionId() {
+    return initialQuestionId;
+  }
+
+  public void setInitialQuestionId(String initialQuestionIdAsString) {
+    this.initialQuestionId =
+        initialQuestionIdAsString.isEmpty()
+            ? OptionalLong.empty()
+            : OptionalLong.of(Long.parseLong(initialQuestionIdAsString));
+  }
+
+  public boolean getInitialQuestionWasNewlyCreated() {
+    return initialQuestionWasNewlyCreated;
+  }
+
+  public void setInitialQuestionWasNewlyCreated(boolean initialQuestionWasNewlyCreated) {
+    this.initialQuestionWasNewlyCreated = initialQuestionWasNewlyCreated;
   }
 
   @Override

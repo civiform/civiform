@@ -8,7 +8,7 @@
 // owl selector (`> * + *`) below is the sole source of vertical rhythm.
 
 $spacing-scopes: '.spacing-0, .spacing-05, .spacing-1, .spacing-105, .spacing-2, .spacing-3, .spacing-4, .spacing-8';
-$reset-targets: 'h1, h2, h3, h4, h5, h6, .usa-form-group, .usa-card';
+$reset-targets: 'h1, h2, h3, h4, h5, h6, .usa-form-group, .usa-card, .usa-input';
 
 // Reset margin-top on spacing-* direct children to enforce a good starting point for
 // when the spacing-* is applied.

@@ -45,7 +45,7 @@ services:
     image: civiform-mock-web-services
 
   db:
-    image: postgres:16.14@sha256:4b7183ac05f8ef417db21fd72d71047a4238340c261d3cc3ddb6d579ab5071ae
+    image: postgres:16.15@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
     stdin_open: true
     tty: true
     volumes:
@@ -56,7 +56,7 @@ services:
 
   pgadmin:
     profiles: ['pgadmin']
-    image: dpage/pgadmin4:9.15@sha256:cefc4cc6b7d9d71a9e81e76fb9d7e14038ab5661b539a190eea1b63fa612589a
+    image: dpage/pgadmin4:9.17@sha256:2f4ce946ddf8360680d7eff4eaba1d91859eb6b4003e6623bad5c63a322c2f4d
     restart: always
     depends_on:
       - db
@@ -74,7 +74,7 @@ services:
 
   prometheus:
     profiles: ['monitoring']
-    image: prom/prometheus:v3.11.3@sha256:e4254400b85610324913f0dc4acf92603d9984e7519414c5a12811aa6146acc3
+    image: prom/prometheus:v3.14.0@sha256:5ce7540c3c00ef4ab0c9d2c995c6a5b9c421f44b4a115d97a2c7af3b1c21cbb0
     restart: unless-stopped
     volumes:
       - ./monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
@@ -82,7 +82,7 @@ services:
 
   grafana:
     profiles: ['monitoring']
-    image: grafana/grafana:13.0.1@sha256:0f86bada30d65ef9d0183b90c1e2682ac92d53d95da8bed322b984ea78a4a73a
+    image: grafana/grafana:13.2.0@sha256:3fd54ae1214669f8355f065ec9f6445d5279a3d77095ab048ca045685272429b
     depends_on:
       - prometheus
     restart: unless-stopped

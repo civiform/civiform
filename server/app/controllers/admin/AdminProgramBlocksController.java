@@ -105,11 +105,23 @@ public final class AdminProgramBlocksController extends CiviFormController {
    *
    * <p>By default, the last program screen (block) is shown. Admins can navigate to other screens
    * (blocks) if applicable through links on the page.
+   *
+   * <p>When editing, if the last screen is a repeated screen whose enumerator screen does not yet
+   * have an enumerator question, the enumerator screen is shown instead, since setting up the
+   * enumerator question is the admin's next step.
    */
   private Result index(long programId, boolean readOnly) {
     try {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
-      long blockId = program.getLastBlockDefinition().id();
+      BlockDefinition block = program.getLastBlockDefinition();
+
+      if (!readOnly && block.isRepeated()) {
+        BlockDefinition enumeratorBlock = program.getBlockDefinition(block.enumeratorId().get());
+        if (!enumeratorBlock.hasEnumeratorQuestion()) {
+          block = enumeratorBlock;
+        }
+      }
+      long blockId = block.id();
 
       String redirectUrl =
           readOnly
@@ -117,7 +129,9 @@ public final class AdminProgramBlocksController extends CiviFormController {
               : routes.AdminProgramBlocksController.edit(programId, blockId).url();
 
       return redirect(redirectUrl);
-    } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
+    } catch (ProgramNotFoundException
+        | ProgramNeedsABlockException
+        | ProgramBlockDefinitionNotFoundException e) {
       return notFound();
     }
   }
@@ -156,14 +170,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
             programService.addNestedRepeatedSetToProgram(
                 programId,
                 enumeratorId.get(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
                 enumeratorId.get(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else {
         result =
@@ -172,7 +184,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 BlockType.ENUMERATOR.equals(blockType.orElse(null))
                     ? Optional.of(true)
                     : Optional.empty(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       }
       ProgramDefinition program = result.getResult().program();
@@ -187,19 +198,18 @@ public final class AdminProgramBlocksController extends CiviFormController {
 
       long addedBlockId = block.id();
 
-      // If it's an enumerator, also add the first repeated block.
+      // If it's an enumerator, also add the first repeated block, but land on the enumerator
+      // screen since setting up the enumerator question is the admin's next step.
       if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
                 addedBlockId,
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
         }
-        addedBlockId++;
       }
       return redirect(routes.AdminProgramBlocksController.edit(programId, addedBlockId).url());
     } catch (ProgramNotFoundException | ProgramNeedsABlockException e) {
@@ -219,10 +229,31 @@ public final class AdminProgramBlocksController extends CiviFormController {
     requestChecker.throwIfProgramNotDraft(programId);
 
     try {
-      // Auto-add newly created question to the block if one was just created
       Optional<String> newQuestionIdParam =
           request.queryString(views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM);
       if (newQuestionIdParam.isPresent()) {
+        // When a new question was just created from the question bank, determine whether it should
+        // be treated as an initial question selection (for enumerator setup) or auto-added to the
+        // block.
+        ProgramDefinition programForEnumeratorCheck =
+            programService.getFullProgramDefinition(programId);
+        BlockDefinition blockForEnumeratorCheck =
+            programForEnumeratorCheck.getBlockDefinition(blockId);
+        boolean isEnumeratorSetup =
+            settingsManifest.getEnumeratorImprovementsEnabled(request)
+                && blockForEnumeratorCheck.getIsEnumerator()
+                && !blockForEnumeratorCheck.hasEnumeratorQuestion();
+        if (isEnumeratorSetup) {
+          // Redirect with the new question as the initial question selection. The edit page
+          // reads initialQuestionId from the query string to render the initial question card.
+          // We omit sqb so the question bank doesn't re-open on landing.
+          return redirect(
+              routes.AdminProgramBlocksController.edit(programId, blockId).url()
+                  + "?"
+                  + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                  + "="
+                  + newQuestionIdParam.get());
+        }
         try {
           long newQuestionId = Long.parseLong(newQuestionIdParam.get());
           programService.addQuestionsToBlock(

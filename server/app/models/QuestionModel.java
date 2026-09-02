@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
+import javax.annotation.Nullable;
 import play.data.validation.Constraints;
 import services.LocalizedStrings;
 import services.question.PrimaryApplicantInfoTag;
@@ -99,6 +100,38 @@ public class QuestionModel extends BaseModel {
   private @Constraints.Required QuestionDisplayMode displayMode;
 
   private UUID concurrencyToken;
+
+  /**
+   * A localized description of the image (used as alt text).
+   *
+   * <p>Note: If the question doesn't have an image, the field here will be null but the
+   * corresponding field in {@link QuestionDefinition} will be {@code Optional.empty}. (Ebean
+   * doesn't support optional fields, which is why it's null instead of Optional in this model.) Be
+   * sure to convert between null and Optional when going between this model and {@link
+   * QuestionDefinition}..
+   */
+  @DbJsonB @Nullable private LocalizedStrings localizedImageDescription;
+
+  /**
+   * A key used to fetch the question's image from cloud storage.
+   *
+   * <p>Note: If the question doesn't have an image, the field here will be null but the
+   * corresponding field in {@link QuestionDefinition} will be {@code Optional.empty}. (Ebean
+   * doesn't support optional fields, which is why it's null instead of Optional in this model.) Be
+   * sure to convert between null and Optional when going between this model and {@link
+   * QuestionDefinition}..
+   */
+  @Nullable private String imageFileKey;
+
+  @Nullable
+  public LocalizedStrings getLocalizedImageDescription() {
+    return localizedImageDescription;
+  }
+
+  @Nullable
+  public String getImageFileKey() {
+    return imageFileKey;
+  }
 
   @ManyToMany(mappedBy = "questions")
   @JoinTable(
@@ -194,12 +227,13 @@ public class QuestionModel extends BaseModel {
             .setLastModifiedTime(Optional.ofNullable(lastModifiedTime))
             .setUniversal(questionTags.contains(QuestionTag.UNIVERSAL))
             .setDisplayMode(displayMode)
-            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags));
+            .setPrimaryApplicantInfoTags(getPrimaryApplicantInfoTagsFromQuestionTags(questionTags))
+            .setImageFileKey(Optional.ofNullable(imageFileKey))
+            .setLocalizedImageDescription(Optional.ofNullable(localizedImageDescription));
 
     if (concurrencyToken != null) {
       builder.setConcurrencyToken(concurrencyToken);
     }
-
     setEnumeratorEntityType(builder);
     setQuestionOptions(builder);
     setQuestionSettings(builder);
@@ -302,6 +336,9 @@ public class QuestionModel extends BaseModel {
       enumeratorEntityType = enumerator.getEntityType();
       enumeratorInitialQuestionId = enumerator.getEnumeratorInitialQuestionId().orElse(null);
     }
+
+    localizedImageDescription = questionDefinition.getLocalizedImageDescription().orElse(null);
+    imageFileKey = questionDefinition.getImageFileKey().orElse(null);
 
     // We must ensure we always initTags here. Otherwise, if we aren't
     // adding the tag, and we're needing to remove the universal tag

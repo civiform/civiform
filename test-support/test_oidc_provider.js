@@ -140,7 +140,47 @@ const configuration = {
   features: {
     rpInitiatedLogout: {
       enabled: true,
+      // Skip the "Do you want to sign-out?" confirmation screen by auto-submitting the logout form with a "yes" answer.
+      logoutSource: async (ctx, form) => {
+        ctx.body = `<!DOCTYPE html>
+<html>
+  <head>
+    <title>Logout</title>
+  </head>
+  <body>
+    ${form}
+    <script>
+      const form = document.forms['op.logoutForm']
+      const input = document.createElement('input')
+      input.type = 'hidden'
+      input.name = 'logout'
+      input.value = 'yes'
+      form.appendChild(input)
+      form.submit()
+    </script>
+  </body>
+</html>`
+      },
     },
+  },
+  // Automatically authorize all requested scopes and claims so tests never see a consent screen.
+  async loadExistingGrant(ctx) {
+    const grantId =
+      ctx.oidc.result?.consent?.grantId ||
+      ctx.oidc.session.grantIdFor(ctx.oidc.client.clientId)
+
+    const grant =
+      (grantId && (await ctx.oidc.provider.Grant.find(grantId))) ||
+      new ctx.oidc.provider.Grant({
+        clientId: ctx.oidc.client.clientId,
+        accountId: ctx.oidc.session.accountId,
+      })
+
+    // Keep the grant in sync with any newly requested scopes/claims.
+    grant.addOIDCScope([...ctx.oidc.requestParamScopes].join(' '))
+    grant.addOIDCClaims([...ctx.oidc.requestParamClaims])
+    await grant.save()
+    return grant
   },
 }
 

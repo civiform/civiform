@@ -2,11 +2,15 @@
 
 # DOC: Build a new development docker image
 # DOC: Optional environment variables:
-# DOC:   PUSH_IMAGE - Push the newly built image to Docker Hub if set to any value
-# DOC:   NAMESPACE  - Overrides the default docker namespace of civiform. To push
-# DOC:                to an alternative registry include it in the NAMESPACE.
-# DOC:                Example: ghcr.io/civiform/civiform would push to to GitHub container registry
-# DOC:   PLATFORM   - Platform architecture to build (e.g. linux/amd64, arm64v8)
+# DOC:   PUSH_IMAGE     - Push the newly built image to Docker Hub if set to any value
+# DOC:   PUSH_BY_DIGEST - (CI only) Build a single arch and push it by digest, writing a
+# DOC:                    buildx metadata file to $METADATA_FILE, instead of pushing a
+# DOC:                    :latest tag. A later job assembles the multi-arch manifest.
+# DOC:   METADATA_FILE  - Path for buildx --metadata-file output (with PUSH_BY_DIGEST)
+# DOC:   NAMESPACE      - Overrides the default docker namespace of civiform. To push
+# DOC:                    to an alternative registry include it in the NAMESPACE.
+# DOC:                    Example: ghcr.io/civiform/civiform would push to GitHub container registry
+# DOC:   PLATFORM       - Platform architecture to build (e.g. linux/amd64, arm64v8)
 
 source bin/lib.sh
 
@@ -15,8 +19,7 @@ readonly IMAGE="civiform-dev"
 readonly LOCATION="."
 readonly DOCKERFILE="Dockerfile"
 
-BUILD_ARGS=(--file "${DOCKERFILE}"
-  --tag "${NAMESPACE}/${IMAGE}:latest"
+COMMON_ARGS=(--file "${DOCKERFILE}"
   --cache-from "${NAMESPACE}/${IMAGE}"
   --build-arg BUILDKIT_INLINE_CACHE=1
   --build-arg SBT_VERSION="${SBT_VERSION}"
@@ -26,6 +29,21 @@ PLATFORM_ARG=()
 if [[ "${PLATFORM}" ]]; then
   PLATFORM_ARG=(--platform "${PLATFORM}")
 fi
+
+# --- CI path: build one arch, push by digest, no :latest tag. ---
+if [[ "${PUSH_BY_DIGEST}" ]]; then
+  docker::do_dockerhub_login
+  echo "build & push ${IMAGE} by digest for ${PLATFORM}"
+  docker buildx build \
+    "${PLATFORM_ARG[@]}" \
+    "${COMMON_ARGS[@]}" \
+    --output "type=image,name=${NAMESPACE}/${IMAGE},push-by-digest=true,name-canonical=true,push=true" \
+    --metadata-file "${METADATA_FILE:-metadata.json}"
+  exit 0
+fi
+
+# --- Default path: unchanged behaviour for local dev and prod. ---
+BUILD_ARGS=(--tag "${NAMESPACE}/${IMAGE}:latest" "${COMMON_ARGS[@]}")
 
 # Build the multi-platform image
 echo "start ${IMAGE} build"

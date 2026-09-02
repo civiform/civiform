@@ -19,14 +19,17 @@
     th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   >
     <p
+      class="margin-0"
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
       th:text="#{input.singleFileUploadHint}"
     ></p>
     <p
+      class="margin-0"
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() > 1}"
       th:text="#{input.multipleFileUploadHint(${maxFiles.getAsInt()})}"
     ></p>
     <p
+      class="margin-0"
       th:unless="${maxFiles.isPresent()}"
       th:text="#{input.unlimitedFileUploadHint}"
     ></p>
@@ -89,7 +92,8 @@
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? 'cf-fileupload-validation-errors-' + ${question.getQuestionDefinition().getId()} : ''"
+    th:with="questionId=${question.getQuestionDefinition().getId()}"
+    th:aria-describedby="${hasErrors} ? |cf-fileupload-validation-errors-${questionId} cf-fileupload-sr-status-${questionId}| : |cf-fileupload-sr-status-${questionId}|"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"

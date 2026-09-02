@@ -18,14 +18,17 @@
     th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   >
     <p
+      class="margin-0"
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() == 1}"
       th:text="#{input.singleFileUploadHint}"
     ></p>
     <p
+      class="margin-0"
       th:if="${maxFiles.isPresent() and maxFiles.getAsInt() > 1}"
       th:text="#{input.multipleFileUploadHint(${maxFiles.getAsInt()})}"
     ></p>
     <p
+      class="margin-0"
       th:unless="${maxFiles.isPresent()}"
       th:text="#{input.unlimitedFileUploadHint}"
     ></p>

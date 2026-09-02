@@ -9,6 +9,7 @@ import static play.mvc.Results.ok;
 
 import auth.Authorizers;
 import java.net.MalformedURLException;
+import java.util.Objects;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
@@ -21,7 +22,7 @@ import play.mvc.Result;
 import services.geojson.GeoJsonAccessException;
 import services.geojson.GeoJsonClient;
 import services.geojson.GeoJsonNotFoundException;
-import views.admin.questions.MapQuestionSettingsPartialView;
+import views.PartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 
 public final class GeoJsonApiController {
@@ -29,13 +30,13 @@ public final class GeoJsonApiController {
 
   private final FormFactory formFactory;
   private final GeoJsonClient geoJsonClient;
-  private final MapQuestionSettingsPartialView mapQuestionSettingsPartialView;
+  private final PartialView<MapQuestionSettingsPartialViewModel> mapQuestionSettingsPartialView;
 
   @Inject
   GeoJsonApiController(
       FormFactory formFactory,
       GeoJsonClient geoJsonClient,
-      MapQuestionSettingsPartialView mapQuestionSettingsPartialView) {
+      PartialView<MapQuestionSettingsPartialViewModel> mapQuestionSettingsPartialView) {
     this.formFactory = formFactory;
     this.geoJsonClient = geoJsonClient;
     this.mapQuestionSettingsPartialView = mapQuestionSettingsPartialView;
@@ -59,7 +60,8 @@ public final class GeoJsonApiController {
             ex -> {
               logger.error("An error occurred trying to retrieve GeoJSON", ex);
               Throwable rootCause = ex;
-              while (rootCause.getCause() != null && rootCause.getCause() != rootCause) {
+              while (rootCause.getCause() != null
+                  && !Objects.equals(rootCause.getCause(), rootCause)) {
                 rootCause = rootCause.getCause();
               }
               String errorMessage =

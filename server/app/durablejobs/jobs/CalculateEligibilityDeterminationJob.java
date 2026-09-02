@@ -23,6 +23,9 @@ import services.program.ProgramService;
 /**
  * Calculate the eligibility determination for applications submitted before the pre-compute
  * eligibility feature was implemented.
+ *
+ * <p>Note: This job is currently paused and will be re-enabled once we have determined why it was
+ * consistently failing for Seattle. See issue #12749 for more information.
  */
 public final class CalculateEligibilityDeterminationJob extends DurableJob {
   private static final Logger logger =

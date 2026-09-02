@@ -9,6 +9,7 @@ import {
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
 } from '../support'
+import {waitForAnyModalLocator} from '../support/wait'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Pre-Screener Upsell Tests', () => {
@@ -139,9 +140,8 @@ test.describe('Pre-Screener Upsell Tests', () => {
 
     await applicantQuestions.clickApplyToProgramsButton()
 
-    await validateScreenshot(page, 'upsell-pre-screener-login', {
-      fullPage: false,
-    })
+    const modal = await waitForAnyModalLocator(page)
+    await validateScreenshot(modal, 'upsell-pre-screener-login')
 
     await validateAccessibility(page)
   })

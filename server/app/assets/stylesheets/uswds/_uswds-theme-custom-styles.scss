@@ -52,6 +52,13 @@ See the radio-option below as an example.
   max-width: none;
 }
 
+/* Hide duplicate instructions and boxes when USWDS double-initializes and nests elements inside .usa-file-input__input */
+.usa-file-input__input .usa-file-input__instructions,
+.usa-file-input__input .usa-file-input__box,
+.usa-file-input__input .usa-sr-only {
+  display: none !important;
+}
+
 .cf-question-error-message {
   @include u-text('secondary-dark', 'bold');
   @include u-font('sans', 'xs');
@@ -316,6 +323,15 @@ body {
   table-layout: fixed;
 }
 
+// Tailwind-parity: the transitional admin header markup uses z-10,
+// which USWDS doesn't define (it only has z-100 through z-500).
+// Without it the fixed header nav has z-index auto and positioned
+// content (e.g. usa-card containers) paints over it when scrolling.
+// This will be removed as part of the admin migration moving off tailwind
+.z-10 {
+  z-index: 10;
+}
+
 // Set a basic default gap for `display: flex`.
 .display-flex.flex-gap {
   gap: 1rem;
@@ -466,6 +482,14 @@ body {
 
 fieldset .usa-error-message {
   font-size: initial;
+}
+
+/* USWDS sets display:block on .usa-error-message, overriding the browser's [hidden] rule
+ * (equal specificity, last-wins). The compound selector beats the USWDS rule by specificity,
+ * preventing a flash on page load. showError() removes hidden before showing, so this doesn't
+ * interfere with legitimate error display. */
+.usa-error-message[hidden] {
+  display: none;
 }
 
 // Add asterisk for required fields

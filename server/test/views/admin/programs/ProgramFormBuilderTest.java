@@ -18,7 +18,6 @@ import repository.AccountRepository;
 import repository.CategoryRepository;
 import repository.ResetPostgres;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 
 public class ProgramFormBuilderTest extends ResetPostgres {
   private ProgramFormBuilder formBuilder;
@@ -42,16 +41,11 @@ public class ProgramFormBuilderTest extends ResetPostgres {
   @Before
   public void setup() {
     config = ConfigFactory.load();
-    SettingsManifest settingsManifest = mock(SettingsManifest.class);
     AccountRepository mockAccountRepo = mock(AccountRepository.class);
     CategoryRepository mockCategoryRepo = mock(CategoryRepository.class);
     formBuilder =
         new ProgramFormBuilder(
-            config,
-            settingsManifest,
-            mockAccountRepo,
-            mockCategoryRepo,
-            instanceOf(MessagesApi.class)) {};
+            config, mockAccountRepo, mockCategoryRepo, instanceOf(MessagesApi.class)) {};
   }
 
   @Test
@@ -111,7 +105,7 @@ public class ProgramFormBuilderTest extends ResetPostgres {
   @Test
   public void buildProgramSlugField_creationStatus_externalProgramCardsFeatureEnabled() {
     DomContent urlFieldResult =
-        formBuilder.buildProgramSlugFieldForExternalProgramsFeature(
+        formBuilder.buildProgramSlugField(
             "test-program", ProgramEditStatus.CREATION, ProgramType.DEFAULT);
     String urlFieldRendered = urlFieldResult.render();
     assertThat(urlFieldRendered)
@@ -125,7 +119,7 @@ public class ProgramFormBuilderTest extends ResetPostgres {
   public void buildProgramSlugField_editStatus_DefaultProgram_externalProgramCardsFeatureEnabled() {
     String baseUrl = config.getString("base_url");
     DomContent urlFieldResult =
-        formBuilder.buildProgramSlugFieldForExternalProgramsFeature(
+        formBuilder.buildProgramSlugField(
             "test-program", ProgramEditStatus.EDIT, ProgramType.DEFAULT);
     String urlFieldRendered = urlFieldResult.render();
     assertThat(urlFieldRendered).contains("The URL for this program. This URL can’t be changed");
@@ -136,7 +130,7 @@ public class ProgramFormBuilderTest extends ResetPostgres {
   public void
       buildProgramSlugField_editStatus_ExternalProgram_externalProgramCardsFeatureEnabled() {
     DomContent urlFieldResult =
-        formBuilder.buildProgramSlugFieldForExternalProgramsFeature(
+        formBuilder.buildProgramSlugField(
             "test-program", ProgramEditStatus.EDIT, ProgramType.EXTERNAL);
     String urlFieldRendered = urlFieldResult.render();
     assertThat(urlFieldRendered).contains("The program ID. This ID can’t be changed.");

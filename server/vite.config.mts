@@ -1,0 +1,247 @@
+import {defineConfig} from 'vite'
+import {configDefaults} from 'vitest/config'
+import {viteStaticCopy} from 'vite-plugin-static-copy'
+import {resolve} from 'node:path'
+import {readdirSync} from 'node:fs'
+
+// Auto-discover page-level entrypoints matching *_page.ts under pages/.
+// The filename (without .ts extension) becomes the Vite entry key and output bundle name.
+const pagesDir = 'app/assets/javascripts/pages'
+const pageEntries: Record<string, string> = {}
+
+for (const entry of readdirSync(pagesDir, {recursive: true})) {
+  const filePath = String(entry)
+  if (!filePath.endsWith('_page.ts')) continue
+
+  const key = filePath.split('/').pop()!.replace(/\.ts$/, '')
+  if (key in pageEntries) {
+    throw new Error(
+      `Duplicate page entrypoint key "${key}": ` +
+        `"${pageEntries[key]}" and "${pagesDir}/${filePath}" resolve to the same bundle name. ` +
+        `Rename one of the files to avoid a collision.`,
+    )
+  }
+  pageEntries[key] = `${pagesDir}/${filePath}`
+}
+
+// Asset paths to reference in the below config
+const assetPaths = {
+  applicant: 'app/assets/javascripts/pages/applicant/applicant_entry_point.ts',
+  admin: 'app/assets/javascripts/pages/admin/admin_entry_point.ts',
+  uswds_css: 'app/assets/stylesheets/uswds/styles.scss',
+  uswds_js: 'node_modules/@uswds/uswds/dist/js/uswds.min.js',
+  uswdsinit_js: 'node_modules/@uswds/uswds/dist/js/uswds-init.min.js',
+  northstar_css: 'app/assets/stylesheets/northstar/styles.scss',
+  tailwind: 'app/assets/stylesheets/styles.css',
+  maplibregl_css: 'node_modules/maplibre-gl/dist/maplibre-gl.css',
+  swaggerui_css: 'node_modules/swagger-ui-dist/swagger-ui.css',
+  swaggerui_js: 'node_modules/swagger-ui-dist/swagger-ui-bundle.js',
+  swaggeruipreset_js:
+    'node_modules/swagger-ui-dist/swagger-ui-standalone-preset.js',
+}
+
+export default defineConfig({
+  // Server options are for the dev server and are for local development
+  server: {
+    port: 5173,
+    host: '0.0.0.0', // Listen on all network interfaces for Docker
+    cors: true,
+    strictPort: true, // Make Vite error if the default port is in use, otherwise it will try the next port up.
+    fs: {
+      // Vite v8 requires explicit allow entries for paths it needs to serve as
+      // static assets. The USWDS dist path is needed so the dev server can serve
+      // fonts and images referenced via $theme-font-path and $theme-image-path
+      // in the USWDS SCSS config.
+      allow: [
+        resolve(import.meta.dirname, 'app/assets'),
+        resolve(import.meta.dirname, 'node_modules'),
+        resolve(import.meta.dirname, 'node_modules/@uswds/uswds/dist'),
+      ],
+    },
+    // Pre-compile on startup for faster loading of the first page hit
+    warmup: {
+      clientFiles: [
+        assetPaths.applicant,
+        assetPaths.admin,
+        assetPaths.uswdsinit_js,
+        assetPaths.uswds_js,
+        assetPaths.uswds_css,
+        assetPaths.northstar_css,
+        assetPaths.maplibregl_css,
+        assetPaths.tailwind,
+      ],
+    },
+    watch: {
+      // Limit files Vite watches. Prevents extra rebuilds.
+      ignored: [
+        '**/target/**', // java build output
+        '**/.*', // hidden files
+        '**/*.java', // java source files
+        '**/*.scala', // scala source files
+        '**/*.class', // compiled java
+        '**/*.html', // html source files
+        '**/*.jar', // java jar files
+        '**/conf/**', // play config files
+        '**/project/**', // sbt project files
+        '**/logs/**', // log files
+        '**/app/assets/dist/**', // pre-compiled assets
+      ],
+    },
+  },
+
+  // Pre-bundle dependencies for faster cold starts
+  optimizeDeps: {
+    include: ['htmx.org', 'markdown-it', 'dompurify', 'maplibre-gl'],
+  },
+
+  // Prevent the terminal from being cleared
+  clearScreen: false,
+
+  // Build options are used for pre-compiling asset output for all other environments
+  build: {
+    // Output to the location Play will look for assets
+    outDir: 'app/assets/dist',
+    emptyOutDir: true,
+    // Up the warning size limit past our largest chunk
+    chunkSizeWarningLimit: 1100,
+    // Generate source maps
+    sourcemap: true,
+    rolldownOptions: {
+      // Set up the main entrypoint chunks
+      input: {
+        applicant: resolve(import.meta.dirname, assetPaths.applicant),
+        admin: resolve(import.meta.dirname, assetPaths.admin),
+        uswdsinit_js: resolve(import.meta.dirname, assetPaths.uswdsinit_js),
+        uswds_css: resolve(import.meta.dirname, assetPaths.uswds_css),
+        northstar_css: resolve(import.meta.dirname, assetPaths.northstar_css),
+        maplibregl: resolve(import.meta.dirname, assetPaths.maplibregl_css),
+        tailwind: resolve(import.meta.dirname, assetPaths.tailwind),
+        // Load page specific files
+        ...Object.fromEntries(
+          Object.entries(pageEntries).map(([key, path]) => [
+            key,
+            resolve(import.meta.dirname, path),
+          ]),
+        ),
+      },
+      onwarn(warning, warn) {
+        // Suppress eval warnings from htmx
+        if (warning.code === 'EVAL' && warning.id?.includes('htmx')) {
+          return
+        }
+        warn(warning)
+      },
+      // Set up the output file naming conventions and vendor chunk splitting
+      output: {
+        // entryFileNames align with the rolldownOptions for javascript files. No hash is
+        // on these files so they can have a deterministic name to reference in the
+        // application, Play's AssetsFinder will add it.
+        entryFileNames: '[name].bundle.js',
+        // chunkFileNames include a hash in the file name for cache busting purposes
+        chunkFileNames: '[hash]-[name].chunk.js',
+        // assetFileNames are for non-javascript files
+        assetFileNames: (assetInfo: {names?: string[]}) => {
+          const name = assetInfo.names?.[0] ?? ''
+          if (name.match(/\.(css|scss)$/)) {
+            return '[name].min.css'
+          }
+          // Keep fonts in their respective folders for USWDS to load correctly
+          if (name.match(/\.(woff2?|ttf|eot)$/)) {
+            return 'fonts/[name][extname]'
+          }
+          // Keep images in their respective folders for USWDS to load correctly
+          if (name.match(/\.(png|jpe?g|svg|gif|webp)$/)) {
+            return 'img/[name][extname]'
+          }
+
+          return '[name][extname]'
+        },
+        // Split vendor dependencies into separate chunks for cache efficiency.
+        // Each group matches vendor modules by their resolved module ID path.
+        codeSplitting: {
+          groups: [
+            {name: 'vendor-htmx', test: /htmx\.org/},
+            {name: 'vendor-markdown', test: /markdown-it|dompurify/},
+            {name: 'vendor-maps', test: /maplibre-gl/},
+          ],
+        },
+      },
+    },
+    // Target modern browsers (no IE11)
+    target: 'es2022',
+  },
+
+  css: {
+    preprocessorOptions: {
+      scss: {
+        quietDeps: true,
+        // Add USWDS load paths for SCSS imports
+        loadPaths: [
+          resolve(import.meta.dirname, 'app/assets/stylesheets/uswds'),
+          resolve(import.meta.dirname, 'node_modules/@uswds/uswds/packages'),
+        ],
+      },
+    },
+  },
+
+  resolve: {
+    alias: {
+      '@pages': resolve(import.meta.dirname, 'app/assets/javascripts/pages'),
+      '@': resolve(import.meta.dirname, 'app/assets/javascripts'),
+    },
+    extensions: ['.ts', '.js', '.scss', '.css'],
+  },
+
+  plugins: [
+    // Files copied verbatim (not bundled through Rolldown) into their expected output paths.
+    // vite-plugin-static-copy v4 always preserves directory structure; rename.stripBase
+    // strips the source prefix so files land directly under dest rather than nested under
+    // the full node_modules path.
+    //
+    // USWDS JS must remain a classic IIFE script — it must NOT be processed by Rolldown,
+    // which would wrap it with ES module interop and prevent HTMX from executing it in
+    // swapped content (HTMX only runs classic scripts, not type="module" scripts).
+    viteStaticCopy({
+      targets: [
+        {
+          src: assetPaths.uswds_js,
+          dest: '.',
+          rename: {stripBase: true},
+        },
+        {
+          src: assetPaths.swaggerui_css,
+          dest: 'swagger-ui',
+          rename: {stripBase: true},
+        },
+        {
+          src: assetPaths.swaggerui_js,
+          dest: 'swagger-ui',
+          rename: {stripBase: true},
+        },
+        {
+          src: assetPaths.swaggeruipreset_js,
+          dest: 'swagger-ui',
+          rename: {stripBase: true},
+        },
+      ],
+    }),
+  ],
+
+  test: {
+    environment: 'jsdom',
+    include: ['app/assets/javascripts/**/*.{test,spec}.{js,ts,jsx,tsx}'],
+    exclude: [...configDefaults.exclude, 'e2e/*', 'target/**'],
+    coverage: {
+      provider: 'v8',
+      reporter: ['text', 'json', 'html'],
+      reportsDirectory: './code-coverage/vitest',
+      include: ['app/assets/javascripts/'],
+      exclude: [
+        ...(configDefaults.coverage.exclude || []),
+        '**/*.config.{js,ts}',
+        '**/mockData/**',
+        '**/*.d.ts',
+      ],
+    },
+  },
+})

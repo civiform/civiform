@@ -28,7 +28,7 @@ import services.question.types.QuestionDefinition.ValidationPredicates;
 import services.question.types.TextQuestionDefinition.TextValidationPredicates;
 
 /**
- * DEPRECATED. Provides helper functions to build a {@link QuestionDefinition}.
+ * Provides helper functions to build a {@link QuestionDefinition}.
  *
  * <p>TODO(#5271): Remove this class in favor of {@link QuestionDefinitionConfig.Builder}.
  */
@@ -120,6 +120,17 @@ public final class QuestionDefinitionBuilder {
 
   public QuestionDefinitionBuilder setQuestionText(LocalizedStrings questionText) {
     builder.setQuestionText(questionText);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setLocalizedImageDescription(
+      Optional<LocalizedStrings> localizedImageDescription) {
+    builder.setLocalizedImageDescription(localizedImageDescription);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setImageFileKey(Optional<String> imageFileKey) {
+    builder.setImageFileKey(imageFileKey);
     return this;
   }
 

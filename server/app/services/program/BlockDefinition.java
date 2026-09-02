@@ -72,6 +72,7 @@ public abstract class BlockDefinition {
   @JsonProperty("localizedDescription")
   public abstract LocalizedStrings localizedDescription();
 
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("localizedEligibilityMessage")
   public abstract Optional<LocalizedStrings> localizedEligibilityMessage();
 
@@ -98,8 +99,6 @@ public abstract class BlockDefinition {
   @JsonIgnore
   @Memoized
   public boolean hasEnumeratorQuestion() {
-    // Though `anyMatch` is used here, enumerator block definitions should only ever have a single
-    // question, which is an enumerator question.
     return programQuestionDefinitions().stream()
         .map(ProgramQuestionDefinition::getQuestionDefinition)
         .map(QuestionDefinition::getQuestionType)
@@ -113,6 +112,7 @@ public abstract class BlockDefinition {
    *
    * @return the BlockDefinition ID for this block definitions enumerator, if it exists
    */
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("repeaterId")
   public abstract Optional<Long> enumeratorId();
 
@@ -184,6 +184,7 @@ public abstract class BlockDefinition {
   }
 
   /** A {@link PredicateDefinition} that determines whether this block is hidden or shown. */
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("hidePredicate")
   public abstract Optional<PredicateDefinition> visibilityPredicate();
 
@@ -236,6 +237,7 @@ public abstract class BlockDefinition {
    * required if shown. Instead, individual questions can be optional or required. This field is
    * kept for serialization consistency.
    */
+  @JsonInclude(Include.NON_EMPTY)
   @JsonProperty("optionalPredicate")
   public abstract Optional<PredicateDefinition> optionalPredicate();
 

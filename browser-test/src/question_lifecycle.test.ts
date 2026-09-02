@@ -1,6 +1,8 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
   AdminQuestions,
+  disableFeatureFlag,
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -10,6 +12,13 @@ import {QuestionType} from './support/admin_questions'
 import {BASE_URL} from './support/config'
 
 test.describe('normal question lifecycle', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('sample question seeding works', async ({
     page,
     adminQuestions,
@@ -135,29 +144,27 @@ test.describe('normal question lifecycle', () => {
       /* clickSubmit= */ false,
     )
 
-    const downButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
-      )
-      .all()
-    const upButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(upButtons).toHaveLength(4)
-    expect(downButtons).toHaveLength(4)
+    const downButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-down-button',
+    )
 
-    await downButtons[3].click() // Should do nothing
+    const upButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+    )
+
+    await expect(upButtons).toHaveCount(4)
+    await expect(downButtons).toHaveCount(4)
+
+    await downButtons.nth(3).click() // Should do nothing
     await waitForPageJsLoad(page)
-    await upButtons[0].click() // Should do nothing
+    await upButtons.nth(0).click() // Should do nothing
     await waitForPageJsLoad(page)
 
-    await downButtons[0].click() // becomes 2, 1, 3, 4
+    await downButtons.nth(0).click() // becomes 2, 1, 3, 4
     await waitForPageJsLoad(page)
-    await downButtons[1].click() // becomes 2, 3, 1, 4
+    await downButtons.nth(1).click() // becomes 2, 3, 1, 4
     await waitForPageJsLoad(page)
-    await upButtons[1].click() // becomes 3, 2, 1, 4
+    await upButtons.nth(1).click() // becomes 3, 2, 1, 4
     await waitForPageJsLoad(page)
 
     await page.click('#add-new-option')
@@ -165,13 +172,12 @@ test.describe('normal question lifecycle', () => {
       adminName: 'option5_admin',
       text: 'option5',
     })
-    const newUpButtons = await page
-      .locator(
-        '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
-      )
-      .all()
-    expect(newUpButtons).toHaveLength(5)
-    await newUpButtons[4].click() // becomes 3, 2, 1, 5, 4
+    const newUpButtons = page.locator(
+      '.cf-multi-option-question-option-editable:not(.hidden) > .multi-option-question-field-move-up-button',
+    )
+
+    await expect(newUpButtons).toHaveCount(5)
+    await newUpButtons.nth(4).click() // becomes 3, 2, 1, 5, 4
 
     await validateScreenshot(page, 'question-with-rearranged-options')
 
@@ -599,6 +605,54 @@ test.describe('normal question lifecycle', () => {
       await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
         'readonly',
       )
+    })
+  })
+
+  test('radio and checkbox questions show optional score fields when flag enabled', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('radio button question', async () => {
+      await adminQuestions.startCreatingQuestion(
+        '#create-radio_button-question',
+      )
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputShown(0)
+    })
+
+    await test.step('checkbox question', async () => {
+      await adminQuestions.startCreatingQuestion('#create-checkbox-question')
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputShown(0)
+    })
+  })
+
+  test('radio and dropdown questions hide optional score fields when flag disabled', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await disableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('radio button question', async () => {
+      await adminQuestions.startCreatingQuestion(
+        '#create-radio_button-question',
+      )
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
+    })
+
+    await test.step('checkbox question', async () => {
+      await adminQuestions.startCreatingQuestion('#create-checkbox-question')
+      await page.click('#add-new-option')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
     })
   })
 })
