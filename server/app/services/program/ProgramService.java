@@ -459,6 +459,7 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             loginOnly,
+            /* usesScoring= */ false,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
