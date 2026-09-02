@@ -18,4 +18,4 @@ How much time are we going to give this before putting it down, even if we're no
 (fill this in)
 
 ## Recommendation
-(fill this in. Example recommendations could be to address immediately triage against other priorities, needs more investigation, etc)
+(Fill this in. Example recommendations: address immediately; triage against other priorities; or do more investigation.)
