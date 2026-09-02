@@ -403,12 +403,7 @@
                 th:lang="${language.key.code()}"
                 th:text="${language.value}"
               ></span
-              ><span
-                lang="en"
-                class="usa-sr-only"
-                th:if="${!language.value.equals(language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH))}"
-                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH)}"
-              ></span>
+              >
             </button>
           </li>
         </ul>
