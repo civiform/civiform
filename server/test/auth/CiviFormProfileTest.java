@@ -98,32 +98,27 @@ public class CiviFormProfileTest extends ResetPostgres {
 
   @Test
   public void checkAuthorization_ti_failsForUnmanagedClientId() {
-    ApplicantModel clientOne = resourceCreator.insertApplicant();
-    AccountModel clientOneAccount = resourceCreator.insertAccount();
-    clientOne.setAccount(clientOneAccount);
-    clientOne.save();
+    ApplicantModel client = resourceCreator.insertApplicant();
+    AccountModel clientAccount = resourceCreator.insertAccount();
+    client.setAccount(clientAccount);
+    client.save();
 
-    TrustedIntermediaryGroupModel tiGroupOne = resourceCreator.insertTrustedIntermediaryGroup();
-    clientOneAccount.setManagedByGroup(tiGroupOne);
-    clientOneAccount.save();
-    AccountModel tiAccountOne = resourceCreator.insertAccount();
-    tiAccountOne.setMemberOfGroup(tiGroupOne);
-    tiAccountOne.save();
+    TrustedIntermediaryGroupModel tiGroupWithClientAccess =
+        resourceCreator.insertTrustedIntermediaryGroup();
+    AccountModel tiAccountWithClientAccess = resourceCreator.insertAccount();
+    tiAccountWithClientAccess.setMemberOfGroup(tiGroupWithClientAccess);
+    tiAccountWithClientAccess.save();
+    clientAccount.setManagedByGroup(tiGroupWithClientAccess);
+    clientAccount.save();
 
-    ApplicantModel clientTwo = resourceCreator.insertApplicant();
-    AccountModel clientTwoAccount = resourceCreator.insertAccount();
-    clientTwo.setAccount(clientTwoAccount);
-    clientTwo.save();
+    TrustedIntermediaryGroupModel tiGroupWithoutClientAcccess =
+        resourceCreator.insertTrustedIntermediaryGroup();
+    AccountModel tiAccountWithoutClientAccess = resourceCreator.insertAccount();
+    tiAccountWithoutClientAccess.setMemberOfGroup(tiGroupWithoutClientAcccess);
+    tiAccountWithoutClientAccess.save();
 
-    TrustedIntermediaryGroupModel tiGroupTwo = resourceCreator.insertTrustedIntermediaryGroup();
-    clientOneAccount.setManagedByGroup(tiGroupTwo);
-    clientOneAccount.save();
-    AccountModel tiAccountTwo = resourceCreator.insertAccount();
-    tiAccountTwo.setMemberOfGroup(tiGroupTwo);
-    tiAccountTwo.save();
-
-    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccountOne);
-    assertThatThrownBy(() -> tiProfile.checkAuthorization(clientTwo.id).join())
+    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccountWithoutClientAccess);
+    assertThatThrownBy(() -> tiProfile.checkAuthorization(client.id).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 
