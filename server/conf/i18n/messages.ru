@@ -107,10 +107,10 @@ input.multipleFileUploadHint=Выберите один или несколько
 input.unlimitedFileUploadHint=Выберите один или несколько файлов
 # Screen reader text for the file input when exactly 1 file has already been uploaded.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.singular=1 файл уже загружен. Выберите файл, чтобы загрузить еще.
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural=Уже загружено файлов: {0}. Выберите файл, чтобы загрузить еще.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Сохранить и продолжить
 # The button text for navigating to the previous screen in the form.
@@ -697,7 +697,7 @@ label.zipcode=Почтовый индекс
 validation.streetRequired=Укажите действительное название улицы и номер дома.
 validation.cityRequired=Укажите город.
 validation.currencyMisformatted=Укажите сумму в одном из следующих форматов (без точки с запятой): 1000; 1,000; 1000.30; 1,000.30.
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=Валюта должна содержать две цифры (от 0 до 9) после запятой. Максимальная длина — 19 символов.
 validation.stateRequired=Укажите штат.
 validation.invalidZipcode=Введите действительный 5-значный почтовый индекс.
 validation.noPoBox=Введите действительный адрес. Не указывайте номер абонентского ящика.
@@ -821,7 +821,7 @@ validation.fileRequired=Выберите файл.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Слишком большой файл. Загрузите файл размером меньше {0} МБ.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=Не удалось загрузить файл. Достигнуто максимальное количество файлов.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Мы не смогли загрузить ваш файл. Попробуйте еще раз.
 # Text shown on a tag while a file is uploading.
@@ -887,7 +887,7 @@ validation.lastNameRequired=Укажите фамилию.
 validation.numberTooBig=Число не должно быть больше {0}.
 validation.numberTooSmall=Число не должно быть меньше {0}.
 validation.numberNonInteger=Укажите положительное целое число, которое состоит только из цифр от 0 до 9.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=Число должно быть положительным целым и содержать только цифры от 0 до 9. Максимальная длина — 19 символов.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
