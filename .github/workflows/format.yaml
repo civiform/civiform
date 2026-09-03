@@ -54,7 +54,9 @@ jobs:
         run: bin/fmt-sbt
 
       - name: Test workflow scripts
-        run: node --test .github/scripts
+        # The shell expands the glob; handing node the directory instead
+        # works on some Node versions and not others.
+        run: node --test .github/scripts/*.test.js
 
       - name: Post formatter fixes as suggested changes
         # The formatters above rewrite files in place, and the working
