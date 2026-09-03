@@ -2,8 +2,8 @@ import {assertNotNull} from '@/util'
 
 class AdminExportView {
   // These values should be kept in sync with views/admin/migration/AdminExportView.java.
-  private static PROGRAM_JSON_ID = "program-json";
-  private static COPY_BUTTON_ID = "copy-json-button";
+  private static PROGRAM_JSON_ID = 'program-json'
+  private static COPY_BUTTON_ID = 'copy-json-button'
 
   constructor() {
         this.addClickListenerToCopyButton()
