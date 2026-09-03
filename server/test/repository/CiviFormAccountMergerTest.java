@@ -575,7 +575,7 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
   }
 
   private List<Long> lookupUserFiles(long applicantId) {
-    return storedFileRepository.lookupFilesByApplicantSync(applicantId).stream()
+    return storedFileRepository.lookupFilesByApplicant(applicantId).stream()
         .map(f -> f.id)
         .toList();
   }

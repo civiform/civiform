@@ -56,11 +56,7 @@ public final class StoredFileRepository {
         dbExecutionContext);
   }
 
-  public CompletionStage<List<StoredFileModel>> lookupFilesByApplicant(Long applicantId) {
-    return supplyAsync(() -> lookupFilesByApplicantSync(applicantId), dbExecutionContext);
-  }
-
-  public List<StoredFileModel> lookupFilesByApplicantSync(Long applicantId) {
+  public List<StoredFileModel> lookupFilesByApplicant(Long applicantId) {
     // The strict prefix of the file name from the start of the name pattern.
     String fileNamePrefix =
         ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(applicantId);

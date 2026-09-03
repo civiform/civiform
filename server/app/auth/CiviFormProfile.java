@@ -76,8 +76,8 @@ public class CiviFormProfile {
   }
 
   /**
-   * Synchronously gets the applicant. Use this when you are already running on a database thread to
-   * avoid thread pool deadlock.
+   * Synchronously gets the {@link ApplicantModel} for the Applicant ID stored in the profileData or
+   * fallback to the oldest Applicant associated with the profile.
    */
   public ApplicantModel getApplicantSync() {
     if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
@@ -104,10 +104,7 @@ public class CiviFormProfile {
     return supplyAsync(() -> getAccountSync(), dbContext);
   }
 
-  /**
-   * Synchronously gets the account. Use this when you are already running on a database thread to
-   * avoid thread pool deadlock.
-   */
+  /** Synchronously looks up the {@link AccountModel} associated with the profile from database. */
   public AccountModel getAccountSync() {
     AccountModel account = new AccountModel();
     account.id = Long.valueOf(this.profileData.getId());
