@@ -52,13 +52,98 @@ jobs:
       - name: Post formatter fixes as suggested changes
         # Forked PRs get a read-only token, so suggestions can't be posted there.
         if: ${{ !github.event.pull_request.head.repo.fork }}
-        uses: reviewdog/action-suggester@2558ba17e65a9039e73764a73009fc05fef28a46 # v1.24.3
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
-          tool_name: bin/fmt
-          # Keep the formatter's working-tree changes so the diff check below
-          # still fails the job when files need formatting.
-          cleanup: false
-          fail_level: none
+          script: |
+            // The formatters above rewrite files in place, and the working
+            // tree now holds the fixes that the diff check below will fail
+            // on. Post that diff back as one-click suggested changes first.
+            // The working tree is left untouched so the check still fails.
+            const {stdout: diff} = await exec.getExecOutput(
+              'git',
+              ['diff', '-U1'],
+              {silent: true},
+            )
+            if (!diff.trim()) return
+
+            const files = []
+            let file = null
+            for (const line of diff.split('\n')) {
+              if (line.startsWith('+++ b/')) {
+                file = {path: line.slice(6), hunks: []}
+                files.push(file)
+              } else if (line.startsWith('+++ ')) {
+                file = null
+              } else if (file && line.startsWith('@@ ')) {
+                const match = line.match(/^@@ -(\d+)(?:,(\d+))? /)
+                file.hunks.push({
+                  start: Number(match[1]),
+                  count: match[2] === undefined ? 1 : Number(match[2]),
+                  lines: [],
+                })
+              } else if (file && file.hunks.length > 0 && /^[+ ]/.test(line)) {
+                // '+' and ' ' lines together are the post-format content.
+                file.hunks[file.hunks.length - 1].lines.push(line.slice(1))
+              }
+            }
+
+            const comments = []
+            for (const {path, hunks} of files) {
+              for (const {start, count, lines} of hunks) {
+                // A pure insertion has no existing line to anchor on.
+                if (count === 0) continue
+                comments.push({
+                  path,
+                  line: start + count - 1,
+                  side: 'RIGHT',
+                  ...(count > 1 && {start_line: start, start_side: 'RIGHT'}),
+                  body: '```suggestion\n' + lines.join('\n') + '\n```',
+                })
+              }
+            }
+            if (comments.length === 0) return
+
+            const limit = 50
+            const capped = comments.slice(0, limit)
+            const pr = context.payload.pull_request
+            const intro =
+              'bin/fmt would make these changes. Apply them with "Commit suggestion", or run bin/fmt locally.' +
+              (comments.length > limit
+                ? ` (Showing ${limit} of ${comments.length} fixes.)`
+                : '')
+            try {
+              await github.rest.pulls.createReview({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pr.number,
+                commit_id: pr.head.sha,
+                event: 'COMMENT',
+                body: intro,
+                comments: capped,
+              })
+            } catch (error) {
+              // One hunk outside the PR's own diff rejects the whole review;
+              // retry one comment at a time and drop the ones GitHub refuses.
+              let posted = 0
+              for (const comment of capped) {
+                try {
+                  await github.rest.pulls.createReviewComment({
+                    owner: context.repo.owner,
+                    repo: context.repo.repo,
+                    pull_number: pr.number,
+                    commit_id: pr.head.sha,
+                    ...comment,
+                  })
+                  posted++
+                } catch {
+                  // This fix sits on lines the PR didn't touch; the diff
+                  // step's output still shows it.
+                }
+              }
+              core.warning(
+                `Posted ${posted} of ${capped.length} formatter suggestions individually: ${error.message}`,
+              )
+            }
 
       - name: show bin/fmt and bin/fmt-sbt diff
         run: git add .; git diff --exit-code HEAD
