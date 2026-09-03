@@ -59,9 +59,13 @@ jobs:
             // tree now holds the fixes that the diff check below will fail
             // on. Post that diff back as one-click suggested changes first.
             // The working tree is left untouched so the check still fails.
+            // Zero context lines: each suggestion must anchor on exactly the
+            // lines it replaces. Any wider range sweeps in the PR diff's
+            // deleted lines, and GitHub refuses to apply suggestions whose
+            // range includes deleted lines.
             const {stdout: diff} = await exec.getExecOutput(
               'git',
-              ['diff', '-U1'],
+              ['diff', '-U0'],
               {silent: true},
             )
             if (!diff.trim()) return
@@ -81,8 +85,7 @@ jobs:
                   count: match[2] === undefined ? 1 : Number(match[2]),
                   lines: [],
                 })
-              } else if (file && file.hunks.length > 0 && /^[+ ]/.test(line)) {
-                // '+' and ' ' lines together are the post-format content.
+              } else if (file && file.hunks.length > 0 && line.startsWith('+')) {
                 file.hunks[file.hunks.length - 1].lines.push(line.slice(1))
               }
             }
@@ -97,7 +100,11 @@ jobs:
                   line: start + count - 1,
                   side: 'RIGHT',
                   ...(count > 1 && {start_line: start, start_side: 'RIGHT'}),
-                  body: '```suggestion\n' + lines.join('\n') + '\n```',
+                  // No replacement lines means delete the range; an empty
+                  // suggestion block does that, a blank line would not.
+                  body: lines.length
+                    ? '```suggestion\n' + lines.join('\n') + '\n```'
+                    : '```suggestion\n```',
                 })
               }
             }
