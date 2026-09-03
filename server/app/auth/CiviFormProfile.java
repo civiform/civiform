@@ -63,7 +63,8 @@ public class CiviFormProfile {
           .toCompletableFuture();
     }
 
-    // If the applicant id has not yet been stored in the profile, then get it from the account,
+    // If the applicant id has not yet been stored in the profile, then get it from
+    // the account,
     // which requires an extra db fetch.
     return this.getAccount()
         .thenApplyAsync(
@@ -74,7 +75,8 @@ public class CiviFormProfile {
   }
 
   private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
-    // Accounts (should) correspond to a single applicant, but they don't in particular for guests
+    // Accounts (should) correspond to a single applicant, but they don't in
+    // particular for guests
     // merged into logged in accounts.
     return account.getApplicants().stream().min(comparing(ApplicantModel::getWhenCreated));
   }
@@ -223,7 +225,8 @@ public class CiviFormProfile {
       return completedFuture(profileData.getEmail());
     }
 
-    // If it's not present i.e. if user is a guest, fall back to the address in the database
+    // If it's not present i.e. if user is a guest, fall back to the address in the
+    // database
     return this.getAccount()
         .thenApplyAsync(AccountModel::getEmailAddress, classLoaderExecutionContext.current());
   }
@@ -249,32 +252,28 @@ public class CiviFormProfile {
               // 1. SELF CHECK: If the current user owns this applicant profile, authorize
               // immediately.
               if (currentUserAccount.ownedApplicantIds().contains(applicantId)) {
-                return completedFuture(null);
+                return null;
               }
 
-              // 2. TI CHECK: If current user's TI group matches the applicant account's managed-by
+              // 2. TI CHECK: If current user's TI group matches the applicant account's
+              // managed-by
               // group.
               return accountRepository
                   .lookupApplicant(applicantId)
                   .thenApplyAsync(
                       maybeApplicant -> {
-                        Optional<AccountModel> applicantAccount =
-                            maybeApplicant.map(ApplicantModel::getAccount);
+                        Optional<Long> userTiGroupId =
+                            currentUserAccount.getMemberOfGroup().map(group -> group.id);
 
-                        Long userTiGroupId =
-                            currentUserAccount
-                                .getMemberOfGroup()
-                                .map(group -> group.id)
-                                .orElse(null);
-
-                        Long applicantManagedByGroupId =
-                            applicantAccount
+                        Optional<Long> applicantManagedByGroupId =
+                            maybeApplicant
+                                .map(ApplicantModel::getAccount)
                                 .flatMap(AccountModel::getManagedByGroup)
-                                .map(group -> group.id)
-                                .orElse(null);
+                                .map(group -> group.id);
 
-                        if (userTiGroupId != null
-                            && userTiGroupId.equals(applicantManagedByGroupId)) {
+                        if (userTiGroupId.isPresent()
+                            && applicantManagedByGroupId.isPresent()
+                            && userTiGroupId.get().equals(applicantManagedByGroupId.get())) {
                           return null; // Authorized
                         }
 
