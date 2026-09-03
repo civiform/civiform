@@ -63,7 +63,7 @@ public final class StoredFileRepository {
     return database
         .find(StoredFileModel.class)
         .setLabel("StoredFile.findListByApplicant")
-        .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicantSync"))
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicant"))
         .where()
         // Note: The indexes only support exact and prefix pattern
         // matches as this is doing.
