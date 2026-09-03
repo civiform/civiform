@@ -107,10 +107,10 @@ input.multipleFileUploadHint=파일을 1개 이상 선택하세요(최대 {0}개
 input.unlimitedFileUploadHint=파일을 1개 이상 선택하세요.
 # Screen reader text for the file input when exactly 1 file has already been uploaded.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.singular=파일 1개가 이미 업로드되었습니다. 파일을 더 업로드하려면 파일을 선택하세요.
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural=파일 {0}개가 이미 업로드되었습니다. 파일을 더 업로드하려면 파일을 선택하세요.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=저장 후 다음으로 이동
 # The button text for navigating to the previous screen in the form.
@@ -697,7 +697,7 @@ label.zipcode=우편번호
 validation.streetRequired=유효한 도로명과 번호를 입력하세요.
 validation.cityRequired=시/군/구를 입력하세요.
 validation.currencyMisformatted=통화는 1000 1,000 1000.30 1,000.30과 같은 형식이어야 합니다.
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=통화에는 소수점 이하 두 자리 숫자(0~9)가 포함되어야 합니다. 최대 길이는 19자입니다.
 validation.stateRequired=시/도를 입력하세요.
 validation.invalidZipcode=유효한 5자리 우편번호를 입력하세요.
 validation.noPoBox=유효한 주소를 입력하세요. 사서함은 주소 정보로 등록할 수 없습니다.
@@ -821,7 +821,7 @@ validation.fileRequired=파일을 선택하세요.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=파일이 너무 큽니다. {0}MB 미만인 파일을 선택하세요.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=파일을 업로드할 수 없습니다. 업로드 가능한 최대 파일 수에 도달했습니다.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=파일을 업로드할 수 없습니다. 다시 시도해 주세요.
 # Text shown on a tag while a file is uploading.
@@ -887,7 +887,7 @@ validation.lastNameRequired=성을 입력하세요.
 validation.numberTooBig=최댓값은 {0}입니다.
 validation.numberTooSmall=최솟값은 {0}입니다.
 validation.numberNonInteger=숫자는 양의 정수여야 하며, 0~9의 숫자만 포함해야 합니다.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=숫자는 양의 정수여야 하며, 숫자 0~9만 포함되어야 합니다. 최대 길이는 19자입니다.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
