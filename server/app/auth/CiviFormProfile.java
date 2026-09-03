@@ -252,8 +252,7 @@ public class CiviFormProfile {
                 return completedFuture(null);
               }
 
-              // 2. TI CHECK: If current user's TI group matches the applicant account's
-              // managed-by
+              // 2. TI CHECK: If current user's TI group matches the applicant account's managed-by
               // group.
               return accountRepository
                   .lookupApplicant(applicantId)
