@@ -407,7 +407,7 @@
                 lang="en"
                 class="usa-sr-only"
                 th:if="${language.value.matches('.*[^\u0000-\u024F].*')}"
-                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(T(java.util.Locale).ENGLISH)}"
+                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH)}"
               ></span>
             </button>
           </li>
