@@ -73,6 +73,24 @@ public class CiviFormProfile {
             classLoaderExecutionContext.current());
   }
 
+  /**
+   * Synchronously gets the {@link ApplicantModel} for the Applicant ID stored in the profileData or
+   * fallback to the oldest Applicant associated with the profile.
+   */
+  public ApplicantModel getApplicantSync() {
+    if (profileData.containsAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME)) {
+      long applicantId =
+          profileData.getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+      return accountRepository
+          .lookupApplicantSync(applicantId)
+          .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class));
+    }
+
+    AccountModel account = this.getAccountSync();
+    return getOldestApplicantForAccount(account)
+        .orElseThrow(() -> new MissingOptionalException(ApplicantModel.class));
+  }
+
   private Optional<ApplicantModel> getOldestApplicantForAccount(AccountModel account) {
     // Accounts (should) correspond to a single applicant, but they don't in particular for guests
     // merged into logged in accounts.
@@ -81,18 +99,19 @@ public class CiviFormProfile {
 
   /** Look up the {@link AccountModel} associated with the profile from database. */
   public CompletableFuture<AccountModel> getAccount() {
-    return supplyAsync(
-        () -> {
-          AccountModel account = new AccountModel();
-          account.id = Long.valueOf(this.profileData.getId());
-          try {
-            account.refresh();
-          } catch (EntityNotFoundException e) {
-            throw new AccountNonexistentException(e.getMessage());
-          }
-          return account;
-        },
-        dbContext);
+    return supplyAsync(() -> getAccountSync(), dbContext);
+  }
+
+  /** Synchronously looks up the {@link AccountModel} associated with the profile from database. */
+  public AccountModel getAccountSync() {
+    AccountModel account = new AccountModel();
+    account.id = Long.valueOf(this.profileData.getId());
+    try {
+      account.refresh();
+    } catch (EntityNotFoundException e) {
+      throw new AccountNonexistentException(e.getMessage());
+    }
+    return account;
   }
 
   /**
