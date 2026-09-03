@@ -6,12 +6,10 @@ import static java.util.concurrent.CompletableFuture.supplyAsync;
 
 import auth.controllers.MissingOptionalException;
 import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Stream;
 import models.AccountModel;
 import models.ApplicantModel;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -246,29 +244,43 @@ public class CiviFormProfile {
    */
   public CompletableFuture<Void> checkAuthorization(long applicantId) {
     return getAccount()
-        .thenApplyAsync(
-            account ->
-                Stream.concat(
-                        account
-                            .getMemberOfGroup()
-                            .flatMap(tiGroup -> Optional.of(tiGroup.getManagedAccounts().stream()))
-                            .orElse(Stream.of()),
-                        Stream.of(account))
-                    .map(AccountModel::ownedApplicantIds)
-                    .reduce(
-                        ImmutableList.of(),
-                        (one, two) ->
-                            new ImmutableList.Builder<Long>().addAll(one).addAll(two).build()))
-        .thenApplyAsync(
-            idList -> {
-              if (!idList.contains(applicantId)) {
-                throw new SecurityException(
-                    String.format(
-                        "Account %s is not authorized to access applicant %d",
-                        getId(), applicantId));
+        .thenComposeAsync(
+            currentUserAccount -> {
+              // 1. SELF CHECK: If the current user owns this applicant profile, authorize
+              // immediately.
+              if (currentUserAccount.ownedApplicantIds().contains(applicantId)) {
+                return completedFuture(null);
               }
-              return null;
-            });
+
+              // 2. TI CHECK: If current user's TI group matches the applicant account's managed-by
+              // group.
+              return accountRepository
+                  .lookupApplicant(applicantId)
+                  .thenApplyAsync(
+                      maybeApplicant -> {
+                        Optional<Long> userTiGroupId =
+                            currentUserAccount.getMemberOfGroup().map(group -> group.id);
+
+                        Optional<Long> applicantManagedByGroupId =
+                            maybeApplicant
+                                .map(ApplicantModel::getAccount)
+                                .flatMap(AccountModel::getManagedByGroup)
+                                .map(group -> group.id);
+
+                        if (userTiGroupId.isPresent()
+                            && applicantManagedByGroupId.isPresent()
+                            && userTiGroupId.equals(applicantManagedByGroupId)) {
+                          return null; // Authorized
+                        }
+
+                        throw new SecurityException(
+                            String.format(
+                                "Account %s is not authorized to access applicant %d",
+                                getId(), applicantId));
+                      },
+                      classLoaderExecutionContext.current());
+            },
+            classLoaderExecutionContext.current());
   }
 
   /**
