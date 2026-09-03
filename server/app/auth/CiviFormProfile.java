@@ -269,7 +269,7 @@ public class CiviFormProfile {
 
                         if (userTiGroupId.isPresent()
                             && applicantManagedByGroupId.isPresent()
-                            && userTiGroupId.get().equals(applicantManagedByGroupId.get())) {
+                            && userTiGroupId.equals(applicantManagedByGroupId)) {
                           return null; // Authorized
                         }
 
