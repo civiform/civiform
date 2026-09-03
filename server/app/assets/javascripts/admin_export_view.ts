@@ -6,7 +6,7 @@ class AdminExportView {
   private static COPY_BUTTON_ID = 'copy-json-button'
 
   constructor() {
-        this.addClickListenerToCopyButton()
+    this.addClickListenerToCopyButton()
   }
 
   addClickListenerToCopyButton() {
