@@ -107,10 +107,10 @@ input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
 # Screen reader text for the file input when exactly 1 file has already been uploaded.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.singular=1 file ang nai-upload na. Pumili ng file upang mag-upload pa.
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural={0} (na) file ang nai-upload na. Pumili ng file upang mag-upload pa.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Susunod
 # The button text for navigating to the previous screen in the form.
@@ -697,7 +697,7 @@ label.zipcode=Zip code
 validation.streetRequired=Maaari lamang na ilagay ang wasto na pangalan ng kalye, at ang numero.
 validation.cityRequired=Maaari lamang na ilagay ang Lungsod.
 validation.currencyMisformatted=Ang currency ay dapat nasa isa sa mga sumusunod na format: 1000 1,000 1000.30 1,000.30
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=Ang pera ay dapat may dalawang numerikal na karakter (0-9) pagkatapos ng sampuing tuldok. Ang pinakamahabang haba ay 19 na karakter.
 validation.stateRequired=Maaari lamang na ilagay ang Estado.
 validation.invalidZipcode=Maaari lamang na ilagay ang 5-bilang na ZIP code.
 validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi natanggap ng mga PO Box.
@@ -821,7 +821,7 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=Hindi mai-upload ang file. Naabot na ang pinakamaraming bilang ng mga file.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Hindi namin mai-upload ang iyong file. Mangyaring subukang muli.
 # Text shown on a tag while a file is uploading.
@@ -887,7 +887,7 @@ validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.
 validation.numberTooBig=Dapat ay hindi hihigit sa {0}.
 validation.numberTooSmall=Dapat ay hindi bababa sa {0}.
 validation.numberNonInteger=Dapat ay naglalaman lamang ng mga numero.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=Ang numero ay dapat isang positibong buong numero at maaari lang maglaman ng mga numerikal na karakter na 0-9. Ang pinakamahabang haba ay 19 na karakter.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
