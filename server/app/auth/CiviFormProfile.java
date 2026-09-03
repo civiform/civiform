@@ -249,7 +249,7 @@ public class CiviFormProfile {
               // 1. SELF CHECK: If the current user owns this applicant profile, authorize
               // immediately.
               if (currentUserAccount.ownedApplicantIds().contains(applicantId)) {
-                return null;
+                return completedFuture(null);
               }
 
               // 2. TI CHECK: If current user's TI group matches the applicant account's
