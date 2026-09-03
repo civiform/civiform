@@ -111,10 +111,10 @@ public class CiviFormProfileTest extends ResetPostgres {
     clientAccount.setManagedByGroup(tiGroupWithClientAccess);
     clientAccount.save();
 
-    TrustedIntermediaryGroupModel tiGroupWithoutClientAcccess =
+    TrustedIntermediaryGroupModel tiGroupWithoutClientAccess =
         resourceCreator.insertTrustedIntermediaryGroup();
     AccountModel tiAccountWithoutClientAccess = resourceCreator.insertAccount();
-    tiAccountWithoutClientAccess.setMemberOfGroup(tiGroupWithoutClientAcccess);
+    tiAccountWithoutClientAccess.setMemberOfGroup(tiGroupWithoutClientAccess);
     tiAccountWithoutClientAccess.save();
 
     CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccountWithoutClientAccess);
