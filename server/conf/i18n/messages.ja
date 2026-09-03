@@ -107,10 +107,10 @@ input.multipleFileUploadHint=ファイルを選択（最大 {0} 個）
 input.unlimitedFileUploadHint=ファイルを選択（複数可）
 # Screen reader text for the file input when exactly 1 file has already been uploaded.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.singular=ファイルが1つアップロード済みです。さらにアップロードするにはファイルを選択してください。
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural=ファイルが{0}個アップロード済みです。さらにアップロードするにはファイルを選択してください。
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=保存して次へ
 # The button text for navigating to the previous screen in the form.
@@ -697,7 +697,7 @@ label.zipcode=郵便番号
 validation.streetRequired=ストリートネームとストリートナンバーを正しく入力してください。
 validation.cityRequired=市区町村を入力してください。
 validation.currencyMisformatted=通貨は、1000、1,000、1000.30、1,000.30 のいずれかの形式にする必要があります。
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=通貨は、小数点以下に2桁の数字（0～9）を含む必要があります。最大長は19桁です。
 validation.stateRequired=州を入力してください。
 validation.invalidZipcode=5 桁の有効な郵便番号を入力してください。
 validation.noPoBox=住所を正しく入力してください。私書箱は指定できません。
@@ -821,7 +821,7 @@ validation.fileRequired=ファイルを選択してください。
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ファイルが大きすぎます。{0} MB 未満のファイルを選択してください。
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=ファイルをアップロードできませんでした。ファイルの最大数に達しました。
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=ファイルをアップロードできませんでした。再度お試しください。
 # Text shown on a tag while a file is uploading.
@@ -887,7 +887,7 @@ validation.lastNameRequired=名前（姓）を入力してください。
 validation.numberTooBig=最大で {0} にする必要があります。
 validation.numberTooSmall={0} 以上にする必要があります。
 validation.numberNonInteger=数は正の整数でなければならず、0～9 の数字のみ使用できます。
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=数値は正の整数である必要があり、数字（0～9）のみ使用できます。最大長は19桁です。
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
