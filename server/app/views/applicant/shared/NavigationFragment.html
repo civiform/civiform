@@ -406,8 +406,8 @@
               ><span
                 lang="en"
                 class="usa-sr-only"
-                th:if="${language.value.chars().anyMatch(c -> c > 0x024F)}"
-                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH)}"
+                th:if="${language.value.matches('.*[^\u0000-\u024F].*')}"
+                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(T(java.util.Locale).ENGLISH)}"
               ></span>
             </button>
           </li>
