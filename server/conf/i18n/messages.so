@@ -887,7 +887,7 @@ validation.lastNameRequired=Fadlan geli magacaaga dambe.
 validation.numberTooBig=Waa inuu noqdaa ugu badnaan {0}.
 validation.numberTooSmall=Waa inuu ahaadaa ugu yaraan {0}.
 validation.numberNonInteger=Fadlan geli qiimaha sadar kasta.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=Lambarku waa inuu noqdaa tiro dhan oo togan wuxuuna ka koobnaan karaa oo keliya xarfo nambaro oo ah 0-9. Dhererka ugu badan waa 19 xaraf.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
