@@ -110,7 +110,7 @@ input.unlimitedFileUploadHint=Dooro hal ama faylal badan
 input.filesAlreadyUploadedAriaLabel.singular=1 fayl ayaa horay loo soo galiyay. Dooro fayl si aad wax badan usoo geliso.
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural={0} faylo ayaa horay loo soo galiyay. Dooro fayl si aad wax badan usoo geliso.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Tan Xiga
 # The button text for navigating to the previous screen in the form.
@@ -697,7 +697,7 @@ label.zipcode=Siib Koodhka
 validation.streetRequired=Fadlan gali magaca wadada saxda ah iyo lambarka.
 validation.cityRequired=Fadlan magaalada gali.
 validation.currencyMisformatted=Lacagtu waa inay noqotaa mid ka mid ah qaababka soo socda: 1000 1,000 1000.30 1,000.30
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=Lacagtu waa inay lahaataa laba xaraf oo tiro ah (0-9) jajabka tobanlaha ka dib. Dhererka ugu badan waa 19 xaraf dherer ahaan.
 validation.stateRequired=Fadlan geli gobolka.
 validation.invalidZipcode=Fadlan geli sib koodhka shanta lambarka ah oo saxsan.
 validation.noPoBox=Fadlan gali ciwaan saxda ah.Ma aqbalno sanduuqyada boostada (PO BOX).
