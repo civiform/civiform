@@ -697,7 +697,7 @@ label.zipcode=ዚፕ ኮድ
 validation.streetRequired=እባክዎ ትክክለኛ የጎዳና ስም እና ቁጥር ያስገቡ።
 validation.cityRequired=እባክዎ ከተማ ያስገቡ።
 validation.currencyMisformatted=ምንዛሬ ከሚከተሉት ቅርጸቶች አንዱ መሆን አለበት፦ 1000 1,000 1000.30 1,000.30
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=የምንዛሪ ገንዘብ ከዴሲማል በኋላ ሁለት የቁጥር ቁምፊዎች ሊኖረው ይገባል (0-9)። ከፍተኝዐው ርዝማኔ 19 ቁምፊዎች ነው።\n 
 validation.stateRequired=እባክዎ ክልል ያስገቡ።
 validation.invalidZipcode=እባክዎ ትክክለኛ ባለ5 አኃዝ ዚፕ ኮድ ያስገቡ።
 validation.noPoBox=እባክዎ ትክክለኛ አድራሻ ያስገቡ። የፖስታ ሳጥን ቁጥሮችን አንቀበልም።
@@ -821,7 +821,7 @@ validation.fileRequired=እባክዎ ፋይል ይምረጡ።
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ፋይልዎ በጣም ትልቅ ነው። እባክዎ ከ{0} ሜባ በታች የሆነ ፋይል ይምረጡ።
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=ፋይል መስቀል አልተቻለም። ከፍተኝዐው የፋይል ቁጥር ላይ ደርሷል።
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=የእርስዎ ፋይል ሊሰቀል አልቻለም። እባክዎ እንደገና ይሞክሩ።
 # Text shown on a tag while a file is uploading.
