@@ -887,7 +887,7 @@ validation.lastNameRequired=Ingresa tu apellido.
 validation.numberTooBig=El número debe ser menor que {0}.
 validation.numberTooSmall=El número debe ser mayor que {0}.
 validation.numberNonInteger=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=El número debe ser positivo y entero y solo puede contener caracteres numéricos entre 0 y 9. La extensión máxima es de 19 caracteres.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
