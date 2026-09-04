@@ -61,6 +61,7 @@ public class ProgramDisabledActionTest extends ResetPostgres {
             /* programType */ ProgramType.DEFAULT,
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            /* usesScoring= */ false,
             /* ProgramAcls */ new ProgramAcls(),
             /* categories */ ImmutableList.of(),
             /* applicationSteps */ ImmutableList.of(new ApplicationStep("title", "description")));

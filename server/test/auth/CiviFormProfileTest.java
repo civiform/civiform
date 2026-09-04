@@ -8,6 +8,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableList;
 import models.AccountModel;
 import models.ApplicantModel;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -72,6 +73,52 @@ public class CiviFormProfileTest extends ResetPostgres {
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
 
     assertThatThrownBy(() -> profile.checkAuthorization(1234L).join())
+        .hasCauseInstanceOf(SecurityException.class);
+  }
+
+  @Test
+  public void checkAuthorization_ti_passesForManagedClientId() {
+    ApplicantModel client = resourceCreator.insertApplicant();
+    AccountModel clientAccount = resourceCreator.insertAccount();
+    client.setAccount(clientAccount);
+    client.save();
+
+    TrustedIntermediaryGroupModel group = resourceCreator.insertTrustedIntermediaryGroup();
+    clientAccount.setManagedByGroup(group);
+    clientAccount.save();
+
+    AccountModel tiAccount = resourceCreator.insertAccount();
+    tiAccount.setMemberOfGroup(group);
+    tiAccount.save();
+
+    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccount);
+
+    tiProfile.checkAuthorization(client.id).join(); // should not throw
+  }
+
+  @Test
+  public void checkAuthorization_ti_failsForUnmanagedClientId() {
+    ApplicantModel client = resourceCreator.insertApplicant();
+    AccountModel clientAccount = resourceCreator.insertAccount();
+    client.setAccount(clientAccount);
+    client.save();
+
+    TrustedIntermediaryGroupModel tiGroupWithClientAccess =
+        resourceCreator.insertTrustedIntermediaryGroup();
+    AccountModel tiAccountWithClientAccess = resourceCreator.insertAccount();
+    tiAccountWithClientAccess.setMemberOfGroup(tiGroupWithClientAccess);
+    tiAccountWithClientAccess.save();
+    clientAccount.setManagedByGroup(tiGroupWithClientAccess);
+    clientAccount.save();
+
+    TrustedIntermediaryGroupModel tiGroupWithoutClientAccess =
+        resourceCreator.insertTrustedIntermediaryGroup();
+    AccountModel tiAccountWithoutClientAccess = resourceCreator.insertAccount();
+    tiAccountWithoutClientAccess.setMemberOfGroup(tiGroupWithoutClientAccess);
+    tiAccountWithoutClientAccess.save();
+
+    CiviFormProfile tiProfile = profileTestFactory.wrapTi(tiAccountWithoutClientAccess);
+    assertThatThrownBy(() -> tiProfile.checkAuthorization(client.id).join())
         .hasCauseInstanceOf(SecurityException.class);
   }
 

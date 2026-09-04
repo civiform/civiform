@@ -14,7 +14,6 @@ import org.junit.runner.RunWith;
 import org.pac4j.core.profile.CommonProfile;
 import org.pac4j.core.profile.UserProfile;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
 import services.program.ProgramDefinition;
@@ -36,11 +35,7 @@ public class CiviFormProfileMergerTest extends ResetPostgres {
     var storedFileRepository = instanceOf(StoredFileRepository.class);
     profileFactory = instanceOf(ProfileFactory.class);
     civiFormProfileMerger =
-        new CiviFormProfileMerger(
-            profileFactory,
-            () -> repository,
-            () -> storedFileRepository,
-            instanceOf(DatabaseExecutionContext.class));
+        new CiviFormProfileMerger(profileFactory, () -> repository, () -> storedFileRepository);
     userProfile = new CommonProfile();
   }
 
