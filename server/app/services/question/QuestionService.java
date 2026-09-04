@@ -596,4 +596,48 @@ public final class QuestionService {
     }
     return true;
   }
+
+  /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
+  public QuestionDefinition setImageFileKey(long questionId, String fileKey)
+    throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+    Optional<QuestionModel> maybeQuestion =
+      questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+    if (maybeQuestion.isEmpty()) {
+      throw new QuestionNotFoundException(questionId);
+    }
+
+    QuestionDefinition questionDefinition =
+      questionRepository.getQuestionDefinition(maybeQuestion.get());
+
+    QuestionDefinition updatedQuestionDefinition =
+      new QuestionDefinitionBuilder(questionDefinition)
+        .setImageFileKey(Optional.of(fileKey))
+        .build();
+
+    QuestionModel updatedQuestion =
+      questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+    return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  /** Removes the image file key for the given question so that no image is associated with it. */
+  public QuestionDefinition deleteImageFileKey(long questionId) throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+    Optional<QuestionModel> maybeQuestion =
+      questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+    if (maybeQuestion.isEmpty()) {
+      throw new QuestionNotFoundException(questionId);
+    }
+
+    QuestionDefinition questionDefinition =
+      questionRepository.getQuestionDefinition(maybeQuestion.get());
+
+    QuestionDefinition updatedQuestionDefinition =
+      new QuestionDefinitionBuilder(questionDefinition)
+        .setImageFileKey(Optional.empty())
+        .setLocalizedImageDescription(Optional.empty())
+        .build();
+
+    QuestionModel updatedQuestion =
+      questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+    return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
 }

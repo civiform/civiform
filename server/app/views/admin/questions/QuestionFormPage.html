@@ -70,22 +70,22 @@
       <th:block
         th:if="${model.editMode and model.imagesInQuestionFeatureEnabled}"
       >
-        <div class="usa-form-group">
-          <label class="usa-label" for="question-image-input"
-            >Image upload</label
-          >
-          <div class="usa-hint" id="question-image-file-input-hint">
-            The maximum size for image upload is 1MB.
-          </div>
-          <input
-            accept="image/png,image/jpeg"
-            aria-describedby="question-image-file-input-hint"
-            class="usa-file-input"
-            id="question-image-input"
-            name="questionImage"
-            type="file"
-          />
+        <div class="usa-hint" id="question-image-file-input-hint">
+          The maximum size for image upload is 1MB.
         </div>
+        <input
+          accept="image/png,image/jpeg"
+          aria-describedby="question-image-file-input-hint"
+          class="usa-file-input"
+          id="question-image-input"
+          name="questionImage"
+          type="file"
+          th:hx-post="${model.imageUploadUrl}"
+          hx-trigger="change"
+          hx-encoding="multipart/form-data"
+          hx-include="#question-image-description, [name='csrfToken']"
+          hx-swap="none"
+        />
 
         <div class="usa-form-group">
           <label class="usa-label" for="question-image-description"
@@ -121,7 +121,15 @@
                  there renders as a visible space and shifts the icon right of
                  the legacy j2html output. */-->
           <!-- prettier-ignore -->
-          <label for="question-name-input" class="text-gray-600 text-base px-1 py-2">Administrative identifier. This value can't be changed later <span th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"></span><span><div class="group inline"><svg th:replace="~{admin/shared/LegacySvgFragments :: iconInfo('inline-block w-5 relative')}"></svg><span class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5" th:text="'This will be used to identify questions in the API and CSV export.  It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.'"></span></div></span></label>
+          <label for="question-name-input" class="text-gray-600 text-base px-1 py-2">Administrative identifier. This value
+      can't be changed later <span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"></span><span>
+        <div class="group inline"><svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconInfo('inline-block w-5 relative')}"></svg><span
+            class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5"
+            th:text="'This will be used to identify questions in the API and CSV export.  It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.'"></span>
+        </div>
+      </span></label>
           <div class="flex flex-col">
             <input
               type="text"
@@ -287,12 +295,14 @@
               <th:block th:case="'ADDRESS'">
                 <th:block
                   th:replace="~{admin/questions/fragments/AddressFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'CHECKBOX'">
                 <th:block
                   th:replace="~{admin/questions/fragments/CheckboxFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'DATE'">
                 <th:block
@@ -302,17 +312,20 @@
               <th:block th:case="'DROPDOWN'">
                 <th:block
                   th:replace="~{admin/questions/fragments/MultiOptionContainerFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'ENUMERATOR'">
                 <th:block
                   th:replace="~{admin/questions/fragments/EnumeratorFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'FILEUPLOAD'">
                 <th:block
                   th:replace="~{admin/questions/fragments/FileUploadFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'ID'">
                 <th:block
@@ -337,7 +350,8 @@
               <th:block th:case="'RADIO_BUTTON'">
                 <th:block
                   th:replace="~{admin/questions/fragments/MultiOptionContainerFragment :: build(${model.questionForm})}"
-                ></th:block>
+                >
+                </th:block>
               </th:block>
               <th:block th:case="'TEXT'">
                 <th:block

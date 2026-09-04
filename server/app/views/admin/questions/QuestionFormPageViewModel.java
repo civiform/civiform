@@ -67,7 +67,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   private final boolean isMapQuestion;
   private final String geoJsonEndpoint;
 
-  // MAP question config: settings rendered via the shared MapQuestionSettingsPartial template.
+  // MAP question config: settings rendered via the shared
+  // MapQuestionSettingsPartial template.
   // Null for non-MAP questions.
   private final MapQuestionSettingsPartialViewModel mapSettings;
 
@@ -95,8 +96,10 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   // YES_NO: the option rows to render. Null for other question types.
   private final YesNoConfig yesNoConfig;
 
-  // CHECKBOX / DROPDOWN / RADIO_BUTTON: whether the per-option score inputs render (the
-  // ANSWER_OPTION_SCORING_ENABLED flag is on and the question type supports scores).
+  // CHECKBOX / DROPDOWN / RADIO_BUTTON: whether the per-option score inputs
+  // render (the
+  // ANSWER_OPTION_SCORING_ENABLED flag is on and the question type supports
+  // scores).
   private final boolean showScores;
 
   // Error message shown as a toast (already carries the "Error: " prefix)
@@ -136,6 +139,11 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
 
   public String getGeoJsonPostUrl() {
     return controllers.geojson.routes.GeoJsonApiController.hxGetData().url();
+  }
+
+  public String getImageUploadUrl() {
+    return controllers.admin.routes.AdminQuestionImageController.uploadQuestionImage(questionId)
+        .url();
   }
 
   /**
