@@ -11,6 +11,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.typesafe.config.Config;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,8 +22,11 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -33,6 +37,7 @@ import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramFormPageView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -83,11 +88,16 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProgramIndexView.class),
             instanceOf(ProgramNewOneView.class),
             instanceOf(ProgramMetaDataEditView.class),
+            instanceOf(ProgramFormPageView.class),
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
-            instanceOf(SettingsManifest.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(CategoryRepository.class),
+            instanceOf(AccountRepository.class),
+            instanceOf(Config.class));
   }
 
   @Test

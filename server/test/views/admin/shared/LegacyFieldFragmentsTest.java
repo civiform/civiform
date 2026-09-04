@@ -32,6 +32,11 @@ public class LegacyFieldFragmentsTest {
   }
 
   @Test
+  public void markdownIndicatorNoLink() {
+    ThymeleafFragmentTester.run(DIR + "markdownIndicatorNoLink.thtest");
+  }
+
+  @Test
   public void slimInfoAlert_visible() {
     ThymeleafFragmentTester.run(DIR + "slimInfoAlertVisible.thtest");
   }

@@ -1,0 +1,16 @@
+%NAME uswdsCheckboxOption - null value omits the value attribute (login-only checkbox)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption('login-only-applications', 'loginOnly', null, false, false, 'Require applicants to log in to apply to this program', 'usa-checkbox')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="usa-checkbox">
+  <input
+    id="login-only-applications"
+    class="usa-checkbox__input usa-checkbox__input--tile"
+    type="checkbox"
+    name="loginOnly"
+  />
+  <label for="login-only-applications" class="usa-checkbox__label">Require applicants to log in to apply to this program</label>
+</div>

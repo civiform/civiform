@@ -1,0 +1,23 @@
+%NAME applicationStep - later step is optional and passes the disabled state through
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ApplicationStep :: applicationStep(2, '', '', false, true)}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/programs/fragments/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required, disabled, maxlength, wrapperClasses)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, ${maxlength}, ${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/programs/fragments/TextareaField]
+<div
+  th:fragment="textareaField(id, name, label, value, required, disabled, markdown, wrapperClasses)"
+  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, markdown=${markdown}, ${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div id="apply-step-3-div">
+  <div>textField(apply-step-3-title, applicationSteps[2][title], Step 3 title, , required=false, disabled=true, 10000, mb-2)</div>
+  <div>textareaField(apply-step-3-description, applicationSteps[2][description], Step 3 description, , required=false, disabled=true, markdown=true, mb-2)</div>
+</div>

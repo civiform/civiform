@@ -1,0 +1,29 @@
+%NAME applicationStep - first step passes one-based ids/labels and required fields
+%TEMPLATE_MODE HTML
+# ApplicationStep just wires up the program TextField and TextareaField
+# fragments, so both are faked here and only the wiring is checked: the
+# zero-based index feeds the field names while ids and labels use the
+# one-based step number.
+%INPUT
+<div th:replace="~{admin/programs/fragments/ApplicationStep :: applicationStep(0, 'Apply', 'Fill out the form', true, false)}"></div>
+# ----------------------------------------------------------------------
+# Swaps the real TextField for a fake that just prints its arguments. The
+# real field markup has its own thtests.
+%INPUT[admin/programs/fragments/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required, disabled, maxlength, wrapperClasses)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, ${maxlength}, ${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+# Same for TextareaField.
+%INPUT[admin/programs/fragments/TextareaField]
+<div
+  th:fragment="textareaField(id, name, label, value, required, disabled, markdown, wrapperClasses)"
+  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, markdown=${markdown}, ${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div id="apply-step-1-div">
+  <div>textField(apply-step-1-title, applicationSteps[0][title], Step 1 title, Apply, required=true, disabled=false, 10000, mb-2)</div>
+  <div>textareaField(apply-step-1-description, applicationSteps[0][description], Step 1 description, Fill out the form, required=true, disabled=false, markdown=true, mb-2)</div>
+</div>

@@ -1,0 +1,29 @@
+<!--/*
+  USWDS tile checkbox option, mirroring the legacy ProgramFormBuilder
+  buildUSWDSCheckboxOption helpers.
+
+  value is optional: the login-only checkbox used the legacy overload without
+  a value, so pass null to omit the attribute (via th:attr, which drops null
+  attributes; empty string values also drop, so options needing a literal
+  value="" cannot use this fragment).
+
+  outerClasses exists because the legacy call sites sometimes REPLACED the
+  wrapper's "usa-checkbox" class via withClasses(...): category options render
+  with "grid-col-12 tablet:grid-col-6". Pass 'usa-checkbox' for the standard
+  rendering.
+*/-->
+<div
+  th:fragment="uswdsCheckboxOption(id, name, value, checked, disabled, label, outerClasses)"
+  th:class="${outerClasses}"
+>
+  <input
+    th:id="${id}"
+    class="usa-checkbox__input usa-checkbox__input--tile"
+    type="checkbox"
+    th:name="${name}"
+    th:attr="value=${value}"
+    th:checked="${checked}"
+    th:disabled="${disabled}"
+  />
+  <label th:for="${id}" class="usa-checkbox__label" th:text="${label}"></label>
+</div>
