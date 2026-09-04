@@ -887,7 +887,7 @@ validation.lastNameRequired=እባክዎ የአያት ስምዎን ያስገቡ�
 validation.numberTooBig=ቢበዛ {0} መሆን አለበት።
 validation.numberTooSmall=ቢያንስ {0} መሆን አለበት።
 validation.numberNonInteger=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥራዊ ቁምፊዎችን ብቻ ነው።
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=ቁጥር አዎንታዊ ሙሉ ቁጥር መሆን አለበት እና መያዝ የሚችለው ከ0-9 ቁጥር ቁምፊዎችን ብቻ ነው። ከፍተኛው ርዝማኔ 19 ቁምፊዎች ነው።
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
