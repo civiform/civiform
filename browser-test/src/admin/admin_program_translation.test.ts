@@ -439,17 +439,13 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
-        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.addPredicates(
-        /* expandedFormLogicEnabled= */ true,
-        {
-          questionName: questionName,
-          scalar: 'text',
-          operator: 'is equal to',
-          value: 'eligible',
-        },
-      )
+      await adminPredicates.addPredicates({
+        questionName: questionName,
+        scalar: 'text',
+        operator: 'is equal to',
+        value: 'eligible',
+      })
       await expect(
         page.getByText(
           'Applicant is eligible if "eligibility-question-q" text is equal to "eligible"',
@@ -461,12 +457,8 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
-        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(
-        eligibilityMsg,
-        /* expandedFormLogicEnabled= */ true,
-      )
+      await adminPredicates.updateEligibilityMessage(eligibilityMsg)
       await validateToastMessage(page, 'Saved eligibility condition')
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
@@ -519,12 +511,8 @@ test.describe('Admin can manage program translations', () => {
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         programName,
         screenName,
-        /* expandedFormLogicEnabled= */ true,
       )
-      await adminPredicates.updateEligibilityMessage(
-        '',
-        /* expandedFormLogicEnabled= */ true,
-      )
+      await adminPredicates.updateEligibilityMessage('')
       await validateToastMessage(page, 'Saved eligibility condition')
 
       await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)

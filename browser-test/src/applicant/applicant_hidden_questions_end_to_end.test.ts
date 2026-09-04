@@ -13,7 +13,6 @@ import {
 } from '../support'
 import {AdminQuestions, QuestionDisplayMode} from '../support/admin_questions'
 import {Page} from '@playwright/test'
-import {QuestionSpec} from '../support/admin_programs'
 import {BridgeDiscoveryPage} from '../page/admin/api_bridge/bridge_discovery_page'
 import {MOCK_WEB_SERVICES_URL} from '../support/config'
 import {ProgramBridgeConfigurationPage} from '../page/admin/programs/program_bridge_configuration_page'
@@ -544,7 +543,7 @@ class AdminActor {
       await this.adminPrograms.editProgramBlock(this.programName, blockName)
       await this.adminPrograms.addQuestionsToProgramBlock({
         name: blockName,
-        questions: questionNames.map((q) => <QuestionSpec>{name: q}),
+        questions: questionNames.map((q) => ({name: q})),
       })
     })
   }
@@ -554,7 +553,7 @@ class AdminActor {
       await this.adminPrograms.addProgramBlock(this.programName, blockName)
       await this.adminPrograms.addQuestionsToProgramBlock({
         name: blockName,
-        questions: questionNames.map((q) => <QuestionSpec>{name: q}),
+        questions: questionNames.map((q) => ({name: q})),
       })
     })
   }
@@ -592,20 +591,16 @@ class AdminActor {
       await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
         this.programName,
         blockName,
-        /* expandedFormLogicEnabled= */ true,
       )
     })
 
     await test.step(`Add eligibility predicate to block ${blockName}`, async () => {
-      await this.adminPredicates.addPredicates(
-        /* expandedFormLogicEnabled= */ true,
-        {
-          questionName: questionName,
-          scalar: 'text',
-          operator: 'is equal to',
-          value: eligibilityValue,
-        },
-      )
+      await this.adminPredicates.addPredicates({
+        questionName: questionName,
+        scalar: 'text',
+        operator: 'is equal to',
+        value: eligibilityValue,
+      })
     })
 
     await this.editProgram()
