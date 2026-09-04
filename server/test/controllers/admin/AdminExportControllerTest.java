@@ -23,7 +23,9 @@ import repository.VersionRepository;
 import services.migration.ProgramMigrationService;
 import services.program.ProgramService;
 import services.question.QuestionService;
+import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.admin.migration.AdminExportPageView;
 import views.admin.migration.AdminExportView;
 
 public class AdminExportControllerTest extends ResetPostgres {
@@ -34,11 +36,13 @@ public class AdminExportControllerTest extends ResetPostgres {
     controller =
         new AdminExportController(
             instanceOf(AdminExportView.class),
+            instanceOf(AdminExportPageView.class),
             instanceOf(FormFactory.class),
             instanceOf(ProfileUtils.class),
             instanceOf(ProgramMigrationService.class),
             instanceOf(ProgramService.class),
             instanceOf(QuestionService.class),
+            instanceOf(SettingsManifest.class),
             instanceOf(VersionRepository.class));
   }
 

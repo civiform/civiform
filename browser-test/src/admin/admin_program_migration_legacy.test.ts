@@ -1,5 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
@@ -9,7 +9,7 @@ test.describe('program migration', () => {
   const ALERT_SUCCESS = 'usa-alert--success'
 
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
+    await disableFeatureFlag(
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
     )
