@@ -243,7 +243,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* description= */ Optional.empty()))
                 .withId("program-eligibility")
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
-            // Application scoring; rendered only while the answer-option-scoring flag is on.
+            // Application scoring; rendered only while the ANSWER_OPTION_SCORING_ENABLED flag is
+            // on.
             // Preservation of the stored value while the flag is off is handled controller-side.
             iff(
                 settingsManifest.getAnswerOptionScoringEnabled(request),
