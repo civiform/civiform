@@ -28,10 +28,11 @@ public class AdminQuestionImageController extends CiviFormController {
   public AdminQuestionImageController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      SettingsManifest settingsManifest, QuestionService questionService) {
+      SettingsManifest settingsManifest,
+      QuestionService questionService) {
     super(profileUtils, versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.questionService=checkNotNull(questionService);
+    this.questionService = checkNotNull(questionService);
   }
 
   /** Uploads a question image and saves its alt text. */
@@ -60,21 +61,18 @@ public class AdminQuestionImageController extends CiviFormController {
       if (!PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
         throw new IllegalArgumentException("Key incorrectly formatted for question image file");
       }
-      try{
+      try {
         questionService.setImageFileKey(questionId, fileKey);
-      }
-      catch (QuestionNotFoundException | UnsupportedQuestionTypeException e)
-      {
+      } catch (QuestionNotFoundException | UnsupportedQuestionTypeException e) {
         return notFound();
       }
-      try{
-        questionService.setImageFileDescription(questionId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
-      }
-      catch (QuestionNotFoundException | UnsupportedQuestionTypeException e){
+      try {
+        questionService.setImageFileDescription(
+            questionId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
+      } catch (QuestionNotFoundException | UnsupportedQuestionTypeException e) {
         return notFound();
       }
     }
-
 
     // 3. Return 200 OK to HTMX
     return ok();

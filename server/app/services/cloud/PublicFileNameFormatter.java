@@ -72,7 +72,7 @@ public final class PublicFileNameFormatter {
     return fileKey.startsWith(PROGRAM_IMAGE_FILE_KEY_PREFIX);
   }
 
-    public static boolean isFileKeyForPublicQuestionImage(String fileKey) {
+  public static boolean isFileKeyForPublicQuestionImage(String fileKey) {
     return fileKey.startsWith(QUESTION_IMAGE_FILE_KEY_PREFIX);
-    }
+  }
 }

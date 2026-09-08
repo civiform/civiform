@@ -602,61 +602,64 @@ public final class QuestionService {
 
   /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
   public QuestionDefinition setImageFileKey(long questionId, String fileKey)
-    throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
     Optional<QuestionModel> maybeQuestion =
-      questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new QuestionNotFoundException(questionId);
     }
 
     QuestionDefinition questionDefinition =
-      questionRepository.getQuestionDefinition(maybeQuestion.get());
+        questionRepository.getQuestionDefinition(maybeQuestion.get());
 
     QuestionDefinition updatedQuestionDefinition =
-      new QuestionDefinitionBuilder(questionDefinition)
-        .setImageFileKey(Optional.of(fileKey))
-        .build();
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setImageFileKey(Optional.of(fileKey))
+            .build();
 
     QuestionModel updatedQuestion =
-      questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
     return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 
   /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
-  public QuestionDefinition setImageFileDescription(long questionId, Locale locale, String imageDescription)
-    throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+  public QuestionDefinition setImageFileDescription(
+      long questionId, Locale locale, String imageDescription)
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
     Optional<QuestionModel> maybeQuestion =
-      questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new QuestionNotFoundException(questionId);
     }
 
     QuestionDefinition questionDefinition =
-      questionRepository.getQuestionDefinition(maybeQuestion.get());
+        questionRepository.getQuestionDefinition(maybeQuestion.get());
     if (imageDescription.isBlank() && questionDefinition.getImageFileKey().isPresent()) {
       throw new ImageDescriptionNotRemovableException(
-        "Description can't be removed because an image is present. Delete the image before"
-          + " deleting the description.");
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
     }
 
     Optional<LocalizedStrings> newStrings =
-      getUpdatedImageDescription(questionDefinition, locale, imageDescription);
+        getUpdatedImageDescription(questionDefinition, locale, imageDescription);
     QuestionDefinition updatedQuestionDefinition =
-      new QuestionDefinitionBuilder(questionDefinition).setLocalizedImageDescription(newStrings).build();
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setLocalizedImageDescription(newStrings)
+            .build();
     QuestionModel updatedQuestion =
-      questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
     return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 
   private Optional<LocalizedStrings> getUpdatedImageDescription(
-    QuestionDefinition questionDefinition, Locale locale, String imageDescription) {
+      QuestionDefinition questionDefinition, Locale locale, String imageDescription) {
     if (locale.equals(DEFAULT_LOCALE) && imageDescription.isBlank()) {
       // Clear out all associated translations when the admin deletes a description.
       return Optional.empty();
     }
 
     Optional<LocalizedStrings> currentDescription =
-      questionDefinition.getLocalizedImageDescription();
+        questionDefinition.getLocalizedImageDescription();
     LocalizedStrings newStrings;
     if (currentDescription.isEmpty()) {
       newStrings = LocalizedStrings.of(locale, imageDescription);
@@ -665,25 +668,27 @@ public final class QuestionService {
     }
     return Optional.of(newStrings);
   }
+
   /** Removes the image file key for the given question so that no image is associated with it. */
-  public QuestionDefinition deleteImageFileKey(long questionId) throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+  public QuestionDefinition deleteImageFileKey(long questionId)
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
     Optional<QuestionModel> maybeQuestion =
-      questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
+        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
     if (maybeQuestion.isEmpty()) {
       throw new QuestionNotFoundException(questionId);
     }
 
     QuestionDefinition questionDefinition =
-      questionRepository.getQuestionDefinition(maybeQuestion.get());
+        questionRepository.getQuestionDefinition(maybeQuestion.get());
 
     QuestionDefinition updatedQuestionDefinition =
-      new QuestionDefinitionBuilder(questionDefinition)
-        .setImageFileKey(Optional.empty())
-        .setLocalizedImageDescription(Optional.empty())
-        .build();
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setImageFileKey(Optional.empty())
+            .setLocalizedImageDescription(Optional.empty())
+            .build();
 
     QuestionModel updatedQuestion =
-      questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
     return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 }
