@@ -1,0 +1,113 @@
+name: Renovate
+
+# Self-hosted Renovate. The Mend-hosted app shares one pool of IPs across all
+# of its customers and Maven Central throttles that pool. Running the CLI here
+# gives each run its own runner IP and a cache that persists between runs.
+#
+# Setup:
+#   1. Add a repository secret CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE
+#      holding a fine-grained personal access token scoped to this repository
+#      with these permissions:
+#        - Contents: read and write (push renovate/* branches)
+#        - Pull requests: read and write (open, rebase and label PRs)
+#        - Issues: read and write (dependency dashboard)
+#        - Workflows: read and write (update files under .github/workflows)
+#        - Metadata: read (always required)
+#      Commits and PRs are made as the account that owns the token.
+#   2. Disable the Mend-hosted Renovate app for this repository. Both use the
+#      same renovate/* branch names and dashboard issue and would fight.
+#
+# Repository config (schedule, package rules, Maven Central throttle) lives in
+# .github/renovate.json5. Self-hosted settings are the RENOVATE_* variables on
+# the run step below.
+
+on:
+  schedule:
+    # UTC. renovate.json5 only allows work "after 4am" and "before 10am" UTC,
+    # so runs outside that window would find nothing to do. Two runs give a
+    # second chance after a transient registry error.
+    - cron: "23 4 * * *"
+    - cron: "23 7 * * *"
+  workflow_dispatch:
+    inputs:
+      dryRun:
+        description: Look up updates but do not create branches or PRs
+        type: boolean
+        default: false
+      logLevel:
+        description: Log level
+        type: choice
+        default: info
+        options: [info, debug]
+
+permissions:
+  contents: read
+
+# Never run two instances against the repository at once. Queue rather than
+# cancel so a run is not killed halfway through creating a PR.
+concurrency:
+  group: renovate
+  cancel-in-progress: false
+
+jobs:
+  renovate:
+    runs-on: ubuntu-latest
+    if: github.repository == 'civiform/civiform'
+    timeout-minutes: 60
+    env:
+      CACHE_DIR: /tmp/renovate/cache
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      # Renovate compares commit authors against gitAuthor to tell its own
+      # branches from ones a person has edited. Derive it from the token's
+      # account so it never drifts if the PAT owner changes.
+      - name: Resolve commit author
+        env:
+          GH_TOKEN: ${{ secrets.CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE }}
+        run: |
+          author="$(gh api user --jq '"\(.login) <\(.id)+\(.login)@users.noreply.github.com>"')"
+          echo "RENOVATE_GIT_AUTHOR=${author}" >> "$GITHUB_ENV"
+
+      # Keys are immutable, so each run saves a new entry and the next run
+      # restores the newest one matching the prefix.
+      - name: Restore cache
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.CACHE_DIR }}
+          key: renovate-cache-${{ github.run_id }}
+          restore-keys: renovate-cache-
+
+      # The cache is restored as the runner user. Renovate runs as uid 12021 (ubuntu user) inside its container.
+      - name: Fix cache ownership
+        run: |
+          sudo mkdir -p "${CACHE_DIR}"
+          sudo chown -R 12021:0 /tmp/renovate
+
+      - name: Run Renovate
+        uses: renovatebot/github-action@37beffda261423addd537c33f2d126df7f6ffbab # v46.2.6
+        with:
+          token: ${{ secrets.CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE }}
+        env:
+          RENOVATE_REPOSITORIES: ${{ github.repository }}
+          # Keep updating branches created by the Mend-hosted bot before migration.
+          RENOVATE_GIT_IGNORED_AUTHORS: "29139614+renovate[bot]@users.noreply.github.com"
+          # renovate.json5 is already committed: never open an onboarding PR,
+          # and refuse to run without a repository config.
+          RENOVATE_ONBOARDING: "false"
+          RENOVATE_REQUIRE_CONFIG: required
+          # Persist extracted dependency data in the cache directory above.
+          RENOVATE_REPOSITORY_CACHE: enabled
+          # Docker Hub refuses anonymous tag listings past page 10. Renovate
+          # walks the whole list, so for images with long histories (node,
+          # postgres, eclipse-temurin) it hits page 11, gets a 403, discards
+          # everything, and falls back to a list without release dates. With
+          # minimumReleaseAge set, those updates then sit as "pending" forever.
+          # Stopping at page 10 keeps the walk inside the anonymous limit and
+          # still covers the 1000 most recently pushed tags.
+          RENOVATE_DOCKER_MAX_PAGES: "10"
+          # Inputs are empty on scheduled runs; empty values are ignored.
+          RENOVATE_DRY_RUN: ${{ inputs.dryRun && 'full' || '' }}
+          LOG_LEVEL: ${{ inputs.logLevel || 'info' }}
