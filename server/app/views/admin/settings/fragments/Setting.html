@@ -1,0 +1,40 @@
+<!--/*@thymesVar id="model" type="views.admin.settings.AdminSettingsIndexPageViewModel"*/-->
+<!--/*
+  One server setting: its variable name, its description rendered from
+  markdown, and the input for its type.
+
+  Field ids are generated per render, as FieldWithLabel did for fields with no
+  explicit id; boolean settings need two, one per radio.
+*/-->
+<div
+  th:fragment="setting(setting)"
+  th:data-testid="|${setting.variableName}-container|"
+  class="md:max-w-lg max-w-md"
+>
+  <div class="font-semibold break-all" th:text="${setting.variableName}"></div>
+  <div class="text-sm" th:utext="${setting.descriptionHtml}"></div>
+  <!--/* th:replace has to sit on an inner element: it is evaluated before
+         th:case, so a combined attribute would include every input. */-->
+  <th:block th:switch="${setting.inputTypeName}">
+    <th:block th:case="'BOOLEAN'">
+      <div
+        th:replace="~{admin/settings/fragments/SettingInputs :: boolInput(${model.randomFieldId()}, ${model.randomFieldId()}, ${setting.variableName}, ${setting.checked}, ${setting.readOnly}, ${setting.errorMessage})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'STRING'">
+      <div
+        th:replace="~{admin/settings/fragments/SettingInputs :: stringInput(${model.randomFieldId()}, ${setting.variableName}, ${setting.value}, ${setting.readOnly}, ${setting.errorMessage})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'ENUM'">
+      <div
+        th:replace="~{admin/settings/fragments/SettingInputs :: enumInput(${model.randomFieldId()}, ${setting.variableName}, ${setting.value}, ${setting.allowableValues}, ${setting.readOnly})}"
+      ></div>
+    </th:block>
+    <th:block th:case="'INT'">
+      <div
+        th:replace="~{admin/settings/fragments/SettingInputs :: numberInput(${model.randomFieldId()}, ${setting.variableName}, ${setting.value}, ${setting.readOnly})}"
+      ></div>
+    </th:block>
+  </th:block>
+</div>
