@@ -14,10 +14,12 @@ const MAX_COMMENTS = 50
 
 // Parses `git diff -U0` output into {path, hunks} entries, where each
 // hunk carries its old-file start line and count plus the replacement
-// (lines) and replaced (oldLines) content. Zero context lines matter:
-// each suggestion must anchor on exactly the lines it replaces. Any
-// wider range sweeps in the PR diff's deleted lines, and GitHub refuses
-// to apply suggestions whose range includes deleted lines.
+// (newLines) and replaced (oldLines) content. -U0 tells git to emit no
+// unchanged context lines around a hunk, so each hunk spans exactly the
+// lines it replaces and the suggestion anchors on just those. With
+// context included, the anchor range would be wider and could take in
+// lines the PR's own diff deletes, and GitHub refuses to apply a
+// suggestion whose range includes a deleted line.
 function parseDiff(diff) {
   const files = []
   let file = null
@@ -25,13 +27,14 @@ function parseDiff(diff) {
   for (const line of diff.split('\n')) {
     // With -U0 every content line starts with '+', '-', or '\', so a
     // bare 'diff --git ' line is always a real file boundary.
-    // '+++ b/...' alone is not: an added content line beginning
-    // '++ b/...' renders exactly the same way, so header lines only
-    // count between 'diff --git ' and the file's first '@@ '.
+    // '+++ b/...' alone is not a file boundary because an added content
+    // line beginning '++ b/...' renders exactly the same way, so header
+    // lines only count between 'diff --git ' and the file's first '@@ '.
     if (line.startsWith('diff --git ')) {
       inHeader = true
       file = null
     } else if (inHeader && line.startsWith('+++ b/')) {
+      // Grab the filename from the '+++ b/' header line.
       // Headers for paths with special characters arrive quoted
       // ('+++ "b/..."') and fail this match, skipping the file; the
       // API couldn't anchor on the quoted form anyway. A path
@@ -45,14 +48,14 @@ function parseDiff(diff) {
         file.hunks.push({
           start: Number(match[1]),
           count: match[2] === undefined ? 1 : Number(match[2]),
-          lines: [],
+          newLines: [],
           oldLines: [],
         })
       }
     } else if (file && !inHeader && file.hunks.length > 0) {
       const hunk = file.hunks[file.hunks.length - 1]
       if (line.startsWith('+')) {
-        hunk.lines.push(line.slice(1))
+        hunk.newLines.push(line.slice(1))
       } else if (line.startsWith('-')) {
         hunk.oldLines.push(line.slice(1))
       }
@@ -68,12 +71,12 @@ function buildComments(files) {
   const comments = []
   let skipped = 0
   for (const {path, hunks} of files) {
-    for (const {start, count, lines, oldLines} of hunks) {
+    for (const {start, count, newLines, oldLines} of hunks) {
       // A pure insertion has no existing line to anchor on, and a hunk
       // whose only change is the trailing-newline marker yields a
       // suggestion identical to the existing text, which GitHub can't
       // apply.
-      if (count === 0 || lines.join('\n') === oldLines.join('\n')) {
+      if (count === 0 || newLines.join('\n') === oldLines.join('\n')) {
         skipped++
         continue
       }
@@ -82,16 +85,22 @@ function buildComments(files) {
       // suggestion block early. No replacement lines means delete the
       // range; an empty suggestion block does that, a blank line would
       // not.
-      const runs = lines.join('\n').match(/`+/g) || []
+      const runs = newLines.join('\n').match(/`+/g) || []
       const fence = '`'.repeat(
         runs.reduce((max, run) => Math.max(max, run.length + 1), 3),
       )
       const body =
-        fence + 'suggestion\n' + lines.map((l) => l + '\n').join('') + fence
+        fence + 'suggestion\n' + newLines.map((l) => l + '\n').join('') + fence
+      // Ensure the final body, suggestion fencing included, is not too
+      // long for the API.
       if (body.length > MAX_BODY_LENGTH) {
         skipped++
         continue
       }
+      // The API describes a multi-line comment's range as start_line
+      // through line, where line is the range's LAST line, so a hunk
+      // anchored at start ends at start + count - 1. See
+      // https://docs.github.com/en/rest/pulls/comments#create-a-review-comment-for-a-pull-request
       comments.push({
         path,
         line: start + count - 1,
