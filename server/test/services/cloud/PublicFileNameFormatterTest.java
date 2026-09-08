@@ -23,7 +23,7 @@ public class PublicFileNameFormatterTest {
   public void formatPublicQuestionImageFileKey_isCorrectlyFormatted() {
     String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(122, "myImage.png");
 
-    assertThat(filename).isEqualTo("program-summary-image/program-122/${filename}");
+    assertThat(filename).isEqualTo("question-image/question-122/${filename}");
   }
 
   @Test
