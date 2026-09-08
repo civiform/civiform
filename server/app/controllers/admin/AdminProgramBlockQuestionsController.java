@@ -172,6 +172,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     } catch (InvalidQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
+    // 2nd stack
 
     final QuestionDefinition pendingEnumeratorQuestion;
     try {
