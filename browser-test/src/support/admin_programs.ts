@@ -48,7 +48,6 @@ export enum FormField {
   PROGRAM_CATEGORIES,
   PROGRAM_ELIGIBILITY,
   PROGRAM_EXTERNAL_LINK,
-  APPLICATION_SCORING,
 }
 
 export enum ProgramType {
@@ -516,12 +515,6 @@ export class AdminPrograms {
         break
       }
 
-      case FormField.APPLICATION_SCORING: {
-        const scoringField = this.getUsesScoringField()
-        await expect(scoringField).toBeDisabled()
-        break
-      }
-
       default:
         throw new Error(
           `Unsupported form field type: ${String(formField)}. Please add handling for this field type.`,
@@ -623,13 +616,6 @@ export class AdminPrograms {
           )
           await expect(requiredIndicator).toBeVisible()
         }
-        break
-      }
-
-      case FormField.APPLICATION_SCORING: {
-        const scoringField = this.getUsesScoringField()
-        await expect(scoringField).toBeEnabled()
-        expect(await scoringField.getAttribute('readonly')).toBeNull()
         break
       }
 
@@ -1999,12 +1985,6 @@ export class AdminPrograms {
   getExternalLinkField(): Locator {
     return this.page.getByRole('textbox', {
       name: 'Link to program website',
-    })
-  }
-
-  getUsesScoringField(): Locator {
-    return this.page.getByRole('checkbox', {
-      name: 'Enable application scoring',
     })
   }
 

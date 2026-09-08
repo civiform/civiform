@@ -1459,7 +1459,7 @@ test.describe('program creation', () => {
 
     await test.step('select default program and confirm box is re-enabled', async () => {
       await adminPrograms.selectProgramType(ProgramType.DEFAULT)
-      await adminPrograms.expectFormFieldEnabled(FormField.APPLICATION_SCORING)
+      await expect(scoringCheckbox).toBeEnabled()
     })
 
     await test.step('check the scoring checkbox and submit', async () => {
