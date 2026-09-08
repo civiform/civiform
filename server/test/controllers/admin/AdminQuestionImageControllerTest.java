@@ -57,18 +57,18 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
 
   @Test
   public void uploadQuestionImage_withFileAndDescription_setsKeyAndRedirects() throws Exception {
-    QuestionModel question = testQuestionBank.staticContent();
-    String fileKey = "question-image/question-" + question.id + "/myImage.png";
+    QuestionDefinition question = testQuestionBank.staticContent().getQuestionDefinition();
+    long id = question.getId();
+    String fileKey = "question-image/question-" + id + "/myImage.png";
 
     Result result =
-        controller.uploadQuestionImage(
-            createUploadRequest(fileKey, "Alt text description"), question.id);
+        controller.uploadQuestionImage(createUploadRequest(fileKey, "Alt text description"), id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(controllers.admin.routes.AdminQuestionController.edit(question.id, "").url());
+        .hasValue(controllers.admin.routes.AdminQuestionController.edit(id, "").url());
 
-    QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(question.id);
+    QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(id);
     assertThat(updatedQuestion.getImageFileKey()).contains(fileKey);
     assertThat(updatedQuestion.getLocalizedImageDescription())
         .map(LocalizedStrings::getDefault)
@@ -78,32 +78,34 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   @Test
   public void uploadQuestionImage_blankDescriptionWithFile_doesNotSaveImage_redirectsWithError()
       throws Exception {
-    QuestionModel question = testQuestionBank.staticContent();
-    String fileKey = "question-image/question-" + question.id + "/myImage.png";
+    QuestionDefinition question = testQuestionBank.staticContent().getQuestionDefinition();
+    long id = question.getId();
+    String fileKey = "question-image/question-" + id + "/myImage.png";
 
-    Result result = controller.uploadQuestionImage(createUploadRequest(fileKey, ""), question.id);
+    Result result = controller.uploadQuestionImage(createUploadRequest(fileKey, ""), id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.flash().data().get("error"))
         .isEqualTo(messages.at("validation.adminProgramImage.altTextRequired"));
 
-    QuestionDefinition currentQuestion = questionService.getQuestionDefinition(question.id);
+    QuestionDefinition currentQuestion = questionService.getQuestionDefinition(id);
     assertThat(currentQuestion.getImageFileKey()).isEmpty();
   }
 
   @Test
   public void uploadQuestionImage_descriptionOnly_updatesDescription() throws Exception {
-    QuestionModel question = testQuestionBank.staticContent();
+    QuestionDefinition question = testQuestionBank.staticContent().getQuestionDefinition();
+    long id = question.getId();
 
     Result result =
         controller.uploadQuestionImage(
-            createUploadRequest(/* fileKey= */ null, "Description only"), question.id);
+            createUploadRequest(/* fileKey= */ null, "Description only"), id);
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
     assertThat(result.redirectLocation())
-        .hasValue(controllers.admin.routes.AdminQuestionController.edit(question.id, "").url());
+        .hasValue(controllers.admin.routes.AdminQuestionController.edit(id, "").url());
 
-    QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(question.id);
+    QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(id);
     assertThat(updatedQuestion.getImageFileKey()).isEmpty();
     assertThat(updatedQuestion.getLocalizedImageDescription())
         .map(LocalizedStrings::getDefault)
