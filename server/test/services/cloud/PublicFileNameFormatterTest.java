@@ -20,16 +20,21 @@ public class PublicFileNameFormatterTest {
   }
 
   @Test
-  public void formatPublicQuestionImageFileKey_isCorrectlyFormatted() {
+  public void formatPublicQuestionImageFileKey_withFileName_isCorrectlyFormatted() {
     String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(122, "myImage.png");
-
-    assertThat(filename).isEqualTo("question-image/question-122/${filename}");
+    assertThat(filename).isEqualTo("question-image/question-122/myImage.png");
   }
 
   @Test
   public void sanitizePublicImageFileName_stripsPathComponents() {
     assertThat(PublicFileNameFormatter.sanitizePublicImageFileName("../../evil.png"))
         .isEqualTo("evil.png");
+  }
+
+  @Test
+  public void isFileKeyForPublicQuestionImage_isTrue() {
+    String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(122, "myImage.png");
+    assertThat(PublicFileNameFormatter.isFileKeyForPublicQuestionImage(filename)).isTrue();
   }
 
   @Test
