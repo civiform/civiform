@@ -11,10 +11,12 @@
     th:unless="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
     th:replace="~{questiontypes/QuestionFragment :: applicant-question(${question}, ${questionRendererParams}, ${stateAbbreviations}, ${enumMaxEntityCount})}"
   ></div>
+  <!--/* Remove pageFooterScripts so uswds.bundle.js is not loaded a second time globally */-->
+  <!--/*
   <div
-    th:unless="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
     th:replace="~{applicant/ApplicantBaseFragment :: pageFooterScripts}"
   ></div>
+  */-->
 
   <script th:inline="javascript" th:nonce="${cspNonce}">
     window.app = window.app || {}
