@@ -179,20 +179,16 @@ const resetFileInput = (event: HtmxAfterRequestEvent) => {
   const fileUploadContainer = event.detail.elt.closest(
     CF_FILE_UPLOAD_CONTAINER_SELECTOR,
   )
-
   if (!fileUploadContainer || !(fileUploadContainer instanceof HTMLElement)) {
     return
   }
 
   const fileInput =
     fileUploadContainer.querySelector<HTMLInputElement>('input[type=file]')
-
   if (fileInput) {
     fileInput.value = ''
   }
-
-  console.trace('CIVIFORM USWDS FILE INPUT ON', fileUploadContainer)
-
+  uswdsFileInput.off(fileUploadContainer)
   uswdsFileInput.on(fileUploadContainer)
 }
 
