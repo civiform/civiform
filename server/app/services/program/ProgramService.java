@@ -381,6 +381,7 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if only logged in applicants can apply to the program.
+   * @param usesScoring TODO
    * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link
    *     services.program.ProgramType#PRE_SCREENER_FORM}, that program's ProgramType will be changed
@@ -401,6 +402,7 @@ public final class ProgramService {
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
       boolean loginOnly,
+      boolean usesScoring,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -459,7 +461,7 @@ public final class ProgramService {
             programType,
             eligibilityIsGating,
             loginOnly,
-            /* usesScoring= */ false,
+            usesScoring,
             programAcls,
             categoryRepository.findCategoriesByIds(categoryIds),
             applicationSteps);
@@ -562,6 +564,7 @@ public final class ProgramService {
    *     submit an application, and false if an application can submit an application even if they
    *     don't meet some/all of the eligibility criteria.
    * @param loginOnly true if an applicant must be logged in before applying to a program.
+   * @param usesScoring TODO
    * @param programType ProgramType for this Program. If this is set to PRE_SCREENER_FORM and there
    *     is already another active or draft program with {@link ProgramType#PRE_SCREENER_FORM}, that
    *     program's ProgramType will be changed to {@link ProgramType#DEFAULT}, creating a new draft
@@ -584,6 +587,7 @@ public final class ProgramService {
       List<String> notificationPreferences,
       boolean eligibilityIsGating,
       boolean loginOnly,
+      boolean usesScoring,
       ProgramType programType,
       ImmutableList<Long> tiGroups,
       ImmutableList<Long> categoryIds,
@@ -649,12 +653,17 @@ public final class ProgramService {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setLoginOnly(loginOnly)
+            .setUsesScoring(usesScoring)
             .setAcls(new ProgramAcls(new HashSet<>(tiGroups)))
             .setCategories(categoryRepository.findCategoriesByIds(categoryIds))
             .setApplicationSteps(applicationSteps)
             .setBridgeDefinitions(programDefinition.bridgeDefinitions())
             .build()
             .toProgram();
+
+    // // When absent, toBuilder() has already carried over the stored value.
+    // usesScoring.ifPresent(programBuilder::setUsesScoring);
+    // ProgramModel program = programBuilder.build().toProgram();
 
     return ErrorAnd.of(
         syncProgramDefinitionQuestions(

@@ -529,6 +529,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -538,6 +539,89 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(result.hasResult()).isTrue();
     assertThat(result.getResult()).isNotNull();
     assertThat(result.getResult().id()).isPositive();
+  }
+
+  @Test
+  public void createProgram_withUsesScoring_persistsSetting() throws Exception {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "scoring-program",
+            "description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            /* usesScoring= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isTrue();
+    assertThat(ps.getFullProgramDefinition(result.getResult().id()).usesScoring()).isTrue();
+  }
+
+  @Test
+  public void createProgram_legacyOverloadWithoutUsesScoring_defaultsToFalse() {
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.createProgramDefinition(
+            "no-scoring-program",
+            "description",
+            "name",
+            "description",
+            "short display description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            /* usesScoring= */ false,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isFalse();
+  }
+
+  @Test
+  public void updateProgram_withUsesScoring_updatesSetting() throws Exception {
+    ProgramDefinition originalProgram =
+        ProgramBuilder.newDraftProgram("scoring update program").buildDefinition();
+    assertThat(originalProgram.usesScoring()).isFalse();
+
+    ErrorAnd<ProgramDefinition, CiviFormError> result =
+        ps.updateProgramDefinition(
+            originalProgram.id(),
+            Locale.US,
+            "new description",
+            "name",
+            "description",
+            "short description",
+            "",
+            "https://usa.gov",
+            DisplayMode.PUBLIC.getValue(),
+            ImmutableList.of(),
+            /* eligibilityIsGating= */ true,
+            /* loginOnly= */ false,
+            /* usesScoring= */ true,
+            ProgramType.DEFAULT,
+            ImmutableList.of(),
+            /* categoryIds= */ ImmutableList.of(),
+            ImmutableList.of(new ApplicationStep("title", "description")));
+
+    assertThat(result.hasResult()).isTrue();
+    assertThat(result.getResult().usesScoring()).isTrue();
   }
 
   @Test
@@ -556,6 +640,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -583,6 +668,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -612,6 +698,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of("invalid notification preference"),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -643,6 +730,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             /* tiGroup */ ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -672,6 +760,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             /* tiGroup */ ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -698,6 +787,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
+        false,
         ProgramType.DEFAULT,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
@@ -717,6 +807,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -745,6 +836,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -777,6 +869,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 /* loginOnly= */ false,
+                false,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
@@ -804,6 +897,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -830,6 +924,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -856,6 +951,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ false,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -881,6 +977,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
+        false,
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
@@ -899,6 +996,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -924,6 +1022,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
+        false,
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
@@ -947,6 +1046,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1162,6 +1262,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 /* loginOnly= */ false,
+                false,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
@@ -1421,6 +1522,7 @@ public class ProgramServiceTest extends ResetPostgres {
                     ImmutableList.of(),
                     /* eligibilityIsGating= */ true,
                     /* loginOnly= */ false,
+                    false,
                     ProgramType.DEFAULT,
                     ImmutableList.of(),
                     /* categoryIds= */ ImmutableList.of(),
@@ -1448,6 +1550,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1495,6 +1598,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 /* loginOnly= */ false,
+                false,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
@@ -1524,6 +1628,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1555,6 +1660,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1581,6 +1687,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1606,6 +1713,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1629,6 +1737,7 @@ public class ProgramServiceTest extends ResetPostgres {
         ImmutableList.of(),
         /* eligibilityIsGating= */ true,
         /* loginOnly= */ false,
+        false,
         ProgramType.PRE_SCREENER_FORM,
         ImmutableList.of(),
         /* categoryIds= */ ImmutableList.of(),
@@ -1654,6 +1763,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1686,6 +1796,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1706,6 +1817,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1730,6 +1842,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1750,6 +1863,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1798,6 +1912,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.PRE_SCREENER_FORM,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1848,6 +1963,7 @@ public class ProgramServiceTest extends ResetPostgres {
             ImmutableList.of(),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -1903,6 +2019,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS.getValue()),
             /* eligibilityIsGating= */ true,
             /* loginOnly= */ false,
+            false,
             ProgramType.DEFAULT,
             ImmutableList.of(),
             /* categoryIds= */ ImmutableList.of(),
@@ -2481,6 +2598,7 @@ public class ProgramServiceTest extends ResetPostgres {
                 ImmutableList.of(),
                 /* eligibilityIsGating= */ true,
                 /* loginOnly= */ false,
+                false,
                 ProgramType.DEFAULT,
                 ImmutableList.of(),
                 /* categoryIds= */ ImmutableList.of(),
