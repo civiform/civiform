@@ -3,6 +3,7 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
+import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -603,14 +604,7 @@ public final class QuestionService {
   /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
   public QuestionDefinition setImageFileKey(long questionId, String fileKey)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    Optional<QuestionModel> maybeQuestion =
-        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
-    if (maybeQuestion.isEmpty()) {
-      throw new QuestionNotFoundException(questionId);
-    }
-
-    QuestionDefinition questionDefinition =
-        questionRepository.getQuestionDefinition(maybeQuestion.get());
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
 
     QuestionDefinition updatedQuestionDefinition =
         new QuestionDefinitionBuilder(questionDefinition)
@@ -626,14 +620,7 @@ public final class QuestionService {
   public QuestionDefinition setImageFileDescription(
       long questionId, Locale locale, String imageDescription)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    Optional<QuestionModel> maybeQuestion =
-        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
-    if (maybeQuestion.isEmpty()) {
-      throw new QuestionNotFoundException(questionId);
-    }
-
-    QuestionDefinition questionDefinition =
-        questionRepository.getQuestionDefinition(maybeQuestion.get());
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
     if (imageDescription.isBlank() && questionDefinition.getImageFileKey().isPresent()) {
       throw new ImageDescriptionNotRemovableException(
           "Description can't be removed because an image is present. Delete the image before"
@@ -672,15 +659,8 @@ public final class QuestionService {
   /** Removes the image file key for the given question so that no image is associated with it. */
   public QuestionDefinition deleteImageFileKey(long questionId)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    Optional<QuestionModel> maybeQuestion =
-        questionRepository.lookupQuestion(questionId).toCompletableFuture().join();
-    if (maybeQuestion.isEmpty()) {
-      throw new QuestionNotFoundException(questionId);
-    }
 
-    QuestionDefinition questionDefinition =
-        questionRepository.getQuestionDefinition(maybeQuestion.get());
-
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
     QuestionDefinition updatedQuestionDefinition =
         new QuestionDefinitionBuilder(questionDefinition)
             .setImageFileKey(Optional.empty())
@@ -690,5 +670,16 @@ public final class QuestionService {
     QuestionModel updatedQuestion =
         questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
     return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  @VisibleForTesting
+  public QuestionDefinition getQuestionDefinition(long questionId)
+      throws QuestionNotFoundException {
+    return questionRepository
+        .lookupQuestion(questionId)
+        .toCompletableFuture()
+        .join()
+        .map(questionRepository::getQuestionDefinition)
+        .orElseThrow(() -> new QuestionNotFoundException(questionId));
   }
 }

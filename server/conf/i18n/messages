@@ -590,6 +590,19 @@ toast.adminProgramImage.imageRemoved=Image removed
 content.adminProgramImage.cardPreviewError=Error generating card preview
 
 #--------------------------------------------------------------------------------------------------------------#
+# ADMIN QUESTION IMAGE - admin-facing text for uploading a question image                             #
+#--------------------------------------------------------------------------------------------------------------#
+
+# Message shown when alt text is required but missing.
+validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+# Error when alt text cannot be cleared while an image remains.
+toast.adminQuestionImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+# Toast after saving a program image and alt text together.
+toast.adminQuestionImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+# Toast after saving alt text without uploading a new file.
+toast.adminQuestionImage.descriptionSet=Image description set to {0}
+
+#--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 

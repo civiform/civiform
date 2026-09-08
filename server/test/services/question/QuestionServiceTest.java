@@ -28,6 +28,7 @@ import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
 import services.question.exceptions.InvalidUpdateException;
+import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -736,5 +737,134 @@ public class QuestionServiceTest extends ResetPostgres {
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
+  }
+
+  // =========================================================================
+  // Question Image Tests
+  // =========================================================================
+
+  @Test
+  public void setImageFileKey_missingQuestion_throws() {
+    assertThatThrownBy(() -> questionService.setImageFileKey(Long.MAX_VALUE, "fileKey"))
+        .isInstanceOf(QuestionNotFoundException.class);
+  }
+
+  @Test
+  public void setImageFileKey_keySet() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+
+    QuestionDefinition result1 = questionService.setImageFileKey(question.getId(), "fileKey1.png");
+    assertThat(result1.getImageFileKey()).contains("fileKey1.png");
+
+    QuestionDefinition result2 = questionService.setImageFileKey(question.getId(), "fileKey2.png");
+    assertThat(result2.getImageFileKey()).contains("fileKey2.png");
+  }
+
+  @Test
+  public void setImageFileDescription_missingQuestion_throws() {
+    assertThatThrownBy(
+            () ->
+                questionService.setImageFileDescription(
+                    Long.MAX_VALUE, Locale.US, "test description"))
+        .isInstanceOf(QuestionNotFoundException.class);
+  }
+
+  @Test
+  public void setImageFileDescription_defaultLocale_createsNewStrings() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+
+    QuestionDefinition result =
+        questionService.setImageFileDescription(
+            question.getId(), LocalizedStrings.DEFAULT_LOCALE, "fake description");
+
+    assertThat(result.getLocalizedImageDescription()).isPresent();
+    LocalizedStrings descriptions = result.getLocalizedImageDescription().get();
+    assertThat(descriptions.get(LocalizedStrings.DEFAULT_LOCALE)).isEqualTo("fake description");
+    assertThatThrownBy(() -> descriptions.get(Locale.ITALIAN))
+        .isInstanceOf(services.TranslationNotFoundException.class);
+  }
+
+  @Test
+  public void setImageFileDescription_additionalLocale_addsToExisting() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    questionService.setImageFileDescription(question.getId(), Locale.US, "US description");
+
+    QuestionDefinition result =
+        questionService.setImageFileDescription(
+            question.getId(), Locale.FRANCE, "French description");
+
+    assertThat(result.getLocalizedImageDescription()).isPresent();
+    LocalizedStrings descriptions = result.getLocalizedImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("US description");
+    assertThat(descriptions.get(Locale.FRANCE)).isEqualTo("French description");
+  }
+
+  @Test
+  public void setImageFileDescription_existingLocale_updates() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    questionService.setImageFileDescription(question.getId(), Locale.US, "Old description");
+
+    QuestionDefinition result =
+        questionService.setImageFileDescription(question.getId(), Locale.US, "New description");
+
+    assertThat(result.getLocalizedImageDescription()).isPresent();
+    LocalizedStrings descriptions = result.getLocalizedImageDescription().get();
+    assertThat(descriptions.get(Locale.US)).isEqualTo("New description");
+  }
+
+  @Test
+  public void setImageFileDescription_defaultLocaleAndBlank_removesAllTranslations()
+      throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    questionService.setImageFileDescription(question.getId(), Locale.US, "US description");
+    questionService.setImageFileDescription(question.getId(), Locale.FRANCE, "French description");
+
+    QuestionDefinition result =
+        questionService.setImageFileDescription(
+            question.getId(), LocalizedStrings.DEFAULT_LOCALE, "");
+
+    assertThat(result.getLocalizedImageDescription()).isEmpty();
+  }
+
+  @Test
+  public void setImageFileDescription_blank_hasImageFile_throwsNotRemovableException()
+      throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    questionService.setImageFileDescription(question.getId(), Locale.US, "US description");
+    questionService.setImageFileKey(question.getId(), "fileKey.png");
+
+    assertThatThrownBy(
+            () ->
+                questionService.setImageFileDescription(
+                    question.getId(), LocalizedStrings.DEFAULT_LOCALE, ""))
+        .isInstanceOf(controllers.admin.ImageDescriptionNotRemovableException.class)
+        .hasMessageContaining("Description can't be removed because an image is present");
+  }
+
+  @Test
+  public void deleteImageFileKey_missingQuestion_throws() {
+    assertThatThrownBy(() -> questionService.deleteImageFileKey(Long.MAX_VALUE))
+        .isInstanceOf(QuestionNotFoundException.class);
+  }
+
+  @Test
+  public void deleteImageFileKey_noFileKeyPresent_stillNoKey() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+
+    QuestionDefinition result = questionService.deleteImageFileKey(question.getId());
+
+    assertThat(result.getImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void deleteImageFileKey_hadFileKey_clearsFileKeyAndDescription() throws Exception {
+    QuestionDefinition question = questionService.create(questionDefinition).getResult();
+    questionService.setImageFileKey(question.getId(), "fileKey1.png");
+    questionService.setImageFileDescription(question.getId(), Locale.US, "Alt text");
+
+    QuestionDefinition result = questionService.deleteImageFileKey(question.getId());
+
+    assertThat(result.getImageFileKey()).isEmpty();
+    assertThat(result.getLocalizedImageDescription()).isEmpty();
   }
 }
