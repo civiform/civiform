@@ -159,6 +159,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   /** HTMX POST endpoint for creating a new enumerator question and adding it to a screen. */
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxCreateEnumerator(Request request, long programId, long blockId) {
+
     Messages messages = messagesApi.preferred(request);
     requestChecker.throwIfProgramNotDraft(programId);
 
