@@ -71,4 +71,8 @@ public final class PublicFileNameFormatter {
   public static boolean isFileKeyForPublicProgramImage(String fileKey) {
     return fileKey.startsWith(PROGRAM_IMAGE_FILE_KEY_PREFIX);
   }
+
+    public static boolean isFileKeyForPublicQuestionImage(String fileKey) {
+    return fileKey.startsWith(QUESTION_IMAGE_FILE_KEY_PREFIX);
+    }
 }

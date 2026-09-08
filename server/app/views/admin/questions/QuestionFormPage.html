@@ -70,22 +70,27 @@
       <th:block
         th:if="${model.editMode and model.imagesInQuestionFeatureEnabled}"
       >
-        <div class="usa-hint" id="question-image-file-input-hint">
-          The maximum size for image upload is 1MB.
+        <div class="usa-form-group">
+          <label class="usa-label" for="question-image-input"
+            >Image upload</label
+          >
+          <div class="usa-hint" id="question-image-file-input-hint">
+            The maximum size for image upload is 1MB.
+          </div>
+          <input
+            accept="image/png,image/jpeg"
+            aria-describedby="question-image-file-input-hint"
+            class="usa-file-input"
+            id="question-image-input"
+            name="questionImage"
+            type="file"
+            th:hx-post="${model.imageUploadUrl}"
+            hx-trigger="change"
+            hx-encoding="multipart/form-data"
+            hx-include="#question-image-description, [name='csrfToken']"
+            hx-swap="none"
+          />
         </div>
-        <input
-          accept="image/png,image/jpeg"
-          aria-describedby="question-image-file-input-hint"
-          class="usa-file-input"
-          id="question-image-input"
-          name="questionImage"
-          type="file"
-          th:hx-post="${model.imageUploadUrl}"
-          hx-trigger="change"
-          hx-encoding="multipart/form-data"
-          hx-include="#question-image-description, [name='csrfToken']"
-          hx-swap="none"
-        />
 
         <div class="usa-form-group">
           <label class="usa-label" for="question-image-description"

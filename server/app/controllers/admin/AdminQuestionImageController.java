@@ -1,8 +1,9 @@
 package controllers.admin;
 
-import static autovalue.shaded.com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
+import auth.ProfileUtils;
 import controllers.CiviFormController;
 import forms.questions.QuestionImageDescriptionForm;
 import javax.inject.Inject;
@@ -11,25 +12,32 @@ import parsers.admin.QuestionImageStreamingMultipartBodyParser;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
-import services.cloud.PublicStorageClient;
+import services.question.QuestionService;
+import services.question.exceptions.QuestionNotFoundException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.settings.SettingsManifest;
 
 public class AdminQuestionImageController extends CiviFormController {
   private final SettingsManifest settingsManifest;
-  private final PublicStorageClient publicStorageClient;
+  private final QuestionService questionService;
 
   @Inject
   public AdminQuestionImageController(
-      SettingsManifest settingsManifest, PublicStorageClient publicStorageClient) {
+      ProfileUtils profileUtils,
+      VersionRepository versionRepository,
+      SettingsManifest settingsManifest, QuestionService questionService) {
+    super(profileUtils, versionRepository);
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.questionService=checkNotNull(questionService);
   }
 
   /** Uploads a question image and saves its alt text. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @BodyParser.Of(QuestionImageStreamingMultipartBodyParser.class)
-  public Result uploadQuestionImageImage(Http.Request request, long questionId) {
+  public Result uploadQuestionImage(Http.Request request, long questionId) {
     if (!settingsManifest.getImagesInQuestionFeatureEnabled(request)) {
       return notFound();
     }
@@ -52,7 +60,21 @@ public class AdminQuestionImageController extends CiviFormController {
       if (!PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
         throw new IllegalArgumentException("Key incorrectly formatted for question image file");
       }
+      try{
+        questionService.setImageFileKey(questionId, fileKey);
+      }
+      catch (QuestionNotFoundException | UnsupportedQuestionTypeException e)
+      {
+        return notFound();
+      }
+      try{
+        questionService.setImageFileDescription(questionId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
+      }
+      catch (QuestionNotFoundException | UnsupportedQuestionTypeException e){
+        return notFound();
+      }
     }
+
 
     // 3. Return 200 OK to HTMX
     return ok();
