@@ -1096,8 +1096,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -2390,7 +2390,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables translation management improvement phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
