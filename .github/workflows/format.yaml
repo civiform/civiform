@@ -16,10 +16,18 @@ permissions: read-all
 jobs:
   formatting:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      # Allows posting formatter fixes as suggested-change review comments.
+      pull-requests: write
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
+          # Nothing here pushes or fetches after checkout, so don't leave
+          # the (now write-scoped) token on the runner for later steps,
+          # which execute PR-controlled scripts.
+          persist-credentials: false
 
       - id: file_changes
         uses: tj-actions/changed-files@24d32ffd492484c1d75e0c0b894501ddb9d30d62 # v47
@@ -44,6 +52,29 @@ jobs:
           DOCKER_BUILDKIT: 1
         if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
         run: bin/fmt-sbt
+
+      - name: Test workflow scripts
+        # The shell expands the glob; handing node the directory instead
+        # works on some Node versions and not others.
+        run: node --test .github/scripts/*.test.js
+
+      - name: Post formatter fixes as suggested changes
+        # The formatters above rewrite files in place, and the working
+        # tree now holds the fixes that the diff check below will fail
+        # on. Post that diff back as one-click suggested changes first;
+        # the working tree is left untouched so the check still fails.
+        #
+        # Forked PRs get a read-only token, so suggestions can't be posted
+        # there. Comparing full_name (rather than checking head.repo.fork)
+        # also covers deleted forks, where head.repo is null and a bare
+        # .fork check would fail open.
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
+        with:
+          script: |
+            const {postSuggestions} = require('./.github/scripts/post-format-suggestions.js')
+            await postSuggestions({github, context, core, exec})
+
       - name: show bin/fmt and bin/fmt-sbt diff
         run: git add .; git diff --exit-code HEAD
 

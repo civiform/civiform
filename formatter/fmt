@@ -95,6 +95,19 @@ function get_modified_sql_files() {
   ) | grep -E ".+\.(sql)$"
 }
 
+function get_modified_workflow_script_files() {
+  # JavaScript run by GitHub workflows. Deliberately not all .js files:
+  # some tracked .js files predate prettier coverage, and formatting
+  # them here would surprise unrelated PRs that happen to touch them.
+  #
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E "^\.github/scripts/.+\.js$" || true
+}
+
 # Returns list of files that should be formatted by prettier
 function get_modified_prettier_files() {
   (
@@ -103,6 +116,7 @@ function get_modified_prettier_files() {
     get_modified_md_files
     get_modified_html_files
     get_modified_scss_files
+    get_modified_workflow_script_files
   )
 }
 
