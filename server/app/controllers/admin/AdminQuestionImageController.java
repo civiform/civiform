@@ -89,6 +89,7 @@ public class AdminQuestionImageController extends CiviFormController {
 
     // 5. Update description independently (even if no new file was uploaded)
     try {
+
       questionService.setImageFileDescription(
           questionId, LocalizedStrings.DEFAULT_LOCALE, newDescription);
     } catch (QuestionNotFoundException | UnsupportedQuestionTypeException e) {
