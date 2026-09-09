@@ -1449,7 +1449,7 @@ test.describe('program creation', () => {
     await test.step('confirm scoring checkbox is visible, enabled, and unchecked by default', async () => {
       await expect(scoringCheckbox).toBeVisible()
       await expect(scoringCheckbox).toBeEnabled()
-      await expect(scoringCheckbox).toBeChecked({checked: false})
+      await expect(scoringCheckbox).not.toBeChecked()
     })
 
     await test.step('select external program and confirm scoring checkbox is disabled', async () => {
@@ -1464,14 +1464,14 @@ test.describe('program creation', () => {
 
     await test.step('check the scoring checkbox and submit', async () => {
       await adminPrograms.setShouldUseApplicationScoring(true)
-      await expect(scoringCheckbox).toBeChecked({checked: true})
+      await expect(scoringCheckbox).toBeChecked()
       await adminPrograms.submitProgramDetailsEdits()
     })
 
     await test.step('return to program details page and confirm scoring checkbox is still checked', async () => {
       await adminProgramImage.clickBackButton()
       await adminPrograms.expectProgramEditPage()
-      await expect(scoringCheckbox).toBeChecked({checked: true})
+      await expect(scoringCheckbox).toBeChecked()
     })
   })
 })
