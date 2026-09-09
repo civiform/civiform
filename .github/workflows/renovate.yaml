@@ -10,6 +10,7 @@ name: Renovate
 #      with these permissions:
 #        - Contents: read and write (push renovate/* branches)
 #        - Pull requests: read and write (open, rebase and label PRs)
+#        - Commit statuses: read and write (set the renovate/stability-days check; without it Renovate aborts after pushing and never opens the PR)
 #        - Issues: read and write (dependency dashboard)
 #        - Workflows: read and write (update files under .github/workflows)
 #        - Metadata: read (always required)
