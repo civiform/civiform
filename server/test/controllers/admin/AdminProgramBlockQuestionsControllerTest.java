@@ -255,7 +255,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
   @Test
   public void hxCreateEnumerator_withArchivedInitialQuestion_returnsNotFound()
-      throws InvalidUpdateException, ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+      throws InvalidUpdateException,
+          ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException {
     QuestionDefinition initialQuestion =
         testQuestionBank.nameApplicantName().getQuestionDefinition();
     // Archiving tombstones the question's name on the draft version.
