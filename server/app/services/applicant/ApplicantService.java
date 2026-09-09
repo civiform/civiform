@@ -80,6 +80,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
+import services.cloud.ApplicantFileNameFormatter;
 import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -811,6 +812,13 @@ public final class ApplicantService {
               CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 
               for (StoredFileModel file : storedFiles) {
+                // Only grant the program read access to files this applicant may read; a
+                // referenced key the applicant neither owns nor was granted must not
+                // delegate the file to the program's admins.
+                if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(file.getName(), applicantId)
+                    && !file.getAcls().hasApplicantReadPermission(applicantId)) {
+                  continue;
+                }
                 file.getAcls().addProgramToReaders(programDefinition);
                 future =
                     CompletableFuture.allOf(

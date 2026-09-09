@@ -1501,6 +1501,10 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
+    // The real upload callback records the uploader in applicantReadAcls at creation
+    // (getOrMakeFileRecord); submission only expands program ACLs for files the
+    // applicant can read.
+    storedFile.getAcls().addApplicantToReaders(applicant.id);
     storedFile.save();
 
     Request request = fakeRequest();
@@ -1523,6 +1527,85 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(
             firstProgram.getProgramDefinition().adminName(),
             secondProgram.getProgramDefinition().adminName());
+  }
+
+  @Test
+  public void submitApplication_foreignFileKey_doesNotGrantUnrelatedProgramReadAccess() {
+    // An applicant who references another applicant's exact StoredFile key must not cause an
+    // unrelated program (or its admins) to gain read access to that file at submission.
+
+    // Victim owns a stored file.
+    ApplicantModel victim = subject.createApplicant().toCompletableFuture().join();
+    victim.setAccount(resourceCreator.insertAccount());
+    victim.save();
+    var victimFileKey = "victim-file-key";
+    var victimFile = new StoredFileModel().setName(victimFileKey);
+    victimFile.getAcls().addApplicantToReaders(victim.id);
+    victimFile.save();
+
+    // Attacker is a different applicant.
+    ApplicantModel attacker = subject.createApplicant().toCompletableFuture().join();
+    attacker.setAccount(resourceCreator.insertAccount());
+    attacker.save();
+
+    var fileUploadQuestion =
+        questionService
+            .create(
+                new FileUploadQuestionDefinition(
+                    QuestionDefinitionConfig.builder()
+                        .setName("fileupload")
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .build()))
+            .getResult();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ProgramModel programB =
+        ProgramBuilder.newActiveProgram("attacker destination program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
+            .build();
+    programB.save();
+
+    // A program admin for the unrelated destination program.
+    AccountModel programBAdmin = resourceCreator.insertAccount();
+    programBAdmin.addAdministeredProgram(programB.getProgramDefinition());
+    programBAdmin.save();
+
+    // Preconditions: program B is absent from the victim file's ACL and its admin cannot read it.
+    victimFile.refresh();
+    assertThat(victimFile.getAcls().getProgramReadAcls()).isEmpty();
+    assertThat(victimFile.getAcls().hasProgramReadPermission(programBAdmin)).isFalse();
+
+    // Attacker stages a file-upload answer referencing the victim's exact file key.
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                victimFileKey)
+            .build();
+    subject
+        .stageAndUpdateIfValid(
+            attacker.id, programB.id, "1", updates, false, false, /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    // Attacker submits to program B.
+    subject
+        .submitApplication(attacker.id, programB.id, trustedIntermediaryProfile, fakeRequest())
+        .toCompletableFuture()
+        .join();
+
+    // The foreign reference must not delegate the victim's file to the unrelated program.
+    victimFile.refresh();
+    assertThat(victimFile.getAcls().getProgramReadAcls())
+        .doesNotContain(programB.getProgramDefinition().adminName());
+    assertThat(victimFile.getAcls().hasProgramReadPermission(programBAdmin)).isFalse();
+    assertThat(victimFile.getAcls().hasApplicantReadPermission(attacker.id)).isFalse();
   }
 
   @Test
