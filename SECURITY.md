@@ -8,7 +8,7 @@ All production deployments are encouraged to deploy weekly and keep in regular c
 
 ## Reporting a Vulnerability
 
-To report a vulnerability, please email civiform-escalations@googlegroups.com
+Please report vulnerabilities privately through GitHub's ["Report a vulnerability" form](https://github.com/civiform/civiform/security/advisories/new). This goes directly to the maintainers and lets us coordinate a fix with you before disclosure.
 
 Please include the docker image tag for the version in which you have found the vulnerability, or a link to code on GitHub if that is more appropriate.
 
