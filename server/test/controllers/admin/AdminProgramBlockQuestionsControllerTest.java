@@ -27,6 +27,8 @@ import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
+import services.question.QuestionService;
+import services.question.exceptions.InvalidUpdateException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -39,11 +41,13 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
   private AdminProgramBlockQuestionsController controller;
   private ProgramService programService;
+  private QuestionService questionService;
 
   @Before
   public void setUp() {
     controller = instanceOf(AdminProgramBlockQuestionsController.class);
     programService = instanceOf(ProgramService.class);
+    questionService = instanceOf(QuestionService.class);
   }
 
   @Test
@@ -246,6 +250,89 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(contentAsString(result)).contains("Question not found for ID: 99999");
+  }
+
+  @Test
+  public void hxCreateEnumerator_withArchivedInitialQuestion_returnsNotFound()
+      throws InvalidUpdateException, ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    QuestionDefinition initialQuestion =
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
+    // Archiving tombstones the question's name on the draft version.
+    questionService.archiveQuestion(initialQuestion.getId());
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text",
+                    "initialQuestionId", String.valueOf(initialQuestion.getId())))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(contentAsString(result))
+        .contains("Question has been archived for ID: " + initialQuestion.getId());
+    // The controller bails before creating the enumerator question or touching the block.
+    assertThat(
+            questionService.getReadOnlyQuestionServiceSync().getAllQuestions().stream()
+                .map(QuestionDefinition::getName))
+        .doesNotContain("pets enumerator");
+    assertThat(
+            programService
+                .getFullProgramDefinition(program.id)
+                .getBlockDefinition(1L)
+                .programQuestionDefinitions())
+        .isEmpty();
+  }
+
+  @Test
+  public void hxCreateEnumerator_withOldRevisionInitialQuestionId_usesLatestRevision()
+      throws ProgramBlockDefinitionNotFoundException,
+          ProgramNotFoundException,
+          UnsupportedQuestionTypeException {
+    // The admin's browser may hold a stale id. The controller resolves it to the latest revision
+    // rather than using the id verbatim.
+    QuestionDefinition activeQuestion =
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition draftRevision =
+        new QuestionDefinitionBuilder(activeQuestion)
+            .setId(activeQuestion.getId() + 100000)
+            .setQuestionText(LocalizedStrings.withDefaultValue("draft version"))
+            .build();
+    testQuestionBank.maybeSave(draftRevision, LifecycleStage.DRAFT);
+    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Pets",
+                    "questionName", "pets enumerator",
+                    "questionText", "List your pets.",
+                    "questionHelpText", "help text",
+                    // Submit the *active* (stale) id.
+                    "initialQuestionId", String.valueOf(activeQuestion.getId())))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, 1);
+
+    assertThat(result.status()).withFailMessage(contentAsString(result)).isEqualTo(OK);
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(1L);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(2);
+    QuestionDefinition initialOnBlock =
+        blockAfter.programQuestionDefinitions().get(1).getQuestionDefinition();
+    // The question is a copy so we can't check the ID; instead check the
+    // draft text.
+    assertThat(initialOnBlock.getQuestionText().getDefault()).isEqualTo("draft version");
   }
 
   @Test
