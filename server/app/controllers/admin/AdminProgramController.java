@@ -8,6 +8,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.typesafe.config.Config;
 import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.ProgramForm;
@@ -15,18 +16,26 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramFormPageMapper;
 import models.ApplicationStep;
 import models.ProgramModel;
+import models.ProgramNotificationPreference;
 import models.ProgramTab;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
+import play.i18n.MessagesApi;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import repository.AccountRepository;
+import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -35,6 +44,8 @@ import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
+import views.admin.programs.ProgramFormPageView;
+import views.admin.programs.ProgramFormPageViewModel;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -48,9 +59,14 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramIndexView listView;
   private final ProgramNewOneView newOneView;
   private final ProgramMetaDataEditView editView;
+  private final ProgramFormPageView programFormPageView;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
+  private final CategoryRepository categoryRepository;
+  private final AccountRepository accountRepository;
+  private final String baseUrl;
+  private final String defaultConfirmationMessage;
 
   @Inject
   public AdminProgramController(
@@ -59,10 +75,15 @@ public final class AdminProgramController extends CiviFormController {
       ProgramIndexView listView,
       ProgramNewOneView newOneView,
       ProgramMetaDataEditView editView,
+      ProgramFormPageView programFormPageView,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
       RequestChecker requestChecker,
+      MessagesApi messagesApi,
+      CategoryRepository categoryRepository,
+      AccountRepository accountRepository,
+      Config configuration,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
@@ -70,9 +91,20 @@ public final class AdminProgramController extends CiviFormController {
     this.listView = checkNotNull(listView);
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
+    this.programFormPageView = checkNotNull(programFormPageView);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
+    this.categoryRepository = checkNotNull(categoryRepository);
+    this.accountRepository = checkNotNull(accountRepository);
+    this.baseUrl = checkNotNull(configuration).getString("base_url");
+
+    // The legacy view rendered this in the default locale rather than the
+    // request locale; keep that for the migrated page.
+    this.defaultConfirmationMessage =
+        messagesApi
+            .preferred(ImmutableList.of(Lang.defaultLang()))
+            .at(MessageKey.CONTENT_CONFIRMED.getKeyName());
   }
 
   /**
@@ -110,6 +142,20 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ProgramForm programForm = new ProgramForm();
+      // Same default as the legacy view: set here instead of in the ProgramForm
+      // constructor because an unset checkbox value is not included in the POST
+      // at all, so re-rendering after an error would re-enable the setting.
+      programForm.setNotificationPreferences(ProgramNotificationPreference.getDefaultsForForm());
+
+      return renderNewProgramPage(
+          request,
+          programForm,
+          /* preScreenerFormDisplayName= */ Optional.empty(),
+          /* errorMessage= */ Optional.empty());
+    }
+
     return ok(newOneView.render(request));
   }
 
@@ -141,6 +187,14 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableMap.of(),
             programData.getProgramType());
     if (!errors.isEmpty()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        return renderNewProgramPage(
+            request,
+            programData,
+            /* preScreenerFormDisplayName= */ Optional.empty(),
+            /* errorMessage= */ Optional.of(joinErrors(errors)));
+      }
+
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(errors));
       return ok(newOneView.render(request, programData, message));
     }
@@ -151,6 +205,14 @@ public final class AdminProgramController extends CiviFormController {
         && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()) {
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+          return renderNewProgramPage(
+              request,
+              programData,
+              Optional.of(maybePreScreenerForm.get().localizedName().getDefault()),
+              /* errorMessage= */ Optional.empty());
+        }
+
         return ok(
             newOneView.renderChangePreScreenerConfirmation(
                 request, programData, maybePreScreenerForm.get().localizedName().getDefault()));
@@ -178,6 +240,14 @@ public final class AdminProgramController extends CiviFormController {
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        return renderNewProgramPage(
+            request,
+            programData,
+            /* preScreenerFormDisplayName= */ Optional.empty(),
+            /* errorMessage= */ Optional.of(joinErrors(result.getErrors())));
+      }
+
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(newOneView.render(request, programData, message));
     }
@@ -194,6 +264,17 @@ public final class AdminProgramController extends CiviFormController {
   public Result edit(Request request, long id, String editStatus) throws ProgramNotFoundException {
     ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderEditProgramPage(
+          request,
+          program,
+          ProgramEditStatus.getStatusFromString(editStatus),
+          /* programForm= */ Optional.empty(),
+          /* preScreenerFormDisplayName= */ Optional.empty(),
+          /* errorMessage= */ Optional.empty());
+    }
+
     return ok(editView.render(request, program, ProgramEditStatus.getStatusFromString(editStatus)));
   }
 
@@ -283,6 +364,16 @@ public final class AdminProgramController extends CiviFormController {
             applicationSteps,
             programData.getProgramType());
     if (!validationErrors.isEmpty()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        return renderEditProgramPage(
+            request,
+            programDefinition,
+            programEditStatus,
+            Optional.of(programData),
+            /* preScreenerFormDisplayName= */ Optional.empty(),
+            /* errorMessage= */ Optional.of(joinErrors(validationErrors)));
+      }
+
       ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(validationErrors));
       return ok(
           editView.render(request, programDefinition, programEditStatus, programData, message));
@@ -295,6 +386,16 @@ public final class AdminProgramController extends CiviFormController {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()
           && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+          return renderEditProgramPage(
+              request,
+              programDefinition,
+              programEditStatus,
+              Optional.of(programData),
+              Optional.of(maybePreScreenerForm.get().localizedName().getDefault()),
+              /* errorMessage= */ Optional.empty());
+        }
+
         return ok(
             editView.renderChangePreScreenerConfirmation(
                 request,
@@ -323,6 +424,47 @@ public final class AdminProgramController extends CiviFormController {
         ImmutableList.copyOf(programData.getCategories()),
         ImmutableList.copyOf(applicationSteps));
     return getSaveProgramDetailsRedirect(programId, programEditStatus);
+  }
+
+  /** Renders the Thymeleaf new-program page (happy path and failed-create re-renders). */
+  private Result renderNewProgramPage(
+      Request request,
+      ProgramForm programForm,
+      Optional<String> preScreenerFormDisplayName,
+      Optional<String> errorMessage) {
+    ProgramFormPageViewModel model =
+        new ProgramFormPageMapper()
+            .mapNew(
+                programForm,
+                categoryRepository,
+                accountRepository,
+                defaultConfirmationMessage,
+                preScreenerFormDisplayName,
+                errorMessage);
+    return ok(programFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
+  }
+
+  /** Renders the Thymeleaf edit-program page (happy path and failed-update re-renders). */
+  private Result renderEditProgramPage(
+      Request request,
+      ProgramDefinition program,
+      ProgramEditStatus programEditStatus,
+      Optional<ProgramForm> programForm,
+      Optional<String> preScreenerFormDisplayName,
+      Optional<String> errorMessage) {
+    ProgramFormPageViewModel model =
+        new ProgramFormPageMapper()
+            .mapEdit(
+                program,
+                programEditStatus,
+                programForm,
+                baseUrl,
+                categoryRepository,
+                accountRepository,
+                defaultConfirmationMessage,
+                preScreenerFormDisplayName,
+                errorMessage);
+    return ok(programFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /** Returns where admins should be taken to after saving program detail edits. */

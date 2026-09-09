@@ -1,0 +1,351 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramFormPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so this
+       div matches the legacy DOM's direct child of <main>. */-->
+  <div class="mx-4 my-12 flex flex-col">
+    <h1 class="mb-4" th:text="${model.title}"></h1>
+
+    <form
+      method="POST"
+      id="program-details-form"
+      th:data-default-confirmation-message="${model.defaultConfirmationMessage}"
+      th:action="${model.formActionUrl}"
+    >
+      <p class="text-sm">
+        <span class="text-gray-600">Note: Fields marked with a </span
+        ><span class="text-red-600">*</span
+        ><span class="text-gray-600"> are required.</span>
+      </p>
+
+      <h2 class="py-2 mt-6 font-semibold">Program setup</h2>
+
+      <!--/* Program name */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextField :: textField('program-display-name-input', 'localizedDisplayName', 'Program name', ${model.displayName}, true, false, '10000', 'mb-4')}"
+      ></div>
+
+      <!--/* Short description */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextField :: textField('program-display-short-description-input', 'localizedShortDescription', 'Short description of this program for the public. Maximum 100 characters.', ${model.shortDescription}, true, false, '100', 'mb-4')}"
+      ></div>
+
+      <!--/* Program slug: editable only at first creation. The editable
+             label keeps the legacy leading space. */-->
+      <th:block th:if="${model.slugEditable}">
+        <div
+          th:replace="~{admin/programs/fragments/TextField :: textField('program-slug', 'adminName', ' Create a program slug. This slug can only contain lowercase letters, numbers, and dashes. It will be used in the program’s applicant-facing URL (except for external programs), and it can’t be changed later.', ${model.adminName}, true, false, '10000', 'mb-4')}"
+        ></div>
+      </th:block>
+      <th:block th:unless="${model.slugEditable}">
+        <div class="mb-4">
+          <p
+            th:if="${model.externalProgram}"
+            class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >
+            The program ID. This ID can’t be changed.
+          </p>
+          <p
+            th:unless="${model.externalProgram}"
+            class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >
+            The URL for this program. This URL can’t be changed
+          </p>
+          <p
+            class="px-3 bg-white text-black text-lg"
+            th:text="${model.slugFieldText}"
+          ></p>
+        </div>
+      </th:block>
+
+      <!--/* Admin description */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextareaField :: textareaField('program-description-textarea', 'adminDescription', 'Program note for administrative use only', ${model.adminDescription}, false, false, false, 'mb-4')}"
+      ></div>
+
+      <!--/* Program type */-->
+      <fieldset id="program-type" class="usa-fieldset mb-4">
+        <legend data-testid="program-type-options" class="text-gray-600">
+          Program type<span
+            th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+          ></span>
+        </legend>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('default-program-option', 'programTypeValue', 'default', ${model.programTypeValue == 'default'}, ${model.defaultProgramFieldDisabled}, 'CiviForm program', 'This program’s informational card will open program details on the CiviForm website.')}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('external-program-option', 'programTypeValue', 'external', ${model.programTypeValue == 'external'}, ${model.externalProgramFieldDisabled}, 'External program', 'This program’s informational card will open program details on an external website.')}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('pre-screener-program-option', 'programTypeValue', 'common_intake_form', ${model.programTypeValue == 'common_intake_form'}, ${model.preScreenerFieldDisabled}, 'Pre-screener', 'This program informational card will always appear at the top of the Programs and Services page. Only one program can be a screener.')}"
+        ></div>
+      </fieldset>
+      <!--/* Hidden checkbox used to signal whether or not the user has
+             confirmed they want to change which program is marked as the
+             pre-screener form. Markup mirrors the legacy FieldWithLabel
+             checkbox with an empty label and the extra "hidden" style
+             class. */-->
+      <label
+        class="hidden px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option w-min"
+        for="confirmed-change-pre-screener-checkbox"
+      >
+        <input
+          type="checkbox"
+          value="false"
+          maxlength="10000"
+          id="confirmed-change-pre-screener-checkbox"
+          name="confirmedChangePreScreenerForm"
+          class="h-4 w-4 mr-4 align-middle self-center flex-none"
+        />
+      </label>
+
+      <!--/* Program eligibility */-->
+      <fieldset id="program-eligibility" class="usa-fieldset mb-4">
+        <legend class="text-gray-600">
+          Program eligibility gating<span
+            th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+          ></span>
+        </legend>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-eligibility-gating', 'eligibilityIsGating', 'true', ${model.eligibilityGatingChecked}, ${model.disableProgramEligibility}, 'Only allow residents to submit applications if they meet all eligibility requirements', null)}"
+        ></div>
+        <!--/* This option's label contains an apostrophe, which the
+               fragment-expression parameter parser cannot handle in a string
+               literal, so the radio-option markup is inlined with the label
+               as plain text. */-->
+        <div class="usa-radio">
+          <input
+            id="program-eligibility-not-gating"
+            class="usa-radio__input usa-radio__input--tile"
+            type="radio"
+            name="eligibilityIsGating"
+            value="false"
+            th:checked="${model.eligibilityNotGatingChecked}"
+            th:disabled="${model.disableProgramEligibility}"
+          />
+          <label for="program-eligibility-not-gating" class="usa-radio__label"
+            >Allow residents to submit applications even if they don't meet
+            eligibility requirements</label
+          >
+        </div>
+      </fieldset>
+
+      <!--/* Program categories */-->
+      <fieldset
+        th:unless="${model.categoryOptions.isEmpty()}"
+        id="category-checkboxes"
+        class="usa-fieldset mb-4"
+      >
+        <legend class="text-gray-600">
+          Tag this program with 1 or more categories to make it easier to find
+        </legend>
+        <div class="grid-row grid-gap-md">
+          <th:block th:each="category : ${model.categoryOptions}">
+            <!--/* The legacy builder replaced these options' "usa-checkbox"
+                 wrapper class with the grid classes. */-->
+            <div
+              th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption(|checkbox-category-${category.name}|, 'categories[]', ${category.value}, ${category.checked}, ${model.categoriesDisabled}, ${category.name}, 'grid-col-12 tablet:grid-col-6')}"
+            ></div>
+          </th:block>
+        </div>
+      </fieldset>
+
+      <!--/* Program visibility */-->
+      <fieldset class="usa-fieldset mb-4">
+        <legend class="text-gray-600">
+          Program visibility<span
+            th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
+          ></span>
+        </legend>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-display-mode-public', 'displayMode', 'PUBLIC', ${model.displayMode == 'PUBLIC'}, false, 'Publicly visible', null)}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-display-mode-hidden', 'displayMode', 'HIDDEN_IN_INDEX', ${model.displayMode == 'HIDDEN_IN_INDEX'}, false, 'Hide from applicants. Only individuals with the unique program link can access this program', null)}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-display-mode-ti-only', 'displayMode', 'TI_ONLY', ${model.displayMode == 'TI_ONLY'}, false, 'Trusted intermediaries only', null)}"
+        ></div>
+        <!--/* The legacy label for this option starts with a space. */-->
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-display-mode-select-ti-only', 'displayMode', 'SELECT_TI', ${model.displayMode == 'SELECT_TI'}, false, ' Visible to selected trusted intermediaries only', null)}"
+        ></div>
+        <div id="TiList" class="px-4 py-2" th:hidden="${!model.tiListVisible}">
+          <!--/* Hidden option that is always selected to allow clearing the
+               multi-select data; the legacy builder replaced its
+               "usa-checkbox" wrapper class with "hidden". Inlined (not the
+               fragment) because its empty id/for/value attributes must
+               render literally: the empty value posts the placeholder entry
+               the controller strips, and th:* processors drop empty
+               attributes. */-->
+          <div class="hidden">
+            <input
+              id=""
+              class="usa-checkbox__input usa-checkbox__input--tile"
+              type="checkbox"
+              name="tiGroups[]"
+              value=""
+              checked="checked"
+            />
+            <label for="" class="usa-checkbox__label"></label>
+          </div>
+          <th:block th:each="tiGroup : ${model.tiGroups}">
+            <div
+              th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption(${tiGroup.value}, 'tiGroups[]', ${tiGroup.value}, ${tiGroup.checked}, false, ${tiGroup.name}, 'usa-checkbox')}"
+            ></div>
+          </th:block>
+        </div>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-display-mode-disabled', 'displayMode', 'DISABLED', ${model.displayMode == 'DISABLED'}, false, 'Disabled', null)}"
+        ></div>
+      </fieldset>
+
+      <!--/* Program external link */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextField :: textField('program-external-link-input', 'externalLink', 'Link to program website', ${model.externalLink}, ${model.externalProgram}, ${model.disableExternalLink}, '10000', 'mb-4')}"
+      ></div>
+
+      <!--/* Email notifications */-->
+      <fieldset class="usa-fieldset mb-4">
+        <legend class="text-gray-600">Email notifications</legend>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption('notification-preferences-email', 'notificationPreferences', 'EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS', ${model.emailNotificationChecked}, ${model.disableEmailNotifications}, 'Send Program Admins an email notification every time an application is submitted', 'usa-checkbox')}"
+        ></div>
+      </fieldset>
+
+      <!--/* Login only applications. The legacy builder used the
+           value-less checkbox overload here, so null omits the value
+           attribute. */-->
+      <fieldset class="usa-fieldset mb-4">
+        <legend class="text-gray-600">Login only applications</legend>
+        <div
+          th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption('login-only-applications', 'loginOnly', null, ${model.loginOnlyChecked}, ${model.disableLoginOnly}, 'Require applicants to log in to apply to this program', 'usa-checkbox')}"
+        ></div>
+      </fieldset>
+
+      <h2 class="py-2 mt-6 font-semibold">Program overview</h2>
+
+      <!--/* Program long description */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextareaField :: textareaField('program-display-description-textarea', 'localizedDisplayDescription', 'Long program description', ${model.displayDescription}, false, ${model.disableLongDescription}, true, 'mb-4')}"
+      ></div>
+
+      <h2 class="py-2 mt-6 font-semibold">How to apply</h2>
+
+      <!--/* Application steps */-->
+      <div>
+        <th:block th:each="step : ${model.applicationSteps}">
+          <div
+            th:replace="~{admin/programs/fragments/ApplicationStep :: applicationStep(${step.index}, ${step.title}, ${step.description}, ${step.required}, ${model.disableApplicationSteps})}"
+          ></div>
+        </th:block>
+      </div>
+
+      <h2 class="mt-6 mb-2 font-semibold">Confirmation message</h2>
+      <h3 class="pt-1 font-semibold ml-4">
+        Current confirmation message preview:
+      </h3>
+      <div
+        class="usa-alert usa-alert--success mb-2 ml-4"
+        aria-live="polite"
+        role="alert"
+        id="program-confirmation-message-preview"
+      >
+        <div class="usa-alert__body">
+          <p class="usa-alert__text"></p>
+        </div>
+      </div>
+
+      <!--/* Confirmation message. The wrapper keeps the "pt-3" reference
+           class the legacy builder added before FieldWithLabel's default
+           "mb-2". */-->
+      <div
+        th:replace="~{admin/programs/fragments/TextareaField :: textareaField('program-confirmation-message-textarea', 'localizedConfirmationMessage', 'A custom message that will be shown on the confirmation page after an application has been submitted. You can use this message to explain next steps of the application process and/or highlight other programs to apply for.', ${model.confirmationMessage}, false, ${model.disableConfirmationMessage}, true, 'pt-3 mb-2')}"
+      ></div>
+
+      <button
+        type="submit"
+        id="program-update-button"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base mt-6"
+        th:text="${model.saveAndContinue} ? 'Save and continue to next step' : 'Save'"
+      ></button>
+      <input
+        hidden
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+      <a
+        th:if="${model.showManageQuestionsLink}"
+        id="manage-questions-link"
+        th:href="${model.manageQuestionsUrl}"
+        class="text-blue-600 hover:text-blue-500 inline-flex items-center mx-4 float-right"
+        >Manage questions →</a
+      >
+    </form>
+
+    <!--/* Error toast (form validation errors), consumed by toast.ts. */-->
+    <div
+      th:if="${model.errorMessage.isPresent()}"
+      class="hidden cf-toast-data"
+      th:id="${model.errorToastId}"
+      canDismiss="true"
+      canIgnore="false"
+      toastDuration="0"
+      condOnStorageKey
+      toastType="ERROR"
+      th:text="${model.errorMessage.get()}"
+    ></div>
+  </div>
+</th:block>
+
+<th:block th:fragment="modals">
+  <!--/* Confirmation modal shown (on load) when saving would change which
+       program is the pre-screener form. */-->
+  <div
+    th:if="${model.preScreenerFormDisplayName != null}"
+    id="confirm-pre-screener-change"
+    aria-labelledby="confirm-pre-screener-change-title"
+    tabindex="0"
+    class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-1/3 top-1/2 cf-modal-display-on-load"
+  >
+    <div
+      id="confirm-pre-screener-change-title"
+      class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+    >
+      <div class="text-2xl text-gray-600 my-5 mx-4">
+        Confirm pre-screener change?
+      </div>
+      <div class="w-12"></div>
+    </div>
+    <div class="my-5 mx-6">
+      <div class="flex-row space-y-6">
+        <!--/* The prettier-ignore below keeps the sentence's text nodes and
+             the program-name span contiguous so no whitespace is added
+             around the name beyond the legacy single spaces. */-->
+        <!-- prettier-ignore -->
+        <p>The pre-screener will be updated from <span class="font-bold" th:text="${model.preScreenerFormDisplayName}"></span> to the current program.</p>
+        <p>Would you like to confirm the change?</p>
+        <div class="flex">
+          <div class="flex-grow"></div>
+          <button
+            type="submit"
+            form="program-details-form"
+            id="confirm-pre-screener-change-button"
+            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base cursor-pointer"
+          >
+            Confirm
+          </button>
+        </div>
+      </div>
+    </div>
+    <button
+      type="button"
+      aria-label="Close"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+      ></svg>
+    </button>
+  </div>
+</th:block>

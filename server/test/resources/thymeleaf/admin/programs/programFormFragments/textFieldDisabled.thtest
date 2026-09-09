@@ -1,0 +1,27 @@
+%NAME textField - disabled renders readonly attributes and read-only classes
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/TextField :: textField('program-external-link-input', 'externalLink', 'Link to program website', 'https://example.com', false, true, '10000', 'mb-4')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-4">
+  <label
+    for="program-external-link-input"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Link to program website<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <input
+      type="text"
+      value="https://example.com"
+      maxlength="10000"
+      id="program-external-link-input"
+      name="externalLink"
+      disabled="disabled"
+      readonly="readonly"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 read-only:text-gray-500 read-only:bg-gray-100"
+    />
+    <div id="program-external-link-input-errors" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>
