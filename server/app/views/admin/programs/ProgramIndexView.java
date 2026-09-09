@@ -181,7 +181,7 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     publishSingleProgramModals,
                                     universalQuestionIds))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
-                        .map(cardData -> programCardFactory.renderCard(cardData, request)))));
+                        .map(cardData -> programCardFactory.renderCard(cardData)))));
 
     HtmlBundle htmlBundle =
         layout
@@ -543,7 +543,7 @@ public final class ProgramIndexView extends BaseHtmlView {
         activeRowExtraActions.add(
             renderEditLink(/* isActive= */ true, activeProgram.get(), request));
 
-        if (settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+        if (settingsManifest.getTranslationManagementImprovementEnabled()) {
           maybeRenderManageTranslationsLink(activeProgram.get())
               .ifPresent(activeRowExtraActions::add);
         }
