@@ -3,13 +3,15 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
-import static play.mvc.Http.Status.SEE_OTHER;
+import static play.mvc.Http.Status.OK;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableList;
 import forms.questions.QuestionImageDescriptionForm;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -24,9 +26,9 @@ import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.question.QuestionService;
-import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.StaticContentQuestionDefinition;
 import support.FakeRequestBuilder;
 
 public class AdminQuestionImageControllerTest extends ResetPostgres {
@@ -46,11 +48,11 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadQuestionImage_featureFlagDisabled_returnsNotFound() {
+  public void hxUploadQuestionImage_featureFlagDisabled_returnsNotFound() {
     QuestionModel question = testQuestionBank.nameApplicantName();
 
     Result result =
-        controller.uploadQuestionImage(
+        controller.hxUploadQuestionImage(
             fakeRequestBuilder()
                 .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
                 .method("POST")
@@ -61,17 +63,20 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadQuestionImage_withFileAndDescription_setsKeyAndRedirects() throws Exception {
-    QuestionDefinition question = createDraftQuestionEnglishOnly().getQuestionDefinition();
-    long id = question.getId();
+  public void hxUploadQuestionImage_withFileAndDescription_setsKeyAndRedirects() throws Exception {
+    QuestionModel question = createDraftQuestion();
+    long id = question.id;
     String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(id, "myImage.png");
 
     Result result =
-        controller.uploadQuestionImage(createUploadRequest(fileKey, "Alt text description"), id);
+        controller.hxUploadQuestionImage(createUploadRequest(fileKey, "Alt text description"), id);
 
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(controllers.admin.routes.AdminQuestionController.edit(id, "").url());
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("hx-swap-oob=\"true\"");
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("hidden");
 
     QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(id);
     assertThat(updatedQuestion.getImageFileKey()).contains(fileKey);
@@ -81,40 +86,17 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadQuestionImage_blankDescriptionWithFile_doesNotSaveImage_redirectsWithError()
-      throws Exception {
-    QuestionDefinition question = testQuestionBank.staticContent().getQuestionDefinition();
-    long id = question.getId();
-    String fileKey = "question-image/question-" + id + "/myImage.png";
-
-    Result result = controller.uploadQuestionImage(createUploadRequest(fileKey, ""), id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.flash().data().get("error"))
-        .isEqualTo(messages.at("validation.adminQuestionImage.altTextRequired"));
-
-    QuestionDefinition currentQuestion = questionService.getQuestionDefinition(id);
-    assertThat(currentQuestion.getImageFileKey()).isEmpty();
-  }
-
-  @Test
-  public void uploadQuestionImage_descriptionOnly_updatesDescription() throws Exception {
-    QuestionModel questionModel = createDraftQuestionEnglishOnly();
-    long id = questionModel.id;
-
+  public void hxUploadQuestionImage_descriptionOnly_updatesDescription() throws Exception {
+    QuestionModel question = createDraftQuestion();
+    long id = question.id;
     Result result =
-        controller.uploadQuestionImage(
+        controller.hxUploadQuestionImage(
             createUploadRequest(/* fileKey= */ null, "Description only"), id);
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    assertThat(result.redirectLocation())
-        .hasValue(controllers.admin.routes.AdminQuestionController.edit(id, "").url());
-    // had to refresh the models as they were failing
-    questionModel.refresh();
-    assertThat(questionModel.getQuestionDefinition().getImageFileKey()).isEmpty();
+    assertThat(result.status()).isEqualTo(OK);
+    QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(id);
+    assertThat(updatedQuestion.getImageFileKey()).isEmpty();
     assertThat(
-            questionModel
-                .getQuestionDefinition()
+            updatedQuestion
                 .getLocalizedImageDescription()
                 .get()
                 .get(LocalizedStrings.DEFAULT_LOCALE))
@@ -122,9 +104,28 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadQuestionImage_missingQuestion_returnsNotFound() {
+  public void hxUploadQuestionImage_blankDescriptionWithFile_doesNotSaveImage_redirectsWithError()
+      throws Exception {
+    QuestionDefinition question = testQuestionBank.staticContent().getQuestionDefinition();
+    long id = question.getId();
+    String fileKey = "question-image/question-" + id + "/myImage.png";
+
+    Result result = controller.hxUploadQuestionImage(createUploadRequest(fileKey, ""), id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains(messages.at("validation.adminQuestionImage.altTextRequired"));
+    assertThat(htmlContent).doesNotContain("hidden");
+
+    QuestionDefinition currentQuestion = questionService.getQuestionDefinition(id);
+    assertThat(currentQuestion.getImageFileKey()).isEmpty();
+  }
+
+  @Test
+  public void hxUploadQuestionImage_missingQuestion_returnsNotFound() {
     Result result =
-        controller.uploadQuestionImage(
+        controller.hxUploadQuestionImage(
             createUploadRequest(/* fileKey= */ null, "fake description"),
             /* questionId= */ Long.MAX_VALUE);
 
@@ -132,11 +133,11 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadQuestionImage_nullBody_returnsBadRequest() {
+  public void hxUploadQuestionImage_nullBody_returnsBadRequest() {
     QuestionModel question = testQuestionBank.staticContent();
 
     Result result =
-        controller.uploadQuestionImage(
+        controller.hxUploadQuestionImage(
             fakeRequestBuilder()
                 .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
                 .method("POST")
@@ -171,17 +172,16 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
         .build();
   }
 
-  private QuestionModel createDraftQuestionEnglishOnly() {
+  private QuestionModel createDraftQuestion() {
     QuestionDefinition definition =
-        new NameQuestionDefinition(
+        new StaticContentQuestionDefinition(
             QuestionDefinitionConfig.builder()
-                .setName("applicant name")
-                .setDescription("name of applicant")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Applicant name"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("enter name"))
+                .setName("static-question-" + UUID.randomUUID())
+                .setDescription("static content description")
+                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
                 .build());
     QuestionModel question = new QuestionModel(definition);
-    // Only draft questions are editable.
     question.addVersion(draftVersion);
     question.save();
     return question;

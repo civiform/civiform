@@ -3,7 +3,7 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
-import autovalue.shaded.com.google.common.annotations.VisibleForTesting;
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -601,43 +601,6 @@ public final class QuestionService {
     return true;
   }
 
-  /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
-  public QuestionDefinition setImageFileKey(long questionId, String fileKey)
-      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
-
-    QuestionDefinition updatedQuestionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition)
-            .setImageFileKey(Optional.of(fileKey))
-            .build();
-
-    QuestionModel updatedQuestion =
-        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
-    return questionRepository.getQuestionDefinition(updatedQuestion);
-  }
-
-  /** Sets a key that can be used to fetch the image for the given question from cloud storage. */
-  public QuestionDefinition setImageFileDescription(
-      long questionId, Locale locale, String imageDescription)
-      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
-    if (imageDescription.isBlank() && questionDefinition.getImageFileKey().isPresent()) {
-      throw new ImageDescriptionNotRemovableException(
-          "Description can't be removed because an image is present. Delete the image before"
-              + " deleting the description.");
-    }
-
-    Optional<LocalizedStrings> newStrings =
-        getUpdatedImageDescription(questionDefinition, locale, imageDescription);
-    QuestionDefinition updatedQuestionDefinition =
-        new QuestionDefinitionBuilder(questionDefinition)
-            .setLocalizedImageDescription(newStrings)
-            .build();
-    QuestionModel updatedQuestion =
-        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
-    return questionRepository.getQuestionDefinition(updatedQuestion);
-  }
-
   private Optional<LocalizedStrings> getUpdatedImageDescription(
       QuestionDefinition questionDefinition, Locale locale, String imageDescription) {
     if (locale.equals(DEFAULT_LOCALE) && imageDescription.isBlank()) {
@@ -654,6 +617,32 @@ public final class QuestionService {
       newStrings = currentDescription.get().updateTranslation(locale, imageDescription);
     }
     return Optional.of(newStrings);
+  }
+
+  /** Sets both a filekey and an image description for the given question. */
+  public QuestionDefinition setImageFileKeyAndDescription(
+      long questionId, Optional<String> maybeFileKey, Locale locale, String imageDescription)
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+
+    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(questionDefinition);
+
+    if (maybeFileKey.isPresent()) {
+      builder.setImageFileKey(maybeFileKey);
+    }
+
+    if (imageDescription.isBlank() && builder.build().getImageFileKey().isPresent()) {
+      throw new ImageDescriptionNotRemovableException(
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
+    }
+
+    Optional<LocalizedStrings> newStrings =
+        getUpdatedImageDescription(questionDefinition, locale, imageDescription);
+    builder.setLocalizedImageDescription(newStrings);
+
+    QuestionModel updatedQuestion = questionRepository.createOrUpdateDraft(builder.build());
+    return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 
   /** Removes the image file key for the given question so that no image is associated with it. */

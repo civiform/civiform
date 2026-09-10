@@ -23,6 +23,7 @@
       <input
         hidden
         name="concurrencyToken"
+        id="concurrencyToken"
         th:value="${model.concurrencyToken}"
       />
       <p class="text-sm">
@@ -74,22 +75,41 @@
           <label class="usa-label" for="question-image-input"
             >Image upload</label
           >
+          <div
+            th:if="${model.hasExistingImage()}"
+            class="usa-alert usa-alert--info usa-alert--slim margin-bottom-2"
+          >
+            <div class="usa-alert__body">
+              <p class="usa-alert__text">
+                A file is currently uploaded for this question. Selecting a new
+                file will replace it.
+              </p>
+            </div>
+          </div>
+
           <div class="usa-hint" id="question-image-file-input-hint">
             The maximum size for image upload is 1MB.
           </div>
           <input
             accept="image/png,image/jpeg"
-            aria-describedby="question-image-file-input-hint"
+            aria-describedby="question-image-file-input-hint question-image-file-input-errors"
             class="usa-file-input"
             id="question-image-input"
             name="questionImage"
             type="file"
+            th:data-has-existing-image="${model.hasExistingImage()}"
             th:hx-post="${model.imageUploadUrl}"
+            hx-target-error="#question-image-file-input-errors"
             hx-trigger="change"
             hx-encoding="multipart/form-data"
             hx-include="#question-image-description, [name='csrfToken']"
-            hx-swap="none"
+            hx-swap="outerHTML"
           />
+          <!-- Error container matching the geoJsonURL-errors pattern -->
+          <div
+            id="question-image-file-input-errors"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
         </div>
 
         <div class="usa-form-group">
@@ -107,7 +127,14 @@
             id="question-image-description"
             name="questionImageDescription"
             type="text"
+            th:value="${model.questionImageDescription}"
             aria-describedby="question-image-description-hint"
+            th:hx-post="${model.imageUploadUrl}"
+            hx-trigger="change"
+            hx-encoding="multipart/form-data"
+            hx-include="this, [name='csrfToken']"
+            hx-target-error="#question-image-file-input-errors"
+            hx-swap="outerHTML"
           />
         </div>
       </th:block>

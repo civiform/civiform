@@ -15,7 +15,10 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import controllers.FlashKey;
 import forms.questions.DropdownQuestionForm;
+import forms.questions.QuestionImageDescriptionForm;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import models.LifecycleStage;
@@ -24,12 +27,14 @@ import models.QuestionTag;
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.cloud.PublicFileNameFormatter;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
@@ -38,22 +43,72 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
+import support.FakeRequestBuilder;
 import views.html.helper.CSRF;
 
 public class AdminQuestionControllerTest extends ResetPostgres {
   private QuestionRepository questionRepo;
   private AdminQuestionController controller;
+  private AdminQuestionImageController questionImageController;
 
   @Before
   public void setup() {
     questionRepo = instanceOf(QuestionRepository.class);
     controller = instanceOf(AdminQuestionController.class);
+    questionImageController = instanceOf(AdminQuestionImageController.class);
   }
 
   private ImmutableSet<Long> retrieveAllQuestionIds() {
     return questionRepo.listQuestions().toCompletableFuture().join().stream()
         .map(q -> q.getQuestionDefinition().getId())
         .collect(ImmutableSet.toImmutableSet());
+  }
+
+  @Test
+  public void edit_withExistingImage_rendersExistingImageDetails() {
+    // 1. Create a draft question so edit() doesn't need to redirect from active to draft
+    QuestionModel qm =
+        testQuestionBank.maybeSave(
+            testQuestionBank.nameApplicantName().getQuestionDefinition(), LifecycleStage.DRAFT);
+    String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(qm.id, "myImage.png");
+
+    // 2. Upload the image & alt text via questionImageController
+    FakeRequestBuilder uploadRequestBuilder =
+        fakeRequestBuilder().addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    Result uploadResult =
+        questionImageController.hxUploadQuestionImage(
+            uploadRequestBuilder
+                .method("POST")
+                .bodyMultipart(
+                    Map.of(
+                        QuestionImageDescriptionForm.QUESTION_IMAGE_DESCRIPTION,
+                        new String[] {"alt text"}),
+                    List.of(
+                        new Http.MultipartFormData.FilePart<>(
+                            "questionImage", "myImage.png", "image/png", fileKey)))
+                .build(),
+            qm.id);
+
+    assertThat(uploadResult.status()).isEqualTo(OK);
+
+    // 3. Visit the edit page with Thymeleaf migration & image features enabled
+    Request editRequest =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+            .build();
+
+    Result editResult =
+        controller.edit(editRequest, qm.id, /* redirectUrl= */ "").toCompletableFuture().join();
+
+    // 4. Assertions on the rendered page
+    assertThat(editResult.status()).isEqualTo(OK);
+    String content = contentAsString(editResult);
+
+    // Verifies the file input and description has data
+    assertThat(content).contains("data-has-existing-image=\"true\"");
+    assertThat(content).contains("value=\"alt text\"");
   }
 
   @Test
