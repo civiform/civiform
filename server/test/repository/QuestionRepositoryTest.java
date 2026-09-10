@@ -297,6 +297,33 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void bulkCreateQuestions_withoutTransaction_throws() {
+    Exception e =
+        assertThrows(
+            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
+
+    assertThat(e)
+        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
+  }
+
+  @Test
+  public void bulkCreateQuestions_createsAllQuestions() {
+    ImmutableList<QuestionDefinition> questionsToSave =
+        ImmutableList.of(
+            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
+            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
+
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
+        transactionManager.execute(
+            () -> {
+              return repo.bulkCreateQuestions(questionsToSave);
+            });
+
+    assertThat(savedQuestions).hasSize(2);
+    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
+  }
+
+  @Test
   public void createOrUpdateDraft_creatingDraftEnumeratorPreservesDraftRepeatedQuestions()
       throws UnsupportedQuestionTypeException {
     QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
@@ -501,33 +528,6 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void bulkCreateQuestions_withoutTransaction_throws() {
-    Exception e =
-        assertThrows(
-            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
-
-    assertThat(e)
-        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
-  }
-
-  @Test
-  public void bulkCreateQuestions_createsAllQuestions() {
-    ImmutableList<QuestionDefinition> questionsToSave =
-        ImmutableList.of(
-            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
-            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
-
-    ImmutableMap<String, QuestionDefinition> savedQuestions =
-        transactionManager.execute(
-            () -> {
-              return repo.bulkCreateQuestions(questionsToSave);
-            });
-
-    assertThat(savedQuestions).hasSize(2);
-    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
-  }
-
-  @Test
   public void createOrUpdateDraft_draftingInitialQuestion_repointsEnumeratorAtNewDraft()
       throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
     // Creating a draft of an initial question creates an updated draft of its
@@ -575,7 +575,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // The new enumerator points at its new initial question and not the
     // new repeated question.
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
-      .hasValue(initialQuestionAfter.getId());
+        .hasValue(initialQuestionAfter.getId());
     // Block 2 contains the new repeated question.
     assertThat(blockQuestionIds(fixture.program(), 2L))
         .containsExactly(repeatedQuestionAfter.getId());
@@ -590,18 +590,18 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftInitialQuestion(fixture);
 
-    QuestionDefinition newEnumerator = latestDefinition(fixture.newEnumeratorId());
-    QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.newRepeatedQuestionId());
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(newEnumerator.getId()).isEqualTo(fixture.newEnumeratorId());
-    assertThat(newEnumerator.getEnumeratorInitialQuestionId())
-        .hasValue(fixture.newRepeatedQuestionId());
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+        .hasValue(fixture.extraRepeatedQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(newRepeatedQuestion.getId()).isEqualTo(fixture.newRepeatedQuestionId());
-    assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newEnumeratorId());
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
-        .containsExactly(fixture.newEnumeratorId(), fixture.newRepeatedQuestionId());
+        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
   }
 
   @Test
@@ -687,18 +687,18 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftEnumerator(fixture);
 
-    QuestionDefinition newEnumerator = latestDefinition(fixture.newEnumeratorId());
-    QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.newRepeatedQuestionId());
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(newEnumerator.getId()).isEqualTo(fixture.newEnumeratorId());
-    assertThat(newEnumerator.getEnumeratorInitialQuestionId())
-        .hasValue(fixture.newRepeatedQuestionId());
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+        .hasValue(fixture.extraRepeatedQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(newRepeatedQuestion.getId()).isEqualTo(fixture.newRepeatedQuestionId());
-    assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newEnumeratorId());
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
-        .containsExactly(fixture.newEnumeratorId(), fixture.newRepeatedQuestionId());
+        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
   }
 
   @Test
@@ -748,17 +748,18 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(firstDraft.id);
   }
 
-  /** Container for the entities made in {@code newEnumeratorFixture}.
+  /**
+   * Container for the entities made in {@code newEnumeratorFixture}.
    *
-   * The default context is that items are for the new enumerator flow, and
-   * ones in the old flow are indicated with 'old'.
-  */
+   * <p>The default context is that items are for the new enumerator flow, and ones in the old flow
+   * are indicated with 'old'.
+   */
   private record EnumeratorFixture(
       long enumeratorId,
       long initialQuestionId,
       long repeatedQuestionId,
-      long newEnumeratorId,
-      long newRepeatedQuestionId,
+      long extraEnumeratorId,
+      long extraRepeatedQuestionId,
       long oldEnumeratorId,
       long oldRepeatedQuestionId,
       ProgramModel program) {}
@@ -782,10 +783,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionModel repeatedQuestion =
         saveActiveRepeatedQuestion("household member nickname", enumerator);
 
-    QuestionModel newEnumerator = saveActiveEnumerator("new enumerator", "Where have you worked?");
-    QuestionModel newRepeatedQuestion =
-        saveActiveRepeatedQuestion("new repeated question", newEnumerator);
-    pointAtInitialQuestion(newEnumerator, newRepeatedQuestion);
+    QuestionModel extraEnumerator =
+        saveActiveEnumerator("extra enumerator", "Where have you worked?");
+    QuestionModel extraRepeatedQuestion =
+        saveActiveRepeatedQuestion("extra repeated question", extraEnumerator);
+    pointAtInitialQuestion(extraEnumerator, extraRepeatedQuestion);
 
     QuestionModel oldEnumerator = saveActiveEnumerator("old enumerator", "Where have you lived?");
     QuestionModel oldRepeatedQuestion =
@@ -799,8 +801,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .withRepeatedBlock("block 2")
             .withRequiredQuestion(repeatedQuestion)
             .withBlock("block 3")
-            .withRequiredQuestion(newEnumerator)
-            .withRequiredQuestion(newRepeatedQuestion)
+            .withRequiredQuestion(extraEnumerator)
+            .withRequiredQuestion(extraRepeatedQuestion)
             .withBlock("block 4")
             .withRequiredQuestion(oldEnumerator)
             .withRequiredQuestion(oldRepeatedQuestion)
@@ -809,8 +811,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
         enumerator.id,
         initialQuestion.id,
         repeatedQuestion.id,
-        newEnumerator.id,
-        newRepeatedQuestion.id,
+        extraEnumerator.id,
+        extraRepeatedQuestion.id,
         oldEnumerator.id,
         oldRepeatedQuestion.id,
         program);
@@ -818,19 +820,19 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   /** Creates a new draft revision of the block 1 initial question. */
   private void draftInitialQuestion(EnumeratorFixture fixture)
-    throws UnsupportedQuestionTypeException {
+      throws UnsupportedQuestionTypeException {
     repo.createOrUpdateDraft(
-      new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
-        .setDescription("updated")
-        .build());
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+            .setDescription("updated")
+            .build());
   }
 
   /** Creates a new draft revision of the block 1 enumerator. */
   private void draftEnumerator(EnumeratorFixture fixture) throws UnsupportedQuestionTypeException {
     repo.createOrUpdateDraft(
-      new QuestionDefinitionBuilder(lookupDefinition(fixture.enumeratorId()))
-        .setDescription("updated")
-        .build());
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.enumeratorId()))
+            .setDescription("updated")
+            .build());
   }
 
   private QuestionModel saveActiveEnumerator(String name, String questionText) {
