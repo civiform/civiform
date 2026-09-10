@@ -815,8 +815,15 @@ public final class ApplicantService {
                 // Only grant the program read access to files this applicant may read; a
                 // referenced key the applicant neither owns nor was granted must not
                 // delegate the file to the program's admins.
-                if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(file.getName(), applicantId)
-                    && !file.getAcls().hasApplicantReadPermission(applicantId)) {
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(file.getName(), applicantId)
+                        || file.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
+                  logger.warn(
+                      "Applicant {} referenced a stored file it is not authorized to read while"
+                          + " submitting program {}; skipping program ACL grant.",
+                      applicantId,
+                      programId);
                   continue;
                 }
                 file.getAcls().addProgramToReaders(programDefinition);

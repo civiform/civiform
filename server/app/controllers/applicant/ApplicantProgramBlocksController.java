@@ -1614,8 +1614,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 StoredFileModel existingFile = maybeStoredFile.get();
                 // An existing file may only be referenced by an applicant who owns it or
                 // has been granted read access; possession of the key is not authorization.
-                if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)
-                    && !existingFile.getAcls().hasApplicantReadPermission(applicantId)) {
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)
+                        || existingFile.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
                   return failedFuture(
                       new SecurityException(
                           String.format(

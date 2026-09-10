@@ -1590,7 +1590,13 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
     subject
         .stageAndUpdateIfValid(
-            attacker.id, programB.id, "1", updates, false, false, /* apiBridgeEnabled= */ false)
+            attacker.id,
+            programB.id,
+            "1",
+            updates,
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
 
