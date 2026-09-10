@@ -532,32 +532,49 @@ public class QuestionRepositoryTest extends ResetPostgres {
       throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    repo.createOrUpdateDraft(
-        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
-            .setDescription("updated")
-            .build());
+    draftInitialQuestion(fixture);
 
     QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
-    var initialQuestionAfterId = initialQuestionAfter.getId();
-    assertThat(initialQuestionAfterId).isNotEqualTo(fixture.initialQuestionId());
+    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.initialQuestionId());
     // A draft of the enumerator now points at the initial question's new draft...
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
     assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
-    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(initialQuestionAfterId);
-    // Both repeated questions point back at the enumerator's new draft.
-    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionAfter.getId());
     assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
-    assertThat(repeatedQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // ...while the published enumerator keeps pointing at the published initial question.
     assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
         .hasValue(fixture.initialQuestionId());
-    // Blocks 1 and 2 follow their questions to their new revisions.
+    // Block 1 follows both questions to their new revisions.
     assertThat(blockQuestionIds(fixture.program(), 1L))
-        .containsExactly(enumeratorAfter.getId(), initialQuestionAfterId);
+        .containsExactly(enumeratorAfter.getId(), initialQuestionAfter.getId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingRepeatedQuestion()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // The repeated question in block 2 is not the initial question, but it is repeated on the same
+    // enumerator, so drafting the enumerator has to carry it forward too.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftInitialQuestion(fixture);
+
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.repeatedQuestionId());
+    assertThat(repeatedQuestionAfter.getEnumeratorId())
+        .hasValue(latestDefinition(fixture.enumeratorId()).getId());
     assertThat(blockQuestionIds(fixture.program(), 2L))
         .containsExactly(repeatedQuestionAfter.getId());
+  }
 
-    // Block 3's new-flow cluster was not drafted, and its mutual references are intact.
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_leavesOtherNewFlowEnumeratorAlone()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Block 3's cluster was not drafted, and its mutual references are intact.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftInitialQuestion(fixture);
+
     QuestionDefinition newEnumerator = latestDefinition(fixture.newEnumeratorId());
     QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.newRepeatedQuestionId());
     assertThat(newEnumerator.getId()).isEqualTo(fixture.newEnumeratorId());
@@ -567,8 +584,16 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newEnumeratorId());
     assertThat(blockQuestionIds(fixture.program(), 3L))
         .containsExactly(fixture.newEnumeratorId(), fixture.newRepeatedQuestionId());
+  }
 
-    // Block 4's old-flow cluster was not drafted, and no back reference was invented for it.
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_leavesOldFlowEnumeratorWithoutBackRef()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Block 4's cluster was not drafted, and no back reference was invented for its enumerator.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftInitialQuestion(fixture);
+
     QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
     QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
     assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
@@ -577,6 +602,15 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
     assertThat(blockQuestionIds(fixture.program(), 4L))
         .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
+  }
+
+  /** Creates a new draft revision of the block 1 initial question. */
+  private void draftInitialQuestion(EnumeratorFixture fixture)
+      throws UnsupportedQuestionTypeException {
+    repo.createOrUpdateDraft(
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+            .setDescription("updated")
+            .build());
   }
 
   @Test
