@@ -99,13 +99,13 @@
             type="file"
             th:data-has-existing-image="${model.hasExistingImage()}"
             th:hx-post="${model.imageUploadUrl}"
+            hx-target="#question-image-file-input-errors"
             hx-target-error="#question-image-file-input-errors"
             hx-trigger="change"
             hx-encoding="multipart/form-data"
             hx-include="#question-image-description, [name='csrfToken']"
             hx-swap="outerHTML"
           />
-          <!-- Error container matching the geoJsonURL-errors pattern -->
           <div
             id="question-image-file-input-errors"
             class="text-red-600 text-xs p-1 hidden"
@@ -134,7 +134,7 @@
             hx-encoding="multipart/form-data"
             hx-include="this, [name='csrfToken']"
             hx-target-error="#question-image-file-input-errors"
-            hx-swap="outerHTML"
+            hx-swap="none"
           />
         </div>
       </th:block>

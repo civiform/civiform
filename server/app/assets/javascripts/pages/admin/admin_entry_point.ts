@@ -33,6 +33,7 @@ import * as trustedIntermediaryController from '@/admin_trusted_intermediary_lis
 import * as legacyFileUpload from '@/legacy_file_upload'
 import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
+import * as questionImages from '@/admin_question_image'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
 import {featureFlags} from '@/global/shared/feature_flags'
@@ -89,6 +90,7 @@ function initializeEverything(): void {
   legacyFileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
   SessionTimeoutHandler.init()
+  questionImages.init()
 }
 
 function afterSettle(): void {

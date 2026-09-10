@@ -101,25 +101,24 @@ public class AdminQuestionImageController extends CiviFormController {
         updatedQuestion.getConcurrencyToken().map(UUID::toString).orElse("");
 
     // 6. On success: return 200 OK and clear out errors via OOB swap
-    return ok(div(
-                div()
-                    .withClasses("text-red-600", "text-xs", "p-1", "hidden")
-                    .withId("question-image-file-input-errors")
-                    .attr("hx-swap-oob", "true"),
-                input()
-                    .withType("hidden")
-                    .withId("concurrencyToken")
-                    .withName("concurrencyToken")
-                    .withValue(newConcurrencyToken)
-                    .attr("hx-swap-oob", "true"))
-            .render())
+    return ok(div()
+                .withClasses("text-red-600", "text-xs", "p-1", "hidden")
+                .withId("question-image-file-input-errors")
+                .render()
+            + input()
+                .withType("hidden")
+                .withId("concurrencyToken")
+                .withName("concurrencyToken")
+                .withValue(newConcurrencyToken)
+                .attr("hx-swap-oob", "true")
+                .render())
         .as(Http.MimeTypes.HTML);
   }
 
   private Result renderError(String errorMessage) {
     return badRequest(
             div(errorMessage)
-                .withClasses("text-red-600", "text-xs", "p-1")
+                .withClasses("text-red-500", "text-base", "py-2")
                 .withId("question-image-file-input-errors")
                 .toString())
         .as(Http.MimeTypes.HTML);
