@@ -748,7 +748,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(firstDraft.id);
   }
 
-  /** Container for the entities made in {@code newEnumeratorFixture}. */
+  /** Container for the entities made in {@code newEnumeratorFixture}.
+   *
+   * The default context is that items are for the new enumerator flow, and
+   * ones in the old flow are indicated with 'old'.
+  */
   private record EnumeratorFixture(
       long enumeratorId,
       long initialQuestionId,
