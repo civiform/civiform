@@ -95,6 +95,8 @@ jobs:
           RENOVATE_REPOSITORIES: ${{ github.repository }}
           # Keep updating branches created by the Mend-hosted bot before migration.
           RENOVATE_GIT_IGNORED_AUTHORS: "29139614+renovate[bot]@users.noreply.github.com"
+          # Set the key to sign the PRs
+          RENOVATE_GIT_PRIVATE_KEY: ${{ secrets.CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE_PRIVKEY }}
           # renovate.json5 is already committed: never open an onboarding PR,
           # and refuse to run without a repository config.
           RENOVATE_ONBOARDING: "false"
