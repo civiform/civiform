@@ -12,17 +12,23 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import models.LifecycleStage;
+import models.ProgramModel;
 import models.QuestionModel;
 import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import support.ProgramBuilder;
 import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -519,6 +525,143 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     assertThat(savedQuestions).hasSize(2);
     assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsEnumeratorAtNewDraft()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    repo.createOrUpdateDraft(
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+            .setDescription("updated")
+            .build());
+
+    QuestionDefinition newInitialQuestion = latestDefinition(fixture.initialQuestionId());
+    var newInitialQuestionId = newInitialQuestion.getId();
+    assertThat(newInitialQuestionId).isNotEqualTo(fixture.initialQuestionId());
+    // A draft of the enumerator now points at the initial question's new draft...
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(newInitialQuestionId);
+    // Both repeated questions point back at the enumerator's new draft. These have to be re-read:
+    // the model returned above predates the cascade that repointed its row.
+    QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.repeatedQuestionId());
+    assertThat(newInitialQuestion.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    // ...while the published enumerator keeps pointing at the published initial question.
+    assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
+        .hasValue(fixture.initialQuestionId());
+    // Every block follows its questions to their new revisions.
+    assertThat(blockQuestionIds(fixture.program(), 1L))
+        .containsExactly(enumeratorAfter.getId(), newInitialDraft.id);
+    assertThat(blockQuestionIds(fixture.program(), 2L))
+        .containsExactly(latestDefinition(fixture.repeatedQuestionId()).getId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_reeditingInitialQuestionDraft_keepsEnumeratorBackReference()
+      throws UnsupportedQuestionTypeException {
+    // The second edit reuses the existing draft row rather than minting a new id, so the
+    // enumerator's back reference is already correct and must not churn.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+    QuestionModel firstDraft =
+        repo.createOrUpdateDraft(
+            new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+                .setDescription("first edit")
+                .build());
+    long enumeratorDraftId = latestDefinition(fixture.enumeratorId()).getId();
+
+    QuestionModel secondDraft =
+        repo.createOrUpdateDraft(
+            new QuestionDefinitionBuilder(lookupDefinition(firstDraft.id))
+                .setDescription("second edit")
+                .build());
+
+    assertThat(secondDraft.id).isEqualTo(firstDraft.id);
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getId()).isEqualTo(enumeratorDraftId);
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(firstDraft.id);
+  }
+
+  /** Container for the entities made in {@code newEnumeratorFixture}. */
+  private record EnumeratorFixture(
+      long enumeratorId, long initialQuestionId, long repeatedQuestionId, ProgramModel program) {}
+
+  /**
+   * Builds a draft program with two blocks and three ACTIVE questions.
+   *
+   * <p>Block 1 holds the enumerator and its initial question, which point at each other. Block 2
+   * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
+   */
+  private EnumeratorFixture newEnumeratorFixture() {
+    QuestionModel enumerator =
+        testQuestionBank.maybeSave(
+            new EnumeratorQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("household members")
+                    .setDescription("The applicant's household members")
+                    .setQuestionText(LocalizedStrings.of(Locale.US, "Who is in your household?"))
+                    .build(),
+                LocalizedStrings.empty()),
+            LifecycleStage.ACTIVE);
+    QuestionModel initialQuestion = saveActiveRepeatedQuestion("household member name", enumerator);
+    // Complete the mutual reference in place, so no draft is created.
+    new QuestionModel(
+            repo.updateEnumeratorInitialQuestionId(
+                enumerator.getQuestionDefinition(), initialQuestion.id))
+        .update();
+    enumerator.refresh();
+    QuestionModel repeatedQuestion =
+        saveActiveRepeatedQuestion("household member nickname", enumerator);
+
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("enumerator program")
+            .withBlock("block 1")
+            .withRequiredQuestion(enumerator)
+            .withRequiredQuestion(initialQuestion)
+            .withRepeatedBlock("block 2")
+            .withRequiredQuestion(repeatedQuestion)
+            .build();
+    return new EnumeratorFixture(enumerator.id, initialQuestion.id, repeatedQuestion.id, program);
+  }
+
+  private QuestionModel saveActiveRepeatedQuestion(String name, QuestionModel enumerator) {
+    return testQuestionBank.maybeSave(
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(name)
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is $this's " + name + "?"))
+                .setEnumeratorId(Optional.of(enumerator.id))
+                .build()),
+        LifecycleStage.ACTIVE);
+  }
+
+  private ImmutableList<Long> blockQuestionIds(ProgramModel program, long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    program.refresh();
+    return program
+        .getProgramDefinition()
+        .getBlockDefinition(blockId)
+        .programQuestionDefinitions()
+        .stream()
+        .map(ProgramQuestionDefinition::id)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** The definition stored under {@code id} itself, ignoring any newer revision. */
+  private QuestionDefinition lookupDefinition(long id) {
+    return repo.lookupQuestion(id)
+        .toCompletableFuture()
+        .join()
+        .orElseThrow()
+        .getQuestionDefinition();
+  }
+
+  /** The draft revision of the question named by {@code id}, or the active one if there is none. */
+  private QuestionDefinition latestDefinition(long id) {
+    return versionRepo.getLatestVersionOfQuestion(id).orElseThrow().getQuestionDefinition();
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)
