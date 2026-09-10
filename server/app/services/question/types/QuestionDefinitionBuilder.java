@@ -123,6 +123,17 @@ public final class QuestionDefinitionBuilder {
     return this;
   }
 
+  public QuestionDefinitionBuilder setLocalizedImageDescription(
+      Optional<LocalizedStrings> localizedImageDescription) {
+    builder.setLocalizedImageDescription(localizedImageDescription);
+    return this;
+  }
+
+  public QuestionDefinitionBuilder setImageFileKey(Optional<String> imageFileKey) {
+    builder.setImageFileKey(imageFileKey);
+    return this;
+  }
+
   public QuestionDefinitionBuilder updateQuestionText(Locale locale, String text) {
     builder.setQuestionText(builder.build().questionText().updateTranslation(locale, text));
     return this;

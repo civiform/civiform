@@ -1,0 +1,35 @@
+%NAME translationField - text-input branch, never required; unescaped English hint
+%TEMPLATE_MODE HTML
+# Mirror of the textarea case: with textarea=false the fake TextField
+# renders alone, forwarding the field's values with required=false.
+%CONTEXT
+# TranslationField(id, name, label, value, textarea, markdown, defaultTextHtml)
+field = @views.admin.questions.QuestionTranslationPageViewModel$TranslationField@builder() \
+    .id("opt-1-es").name("options[]").label("Answer option") \
+    .value("Si").textarea(false).markdown(false) \
+    .defaultTextHtml("<p>Yes</p>").build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/questions/fragments/TranslationField :: translationField(${field})}"></div>
+# ----------------------------------------------------------------------
+# Both field fragments are faked; see translationFieldTextarea.thtest.
+%INPUT[admin/shared/LegacyFieldWithLabel/TextareaField]
+<div
+  th:fragment="textareaField(id, name, label, value, required, markdown)"
+  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, markdown=${markdown})|"
+></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacyFieldWithLabel/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="grid gap-6 grid-cols-2">
+  <div>textField(opt-1-es, options[], Answer option, Si, required=false)</div>
+  <div class="px-2 py-1 text-sm bg-gray-100">
+    <p class="font-medium">English text:</p>
+    <div class="font-sans"><p>Yes</p></div>
+  </div>
+</div>

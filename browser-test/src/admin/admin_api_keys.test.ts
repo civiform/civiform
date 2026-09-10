@@ -1,9 +1,16 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramVisibility, slugify} from '../support/admin_programs'
 import {SAMPLE_PROGRAMS} from '../support/seeding'
 
 test.describe('Managing API keys', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('Creates, views and retires new API key', async ({
     page,
     adminApiKeys,

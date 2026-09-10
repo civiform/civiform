@@ -1,0 +1,30 @@
+<!--/*
+  A single translatable field, paired with the default (English) text so admins
+  can see what they are translating.
+
+  Legacy counterpart: TranslationFormView#fieldWithDefaultLocaleTextHint, which
+  wrapped a FieldWithLabel input/textarea and the English-text hint in a
+  two-column grid.
+*/-->
+<!--/*@thymesVar id="field" type="views.admin.questions.QuestionTranslationPageViewModel.TranslationField"*/-->
+<div th:fragment="translationField(field)" class="grid gap-6 grid-cols-2">
+  <!--/* th:replace has to sit on an element nested inside the conditional:
+         fragment inclusion is evaluated before th:if/th:unless, so combining
+         them on one element would include both fragments. */-->
+  <th:block th:if="${field.textarea}">
+    <div
+      th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false, ${field.markdown})}"
+    ></div>
+  </th:block>
+  <th:block th:unless="${field.textarea}">
+    <div
+      th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false)}"
+    ></div>
+  </th:block>
+  <div class="px-2 py-1 text-sm bg-gray-100">
+    <p class="font-medium">English text:</p>
+    <!--/* Markdown-rendered and sanitized by the mapper, as
+           TextFormatter.formatTextForAdmins did for the legacy view. */-->
+    <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+  </div>
+</div>

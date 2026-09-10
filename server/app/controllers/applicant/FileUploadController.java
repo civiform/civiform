@@ -38,7 +38,7 @@ import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
-import views.questiontypes.FileUploadQuestionPartialView;
+import views.PartialView;
 import views.questiontypes.FileUploadQuestionPartialViewModel;
 
 /**
@@ -53,7 +53,7 @@ public final class FileUploadController extends CiviFormController {
   private final FormFactory formFactory;
   private final StoredFileRepository storedFileRepository;
   private final SettingsManifest settingsManifest;
-  private final FileUploadQuestionPartialView fileUploadQuestionPartialView;
+  private final PartialView<FileUploadQuestionPartialViewModel> fileUploadQuestionPartialView;
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -66,7 +66,7 @@ public final class FileUploadController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       SettingsManifest settingsManifest,
-      FileUploadQuestionPartialView fileUploadQuestionPartialView) {
+      PartialView<FileUploadQuestionPartialViewModel> fileUploadQuestionPartialView) {
     super(profileUtils, versionRepository);
     this.applicantService = checkNotNull(applicantService);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);

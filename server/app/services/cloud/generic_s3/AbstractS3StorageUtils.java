@@ -84,7 +84,8 @@ public abstract class AbstractS3StorageUtils {
                           .bucket(bucketName)
                           .region(region))
               .get()
-              .url()
+              .endpointUrl()
+              .toUri()
               .toString();
       // The prod AWS action links end with `/`, so our LocalStack action links should do the same.
       return url + "/";

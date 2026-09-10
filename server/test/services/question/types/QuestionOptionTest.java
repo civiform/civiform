@@ -3,15 +3,21 @@ package services.question.types;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.catchThrowable;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.ObjectMapperSingleton;
 import services.question.LocalizedQuestionOption;
 import services.question.QuestionOption;
 
 public class QuestionOptionTest {
+
+  private static final ObjectMapper mapper = ObjectMapperSingleton.instance();
 
   @Test
   public void localize_unsupportedLocale_throws() {
@@ -113,5 +119,136 @@ public class QuestionOptionTest {
     assertThat(localizedNo.order()).isEqualTo(1L); // displayOrder=1, not id=0
     assertThat(localizedNotSure.order()).isEqualTo(2L); // displayOrder=2, same as id=2
     assertThat(localizedMaybe.order()).isEqualTo(3L); // displayOrder=3, same as id=3
+  }
+
+  @Test
+  public void serde_roundTrip_preservesScore() throws Exception {
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "scored",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+            /* displayInAnswerOptions= */ Optional.of(true),
+            /* score= */ Optional.of(5.0));
+
+    QuestionOption deserialized =
+        mapper.readValue(mapper.writeValueAsString(option), QuestionOption.class);
+
+    assertThat(deserialized).isEqualTo(option);
+    assertThat(deserialized.score()).isEqualTo(Optional.of(5.0));
+  }
+
+  @Test
+  public void serde_roundTrip_preservesNegativeScore() throws Exception {
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "negative",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "negative option"),
+            /* displayInAnswerOptions= */ Optional.of(true),
+            /* score= */ Optional.of(-3.5));
+
+    QuestionOption deserialized =
+        mapper.readValue(mapper.writeValueAsString(option), QuestionOption.class);
+
+    assertThat(deserialized.score()).isEqualTo(Optional.of(-3.5));
+  }
+
+  @Test
+  public void deserialize_integralScoreJson_readsEquivalentDouble() throws Exception {
+    // Stored rows written while scores were whole numbers hold integral JSON values; they
+    // deserialize to the equivalent double.
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "integral",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "integral option"),
+            /* displayInAnswerOptions= */ Optional.of(true));
+    ObjectNode node = (ObjectNode) mapper.readTree(mapper.writeValueAsString(option));
+    node.put("score", 6);
+
+    QuestionOption deserialized = mapper.readValue(node.toString(), QuestionOption.class);
+
+    assertThat(deserialized.score()).isEqualTo(Optional.of(6.0));
+  }
+
+  @Test
+  public void formatScore_stripsTrailingZerosAndUsesPlainNotation() {
+    assertThat(QuestionOption.formatScore(2.0)).isEqualTo("2");
+    assertThat(QuestionOption.formatScore(1.5)).isEqualTo("1.5");
+    assertThat(QuestionOption.formatScore(-0.5)).isEqualTo("-0.5");
+    assertThat(QuestionOption.formatScore(0.0)).isEqualTo("0");
+    assertThat(QuestionOption.formatScore(1234567.25)).isEqualTo("1234567.25");
+  }
+
+  @Test
+  public void serde_roundTrip_absentScore() throws Exception {
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "unscored",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "unscored option"),
+            /* displayInAnswerOptions= */ Optional.of(true));
+
+    QuestionOption deserialized =
+        mapper.readValue(mapper.writeValueAsString(option), QuestionOption.class);
+
+    assertThat(deserialized).isEqualTo(option);
+    assertThat(deserialized.score()).isEmpty();
+  }
+
+  @Test
+  public void deserialize_storedJsonWithoutScoreField_readsEmptyScore() throws Exception {
+    // Simulates a pre-feature stored row: no `score` property at all.
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "pre-feature",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "pre-feature option"),
+            /* displayInAnswerOptions= */ Optional.of(true));
+    ObjectNode node = (ObjectNode) mapper.readTree(mapper.writeValueAsString(option));
+    node.remove("score");
+
+    QuestionOption deserialized = mapper.readValue(node.toString(), QuestionOption.class);
+
+    assertThat(deserialized).isEqualTo(option);
+    assertThat(deserialized.score()).isEmpty();
+  }
+
+  @Test
+  public void deserialize_explicitNullScore_readsEmptyScore() throws Exception {
+    QuestionOption option =
+        QuestionOption.create(
+            /* id= */ 1L,
+            /* displayOrder= */ 0L,
+            /* adminName= */ "null-score",
+            /* optionText= */ LocalizedStrings.of(Locale.US, "null score option"),
+            /* displayInAnswerOptions= */ Optional.of(true));
+    ObjectNode node = (ObjectNode) mapper.readTree(mapper.writeValueAsString(option));
+    node.putNull("score");
+
+    QuestionOption deserialized = mapper.readValue(node.toString(), QuestionOption.class);
+
+    assertThat(deserialized.score()).isEmpty();
+  }
+
+  @Test
+  public void jsonCreator_legacyBranch_preservesScore() {
+    QuestionOption option =
+        QuestionOption.jsonCreator(
+            /* id= */ 1L,
+            /* displayOrder= */ 2L,
+            /* adminName= */ "legacy",
+            /* localizedOptionText= */ null,
+            /* legacyOptionText= */ ImmutableMap.of(Locale.US, "legacy option"),
+            /* displayInAnswerOptions= */ Optional.empty(),
+            /* score= */ Optional.of(4.5));
+
+    assertThat(option.score()).isEqualTo(Optional.of(4.5));
   }
 }

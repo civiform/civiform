@@ -10,6 +10,7 @@ import {
 type QuestionOption = {
   adminName: string
   text: string
+  score?: string
 }
 
 type QuestionParams = {
@@ -113,6 +114,10 @@ export class AdminQuestions {
     `:nth-match(#question-settings div.cf-multi-option-question-option, ${
       index + 1
     }) .multi-option-question-field-remove-button`
+  public static readonly multiOptionScoreInputSelector = (index: number) =>
+    `:nth-match(#question-settings div.cf-multi-option-question-option, ${
+      index + 1
+    }) .cf-multi-option-score-input input`
 
   constructor(page: Page) {
     this.page = page
@@ -1080,6 +1085,13 @@ export class AdminQuestions {
     )
   }
 
+  async changeMultiOptionScore(index: number, score: string) {
+    await this.page.fill(
+      AdminQuestions.multiOptionScoreInputSelector(index),
+      score,
+    )
+  }
+
   async addMultiOptionAnswer(option: QuestionOption) {
     await this.page.click('#add-new-option')
     const lastDiv = this.page
@@ -1101,6 +1113,13 @@ export class AdminQuestions {
       AdminQuestions.multiOptionAdminInputSelector(index),
       option.adminName,
     )
+
+    if (option.score) {
+      await this.page.fill(
+        AdminQuestions.multiOptionScoreInputSelector(index),
+        option.score,
+      )
+    }
   }
 
   async expectNewMultiOptionAnswer(index: number, option: QuestionOption) {
@@ -1125,6 +1144,27 @@ export class AdminQuestions {
     await expect(
       this.page.locator(AdminQuestions.multiOptionAdminInputSelector(index)),
     ).toBeEditable({editable: adminNameIsEditable})
+  }
+
+  async expectMultiOptionScoreInputHidden(index: number) {
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionScoreInputSelector(index)),
+    ).toBeHidden()
+  }
+
+  async expectMultiOptionScoreInputShown(index: number) {
+    await expect(
+      this.page.locator(AdminQuestions.multiOptionScoreInputSelector(index)),
+    ).toBeVisible()
+  }
+
+  async startCreatingQuestion(questionSelector: string) {
+    await this.page.click('text=Questions')
+    await waitForPageJsLoad(this.page)
+
+    await this.page.click('#create-question-button')
+    await this.page.click(questionSelector)
+    await waitForPageJsLoad(this.page)
   }
 
   async addCurrencyQuestion({

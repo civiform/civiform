@@ -22,7 +22,7 @@ import play.mvc.Result;
 import services.geojson.GeoJsonAccessException;
 import services.geojson.GeoJsonClient;
 import services.geojson.GeoJsonNotFoundException;
-import views.admin.questions.MapQuestionSettingsPartialView;
+import views.PartialView;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
 
 public final class GeoJsonApiController {
@@ -30,13 +30,13 @@ public final class GeoJsonApiController {
 
   private final FormFactory formFactory;
   private final GeoJsonClient geoJsonClient;
-  private final MapQuestionSettingsPartialView mapQuestionSettingsPartialView;
+  private final PartialView<MapQuestionSettingsPartialViewModel> mapQuestionSettingsPartialView;
 
   @Inject
   GeoJsonApiController(
       FormFactory formFactory,
       GeoJsonClient geoJsonClient,
-      MapQuestionSettingsPartialView mapQuestionSettingsPartialView) {
+      PartialView<MapQuestionSettingsPartialViewModel> mapQuestionSettingsPartialView) {
     this.formFactory = formFactory;
     this.geoJsonClient = geoJsonClient;
     this.mapQuestionSettingsPartialView = mapQuestionSettingsPartialView;

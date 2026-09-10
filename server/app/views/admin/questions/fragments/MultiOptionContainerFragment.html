@@ -8,12 +8,12 @@
   <div id="multi-option-container">
     <th:block th:each="optionText, stat : ${questionForm.getOptions()}">
       <div
-        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(false, ${questionForm.getOptionIds().get(stat.index)}, ${questionForm.getOptionAdminNames().get(stat.index)}, ${optionText}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(false, ${questionForm.getOptionIds().get(stat.index)}, ${questionForm.getOptionAdminNames().get(stat.index)}, ${optionText}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.showScores}, ${model.scoreDisplayValue(questionForm.getOptionScores(), stat.index)}, ${model.randomFieldId()})}"
       ></div>
     </th:block>
     <th:block th:each="newOptionText, stat : ${questionForm.getNewOptions()}">
       <div
-        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', ${questionForm.getNewOptionAdminNames().get(stat.index)}, ${newOptionText}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', ${questionForm.getNewOptionAdminNames().get(stat.index)}, ${newOptionText}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.showScores}, ${model.scoreDisplayValue(questionForm.getNewOptionScores(), stat.index)}, ${model.randomFieldId()})}"
       ></div>
     </th:block>
   </div>

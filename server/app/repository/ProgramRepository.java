@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
 import io.ebean.PagedList;
 import io.ebean.Query;
 import io.ebean.SqlRow;
@@ -104,6 +105,7 @@ public final class ProgramRepository {
         .find(ProgramModel.class)
         .setLabel("ProgramModel.findById")
         .setProfileLocation(queryProfileLocationBuilder.create("lookupProgramSync"))
+        .fetch("categories", FetchConfig.ofQuery())
         .where()
         .eq("id", id)
         .findOneOrEmpty();

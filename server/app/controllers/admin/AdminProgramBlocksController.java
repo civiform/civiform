@@ -170,14 +170,12 @@ public final class AdminProgramBlocksController extends CiviFormController {
             programService.addNestedRepeatedSetToProgram(
                 programId,
                 enumeratorId.get(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
                 programId,
                 enumeratorId.get(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       } else {
         result =
@@ -186,7 +184,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 BlockType.ENUMERATOR.equals(blockType.orElse(null))
                     ? Optional.of(true)
                     : Optional.empty(),
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
       }
       ProgramDefinition program = result.getResult().program();
@@ -208,7 +205,6 @@ public final class AdminProgramBlocksController extends CiviFormController {
             programService.addRepeatedBlockToProgram(
                 programId,
                 addedBlockId,
-                messagesApi.preferred(request),
                 settingsManifest.getEnumeratorImprovementsEnabled(request));
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));

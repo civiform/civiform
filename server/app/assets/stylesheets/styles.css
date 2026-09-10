@@ -75,6 +75,10 @@
     -moz-appearance: textfield;
   }
 
+  .double-indentation {
+    margin-left: 2.75rem;
+  }
+
   /**
    * USWDS's alignment strategy makes alerts look a little odd for us, so override
    * to remove the extra margin to make the alert body left-justified. It doesn't
@@ -213,6 +217,13 @@
   /* Fix pagination current page button color specificity issue */
   .usa-pagination .usa-current:visited {
     color: #fff;
+  }
+
+  /* Hide duplicate instructions and boxes when USWDS double-initializes and nests elements inside .usa-file-input__input */
+  .usa-file-input__input .usa-file-input__instructions,
+  .usa-file-input__input .usa-file-input__box,
+  .usa-file-input__input .usa-sr-only {
+    display: none !important;
   }
 
 }

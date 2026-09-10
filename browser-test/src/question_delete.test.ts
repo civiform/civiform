@@ -1,8 +1,15 @@
 import {test} from './support/civiform_fixtures'
-import {loginAsAdmin} from './support'
+import {enableFeatureFlag, loginAsAdmin} from './support'
 import {QuestionType} from './support/admin_questions'
 
 test.describe('deleting question lifecycle', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('create, publish, delete unused questions', async ({
     page,
     adminQuestions,

@@ -12,6 +12,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.inject.TypeLiteral;
 import java.util.HashMap;
 import java.util.Map;
 import junitparams.JUnitParamsRunner;
@@ -44,12 +45,14 @@ import services.program.predicate.PredicateUseCase;
 import services.program.predicate.PredicateValue;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import views.PartialView;
 import views.admin.programs.ProgramPredicateConfigureView;
 import views.admin.programs.ProgramPredicatesEditView;
-import views.admin.programs.predicates.ConditionListPartialView;
+import views.admin.programs.predicates.ConditionListPartialViewModel;
 import views.admin.programs.predicates.EditPredicatePageView;
-import views.admin.programs.predicates.FailedRequestPartialView;
-import views.admin.programs.predicates.SubconditionListPartialView;
+import views.admin.programs.predicates.FailedRequestPartialViewModel;
+import views.admin.programs.predicates.SubconditionListPartialViewModel;
+import views.shared.BaseViewDeps;
 
 @RunWith(JUnitParamsRunner.class)
 public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
@@ -87,9 +90,15 @@ public class AdminProgramBlockPredicatesControllerTest extends ResetPostgres {
             instanceOf(ProgramPredicatesEditView.class),
             instanceOf(ProgramPredicateConfigureView.class),
             instanceOf(EditPredicatePageView.class),
-            instanceOf(FailedRequestPartialView.class),
-            instanceOf(ConditionListPartialView.class),
-            instanceOf(SubconditionListPartialView.class),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(FailedRequestPartialViewModel.class)),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(ConditionListPartialViewModel.class)),
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(SubconditionListPartialViewModel.class)),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
             instanceOf(ProfileUtils.class),

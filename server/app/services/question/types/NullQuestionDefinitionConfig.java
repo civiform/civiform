@@ -100,6 +100,16 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     return Optional.empty();
   }
 
+  @Override
+  Optional<LocalizedStrings> localizedImageDescription() {
+    return Optional.empty();
+  }
+
+  @Override
+  Optional<String> imageFileKey() {
+    return Optional.empty();
+  }
+
   /** Used to create a new {@link Builder} based on an existing one. */
   public static class Builder extends QuestionDefinitionConfig.Builder {
 
@@ -203,6 +213,17 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
     @Override
     QuestionDefinitionConfig.Builder setQuestionHelpTextInternal(
         LocalizedStrings questionHelpText) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setLocalizedImageDescription(
+        Optional<LocalizedStrings> localizedImageDescription) {
+      return this;
+    }
+
+    @Override
+    public QuestionDefinitionConfig.Builder setImageFileKey(Optional<String> imageFileKey) {
       return this;
     }
 

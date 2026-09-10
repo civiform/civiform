@@ -75,6 +75,12 @@ export const validateScreenshot = async (
         })
       }
 
+      // Park the cursor in the corner. Playwright leaves the virtual mouse
+      // wherever it last clicked, so an element under that point renders with
+      // :hover styling and bakes it into the snapshot. That state is incidental
+      // and shifts when the bundled browser changes, so clear it first.
+      await page.mouse.move(0, 0)
+
       expect(fileName).toMatch(/^[a-z0-9-]+$/)
 
       // Full/desktop width

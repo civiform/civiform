@@ -141,6 +141,20 @@ public abstract class ProgramDefinition {
   @JsonProperty("eligibilityIsGating")
   public abstract boolean eligibilityIsGating();
 
+  /**
+   * Internal storage for {@link #usesScoring()}. Optional so that program exports created before
+   * the property existed still deserialize; a missing property reads as false. Use {@link
+   * #usesScoring()} instead.
+   */
+  @JsonProperty("usesScoring")
+  abstract Optional<Boolean> usesScoringInternal();
+
+  /** Whether the program applies answer-option scores to submitted applications. */
+  @JsonIgnore
+  public final boolean usesScoring() {
+    return usesScoringInternal().orElse(false);
+  }
+
   @JsonProperty("acls")
   public abstract ProgramAcls acls();
 
@@ -910,6 +924,13 @@ public abstract class ProgramDefinition {
 
     @JsonProperty("eligibilityIsGating")
     public abstract Builder setEligibilityIsGating(boolean eligibilityIsGating);
+
+    @JsonProperty("usesScoring")
+    abstract Builder setUsesScoringInternal(Optional<Boolean> usesScoring);
+
+    public final Builder setUsesScoring(boolean usesScoring) {
+      return setUsesScoringInternal(Optional.of(usesScoring));
+    }
 
     @JsonProperty("loginOnly")
     public abstract Builder setLoginOnly(boolean loginOnly);

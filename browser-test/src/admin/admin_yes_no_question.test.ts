@@ -38,6 +38,13 @@ test.describe('Yes/no options', () => {
 })
 
 test.describe('Yes/no translations', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('renders translation screen with pre-translated message only', async ({
     page,
     adminQuestions,
@@ -61,6 +68,21 @@ test.describe('Yes/no translations', () => {
         page.getByText('Yes/No question options are pre-translated.'),
       ).toBeVisible()
       await expect(page.getByText('Answer options')).toHaveCount(0)
+    })
+  })
+
+  test('optional question scores do not show up for yes/no questions', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('scores are hidden', async () => {
+      await adminQuestions.startCreatingQuestion('#create-yes_no-question')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
     })
   })
 })

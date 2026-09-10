@@ -1,0 +1,18 @@
+%NAME iconCheck - translation badge sizing (legacy QuestionsListView)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('h-4 w-4')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 960 960"
+  class="h-4 w-4"
+>
+  <path d="M378 810 154 586l43-43 181 181 384-384 43 43-427 427Z"></path>
+</svg>

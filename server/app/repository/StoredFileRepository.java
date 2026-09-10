@@ -56,22 +56,19 @@ public final class StoredFileRepository {
         dbExecutionContext);
   }
 
-  public CompletionStage<List<StoredFileModel>> lookupFilesByApplicant(Long applicantId) {
+  public List<StoredFileModel> lookupFilesByApplicant(Long applicantId) {
     // The strict prefix of the file name from the start of the name pattern.
     String fileNamePrefix =
         ApplicantFileNameFormatter.formatFilenameApplicantLookupPrefixString(applicantId);
-    return supplyAsync(
-        () ->
-            database
-                .find(StoredFileModel.class)
-                .setLabel("StoredFile.findListByApplicant")
-                .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicant"))
-                .where()
-                // Note: The indexes only support exact and prefix pattern
-                // matches as this is doing.
-                .like("name", fileNamePrefix + "%")
-                .findList(),
-        dbExecutionContext);
+    return database
+        .find(StoredFileModel.class)
+        .setLabel("StoredFile.findListByApplicant")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupFilesByApplicant"))
+        .where()
+        // Note: The indexes only support exact and prefix pattern
+        // matches as this is doing.
+        .like("name", fileNamePrefix + "%")
+        .findList();
   }
 
   public CompletionStage<Optional<StoredFileModel>> lookupFile(String keyName) {

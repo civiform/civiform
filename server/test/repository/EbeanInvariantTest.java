@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import io.ebean.BeanState;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Query;
@@ -12,10 +13,13 @@ import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
 import java.util.Locale;
+import java.util.concurrent.atomic.AtomicInteger;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
+import models.LifecycleStage;
 import models.QuestionModel;
+import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -541,6 +545,8 @@ public class EbeanInvariantTest extends ResetPostgres {
     }
   }
 
+  // **** Async tests
+
   /* Async
    *
    * Async code doesn't work with our Transaction setup.
@@ -591,6 +597,97 @@ public class EbeanInvariantTest extends ResetPostgres {
       // How may does the outer transaction see?
       int afterCount = database.find(AccountModel.class).findCount();
       assertThat(afterCount).isEqualTo(setInnerTransaction ? 3 : 2);
+    }
+  }
+
+  /**
+   * We can explicitly set transactions on queries, however their interaction with ebean is subtle.
+   * When a transaction is set it only works for the initial query and are not persisted for lazy
+   * loaded ones such as Many2Many relations. There is no way to force the transaction it uses.
+   *
+   * <p>We might set a transaction explicitly to handle that they are not automatically passed
+   * through async code; however there are hidden consequences based on the operations done in the
+   * async code.
+   */
+  @Test
+  @Parameters({"false", "true"})
+  public void async_settingTransactionWorksForLookupsButNotForLazyLoad(boolean resolveInAsync) {
+    // A version with no questions, committed before the transaction opens.
+    VersionModel version = new VersionModel(LifecycleStage.DRAFT);
+    version.save();
+    long versionId = version.id;
+
+    // Record the value from the async code to check after.
+    // If we assert in the async the error will not attribute correctly.
+    AtomicInteger countViaLookupInAsyncWithTransaction = new AtomicInteger(-1);
+
+    try (Transaction _ =
+        DB.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE))) {
+      Transaction outerTransaction = Transaction.current();
+
+      // Attach a question to the version. Ebean writes the versions_questions row from the
+      // question side. It is uncommitted, so only this transaction can see it.
+      QuestionModel question = new QuestionModel(QUESTION_DEFINITION);
+      question.addVersion(version);
+      question.save();
+
+      // This transaction sees the question.
+      int questionCount =
+          database.find(QuestionModel.class).where().eq("versions.id", versionId).findCount();
+      assertThat(questionCount).isEqualTo(1);
+
+      VersionModel versionFromAsync =
+          supplyAsync(
+                  () -> {
+                    // Binding to the transaction will see the question
+                    // inside async code.
+                    countViaLookupInAsyncWithTransaction.set(
+                        database
+                            .find(QuestionModel.class)
+                            .usingTransaction(outerTransaction)
+                            .where()
+                            .eq("versions.id", versionId)
+                            .findCount());
+
+                    // Using the same transaction fetch the VersionModel side
+                    // of the relation.
+                    VersionModel versionWithTransactionSet =
+                        database
+                            .find(VersionModel.class)
+                            .usingTransaction(outerTransaction)
+                            .where()
+                            .idEq(versionId)
+                            .findOne();
+
+                    // The value for getQuestions will depend on the
+                    // transaction context it is evaluated, and cached, in.
+                    // In the async work it will not see the question as
+                    // there is no implicit transaction.
+                    if (resolveInAsync) {
+                      versionWithTransactionSet.getQuestions();
+                    }
+
+                    return versionWithTransactionSet;
+                  })
+              .toCompletableFuture()
+              .join();
+
+      // Inside the Async with the transaction we saw the uncommited question.
+      assertThat(countViaLookupInAsyncWithTransaction.get()).isEqualTo(1);
+
+      // The lazy loaded value we get on the returned VersionModel depends on
+      // when it was evaluated. Inside the async it had no implicit transaction and
+      // did not see the question. Outside it implicitly has the transaction
+      // and now sees it.
+      assertThat(versionFromAsync.getQuestions().size()).isEqualTo(resolveInAsync ? 0 : 1);
+
+      // We can refresh and re-evaluate the cached value to what we expect.
+      // There are two ways to go about this.  .refresh triggers an immediate
+      // update. The following unsets the cached value and defers evaluation
+      // until its needed, if at all.
+      BeanState beanState = DB.beanState(versionFromAsync);
+      beanState.setPropertyLoaded("questions", false);
+      assertThat(versionFromAsync.getQuestions()).hasSize(1);
     }
   }
 }

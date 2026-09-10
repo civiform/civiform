@@ -1,5 +1,6 @@
 package services.question.types;
 
+import com.google.common.collect.ImmutableSet;
 import java.util.List;
 import java.util.Locale;
 import services.applicant.question.AbstractQuestion;
@@ -48,6 +49,9 @@ public enum QuestionType {
   private static final List<QuestionType> QUESTION_TYPES_SUPPORTING_SETTINGS =
       List.of(QuestionType.MAP);
 
+  private static final ImmutableSet<QuestionType> QUESTION_TYPES_SUPPORTING_OPTION_SCORES =
+      ImmutableSet.of(QuestionType.CHECKBOX, QuestionType.DROPDOWN, QuestionType.RADIO_BUTTON);
+
   QuestionType(String label, Class<? extends AbstractQuestion> supportedQuestion) {
     this.label = label;
     this.supportedQuestion = supportedQuestion;
@@ -61,6 +65,19 @@ public enum QuestionType {
    */
   public static boolean supportsQuestionSettings(QuestionType questionType) {
     return QUESTION_TYPES_SUPPORTING_SETTINGS.contains(questionType);
+  }
+
+  /**
+   * Determines if a {@link QuestionType} supports optional scores on its answer options.
+   *
+   * <p>This is deliberately narrower than {@link #isMultiOptionType()}: Yes/No questions are
+   * multi-option but must never carry scores.
+   *
+   * @param questionType a {@link QuestionType}
+   * @return boolean to indicate whether the question type supports option scores
+   */
+  public static boolean supportsOptionScores(QuestionType questionType) {
+    return QUESTION_TYPES_SUPPORTING_OPTION_SCORES.contains(questionType);
   }
 
   /**

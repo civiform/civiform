@@ -4,7 +4,6 @@ package forms;
 public final class BlockForm {
   private String name;
   private String description;
-  private String namePrefix;
   private boolean isRepeated;
 
   public BlockForm(String name, String description) {
@@ -12,17 +11,15 @@ public final class BlockForm {
     this.description = description;
   }
 
-  public BlockForm(String name, String description, String namePrefix, boolean isRepeated) {
+  public BlockForm(String name, String description, boolean isRepeated) {
     this.name = name;
     this.description = description;
-    this.namePrefix = namePrefix;
     this.isRepeated = isRepeated;
   }
 
   public BlockForm() {
     name = "";
     description = "";
-    namePrefix = "";
     isRepeated = false;
   }
 
@@ -48,13 +45,5 @@ public final class BlockForm {
 
   public void setIsRepeated(boolean isRepeated) {
     this.isRepeated = isRepeated;
-  }
-
-  public String getNamePrefix() {
-    return this.namePrefix;
-  }
-
-  public void setNamePrefix(String namePrefix) {
-    this.namePrefix = namePrefix;
   }
 }

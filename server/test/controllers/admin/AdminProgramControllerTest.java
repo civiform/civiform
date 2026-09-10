@@ -21,7 +21,6 @@ import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.data.FormFactory;
-import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.ProgramRepository;
@@ -88,7 +87,6 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),
             instanceOf(RequestChecker.class),
-            instanceOf(MessagesApi.class),
             instanceOf(SettingsManifest.class));
   }
 
@@ -198,6 +196,66 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     ProgramModel updatedDraft = getDraftProgram();
     assertThat(updatedDraft.getProgramDefinition().eligibilityIsGating()).isTrue();
+  }
+
+  @Test
+  public void create_usesScoring_flagEnabled_savesSetting() {
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.create(
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build());
+
+    assertThat(getDraftProgram().getProgramDefinition().usesScoring()).isTrue();
+  }
+
+  @Test
+  public void create_usesScoring_flagDisabled_craftedPostCannotEnable() {
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
+
+    assertThat(getDraftProgram().getProgramDefinition().usesScoring()).isFalse();
+  }
+
+  @Test
+  public void update_usesScoring_flagEnabled_roundTrips() throws Exception {
+    ProgramModel program = ProgramBuilder.newDraftProgram("Scoring program").build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    formData.put("usesScoring", "true");
+
+    controller.update(
+        fakeRequestBuilder()
+            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
+            .bodyForm(formData)
+            .build(),
+        program.id,
+        ProgramEditStatus.EDIT.name());
+
+    ProgramModel found =
+        programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().usesScoring()).isTrue();
+  }
+
+  @Test
+  public void update_usesScoring_flagDisabled_preservesStoredSetting() throws Exception {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("Scoring program").withUsesScoring(true).build();
+    Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
+    // Crafted post attempts to disable scoring while the flag is off; the input is not rendered,
+    // so the stored value must survive.
+    formData.put("usesScoring", "false");
+
+    controller.update(
+        fakeRequestBuilder().bodyForm(formData).build(), program.id, ProgramEditStatus.EDIT.name());
+
+    ProgramModel found =
+        programRepository.lookupProgram(program.id).toCompletableFuture().join().get();
+    assertThat(found.getProgramDefinition().usesScoring()).isTrue();
   }
 
   @Test

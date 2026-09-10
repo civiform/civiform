@@ -41,4 +41,30 @@ public class QuestionTypeTest {
   public void of_lowercase() throws InvalidQuestionTypeException {
     assertThat(QuestionType.of("text")).isEqualTo(QuestionType.TEXT);
   }
+
+  @Test
+  public void supportsOptionScores_trueForCheckboxDropdownRadio() {
+    assertThat(QuestionType.supportsOptionScores(QuestionType.CHECKBOX)).isTrue();
+    assertThat(QuestionType.supportsOptionScores(QuestionType.DROPDOWN)).isTrue();
+    assertThat(QuestionType.supportsOptionScores(QuestionType.RADIO_BUTTON)).isTrue();
+  }
+
+  @Test
+  public void supportsOptionScores_falseForYesNo() {
+    // Yes/No is a multi-option type but must never support scoring.
+    assertThat(QuestionType.YES_NO.isMultiOptionType()).isTrue();
+    assertThat(QuestionType.supportsOptionScores(QuestionType.YES_NO)).isFalse();
+  }
+
+  @Test
+  public void supportsOptionScores_falseForAllOtherTypes() {
+    for (QuestionType type : QuestionType.values()) {
+      if (type == QuestionType.CHECKBOX
+          || type == QuestionType.DROPDOWN
+          || type == QuestionType.RADIO_BUTTON) {
+        continue;
+      }
+      assertThat(QuestionType.supportsOptionScores(type)).isFalse();
+    }
+  }
 }

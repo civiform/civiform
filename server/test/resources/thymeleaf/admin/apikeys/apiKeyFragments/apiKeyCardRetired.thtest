@@ -1,0 +1,55 @@
+%NAME apiKeyCard - retired key shows when it was retired and drops the retire form
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+apiKey = @views.admin.apikeys.ApiKeyIndexPageViewModel$ApiKey@builder() \
+    .name("Test API key").status("retired").nameSlug("test-api-key") \
+    .keyId("key-id").subnets("1.1.1.1/32") \
+    .expirationDate("2100-01-01") \
+    .createdDate("2024/01/01 at 9:00 AM PST") \
+    .createdBy("admin@example.com") \
+    .lastCallIp("1.1.1.1").callCount(2L) \
+    .retired(true).retiredDate("Mon, 1 Jan 2024 09:00:00 GMT") \
+    .grants(@com.google.common.collect.ImmutableList@of()) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/apikeys/fragments/ApiKeyCard :: apiKeyCard(${apiKey})}"></div>
+# ----------------------------------------------------------------------
+# A key with no grants still renders the (header-only) table, as the legacy
+# view did.
+%OUTPUT
+<div class="w-full shadow-lg mb-6">
+  <div class="border border-gray-300 bg-white rounded p-4">
+    <h2 class="mb-2 cf-api-key-name">
+      Test API key<span class="text-gray-700 text-sm"> retired</span>
+    </h2>
+    <div class="flex place-content-between">
+      <div>
+        <div>
+          <p class="cf-bt-api-key-id">ID: key-id</p>
+          <p class="text-gray-700 text-sm">Allowed subnets: 1.1.1.1/32</p>
+          <p class="text-gray-700 text-sm cf-bt-date">Expires on: 2100-01-01</p>
+        </div>
+      </div>
+      <div class="text-xs">
+        <p class="cf-bt-date">Created 2024/01/01 at 9:00 AM PST</p>
+        <p class="cf-bt-api-key-created-by">Created by admin@example.com</p>
+        <p id="test-api-key-last-call-ip">Last used by 1.1.1.1</p>
+        <p id="test-api-key-call-count">Call count: 2</p>
+        <p>Retired Mon, 1 Jan 2024 09:00:00 GMT</p>
+      </div>
+    </div>
+    <div class="flex place-content-between mt-4">
+      <table class="table-auto w-2/3">
+        <tr>
+          <th class="text-left text-sm">Program name</th>
+          <th class="text-left text-sm">Program slug</th>
+          <th class="text-left text-sm">Permission</th>
+        </tr>
+      </table>
+      <div class="flex">
+      </div>
+    </div>
+  </div>
+</div>

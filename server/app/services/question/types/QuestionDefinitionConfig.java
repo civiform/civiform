@@ -62,6 +62,12 @@ public abstract class QuestionDefinitionConfig {
   @JsonIgnore
   abstract Optional<Instant> lastModifiedTime();
 
+  @JsonProperty("localizedImageDescription")
+  abstract Optional<LocalizedStrings> localizedImageDescription();
+
+  @JsonIgnore
+  abstract Optional<String> imageFileKey();
+
   @JsonIgnore
   abstract Optional<UUID> concurrencyToken();
 
@@ -160,6 +166,21 @@ public abstract class QuestionDefinitionConfig {
 
     @JsonProperty("questionSettings")
     public abstract Builder setQuestionSettings(ImmutableSet<QuestionSetting> questionSettings);
+
+    public Builder setLocalizedImageDescription(LocalizedStrings localizedImageDescription) {
+      return setLocalizedImageDescription(Optional.of(localizedImageDescription));
+    }
+
+    @JsonProperty("localizedImageDescription")
+    public abstract Builder setLocalizedImageDescription(
+        Optional<LocalizedStrings> localizedImageDescription);
+
+    public Builder setImageFileKey(String imageFileKey) {
+      return setImageFileKey(Optional.of(imageFileKey));
+    }
+
+    @JsonIgnore
+    public abstract Builder setImageFileKey(Optional<String> imageFileKey);
 
     public abstract QuestionDefinitionConfig build();
   }

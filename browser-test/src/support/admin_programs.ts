@@ -776,7 +776,9 @@ export class AdminPrograms {
    */
   async expectReadOnlyProgramBlock(blockId: string) {
     // The block info shows us we are viewing a block.
-    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    await expect(
+      this.page.locator('id=block-info-display-' + blockId),
+    ).toBeVisible()
     // The absence of one of the edit buttons ensures it is the read only view.
     await expect(
       this.page.locator('id=block-description-modal-button'),
@@ -991,6 +993,21 @@ export class AdminPrograms {
       // look like a checkbox. The actual input element is visually hidden or positioned
       // off-screen, making it inaccessible to Playwright's direct interactions.
       await this.page.locator('label[for="login-only-applications"]').click()
+    }
+  }
+
+  async setShouldUseApplicationScoring(checked: boolean) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: 'Enable application scoring',
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page.locator('label[for="program-uses-scoring"]').click()
     }
   }
 

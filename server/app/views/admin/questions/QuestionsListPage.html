@@ -1,0 +1,521 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.questions.QuestionsListPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* Flash toasts, consumed by toast.ts. The legacy layout rendered these
+       in the page header; they are hidden data divs, so position does not
+       matter. */-->
+  <div
+    th:each="toast : ${model.toasts}"
+    class="hidden cf-toast-data"
+    th:id="${toast.id}"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    th:attr="canDismiss=${toast.canDismiss} ? 'true' : 'false', toastType=${toast.type}"
+    th:text="${toast.message}"
+  ></div>
+
+  <div class="px-4">
+    <div class="content-div space-x-4">
+      <h1>All questions</h1>
+      <div class="flex-grow"></div>
+      <!--/* "Create new question" button and dropdown
+           (CreateQuestionButton.renderCreateQuestionButtonForQuestionListPage) */-->
+      <div class="relative">
+        <button
+          id="create-question-button"
+          type="button"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        >
+          Create new question
+        </button>
+        <div
+          id="create-question-button-dropdown"
+          data-testid="create-question-button-dropdown"
+          class="z-50 border bg-white text-gray-600 shadow-lg absolute ml-3 mt-1 pb-3 hidden"
+        >
+          <a
+            th:each="option : ${model.createQuestionOptions}"
+            th:href="${option.url}"
+            th:id="${option.id}"
+            class="block p-3 bg-white text-gray-600 hover:bg-gray-100 hover:text-gray-800"
+          >
+            <!--/* The fragment name is preprocessed (__...__) because it
+                 varies per question type. The values come from the mapper's
+                 fixed QuestionType switch, never from user input. */-->
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: __${option.iconFragment}__('inline-block h-6 w-6 mr-1 text-sm', ${option.svgLinkId})}"
+            ></svg>
+            <p class="ml-2 mr-4 inline text-sm" th:text="${option.label}"></p>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!--/* Filter and sort (QuestionBank.renderFilterAndSort) */-->
+    <div class="flex items-end mb-2">
+      <div class="flex-grow mr-4 relative">
+        <div class="absolute ml-4 mt-3 mr-4">
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconSearch('h-4 w-4')}"
+          ></svg>
+        </div>
+        <input
+          id="question-bank-filter"
+          type="text"
+          name="questionFilter"
+          placeholder="Search questions"
+          th:value="${model.filterValue}"
+          class="h-10 px-10 pr-5 w-full rounded-full text-sm border border-gray-200 shadow focus:outline-none"
+        />
+      </div>
+      <!--/* Sort select. The container class is only mb-0 because the legacy
+           code's final withClass call replaced the classes j2html's
+           FieldWithLabel had set. */-->
+      <div class="mb-0">
+        <label
+          for="question-bank-sort"
+          class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >Sort by:<span class="usa-hint--required hidden" aria-hidden="true"
+            >&nbsp;*</span
+          ></label
+        >
+        <div class="flex flex-col">
+          <select
+            id="question-bank-sort"
+            name=""
+            maxlength="10000"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
+          >
+            <option value="" hidden></option>
+            <optgroup label="Sort by:">
+              <option
+                th:each="sortOption : ${model.sortOptions}"
+                class="cf-multi-option-question-option cf-multi-option-value"
+                th:value="${sortOption.value}"
+                th:selected="${sortOption.selected}"
+                th:text="${sortOption.label}"
+              ></option>
+            </optgroup>
+          </select>
+          <div
+            id="question-bank-sort-errors"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <div>
+        <th:block th:if="${!model.universalRows.isEmpty()}">
+          <div id="questions-list-universal" class="cf-sortable-questions">
+            <h2 class="mt-8 font-semibold">Universal questions</h2>
+            <div
+              class="usa-alert usa-alert--info usa-alert--slim"
+              aria-live="polite"
+              role="alert"
+            >
+              <div class="usa-alert__body">
+                <p class="usa-alert__text">
+                  We recommend using Universal questions in your program for all
+                  personal and contact information questions.
+                </p>
+              </div>
+            </div>
+            <th:block th:each="row : ${model.universalRows}">
+              <div th:replace="~{:: questionCard(${row})}"></div>
+            </th:block>
+          </div>
+        </th:block>
+        <div id="questions-list-non-universal" class="cf-sortable-questions">
+          <h2
+            th:if="${!model.universalRows.isEmpty()}"
+            class="mt-8 font-semibold"
+          >
+            All other questions
+          </h2>
+          <th:block th:each="row : ${model.otherRows}">
+            <div th:replace="~{:: questionCard(${row})}"></div>
+          </th:block>
+        </div>
+        <th:block th:if="${!model.archivedRows.isEmpty()}">
+          <div id="questions-list-archived">
+            <h2 class="mt-8 font-semibold">Marked for archival</h2>
+            <th:block th:each="row : ${model.archivedRows}">
+              <div th:replace="~{:: questionCard(${row})}"></div>
+            </th:block>
+          </div>
+        </th:block>
+      </div>
+    </div>
+    <div
+      class="question-summary"
+      th:text="|Total questions: ${model.totalQuestionCount}|"
+    ></div>
+  </div>
+</th:block>
+
+<!--/* Modals, inserted by the layout into #modal-container. */-->
+<th:block th:fragment="modals">
+  <div
+    th:each="modal : ${model.modals}"
+    th:id="${modal.id}"
+    tabindex="0"
+    th:attr="aria-labelledby=|${modal.id}-title|"
+    class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12"
+    th:classappend="|${modal.widthClass} top-1/2|"
+  >
+    <div
+      th:id="|${modal.id}-title|"
+      class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+    >
+      <div
+        class="text-2xl text-gray-600 my-5 mx-4"
+        th:text="${modal.title}"
+      ></div>
+      <!--/* Spacer so the close button and title don't overlap. */-->
+      <div class="w-12"></div>
+    </div>
+    <div class="my-5 mx-6">
+      <th:block th:switch="${modal.type.name()}">
+        <th:block th:case="'REFERENCING_PROGRAMS'">
+          <div
+            th:replace="~{:: referencingProgramsModalContent(${modal})}"
+          ></div>
+        </th:block>
+        <th:block th:case="'DISCARD_DRAFT'">
+          <div th:replace="~{:: discardDraftModalContent(${modal})}"></div>
+        </th:block>
+      </th:block>
+    </div>
+    <button
+      type="button"
+      aria-label="Close"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+      ></svg>
+    </button>
+  </div>
+</th:block>
+
+<!--/* Content of the "Programs referencing <question>" modal. */-->
+<div
+  th:fragment="referencingProgramsModalContent(modal)"
+  class="flex-row space-y-6"
+>
+  <div
+    th:if="${modal.showCantArchiveHeader}"
+    class="p-2 border border-gray-400 bg-gray-200 text-sm"
+  >
+    <span
+      th:text="'This question cannot be archived since there are still programs using it. Please remove all usages from the below programs before attempting to archive.'"
+    ></span>
+  </div>
+  <div
+    th:if="${!modal.usedProgramNames.isEmpty()}"
+    class="cf-admin-question-program-reference-counts-used"
+  >
+    <div>
+      <p class="font-semibold">This question is used in:</p>
+      <div>
+        <ul class="list-disc list-inside">
+          <li th:each="name : ${modal.usedProgramNames}" th:text="${name}"></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div
+    th:if="${!modal.addedProgramNames.isEmpty()}"
+    class="cf-admin-question-program-reference-counts-added"
+  >
+    <div>
+      <p class="font-semibold">This question is added to:</p>
+      <div>
+        <ul class="list-disc list-inside">
+          <li
+            th:each="name : ${modal.addedProgramNames}"
+            th:text="${name}"
+          ></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div
+    th:if="${!modal.removedProgramNames.isEmpty()}"
+    class="cf-admin-question-program-reference-counts-removed"
+  >
+    <div>
+      <p class="font-semibold">This question is removed from:</p>
+      <div>
+        <ul class="list-disc list-inside">
+          <li
+            th:each="name : ${modal.removedProgramNames}"
+            th:text="${name}"
+          ></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <!--/* Plain text (not a th:text string literal) because the sentence
+       contains an apostrophe, which would prematurely close a single-quoted
+       Thymeleaf expression. It is a standalone paragraph, so prettier
+       wrapping only introduces collapsible whitespace. */-->
+  <p class="text-sm">
+    Note: This list does not automatically refresh. If edits are made to a
+    program in a separate tab, they won't be reflected until the page has been
+    refreshed.
+  </p>
+</div>
+
+<!--/* Content of the "Discard draft?" confirmation modal. */-->
+<div
+  th:fragment="discardDraftModalContent(modal)"
+  class="p-6 flex-row space-y-6"
+>
+  <p>Are you sure you want to discard this draft?</p>
+  <button
+    id="discard-button"
+    class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+    th:attr="form=${modal.discardFormId}"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
+    ></svg
+    ><span class="text-left">Discard</span>
+    <form
+      th:id="${modal.discardFormId}"
+      class="hidden"
+      method="POST"
+      th:action="${modal.discardUrl}"
+    >
+      <input
+        hidden
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+    </form>
+  </button>
+</div>
+
+<!--/* One question card: universal badge, info cell, referencing programs
+     cell, draft/active rows, and the admin note. */-->
+<div
+  th:fragment="questionCard(row)"
+  class="cf-question-bank-element question-bank-element cf-admin-question-table-row"
+  th:attr="data-adminname=${row.adminName}, data-lastmodified=${row.lastModified}, data-numprograms=${row.numReferencingPrograms}"
+>
+  <div
+    th:if="${row.universalBadgeText != null}"
+    class="rounded-lg flex max-w-fit px-2 py-1 space-x-1 text-white bg-civiform-teal cf-universal-badge mt-4"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconStar('flex h-6 w-4')}"
+    ></svg
+    ><span th:text="${row.universalBadgeText}"></span>
+  </div>
+  <div class="flex">
+    <!--/* Info cell */-->
+    <div class="py-7 w-1/4 flex flex-col justify-between">
+      <div>
+        <div class="question-bank-info-cell">
+          <!--/* Preprocessed fragment name; values come from the mapper's
+               fixed QuestionType switch, never from user input. */-->
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: __${row.iconFragment}__('w-6 h-6 shrink-0', null)}"
+          ></svg>
+          <div
+            class="cf-question-title pl-4 text-xl break-words max-w-full"
+            th:utext="${row.questionTextHtml}"
+          ></div>
+        </div>
+        <div>
+          <div class="pl-10" th:utext="${row.helpTextHtml}"></div>
+        </div>
+      </div>
+    </div>
+    <!--/* Referencing programs cell */-->
+    <div
+      class="cf-admin-question-program-reference-counts ml-4 xl:ml-10 py-7 w-1/4"
+    >
+      <p th:each="line : ${row.referencingLines}" th:text="${line}"></p>
+      <a
+        th:if="${row.seeListTriggerId != null}"
+        th:id="${row.seeListTriggerId}"
+        class="cursor-pointer font-medium underline text-civiform-blue hover:text-black"
+        >See list</a
+      >
+    </div>
+    <div class="flex-grow">
+      <th:block th:if="${row.draftRow != null}">
+        <div th:replace="~{:: versionRow(${row.draftRow})}"></div>
+      </th:block>
+      <th:block th:if="${row.activeRow != null}">
+        <div th:replace="~{:: versionRow(${row.activeRow})}"></div>
+      </th:block>
+    </div>
+  </div>
+  <div class="py-7">
+    <span class="font-bold" th:text="'Admin ID: '"></span
+    ><span th:text="${row.adminName}"></span><br /><span
+      class="font-bold"
+      th:text="'Admin note: '"
+    ></span
+    ><span th:text="${row.adminDescription}"></span>
+  </div>
+</div>
+
+<!--/* One "draft" or "active" row within a question card. */-->
+<div
+  th:fragment="versionRow(v)"
+  class="py-7 row-element"
+  th:classappend="${v.secondRow} ? 'border-t' : ''"
+>
+  <p
+    th:class="|${v.badgeBgClass} ${v.badgeTextClass} font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8|"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconNoiseControlOff('inline-block w-5 h-5')}"
+    ></svg
+    ><span class="mr-1" th:text="${v.badgeText}"></span>
+  </p>
+  <div class="flex-grow"></div>
+  <div class="ml-4 xl:ml-10">
+    <p>
+      <span th:text="'Edited on '"></span
+      ><span
+        class="cf-bt-date font-semibold hidden lg:inline"
+        th:text="${v.editedOnTimeText}"
+      ></span
+      ><span
+        class="cf-bt-date font-semibold lg:hidden"
+        th:text="${v.editedOnDateText}"
+      ></span>
+    </p>
+    <div th:if="${v.translationComplete}" class="flex items-center gap-1">
+      Translation complete<svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('h-4 w-4')}"
+      ></svg>
+    </div>
+    <div th:if="${!v.translationComplete}" class="flex items-center gap-1">
+      Translation incomplete<svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconClose('h-4 w-4')}"
+      ></svg>
+    </div>
+  </div>
+  <!--/* Actions cell */-->
+  <div class="flex space-x-2 pr-6 font-medium">
+    <button
+      class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+      th:classappend="${v.editVisible} ? '' : 'invisible'"
+      th:attr="data-redirect-to=${v.editUrl}"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconEdit('inline-block h-4.5 w-4.5')}"
+      ></svg
+      ><span class="text-left">Edit</span>
+    </button>
+    <div class="relative">
+      <button
+        th:id="${v.extraActionsButtonId}"
+        class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12"
+        th:classappend="${v.hasExtraActions} ? '' : 'invisible'"
+      >
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconMoreVert('inline-block h-4.5 w-4.5')}"
+        ></svg
+        ><span class="text-left"></span>
+      </button>
+      <div
+        th:id="|${v.extraActionsButtonId}-dropdown|"
+        class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+      >
+        <th:block th:each="action : ${v.extraActions}">
+          <th:block th:switch="${action.kind.name()}">
+            <th:block th:case="'TRANSLATE'">
+              <button
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+                th:attr="data-redirect-to=${action.url}"
+              >
+                <svg
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconTranslate('inline-block h-4.5 w-4.5')}"
+                ></svg
+                ><span class="text-left">Manage translations</span>
+              </button>
+            </th:block>
+            <th:block th:case="'DISCARD'">
+              <button
+                th:id="${action.triggerButtonId}"
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+              >
+                <svg
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
+                ></svg
+                ><span class="text-left">Discard Draft</span>
+              </button>
+            </th:block>
+            <th:block th:case="'ARCHIVE'">
+              <button
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+                th:attr="form=${action.formId}"
+              >
+                <svg
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconArchive('inline-block h-4.5 w-4.5')}"
+                ></svg
+                ><span class="text-left">Archive</span>
+                <form
+                  th:id="${action.formId}"
+                  class="hidden"
+                  method="POST"
+                  th:action="${action.url}"
+                >
+                  <input
+                    hidden
+                    th:value="${templateGlobals.csrfToken()}"
+                    name="csrfToken"
+                  />
+                </form>
+              </button>
+            </th:block>
+            <th:block th:case="'RESTORE'">
+              <button
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+                th:attr="form=${action.formId}"
+              >
+                <svg
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconUnarchive('inline-block h-4.5 w-4.5')}"
+                ></svg
+                ><span class="text-left">Restore archived</span>
+                <form
+                  th:id="${action.formId}"
+                  class="hidden"
+                  method="POST"
+                  th:action="${action.url}"
+                >
+                  <input
+                    hidden
+                    th:value="${templateGlobals.csrfToken()}"
+                    name="csrfToken"
+                  />
+                </form>
+              </button>
+            </th:block>
+            <th:block th:case="'ARCHIVE_BLOCKED'">
+              <button
+                th:id="${action.triggerButtonId}"
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+              >
+                <svg
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconArchive('inline-block h-4.5 w-4.5')}"
+                ></svg
+                ><span class="text-left">Archive</span>
+              </button>
+            </th:block>
+          </th:block>
+        </th:block>
+      </div>
+    </div>
+  </div>
+</div>

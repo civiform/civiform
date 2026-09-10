@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableMap;
+import java.math.BigDecimal;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.OptionalLong;
@@ -39,6 +40,13 @@ public abstract class QuestionOption {
   public abstract Optional<Boolean> displayInAnswerOptions();
 
   /**
+   * The score this option contributes to a submitted application, for programs that use scoring.
+   * Never shown to applicants. Absent means unscored, which is distinct from a score of 0.
+   */
+  @JsonProperty("score")
+  public abstract Optional<Double> score();
+
+  /**
    * Create a QuestionOption, used for JSON mapping to account for the legacy `optionText`.
    *
    * <p>Legacy QuestionOptions from before early May 2021 will not have `localizedOptionText`.
@@ -50,16 +58,20 @@ public abstract class QuestionOption {
       @JsonProperty("adminName") String adminName,
       @JsonProperty("localizedOptionText") LocalizedStrings localizedOptionText,
       @JsonProperty("optionText") ImmutableMap<Locale, String> legacyOptionText,
-      @JsonProperty("displayInAnswerOptions") Optional<Boolean> displayInAnswerOptions) {
+      @JsonProperty("displayInAnswerOptions") Optional<Boolean> displayInAnswerOptions,
+      @JsonProperty("score") Optional<Double> score) {
     if (displayOrder == -1) {
       displayOrder = id;
     }
     if (localizedOptionText != null) {
       return QuestionOption.create(
-          id, displayOrder, adminName, localizedOptionText, displayInAnswerOptions);
+          id, displayOrder, adminName, localizedOptionText, displayInAnswerOptions, score);
     }
     return QuestionOption.create(
-        id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText));
+            id, displayOrder, adminName, LocalizedStrings.create(legacyOptionText))
+        .toBuilder()
+        .setScore(score)
+        .build();
   }
 
   /**
@@ -123,6 +135,44 @@ public abstract class QuestionOption {
         .build();
   }
 
+  /**
+   * Create a {@link QuestionOption}.
+   *
+   * @param id the option id
+   * @param displayOrder the option display
+   * @param adminName the option's immutable admin name, exposed via the API
+   * @param optionText the option's user-facing text
+   * @param displayInAnswerOptions whether to show the option to the applicant
+   * @param score the score the option contributes to a scored application, absent if unscored
+   * @return the {@link QuestionOption}
+   */
+  public static QuestionOption create(
+      long id,
+      long displayOrder,
+      String adminName,
+      LocalizedStrings optionText,
+      Optional<Boolean> displayInAnswerOptions,
+      Optional<Double> score) {
+    return QuestionOption.builder()
+        .setId(id)
+        .setAdminName(adminName)
+        .setOptionText(optionText)
+        .setDisplayOrder(OptionalLong.of(displayOrder))
+        .setDisplayInAnswerOptions(displayInAnswerOptions)
+        .setScore(score)
+        .build();
+  }
+
+  /**
+   * Canonical admin-facing rendering of a score value: plain decimal notation with trailing zeros
+   * stripped, so {@code 2.0} renders as {@code 2} and {@code 1.50} as {@code 1.5}. Used everywhere
+   * a score is displayed (question form inputs, PDFs, CSV cells); JSON output emits raw numbers
+   * instead.
+   */
+  public static String formatScore(double score) {
+    return BigDecimal.valueOf(score).stripTrailingZeros().toPlainString();
+  }
+
   public LocalizedQuestionOption localize(Locale locale) {
     if (!optionText().hasTranslationFor(locale)) {
       throw new RuntimeException(
@@ -180,6 +230,13 @@ public abstract class QuestionOption {
 
     @JsonProperty("displayInAnswerOptions")
     public abstract Builder setDisplayInAnswerOptions(Optional<Boolean> displayInAnswerOptions);
+
+    @JsonProperty("score")
+    public abstract Builder setScore(Optional<Double> score);
+
+    public Builder setScore(double score) {
+      return setScore(Optional.of(score));
+    }
 
     public abstract QuestionOption build();
   }

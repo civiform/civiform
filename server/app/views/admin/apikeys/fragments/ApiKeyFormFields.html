@@ -1,0 +1,66 @@
+<!--/*
+  Form fields for the new API key page.
+
+  These are not the shared admin/shared/LegacyFieldWithLabel fragments because
+  those render neither an input type nor the field errors a rejected form
+  carries, both of which this page needs.
+
+  Legacy counterpart: FieldWithLabel.input()/date()/checkbox() as used by
+  ApiKeyNewOneView.
+*/-->
+
+<!--/*
+  id: the form key, used as both the input id and name, as in the legacy view.
+  errorMessage: null when the field has no error, already prefixed "Error: ".
+*/-->
+<div
+  th:fragment="inputField(id, label, type, value, errorMessage)"
+  class="mb-2"
+  th:with="hasError=${errorMessage != null}"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <!--/* The a11y attributes only appear when the field has an error, matching
+           FieldWithLabel, and the error border replaces the gray one. */-->
+    <input
+      th:type="${type}"
+      th:value="${value}"
+      th:attr="aria-describedby=${hasError} ? |${id}-errors|, aria-invalid=${hasError} ? 'true'"
+      maxlength="10000"
+      th:id="${id}"
+      th:name="${id}"
+      th:class="${hasError} ? 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600' : 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500'"
+    />
+    <div
+      th:id="|${id}-errors|"
+      class="text-red-600 text-xs p-1"
+      th:classappend="${hasError} ? '' : 'hidden'"
+    >
+      <div th:if="${hasError}" th:text="${errorMessage}"></div>
+    </div>
+  </div>
+</div>
+
+<!--/*@thymesVar id="program" type="views.admin.apikeys.ApiKeyNewOnePageViewModel.ProgramCheckbox"*/-->
+<!--/* The label wraps the checkbox, so no whitespace may creep in between the
+       input and the program name. */-->
+<label
+  th:fragment="programCheckbox(program)"
+  class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+  th:for="${program.id}"
+  ><input
+    type="checkbox"
+    value="true"
+    maxlength="10000"
+    th:id="${program.id}"
+    th:name="${program.name}"
+    class="h-4 w-4 mr-4 align-middle self-center flex-none"
+    th:checked="${program.checked}"
+  />[[${program.label}]]</label
+>

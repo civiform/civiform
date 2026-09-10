@@ -1,0 +1,21 @@
+%NAME iconMap - create-question dropdown sizing and svg-link id (legacy CreateQuestionButton)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconMap('inline-block h-6 w-6 mr-1 text-sm', 'svg-link-map')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  class="inline-block h-6 w-6 mr-1 text-sm"
+  id="svg-link-map"
+>
+  <path
+    d="m20.5 3-.16.03L15 5.1 9 3 3.36 4.9c-.21.07-.36.25-.36.48V20.5c0 .28.22.5.5.5l.16-.03L9 18.9l6 2.1 5.64-1.9c.21-.07.36-.25.36-.48V3.5c0-.28-.22-.5-.5-.5zM15 19l-6-2.11V5l6 2.11V19z"
+  ></path>
+</svg>

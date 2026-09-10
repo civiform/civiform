@@ -4,7 +4,6 @@ import static controllers.dev.seeding.SampleQuestionDefinitions.ADDRESS_QUESTION
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import models.CategoryModel;
 import models.LifecycleStage;
@@ -12,8 +11,6 @@ import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
-import play.i18n.Messages;
-import play.i18n.MessagesApi;
 import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.QuestionRepository;
@@ -27,7 +24,6 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
   private ProgramRepository programRepository;
   private CategoryRepository categoryRepository;
   private DevDatabaseSeedTask devDatabaseSeedTask;
-  private Messages messages;
 
   @Before
   public void setUp() {
@@ -35,7 +31,6 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
     programRepository = instanceOf(ProgramRepository.class);
     categoryRepository = instanceOf(CategoryRepository.class);
     devDatabaseSeedTask = instanceOf(DevDatabaseSeedTask.class);
-    messages = instanceOf(MessagesApi.class).preferred(ImmutableSet.of(Lang.defaultLang()));
   }
 
   @Test
@@ -66,9 +61,9 @@ public class DevDatabaseSeedTaskTest extends ResetPostgres {
     ImmutableList<QuestionDefinition> seededQuestions = devDatabaseSeedTask.seedQuestions();
 
     devDatabaseSeedTask.insertMinimalSampleProgram(
-        seededQuestions, messages, /* enumeratorImprovementsEnabled= */ false);
+        seededQuestions, /* enumeratorImprovementsEnabled= */ false);
     devDatabaseSeedTask.insertComprehensiveSampleProgram(
-        seededQuestions, messages, /* enumeratorImprovementsEnabled= */ false);
+        seededQuestions, /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(programRepository.getAllProgramNames())
         .containsExactlyInAnyOrder("comprehensive-sample-program", "minimal-sample-program");

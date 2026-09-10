@@ -380,12 +380,19 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
-        await test.step('Navigate to another block, return and make sure the enumerator question is still visible', async () => {
-          await navigateToRepeatedScreen(
-            page,
-            /* screenNumber= */ 3,
+        await test.step('Click "Continue to child screen" and verify we landed on the child screen', async () => {
+          await blockPanel
+            .getByRole('link', {name: 'Continue to child screen'})
+            .click()
+          await expectCurrentBlockTitle(
+            /* isRepeatedBlock= */ true,
+            blockPanel,
+            /* expectedScreenNumber= */ 3,
             /* repeatedFrom= */ 2,
           )
+        })
+
+        await test.step('Return to the enumerator screen and make sure the enumerator question is still visible', async () => {
           await page.getByRole('link', {name: 'Screen 2'}).click()
           await expectCurrentBlockTitle(
             /* isRepeatedBlock= */ false,
@@ -764,13 +771,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can use the "Add repeated screen" button to add repeated screens', async ({
+    test('can use the "Add child screen" button to add repeated screens', async ({
       page,
       adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
-      const addRepeatedScreenButton = blockPanel.getByRole('button', {
-        name: 'Add repeated screen',
+      const addChildScreenButton = blockPanel.getByRole('button', {
+        name: 'Add child screen',
       })
 
       await test.step('Add a new repeated set', async () => {
@@ -783,24 +790,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         /* repeatedFrom= */ 2,
       )
 
-      await test.step('Verify that the "Add repeated screen" button is not present on the repeated screen', async () => {
-        await expect(addRepeatedScreenButton).toBeHidden()
+      await test.step('Verify that the "Add child screen" button is not present on the repeated screen', async () => {
+        await expect(addChildScreenButton).toBeHidden()
       })
 
       await test.step('Select the repeated set block from the block order panel', async () => {
         await page.getByRole('link', {name: 'Screen 2'}).click()
       })
 
-      await test.step('Verify that the "Add repeated screen" button is not present on the enumerator screen', async () => {
-        await expect(addRepeatedScreenButton).toBeHidden()
+      await test.step('Verify that the "Add child screen" button is not present on the enumerator screen', async () => {
+        await expect(addChildScreenButton).toBeHidden()
       })
 
       await fillAndSubmitEnumeratorQuestionForm(page, {
         initialQuestion: SAMPLE_QUESTIONS.number,
       })
 
-      await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
-        await addRepeatedScreenButton.click()
+      await test.step('Verify that the "Add child screen" button is now present and click the button', async () => {
+        await addChildScreenButton.click()
       })
 
       await test.step('Go to the program block edit page', async () => {
@@ -813,7 +820,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           /* screenNumber= */ 4,
           /* repeatedFrom= */ 2,
         )
-        await addRepeatedScreenButton.click()
+        await addChildScreenButton.click()
         await expectCurrentBlockTitle(
           /* isRepeatedBlock= */ true,
           blockPanel,
@@ -844,9 +851,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Add a repeated screen and verify nested button appears on direct repeated screen', async () => {
-        await blockPanel
-          .getByRole('button', {name: 'Add repeated screen'})
-          .click()
+        await blockPanel.getByRole('button', {name: 'Add child screen'}).click()
         await navigateToRepeatedScreen(
           page,
           /* screenNumber= */ 4,
@@ -876,11 +881,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page,
           /* screenNumber= */ 6,
           /* repeatedFrom= */ 5,
-          {
-            childLabel: '[child label]',
-          },
         )
         await expect(addNestedRepeatedSetButton).toBeHidden()
+      })
+
+      await test.step('Verify the alignment of the arrow icons in the block order panel', async () => {
+        await validateScreenshot(
+          page.getByTestId('block-panel'),
+          'block-order-panel-with-child-enumerator',
+          {
+            fullPage: false,
+          },
+        )
       })
     })
 
@@ -1107,8 +1119,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       adminQuestions,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
-      const addRepeatedScreenButton = blockPanel.getByRole('button', {
-        name: 'Add repeated screen',
+      const addChildScreenButton = blockPanel.getByRole('button', {
+        name: 'Add child screen',
       })
 
       await test.step('Add a new repeated set', async () => {
@@ -1131,9 +1143,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
       })
 
-      await test.step('Verify that the "Add repeated screen" button is now present and click the button', async () => {
-        await expect(addRepeatedScreenButton).toBeVisible()
-        await addRepeatedScreenButton.click()
+      await test.step('Verify that the "Add child screen" button is now present and click the button', async () => {
+        await expect(addChildScreenButton).toBeVisible()
+        await addChildScreenButton.click()
       })
 
       await test.step('Click on the new repeated screen in the block order panel', async () => {
@@ -1251,7 +1263,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('Enumerator block name edit retains prefix', async ({
+    test('Enumerator screen name modal shows description', async ({
       page,
       adminPrograms,
     }) => {
@@ -1270,32 +1282,20 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         /* repeatedFrom= */ 2,
       )
 
-      const modalPrefix = page.getByTestId('name-prefix')
-
-      await test.step('check for correct enumerator description and uneditable prefix in screen editing modal', async () => {
+      await test.step('Open the screen editing modal', async () => {
         await page
           .getByRole('button', {name: 'Edit screen name and description'})
           .click()
-        const modalDescription = page.getByTestId(
-          'repeated-set-prefix-description',
-        )
-        await expect(modalDescription).toBeVisible()
-        await expect(modalPrefix).toBeVisible()
       })
 
-      await test.step('edit screen name, exit, and ensure prefix is still the same', async () => {
-        await expect(modalPrefix).toHaveText('[parent label] -')
-
-        await page.getByRole('textbox', {name: 'Screen name'}).fill('name')
-
-        await page.getByRole('button', {name: 'Save'}).click()
-
-        await page
-          .getByRole('button', {name: 'Edit screen name and description'})
-          .click()
-
-        const currentModalPrefix = page.getByTestId('name-prefix')
-        await expect(currentModalPrefix).toHaveText('[parent label] -')
+      await test.step('Verify the screen name description is shown', async () => {
+        await expect(
+          page.getByText(
+            'Applicants will see the listed entity they answered from the initial question as' +
+              ' part of the screen name.',
+            {exact: false},
+          ),
+        ).toBeVisible()
       })
     })
 
@@ -1503,9 +1503,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page,
           /* screenNumber= */ 5,
           /* repeatedFrom= */ 4,
-          {
-            childLabel: '[child label]',
-          },
         )
         await adminPrograms.addQuestionFromQuestionBank(
           nestedRepeatedQuestionName,
@@ -2052,7 +2049,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     } else {
       await expect(
         blockPanel.getByText(
-          `[parent label] - Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
+          `Screen ${expectedScreenNumber} (repeated from ${repeatedFrom})`,
         ),
       ).toBeVisible()
     }
@@ -2062,20 +2059,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     page: Page,
     screenNumber: number,
     repeatedFrom: number,
-    options?: {
-      parentLabel?: string
-      childLabel?: string
-    },
   ) {
-    const {parentLabel = '[parent label]', childLabel} = options ?? {}
-    const repeatedLabel = childLabel
-      ? `${parentLabel} - ${childLabel}`
-      : parentLabel
-
     await test.step('Navigate to repeated screen', async () => {
       await page
         .getByRole('link', {
-          name: `${repeatedLabel} - Screen ${screenNumber} (repeated from ${repeatedFrom})`,
+          name: `Screen ${screenNumber} (repeated from ${repeatedFrom})`,
         })
         .click()
     })

@@ -77,6 +77,16 @@ public class LegacyQuestionFragmentsTest {
   }
 
   @Test
+  public void translationField_textareaWithMarkdown() {
+    ThymeleafFragmentTester.run(DIR + "translationFieldTextarea.thtest");
+  }
+
+  @Test
+  public void translationField_textInput() {
+    ThymeleafFragmentTester.run(DIR + "translationFieldTextInput.thtest");
+  }
+
+  @Test
   public void multiOptionRow_newOption() {
     ThymeleafFragmentTester.run(DIR + "multiOptionRowNew.thtest");
   }
@@ -84,5 +94,15 @@ public class LegacyQuestionFragmentsTest {
   @Test
   public void multiOptionRow_existingOption() {
     ThymeleafFragmentTester.run(DIR + "multiOptionRowExisting.thtest");
+  }
+
+  /**
+   * With showScores on (the answer-option-scoring flag and a supported question type), the row
+   * grows to six grid rows and renders a never-readonly score input posting to optionScores[], with
+   * the pre-formatted display value.
+   */
+  @Test
+  public void multiOptionRow_scoredOption() {
+    ThymeleafFragmentTester.run(DIR + "multiOptionRowScored.thtest");
   }
 }

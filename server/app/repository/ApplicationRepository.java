@@ -9,6 +9,7 @@ import com.google.common.collect.ImmutableSet;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.ExpressionList;
+import io.ebean.FetchConfig;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -333,6 +334,8 @@ public final class ApplicationRepository {
                 .query()
                 // Eagerly fetch the program in a SQL join.
                 .fetch("program")
+                // Eagerly fetch the program's categories to prevent N+1 lazy loading
+                .fetch("program.categories", FetchConfig.ofQuery())
                 .fetch("applicationEvents")
                 .setLabel("ApplicationModel.findSet")
                 .setProfileLocation(

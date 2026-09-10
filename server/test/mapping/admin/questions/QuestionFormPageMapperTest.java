@@ -5,8 +5,12 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
+import forms.questions.DropdownQuestionForm;
+import forms.questions.StaticContentQuestionForm;
 import forms.questions.TextQuestionForm;
 import forms.questions.YesNoQuestionForm;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +37,8 @@ public final class QuestionFormPageMapperTest {
         null,
         /* apiBridgeEnabled= */ false,
         /* enumeratorImprovementsEnabled= */ false,
+        /* answerOptionScoringEnabled= */ false,
+        /* imagesInQuestionFeatureEnabled= */ false,
         readOnlyQuestionService,
         Optional.empty());
   }
@@ -45,6 +51,8 @@ public final class QuestionFormPageMapperTest {
         null,
         /* apiBridgeEnabled= */ false,
         /* enumeratorImprovementsEnabled= */ false,
+        /* answerOptionScoringEnabled= */ false,
+        /* imagesInQuestionFeatureEnabled= */ false,
         readOnlyQuestionService,
         Optional.empty());
   }
@@ -174,12 +182,158 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty());
 
     assertThat(result.getYesNoConfig()).isNotNull();
     assertThat(result.getYesNoConfig().showLabel()).isTrue();
     assertThat(result.getYesNoConfig().options()).hasSize(4);
+  }
+
+  @Test
+  public void mapNew_imagesInQuestionFeature_showsImageUpload() {
+    QuestionFormPageViewModel result =
+        mapper.mapNew(
+            new StaticContentQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ true,
+            /* imagesInQuestionFeatureEnabled= */ true,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(result.isImagesInQuestionFeatureEnabled()).isTrue();
+  }
+
+  @Test
+  public void mapNew_imagesInQuestionFeature_hidesImageUpload() {
+    QuestionFormPageViewModel result =
+        mapper.mapNew(
+            new StaticContentQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(result.isImagesInQuestionFeatureEnabled()).isFalse();
+  }
+
+  @Test
+  public void mapNew_imagesInQuestionFeatureUnsupportedType_hidesImageUpload() {
+    QuestionFormPageViewModel yesNoResult =
+        mapper.mapNew(
+            new YesNoQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ true,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(yesNoResult.isImagesInQuestionFeatureEnabled()).isFalse();
+  }
+
+  @Test
+  public void mapNew_imagesInQuestureFeatureDisabled_hidesFeature() {
+    QuestionFormPageViewModel result =
+        mapper.mapNew(
+            new StaticContentQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(result.isImagesInQuestionFeatureEnabled()).isFalse();
+  }
+
+  @Test
+  public void mapNew_scoringEnabledSupportedType_showsScores() {
+    QuestionFormPageViewModel result =
+        mapper.mapNew(
+            new DropdownQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ true,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(result.isShowScores()).isTrue();
+  }
+
+  @Test
+  public void mapNew_scoringDisabled_hidesScores() {
+    QuestionFormPageViewModel result =
+        mapper.mapNew(
+            new DropdownQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(result.isShowScores()).isFalse();
+  }
+
+  @Test
+  public void mapNew_scoringEnabledUnsupportedTypes_hidesScores() {
+    QuestionFormPageViewModel yesNoResult =
+        mapper.mapNew(
+            new YesNoQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ true,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+    QuestionFormPageViewModel textResult =
+        mapper.mapNew(
+            new TextQuestionForm(),
+            ImmutableList.of(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ true,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty());
+
+    assertThat(yesNoResult.isShowScores()).isFalse();
+    assertThat(textResult.isShowScores()).isFalse();
+  }
+
+  @Test
+  public void scoreDisplayValue_formatsAndToleratesBlankInvalidAndSparseEntries() {
+    QuestionFormPageViewModel model = mapNewTextForm(new TextQuestionForm());
+
+    assertThat(model.scoreDisplayValue(List.of("2.0"), 0)).isEqualTo("2");
+    assertThat(model.scoreDisplayValue(List.of("1.50"), 0)).isEqualTo("1.5");
+    assertThat(model.scoreDisplayValue(List.of("-0.50"), 0)).isEqualTo("-0.5");
+    assertThat(model.scoreDisplayValue(List.of(""), 0)).isNull();
+    assertThat(model.scoreDisplayValue(List.of("junk"), 0)).isNull();
+    assertThat(model.scoreDisplayValue(List.of(), 0)).isNull();
+    assertThat(model.scoreDisplayValue(Arrays.asList((String) null), 0)).isNull();
   }
 
   @Test
@@ -193,6 +347,8 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.of("Something went wrong"));
 
@@ -230,6 +386,8 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ true,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty());
 
@@ -275,6 +433,8 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty());
 
@@ -313,6 +473,8 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty());
 
@@ -331,6 +493,8 @@ public final class QuestionFormPageMapperTest {
             null,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.of("Error occurred"));
 

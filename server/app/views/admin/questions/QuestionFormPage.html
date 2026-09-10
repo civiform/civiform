@@ -13,7 +13,7 @@
     <!--/* Markup cloned by the client when adding a new multi-option answer. */-->
     <template id="multi-option-question-answer-template">
       <div
-        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', '', '', ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+        th:replace="~{admin/questions/fragments/MultiOptionRow :: multiOptionRow(true, '', '', '', ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.randomFieldId()}, ${model.showScores}, null, ${model.randomFieldId()})}"
       ></div>
     </template>
 
@@ -65,6 +65,46 @@
         <div
           th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-help-text-textarea', 'questionHelpText', 'Question help text displayed to the applicant', ${model.questionHelpText}, false, true)}"
         ></div>
+      </th:block>
+
+      <th:block
+        th:if="${model.editMode and model.imagesInQuestionFeatureEnabled}"
+      >
+        <div class="usa-form-group">
+          <label class="usa-label" for="question-image-input"
+            >Image upload</label
+          >
+          <div class="usa-hint" id="question-image-file-input-hint">
+            The maximum size for image upload is 1MB.
+          </div>
+          <input
+            accept="image/png,image/jpeg"
+            aria-describedby="question-image-file-input-hint"
+            class="usa-file-input"
+            id="question-image-input"
+            name="questionImage"
+            type="file"
+          />
+        </div>
+
+        <div class="usa-form-group">
+          <label class="usa-label" for="question-image-description"
+            >Enter image description (Alt Text)</label
+          >
+          <div class="usa-hint" id="question-image-description-hint">
+            Image description is required before uploading an image.
+            <a th:href="${model.getTranslationUrl()}" class="usa-link"
+              >Manage translations.</a
+            >
+          </div>
+          <input
+            class="usa-input"
+            id="question-image-description"
+            name="questionImageDescription"
+            type="text"
+            aria-describedby="question-image-description-hint"
+          />
+        </div>
       </th:block>
 
       <h2 class="py-2 mt-6 font-semibold">Visible to administrators only</h2>

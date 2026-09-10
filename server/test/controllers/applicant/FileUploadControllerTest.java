@@ -7,6 +7,7 @@ import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import auth.ProfileUtils;
+import com.google.inject.TypeLiteral;
 import controllers.WithMockedProfiles;
 import models.ApplicantModel;
 import models.ProgramModel;
@@ -22,7 +23,9 @@ import repository.VersionRepository;
 import services.applicant.ApplicantService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
-import views.questiontypes.FileUploadQuestionPartialView;
+import views.PartialView;
+import views.questiontypes.FileUploadQuestionPartialViewModel;
+import views.shared.BaseViewDeps;
 
 public class FileUploadControllerTest extends WithMockedProfiles {
 
@@ -45,7 +48,9 @@ public class FileUploadControllerTest extends WithMockedProfiles {
             instanceOf(ProfileUtils.class),
             instanceOf(VersionRepository.class),
             settingsManifest,
-            instanceOf(FileUploadQuestionPartialView.class));
+            new PartialView<>(
+                instanceOf(BaseViewDeps.class),
+                TypeLiteral.get(FileUploadQuestionPartialViewModel.class)));
   }
 
   @Test

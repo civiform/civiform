@@ -95,6 +95,13 @@ describe('formatTextHtml', () => {
     )
   })
 
+  it('automatically detects bare domains and creates a link', () => {
+    const text = 'here is a bare domain www.example.com'
+    expect(renderToHtml(text)).toContain(
+      '<a class="text-blue-600 hover:text-blue-500 underline" target="_blank" href="http://www.example.com">www.example.com</a>',
+    )
+  })
+
   it('adds formatting to lists', () => {
     const olText =
       'here is some markdown with an unordered list:\n - item one\n - item two\n - item 3'
