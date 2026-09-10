@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
+import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
@@ -651,9 +652,34 @@ public final class AdminQuestionController extends CiviFormController {
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
 
     if (currentQuestionDefinition.getQuestionType().equals(QuestionType.STATIC)) {
-      updatedQuestionDefinitionBuilder.setImageFileKey(currentQuestionDefinition.getImageFileKey());
-      updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
-          currentQuestionDefinition.getLocalizedImageDescription());
+      String newImageDescription = questionForm.getQuestionImageDescription();
+
+      if (currentQuestionDefinition.getImageFileKey().isPresent()) {
+        // Keep existing image file key
+        updatedQuestionDefinitionBuilder.setImageFileKey(
+            currentQuestionDefinition.getImageFileKey());
+
+        // Update alt-text translation if non-empty
+        if (!Strings.isNullOrEmpty(newImageDescription)) {
+          Optional<LocalizedStrings> currentDescription =
+              currentQuestionDefinition.getLocalizedImageDescription();
+          LocalizedStrings updatedStrings =
+              currentDescription.isEmpty()
+                  ? LocalizedStrings.of(LocalizedStrings.DEFAULT_LOCALE, newImageDescription)
+                  : currentDescription
+                      .get()
+                      .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, newImageDescription);
+          updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
+              Optional.of(updatedStrings));
+        } else {
+          updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
+              currentQuestionDefinition.getLocalizedImageDescription());
+        }
+      } else {
+        // No image exists on this question
+        updatedQuestionDefinitionBuilder.setImageFileKey(Optional.empty());
+        updatedQuestionDefinitionBuilder.setLocalizedImageDescription(Optional.empty());
+      }
     }
 
     // Question help text is optional. If the admin submits an empty string, delete

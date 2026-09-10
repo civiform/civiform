@@ -115,6 +115,36 @@ public class AdminQuestionImageController extends CiviFormController {
         .as(Http.MimeTypes.HTML);
   }
 
+  /** Removes the question image and alt text. */
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  public Result hxDeleteQuestionImage(Http.Request request, long questionId) {
+    if (!settingsManifest.getImagesInQuestionFeatureEnabled(request)) {
+      return notFound();
+    }
+
+    QuestionDefinition updatedQuestion;
+    try {
+      updatedQuestion = questionService.deleteImageFileKey(questionId);
+    } catch (QuestionNotFoundException e) {
+      return notFound();
+    } catch (UnsupportedQuestionTypeException e) {
+      return renderError("Unsupported question type");
+    }
+
+    String newConcurrencyToken =
+        updatedQuestion.getConcurrencyToken().map(UUID::toString).orElse("");
+
+    return ok(input()
+            .withType("hidden")
+            .withId("concurrencyToken")
+            .withName("concurrencyToken")
+            .withValue(newConcurrencyToken)
+            .attr("hx-swap-oob", "true")
+            .render())
+        .withHeader("HX-Trigger", "question-image-deleted")
+        .as(Http.MimeTypes.HTML);
+  }
+
   private Result renderError(String errorMessage) {
     return badRequest(
             div(errorMessage)

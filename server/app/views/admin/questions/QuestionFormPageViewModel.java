@@ -166,6 +166,11 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
         .url();
   }
 
+  public String getImageDeleteUrl() {
+    return controllers.admin.routes.AdminQuestionImageController.hxDeleteQuestionImage(questionId)
+        .url();
+  }
+
   /**
    * The display value for the score input at {@code index} of a bound score list, formatted without
    * trailing zeros. Null (attribute omitted) when the entry is missing, blank, or unparseable.

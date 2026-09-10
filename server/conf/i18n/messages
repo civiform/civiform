@@ -601,6 +601,8 @@ toast.adminQuestionImage.descriptionNotRemovable=Description can't be removed be
 toast.adminQuestionImage.imageAndDescriptionSaved=Image is saved with the description: {0}
 # Toast after saving alt text without uploading a new file.
 toast.adminQuestionImage.descriptionSet=Image description set to {0}
+# Label for the field where the admin enters alt text for the question image.
+label.adminQuestionImage.altText=Enter image description (Alt Text)
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #

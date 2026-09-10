@@ -101,7 +101,7 @@ POST    /admin/questions/:id/archive                                           c
 POST    /admin/questions/hx/addMapQuestionFilter                               controllers.admin.AdminQuestionController.addMapQuestionFilter(request: Request)
 POST    /admin/questions/hx/deleteMapQuestionFilter                            controllers.admin.AdminQuestionController.deleteMapQuestionFilter(request: Request)
 POST    /admin/questions/:questionId/image/upload                              controllers.admin.AdminQuestionImageController.hxUploadQuestionImage(request: Request, questionId: Long)
-
+POST    /admin/questions/:questionId/image/delete                              controllers.admin.AdminQuestionImageController.hxDeleteQuestionImage(request: Request, questionId: Long)
 
 # For rendering question previews on the admin question page
 GET     /admin/preview/:questionType                                           controllers.admin.QuestionPreviewController.sampleQuestion(request: Request, questionType: String)
