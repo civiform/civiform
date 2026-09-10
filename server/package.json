@@ -50,7 +50,7 @@
     "cleave.js": "1.6.0",
     "dompurify": "3.4.14",
     "maplibre-gl": "^5.6.1",
-    "markdown-it": "15.0.0",
+    "markdown-it": "15.0.1",
     "swagger-ui-dist": "^5.18.2"
   },
   "browserslist": [
