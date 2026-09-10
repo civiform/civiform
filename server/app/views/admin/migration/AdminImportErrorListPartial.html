@@ -1,0 +1,24 @@
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportErrorListPartialViewModel"*/-->
+<div id="program-data">
+  <div class="usa-alert usa-alert--error usa-alert--no-icon" role="alert">
+    <div class="usa-alert__body">
+      <h3
+        th:if="${model.title != null}"
+        class="usa-alert__heading"
+        th:text="${model.title}"
+      ></h3>
+      <p
+        th:each="line : ${model.errorLines}"
+        class="usa-alert__text"
+        th:text="|• ${line}|"
+      ></p>
+    </div>
+  </div>
+  <button
+    type="button"
+    th:attr="data-redirect-to=${model.tryAgainUrl}"
+    class="my-5 usa-button usa-button--outline"
+  >
+    Try again
+  </button>
+</div>

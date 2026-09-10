@@ -1,0 +1,174 @@
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportProgramDataPartialViewModel"*/-->
+<!--/* One imported question: badges, type icon, question and help text,
+     admin ID, multi-option list, and duplicate-handling options
+     (QuestionCard.renderForImport). data-enumerator is only rendered for
+     repeated questions. */-->
+<div
+  th:fragment="questionCard(card)"
+  th:attr="data-testid=|question-admin-name-${card.adminName}|, data-enumerator=${card.enumeratorName}"
+  class="cf-program-question my-2 border border-gray-200 items-center rounded-md hover:text-gray-800 hover:bg-gray-100"
+>
+  <div class="flex mx-4 mt-4 mb-2">
+    <div
+      th:if="${card.universalBadgeText != null}"
+      class="rounded-lg flex max-w-fit px-2 py-1 space-x-1 text-white bg-civiform-teal cf-universal-badge mr-2"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconStar('flex h-6 w-4')}"
+      ></svg
+      ><span th:text="${card.universalBadgeText}"></span>
+    </div>
+    <div
+      th:if="${card.duplicate}"
+      class="rounded-lg flex max-w-fit px-2 py-1 space-x-1 text-white bg-red-600"
+    >
+      <span>Duplicate Question</span>
+    </div>
+    <div
+      th:if="${!card.duplicate}"
+      class="rounded-lg flex max-w-fit px-2 py-1 space-x-1 text-white bg-blue-600"
+    >
+      <span>New Question</span>
+    </div>
+  </div>
+  <div class="flex gap-4 items-center px-4 py-2">
+    <!--/* The fragment name is preprocessed (__...__) because it varies per
+         question type. The values come from the mapper's fixed QuestionType
+         switch, never from user input. */-->
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: __${card.iconFragment}__('shrink-0 h-12 w-6', null)}"
+    ></svg>
+    <div class="flex-grow">
+      <div data-testid="question-div" th:utext="${card.questionTextHtml}"></div>
+      <div class="mt-1 text-sm" th:utext="${card.helpTextHtml}"></div>
+      <p class="mt-1 text-sm" th:text="|Admin ID: ${card.adminName}|"></p>
+      <ul th:if="${card.optionTexts != null}" class="list-disc mx-4 mt-2">
+        <li th:each="option : ${card.optionTexts}" th:text="${option}"></li>
+      </ul>
+    </div>
+    <th:block th:if="${card.duplicateHandling != null}">
+      <fieldset
+        th:replace="~{admin/migration/AdminImportProgramDataFragments :: duplicateHandlingOptions(${card.duplicateHandling})}"
+      ></fieldset>
+    </th:block>
+  </div>
+</div>
+
+<!--/* Radio group for handling one duplicate question. The legacy view
+     preferred this over RadioButtonQuestionRenderer for higher information
+     density. */-->
+<fieldset
+  th:fragment="duplicateHandlingOptions(dh)"
+  name="duplicateQuestionHandling-"
+  class="usa-fieldset shrink-0 mb-4"
+>
+  <legend class="usa-legend font-semibold font-sans-xs">
+    How do you want to handle this duplicate question?
+  </legend>
+  <!--/* Both hidden alerts are inlined instead of using the SlimInfoAlert
+       fragment because their text contains apostrophes, which cannot be
+       passed as Thymeleaf fragment string arguments. */-->
+  <div
+    th:if="${dh.enumerator}"
+    hidden
+    class="usa-alert usa-alert--info usa-alert--slim mb-2 repeated-disabled-warning"
+    aria-live="polite"
+    role="alert"
+  >
+    <div class="usa-alert__body">
+      <p class="usa-alert__text">
+        Duplicate repeated questions of this enumerator will also be set to
+        'Create a new duplicate question.'
+      </p>
+    </div>
+  </div>
+  <div
+    th:if="${dh.repeated}"
+    hidden
+    class="usa-alert usa-alert--info usa-alert--slim mb-2 repeated-disabled-warning"
+    aria-live="polite"
+    role="alert"
+  >
+    <div class="usa-alert__body">
+      <p class="usa-alert__text">
+        Some options are disabled because the associated enumerator is set to
+        'Create a new duplicate question.'
+      </p>
+    </div>
+  </div>
+  <!--/* The USE_EXISTING and OVERWRITE_EXISTING labels contain the "existing
+       question" link, so they inline the radio option markup instead of
+       calling the importRadioOption fragment. */-->
+  <div th:with="fieldId=${model.randomFieldId()}">
+    <input
+      th:id="${fieldId}"
+      type="radio"
+      th:name="|duplicateQuestionHandling-${dh.adminName}|"
+      value="USE_EXISTING"
+      checked
+      class="usa-radio__input"
+    />
+    <label
+      th:for="${fieldId}"
+      class="usa-radio__label inline-block w-full h-full font-sans-xs"
+      ><span
+        >Use the
+        <a
+          th:href="${dh.existingQuestionUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          >existing question<svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconOpenInNew('mr-2 w-5 h-5')}"
+          ></svg></a></span
+    ></label>
+  </div>
+  <div
+    th:replace="~{admin/migration/AdminImportProgramDataFragments :: importRadioOption(|duplicateQuestionHandling-${dh.adminName}|, 'CREATE_DUPLICATE', 'Create a new duplicate question', false)}"
+  ></div>
+  <div th:with="fieldId=${model.randomFieldId()}">
+    <input
+      th:id="${fieldId}"
+      type="radio"
+      th:name="|duplicateQuestionHandling-${dh.adminName}|"
+      value="OVERWRITE_EXISTING"
+      class="usa-radio__input"
+    />
+    <label
+      th:for="${fieldId}"
+      class="usa-radio__label inline-block w-full h-full font-sans-xs"
+      ><span
+        >Overwrite all instances of the
+        <a
+          th:href="${dh.existingQuestionUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          >existing question<svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconOpenInNew('mr-2 w-5 h-5')}"
+          ></svg></a></span
+    ></label>
+  </div>
+</fieldset>
+
+<!--/* Radio option with USWDS style. A fully-styled USWDS radio would
+     include the "usa-radio" class; the legacy view omitted it to avoid the
+     default white background. */-->
+<div
+  th:fragment="importRadioOption(name, value, label, checked)"
+  th:with="fieldId=${model.randomFieldId()}"
+>
+  <input
+    th:id="${fieldId}"
+    type="radio"
+    th:name="${name}"
+    th:value="${value}"
+    th:checked="${checked}"
+    class="usa-radio__input"
+  />
+  <label
+    th:for="${fieldId}"
+    class="usa-radio__label inline-block w-full h-full font-sans-xs"
+    th:text="${label}"
+  ></label>
+</div>

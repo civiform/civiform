@@ -1,0 +1,119 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportProgramDataPartialViewModel"*/-->
+<!--/*
+  The htmx partial swapped into #program-data with the parsed program preview, question cards, and
+  duplicate-question handling options. Markup and class strings mirror the legacy view exactly.
+*/-->
+<div id="program-data">
+  <h3>Program preview</h3>
+  <div
+    th:replace="~{admin/shared/LegacyFieldWithLabel/SlimInfoAlert :: slimInfoAlert('Please review the program name and details before saving.', false, 'mb-2')}"
+  ></div>
+  <!--/* Slim alert with a per-request type (info, or warning when there are
+       duplicate questions), so the type class is a model value. */-->
+  <div
+    th:if="${model.showQuestionAlert}"
+    class="usa-alert"
+    th:classappend="|${model.questionAlertTypeClass} usa-alert--slim mb-2|"
+    aria-live="polite"
+    role="alert"
+  >
+    <div class="usa-alert__body">
+      <p class="usa-alert__text" th:text="${model.questionAlertText}"></p>
+    </div>
+  </div>
+  <h2 class="mb-2 font-semibold" th:text="${model.programTitle}"></h2>
+  <h4 class="mb-2" th:text="|Admin name: ${model.adminName}|"></h4>
+
+  <!--/* All program content is displayed inside the form, so that the
+       duplicate-handling radio options are submitted along with the program
+       JSON. */-->
+  <form
+    hx-encoding="application/x-www-form-urlencoded"
+    th:hx-post="${model.hxSaveProgramUrl}"
+    hx-target="#program-data"
+    hx-swap="outerHTML"
+    hx-indicator="#hx-submit-button"
+    hx-disabled-elt="#hx-submit-button"
+    th:action="${model.hxSaveProgramUrl}"
+  >
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+    <!--/* Hidden FieldWithLabel.textArea carrying the program JSON. The
+         legacy withClass("hidden") call replaced the container's classes,
+         so "hidden" is its only class. */-->
+    <th:block th:with="fieldId=${model.randomFieldId()}">
+      <div class="hidden">
+        <label th:for="${fieldId}" class="sr-only"
+          ><span
+            th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+          ></span
+        ></label>
+        <div class="flex flex-col">
+          <textarea
+            maxlength="10000"
+            th:id="${fieldId}"
+            name="programJson"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+            th:text="${model.programJson}"
+          ></textarea>
+          <div
+            th:id="|${fieldId}-errors|"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
+        </div>
+      </div>
+    </th:block>
+
+    <fieldset
+      th:if="${model.showToplevelDuplicateOptions}"
+      name="toplevelDuplicateQuestionHandling"
+      class="usa-fieldset my-4"
+      data-testid="toplevel-duplicate-handling"
+    >
+      <legend class="usa-legend font-semibold font-sans-xs">
+        How do you want to handle all duplicate questions?
+      </legend>
+      <div class="text-gray-500">
+        Selecting an option for any individual question will override this
+        selection
+      </div>
+      <div
+        th:replace="~{admin/migration/AdminImportProgramDataFragments :: importRadioOption('toplevelDuplicateQuestionHandling', 'DECIDE_FOR_EACH', 'Decide for each duplicate question individually', true)}"
+      ></div>
+      <div
+        th:replace="~{admin/migration/AdminImportProgramDataFragments :: importRadioOption('toplevelDuplicateQuestionHandling', 'USE_EXISTING', 'Use the existing questions', false)}"
+      ></div>
+      <div
+        th:replace="~{admin/migration/AdminImportProgramDataFragments :: importRadioOption('toplevelDuplicateQuestionHandling', 'CREATE_DUPLICATE', 'Create new duplicate questions', false)}"
+      ></div>
+      <div
+        th:replace="~{admin/migration/AdminImportProgramDataFragments :: importRadioOption('toplevelDuplicateQuestionHandling', 'OVERWRITE_EXISTING', 'Overwrite all instances of the existing questions', false)}"
+      ></div>
+    </fieldset>
+
+    <th:block th:each="block : ${model.blocks}">
+      <div class="border-t border-gray-200 pt-2">
+        <h4 class="font-semibold" th:text="${block.name}"></h4>
+        <p th:text="${block.description}"></p>
+        <th:block th:each="card : ${block.questionCards}">
+          <div
+            th:replace="~{admin/migration/AdminImportProgramDataFragments :: questionCard(${card})}"
+          ></div>
+        </th:block>
+      </div>
+    </th:block>
+
+    <div class="flex my-5">
+      <button type="submit" class="usa-button mr-2" id="hx-submit-button">
+        Save
+      </button>
+      <button
+        type="button"
+        th:attr="data-redirect-to=${model.startOverUrl}"
+        class="usa-button usa-button--outline"
+      >
+        Delete and start over
+      </button>
+    </div>
+  </form>
+</div>

@@ -7,9 +7,9 @@ import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import controllers.WithMockedProfiles;
 import io.ebean.DB;
 import io.ebean.Database;
 import models.ApplicationStatusesModel;
@@ -17,25 +17,17 @@ import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.data.FormFactory;
 import play.mvc.Result;
-import repository.ProgramRepository;
-import repository.ResetPostgres;
-import repository.VersionRepository;
 import services.ErrorAnd;
-import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
-import services.program.ProgramService;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
-import views.admin.migration.AdminImportView;
-import views.admin.migration.AdminImportViewPartial;
 import views.admin.migration.AdminProgramImportForm;
 
-public class AdminImportControllerTest extends ResetPostgres {
+public class AdminImportControllerTest extends WithMockedProfiles {
   private static final String CREATE_DUPLICATE = "CREATE_DUPLICATE";
   private static final String OVERWRITE_EXISTING = "OVERWRITE_EXISTING";
   private AdminImportController controller;
@@ -43,16 +35,11 @@ public class AdminImportControllerTest extends ResetPostgres {
 
   @Before
   public void setUp() {
-    controller =
-        new AdminImportController(
-            instanceOf(AdminImportView.class),
-            instanceOf(AdminImportViewPartial.class),
-            instanceOf(FormFactory.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(ProgramMigrationService.class),
-            instanceOf(VersionRepository.class),
-            instanceOf(ProgramRepository.class),
-            instanceOf(ProgramService.class));
+    resetDatabase();
+    // The Thymeleaf page view renders the admin header from the current user's profile, so give
+    // every request a mocked global admin profile.
+    createGlobalAdminWithMockedProfile();
+    controller = instanceOf(AdminImportController.class);
     database = DB.getDefault();
   }
 
@@ -66,6 +53,21 @@ public class AdminImportControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Import a program");
+  }
+
+  @Test
+  public void index_thymeleafEnabled_rendersImportPage() {
+    Result result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("admin-import-header");
+    assertThat(content).contains("Import an existing program");
+    assertThat(content).contains("Paste the JSON file contents into this box.");
   }
 
   @Test
@@ -88,6 +90,23 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Error processing JSON");
     assertThat(contentAsString(result)).contains("JSON is incorrectly formatted");
+  }
+
+  @Test
+  public void hxImportProgram_thymeleafEnabled_malformedJson_rendersErrorPartial() {
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", "{\"garbage\": true}"))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("program-data");
+    assertThat(content).contains("Error processing JSON");
+    assertThat(content).contains("Try again");
   }
 
   @Test
@@ -222,6 +241,25 @@ public class AdminImportControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxImportProgram_thymeleafEnabled_validJson_rendersProgramDataPartial() {
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("Program preview");
+    assertThat(content).contains("Minimal Sample Program");
+    assertThat(content).contains("Screen 1");
+    assertThat(content).contains("Please enter your first and last name");
+    assertThat(content).contains("New Question");
+  }
+
+  @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     Result result =
         controller.hxSaveProgram(
@@ -273,6 +311,22 @@ public class AdminImportControllerTest extends ResetPostgres {
     assertThat(questionDefinition.getQuestionText().getDefault())
         .isEqualTo("Please enter your first and last name");
     assertThat(programDefinition.getQuestionIdsInProgram()).contains(questionDefinition.getId());
+  }
+
+  @Test
+  public void hxSaveProgram_thymeleafEnabled_rendersProgramSavedPartial() {
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("Your program has been successfully imported");
+    assertThat(content).contains("View program");
   }
 
   @Test
