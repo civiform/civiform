@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       branch_name:
-        description: 'The name of the branch to build from'
+        description: 'The branch to build from. release/* branches produce a RELEASE- image that can be promoted with the Release workflow; any other branch produces a DEV- image for testing only.'
         required: true
 
 permissions: read-all
@@ -22,10 +22,10 @@ jobs:
         uses: docker/setup-qemu-action@96fe6ef7f33517b61c61be40b68a1882f3264fb8 # v4
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
-      - name: Run build-and-push-image-for-testing
-        id: build_and_push_image_for_testing
+      - name: Build and push server image
+        id: build_and_push_image
         env:
-          DEV_BRANCH_NAME: ${{ github.event.inputs.branch_name }}
+          BRANCH_NAME: ${{ github.event.inputs.branch_name }}
           DOCKER_HUB_ACCESS_TOKEN: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
           DOCKER_HUB_USERNAME: ${{ secrets.DOCKER_HUB_USER_NAME }}
         run: bin/build-and-push-image-for-testing
