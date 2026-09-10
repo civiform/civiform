@@ -537,26 +537,46 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .setDescription("updated")
             .build());
 
-    QuestionDefinition newInitialQuestion = latestDefinition(fixture.initialQuestionId());
-    var newInitialQuestionId = newInitialQuestion.getId();
-    assertThat(newInitialQuestionId).isNotEqualTo(fixture.initialQuestionId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    var initialQuestionAfterId = initialQuestionAfter.getId();
+    assertThat(initialQuestionAfterId).isNotEqualTo(fixture.initialQuestionId());
     // A draft of the enumerator now points at the initial question's new draft...
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
     assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
-    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(newInitialQuestionId);
-    // Both repeated questions point back at the enumerator's new draft. These have to be re-read:
-    // the model returned above predates the cascade that repointed its row.
-    QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.repeatedQuestionId());
-    assertThat(newInitialQuestion.getEnumeratorId()).hasValue(enumeratorAfter.getId());
-    assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(initialQuestionAfterId);
+    // Both repeated questions point back at the enumerator's new draft.
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    assertThat(repeatedQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // ...while the published enumerator keeps pointing at the published initial question.
     assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
         .hasValue(fixture.initialQuestionId());
-    // Every block follows its questions to their new revisions.
+    // Blocks 1 and 2 follow their questions to their new revisions.
     assertThat(blockQuestionIds(fixture.program(), 1L))
-        .containsExactly(enumeratorAfter.getId(), newInitialDraft.id);
+        .containsExactly(enumeratorAfter.getId(), initialQuestionAfterId);
     assertThat(blockQuestionIds(fixture.program(), 2L))
-        .containsExactly(latestDefinition(fixture.repeatedQuestionId()).getId());
+        .containsExactly(repeatedQuestionAfter.getId());
+
+    // Block 3's new-flow cluster was not drafted, and its mutual references are intact.
+    QuestionDefinition newEnumerator = latestDefinition(fixture.newEnumeratorId());
+    QuestionDefinition newRepeatedQuestion = latestDefinition(fixture.newRepeatedQuestionId());
+    assertThat(newEnumerator.getId()).isEqualTo(fixture.newEnumeratorId());
+    assertThat(newEnumerator.getEnumeratorInitialQuestionId())
+        .hasValue(fixture.newRepeatedQuestionId());
+    assertThat(newRepeatedQuestion.getId()).isEqualTo(fixture.newRepeatedQuestionId());
+    assertThat(newRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newEnumeratorId());
+    assertThat(blockQuestionIds(fixture.program(), 3L))
+        .containsExactly(fixture.newEnumeratorId(), fixture.newRepeatedQuestionId());
+
+    // Block 4's old-flow cluster was not drafted, and no back reference was invented for it.
+    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
+    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
+    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
+    assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
+    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldRepeatedQuestionId());
+    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
+    assertThat(blockQuestionIds(fixture.program(), 4L))
+        .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
   }
 
   @Test
@@ -586,34 +606,42 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
   /** Container for the entities made in {@code newEnumeratorFixture}. */
   private record EnumeratorFixture(
-      long enumeratorId, long initialQuestionId, long repeatedQuestionId, ProgramModel program) {}
+      long enumeratorId,
+      long initialQuestionId,
+      long repeatedQuestionId,
+      long newEnumeratorId,
+      long newRepeatedQuestionId,
+      long oldEnumeratorId,
+      long oldRepeatedQuestionId,
+      ProgramModel program) {}
 
   /**
-   * Builds a draft program with two blocks and three ACTIVE questions.
+   * Builds a draft program with four blocks and seven ACTIVE questions.
    *
    * <p>Block 1 holds the enumerator and its initial question, which point at each other. Block 2
    * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
+   *
+   * <p>Blocks 3 and 4 are controls that nothing done to the block 1 cluster may touch. Block 3 holds
+   * a new-flow enumerator and its initial question, which point at each other. Block 4 holds an
+   * old-flow enumerator and a repeated question, where only the repeated question points at the
+   * enumerator.
    */
   private EnumeratorFixture newEnumeratorFixture() {
     QuestionModel enumerator =
-        testQuestionBank.maybeSave(
-            new EnumeratorQuestionDefinition(
-                QuestionDefinitionConfig.builder()
-                    .setName("household members")
-                    .setDescription("The applicant's household members")
-                    .setQuestionText(LocalizedStrings.of(Locale.US, "Who is in your household?"))
-                    .build(),
-                LocalizedStrings.empty()),
-            LifecycleStage.ACTIVE);
+        saveActiveEnumerator("household members", "Who is in your household?");
     QuestionModel initialQuestion = saveActiveRepeatedQuestion("household member name", enumerator);
-    // Complete the mutual reference in place, so no draft is created.
-    new QuestionModel(
-            repo.updateEnumeratorInitialQuestionId(
-                enumerator.getQuestionDefinition(), initialQuestion.id))
-        .update();
-    enumerator.refresh();
+    pointAtInitialQuestion(enumerator, initialQuestion);
     QuestionModel repeatedQuestion =
         saveActiveRepeatedQuestion("household member nickname", enumerator);
+
+    QuestionModel newEnumerator = saveActiveEnumerator("new enumerator", "Where have you worked?");
+    QuestionModel newRepeatedQuestion =
+        saveActiveRepeatedQuestion("new repeated question", newEnumerator);
+    pointAtInitialQuestion(newEnumerator, newRepeatedQuestion);
+
+    QuestionModel oldEnumerator = saveActiveEnumerator("old enumerator", "Where have you lived?");
+    QuestionModel oldRepeatedQuestion =
+        saveActiveRepeatedQuestion("old repeated question", oldEnumerator);
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("enumerator program")
@@ -622,8 +650,43 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(initialQuestion)
             .withRepeatedBlock("block 2")
             .withRequiredQuestion(repeatedQuestion)
+            .withBlock("block 3")
+            .withRequiredQuestion(newEnumerator)
+            .withRequiredQuestion(newRepeatedQuestion)
+            .withBlock("block 4")
+            .withRequiredQuestion(oldEnumerator)
+            .withRequiredQuestion(oldRepeatedQuestion)
             .build();
-    return new EnumeratorFixture(enumerator.id, initialQuestion.id, repeatedQuestion.id, program);
+    return new EnumeratorFixture(
+        enumerator.id,
+        initialQuestion.id,
+        repeatedQuestion.id,
+        newEnumerator.id,
+        newRepeatedQuestion.id,
+        oldEnumerator.id,
+        oldRepeatedQuestion.id,
+        program);
+  }
+
+  private QuestionModel saveActiveEnumerator(String name, String questionText) {
+    return testQuestionBank.maybeSave(
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(name)
+                .setQuestionText(LocalizedStrings.of(Locale.US, questionText))
+                .build(),
+            LocalizedStrings.empty()),
+        LifecycleStage.ACTIVE);
+  }
+
+  /** Completes the mutual reference in place, so no draft is created. */
+  private void pointAtInitialQuestion(QuestionModel enumerator, QuestionModel initialQuestion) {
+    new QuestionModel(
+            repo.updateEnumeratorInitialQuestionId(
+                enumerator.getQuestionDefinition(), initialQuestion.id))
+        .update();
+    enumerator.refresh();
   }
 
   private QuestionModel saveActiveRepeatedQuestion(String name, QuestionModel enumerator) {
