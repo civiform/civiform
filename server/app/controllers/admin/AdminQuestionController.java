@@ -4,7 +4,6 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.Authorizers;
 import auth.ProfileUtils;
-import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import controllers.CiviFormController;
@@ -654,44 +653,29 @@ public final class AdminQuestionController extends CiviFormController {
     if (currentQuestionDefinition.getQuestionType().equals(QuestionType.STATIC)) {
       String newImageDescription = questionForm.getQuestionImageDescription();
 
-      if (currentQuestionDefinition.getImageFileKey().isPresent()) {
-        // Keep existing image file key
-        updatedQuestionDefinitionBuilder.setImageFileKey(
-            currentQuestionDefinition.getImageFileKey());
+      // 1. By default: leave existing image and description as such
+      updatedQuestionDefinitionBuilder.setImageFileKey(currentQuestionDefinition.getImageFileKey());
+      updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
+          currentQuestionDefinition.getLocalizedImageDescription());
 
-        // Update alt-text translation if non-empty
-        if (!Strings.isNullOrEmpty(newImageDescription)) {
-          Optional<LocalizedStrings> currentDescription =
-              currentQuestionDefinition.getLocalizedImageDescription();
-          LocalizedStrings updatedStrings =
-              currentDescription.isEmpty()
-                  ? LocalizedStrings.of(LocalizedStrings.DEFAULT_LOCALE, newImageDescription)
-                  : currentDescription
-                      .get()
-                      .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, newImageDescription);
+      // 2. Only update if an image is present and the text actually changed
+      if (currentQuestionDefinition.getImageFileKey().isPresent()
+          && newImageDescription != null
+          && !newImageDescription.isBlank()) {
+
+        String currentDefaultDescription =
+            currentQuestionDefinition
+                .getLocalizedImageDescription()
+                .map(LocalizedStrings::getDefault)
+                .orElse("");
+
+        if (!currentDefaultDescription.equals(newImageDescription.trim())) {
           updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
-              Optional.of(updatedStrings));
-        } else {
-          updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
-              currentQuestionDefinition.getLocalizedImageDescription());
+              Optional.of(
+                  LocalizedStrings.of(
+                      LocalizedStrings.DEFAULT_LOCALE, newImageDescription.trim())));
         }
-      } else {
-        // No image exists on this question
-        updatedQuestionDefinitionBuilder.setImageFileKey(Optional.empty());
-        updatedQuestionDefinitionBuilder.setLocalizedImageDescription(Optional.empty());
       }
-    }
-
-    // Question help text is optional. If the admin submits an empty string, delete
-    // all translations of it.
-    if (questionForm.getQuestionHelpText().isBlank()) {
-      updatedQuestionDefinitionBuilder.setQuestionHelpText(LocalizedStrings.empty());
-    } else {
-      updatedQuestionDefinitionBuilder.setQuestionHelpText(
-          currentQuestionDefinition
-              .getQuestionHelpText()
-              .updateTranslation(
-                  LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
     }
 
     if (currentQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
