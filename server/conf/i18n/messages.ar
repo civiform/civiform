@@ -887,7 +887,7 @@ validation.lastNameRequired=يُرجى إدخال اسم العائلة.
 validation.numberTooBig=يجب ألا يتجاوز العدد {0}.
 validation.numberTooSmall=يجب ألا يقل العدد عن {0}.
 validation.numberNonInteger=يجب أن يكون العدد موجبًا وصحيحًا وأن يتضمن أرقامًا بين 0 و9 فقط.
-validation.numberNonInteger.v2=يجب أن يكون الرقم عددًا صحيحًا موجبًا، ولا يمكن أن يحتوي إلا على أرقام من 0 إلى 9. الحد الأقصى للطول 19 حرفًا.\n
+validation.numberNonInteger.v2=يجب أن يكون الرقم عددًا صحيحًا موجبًا، ولا يمكن أن يحتوي إلا على أرقام من 0 إلى 9. الحد الأقصى للطول 19 حرفًا.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
