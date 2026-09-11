@@ -1,5 +1,6 @@
 #! /usr/bin/env python3
 
+import argparse
 import os
 import re
 import requests
@@ -7,7 +8,11 @@ import subprocess
 import shlex
 import sys
 
-# DOC: Create a new draft CiviForm image release. Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER
+# DOC: Create a new draft CiviForm image release.
+# DOC: Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER [--branch BRANCH]
+# DOC: BRANCH defaults to main. A SNAPSHOT- (built from main) or RELEASE- (built from
+# DOC: a release/* branch) Docker Hub image must already exist for COMMIT_SHA.
+# DOC: Versions must have patch 0 on main and patch greater than 0 on release/*.
 #
 # Requirements:
 #   Must have creds to login to docker hub as 'civiform' user.
@@ -40,13 +45,22 @@ def shell_cmd(command_string, timeout=None):
 GH_RELEASE_TOKEN_FILENAME = 'gh-release-token.txt'
 GH_RELEASE_TOKEN_ENV_VAR_NAME = 'GH_TOKEN'
 
+# Only images built by CI from main (SNAPSHOT-) or by the branch build workflow
+# from a release/* branch (RELEASE-) may be promoted to a release. DEV- images built
+# from feature branches are for testing only.
+RELEASABLE_TAG_PREFIXES = ('SNAPSHOT-', 'RELEASE-')
+
 
 def main():
-    if len(sys.argv) != 3:
-        print(
-            'Usage: bin/create-release COMMIT_SHA RELEASE_NUMBER',
-            file=sys.stderr)
-        exit(1)
+    parser = argparse.ArgumentParser(
+        description='Create a new draft CiviForm image release.')
+    parser.add_argument('commit_sha', metavar='COMMIT_SHA')
+    parser.add_argument('release_number', metavar='RELEASE_NUMBER')
+    parser.add_argument(
+        '--branch',
+        default='main',
+        help='Origin branch containing the release commit (default: main)')
+    args = parser.parse_args()
 
     if not os.path.exists(GH_RELEASE_TOKEN_FILENAME
                          ) and not GH_RELEASE_TOKEN_ENV_VAR_NAME in os.environ:
@@ -62,8 +76,8 @@ def main():
     # Set release variables
     ################################################################################
 
-    commit_sha = sys.argv[1]
-    release_number = sys.argv[2]
+    commit_sha = args.commit_sha
+    release_number = args.release_number
     if 'GITHUB_ACTOR' in os.environ:
         shell_cmd(
             f'git config user.email ' +
@@ -104,36 +118,63 @@ def main():
     # Validate release version number
     ################################################################################
 
-    if not re.match('^v\d+\.\d+\.\d+$', release_number):
+    if not re.match(r'^v\d+\.\d+\.\d+$', release_number):
         print('Invalid version number: ' + release_number, file=sys.stderr)
+        exit(1)
+
+    patch = int(release_number.split('.')[2])
+    if args.branch == 'main' and patch != 0:
+        print(
+            f'Invalid version number: {release_number}. Releases from main must have patch 0.',
+            file=sys.stderr)
+        exit(1)
+
+    if args.branch.startswith('release/') and patch == 0:
+        print(
+            f'Invalid version number: {release_number}. Releases from release/* must have patch greater than 0.',
+            file=sys.stderr)
         exit(1)
 
     ################################################################################
     # Validate commit SHA
     ################################################################################
 
-    # Validate commit SHA exists in main branch
+    # Validate commit SHA exists in the selected remote branch.
     branches_containing_commit_sha = shell_cmd(
         'git --no-pager branch -r --contains ' + commit_sha)
     branches_containing_commit_sha = [
         # The output of the command is a list of branch names, with a '*' at the
         # beginning of the current branch. This regex and the strip transform
         # the list to only branch names with no trailing or preceding whitespace.
-        re.sub('\*', '', x).strip()
+        re.sub(r'\*', '', x).strip()
         for x in branches_containing_commit_sha.split('\n')
     ]
-    if not 'origin/main' in branches_containing_commit_sha:
-        print('Invalid commit SHA: ' + commit_sha, file=sys.stderr)
+    # Only allow releases from main or a release/* branch so a typo in the
+    # workflow input can't tag and publish a commit from a feature branch.
+    if not re.fullmatch(r'main|release/.+', args.branch):
+        print(
+            f'Invalid branch: {args.branch}. Releases must come from main or a release/* branch.',
+            file=sys.stderr)
+        exit(1)
+
+    # The commit must already be pushed to the selected branch on origin.
+    # This catches a SHA that only exists locally or on a different branch.
+    if f'origin/{args.branch}' not in branches_containing_commit_sha:
+        print(
+            f'Invalid commit SHA: {commit_sha} is not on origin/{args.branch}',
+            file=sys.stderr)
         exit(1)
 
     ################################################################################
-    # Find Docker Hub snapshot tag that matches commit SHA
+    # Find Docker Hub SNAPSHOT or RELEASE tag that matches commit SHA
     ################################################################################
 
     # Git defaults to using the first 7 chars of the full SHA for the short SHA.
     short_sha = shell_cmd('git rev-parse --short ' + commit_sha)[:7]
 
-    print(f'Searching for an image tag with short SHA {short_sha}')
+    print(
+        f'Searching for a {" or ".join(RELEASABLE_TAG_PREFIXES)} image tag with short SHA {short_sha}'
+    )
 
     tags_url = 'https://registry.hub.docker.com/v2/repositories/civiform/civiform/tags?order=-last_activity&page_size=100'
     while True:
@@ -149,8 +190,10 @@ def main():
         response_json = response.json()
 
         for tag_info in response_json['results']:
-            if short_sha in tag_info['name']:
-                snapshot_tag = tag_info['name']
+            tag_name = tag_info['name']
+            if short_sha in tag_name and tag_name.startswith(
+                    RELEASABLE_TAG_PREFIXES):
+                snapshot_tag = tag_name
                 break
 
         if snapshot_tag is not None:
@@ -158,7 +201,8 @@ def main():
 
         if response_json['next'] is None:
             print(
-                f'No snapshot tag found with short SHA: {short_sha}',
+                f'No {" or ".join(RELEASABLE_TAG_PREFIXES)} image tag found with short SHA: {short_sha}. '
+                'DEV- images built from feature branches cannot be released.',
                 file=sys.stderr)
             exit(1)
 

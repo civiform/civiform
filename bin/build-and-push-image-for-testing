@@ -1,14 +1,17 @@
 #! /usr/bin/env bash
 
-# DOC: Build a new server docker image from the local branch
-# DOC: and push to docker hub for testing purposes. Requires
-# DOC: docker hub credentials to be set in the environment
-# DOC: along with DEV_BRANCH_NAME.
+# DOC: Build a server docker image from the checked out branch and push it to
+# DOC: Docker Hub. Images built from a release/* branch are tagged
+# DOC: RELEASE-<short sha>-<unix seconds>-<branch> and can be promoted with
+# DOC: bin/create-release. Images built from any other branch are tagged
+# DOC: DEV-<short sha>-<unix seconds>-<branch> and are for testing only.
+# DOC: Requires Docker Hub credentials to be set in the environment along with
+# DOC: BRANCH_NAME.
 
 source bin/lib.sh
 
-if [[ -z "${DEV_BRANCH_NAME}" ]]; then
-  echo "DEV_BRANCH_NAME must be set"
+if [[ -z "${BRANCH_NAME}" ]]; then
+  echo "BRANCH_NAME must be set"
   exit 1
 fi
 
@@ -24,14 +27,25 @@ fi
 
 docker::do_dockerhub_login
 
-echo "Building ${IMAGE_TAG}..."
+# Only release/* branches get the RELEASE- prefix. bin/create-release refuses to
+# promote DEV- images, so a feature branch can't be turned into a release.
+if [[ "${BRANCH_NAME}" == release/* ]]; then
+  readonly TAG_PREFIX="RELEASE"
+else
+  readonly TAG_PREFIX="DEV"
+fi
 
+# Match the SNAPSHOT tag layout from bin/build-prod. The timestamp keeps
+# re-runs on the same commit from overwriting each other.
 readonly SHORT_SHA="$(git rev-parse --short HEAD)"
-readonly IMAGE_TAG="DEV-${SHORT_SHA}-${DEV_BRANCH_NAME/\//-}"
+readonly DATE_IN_UNIX_SECONDS="$(date +%s)"
+readonly IMAGE_TAG="${TAG_PREFIX}-${SHORT_SHA}-${DATE_IN_UNIX_SECONDS}-${BRANCH_NAME//\//-}"
 readonly GIT_SHA="$(git rev-parse HEAD)"
 export DOCKER_BUILDKIT=1
 
-# Push the image and push to docker hub
+echo "Building ${IMAGE_TAG}..."
+
+# Build the image and push it to Docker Hub
 docker buildx build --push \
   -f prod.Dockerfile \
   -t "civiform/civiform:${IMAGE_TAG}" \
