@@ -54,7 +54,9 @@ public final class QuestionFormPageMapperTest {
         /* answerOptionScoringEnabled= */ false,
         /* imagesInQuestionFeatureEnabled= */ false,
         readOnlyQuestionService,
-        Optional.empty());
+        Optional.empty(),
+        /* existingImageFileKey= */ Optional.empty(),
+        /* existingImageDescription= */ "");
   }
 
   @Test
@@ -436,7 +438,9 @@ public final class QuestionFormPageMapperTest {
             /* answerOptionScoringEnabled= */ false,
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
-            Optional.empty());
+            Optional.empty(),
+            /* existingImageFileKey= */ Optional.empty(),
+            /* existingImageDescription= */ "");
 
     assertThat(result.getQuestionId()).isEqualTo(42L);
   }
@@ -476,7 +480,9 @@ public final class QuestionFormPageMapperTest {
             /* answerOptionScoringEnabled= */ false,
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
-            Optional.empty());
+            Optional.empty(),
+            /* existingImageFileKey= */ Optional.empty(),
+            /* existingImageDescription= */ "");
 
     assertThat(result.getEnumeratorDisplayName()).isEqualTo("household-members");
   }
@@ -496,9 +502,35 @@ public final class QuestionFormPageMapperTest {
             /* answerOptionScoringEnabled= */ false,
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
-            Optional.of("Error occurred"));
+            Optional.of("Error occurred"),
+            /* existingImageFileKey= */ Optional.empty(),
+            /* existingImageDescription= */ "");
 
     assertThat(result.getErrorMessage()).contains("Error: Error occurred");
     assertThat(result.getErrorToastId()).isNotEmpty();
+  }
+
+  @Test
+  public void mapEdit_withExistingImage_setsImageFields() {
+    TextQuestionForm form = new TextQuestionForm();
+
+    QuestionFormPageViewModel result =
+        mapper.mapEdit(
+            1L,
+            form,
+            Optional.empty(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.of("Error occurred"),
+            /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"),
+            /* existingImageDescription= */ "Alt text for image");
+
+    assertThat(result.hasExistingImage()).isTrue();
+    assertThat(result.getExistingImageFileKey()).contains("question-image/question-1/test.png");
+    assertThat(result.getQuestionImageDescription()).isEqualTo("Alt text for image");
   }
 }

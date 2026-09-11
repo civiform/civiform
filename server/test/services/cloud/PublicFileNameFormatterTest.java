@@ -20,14 +20,26 @@ public class PublicFileNameFormatterTest {
   }
 
   @Test
-  public void sanitizeProgramImageFileName_stripsPathComponents() {
-    assertThat(PublicFileNameFormatter.sanitizeProgramImageFileName("../../evil.png"))
+  public void formatPublicQuestionImageFileKey_withFileName_isCorrectlyFormatted() {
+    String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(122, "myImage.png");
+    assertThat(filename).isEqualTo("question-image/question-122/myImage.png");
+  }
+
+  @Test
+  public void sanitizePublicImageFileName_stripsPathComponents() {
+    assertThat(PublicFileNameFormatter.sanitizePublicImageFileName("../../evil.png"))
         .isEqualTo("evil.png");
   }
 
   @Test
-  public void sanitizeProgramImageFileName_stripsNonAlphanumericCharacters() {
-    assertThat(PublicFileNameFormatter.sanitizeProgramImageFileName("my image (1).png"))
+  public void isFileKeyForPublicQuestionImage_isTrue() {
+    String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(122, "myImage.png");
+    assertThat(PublicFileNameFormatter.isFileKeyForPublicQuestionImage(filename)).isTrue();
+  }
+
+  @Test
+  public void sanitizePublicImageFileName_stripsNonAlphanumericCharacters() {
+    assertThat(PublicFileNameFormatter.sanitizePublicImageFileName("my image (1).png"))
         .isEqualTo("myimage1.png");
   }
 
