@@ -2220,10 +2220,7 @@ public final class ProgramService {
       Optional<Boolean> isEnumerator,
       boolean isNested,
       boolean enumeratorImprovementsEnabled) {
-    String blockName =
-        maybeEnumeratorBlockId.isPresent()
-            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
-            : String.format("Screen %d", blockId);
+    String blockName = String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
     Optional<String> namePrefix = Optional.empty();
     if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {
