@@ -103,6 +103,16 @@ jobs:
       - name: check out ${{ env.GITHUB_REF }}
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
+      # DISK DIAGNOSTICS: baseline before anything is built.
+      - name: Disk usage (baseline)
+        run: |
+          echo "::group::df"
+          df -h /
+          echo "::endgroup::"
+          echo "::group::runner core count"
+          nproc
+          echo "::endgroup::"
+
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4
 
@@ -132,10 +142,34 @@ jobs:
           DOCKER_HUB_USERNAME: civiform
         run: bin/build-mock-web-services
 
+      # DISK DIAGNOSTICS: after all images are built. "Build Cache" in
+      # docker system df is the number to compare against the fork.
+      - name: Disk usage (after builds)
+        run: |
+          echo "::group::df"
+          df -h /
+          echo "::endgroup::"
+          echo "::group::docker system df"
+          docker system df
+          echo "::endgroup::"
+          echo "::group::docker images"
+          docker images --format 'table {{.Repository}}\t{{.Tag}}\t{{.Size}}'
+          echo "::endgroup::"
+
       - name: Bring up test env with ${{ matrix.cloud }}
         env:
           CI: true
         run: bin/run-browser-test-env --${{ matrix.cloud }} --ci
+
+      # DISK DIAGNOSTICS: after compose stack is up (pulled service images, volumes).
+      - name: Disk usage (after test env up)
+        run: |
+          echo "::group::df"
+          df -h /
+          echo "::endgroup::"
+          echo "::group::docker system df -v"
+          docker system df -v
+          echo "::endgroup::"
 
       - name: Run browser tests with ${{ matrix.cloud }}
         env:
@@ -146,6 +180,21 @@ jobs:
           else
             bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ strategy.job-total }}"
           fi
+
+      # DISK DIAGNOSTICS: after tests, pass or fail. Shows how much Playwright
+      # output (traces, videos, html report) added on top of the images.
+      - name: Disk usage (after tests)
+        if: always()
+        run: |
+          echo "::group::df"
+          df -h /
+          echo "::endgroup::"
+          echo "::group::docker system df"
+          docker system df
+          echo "::endgroup::"
+          echo "::group::browser-test output sizes"
+          du -sh browser-test/tmp browser-test/tmp/* browser-test/diff_output browser-test/updated_snapshots 2>/dev/null || true
+          echo "::endgroup::"
 
       # We'll treat aws as the source of truth for images snapshots. Attempts to run both will
       # end up with two places trying to update the same images.
