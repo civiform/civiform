@@ -1,3 +1,8 @@
+<!--/*@thymesVar id="demoBannerEnabled" type="boolean"*/-->
+<!--/*@thymesVar id="demoBannerLearnMoreUrl" type=""*/-->
+<!--/*@thymesVar id="demoBannerDaysRemaining" type=""*/-->
+<!--/*@thymesVar id="demoBannerTagColorClass" type=""*/-->
+<!--/*@thymesVar id="civicEntityShortName" type=""*/-->
 <!--/*@thymesVar id="immigrationStatusInfoBannerEnabled" type="boolean"*/-->
 <!--/*@thymesVar id="immigrationStatusInfoBannerLearnMoreUrl" type=""*/-->
 <th:block th:fragment="pageHeader">
@@ -9,6 +14,9 @@
   <div th:unless="${showNotProductionBannerEnabled}">
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
+  <th:block th:if="${demoBannerEnabled}">
+    <div th:replace="~{this :: demoBanner}"></div>
+  </th:block>
   <!--/* The immigration status info banner is only shown on the program index page,
   so all immigration status info banner variables are only set in ProgramIndexView and are unset otherwise. */-->
   <th:block
@@ -227,6 +235,35 @@
     </div>
   </div>
 </section>
+<div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
+  <section
+    class="usa-site-alert usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
+    role="region"
+    th:aria-label="#{label.demoBanner.label}"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <p
+          class="usa-alert__text"
+          th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+        ></p>
+        <div th:if="${demoBannerDaysRemaining != ''}">
+          <span
+            th:class="|usa-tag ${demoBannerTagColorClass}|"
+            th:text="${demoBannerDaysRemaining}"
+          ></span>
+        </div>
+        <!-- Only display the 'learn more here' url if one is provided by CiviForm admins -->
+        <p
+          th:if="${demoBannerLearnMoreUrl != ''}"
+          class="usa-alert__text"
+          th:with="moreInfoUrl='<a class=\'usa-link\' href=\'' + ${demoBannerLearnMoreUrl} + '\'>' + #{banner.demoBanner.linkText} + '</a>'"
+          th:utext="#{banner.demoBanner.bodyWithLink(${moreInfoUrl})}"
+        ></p>
+      </div>
+    </div>
+  </section>
+</div>
 <div
   th:fragment="immigrationStatusInfoBanner"
   th:if="${immigrationStatusInfoBannerEnabled}"

@@ -117,6 +117,7 @@ public abstract class BaseView<TModel extends BaseViewModel> {
             .layoutType(layoutType())
             .civiformImageTag(settingsManifest.getCiviformImageTag().orElse("UNKNOWN"))
             .addNoIndexMetaTag(settingsManifest.getStagingAddNoindexMetaTag())
+            .addDemoModeBanner(settingsManifest.getDemoBannerEnabled(request))
             .favicon(FAVICON_DATAURI)
             .measurementId(settingsManifest.getMeasurementId())
             .stylesheets(getStylesheets())
@@ -139,6 +140,26 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     // Set values for feature flags
     context.setVariable(
         "featureFlags", FeatureFlags.fromSettingsManifest(settingsManifest, request));
+
+    boolean demoBannerEnabled = settingsManifest.getDemoBannerEnabled(request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (demoBannerEnabled) {
+      context.setVariable(
+          "demoBannerLearnMoreUrl", settingsManifest.getDemoBannerLearnMoreUrl(request).orElse(""));
+      String civicEntityShortName =
+          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+      context.setVariable("civicEntityShortName", civicEntityShortName);
+      Optional<Long> maybeDaysRemaining =
+          BaseHtmlLayout.getDemoBannerDaysRemainingCount(settingsManifest, request);
+      context.setVariable(
+          "demoBannerDaysRemaining",
+          maybeDaysRemaining
+              .map(days -> messages.at("banner.demoBanner.daysRemaining", days))
+              .orElse(""));
+      context.setVariable(
+          "demoBannerTagColorClass",
+          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
+    }
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added
     // to the view to aid in custom formatting. Ideally keep these to a minimum and prefer

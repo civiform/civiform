@@ -230,6 +230,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
         .condWith(
             !settingsManifest.getShowNotProductionBannerEnabled(request),
             getGovBanner(Optional.of(messages)))
+        .condWith(settingsManifest.getDemoBannerEnabled(request), getDemoBanner(request, messages))
         .with(
             div()
                 .withClasses(
