@@ -1122,15 +1122,15 @@ banner.immigrationStatusInfoBanner.linkText=here
 #------------------------------------------------------------------------------#
 
 # Header for demo banner alert
-label.demoBanner.heading=This is a demo site
+label.demoBanner.heading=Demo: {0}
 # Aria-label for demo banner alert
 label.demoBanner.label=Demo mode informational alert
-# Text in the demo banner explaining that this is a demo environment when no learn more link is configured
-banner.demoBanner.body=Do not enter actual or personal data in this demo site.
-# Text in the demo banner explaining that this is a demo environment - the placeholder says 'here' and is a link to more information
-banner.demoBanner.bodyWithLink=Do not enter actual or personal data in this demo site. You can learn more {0}.
+# Text in the demo banner explaining how to learn more - the placeholder says 'here' and is a link to more information
+banner.demoBanner.bodyWithLink=You can learn more {0}.
 # Link for more info about the demo banner
 banner.demoBanner.linkText=here
+# Count of remaining days for the demo environment
+banner.demoBanner.daysRemaining={0} days remaining
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #

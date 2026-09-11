@@ -933,3 +933,11 @@ main {
 main#main-content {
   outline: none;
 }
+
+// Demo banner custom background color
+.usa-site-alert.cf-demo-banner {
+  .usa-alert,
+  .usa-alert .usa-alert__body {
+    background-color: #e7f0f9;
+  }
+}

@@ -112,7 +112,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
-    assertThat(result).doesNotContain("This is a demo site");
+    assertThat(result).doesNotContain("Demo: TestCity");
     assertThat(result).doesNotContain("Demo mode informational alert");
   }
 
@@ -121,6 +121,8 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     SettingsManifest settingsManifest = mock(SettingsManifest.class);
     when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("civiform-image-tag"));
     when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+    when(settingsManifest.getWhitelabelCivicEntityShortName(Mockito.any()))
+        .thenReturn(Optional.of("TestCity"));
     when(settingsManifest.getDemoBannerEnabled(Mockito.any())).thenReturn(true);
     when(settingsManifest.getDemoBannerLearnMoreUrl(Mockito.any())).thenReturn(Optional.empty());
 
@@ -130,9 +132,14 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
-    assertThat(result).contains("This is a demo site");
+    assertThat(result).contains("Demo: TestCity");
     assertThat(result).contains("Demo mode informational alert");
-    assertThat(result).contains("Do not enter actual or personal data in this demo site.");
+    assertThat(result).doesNotContain("Do not enter actual or personal data in this demo site.");
+    assertThat(result).contains("usa-site-alert--slim");
+    assertThat(result).contains("usa-site-alert--no-icon");
+    assertThat(result).contains("cf-demo-banner");
+    assertThat(result).doesNotContain("usa-alert__heading");
+    assertThat(result).doesNotContain("usa-tag");
   }
 
   @Test
@@ -140,6 +147,8 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     SettingsManifest settingsManifest = mock(SettingsManifest.class);
     when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("civiform-image-tag"));
     when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+    when(settingsManifest.getWhitelabelCivicEntityShortName(Mockito.any()))
+        .thenReturn(Optional.of("TestCity"));
     when(settingsManifest.getDemoBannerEnabled(Mockito.any())).thenReturn(true);
     when(settingsManifest.getDemoBannerLearnMoreUrl(Mockito.any()))
         .thenReturn(Optional.of("https://example.com/demo-learn-more"));
@@ -150,8 +159,62 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
-    assertThat(result).contains("This is a demo site");
+    assertThat(result).contains("Demo: TestCity");
     assertThat(result).contains("https://example.com/demo-learn-more");
     assertThat(result).contains("here");
+    assertThat(result).contains("You can learn more");
+    assertThat(result).doesNotContain("Do not enter actual or personal data in this demo site.");
+  }
+
+  @Test
+  public void render_demoBanner_whenEnabledWithExpirationDate_containsDaysRemaining() {
+    java.time.LocalDate futureDate =
+        java.time.LocalDate.now(java.time.ZoneId.systemDefault()).plusDays(6);
+    SettingsManifest settingsManifest = mock(SettingsManifest.class);
+    when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("civiform-image-tag"));
+    when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+    when(settingsManifest.getWhitelabelCivicEntityShortName(Mockito.any()))
+        .thenReturn(Optional.of("TestCity"));
+    when(settingsManifest.getDemoBannerEnabled(Mockito.any())).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(Mockito.any())).thenReturn(Optional.empty());
+    when(settingsManifest.getDemoBannerExpirationDate(Mockito.any()))
+        .thenReturn(
+            Optional.of(futureDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)));
+
+    CustomView customView =
+        createViewWithSettings(
+            "../../test/views/admin/testTemplateWithoutScriptBlock.html", settingsManifest);
+
+    String result = customView.render(fakeRequest(), new CustomViewModel());
+
+    assertThat(result).contains("Demo: TestCity");
+    assertThat(result).contains("usa-tag bg-green");
+    assertThat(result).contains("6 days remaining");
+  }
+
+  @Test
+  public void render_demoBanner_whenEnabledWith5OrLessDaysRemaining_containsYellowTag() {
+    java.time.LocalDate futureDate =
+        java.time.LocalDate.now(java.time.ZoneId.systemDefault()).plusDays(3);
+    SettingsManifest settingsManifest = mock(SettingsManifest.class);
+    when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("civiform-image-tag"));
+    when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+    when(settingsManifest.getWhitelabelCivicEntityShortName(Mockito.any()))
+        .thenReturn(Optional.of("TestCity"));
+    when(settingsManifest.getDemoBannerEnabled(Mockito.any())).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(Mockito.any())).thenReturn(Optional.empty());
+    when(settingsManifest.getDemoBannerExpirationDate(Mockito.any()))
+        .thenReturn(
+            Optional.of(futureDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)));
+
+    CustomView customView =
+        createViewWithSettings(
+            "../../test/views/admin/testTemplateWithoutScriptBlock.html", settingsManifest);
+
+    String result = customView.render(fakeRequest(), new CustomViewModel());
+
+    assertThat(result).contains("Demo: TestCity");
+    assertThat(result).contains("usa-tag bg-yellow text-ink");
+    assertThat(result).contains("3 days remaining");
   }
 }

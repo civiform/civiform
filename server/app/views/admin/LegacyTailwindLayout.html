@@ -58,7 +58,7 @@
   */-->
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body
-    class="bg-gradient-to-r from-gray-100 via-white to-gray-100 box-border flex min-h-screen mt-5"
+    class="bg-gradient-to-r from-gray-100 via-white to-gray-100 box-border flex flex-col min-h-screen"
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
@@ -73,7 +73,7 @@
 
     <!--/* Main */-->
     <main
-      class="bg-white border border-gray-200 mt-12 shadow-lg w-screen admin-responsive-main-padding"
+      class="bg-white border border-gray-200 shadow-lg w-screen admin-responsive-main-padding"
       th:classappend="${layoutParams.isWidescreen() ? 'flex flex-row' : 'px-2 max-w-screen-2xl mx-auto'}"
     >
       <th:block

@@ -1,6 +1,7 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
@@ -36,6 +37,8 @@ public class AdminLayoutTest extends ResetPostgres {
     settingsManifest = mock(SettingsManifest.class);
     when(settingsManifest.getCiviformImageTag()).thenReturn(Optional.of("fake-image-tag"));
     when(settingsManifest.getFaviconUrl()).thenReturn(Optional.of("favicon-url"));
+    when(settingsManifest.getWhitelabelCivicEntityShortName(any()))
+        .thenReturn(Optional.of("TestCity"));
 
     translationLocales = mock(TranslationLocales.class);
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
@@ -150,9 +153,14 @@ public class AdminLayoutTest extends ResetPostgres {
     Content content = adminLayout.render(bundle);
     String html = content.body();
 
-    assertThat(html).contains("This is a demo site");
+    assertThat(html).contains("Demo: TestCity");
     assertThat(html).contains("Demo mode informational alert");
-    assertThat(html).contains("Do not enter actual or personal data in this demo site.");
+    assertThat(html).doesNotContain("Do not enter actual or personal data in this demo site.");
+    assertThat(html).contains("usa-site-alert--slim");
+    assertThat(html).contains("usa-site-alert--no-icon");
+    assertThat(html).contains("cf-demo-banner");
+    assertThat(html).doesNotContain("usa-alert__heading");
+    assertThat(html).doesNotContain("usa-tag");
   }
 
   @Test
@@ -166,9 +174,11 @@ public class AdminLayoutTest extends ResetPostgres {
     Content content = adminLayout.render(bundle);
     String html = content.body();
 
-    assertThat(html).contains("This is a demo site");
+    assertThat(html).contains("Demo: TestCity");
     assertThat(html).contains("https://example.com/demo-learn-more");
     assertThat(html).contains("here");
+    assertThat(html).contains("You can learn more");
+    assertThat(html).doesNotContain("Do not enter actual or personal data in this demo site.");
   }
 
   @Test
@@ -180,7 +190,47 @@ public class AdminLayoutTest extends ResetPostgres {
     Content content = adminLayout.render(bundle);
     String html = content.body();
 
-    assertThat(html).doesNotContain("This is a demo site");
+    assertThat(html).doesNotContain("Demo: TestCity");
     assertThat(html).doesNotContain("Demo mode informational alert");
+  }
+
+  @Test
+  public void getBundle_includesDemoBannerWithExpirationDate_whenConfigured() {
+    Http.Request request = fakeRequestBuilder().build();
+    java.time.LocalDate futureDate =
+        java.time.LocalDate.now(java.time.ZoneId.systemDefault()).plusDays(4);
+    when(settingsManifest.getDemoBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getDemoBannerExpirationDate(request))
+        .thenReturn(
+            Optional.of(futureDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)));
+
+    HtmlBundle bundle = adminLayout.getBundle(new HtmlBundle(request));
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).contains("Demo: TestCity");
+    assertThat(html).contains("usa-tag bg-yellow text-ink");
+    assertThat(html).contains("4 days remaining");
+  }
+
+  @Test
+  public void getBundle_includesDemoBannerWithExpirationDate_greenTagWhenMoreThan5Days() {
+    Http.Request request = fakeRequestBuilder().build();
+    java.time.LocalDate futureDate =
+        java.time.LocalDate.now(java.time.ZoneId.systemDefault()).plusDays(7);
+    when(settingsManifest.getDemoBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getDemoBannerLearnMoreUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getDemoBannerExpirationDate(request))
+        .thenReturn(
+            Optional.of(futureDate.format(java.time.format.DateTimeFormatter.ISO_LOCAL_DATE)));
+
+    HtmlBundle bundle = adminLayout.getBundle(new HtmlBundle(request));
+    Content content = adminLayout.render(bundle);
+    String html = content.body();
+
+    assertThat(html).contains("Demo: TestCity");
+    assertThat(html).contains("usa-tag bg-green");
+    assertThat(html).contains("7 days remaining");
   }
 }

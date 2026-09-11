@@ -5,7 +5,6 @@ import static j2html.TagCreator.a;
 import static j2html.TagCreator.br;
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.h4;
 import static j2html.TagCreator.header;
 import static j2html.TagCreator.img;
 import static j2html.TagCreator.link;
@@ -16,7 +15,6 @@ import static j2html.TagCreator.script;
 import static j2html.TagCreator.section;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.strong;
-import static j2html.TagCreator.text;
 import static j2html.TagCreator.title;
 import static views.BaseHtmlView.getCsrfToken;
 
@@ -29,6 +27,11 @@ import j2html.tags.specialized.HeaderTag;
 import j2html.tags.specialized.ScriptTag;
 import j2html.tags.specialized.SectionTag;
 import j2html.tags.specialized.SpanTag;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
@@ -397,30 +400,123 @@ public class BaseHtmlLayout {
    */
   public DivTag getDemoBanner(Http.RequestHeader request, Messages messages) {
     Optional<String> maybeLearnMoreUrl = settingsManifest.getDemoBannerLearnMoreUrl(request);
+    String civicEntityShortName =
+        settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+    String title = messages.at("label.demoBanner.heading", civicEntityShortName);
 
-    DomContent textContent;
+    Optional<Long> maybeDaysRemaining =
+        getDemoBannerDaysRemainingCount(
+            settingsManifest, request, viewUtils.getDateConverter().getCurrentDateForZoneId());
+
+    ImmutableList.Builder<DomContent> bodyElements = ImmutableList.builder();
+    bodyElements.add(p(title).withClass("usa-alert__text"));
+    if (maybeDaysRemaining.isPresent()) {
+      long daysRemaining = maybeDaysRemaining.get();
+      String daysRemainingText = messages.at("banner.demoBanner.daysRemaining", daysRemaining);
+      String tagColorClass = getDemoBannerTagColorClass(daysRemaining);
+      bodyElements.add(div(span(daysRemainingText).withClasses("usa-tag", tagColorClass)));
+    }
     if (maybeLearnMoreUrl.isPresent() && !maybeLearnMoreUrl.get().isBlank()) {
       String learnMoreUrl = maybeLearnMoreUrl.get();
       ATag moreInfoLink =
           a(messages.at("banner.demoBanner.linkText"))
               .withHref(learnMoreUrl)
               .withClasses("usa-link");
-      textContent = rawHtml(messages.at("banner.demoBanner.bodyWithLink", moreInfoLink.render()));
-    } else {
-      textContent = text(messages.at("banner.demoBanner.body"));
+      DomContent textContent =
+          rawHtml(messages.at("banner.demoBanner.bodyWithLink", moreInfoLink.render()));
+      bodyElements.add(p(textContent).withClass("usa-alert__text"));
     }
 
     return div(
         section(
-                div(div(
-                            h4(messages.at("label.demoBanner.heading"))
-                                .withClass("usa-alert__heading"),
-                            p(textContent).withClass("usa-alert__text"))
+                div(div(bodyElements.build().toArray(new DomContent[0]))
                         .withClass("usa-alert__body"))
                     .withClass("usa-alert"))
             .withClasses(
-                "usa-site-alert", "usa-site-alert--info", "usa-site-alert--slim", "cf-alert")
+                "usa-site-alert",
+                "usa-site-alert--slim",
+                "usa-site-alert--no-icon",
+                "cf-alert",
+                "cf-demo-banner")
             .attr("role", "region")
             .attr("aria-label", messages.at("label.demoBanner.label")));
+  }
+
+  /**
+   * Returns the demo banner days remaining count if an expiration date is set and valid.
+   *
+   * @param settingsManifest the settings manifest to get the expiration date from
+   * @param request the current request
+   * @param currentDate the current date to calculate remaining days against
+   * @return remaining days count, or empty if missing, invalid, or negative
+   */
+  public static Optional<Long> getDemoBannerDaysRemainingCount(
+      SettingsManifest settingsManifest, Http.RequestHeader request, LocalDate currentDate) {
+    Optional<String> maybeExpirationDate = settingsManifest.getDemoBannerExpirationDate(request);
+    if (maybeExpirationDate.isEmpty() || maybeExpirationDate.get().isBlank()) {
+      return Optional.empty();
+    }
+    try {
+      LocalDate expirationDate =
+          LocalDate.parse(maybeExpirationDate.get().trim(), DateTimeFormatter.ISO_LOCAL_DATE);
+      long daysRemaining = ChronoUnit.DAYS.between(currentDate, expirationDate);
+      if (daysRemaining < 0) {
+        return Optional.empty();
+      }
+      return Optional.of(daysRemaining);
+    } catch (DateTimeParseException e) {
+      return Optional.empty();
+    }
+  }
+
+  public static Optional<Long> getDemoBannerDaysRemainingCount(
+      SettingsManifest settingsManifest, Http.RequestHeader request, ZoneId zoneId) {
+    return getDemoBannerDaysRemainingCount(settingsManifest, request, LocalDate.now(zoneId));
+  }
+
+  public static Optional<Long> getDemoBannerDaysRemainingCount(
+      SettingsManifest settingsManifest, Http.RequestHeader request) {
+    return getDemoBannerDaysRemainingCount(settingsManifest, request, ZoneId.systemDefault());
+  }
+
+  /**
+   * Returns the CSS color classes for the demo banner expiration tag.
+   *
+   * @param daysRemaining the count of remaining days
+   * @return "bg-green" if > 5 days remain, "bg-yellow text-ink" if 5 or less days remain
+   */
+  public static String getDemoBannerTagColorClass(long daysRemaining) {
+    return daysRemaining > 5 ? "bg-green" : "bg-yellow text-ink";
+  }
+
+  /**
+   * Returns the demo banner days remaining message if an expiration date is set and valid.
+   *
+   * @param settingsManifest the settings manifest to get the expiration date from
+   * @param request the current request
+   * @param messages the messages provider for localization
+   * @param currentDate the current date to calculate remaining days against
+   * @return formatted days remaining message, or empty if missing, invalid, or negative
+   */
+  public static Optional<String> getDemoBannerDaysRemaining(
+      SettingsManifest settingsManifest,
+      Http.RequestHeader request,
+      Messages messages,
+      LocalDate currentDate) {
+    return getDemoBannerDaysRemainingCount(settingsManifest, request, currentDate)
+        .map(days -> messages.at("banner.demoBanner.daysRemaining", days));
+  }
+
+  public static Optional<String> getDemoBannerDaysRemaining(
+      SettingsManifest settingsManifest,
+      Http.RequestHeader request,
+      Messages messages,
+      ZoneId zoneId) {
+    return getDemoBannerDaysRemaining(settingsManifest, request, messages, LocalDate.now(zoneId));
+  }
+
+  public static Optional<String> getDemoBannerDaysRemaining(
+      SettingsManifest settingsManifest, Http.RequestHeader request, Messages messages) {
+    return getDemoBannerDaysRemaining(settingsManifest, request, messages, ZoneId.systemDefault());
   }
 }

@@ -146,6 +146,19 @@ public abstract class BaseView<TModel extends BaseViewModel> {
     if (demoBannerEnabled) {
       context.setVariable(
           "demoBannerLearnMoreUrl", settingsManifest.getDemoBannerLearnMoreUrl(request).orElse(""));
+      String civicEntityShortName =
+          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+      context.setVariable("civicEntityShortName", civicEntityShortName);
+      Optional<Long> maybeDaysRemaining =
+          BaseHtmlLayout.getDemoBannerDaysRemainingCount(settingsManifest, request);
+      context.setVariable(
+          "demoBannerDaysRemaining",
+          maybeDaysRemaining
+              .map(days -> messages.at("banner.demoBanner.daysRemaining", days))
+              .orElse(""));
+      context.setVariable(
+          "demoBannerTagColorClass",
+          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
     }
 
     // This gives the Thymeleaf template a reference to this view class. Methods can be added

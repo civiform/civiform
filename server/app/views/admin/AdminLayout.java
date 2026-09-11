@@ -101,6 +101,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     bundle.addMainStyles(
         AdminStyles.MAIN, isCentered ? AdminStyles.MAIN_CENTERED : AdminStyles.MAIN_FULL);
     bundle.addBodyStyles(AdminStyles.BODY);
+    bundle.addHeaderStyles(AdminStyles.HEADER);
     addSessionTimeoutModals(bundle, messagesApi.preferred(bundle.getRequest()));
 
     return super.render(bundle);
@@ -181,7 +182,7 @@ public final class AdminLayout extends BaseHtmlLayout {
             .condWith(
                 settingsManifest.getDemoBannerEnabled(request),
                 getDemoBanner(request, messagesApi.preferred(request)))
-            .withClasses("position-fixed", "top-0", "width-full", "z-10");
+            .withClasses("width-full");
 
     HeaderTag headerAccordion =
         header()

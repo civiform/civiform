@@ -691,6 +691,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for providing more information for the demo informational banner.",
         "type": "string"
+      },
+      "DEMO_BANNER_EXPIRATION_DATE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The expiration date for the demo instance formatted as yyyy-mm-dd.",
+        "type": "string"
       }
     }
   },

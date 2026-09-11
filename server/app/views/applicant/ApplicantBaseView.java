@@ -25,6 +25,7 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
+import views.BaseHtmlLayout;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
@@ -178,6 +179,19 @@ public abstract class ApplicantBaseView {
     if (demoBannerEnabled) {
       context.setVariable(
           "demoBannerLearnMoreUrl", settingsManifest.getDemoBannerLearnMoreUrl(request).orElse(""));
+      String civicEntityShortName =
+          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+      context.setVariable("civicEntityShortName", civicEntityShortName);
+      Optional<Long> maybeDaysRemaining =
+          BaseHtmlLayout.getDemoBannerDaysRemainingCount(settingsManifest, request);
+      context.setVariable(
+          "demoBannerDaysRemaining",
+          maybeDaysRemaining
+              .map(days -> messages.at("banner.demoBanner.daysRemaining", days))
+              .orElse(""));
+      context.setVariable(
+          "demoBannerTagColorClass",
+          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
     }
 
     maybeSetUpNotProductionBanner(context, request, messages);

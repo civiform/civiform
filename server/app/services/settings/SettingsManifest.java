@@ -787,6 +787,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("DEMO_BANNER_LEARN_MORE_URL", request);
   }
 
+  /** The expiration date for the demo instance formatted as yyyy-mm-dd. */
+  public Optional<String> getDemoBannerExpirationDate(RequestHeader request) {
+    return getString("DEMO_BANNER_EXPIRATION_DATE", request);
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -2132,6 +2137,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "DEMO_BANNER_LEARN_MORE_URL",
                           "The HREF for providing more information for the demo informational"
                               + " banner.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DEMO_BANNER_EXPIRATION_DATE",
+                          "The expiration date for the demo instance formatted as yyyy-mm-dd.",
                           /* isRequired= */ false,
                           SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE))))
