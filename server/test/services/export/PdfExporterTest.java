@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
@@ -476,8 +475,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();
@@ -522,8 +520,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     // For every block (which is every question, since our fake program creates one block per
@@ -580,8 +577,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
 
@@ -604,17 +600,14 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void exportProgram_hasEligibilityPredicate(boolean expandedFormLogicEnabled)
-      throws IOException {
+  public void exportProgram_hasEligibilityPredicate() throws IOException {
     createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
@@ -623,17 +616,14 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void exportProgram_hasVisibilityPredicate(boolean expandedFormLogicEnabled)
-      throws IOException {
+  public void exportProgram_hasVisibilityPredicate() throws IOException {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
@@ -648,8 +638,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText).contains("What is the $this's name?");

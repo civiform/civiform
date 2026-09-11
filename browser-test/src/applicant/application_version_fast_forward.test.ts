@@ -11,7 +11,7 @@ import {
   AdminPredicates,
   testUserDisplayName,
 } from '../support'
-import {ProgramVisibility, QuestionSpec} from '../support/admin_programs'
+import {ProgramVisibility} from '../support/admin_programs'
 import {
   ApplicantProgramList,
   CardSectionName,
@@ -630,9 +630,7 @@ class FastForwardCiviformAdminActor {
         await this.adminPrograms.addProgramBlockUsingSpecWhenAlreadyOnEditDraftPage(
           {
             name: blockDef.block,
-            questions: blockDef.questions.map(
-              (question) => <QuestionSpec>{name: question},
-            ),
+            questions: blockDef.questions.map((question) => ({name: question})),
           },
           /* editBlockScreenDetails= */ false,
         )
@@ -651,9 +649,7 @@ class FastForwardCiviformAdminActor {
       await test.step(`add ${blockDef.questions.length} question(s) to existing block ${blockDef.block}`, async () => {
         await this.adminPrograms.addQuestionsToProgramBlock({
           name: blockDef.block,
-          questions: blockDef.questions.map(
-            (question) => <QuestionSpec>{name: question},
-          ),
+          questions: blockDef.questions.map((question) => ({name: question})),
         })
       })
 
@@ -674,22 +670,18 @@ class FastForwardCiviformAdminActor {
       await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
         this.programName,
         blockDef.block,
-        /* expandedFormLogicEnabled= */ true,
       )
     })
 
     await this.removeEligibilityFromBlockDefinition(blockDef)
 
     await test.step(`Add eligibility predicate to block ${blockDef.block}`, async () => {
-      await this.adminPredicates.addPredicates(
-        /* expandedFormLogicEnabled= */ true,
-        {
-          questionName: blockDef.questions[0],
-          scalar: 'text',
-          operator: 'is equal to',
-          value: blockDef.eligibilityValue,
-        },
-      )
+      await this.adminPredicates.addPredicates({
+        questionName: blockDef.questions[0],
+        scalar: 'text',
+        operator: 'is equal to',
+        value: blockDef.eligibilityValue,
+      })
     })
 
     await this.gotoEditDraftProgramPage()
@@ -701,7 +693,6 @@ class FastForwardCiviformAdminActor {
         await this.adminPrograms.goToEditBlockEligibilityPredicatePage(
           this.programName,
           blockDef.block,
-          /* expandedFormLogicEnabled= */ true,
         )
       })
 
