@@ -697,7 +697,7 @@ label.zipcode=الرمز البريدي
 validation.streetRequired=يُرجى إدخال اسم ورقم صالحَين للشارع.
 validation.cityRequired=يُرجى إدخال المدينة.
 validation.currencyMisformatted=يجب أن تكون العملة بأحد التنسيقات التالية: 1000 أو 1,000 أو 1000.30 أو 1,000.30
-validation.currencyMisformatted.v2=يجب أن تحتوي العملة على رقمين (من 0 إلى 9) بعد الفاصلة العشرية. الحد الأقصى للطول 19 حرفًا.\n
+validation.currencyMisformatted.v2=يجب أن تحتوي العملة على رقمين (من 0 إلى 9) بعد الفاصلة العشرية. الحد الأقصى للطول 19 حرفًا.
 validation.stateRequired=يُرجى إدخال الولاية.
 validation.invalidZipcode=يُرجى إدخال رمز بريدي صالح مؤلف من 5 أرقام.
 validation.noPoBox=يُرجى إدخال عنوان صالح. لا نقبل باستخدام رقم صندوق البريد.
@@ -821,7 +821,7 @@ validation.fileRequired=يُرجى اختيار ملف.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=الملف كبير جدًا. يُرجى اختيار ملف لا يتجاوز حجمه {0} ميغابايت.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=تعذّر رفع الملف. بلغت الحد الأقصى لعدد الملفات.\n
+validation.fileLimitReached=تعذّر رفع الملف. بلغت الحد الأقصى لعدد الملفات.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=تعذّر رفع ملفك. يُرجى المحاولة مرة أخرى. 
 # Text shown on a tag while a file is uploading.
