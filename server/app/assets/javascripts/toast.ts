@@ -66,7 +66,7 @@ export class ToastController {
     toastMessage.classList.add(ToastController.MESSAGE_CLASS)
     toastMessage.classList.add(
       'cf-toast-message',
-      'opacity-90',
+      'opacity-100',
       'maxw-mobile-lg',
       'margin-y-105',
       'display-flex',
