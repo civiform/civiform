@@ -156,7 +156,7 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.54",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.55",
       "io.swagger.parser.v3" % "swagger-parser" % "2.1.48",
 
       // JSON Schema validation
