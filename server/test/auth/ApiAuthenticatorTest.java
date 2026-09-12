@@ -122,7 +122,7 @@ public class ApiAuthenticatorTest {
   @Test
   public void validate_success_forwarded() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
 
     var authenticator =
         new ApiAuthenticator(
@@ -192,7 +192,7 @@ public class ApiAuthenticatorTest {
   @Test
   public void validate_ipNotInSubnet_forwarded() {
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
 
     var authenticator =
         new ApiAuthenticator(
@@ -221,7 +221,7 @@ public class ApiAuthenticatorTest {
     logger.addAppender(listAppender);
 
     when(MOCK_SETTINGS_MANIFEST.getNumTrustedProxies()).thenReturn(Optional.of(1));
-    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of("FORWARDED"));
+    when(MOCK_SETTINGS_MANIFEST.getClientIpType()).thenReturn(Optional.of(ClientIpType.FORWARDED));
 
     var authenticator =
         new ApiAuthenticator(

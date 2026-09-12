@@ -9,6 +9,7 @@ package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.ClientIpType;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -856,8 +857,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * the request is the originating IP address. If "FORWARDED" then request has been reverse proxied
    * and the originating IP address is stored in the X-Forwarded-For header.
    */
-  public Optional<String> getClientIpType() {
-    return getString("CLIENT_IP_TYPE");
+  public Optional<ClientIpType> getClientIpType() {
+    return getEnum("CLIENT_IP_TYPE", ClientIpType.class);
   }
 
   /**
