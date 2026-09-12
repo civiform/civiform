@@ -15,7 +15,7 @@ import play.mvc.Result;
 import repository.ResetPostgres;
 import services.settings.SettingsManifest;
 
-public class DemoModeDisabledActionTest extends ResetPostgres {
+public class DemoModeEnabledActionTest extends ResetPostgres {
 
   private SettingsManifest mockSettingsManifest;
 
@@ -29,7 +29,7 @@ public class DemoModeDisabledActionTest extends ResetPostgres {
     Request request = fakeRequestBuilder().build();
     when(mockSettingsManifest.getStagingDisableDemoModeLogins(request)).thenReturn(false);
 
-    DemoModeDisabledAction action = new DemoModeDisabledAction(mockSettingsManifest);
+    DemoModeEnabledAction action = new DemoModeEnabledAction(mockSettingsManifest);
 
     // Set up a mock for the delegate action
     Action.Simple delegateMock = mock(Action.Simple.class);
@@ -46,7 +46,7 @@ public class DemoModeDisabledActionTest extends ResetPostgres {
     Request request = fakeRequestBuilder().build();
     when(mockSettingsManifest.getStagingDisableDemoModeLogins(request)).thenReturn(true);
 
-    DemoModeDisabledAction action = new DemoModeDisabledAction(mockSettingsManifest);
+    DemoModeEnabledAction action = new DemoModeEnabledAction(mockSettingsManifest);
 
     Result result = action.call(request).toCompletableFuture().join();
     assertEquals(result.redirectLocation().get(), controllers.routes.HomeController.index().url());

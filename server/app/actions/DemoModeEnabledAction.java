@@ -13,16 +13,14 @@ import services.settings.SettingsManifest;
 /**
  * Action that ensures the demo mode is enabled before allowing certain actions.
  *
- * <p>The action will redirect the request to the home page if the the action is disabled.
- *
- * <p>
+ * <p>The action will redirect the request to the home page if demo mode is disabled.
  */
-public class DemoModeDisabledAction extends Action.Simple {
-  private static final Logger logger = LoggerFactory.getLogger(DemoModeDisabledAction.class);
+public class DemoModeEnabledAction extends Action.Simple {
+  private static final Logger logger = LoggerFactory.getLogger(DemoModeEnabledAction.class);
   private final SettingsManifest settingsManifest;
 
   @Inject
-  public DemoModeDisabledAction(SettingsManifest settingsManifest) {
+  public DemoModeEnabledAction(SettingsManifest settingsManifest) {
     this.settingsManifest = settingsManifest;
   }
 
