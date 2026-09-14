@@ -66,7 +66,6 @@ export class ToastController {
     toastMessage.classList.add(ToastController.MESSAGE_CLASS)
     toastMessage.classList.add(
       'cf-toast-message',
-      'opacity-100',
       'maxw-mobile-lg',
       'margin-y-105',
       'display-flex',
@@ -94,7 +93,6 @@ export class ToastController {
       dismissButton.classList.add(
         'text-bold',
         'padding-left-3',
-        'opacity-40',
         'cursor-pointer',
         'margin-left-auto',
         'display-flex',
