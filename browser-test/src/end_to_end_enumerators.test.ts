@@ -1964,17 +1964,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     blockPanel: Locator,
     expectedScreenNumber: number,
   ) {
-    if (!isRepeatedBlock) {
-      await expect(
-        blockPanel.getByText(`Screen ${expectedScreenNumber}`, {
-          exact: true,
-        }),
-      ).toBeVisible()
-    } else {
-      await expect(
-        blockPanel.getByText(`Screen ${expectedScreenNumber}`),
-      ).toBeVisible()
-    }
+    await expect(
+      blockPanel.getByText(`Screen ${expectedScreenNumber}`, {
+        exact: true,
+      }),
+    ).toBeVisible()
   }
 
   async function navigateToRepeatedScreen(page: Page, screenNumber: number) {
