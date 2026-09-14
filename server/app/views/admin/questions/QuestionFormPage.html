@@ -59,11 +59,11 @@
       </div>
 
       <div
-        th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-text-textarea', 'questionText', 'Question text displayed to the applicant', ${model.questionText}, true, true)}"
+        th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-text-textarea', 'questionText', 'Question text displayed to the applicant', ${model.questionText}, true, false, true, true, 'mb-2')}"
       ></div>
       <th:block th:if="${model.showHelpText}">
         <div
-          th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-help-text-textarea', 'questionHelpText', 'Question help text displayed to the applicant', ${model.questionHelpText}, false, true)}"
+          th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-help-text-textarea', 'questionHelpText', 'Question help text displayed to the applicant', ${model.questionHelpText}, false, false, true, true, 'mb-2')}"
         ></div>
       </th:block>
 
@@ -164,7 +164,7 @@
       </th:block>
 
       <div
-        th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${model.randomFieldId()}, 'questionDescription', 'Question note for administrative use only', ${model.questionDescription}, false, false)}"
+        th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${model.randomFieldId()}, 'questionDescription', 'Question note for administrative use only', ${model.questionDescription}, false, false, false, false, 'mb-2')}"
       ></div>
 
       <!--/* Question enumerator select. Locked when editing (the hidden

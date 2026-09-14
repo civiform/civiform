@@ -1,0 +1,20 @@
+%NAME uswdsRadioOption - unchecked and disabled, no description
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('program-eligibility-gating', 'eligibilityIsGating', 'true', false, true, 'Only allow residents to submit applications if they meet all eligibility requirements', null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="usa-radio">
+  <input
+    id="program-eligibility-gating"
+    class="usa-radio__input usa-radio__input--tile"
+    type="radio"
+    name="eligibilityIsGating"
+    value="true"
+    disabled="disabled"
+  />
+  <label for="program-eligibility-gating" class="usa-radio__label"
+    >Only allow residents to submit applications if they meet all eligibility requirements</label
+  >
+</div>
