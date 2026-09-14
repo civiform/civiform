@@ -14,6 +14,7 @@ import views.LayoutType;
  * @param layoutType Determines if the layout has an aside
  * @param civiformImageTag Docker image tag for the running container
  * @param addNoIndexMetaTag Include robots meta tag
+ * @param addDemoModeBanner Include demo mode banner
  * @param favicon Link to the favicon
  * @param measurementId Measurement ID used by tracking service, i.e. Google Analytics
  * @param stylesheets List of stylesheets
@@ -27,6 +28,7 @@ public record LayoutParams(
     LayoutType layoutType,
     String civiformImageTag,
     Boolean addNoIndexMetaTag,
+    Boolean addDemoModeBanner,
     String favicon,
     Optional<String> measurementId,
     ImmutableList<String> stylesheets,

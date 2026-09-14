@@ -152,4 +152,18 @@ public class HtmlBundleTest extends ResetPostgres {
 
     assertThat(html).doesNotContain("<div id=\"uswds-modal-container\"></div>");
   }
+
+  @Test
+  public void testAddHeaderStyles() {
+    HtmlBundle bundle = new HtmlBundle(fakeRequest());
+    bundle
+        .addHeaderStyles("position-sticky", "top-0", "z-10")
+        .setJsBundle(JsBundle.ADMIN)
+        .setBundledAssetsFinder(bundledAssetsFinder);
+
+    Content content = bundle.render();
+    String html = content.body();
+
+    assertThat(html).contains("<header class=\"position-sticky top-0 z-10\">");
+  }
 }

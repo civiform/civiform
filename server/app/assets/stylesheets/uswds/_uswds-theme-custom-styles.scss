@@ -581,3 +581,11 @@ hr.code-separator {
   @include u-margin-y(4);
   @include u-margin-x(0);
 }
+
+// Demo banner custom background color
+.usa-site-alert.cf-demo-banner {
+  .usa-alert,
+  .usa-alert .usa-alert__body {
+    background-color: #e7f0f9;
+  }
+}
