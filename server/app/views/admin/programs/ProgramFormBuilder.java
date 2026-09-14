@@ -37,6 +37,7 @@ import modules.MainModule;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
+import play.mvc.Http.Request;
 import repository.AccountRepository;
 import repository.CategoryRepository;
 import services.AlertType;
@@ -44,6 +45,7 @@ import services.MessageKey;
 import services.Path;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
+import services.settings.SettingsManifest;
 import views.AlertComponent;
 import views.AlertComponent.HeadingLevel;
 import views.BaseHtmlView;
@@ -66,29 +68,34 @@ public class ProgramFormBuilder extends BaseHtmlView {
   private static final String ELIGIBILITY_FIELD_NAME = "eligibilityIsGating";
   private static final String NOTIFICATIONS_PREFERENCES_FIELD_NAME = "notificationPreferences";
   private static final String PROGRAM_TYPE_FIELD_NAME = "programTypeValue";
+  private static final String SCORING_FIELD_NAME = "usesScoring";
   private static final String TI_GROUPS_FIELD_NAME = "tiGroups[]";
 
   private final String baseUrl;
   private final AccountRepository accountRepository;
   private final CategoryRepository categoryRepository;
   private final Messages messages;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   ProgramFormBuilder(
       Config configuration,
       AccountRepository accountRepository,
       CategoryRepository categoryRepository,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      SettingsManifest settingsManifest) {
     this.baseUrl = checkNotNull(configuration).getString("base_url");
     this.accountRepository = checkNotNull(accountRepository);
     this.categoryRepository = checkNotNull(categoryRepository);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Builds the form using program form data. */
   protected final FormTag buildProgramForm(
-      ProgramForm program, ProgramEditStatus programEditStatus) {
+      Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
+        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
@@ -100,6 +107,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
         ImmutableList.copyOf(program.getNotificationPreferences()),
         program.getEligibilityIsGating(),
         program.getLoginOnly(),
+        program.getUsesScoring(),
         program.getProgramType(),
         programEditStatus,
         ImmutableSet.copyOf(program.getTiGroups()),
@@ -109,8 +117,9 @@ public class ProgramFormBuilder extends BaseHtmlView {
 
   /* Builds the form using program definition data. */
   protected final FormTag buildProgramForm(
-      ProgramDefinition program, ProgramEditStatus programEditStatus) {
+      Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
+        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
@@ -124,6 +133,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList()),
         program.eligibilityIsGating(),
         program.loginOnly(),
+        program.usesScoring(),
         program.programType(),
         programEditStatus,
         program.acls().getTiProgramViewAcls(),
@@ -142,6 +152,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FormTag buildProgramForm(
+      Request request,
       String adminName,
       String adminDescription,
       String displayName,
@@ -153,6 +164,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
       ImmutableList<String> notificationPreferences,
       boolean eligibilityIsGating,
       boolean loginOnly,
+      boolean usesScoring,
       ProgramType programType,
       ProgramEditStatus programEditStatus,
       ImmutableSet<Long> selectedTi,
@@ -165,10 +177,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean disableProgramEligibility = isPreScreenerForm || isExternalProgram;
     boolean disableLongDescription = isPreScreenerForm || isExternalProgram;
     boolean disableExternalLink = isDefaultProgram || isPreScreenerForm;
-    boolean disableEmailNotifications = isExternalProgram;
     boolean disableApplicationSteps = isPreScreenerForm || isExternalProgram;
-    boolean disableLoginOnly = isExternalProgram;
-    boolean disableConfirmationMessage = isExternalProgram;
 
     List<CategoryModel> categoryOptions = categoryRepository.listCategories();
     FormTag formTag = form().withMethod("POST").withId("program-details-form");
@@ -234,6 +243,24 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* description= */ Optional.empty()))
                 .withId("program-eligibility")
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
+            // Application scoring; rendered only while the ANSWER_OPTION_SCORING_ENABLED flag is
+            // on.
+            // Preservation of the stored value while the flag is off is handled controller-side.
+            iff(
+                settingsManifest.getAnswerOptionScoringEnabled(request),
+                fieldset(
+                        legend(
+                                "Application scoring - apply answer option scores to submitted"
+                                    + " applications")
+                            .withClass("text-gray-600"),
+                        buildUSWDSCheckboxOption(
+                            "program-uses-scoring",
+                            SCORING_FIELD_NAME,
+                            usesScoring,
+                            isExternalProgram,
+                            "Enable application scoring"))
+                    .withId("program-scoring")
+                    .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS)),
             // Program categories
             iff(
                 !categoryOptions.isEmpty(),
@@ -310,8 +337,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* isChecked= */ notificationPreferences.contains(
                                 ProgramNotificationPreference.EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS
                                     .getValue())
-                            && !disableEmailNotifications,
-                        /* isDisabled= */ disableEmailNotifications,
+                            && !isExternalProgram,
+                        /* isDisabled= */ isExternalProgram,
                         /* label= */ "Send Program Admins an email notification every time an"
                             + " application is submitted"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
@@ -321,7 +348,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         /* id= */ "login-only-applications",
                         /* name= */ "loginOnly",
                         /* isChecked= */ loginOnly,
-                        /* isDisabled= */ disableLoginOnly,
+                        /* isDisabled= */ isExternalProgram,
                         /* label= */ "Require applicants to log in to apply to this program"))
                 .withClasses("usa-fieldset", SPACE_BETWEEN_FORM_ELEMENTS),
             h2("Program overview").withClasses("py-2", "mt-6", "font-semibold"),
@@ -368,8 +395,8 @@ public class ProgramFormBuilder extends BaseHtmlView {
                         + " to apply for.")
                 .setMarkdownSupported(true)
                 .setValue(confirmationScreen)
-                .setDisabled(disableConfirmationMessage)
-                .setReadOnly(disableConfirmationMessage)
+                .setDisabled(isExternalProgram)
+                .setReadOnly(isExternalProgram)
                 .addReferenceClass("pt-3")
                 .getTextareaTag())
         .withData(

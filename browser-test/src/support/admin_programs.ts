@@ -776,7 +776,9 @@ export class AdminPrograms {
    */
   async expectReadOnlyProgramBlock(blockId: string) {
     // The block info shows us we are viewing a block.
-    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    await expect(
+      this.page.locator('id=block-info-display-' + blockId),
+    ).toBeVisible()
     // The absence of one of the edit buttons ensures it is the read only view.
     await expect(
       this.page.locator('id=block-description-modal-button'),
@@ -994,6 +996,21 @@ export class AdminPrograms {
     }
   }
 
+  async setShouldUseApplicationScoring(checked: boolean) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: 'Enable application scoring',
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page.locator('label[for="program-uses-scoring"]').click()
+    }
+  }
+
   /**
    * Opens the export program page by clicking on a program's card action or
    * extra action (depending on the program lifecycle)
@@ -1067,24 +1084,18 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
-    } else {
-      await this.expectEditVisibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.VISIBILITY)
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
@@ -1092,11 +1103,7 @@ export class AdminPrograms {
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
     await waitForHtmxReady(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
-    } else {
-      await this.expectEditEligibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
   }
 
   async goToProgramDescriptionPage(
@@ -1174,18 +1181,6 @@ export class AdminPrograms {
       'A public display name for the program is required.',
     )
     expect(toastMessages).toContain('Error: ')
-  }
-
-  async expectEditVisibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Visibility condition for ' + blockName,
-    )
-  }
-
-  async expectEditEligibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Eligibility condition for ' + blockName,
-    )
   }
 
   async expectEditPredicatePage(predicateType: PredicateType) {

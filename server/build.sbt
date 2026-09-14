@@ -87,7 +87,7 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.9",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.46" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.48" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.2.2",
+      "org.checkerframework" % "dataflow-errorprone" % "4.2.3",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.37",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.38",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -157,7 +157,7 @@ lazy val root = (project in file("."))
 
       // OpenAPI 3.x Dependencies
       "io.swagger.core.v3" % "swagger-core" % "2.2.54",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.47",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.48",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.7",

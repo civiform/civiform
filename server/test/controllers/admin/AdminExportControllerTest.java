@@ -7,39 +7,26 @@ import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
-import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import models.CategoryModel;
 import models.ProgramModel;
 import org.junit.Before;
 import org.junit.Test;
-import play.data.FormFactory;
 import play.i18n.Lang;
 import play.mvc.Result;
-import repository.ResetPostgres;
-import repository.VersionRepository;
-import services.migration.ProgramMigrationService;
-import services.program.ProgramService;
-import services.question.QuestionService;
 import support.ProgramBuilder;
-import views.admin.migration.AdminExportView;
 
-public class AdminExportControllerTest extends ResetPostgres {
+public class AdminExportControllerTest extends WithMockedProfiles {
   private AdminExportController controller;
 
   @Before
   public void setUp() {
-    controller =
-        new AdminExportController(
-            instanceOf(AdminExportView.class),
-            instanceOf(FormFactory.class),
-            instanceOf(ProfileUtils.class),
-            instanceOf(ProgramMigrationService.class),
-            instanceOf(ProgramService.class),
-            instanceOf(QuestionService.class),
-            instanceOf(VersionRepository.class));
+    resetDatabase();
+    createGlobalAdminWithMockedProfile();
+    controller = instanceOf(AdminExportController.class);
   }
 
   @Test
@@ -56,6 +43,25 @@ public class AdminExportControllerTest extends ResetPostgres {
     assertThat(stringResult)
         .contains("JSON export for " + draftProgram.getProgramDefinition().adminName());
     assertThat(stringResult).contains(draftProgramA);
+  }
+
+  @Test
+  public void index_thymeleafEnabled_rendersPageWithUrls() {
+    ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
+
+    Result result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .build(),
+            activeProgram.id);
+    String stringResult = contentAsString(result);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(stringResult).contains("JSON export for active-program-1");
+    assertThat(stringResult).contains(routes.AdminProgramController.index().url());
+    assertThat(stringResult)
+        .contains(routes.AdminExportController.downloadJson("active-program-1").url());
   }
 
   @Test

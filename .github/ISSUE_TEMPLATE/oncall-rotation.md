@@ -45,7 +45,7 @@ Resources:
   - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Rocky so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
   - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
   - Review our [oncall docs](https://github.com/civiform/civiform/wiki/On-Call-Guide#dependency-updates) for more guidance and best practices for merging dependency updates.
-  - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
+  - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/civiform-github-automation)
   - [ ] Dependabot PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Fdependabot)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)
