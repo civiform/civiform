@@ -1,10 +1,10 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin} from '../support'
+import {disableFeatureFlag, loginAsAdmin} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('login only program', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
+    await disableFeatureFlag(
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
     )
