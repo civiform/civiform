@@ -1,8 +1,8 @@
-%NAME textareaField - required, markdown indicator shown
+%NAME textareaField - required, markdown indicator shown with docs link
 %TEMPLATE_MODE HTML
 # ----------------------------------------------------------------------
 %INPUT
-<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-text', 'questionText', 'Question text', 'What is your name?', true, true)}"></div>
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('question-text', 'questionText', 'Question text', 'What is your name?', true, false, true, true, 'mb-2')}"></div>
 # ----------------------------------------------------------------------
 %OUTPUT
 <div class="mb-2">
