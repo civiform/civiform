@@ -5,11 +5,16 @@
   options are also readonly on the Admin ID.
 
   Callers pass the label/input ids in (optionIdFieldId, adminNameFieldId,
-  optionTextFieldId), generating them with ${model.randomFieldId()} so
-  labels stay associated with inputs. Icons live in LegacySvgFragments.html.
+  optionTextFieldId, scoreFieldId), generating them with
+  ${model.randomFieldId()} so labels stay associated with inputs. When
+  showScores is true (the ANSWER_OPTION_SCORING_ENABLED flag is on and the type
+  supports scores) the row grows to six grid rows and renders a score input
+  posting to newOptionScores[] / optionScores[]; scoreValue is the
+  pre-formatted display value or null. Icons live in LegacySvgFragments.html.
 */-->
 <div
-  th:fragment="multiOptionRow(isForNewOption, optionId, adminName, optionText, optionIdFieldId, adminNameFieldId, optionTextFieldId)"
+  th:fragment="multiOptionRow(isForNewOption, optionId, adminName, optionText, optionIdFieldId, adminNameFieldId, optionTextFieldId, showScores, scoreValue, scoreFieldId)"
+  th:class="|cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 ${showScores ? 'grid-rows-6' : 'grid-rows-4'} items-center mb-4|"
   class="cf-multi-option-question-option cf-multi-option-question-option-editable grid grid-cols-8 grid-rows-4 items-center mb-4"
 >
   <div th:if="${isForNewOption}"></div>
@@ -123,4 +128,32 @@
       th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('w-6 h-6')}"
     ></svg>
   </button>
+  <div
+    th:if="${showScores}"
+    class="cf-multi-option-score-input col-start-1 col-span-5 mb-2 ml-2 row-start-5 row-span-2"
+  >
+    <label
+      th:for="${scoreFieldId}"
+      class="pointer-events-none text-gray-600 text-base px-1 py-2"
+      >Score<span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+      ></span
+    ></label>
+    <div class="flex flex-col">
+      <input
+        type="number"
+        inputmode="decimal"
+        step="any"
+        th:value="${scoreValue}"
+        maxlength="10000"
+        th:id="${scoreFieldId}"
+        th:name="${isForNewOption} ? 'newOptionScores[]' : 'optionScores[]'"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      />
+      <div
+        th:id="|${scoreFieldId}-errors|"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
 </div>

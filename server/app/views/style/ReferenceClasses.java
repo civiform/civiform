@@ -82,6 +82,7 @@ public final class ReferenceClasses {
       "cf-multi-option-question-option-editable";
   public static final String MULTI_OPTION_INPUT = "cf-multi-option-input";
   public static final String MULTI_OPTION_ADMIN_INPUT = "cf-multi-option-admin-input";
+  public static final String MULTI_OPTION_SCORE_INPUT = "cf-multi-option-score-input";
 
   // Keep these values in sync with app/assets/javascript/file_upload.ts.
   public static final String FILEUPLOAD_TOO_LARGE_ERROR_ID = "cf-fileupload-too-large-error";

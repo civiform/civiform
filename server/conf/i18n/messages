@@ -1274,10 +1274,12 @@ description.repeatedSet.hintText=Add a hint that will help applicants decide wha
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
-# A button for admins to add a repeated screen to a program
-button.addRepeatedScreen=Add repeated screen
+# A button for admins to add a child screen (sub screen) to a program
+button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
+# A button for admins to navigate from a parent screen to its first child screen (sub screen)
+button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Add question
 # A tooltip shown to admins when the delete screen button is disabled

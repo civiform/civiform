@@ -21,7 +21,6 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import play.api.test.Helpers;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
 
@@ -57,8 +56,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
-            instanceOf(DatabaseExecutionContext.class));
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository));
   }
 
   @Test
@@ -115,8 +113,7 @@ public class OidcClientProviderTest extends ResetPostgres {
     OidcClientProvider oidcClientProvider =
         new IdcsClientProvider(
             OidcClientProviderParams.create(
-                config, profileFactory, () -> accountRepository, () -> storedFileRepository),
-            instanceOf(DatabaseExecutionContext.class));
+                config, profileFactory, () -> accountRepository, () -> storedFileRepository));
 
     OidcClient client = oidcClientProvider.get();
 
@@ -192,8 +189,7 @@ public class OidcClientProviderTest extends ResetPostgres {
                           bad_secret_config,
                           profileFactory,
                           () -> accountRepository,
-                          () -> storedFileRepository),
-                      instanceOf(DatabaseExecutionContext.class));
+                          () -> storedFileRepository));
               badOidcClientProvider.get();
             })
         .isInstanceOf(RuntimeException.class);

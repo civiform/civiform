@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -68,6 +69,21 @@ test.describe('Yes/no translations', () => {
         page.getByText('Yes/No question options are pre-translated.'),
       ).toBeVisible()
       await expect(page.getByText('Answer options')).toHaveCount(0)
+    })
+  })
+
+  test('optional question scores do not show up for yes/no questions', async ({
+    page,
+    adminQuestions,
+  }) => {
+    await test.step('setup', async () => {
+      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+      await loginAsAdmin(page)
+    })
+
+    await test.step('scores are hidden', async () => {
+      await adminQuestions.startCreatingQuestion('#create-yes_no-question')
+      await adminQuestions.expectMultiOptionScoreInputHidden(0)
     })
   })
 })

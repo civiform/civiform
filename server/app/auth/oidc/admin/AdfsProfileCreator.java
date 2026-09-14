@@ -10,7 +10,6 @@ import java.util.List;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
-import repository.DatabaseExecutionContext;
 
 /**
  * This class takes an existing CiviForm profile and augments it with the information from an AD
@@ -22,11 +21,8 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
   private final String adGroupsAttributeName;
 
   public AdfsProfileCreator(
-      OidcConfiguration oidcConfiguration,
-      OidcClient client,
-      OidcClientProviderParams params,
-      DatabaseExecutionContext dbExecutionContext) {
-    super(oidcConfiguration, client, params, dbExecutionContext);
+      OidcConfiguration oidcConfiguration, OidcClient client, OidcClientProviderParams params) {
+    super(oidcConfiguration, client, params);
     this.adminGroupName = params.configuration().getString("adfs.admin_group");
     this.adGroupsAttributeName = params.configuration().getString("adfs.ad_groups_attribute_name");
   }

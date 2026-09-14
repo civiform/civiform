@@ -256,7 +256,7 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
             .anyMatch(MultiOptionQuestionForm::isBlank);
     if (anyScored && anyBlank) {
       errors.add(
-          CiviFormError.of("When creating a scored question, all options must include scores."));
+          CiviFormError.of("When creating a scored question, all options must include scores"));
     }
 
     // Checks for missing indexed fields
@@ -289,6 +289,15 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   private static boolean isBlank(String scoreAsString) {
     return scoreAsString == null || scoreAsString.isBlank();
+  }
+
+  /**
+   * Converts a bound score string to its input display value, formatted without trailing zeros.
+   * Blank (unscored) and unparseable values render an empty input; invalid submissions are
+   * re-rendered alongside a form-level error from {@link #getOptionScoreErrors}.
+   */
+  public static Optional<String> formatScoreForDisplay(String scoreAsString) {
+    return parseScore(scoreAsString).map(QuestionOption::formatScore);
   }
 
   /**

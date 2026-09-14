@@ -52,6 +52,13 @@ See the radio-option below as an example.
   max-width: none;
 }
 
+/* Hide duplicate instructions and boxes when USWDS double-initializes and nests elements inside .usa-file-input__input */
+.usa-file-input__input .usa-file-input__instructions,
+.usa-file-input__input .usa-file-input__box,
+.usa-file-input__input .usa-sr-only {
+  display: none !important;
+}
+
 .cf-question-error-message {
   @include u-text('secondary-dark', 'bold');
   @include u-font('sans', 'xs');

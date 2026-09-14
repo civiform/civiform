@@ -652,8 +652,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
-            allQuestions,
-            settingsManifest.getExpandedFormLogicEnabled());
+            allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
@@ -664,8 +663,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions,
-                  settingsManifest.getExpandedFormLogicEnabled()));
+                  allQuestions));
     }
 
     boolean showRepeatedQuestionsSectionStyling =
@@ -775,7 +773,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 blockHasEnumeratorQuestion,
                 request,
                 messages,
-                program.id(),
+                program,
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
                 optionalNewInitialQuestion));
@@ -898,7 +896,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockHasEnumeratorQuestion,
       Request request,
       Messages messages,
-      Long programId,
+      ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalEnumeratorQuestionCard,
       Optional<QuestionDefinition> optionalNewInitialQuestion) {
@@ -907,7 +905,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       return renderEnumeratorSetupSection(
           request,
           messages,
-          programId,
+          program.id(),
           blockDefinition.id(),
           /* optionalQuestionForm= */ Optional.empty(),
           /* errorMessages= */ ImmutableSet.of(),
@@ -920,7 +918,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           optionalEnumeratorQuestionCard,
           blockHasEnumeratorQuestion,
           blockDefinition,
-          programId);
+          program);
     }
   }
 
@@ -929,19 +927,41 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
-      long programId) {
+      ProgramDefinition program) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             renderInitialQuestionDebugLine(blockDefinition),
+            renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
                 blockHasEnumeratorQuestion,
                 /* optionalParentEnumeratorBlock= */ Optional.empty(),
                 shouldShowNestedButton))
         .withId("repeated-set-question-section")
-        .attr("data-clear-enumerator-form-storage", programId + ":" + blockDefinition.id());
+        .attr("data-clear-enumerator-form-storage", program.id() + ":" + blockDefinition.id());
+  }
+
+  /**
+   * Renders a button that navigates to the first repeated (child) screen of the given enumerator
+   * block. Hidden when the enumerator block has no repeated screens.
+   */
+  private DomContent renderContinueToChildScreenButton(
+      Messages messages, ProgramDefinition program, BlockDefinition blockDefinition) {
+    Optional<BlockDefinition> firstRepeatedBlock =
+        program.getBlockDefinitionsForEnumerator(blockDefinition.id()).stream().findFirst();
+    if (firstRepeatedBlock.isEmpty()) {
+      return div();
+    }
+    String continueUrl =
+        controllers.admin.routes.AdminProgramBlocksController.edit(
+                program.id(), firstRepeatedBlock.get().id())
+            .url();
+    return a().withHref(continueUrl)
+        .withClasses("usa-button", "margin-top-2")
+        .withText(messages.at(MessageKey.BUTTON_CONTINUE_TO_CHILD_SCREEN.getKeyName()))
+        .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
   }
 
   // TODO(#13393): Remove this debug line entirely once the UX migration of the
@@ -1396,8 +1416,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      boolean expandedFormLogicEnabled) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withId("visibility-predicate")
@@ -1420,8 +1439,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.VISIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false,
-              expandedFormLogicEnabled));
+              /* expanded= */ false));
     }
   }
 
@@ -1433,8 +1451,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      boolean expandedFormLogicEnabled) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withId("eligibility-predicate")
@@ -1460,8 +1477,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.ELIGIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false,
-              /* expandedFormLogicEnabled= */ expandedFormLogicEnabled));
+              /* expanded= */ false));
     }
   }
 

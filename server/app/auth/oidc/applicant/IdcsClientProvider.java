@@ -9,12 +9,10 @@ import java.util.Optional;
 import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
-import repository.DatabaseExecutionContext;
 
 /** This class customized the OIDC provider to a specific provider, allowing overrides to be set. */
 public final class IdcsClientProvider extends OidcClientProvider {
 
-  private final DatabaseExecutionContext dbExecutionContext;
   private static final String ATTRIBUTE_PREFIX = "idcs.";
   private static final String CLIENT_ID_CONFIG_NAME = "client_id";
   private static final String CLIENT_SECRET_CONFIG_NAME = "secret";
@@ -36,10 +34,8 @@ public final class IdcsClientProvider extends OidcClientProvider {
           .build();
 
   @Inject
-  public IdcsClientProvider(
-      OidcClientProviderParams params, DatabaseExecutionContext dbExecutionContext) {
+  public IdcsClientProvider(OidcClientProviderParams params) {
     super(params);
-    this.dbExecutionContext = dbExecutionContext;
   }
 
   @Override
@@ -54,8 +50,7 @@ public final class IdcsClientProvider extends OidcClientProvider {
 
   @Override
   public ProfileCreator getProfileCreator(OidcConfiguration config, OidcClient client) {
-    return new IdcsApplicantProfileCreator(
-        config, client, params, standardClaimsAttributeNames, dbExecutionContext);
+    return new IdcsApplicantProfileCreator(config, client, params, standardClaimsAttributeNames);
   }
 
   @Override

@@ -26,7 +26,6 @@ import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 import org.pac4j.oidc.profile.OidcProfile;
 import repository.AccountRepository;
-import repository.DatabaseExecutionContext;
 import repository.ResetPostgres;
 import repository.StoredFileRepository;
 import support.CfTestHelpers;
@@ -98,8 +97,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
         client,
         OidcClientProviderParams.create(
             civiformConfig, profileFactory, () -> accountRepository, () -> storedFileRepository),
-        standardClaimsAttributeNames,
-        instanceOf(DatabaseExecutionContext.class));
+        standardClaimsAttributeNames);
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreator() {
