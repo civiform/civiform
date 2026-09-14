@@ -902,11 +902,11 @@ public class AdminImportControllerTest extends ResetPostgres {
                 } ]
               }, {
                 "id" : 3,
-                "name" : "Screen 3 (repeated from 1)",
+                "name" : "Screen 3",
                 "description" : "Screen 3 description",
                 "localizedName" : {
                   "translations" : {
-                    "en_US" : "Screen 3 (repeated from 1)"
+                    "en_US" : "Screen 3"
                   },
                   "isRequired" : true
                 },
@@ -926,11 +926,11 @@ public class AdminImportControllerTest extends ResetPostgres {
                 } ]
               }, {
                 "id" : 4,
-                "name" : "Screen 4 (repeated from 3)",
+                "name" : "Screen 4",
                 "description" : "Screen 4 description",
                 "localizedName" : {
                   "translations" : {
-                    "en_US" : "Screen 4 (repeated from 3)"
+                    "en_US" : "Screen 4"
                   },
                   "isRequired" : true
                 },
