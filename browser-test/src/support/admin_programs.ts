@@ -1084,24 +1084,18 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
-    } else {
-      await this.expectEditVisibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.VISIBILITY)
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
@@ -1109,11 +1103,7 @@ export class AdminPrograms {
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
     await waitForHtmxReady(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
-    } else {
-      await this.expectEditEligibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
   }
 
   async goToProgramDescriptionPage(
@@ -1191,18 +1181,6 @@ export class AdminPrograms {
       'A public display name for the program is required.',
     )
     expect(toastMessages).toContain('Error: ')
-  }
-
-  async expectEditVisibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Visibility condition for ' + blockName,
-    )
-  }
-
-  async expectEditEligibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Eligibility condition for ' + blockName,
-    )
   }
 
   async expectEditPredicatePage(predicateType: PredicateType) {
