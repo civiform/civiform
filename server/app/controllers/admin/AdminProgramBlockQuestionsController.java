@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
 import models.QuestionModel;
+import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -200,13 +201,19 @@ public class AdminProgramBlockQuestionsController extends Controller {
                                   .getKeyName())))
                   .build());
     } else {
-      QuestionDefinition originalInitialQuestion =
-          questionService
-              .getReadOnlyQuestionServiceSync()
-              .getQuestionDefinition(initialQuestionIdFromForm.getAsLong());
-      if (originalInitialQuestion instanceof NullQuestionDefinition) {
+      Optional<QuestionModel> maybeOriginalInitialQuestion =
+          versionRepository.getLatestVersionOfQuestion(initialQuestionIdFromForm.getAsLong());
+      if (maybeOriginalInitialQuestion.isEmpty()) {
         return notFound(
             String.format("Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+      }
+      QuestionDefinition originalInitialQuestion =
+          maybeOriginalInitialQuestion.get().getQuestionDefinition();
+      VersionModel draft = versionRepository.getDraftVersionOrCreate();
+      if (draft.getTombstonedQuestionNames().contains(originalInitialQuestion.getName())) {
+        return notFound(
+            String.format(
+                "Question has been archived for ID: %d", initialQuestionIdFromForm.getAsLong()));
       }
       optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
       result =
