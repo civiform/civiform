@@ -2,6 +2,7 @@ package support;
 
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
+import auth.CiviFormProfileData;
 import auth.ClientIpResolver;
 import com.google.common.collect.ImmutableMap;
 import java.nio.charset.StandardCharsets;
@@ -80,7 +81,8 @@ public final class FakeRequestBuilder extends RequestBuilder {
   @Override
   public RequestImpl build() {
     if (!xForwardedFor.isEmpty()) {
-      // Each call to header() for a given key will override previous calls, so collect all the
+      // Each call to header() for a given key will override previous calls, so
+      // collect all the
       // values and set them once at the end
       header(ClientIpResolver.X_FORWARDED_FOR, xForwardedFor);
     }
@@ -112,4 +114,5 @@ public final class FakeRequestBuilder extends RequestBuilder {
 
     return handlerDef;
   }
+
 }

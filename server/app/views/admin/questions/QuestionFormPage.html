@@ -23,6 +23,7 @@
       <input
         hidden
         name="concurrencyToken"
+        id="concurrencyToken"
         th:value="${model.concurrencyToken}"
       />
       <p class="text-sm">
@@ -70,41 +71,75 @@
       <th:block
         th:if="${model.editMode and model.imagesInQuestionFeatureEnabled}"
       >
+        <!-- 1. Alt-Text field -->
+        <cf:input
+          id="questionImageDescription"
+          name="questionImageDescription"
+          is-valid="true"
+          th:label="#{label.adminQuestionImage.altText}"
+          th:validation-message="#{validation.adminQuestionImage.altTextRequired}"
+          th:value="${model.questionImageDescription}"
+        />
+
+        <!-- 2. Image upload field (starts disabled if alt-text is empty) -->
         <div class="usa-form-group">
           <label class="usa-label" for="question-image-input"
             >Image upload</label
           >
+
+          <div
+            id="existing-image-alert"
+            th:classappend="${model.hasExistingImage() ? '' : 'hidden'}"
+            class="usa-alert usa-alert--info usa-alert--slim margin-bottom-2"
+          >
+            <div class="usa-alert__body">
+              <p class="usa-alert__text">
+                A file is currently uploaded for this question. Selecting a new
+                file will replace it.
+              </p>
+            </div>
+          </div>
+
           <div class="usa-hint" id="question-image-file-input-hint">
             The maximum size for image upload is 1MB.
           </div>
           <input
             accept="image/png,image/jpeg"
-            aria-describedby="question-image-file-input-hint"
+            aria-describedby="question-image-file-input-hint question-image-file-input-errors"
             class="usa-file-input"
             id="question-image-input"
             name="questionImage"
             type="file"
+            th:disabled="${#strings.isEmpty(model.questionImageDescription)}"
+            th:data-has-existing-image="${model.hasExistingImage()}"
+            th:hx-post="${model.imageUploadUrl}"
+            hx-target="#question-image-file-input-errors"
+            hx-target-error="#question-image-file-input-errors"
+            hx-trigger="change"
+            hx-encoding="multipart/form-data"
+            hx-include="#questionImageDescription, [name='csrfToken']"
+            hx-swap="outerHTML"
           />
+          <div
+            id="question-image-file-input-errors"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
         </div>
 
-        <div class="usa-form-group">
-          <label class="usa-label" for="question-image-description"
-            >Enter image description (Alt Text)</label
-          >
-          <div class="usa-hint" id="question-image-description-hint">
-            Image description is required before uploading an image.
-            <a th:href="${model.getTranslationUrl()}" class="usa-link"
-              >Manage translations.</a
-            >
-          </div>
-          <input
-            class="usa-input"
-            id="question-image-description"
-            name="questionImageDescription"
-            type="text"
-            aria-describedby="question-image-description-hint"
-          />
-        </div>
+        <!-- 3. Delete Image button: below the file upload section, only shown if an image file exists -->
+        <button
+          type="button"
+          id="delete-question-image-button"
+          class="usa-button usa-button--outline text-error border-error hover:bg-error-lighter margin-top-2"
+          th:classappend="${model.hasExistingImage() ? '' : 'hidden'}"
+          th:hx-post="${model.imageDeleteUrl}"
+          hx-include="[name='csrfToken']"
+          hx-target="#question-image-file-input-errors"
+          hx-swap="innerHTML"
+        >
+          <cf:icon type="icon-delete" />
+          <span class="margin-left-05">Delete image</span>
+        </button>
       </th:block>
 
       <h2 class="py-2 mt-6 font-semibold">Visible to administrators only</h2>
