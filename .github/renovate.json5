@@ -155,12 +155,20 @@
 
     // prHeader-only rules below here. They add noise masking actual config settings.
     {
+      matchPackageNames: ["aws-actions/configure-aws-credentials"],
+      prHeader: "Release Notes: https://github.com/aws-actions/configure-aws-credentials/releases",
+    },
+    {
       matchPackageNames: ["ch.qos.logback:logback-classic"],
       prHeader: "Release Notes: https://logback.qos.ch/news.html",
     },
     {
       matchPackageNames: ["docker/setup-buildx-action"],
       prHeader: "Release Notes: https://github.com/docker/setup-buildx-action/releases",
+    },
+    {
+      matchPackageNames: ["docker/setup-qemu-action"],
+      prHeader: "Release Notes: https://github.com/docker/setup-qemu-action/releases",
     },
     {
       matchPackageNames: ["github/codeql-action"],
