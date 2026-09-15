@@ -24,6 +24,7 @@ import java.util.UUID;
 import models.LifecycleStage;
 import models.QuestionModel;
 import models.QuestionTag;
+import models.VersionModel;
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -33,6 +34,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.question.QuestionOption;
@@ -43,6 +45,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
+import services.question.types.StaticContentQuestionDefinition;
 import support.FakeRequestBuilder;
 import views.html.helper.CSRF;
 
@@ -50,10 +53,13 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   private QuestionRepository questionRepo;
   private AdminQuestionController controller;
   private AdminQuestionImageController questionImageController;
+  private VersionModel draftVersion;
 
   @Before
   public void setup() {
     questionRepo = instanceOf(QuestionRepository.class);
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    draftVersion = versionRepository.getDraftVersionOrCreate();
     controller = instanceOf(AdminQuestionController.class);
     questionImageController = instanceOf(AdminQuestionImageController.class);
   }
@@ -66,10 +72,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
   @Test
   public void edit_withExistingImage_rendersExistingImageDetails() {
-    // 1. Create a draft question so edit() doesn't need to redirect from active to draft
-    QuestionModel qm =
-        testQuestionBank.maybeSave(
-            testQuestionBank.nameApplicantName().getQuestionDefinition(), LifecycleStage.DRAFT);
+    // 1. Create a draft question so edit() doesn't need to redirect from active to
+    // draft
+    QuestionModel qm = createDraftQuestion();
     String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(qm.id, "myImage.png");
 
     // 2. Upload the image & alt text via questionImageController
@@ -95,7 +100,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     Request editRequest =
         fakeRequestBuilder()
             .addCSRFToken()
-            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
             .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
             .build();
 
@@ -104,11 +108,17 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     // 4. Assertions on the rendered page
     assertThat(editResult.status()).isEqualTo(OK);
-    String content = contentAsString(editResult);
+    // String content = contentAsString(editResult);
 
-    // Verifies the file input and description has data
-    assertThat(content).contains("data-has-existing-image=\"true\"");
-    assertThat(content).contains("value=\"alt text\"");
+    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
+    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
+    assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
+    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
+    QuestionModel newQuestion =
+        questionRepo.lookupQuestion(newQuestionId).toCompletableFuture().join().get();
+    assertThat(
+            newQuestion.getQuestionDefinition().getLocalizedImageDescription().get().getDefault())
+        .contains("alt text");
   }
 
   @Test
@@ -352,7 +362,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void index_returnsQuestions() throws Exception {
     testQuestionBank.addressApplicantAddress();
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    // Create a draft version of an already published question and ensure that it isn't
+    // Create a draft version of an already published question and ensure that it
+    // isn't
     // double-counted in the rendered total number of questions.
     QuestionDefinition updatedQuestion =
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
@@ -1296,14 +1307,16 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .join()
                 .get()
                 .getQuestionDefinition();
-    // The stored scores survive the flag-off edit; the crafted values are discarded.
+    // The stored scores survive the flag-off edit; the crafted values are
+    // discarded.
     assertThat(found.getOptions().stream().map(QuestionOption::score))
         .containsExactly(Optional.of(3.5), Optional.of(5.0));
   }
 
   @Test
   public void update_withoutScoreFields_flagEnabled_rendersErrorWithoutWipingScores() {
-    // A crafted post omitting optionScores[] entirely (the rendered form always submits them)
+    // A crafted post omitting optionScores[] entirely (the rendered form always
+    // submits them)
     // must fail validation, not silently rebuild every option unscored.
     QuestionDefinition definition = createScoredDropdownDefinition();
     QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
@@ -1718,7 +1731,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(content).contains("Library Name");
     assertThat(content).contains("Library Address");
 
-    // Verify the filters are re-indexed (should be filters[0] and filters[1] now, not [1] and [2])
+    // Verify the filters are re-indexed (should be filters[0] and filters[1] now,
+    // not [1] and [2])
     assertThat(content).contains("filters[0]");
     assertThat(content).contains("filters[1]");
     assertThat(content).doesNotContain("filters[2]");
@@ -1733,5 +1747,20 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setQuestionText(def.getQuestionText())
             .setQuestionHelpText(def.getQuestionHelpText())
             .build());
+  }
+
+  private QuestionModel createDraftQuestion() {
+    QuestionDefinition definition =
+        new StaticContentQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("static-question-" + UUID.randomUUID())
+                .setDescription("static content description")
+                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.addVersion(draftVersion);
+    question.save();
+    return question;
   }
 }

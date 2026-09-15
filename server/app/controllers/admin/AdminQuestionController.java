@@ -650,6 +650,18 @@ public final class AdminQuestionController extends CiviFormController {
             .getQuestionText()
             .updateTranslation(LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionText()));
 
+    // Question help text is optional. If the admin submits an empty string, delete
+    // all translations of it.
+    if (questionForm.getQuestionHelpText().isBlank()) {
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(LocalizedStrings.empty());
+    } else {
+      updatedQuestionDefinitionBuilder.setQuestionHelpText(
+          currentQuestionDefinition
+              .getQuestionHelpText()
+              .updateTranslation(
+                  LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+    }
+
     if (currentQuestionDefinition.getQuestionType().equals(QuestionType.STATIC)) {
       String newImageDescription = questionForm.getQuestionImageDescription();
 
