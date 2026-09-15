@@ -1,5 +1,6 @@
 {
-  extends: ["config:recommended"],
+  extends: ["config:recommended", "helpers:pinGitHubActionDigestsToSemver"],
+
   // Default timezone is UTC. Not running during the "work day" will free up github
   // actions to run and lessen calls to docker hub.
   //

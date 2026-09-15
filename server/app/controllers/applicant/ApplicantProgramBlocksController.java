@@ -51,6 +51,7 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -1610,7 +1611,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               // the applicant has uploaded a file with the same name for the same
               // block and question, overwriting the original in file storage.
               if (maybeStoredFile.isPresent()) {
-                return completedFuture(maybeStoredFile.get());
+                StoredFileModel existingFile = maybeStoredFile.get();
+                // An existing file may only be referenced by an applicant who owns it or
+                // has been granted read access; possession of the key is not authorization.
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)
+                        || existingFile.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
+                  return failedFuture(
+                      new SecurityException(
+                          String.format(
+                              "Applicant %d is not authorized to reference the file key in this"
+                                  + " request.",
+                              applicantId)));
+                }
+                return completedFuture(existingFile);
               }
 
               var storedFile = new StoredFileModel();
