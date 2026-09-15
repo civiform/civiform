@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicationScoreCalculator;
 import services.cloud.ApplicantFileNameFormatter;
 import services.settings.SettingsManifest;
 
@@ -49,7 +50,8 @@ public class CiviFormAccountMergerTest extends ResetPostgres {
         new ApplicationRepository(
             instanceOf(ProgramRepository.class),
             acctRepo,
-            instanceOf(DatabaseExecutionContext.class));
+            instanceOf(DatabaseExecutionContext.class),
+            instanceOf(ApplicationScoreCalculator.class));
   }
 
   public enum Newer {

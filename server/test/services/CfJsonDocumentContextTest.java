@@ -542,6 +542,43 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void readNullableDoubleList_roundTripsNullHoles() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.toppings.scores");
+    java.util.List<Double> scores = new java.util.ArrayList<>();
+    scores.add(3.5);
+    scores.add(null);
+    scores.add(-7.25);
+
+    data.putArray(path, scores);
+
+    assertThat(data.readNullableDoubleList(path)).hasValue(scores);
+  }
+
+  @Test
+  public void readNullableDoubleList_allNullAndEmptyLists_roundTrip() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path allNullPath = Path.create("applicant.all_null.scores");
+    java.util.List<Double> allNull = new java.util.ArrayList<>();
+    allNull.add(null);
+    allNull.add(null);
+    data.putArray(allNullPath, allNull);
+
+    Path emptyPath = Path.create("applicant.empty.scores");
+    data.putArray(emptyPath, new java.util.ArrayList<Double>());
+
+    assertThat(data.readNullableDoubleList(allNullPath)).hasValue(allNull);
+    assertThat(data.readNullableDoubleList(emptyPath)).hasValue(java.util.List.of());
+  }
+
+  @Test
+  public void readNullableDoubleList_pathNotPresent_returnsEmptyOptional() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThat(data.readNullableDoubleList(Path.create("not.here"))).isEmpty();
+  }
+
+  @Test
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
     String testData =
         """
