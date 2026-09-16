@@ -16,9 +16,20 @@
   Field ids: callers pass a fixed id, or generate a random 8-character
   alphabetic id with ${model.randomFieldId()} so labels stay associated
   with inputs.
+
+  textareaField keeps the nine-argument signature and delegates to
+  textareaFieldWithRows, which additionally renders the rows attribute that
+  FieldWithLabel.setRows(...) produced. Pass null for rows to omit it.
 */-->
-<div
+<th:block
   th:fragment="textareaField(id, name, label, value, required, disabled, markdown, markdownLink, wrapperClasses)"
+>
+  <div
+    th:replace="~{this :: textareaFieldWithRows(${id}, ${name}, ${label}, ${value}, ${required}, ${disabled}, ${markdown}, ${markdownLink}, ${wrapperClasses}, null)}"
+  ></div>
+</th:block>
+<div
+  th:fragment="textareaFieldWithRows(id, name, label, value, required, disabled, markdown, markdownLink, wrapperClasses, rows)"
   th:class="${wrapperClasses}"
 >
   <label
@@ -29,9 +40,11 @@
     ></span
   ></label>
   <div class="flex flex-col">
+    <!--/* A null rows value drops the attribute entirely, matching the legacy
+           textarea when no row count was configured. */-->
     <textarea
       maxlength="10000"
-      th:attr="aria-required=${required} ? 'true'"
+      th:attr="aria-required=${required} ? 'true',rows=${rows}"
       th:id="${id}"
       th:name="${name}"
       th:disabled="${disabled}"

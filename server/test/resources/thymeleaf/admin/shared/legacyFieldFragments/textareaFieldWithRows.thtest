@@ -1,0 +1,27 @@
+%NAME textareaFieldWithRows - renders the rows attribute FieldWithLabel.setRows produced
+%TEMPLATE_MODE HTML
+# The nine-argument textareaField delegates here with rows=null (covered by
+# the existing textareaField thtests, whose output must not change). This
+# pins the rows branch: an explicit row count lands on the textarea.
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaFieldWithRows('email-body', 'localized-email-0', 'Email content', 'Hola', false, false, false, false, 'mb-2', 8)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-2">
+  <label
+    for="email-body"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Email content<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <textarea
+      maxlength="10000"
+      rows="8"
+      id="email-body"
+      name="localized-email-0"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    >Hola</textarea>
+    <div id="email-body-errors" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>

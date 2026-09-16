@@ -61,6 +61,15 @@ public class LegacyFieldFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "textareaFieldOptionalEmpty.thtest");
   }
 
+  /**
+   * The nine-argument textareaField delegates to textareaFieldWithRows with a null row count; this
+   * pins the branch where a row count is given and must land on the textarea.
+   */
+  @Test
+  public void textareaFieldWithRows_rendersRowsAttribute() {
+    ThymeleafFragmentTester.run(DIR + "textareaFieldWithRows.thtest");
+  }
+
   @Test
   public void textField_required() {
     ThymeleafFragmentTester.run(DIR + "textFieldRequired.thtest");

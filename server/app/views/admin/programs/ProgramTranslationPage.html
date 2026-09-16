@@ -1,0 +1,176 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramTranslationPageViewModel"*/-->
+<!--/* 1:1 port of ProgramTranslationView (j2html). Rendered inside
+       LegacyTailwindLayout; slated for replacement during the admin
+       redesign. */-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
+         the direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="mb-4 mt-3" th:text="${model.title}"></h1>
+  <h2 class="mb-4">Enter text in the language(s) you want to translate to</h2>
+
+  <!--/* Language picker. The currently selected locale is underlined. */-->
+  <div class="m-2">
+    <a
+      th:each="link : ${model.languageLinks}"
+      th:href="${link.href}"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center cf-admin-language-link m-2"
+      th:classappend="${link.selected} ? 'border-blue-400 border-b-2'"
+      th:text="${link.displayLanguage}"
+    ></a>
+  </div>
+
+  <form
+    method="POST"
+    th:action="${model.formActionUrl}"
+    id="program-translation-form"
+  >
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+
+    <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
+      <legend>
+        <span>Applicant-visible program details</span
+        ><a
+          th:href="${model.editProgramDetailsUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${model.displayNameField}, 'Program name')}"
+        ></div>
+        <!--/* Only DEFAULT programs have a long description. */-->
+        <th:block th:if="${model.showDisplayDescription}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${model.displayDescriptionField}, 'Program description')}"
+          ></div>
+        </th:block>
+        <!--/* External programs have no confirmation screen. */-->
+        <th:block th:if="${model.showConfirmationMessage}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${model.confirmationMessageField}, 'Custom confirmation screen message')}"
+          ></div>
+        </th:block>
+        <!--/* Only shown when a summary image description is configured. */-->
+        <th:block th:if="${model.showImageDescription}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${model.imageDescriptionField}, 'Program image description')}"
+          ></div>
+        </th:block>
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${model.shortDescriptionField}, 'Short program description')}"
+        ></div>
+      </div>
+    </fieldset>
+
+    <!--/* One section per application step with a default-locale title. */-->
+    <fieldset
+      th:each="step : ${model.applicationSteps}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Application step ${step.stepNumber}|"></span
+        ><a
+          th:href="${model.editProgramDetailsUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${step.titleField}, 'Title')}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${step.descriptionField}, 'Description')}"
+        ></div>
+      </div>
+    </fieldset>
+
+    <!--/* One section per application status. The fields of a status are
+           siblings grouped by a shared index in their names. */-->
+    <fieldset
+      th:each="status : ${model.statuses}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Application status: ${status.statusText}|"></span
+        ><a
+          th:href="${model.editStatusesUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <!--/* Tells the form which status the translations belong to; not
+               configurable. */-->
+        <input
+          hidden
+          th:name="${status.statusKeyFieldName}"
+          th:value="${status.statusText}"
+        />
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${status.statusNameField}, 'Status name')}"
+        ></div>
+        <!--/* Only statuses with an email body get an email field. */-->
+        <th:block th:if="${status.showEmailBody}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextareaField(${status.emailBodyField}, 'Email content', 8)}"
+          ></div>
+        </th:block>
+      </div>
+    </fieldset>
+
+    <!--/* One section per screen. Empty for external programs. */-->
+    <fieldset
+      th:each="screen : ${model.screens}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Screen ${screen.screenNumber}|"></span
+        ><a
+          th:href="${screen.editUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${screen.nameField}, 'Screen name')}"
+        ></div>
+        <div
+          th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${screen.descriptionField}, 'Screen description')}"
+        ></div>
+        <!--/* Only screens with an eligibility message configured get this
+               field. */-->
+        <th:block th:if="${screen.showEligibilityMessage}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${screen.eligibilityMessageField}, 'Screen eligibility message')}"
+          ></div>
+        </th:block>
+      </div>
+    </fieldset>
+
+    <div class="flex flex-row gap-x-2">
+      <button
+        type="submit"
+        id="update-localizations-button"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        th:text="|Save ${model.displayLanguage} updates|"
+      ></button>
+    </div>
+  </form>
+
+  <!--/* Error toast (save failures and flash errors), consumed by toast.ts. */-->
+  <div
+    th:if="${model.errorMessage.isPresent()}"
+    class="hidden cf-toast-data"
+    th:id="${model.errorToastId}"
+    canDismiss="true"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage.get()}"
+  ></div>
+</th:block>
