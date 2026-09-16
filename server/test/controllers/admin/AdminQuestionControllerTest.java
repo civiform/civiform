@@ -63,8 +63,8 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void edit_withExistingImage_rendersExistingImageDetails() {
-    // 1. Create a draft question with an existing image file key and alt text
+  public void edit_withExistingImage_preservesExistingImageDetails() {
+    // Create a draft question with an existing image file key and alt text
     String fileKey = "questions/1/image1.png";
     String altText = "Alt text description";
     QuestionDefinition definition =
@@ -81,18 +81,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     question.addVersion(draftVersion);
     question.save();
 
-    // 2. Re-fetch the question from the database to confirm persistence
-    QuestionModel found =
-        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
-    QuestionDefinition foundDefinition = found.getQuestionDefinition();
-
-    // 3. Verify the persisted question has the correct image file key and alt text
-    assertThat(foundDefinition.getImageFileKey()).hasValue(fileKey);
-    assertThat(foundDefinition.getLocalizedImageDescription()).isPresent();
-    assertThat(foundDefinition.getLocalizedImageDescription().get().getDefault())
-        .isEqualTo(altText);
-
-    // 4. Verify the edit page renders successfully (J2HTML path, no profile needed)
+    //  Verify the edit page renders successfully
     Request editRequest = fakeRequestBuilder().addCSRFToken().build();
     Result editResult =
         controller
@@ -100,6 +89,17 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
     assertThat(editResult.status()).isEqualTo(OK);
+
+    // Re-fetch the question from the database to confirm persistence
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionDefinition foundDefinition = found.getQuestionDefinition();
+
+    // Verify the persisted question has the correct image file key and alt text
+    assertThat(foundDefinition.getImageFileKey()).hasValue(fileKey);
+    assertThat(foundDefinition.getLocalizedImageDescription()).isPresent();
+    assertThat(foundDefinition.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo(altText);
   }
 
   @Test
