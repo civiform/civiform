@@ -1,0 +1,41 @@
+%NAME tiRow - member who has signed in shows OK and the delete form
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+member = @views.admin.ti.EditTrustedIntermediaryGroupPageViewModel$Member@builder() \
+    .displayName("Jane Doe").emailAddress("jane@example.com") \
+    .signedIn(true).accountId("12") \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<tr th:replace="~{admin/ti/fragments/TrustedIntermediaryRow :: tiRow(${member}, '/admin/tiGroups/5/removeTi')}"></tr>
+# ----------------------------------------------------------------------
+# The icon is faked so this test stays about the row; iconDelete has its own
+# thtests under admin/shared/legacySvgFragments/.
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconDelete(classes)" th:text="|iconDelete(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<tr class="cf-admin-question-table-row border-b border-gray-300 even:bg-gray-100">
+  <td class="px-4 py-2 pr-12">
+    <div class="font-semibold">Jane Doe</div>
+    <div class="text-xs">jane@example.com</div>
+  </td>
+  <td class="px-4 py-2 pr-12">
+    <div class="font-semibold">OK</div>
+  </td>
+  <td>
+    <div class="flex justify-end items-center pr-3">
+      <form method="POST" action="/admin/tiGroups/5/removeTi">
+        <input type="hidden" value="token" name="csrfToken" />
+        <input type="hidden" name="accountId" value="12" />
+        <button
+          class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+        >
+          <svg>iconDelete(inline-block h-4.5 w-4.5)</svg>
+          <span class="text-left">Delete</span>
+        </button>
+      </form>
+    </div>
+  </td>
+</tr>

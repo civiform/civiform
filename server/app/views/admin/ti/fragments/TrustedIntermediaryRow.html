@@ -1,0 +1,45 @@
+<!--/*
+  One member row of the trusted intermediary group table.
+
+  Legacy counterpart: EditTrustedIntermediaryGroupView#renderTIRow.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="member" type="views.admin.ti.EditTrustedIntermediaryGroupPageViewModel.Member"*/-->
+<!--/*@thymesVar id="removeUrl" type="java.lang.String"*/-->
+<tr
+  th:fragment="tiRow(member, removeUrl)"
+  class="cf-admin-question-table-row border-b border-gray-300 even:bg-gray-100"
+>
+  <td class="px-4 py-2 pr-12">
+    <div class="font-semibold" th:text="${member.displayName}"></div>
+    <div class="text-xs" th:text="${member.emailAddress}"></div>
+  </td>
+  <td class="px-4 py-2 pr-12">
+    <div
+      class="font-semibold"
+      th:text="${member.signedIn} ? 'OK' : 'Not yet signed in.'"
+    ></div>
+  </td>
+  <td>
+    <div class="flex justify-end items-center pr-3">
+      <form method="POST" th:action="${removeUrl}">
+        <input
+          type="hidden"
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <input type="hidden" name="accountId" th:value="${member.accountId}" />
+        <!--/* No type attribute: the legacy makeSvgTextButton emitted a bare
+               <button>, which submits the form by default. */-->
+        <button
+          class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
+          ></svg>
+          <span class="text-left">Delete</span>
+        </button>
+      </form>
+    </div>
+  </td>
+</tr>

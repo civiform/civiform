@@ -100,4 +100,14 @@ public class LegacyFieldFragmentsTest {
   public void radioOption_unchecked() {
     ThymeleafFragmentTester.run(DIR + "radioOptionUnchecked.thtest");
   }
+
+  @Test
+  public void emailField_optionalWithValue() {
+    ThymeleafFragmentTester.run(DIR + "emailFieldWithValue.thtest");
+  }
+
+  @Test
+  public void emailField_requiredEmpty() {
+    ThymeleafFragmentTester.run(DIR + "emailFieldRequiredEmpty.thtest");
+  }
 }
