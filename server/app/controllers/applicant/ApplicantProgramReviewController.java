@@ -298,7 +298,12 @@ public class ApplicantProgramReviewController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     return applicantService
-        .submitApplication(applicantId, programId, submittingProfile, request)
+        .submitApplication(
+            applicantId,
+            programId,
+            submittingProfile,
+            request,
+            settingsManifest.getAnswerOptionScoringEnabled(request))
         .thenApplyAsync(
             (application) -> {
               Long applicationId = application.id;
