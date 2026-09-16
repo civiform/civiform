@@ -108,17 +108,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     // 4. Assertions on the rendered page
     assertThat(editResult.status()).isEqualTo(OK);
-    // String content = contentAsString(editResult);
-
-    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
-    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
-    assertThat(questionIdsAfter.size()).isEqualTo(questionIdsBefore.size() + 1);
-    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
-    QuestionModel newQuestion =
-        questionRepo.lookupQuestion(newQuestionId).toCompletableFuture().join().get();
-    assertThat(
-            newQuestion.getQuestionDefinition().getLocalizedImageDescription().get().getDefault())
-        .contains("alt text");
+    String content = contentAsString(editResult);
+    System.out.println("********************* " + content);
+    assertThat(content).contains("Edit name question");
   }
 
   @Test

@@ -2,7 +2,6 @@ package support;
 
 import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
-import auth.CiviFormProfileData;
 import auth.ClientIpResolver;
 import com.google.common.collect.ImmutableMap;
 import java.nio.charset.StandardCharsets;
@@ -114,5 +113,4 @@ public final class FakeRequestBuilder extends RequestBuilder {
 
     return handlerDef;
   }
-
 }
