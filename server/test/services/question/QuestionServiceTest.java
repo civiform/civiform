@@ -24,6 +24,7 @@ import repository.TransactionManager;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
@@ -845,7 +846,7 @@ public class QuestionServiceTest extends ResetPostgres {
             () ->
                 questionService.setImageFileKeyAndDescription(
                     question.getId(), Optional.empty(), LocalizedStrings.DEFAULT_LOCALE, ""))
-        .isInstanceOf(controllers.admin.ImageDescriptionNotRemovableException.class)
+        .isInstanceOf(ImageDescriptionNotRemovableException.class)
         .hasMessageContaining("Description can't be removed because an image is present");
   }
 
@@ -856,7 +857,7 @@ public class QuestionServiceTest extends ResetPostgres {
     questionService.setImageFileKeyAndDescription(
         question.getId(), Optional.of("fileKey1.png"), Locale.US, "Alt text");
 
-    QuestionDefinition result = questionService.deleteImageFileKey(question.getId());
+    QuestionDefinition result = questionService.deleteImageFromQuestion(question.getId());
 
     assertThat(result.getImageFileKey()).isEmpty();
     assertThat(result.getLocalizedImageDescription()).isEmpty();

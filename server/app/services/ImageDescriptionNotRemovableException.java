@@ -1,4 +1,4 @@
-package controllers.admin;
+package services;
 
 /**
  * Exception thrown when an admin attempts to remove the summary image description but isn't allowed
