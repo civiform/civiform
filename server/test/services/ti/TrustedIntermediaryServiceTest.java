@@ -170,6 +170,23 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
   }
 
   @Test
+  public void addClient_withEmailAddressExistsInDifferentCasing() {
+    setupTiClientAccount("Fake@Email.com", tiGroup);
+    Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(CLIENT_DATA);
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+
+    Form<TiClientInfoForm> returnedForm =
+        service
+            .addNewClient(form, tiGroup, messagesApi.preferred(requestBuilder.build()))
+            .getForm();
+
+    assertThat(returnedForm.error("emailAddress").orElseThrow().message())
+        .isEqualTo(
+            "Email address already in use. Cannot create applicant if an account already exists.");
+  }
+
+  @Test
   public void addClient_withEmptyEmailAddress() {
     var clientData = new HashMap<>(CLIENT_DATA);
     clientData.put("emailAddress", "");
@@ -386,6 +403,41 @@ public class TrustedIntermediaryServiceTest extends WithMockedProfiles {
     assertThat(applicantFinal.getPhoneNumber()).hasValue(CLIENT_DATA.get("phoneNumber"));
     assertThat(applicantFinal.getApplicantName()).hasValue("ClientLast, clientFirst");
     assertThat(accountFinal.getEmailAddress()).isEqualTo(CLIENT_DATA.get("emailAddress"));
+  }
+
+  @Test
+  public void editTiClientInfo_emailInUseInDifferentCasing() throws ApplicantNotFoundException {
+    setupTiClientAccount("Fake@Email.com", tiGroup);
+    AccountModel account = setupTiClientAccount("emailOld", tiGroup);
+    setTiClientApplicant(account, "clientFirst", "2021-12-12");
+
+    Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(CLIENT_DATA);
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
+        service.updateClientInfo(
+            form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
+
+    assertThat(returnForm.error("emailAddress")).isPresent();
+    assertThat(repo.lookupAccount(account.id).orElseThrow().getEmailAddress())
+        .isEqualTo("emailOld");
+  }
+
+  @Test
+  public void editTiClientInfo_changesCasingOfOwnEmail() throws ApplicantNotFoundException {
+    AccountModel account = setupTiClientAccount("Fake@Email.com", tiGroup);
+    setTiClientApplicant(account, "clientFirst", "2021-12-12");
+
+    Http.RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(CLIENT_DATA);
+    Form<TiClientInfoForm> form =
+        formFactory.form(TiClientInfoForm.class).bindFromRequest(requestBuilder.build());
+    Form<TiClientInfoForm> returnForm =
+        service.updateClientInfo(
+            form, tiGroup, account.id, messagesApi.preferred(requestBuilder.build()));
+
+    assertThat(returnForm.errors()).isEmpty();
+    assertThat(repo.lookupAccount(account.id).orElseThrow().getEmailAddress())
+        .isEqualTo(CLIENT_DATA.get("emailAddress"));
   }
 
   @Test

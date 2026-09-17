@@ -131,6 +131,18 @@ public final class AccountRepository {
         .findList();
   }
 
+  /**
+   * Returns true if an account other than {@code ignoredAccountId} already uses the email address,
+   * ignoring case.
+   *
+   * <p>Email addresses are stored with the casing they were entered in, so an exact match lets the
+   * same address in twice with different casing.
+   */
+  public boolean isEmailAddressInUse(String emailAddress, Optional<Long> ignoredAccountId) {
+    return lookupAccountByEmailCaseInsensitive(emailAddress).stream()
+        .anyMatch(account -> !ignoredAccountId.equals(Optional.of(account.id)));
+  }
+
   public CompletionStage<Optional<AccountModel>> lookupAccountByEmailAsync(String emailAddress) {
     if (emailAddress == null) {
       return CompletableFuture.failedStage(new NullPointerException());
@@ -219,7 +231,8 @@ public final class AccountRepository {
           Strings.isNullOrEmpty(account.getEmailAddress()) ? "" : account.getEmailAddress();
       // new email should different from the current email
       if (!email.equals(currentEmail)) {
-        if (!Strings.isNullOrEmpty(email) && lookupAccountByEmail(email).isPresent()) {
+        if (!Strings.isNullOrEmpty(email)
+            && isEmailAddressInUse(email, Optional.ofNullable(account.id))) {
           throw new EmailAddressExistsException();
         }
         account.setEmailAddress(email);
@@ -398,7 +411,7 @@ public final class AccountRepository {
     AccountModel newAccount = new AccountModel();
     String formEmail = form.getEmailAddress();
     if (!Strings.isNullOrEmpty(formEmail)) {
-      if (lookupAccountByEmail(formEmail).isPresent()) {
+      if (isEmailAddressInUse(formEmail, /* ignoredAccountId= */ Optional.empty())) {
         throw new EmailAddressExistsException();
       }
       newAccount.setEmailAddress(formEmail);

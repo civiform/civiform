@@ -94,6 +94,50 @@ public class AccountRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void updateClientEmail_differentCasing_throwsEmailExistsException() {
+    ApplicantModel applicantModel = setupApplicantForUpdateTest();
+    setupAccountForUpdateTest();
+    AccountModel account = new AccountModel();
+    account.setEmailAddress("test1@test.com");
+    account.save();
+    assertThatThrownBy(
+            () ->
+                repo.updateTiClient(
+                    account,
+                    applicantModel,
+                    "first",
+                    /* middleName= */ "",
+                    /* lastName= */ "",
+                    /* nameSuffix= */ "",
+                    /* phoneNumber= */ "",
+                    /* tiNote= */ "",
+                    "Test@Test.com",
+                    "2020-10-10"))
+        .isInstanceOf(EmailAddressExistsException.class);
+  }
+
+  @Test
+  public void updateClientEmail_changesCasingOfOwnEmail() {
+    ApplicantModel applicantModel = setupApplicantForUpdateTest();
+    AccountModel account = setupAccountForUpdateTest();
+
+    repo.updateTiClient(
+        account,
+        applicantModel,
+        "first",
+        /* middleName= */ "",
+        /* lastName= */ "",
+        /* nameSuffix= */ "",
+        /* phoneNumber= */ "",
+        /* tiNote= */ "",
+        "Test@Test.com",
+        "2020-10-10");
+
+    assertThat(repo.lookupAccount(account.id).orElseThrow().getEmailAddress())
+        .isEqualTo("Test@Test.com");
+  }
+
+  @Test
   public void updateClientNameTest_AllNonEmpty() {
     ApplicantModel applicantUpdateTest = setupApplicantForUpdateTest();
     AccountModel account = setupAccountForUpdateTest();
@@ -246,6 +290,28 @@ public class AccountRepositoryTest extends ResetPostgres {
 
     assertThat(repo.lookupAccountByEmailCaseInsensitive(EMAIL).get(0).getAuthorityId())
         .isEqualTo(AUTHORITY_ID);
+  }
+
+  @Test
+  public void isEmailAddressInUse_differentCasing() {
+    new AccountModel().setEmailAddress(EMAIL_WITH_CAPS).save();
+
+    assertThat(repo.isEmailAddressInUse(EMAIL, /* ignoredAccountId= */ Optional.empty())).isTrue();
+  }
+
+  @Test
+  public void isEmailAddressInUse_ignoresGivenAccount() {
+    AccountModel account = new AccountModel().setEmailAddress(EMAIL_WITH_CAPS);
+    account.save();
+
+    assertThat(repo.isEmailAddressInUse(EMAIL, Optional.of(account.id))).isFalse();
+  }
+
+  @Test
+  public void isEmailAddressInUse_unusedEmail() {
+    new AccountModel().setEmailAddress("other@email.com").save();
+
+    assertThat(repo.isEmailAddressInUse(EMAIL, /* ignoredAccountId= */ Optional.empty())).isFalse();
   }
 
   @Test

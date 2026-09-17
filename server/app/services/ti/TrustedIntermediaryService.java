@@ -155,7 +155,8 @@ public final class TrustedIntermediaryService {
       return form;
     }
     if (hasEmailChanged(newEmail, currentAccount)
-        && accountRepository.lookupAccountByEmail(newEmail).isPresent()) {
+        && accountRepository.isEmailAddressInUse(
+            newEmail, Optional.ofNullable(currentAccount.id))) {
       return form.withError(
           FORM_FIELD_NAME_EMAIL_ADDRESS,
           messages.at(MessageKey.ERROR_EMAIL_IN_USE_CLIENT_EDIT.getKeyName()));
