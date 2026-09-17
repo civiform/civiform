@@ -125,33 +125,38 @@ public final class ActiveAndDraftPrograms {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
-
-    // Active, non-disabled programs.
-    ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        mapNameToProgramWithFilter(repository, service, active, Optional.of(DisplayMode.DISABLED));
-
-    // All active programs (including disabled).
-    ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
-        mapNameToProgram(repository, service, active);
-
-    // Draft, non-disabled programs.
-    ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
-
-    // All draft programs (including disabled).
-    ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
-        mapNameToProgram(repository, service, draft);
+    //
+    // To minimize the impact, we only build the maps that are actually needed for the requested
+    // program type, rather than eagerly building all 4 maps upfront.
 
     if (types.containsAll(allProgramTypes)) {
+      // All programs (including disabled) — only need the unfiltered maps.
+      ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
+          mapNameToProgram(repository, service, active);
+      ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
+          mapNameToProgram(repository, service, draft);
+
       this.activePrograms = activeNameToProgramAll.values().asList();
       this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
           createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
     } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
-      // Disabled active programs.
+      // Disabled programs — need both unfiltered (all) and filtered (non-disabled) to compute
+      // the difference.
+      ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
+          mapNameToProgram(repository, service, active);
+      ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
+          mapNameToProgram(repository, service, draft);
+      ImmutableMap<String, ProgramDefinition> activeNameToProgram =
+          mapNameToProgramWithFilter(
+              repository, service, active, Optional.of(DisplayMode.DISABLED));
+      ImmutableMap<String, ProgramDefinition> draftNameToProgram =
+          mapNameToProgramWithFilter(
+              repository, service, draft, Optional.of(DisplayMode.DISABLED));
+
+      // Disabled = all minus non-disabled.
       ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
           filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
-      // Disabled draft programs.
       ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
           filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
 
@@ -160,6 +165,14 @@ public final class ActiveAndDraftPrograms {
       this.versionedByName =
           createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
     } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
+      // Non-disabled programs — only need the filtered maps.
+      ImmutableMap<String, ProgramDefinition> activeNameToProgram =
+          mapNameToProgramWithFilter(
+              repository, service, active, Optional.of(DisplayMode.DISABLED));
+      ImmutableMap<String, ProgramDefinition> draftNameToProgram =
+          mapNameToProgramWithFilter(
+              repository, service, draft, Optional.of(DisplayMode.DISABLED));
+
       this.activePrograms = activeNameToProgram.values().asList();
       this.draftPrograms = draftNameToProgram.values().asList();
       this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
