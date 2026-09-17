@@ -27,6 +27,7 @@ import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
 import services.ImageDescriptionNotRemovableException;
+import services.ImageWithoutDescriptionException;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
@@ -633,15 +634,19 @@ public final class QuestionService {
     QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
 
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(questionDefinition);
-
     if (maybeFileKey.isPresent()) {
       builder.setImageFileKey(maybeFileKey);
     }
-
-    if (imageDescription.isBlank() && builder.build().getImageFileKey().isPresent()) {
-      throw new ImageDescriptionNotRemovableException(
-          "Description can't be removed because an image is present. Delete the image before"
-              + " deleting the description.");
+    if (imageDescription.isBlank()) {
+      if (questionDefinition.getImageFileKey().isPresent()) {
+        throw new ImageDescriptionNotRemovableException(
+            "Description can't be removed because an image is present. Delete the image before"
+                + " deleting the description.");
+      }
+      if (maybeFileKey.isPresent()) {
+        throw new ImageWithoutDescriptionException(
+            "Image cannot be added without an image description");
+      }
     }
 
     Optional<LocalizedStrings> newStrings =
