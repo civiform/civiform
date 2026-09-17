@@ -192,6 +192,15 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+
+      // Initial-question context for enumerator blocks when enumerator improvements are enabled and
+      // the enumerator has an initial question configured. When absent, the enumerator fragment
+      // falls back to the legacy text input.
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+          && applicationParams.block().getInitialQuestion().isPresent()) {
+        setInitialQuestionContext(context, applicationParams);
+      }
+
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }
@@ -432,6 +441,27 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+  }
+
+  /**
+   * Adds the initial-question context variables consumed by the enumerator fragment: the initial
+   * question's {@link QuestionType} (used to branch to the correct per-type fragment) and one
+   * contextualized {@link ApplicantQuestion} per existing entity so its inputs resolve to the right
+   * per-entity paths.
+   */
+  private void setInitialQuestionContext(
+      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams params) {
+    context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
+    context.setVariable(
+        "contextualizedInitialQuestions", params.block().getContextualizedInitialQuestions());
+    // TODO (#13398): Show validation errors and set the autofocus target
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
   }
 
   private void addFileUploadParameters(

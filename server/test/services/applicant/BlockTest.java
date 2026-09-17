@@ -67,6 +67,34 @@ public class BlockTest {
               .setDisplayMode(models.QuestionDisplayMode.HIDDEN)
               .build());
 
+  private static final long ENUMERATOR_QUESTION_ID = 700L;
+  private static final long INITIAL_QUESTION_ID = 701L;
+
+  private static final EnumeratorQuestionDefinition ENUMERATOR_WITH_INITIAL_QUESTION =
+      new EnumeratorQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("household members")
+              .setDescription("The applicant's household members")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(ENUMERATOR_QUESTION_ID))
+              .setEnumeratorInitialQuestionId(INITIAL_QUESTION_ID)
+              .setLastModifiedTime(Optional.empty())
+              .build(),
+          LocalizedStrings.empty());
+
+  private static final TextQuestionDefinition INITIAL_QUESTION =
+      new TextQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("household member's name")
+              .setDescription("The household member's name")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(INITIAL_QUESTION_ID))
+              .setEnumeratorId(ENUMERATOR_QUESTION_ID)
+              .setLastModifiedTime(Optional.empty())
+              .build());
+
   @Test
   public void createNewBlock() {
     BlockDefinition definition =
@@ -1350,6 +1378,130 @@ public class BlockTest {
     String resultingName = block.getLocalizedName(Locale.getDefault());
     assertThat(resultingName)
         .isEqualTo(parentEntityName + " - " + childEntityName + " - " + expectedName);
+  }
+
+  @Test
+  public void getInitialQuestion_returnsInitialQuestion() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    Optional<ApplicantQuestion> initialQuestion = block.getInitialQuestion();
+
+    assertThat(initialQuestion).isPresent();
+    assertThat(initialQuestion.get().getQuestionDefinition().getId())
+        .isEqualTo(INITIAL_QUESTION_ID);
+  }
+
+  @Test
+  public void getInitialQuestion_withNoInitialQuestionIdSet_returnsEmpty() {
+    BlockDefinition definition = enumeratorBlockWithoutInitialQuestion();
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getInitialQuestion()).isEmpty();
+  }
+
+  @Test
+  public void getInitialQuestion_withNonEnumeratorBlock_returnsEmpty() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", setUpBlockWithQuestions(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getInitialQuestion()).isEmpty();
+  }
+
+  @Test
+  public void getVisibleQuestions_excludesInitialQuestion() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    ImmutableList<Long> visibleQuestionIds =
+        block.getVisibleQuestions().stream()
+            .map(question -> question.getQuestionDefinition().getId())
+            .collect(ImmutableList.toImmutableList());
+
+    assertThat(visibleQuestionIds).containsExactly(ENUMERATOR_QUESTION_ID);
+  }
+
+  @Test
+  public void getEnumeratorQuestion_withInitialQuestionPresent_returnsEnumerator() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getEnumeratorQuestion().getQuestionDefinition().getId())
+        .isEqualTo(ENUMERATOR_QUESTION_ID);
+  }
+
+  @Test
+  public void getContextualizedInitialQuestions_withNoInitialQuestion_returnsEmpty() {
+    BlockDefinition definition = enumeratorBlockWithoutInitialQuestion();
+    Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getContextualizedInitialQuestions()).isEmpty();
+  }
+
+  @Test
+  public void getContextualizedInitialQuestions_withAnsweredEntities_returnsOnePerEntity() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), applicantData);
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("first", "second"));
+
+    ImmutableList<ApplicantQuestion> contextualizedQuestions =
+        block.getContextualizedInitialQuestions();
+
+    assertThat(contextualizedQuestions).hasSize(2);
+    assertThat(contextualizedQuestions.get(0).getContextualizedPath().toString()).contains("[0]");
+    assertThat(contextualizedQuestions.get(1).getContextualizedPath().toString()).contains("[1]");
+  }
+
+  @Test
+  public void getContextualizedInitialQuestions_withNoEntities_returnsSingleEmptyQuestion() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    ImmutableList<ApplicantQuestion> contextualizedQuestions =
+        block.getContextualizedInitialQuestions();
+
+    assertThat(contextualizedQuestions).hasSize(1);
+    assertThat(contextualizedQuestions.get(0).getContextualizedPath().toString()).contains("[0]");
+  }
+
+  private static BlockDefinition enumeratorBlockWithInitialQuestion() {
+    return BlockDefinition.builder()
+        .setId(30L)
+        .setName("household enumerator block")
+        .setDescription("description")
+        .setLocalizedName(LocalizedStrings.withDefaultValue("household enumerator block"))
+        .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                ENUMERATOR_WITH_INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .build();
+  }
+
+  private static BlockDefinition enumeratorBlockWithoutInitialQuestion() {
+    return BlockDefinition.builder()
+        .setId(31L)
+        .setName("")
+        .setDescription("")
+        .setLocalizedName(LocalizedStrings.withDefaultValue(""))
+        .setLocalizedDescription(LocalizedStrings.withDefaultValue(""))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition(),
+                /* programDefinitionId= */ Optional.empty()))
+        .build();
   }
 
   private static Block makeUnrepeatedBlock(

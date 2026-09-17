@@ -19,11 +19,11 @@ function formatPhone(element: HTMLElement) {
 }
 
 export function init() {
-  document.querySelectorAll('[id^=cf-phone-number]').forEach((el) => {
-    // Our questions automatically include an element matching id appended with "-errors"; filter them out.
-    if (!el.id.endsWith('-errors')) {
-      formatPhone(el as HTMLElement)
-    }
+  // Match the input inside each phone question's `.cf-phone-number` wrapper. Selecting by wrapper
+  // class (rather than the input's id prefix) also covers phone questions used as an enumerator's
+  // initial question, whose inputs get a generic per-entity id instead of a `cf-phone-number-` one.
+  document.querySelectorAll('.cf-phone-number input').forEach((el) => {
+    formatPhone(el as HTMLElement)
   })
 
   const phoneElement = document.getElementById('phone-number-input')
