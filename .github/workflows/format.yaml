@@ -2,6 +2,10 @@ name: Format
 
 on:
   pull_request:
+    # ready_for_review is not a default type. Without it, a draft that is
+    # marked ready gets no run (and no suggested changes) until the next
+    # push.
+    types: [opened, synchronize, reopened, ready_for_review]
     branches-ignore:
       - 'spike/**'
 
@@ -68,7 +72,10 @@ jobs:
         # there. Comparing full_name (rather than checking head.repo.fork)
         # also covers deleted forks, where head.repo is null and a bare
         # .fork check would fail open.
-        if: ${{ github.event.pull_request.head.repo.full_name == github.repository }}
+        #
+        # Drafts are still being worked on, so don't post suggestions on
+        # them; wait until the PR is marked ready for review.
+        if: ${{ github.event.pull_request.head.repo.full_name == github.repository && !github.event.pull_request.draft }}
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9
         with:
           script: |
