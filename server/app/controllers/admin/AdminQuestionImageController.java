@@ -12,6 +12,7 @@ import forms.questions.QuestionImageDescriptionForm;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
+import models.ConcurrentUpdateException;
 import org.pac4j.play.java.Secure;
 import parsers.admin.QuestionImageStreamingMultipartBodyParser;
 import play.i18n.Lang;
@@ -21,6 +22,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.question.QuestionService;
@@ -95,8 +97,9 @@ public class AdminQuestionImageController extends CiviFormController {
       return renderError("Unsupported question type");
     } catch (ImageDescriptionNotRemovableException e) {
       return renderError(messages.at("toast.adminQuestionImage.descriptionNotRemovable"));
+    } catch (ConcurrentUpdateException e) {
+      return renderError("Please try your edits again");
     }
-
     String newConcurrencyToken =
         updatedQuestion.getConcurrencyToken().map(UUID::toString).orElse("");
 
@@ -124,7 +127,7 @@ public class AdminQuestionImageController extends CiviFormController {
 
     QuestionDefinition updatedQuestion;
     try {
-      updatedQuestion = questionService.deleteImageFileKey(questionId);
+      updatedQuestion = questionService.deleteImageFromQuestion(questionId);
     } catch (QuestionNotFoundException e) {
       return notFound();
     } catch (UnsupportedQuestionTypeException e) {
