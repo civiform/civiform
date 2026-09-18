@@ -25,6 +25,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantService;

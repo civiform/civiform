@@ -3,14 +3,12 @@ package services.question;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.LocalizedStrings.DEFAULT_LOCALE;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import controllers.admin.ImageDescriptionNotRemovableException;
 import helpers.UniqueAdminNameGenerator;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -28,6 +26,8 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
+import services.ImageDescriptionNotRemovableException;
+import services.ImageWithoutDescriptionException;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
@@ -619,22 +619,34 @@ public final class QuestionService {
     return Optional.of(newStrings);
   }
 
-  /** Sets both a filekey and an image description for the given question. */
+  /**
+   * Sets both a filekey and an image description for the given question.
+   *
+   * <p>If the {@code locale} is the default locale and the {@code imageDescription} is empty or
+   * blank, then the description for *all* locales will be erased.
+   *
+   * @throws ImageDescriptionNotRemovableException if the admin tries to remove a description while
+   *     they still have an image
+   */
   public QuestionDefinition setImageFileKeyAndDescription(
       long questionId, Optional<String> maybeFileKey, Locale locale, String imageDescription)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
     QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
 
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(questionDefinition);
-
     if (maybeFileKey.isPresent()) {
       builder.setImageFileKey(maybeFileKey);
     }
-
-    if (imageDescription.isBlank() && builder.build().getImageFileKey().isPresent()) {
-      throw new ImageDescriptionNotRemovableException(
-          "Description can't be removed because an image is present. Delete the image before"
-              + " deleting the description.");
+    if (imageDescription.isBlank()) {
+      if (questionDefinition.getImageFileKey().isPresent()) {
+        throw new ImageDescriptionNotRemovableException(
+            "Description can't be removed because an image is present. Delete the image before"
+                + " deleting the description.");
+      }
+      if (maybeFileKey.isPresent()) {
+        throw new ImageWithoutDescriptionException(
+            "Image cannot be added without an image description");
+      }
     }
 
     Optional<LocalizedStrings> newStrings =
@@ -645,8 +657,11 @@ public final class QuestionService {
     return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 
-  /** Removes the image file key for the given question so that no image is associated with it. */
-  public QuestionDefinition deleteImageFileKey(long questionId)
+  /**
+   * Removes the image file key and alt-text for the given question so that no image is associated
+   * with it.
+   */
+  public QuestionDefinition deleteImageFromQuestion(long questionId)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
 
     QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
@@ -661,7 +676,6 @@ public final class QuestionService {
     return questionRepository.getQuestionDefinition(updatedQuestion);
   }
 
-  @VisibleForTesting
   public QuestionDefinition getQuestionDefinition(long questionId)
       throws QuestionNotFoundException {
     return questionRepository

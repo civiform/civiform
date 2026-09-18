@@ -19,10 +19,16 @@ import play.mvc.Result;
 import services.cloud.BucketType;
 import services.cloud.PublicFileNameFormatter;
 
+/**
+ * Question image upload implementation of the streaming multipart parser.
+ *
+ * <p>Streams a question image file upload to the public applicant bucket. The cloud-storage file
+ * key is generated server-side using {@link services.cloud.PublicFileNameFormatter}.
+ */
 public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
   public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
 
-  // Matches /admin/questions/questionId/edit in the request path.
+  // Matches /admin/questions/questionId/image/upload in the request path.
   private static final Pattern QUESTION_IMAGE_UPLOAD_PATH_PATTERN =
       Pattern.compile("/admin/questions/(\\d+)/image/upload(/|$)");
 
@@ -48,7 +54,7 @@ public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipar
     Matcher matcher = QUESTION_IMAGE_UPLOAD_PATH_PATTERN.matcher(request.path());
     if (!matcher.find()) {
       throw new IllegalStateException(
-          "Request path does not contain question id: " + request.path());
+          "Request path does not match expected question image upload pattern: " + request.path());
     }
     this.questionId = Long.parseLong(matcher.group(1));
     return super.apply(request);
