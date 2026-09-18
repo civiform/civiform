@@ -1764,11 +1764,15 @@ export class AdminPrograms {
     return this.page.locator(this.editNoteSelector()).isVisible()
   }
 
+  async isAddNoteVisible(): Promise<boolean> {
+    return this.page.locator(this.addNoteSelector()).isVisible()
+  }
+
   /**
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.page.locator(this.editNoteSelector()).click()
+    await this.noteButtonLocator().click()
 
     const editModal = await waitForAnyModal(this.page)
     const noteContentArea = (await editModal.$('textarea'))!
@@ -1779,7 +1783,7 @@ export class AdminPrograms {
    * Clicks the edit note button, and returns the modal.
    */
   async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.page.locator(this.editNoteSelector()).click()
+    await this.noteButtonLocator().click()
 
     return await waitForAnyModal(this.page)
   }
@@ -1793,13 +1797,27 @@ export class AdminPrograms {
     const noteContentArea = (await editModal.$('textarea'))!
     await noteContentArea.fill(noteContent)
 
+    const responsePromise = this.page.waitForResponse((response) => {
+      return response.url().includes('updateNote')
+    })
     const saveButton = (await editModal.$('text=Save'))!
     await saveButton.click()
+    await responsePromise
     await waitForPageJsLoad(this.page)
   }
 
   private editNoteSelector() {
     return 'button:has-text("Edit note")'
+  }
+
+  private addNoteSelector() {
+    return 'button:has-text("Add note")'
+  }
+
+  private noteButtonLocator(): Locator {
+    return this.page
+      .locator(this.addNoteSelector())
+      .or(this.page.locator(this.editNoteSelector()))
   }
 
   async expectNoteUpdatedToast() {

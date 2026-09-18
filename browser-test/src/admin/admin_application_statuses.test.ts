@@ -62,6 +62,7 @@ test.describe('view program statuses', () => {
     })
 
     test('does not show edit note', async ({page, adminPrograms}) => {
+      expect(await adminPrograms.isAddNoteVisible()).toBe(false)
       expect(await adminPrograms.isEditNoteVisible()).toBe(false)
       await page.getByRole('link', {name: 'Back'}).click()
     })
