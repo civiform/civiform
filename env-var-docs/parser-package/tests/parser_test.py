@@ -121,6 +121,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None,
+                    enum_class=None,
                     mode=Mode.HIDDEN)),
             Node(
                 level=2,
@@ -138,6 +139,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None,
+                    enum_class=None,
                     mode=Mode.HIDDEN)),
             Node(
                 level=2,
@@ -150,6 +152,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None,
+                    enum_class=None,
                     mode=Mode.HIDDEN)),
             Node(
                 level=1,
@@ -162,6 +165,7 @@ class TestVisit(unittest.TestCase):
                     values=None,
                     regex=None,
                     regex_tests=None,
+                    enum_class=None,
                     mode=Mode.HIDDEN)),
         ]
 
@@ -396,6 +400,7 @@ class TestParseVariable(unittest.TestCase):
                         values=None,
                         regex=None,
                         regex_tests=None,
+                        enum_class=None,
                         mode=Mode.HIDDEN))
 
     def test_unrequired_fields_not_set(self):
@@ -410,6 +415,7 @@ class TestParseVariable(unittest.TestCase):
                 values=None,
                 regex=None,
                 regex_tests=None,
+                enum_class=None,
                 mode=Mode.HIDDEN))
 
     def test_required_wrong_type(self):
@@ -432,6 +438,7 @@ class TestParseVariable(unittest.TestCase):
                 values=None,
                 regex=None,
                 regex_tests=None,
+                enum_class=None,
                 mode=Mode.HIDDEN))
 
     def test_required_true(self):
@@ -447,6 +454,7 @@ class TestParseVariable(unittest.TestCase):
                 values=None,
                 regex=None,
                 regex_tests=None,
+                enum_class=None,
                 mode=Mode.HIDDEN))
 
     def test_values_wrong_type(self):
@@ -483,6 +491,27 @@ class TestParseVariable(unittest.TestCase):
                 values=["one", "two"],
                 regex=None,
                 regex_tests=None,
+                enum_class=None,
+                mode=Mode.HIDDEN))
+
+    def test_enum_class_valid(self):
+        v = dict(
+            self.basevar, **{
+                "values": ["A", "B"],
+                "enum_class": "some.EnumType"
+            })
+        got, gotErrors = _try_parse_variable("root", v)
+        self.assertEqual(gotErrors, [])
+        self.assertEqual(
+            got,
+            Variable(
+                description="Var",
+                type="string",
+                required=False,
+                values=["A", "B"],
+                regex=None,
+                regex_tests=None,
+                enum_class="some.EnumType",
                 mode=Mode.HIDDEN))
 
     def test_regex_wrong_type(self):
@@ -623,6 +652,7 @@ class TestParseVariable(unittest.TestCase):
                 values=None,
                 regex=".*",
                 regex_tests=self.basetests_parsed,
+                enum_class=None,
                 mode=Mode.HIDDEN))
 
     def test_has_only_extra_fields(self):
@@ -638,11 +668,11 @@ class TestParseVariable(unittest.TestCase):
                 ParseError("root", "'mode' is a required field"),
                 ParseError(
                     "root",
-                    "'extra' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'mode']"
+                    "'extra' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'enum_class', 'mode']"
                 ),
                 ParseError(
                     "root",
-                    "'field' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'mode']"
+                    "'field' is an invalid key, valid keys are ['description', 'type', 'required', 'values', 'regex', 'regex_tests', 'enum_class', 'mode']"
                 )
             ])
         self.assertEqual(got, None)
