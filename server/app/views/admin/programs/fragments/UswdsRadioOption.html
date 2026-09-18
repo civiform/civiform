@@ -1,0 +1,29 @@
+<!--/*
+  USWDS tile radio option, mirroring the legacy ProgramFormBuilder
+  buildUSWDSRadioOption helper.
+
+  description is optional (pass null to omit); when present it renders as a
+  usa-checkbox__label-description span inside the label, matching the legacy
+  markup (which reused the checkbox description class for radios).
+*/-->
+<div
+  th:fragment="uswdsRadioOption(id, name, value, checked, disabled, label, description)"
+  class="usa-radio"
+>
+  <input
+    th:id="${id}"
+    class="usa-radio__input usa-radio__input--tile"
+    type="radio"
+    th:name="${name}"
+    th:value="${value}"
+    th:checked="${checked}"
+    th:disabled="${disabled}"
+  />
+  <label th:for="${id}" class="usa-radio__label"
+    >[[${label}]]<span
+      th:if="${description != null}"
+      class="usa-checkbox__label-description"
+      th:text="${description}"
+    ></span
+  ></label>
+</div>
