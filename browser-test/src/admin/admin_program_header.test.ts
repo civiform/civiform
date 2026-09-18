@@ -16,7 +16,6 @@ test.describe('admin program page headers', () => {
     await adminPrograms.goToEditBlockEligibilityPredicatePage(
       programName,
       'Screen 1',
-      /* expandedFormLogicEnabled= */ true,
     )
 
     await expect(page.locator('#program-title')).toContainText(programName)

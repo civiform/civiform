@@ -1,5 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('program migration', () => {
@@ -7,6 +7,13 @@ test.describe('program migration', () => {
   const ALERT_WARNING = 'usa-alert--warning'
   const ALERT_ERROR = 'usa-alert--error'
   const ALERT_SUCCESS = 'usa-alert--success'
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
 
   test('export a program', async ({
     page,
@@ -120,14 +127,12 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"adminName: "mismatched-double-quote"}',
       )
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'Error processing JSON',
         ALERT_ERROR,
       )
-      await validateScreenshot(
-        page.locator('main'),
-        'import-page-with-error-parse',
-      )
+      await expect(alert).toContainText('JSON is incorrectly formatted')
+      await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
     })
 
     await test.step('malformed: not matching {}', async () => {
@@ -168,14 +173,13 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         '{"program": {"adminName": "missing-fields", "adminDescription": "missing-fields-description"}}',
       )
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'Error processing JSON',
         ALERT_ERROR,
       )
-      await validateScreenshot(
-        page,
-        'import-page-with-error-missing-program-fields',
-      )
+      await expect(alert).toContainText('JSON is incorrectly formatted')
+      await expect(alert).toContainText('Missing required properties')
+      await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
     })
 
     await seeding.seedProgramsAndCategories()
@@ -193,14 +197,14 @@ test.describe('program migration', () => {
       await adminProgramMigration.submitProgramJson(
         downloadedComprehensiveProgram,
       )
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'This program already exists in our system.',
         ALERT_ERROR,
       )
-      await validateScreenshot(
-        page,
-        'import-page-with-error-program-already-exists',
+      await expect(alert).toContainText(
+        'Please check your file and and try again.',
       )
+      await expect(page.getByRole('button', {name: 'Try again'})).toBeVisible()
     })
 
     await test.step('error: invalid program slug', async () => {
@@ -518,11 +522,19 @@ test.describe('program migration', () => {
         ]),
       )
       await adminProgramMigration.clickButtonWithSpinner('Save')
-      await adminProgramMigration.expectAlert(
+      const alert = await adminProgramMigration.expectAlert(
         'Your program has been successfully imported',
         ALERT_SUCCESS,
       )
-      await validateScreenshot(page, 'saved-program-success')
+      await expect(alert).toContainText(
+        'comprehensive-sample-program-new and its questions have been imported to your program dashboard.',
+      )
+      await expect(
+        page.getByRole('button', {name: 'View program'}),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('button', {name: 'Import another program'}),
+      ).toBeVisible()
     })
 
     await test.step('confirm info on program edit page', async () => {
@@ -696,8 +708,23 @@ test.describe('program migration', () => {
           ],
         ]),
       )
-      // Validate the visual alerts and disabled options
-      await validateScreenshot(page, 'import-page-with-enumerator-duplicates')
+      // The alerts should be rendered within their respective question cards
+      await expect(
+        page
+          .getByTestId('question-admin-name-Sample Enumerator Question')
+          .getByRole('alert')
+          .filter({hasText: 'Duplicate repeated questions of this enumerator'}),
+      ).toBeVisible()
+      await expect(
+        page
+          .getByTestId('question-admin-name-Sample Enumerated Date Question')
+          .getByRole('alert')
+          .filter({hasText: 'Some options are disabled'}),
+      ).toBeVisible()
+      await adminProgramMigration.expectOptionSelected(
+        page.getByTestId('question-admin-name-Sample Enumerator Question'),
+        'Create a new duplicate question',
+      )
       // Set the enumerator to something else to "unlock" the repeated Qs
       await adminProgramMigration.selectDuplicateHandlingForQuestions(
         new Map([

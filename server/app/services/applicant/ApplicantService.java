@@ -80,6 +80,7 @@ import services.applicant.question.DateQuestion;
 import services.applicant.question.PhoneQuestion;
 import services.applicant.question.Scalar;
 import services.application.ApplicationEventDetails;
+import services.cloud.ApplicantFileNameFormatter;
 import services.email.EmailSendClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -116,6 +117,7 @@ public final class ApplicantService {
   private final ProgramRepository programRepository;
   private final ApplicationStatusesRepository applicationStatusesRepository;
   private final ProgramService programService;
+  private final ApplicationScoreCalculator applicationScoreCalculator;
   private final EmailSendClient emailSendClient;
   private final Clock clock;
   private final String baseUrl;
@@ -141,6 +143,7 @@ public final class ApplicantService {
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicationStatusesRepository applicationStatusesRepository,
       ProgramService programService,
+      ApplicationScoreCalculator applicationScoreCalculator,
       EmailSendClient emailSendClient,
       Clock clock,
       Config configuration,
@@ -159,6 +162,7 @@ public final class ApplicantService {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicationStatusesRepository = checkNotNull(applicationStatusesRepository);
     this.programService = checkNotNull(programService);
+    this.applicationScoreCalculator = checkNotNull(applicationScoreCalculator);
     this.emailSendClient = checkNotNull(emailSendClient);
     this.clock = checkNotNull(clock);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -297,6 +301,16 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved scalar key"));
     }
 
+    // Score keys are written only at submit time and are never applicant-updatable, so reject
+    // updates that target one. Enumerator entity paths such as applicant.score[0] are exempt.
+    boolean updatePathsContainScoreKeys =
+        updates.stream().map(Update::path).anyMatch(ApplicantService::isReservedScoreUpdatePath);
+
+    if (updatePathsContainScoreKeys) {
+      return CompletableFuture.failedFuture(
+          new IllegalArgumentException("Path contained reserved score key"));
+    }
+
     return stageAndUpdateIfValid(
         applicantId,
         programId,
@@ -306,6 +320,41 @@ public final class ApplicantService {
         addressServiceAreaValidationEnabled,
         forceUpdate,
         apiBridgeEnabled);
+  }
+
+  /**
+   * Returns true if an applicant update to the given path would write one of the reserved score
+   * keys ({@link Scalar#getScoreScalarKeys()}).
+   *
+   * <p>The check looks at the path's final key with any array index stripped. Enumerator entity
+   * updates are the one exception: they address the question's array element directly, e.g. {@code
+   * applicant.score[0]} for an enumerator admin-named "score", and every segment below the root is
+   * an array element. A score array always hangs off a plain question segment ({@code
+   * applicant.toppings.scores[0]}), so entity paths are never a score key write.
+   */
+  @VisibleForTesting
+  static boolean isReservedScoreUpdatePath(Path path) {
+    Path keyPath = path.isArrayElement() ? path.withoutArrayReference() : path;
+    if (!Scalar.getScoreScalarKeys().contains(keyPath.keyName())) {
+      return false;
+    }
+
+    return !isEnumeratorEntityPath(path);
+  }
+
+  /** Returns true if the path addresses an enumerator entity rather than a scalar. */
+  private static boolean isEnumeratorEntityPath(Path path) {
+    ImmutableList<String> segments = path.segments();
+    if (segments.size() < 2) {
+      return false;
+    }
+
+    for (int i = 1; i < segments.size(); i++) {
+      if (!Path.create(segments.get(i)).isArrayElement()) {
+        return false;
+      }
+    }
+    return true;
   }
 
   private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
@@ -472,11 +521,18 @@ public final class ApplicantService {
    *
    * @param submitterProfile the user that submitted the application, if it is a TI the application
    *     is associated with this profile too.
+   * @param answerOptionScoringEnabled whether the answer-option scoring flag is on for this
+   *     request. When true and the program version has {@code usesScoring}, scores are computed
+   *     here and written to the application's snapshot.
    * @return the saved {@link ApplicationModel}. If the submission failed, a {@link
    *     ApplicationSubmissionException} is thrown and wrapped in a `CompletionException`.
    */
   public CompletionStage<ApplicationModel> submitApplication(
-      long applicantId, long programId, CiviFormProfile submitterProfile, Request request) {
+      long applicantId,
+      long programId,
+      CiviFormProfile submitterProfile,
+      Request request,
+      boolean answerOptionScoringEnabled) {
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {
@@ -491,6 +547,8 @@ public final class ApplicantService {
                             tiAccount -> {
                               EligibilityDetermination eligibilityDetermination =
                                   calculateEligibilityDetermination(pd, ro);
+                              Optional<ApplicationScores> scores =
+                                  calculateScores(pd, ro, answerOptionScoringEnabled);
                               return submitApplication(
                                   applicantId,
                                   programId,
@@ -501,7 +559,7 @@ public final class ApplicantService {
                                       ? Optional.empty()
                                       : Optional.of(tiAccount.getEmailAddress()),
                                   eligibilityDetermination,
-                                  request);
+                                  scores);
                             },
                             classLoaderExecutionContext.current()));
       }
@@ -514,12 +572,14 @@ public final class ApplicantService {
                           v -> {
                             EligibilityDetermination eligibilityDetermination =
                                 calculateEligibilityDetermination(pd, ro);
+                            Optional<ApplicationScores> scores =
+                                calculateScores(pd, ro, answerOptionScoringEnabled);
                             return submitApplication(
                                 applicantId,
                                 programId,
                                 /* tiSubmitterEmail= */ Optional.empty(),
                                 eligibilityDetermination,
-                                request);
+                                scores);
                           }));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Could not find program.", e);
@@ -640,16 +700,35 @@ public final class ApplicantService {
             });
   }
 
+  /**
+   * Computes the answer-option scores for a submission, or empty when scoring does not apply.
+   *
+   * <p>Scores apply only when the scoring flag is on and the submitted program version has {@code
+   * usesScoring}. The read-only service must be built against {@code programDefinition}, so the
+   * scores resolve from the same version the application records.
+   */
+  private Optional<ApplicationScores> calculateScores(
+      ProgramDefinition programDefinition,
+      ReadOnlyApplicantProgramService roService,
+      boolean answerOptionScoringEnabled) {
+    if (!answerOptionScoringEnabled || !programDefinition.usesScoring()) {
+      return Optional.empty();
+    }
+
+    return Optional.of(applicationScoreCalculator.calculate(roService));
+  }
+
   @VisibleForTesting
   CompletionStage<ApplicationModel> submitApplication(
       long applicantId,
       long programId,
       Optional<String> tiSubmitterEmail,
       EligibilityDetermination eligibilityDetermination,
-      Request request) {
+      Optional<ApplicationScores> scores) {
     CompletableFuture<Optional<ApplicationModel>> applicationFuture =
         applicationRepository
-            .submitApplication(applicantId, programId, tiSubmitterEmail, eligibilityDetermination)
+            .submitApplication(
+                applicantId, programId, tiSubmitterEmail, eligibilityDetermination, scores)
             .thenComposeAsync(
                 application -> savePrimaryApplicantInfoAnswers(application),
                 classLoaderExecutionContext.current())
@@ -811,6 +890,20 @@ public final class ApplicantService {
               CompletableFuture<Void> future = CompletableFuture.completedFuture(null);
 
               for (StoredFileModel file : storedFiles) {
+                // Only grant the program read access to files this applicant may read; a
+                // referenced key the applicant neither owns nor was granted must not
+                // delegate the file to the program's admins.
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(file.getName(), applicantId)
+                        || file.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
+                  logger.warn(
+                      "Applicant {} referenced a stored file it is not authorized to read while"
+                          + " submitting program {}; skipping program ACL grant.",
+                      applicantId,
+                      programId);
+                  continue;
+                }
                 file.getAcls().addProgramToReaders(programDefinition);
                 future =
                     CompletableFuture.allOf(

@@ -1072,14 +1072,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
   }
 
-  /**
-   * Enables new visibility/eligibility condition editing UI and expanded logic capabilities for
-   * admin.
-   */
-  public boolean getExpandedFormLogicEnabled() {
-    return getBool("EXPANDED_FORM_LOGIC_ENABLED");
-  }
-
   /** Enables a dropdown for login that has both applicant and admin login. */
   public boolean getLoginDropdownEnabled(RequestHeader request) {
     return getBool("LOGIN_DROPDOWN_ENABLED", request);
@@ -1096,8 +1088,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled(RequestHeader request) {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED", request);
+  public boolean getTranslationManagementImprovementEnabled() {
+    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
@@ -2360,13 +2352,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
-                          "EXPANDED_FORM_LOGIC_ENABLED",
-                          "Enables new visibility/eligibility condition editing UI and expanded"
-                              + " logic capabilities for admin.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
                           "LOGIN_DROPDOWN_ENABLED",
                           "Enables a dropdown for login that has both applicant and admin login.",
                           /* isRequired= */ false,
@@ -2390,7 +2375,7 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enables translation management improvement phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
