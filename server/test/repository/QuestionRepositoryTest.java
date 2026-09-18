@@ -12,17 +12,23 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import models.LifecycleStage;
+import models.ProgramModel;
 import models.QuestionModel;
 import models.QuestionTag;
 import org.junit.Before;
 import org.junit.Test;
 import services.LocalizedStrings;
+import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramQuestionDefinition;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import support.ProgramBuilder;
 import support.TestQuestionBank;
 
 public class QuestionRepositoryTest extends ResetPostgres {
@@ -291,6 +297,33 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void bulkCreateQuestions_withoutTransaction_throws() {
+    Exception e =
+        assertThrows(
+            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
+
+    assertThat(e)
+        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
+  }
+
+  @Test
+  public void bulkCreateQuestions_createsAllQuestions() {
+    ImmutableList<QuestionDefinition> questionsToSave =
+        ImmutableList.of(
+            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
+            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
+
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
+        transactionManager.execute(
+            () -> {
+              return repo.bulkCreateQuestions(questionsToSave);
+            });
+
+    assertThat(savedQuestions).hasSize(2);
+    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
+  }
+
+  @Test
   public void createOrUpdateDraft_creatingDraftEnumeratorPreservesDraftRepeatedQuestions()
       throws UnsupportedQuestionTypeException {
     QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
@@ -495,30 +528,370 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void bulkCreateQuestions_withoutTransaction_throws() {
-    Exception e =
-        assertThrows(
-            IllegalStateException.class, () -> repo.bulkCreateQuestions(ImmutableList.of()));
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsEnumeratorAtNewDraft()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an initial question creates an updated draft of its
+    // enumerator.
+    EnumeratorFixture fixture = newEnumeratorFixture();
 
-    assertThat(e)
-        .hasMessageContaining("bulkCreateQuestions must be called from within a transaction");
+    draftInitialQuestion(fixture);
+
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    // There's a new initial question, and it kept the edit that created it.
+    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.initialQuestionId());
+    assertThat(initialQuestionAfter.getDescription()).isEqualTo("updated");
+    // There's a new enumerator which now points at the new initial question.
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionAfter.getId());
+    // The new initial question points at the new enumerator.
+    assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    // The previous active enumerator has not changed.
+    assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
+        .hasValue(fixture.initialQuestionId());
+    // Block 1 contains both of the new questions.
+    assertThat(blockQuestionIds(fixture.program(), 1L))
+        .containsExactly(enumeratorAfter.getId(), initialQuestionAfter.getId());
   }
 
   @Test
-  public void bulkCreateQuestions_createsAllQuestions() {
-    ImmutableList<QuestionDefinition> questionsToSave =
-        ImmutableList.of(
-            disconnectedQuestionBank.nameApplicantName().getQuestionDefinition(),
-            disconnectedQuestionBank.addressApplicantAddress().getQuestionDefinition());
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingRepeatedQuestion()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an initial question creates an updated draft of the other questions
+    // repeated on its enumerator.
+    EnumeratorFixture fixture = newEnumeratorFixture();
 
-    ImmutableMap<String, QuestionDefinition> savedQuestions =
-        transactionManager.execute(
-            () -> {
-              return repo.bulkCreateQuestions(questionsToSave);
-            });
+    draftInitialQuestion(fixture);
 
-    assertThat(savedQuestions).hasSize(2);
-    assertThat(repo.listQuestions().toCompletableFuture().join()).hasSize(2);
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    // There's a new repeated question.
+    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.repeatedQuestionId());
+    // The new repeated question points at the new enumerator.
+    assertThat(repeatedQuestionAfter.getEnumeratorId())
+        .hasValue(latestDefinition(fixture.enumeratorId()).getId());
+    // The new enumerator points at its new initial question and not the
+    // new repeated question.
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionAfter.getId());
+    // Block 2 contains the new repeated question.
+    assertThat(blockQuestionIds(fixture.program(), 2L))
+        .containsExactly(repeatedQuestionAfter.getId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_leavesOtherNewFlowEnumeratorAlone()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an initial question leaves an unrelated enumerator and its own initial
+    // question alone.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftInitialQuestion(fixture);
+
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
+    // There's no new enumerator, and it still points at the same initial question.
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+        .hasValue(fixture.extraRepeatedQuestionId());
+    // There's no new initial question, and it still points at the same enumerator.
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
+    // Block 3 still contains the original questions.
+    assertThat(blockQuestionIds(fixture.program(), 3L))
+        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingInitialQuestion_leavesOldFlowEnumeratorWithoutBackRef()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an initial question leaves an old flow enumerator, which has no initial
+    // question of its own, and its repeated question alone.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftInitialQuestion(fixture);
+
+    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
+    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
+    // There's no new enumerator, and it still has no initial question.
+    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
+    assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
+    // There's no new repeated question, and it still points at the same enumerator.
+    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldRepeatedQuestionId());
+    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
+    // Block 4 still contains the original questions.
+    assertThat(blockQuestionIds(fixture.program(), 4L))
+        .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingEnumerator_repointsBackReferenceAtCascadedDraft()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an enumerator creates an updated draft of its initial question, and the
+    // enumerator draft points at that new initial question rather than the published one.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftEnumerator(fixture);
+
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    // There's a new enumerator, and it kept the edit that created it.
+    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getDescription()).isEqualTo("updated");
+    // There's a new initial question.
+    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.initialQuestionId());
+    // The new enumerator points at the new initial question.
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionAfter.getId());
+    // The new initial question points at the new enumerator.
+    assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    // The previous active enumerator has not changed.
+    assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
+        .hasValue(fixture.initialQuestionId());
+    // Block 1 contains both of the new questions.
+    assertThat(blockQuestionIds(fixture.program(), 1L))
+        .containsExactly(enumeratorAfter.getId(), initialQuestionAfter.getId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingEnumerator_carriesSiblingRepeatedQuestionForward()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an enumerator creates an updated draft of the other questions repeated
+    // on it, and those do not take over its initial question reference.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftEnumerator(fixture);
+
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    // There's a new repeated question.
+    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.repeatedQuestionId());
+    // The new repeated question points at the new enumerator.
+    assertThat(repeatedQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    // The new enumerator does not point at it, because it is not the initial question.
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId().orElseThrow())
+        .isNotEqualTo(repeatedQuestionAfter.getId());
+    // Block 2 contains the new repeated question.
+    assertThat(blockQuestionIds(fixture.program(), 2L))
+        .containsExactly(repeatedQuestionAfter.getId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingEnumerator_leavesOtherNewFlowEnumeratorAlone()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an enumerator leaves an unrelated enumerator and its own initial
+    // question alone.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftEnumerator(fixture);
+
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
+    // There's no new enumerator, and it still points at the same initial question.
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+        .hasValue(fixture.extraRepeatedQuestionId());
+    // There's no new initial question, and it still points at the same enumerator.
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
+    // Block 3 still contains the original questions.
+    assertThat(blockQuestionIds(fixture.program(), 3L))
+        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_draftingEnumerator_leavesOldFlowEnumeratorWithoutBackRef()
+      throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
+    // Creating a draft of an enumerator leaves an old flow enumerator, which has no initial
+    // question of its own, and its repeated question alone.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+
+    draftEnumerator(fixture);
+
+    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
+    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
+    // There's no new enumerator, and it still has no initial question.
+    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
+    assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
+    // There's no new repeated question, and it still points at the same enumerator.
+    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldRepeatedQuestionId());
+    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
+    // Block 4 still contains the original questions.
+    assertThat(blockQuestionIds(fixture.program(), 4L))
+        .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
+  }
+
+  @Test
+  public void createOrUpdateDraft_reeditingInitialQuestionDraft_keepsEnumeratorBackReference()
+      throws UnsupportedQuestionTypeException {
+    // The second edit reuses the existing draft row rather than minting a new id, so the
+    // enumerator's back reference is already correct and must not churn.
+    EnumeratorFixture fixture = newEnumeratorFixture();
+    QuestionModel firstDraft =
+        repo.createOrUpdateDraft(
+            new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+                .setDescription("first edit")
+                .build());
+    long enumeratorDraftId = latestDefinition(fixture.enumeratorId()).getId();
+
+    QuestionModel secondDraft =
+        repo.createOrUpdateDraft(
+            new QuestionDefinitionBuilder(lookupDefinition(firstDraft.id))
+                .setDescription("second edit")
+                .build());
+
+    assertThat(secondDraft.id).isEqualTo(firstDraft.id);
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getId()).isEqualTo(enumeratorDraftId);
+    assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(firstDraft.id);
+  }
+
+  /**
+   * Container for the entities made in {@code newEnumeratorFixture}.
+   *
+   * <p>The default context is that items are for the new enumerator flow, and ones in the old flow
+   * are indicated with 'old'.
+   */
+  private record EnumeratorFixture(
+      long enumeratorId,
+      long initialQuestionId,
+      long repeatedQuestionId,
+      long extraEnumeratorId,
+      long extraRepeatedQuestionId,
+      long oldEnumeratorId,
+      long oldRepeatedQuestionId,
+      ProgramModel program) {}
+
+  /**
+   * Builds a draft program with four blocks and seven ACTIVE questions.
+   *
+   * <p>Block 1 holds the enumerator and its initial question, which point at each other. Block 2
+   * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
+   *
+   * <p>Blocks 3 and 4 are controls that nothing done to the block 1 cluster may touch. Block 3
+   * holds a new-flow enumerator and its initial question, which point at each other. Block 4 holds
+   * an old-flow enumerator and a repeated question, where only the repeated question points at the
+   * enumerator.
+   */
+  private EnumeratorFixture newEnumeratorFixture() {
+    QuestionModel enumerator =
+        saveActiveEnumerator("household members", "Who is in your household?");
+    QuestionModel initialQuestion = saveActiveRepeatedQuestion("household member name", enumerator);
+    pointAtInitialQuestion(enumerator, initialQuestion);
+    QuestionModel repeatedQuestion =
+        saveActiveRepeatedQuestion("household member nickname", enumerator);
+
+    QuestionModel extraEnumerator =
+        saveActiveEnumerator("extra enumerator", "Where have you worked?");
+    QuestionModel extraRepeatedQuestion =
+        saveActiveRepeatedQuestion("extra repeated question", extraEnumerator);
+    pointAtInitialQuestion(extraEnumerator, extraRepeatedQuestion);
+
+    QuestionModel oldEnumerator = saveActiveEnumerator("old enumerator", "Where have you lived?");
+    QuestionModel oldRepeatedQuestion =
+        saveActiveRepeatedQuestion("old repeated question", oldEnumerator);
+
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("enumerator program")
+            .withBlock("block 1")
+            .withRequiredQuestion(enumerator)
+            .withRequiredQuestion(initialQuestion)
+            .withRepeatedBlock("block 2")
+            .withRequiredQuestion(repeatedQuestion)
+            .withBlock("block 3")
+            .withRequiredQuestion(extraEnumerator)
+            .withRequiredQuestion(extraRepeatedQuestion)
+            .withBlock("block 4")
+            .withRequiredQuestion(oldEnumerator)
+            .withRequiredQuestion(oldRepeatedQuestion)
+            .build();
+    return new EnumeratorFixture(
+        enumerator.id,
+        initialQuestion.id,
+        repeatedQuestion.id,
+        extraEnumerator.id,
+        extraRepeatedQuestion.id,
+        oldEnumerator.id,
+        oldRepeatedQuestion.id,
+        program);
+  }
+
+  /** Creates a new draft revision of the block 1 initial question. */
+  private void draftInitialQuestion(EnumeratorFixture fixture)
+      throws UnsupportedQuestionTypeException {
+    repo.createOrUpdateDraft(
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+            .setDescription("updated")
+            .build());
+  }
+
+  /** Creates a new draft revision of the block 1 enumerator. */
+  private void draftEnumerator(EnumeratorFixture fixture) throws UnsupportedQuestionTypeException {
+    repo.createOrUpdateDraft(
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.enumeratorId()))
+            .setDescription("updated")
+            .build());
+  }
+
+  private QuestionModel saveActiveEnumerator(String name, String questionText) {
+    return testQuestionBank.maybeSave(
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(name)
+                .setQuestionText(LocalizedStrings.of(Locale.US, questionText))
+                .build(),
+            LocalizedStrings.empty()),
+        LifecycleStage.ACTIVE);
+  }
+
+  /** Completes the mutual reference in place, so no draft is created. */
+  private void pointAtInitialQuestion(QuestionModel enumerator, QuestionModel initialQuestion) {
+    new QuestionModel(
+            repo.updateEnumeratorInitialQuestionId(
+                enumerator.getQuestionDefinition(), initialQuestion.id))
+        .update();
+    enumerator.refresh();
+  }
+
+  private QuestionModel saveActiveRepeatedQuestion(String name, QuestionModel enumerator) {
+    return testQuestionBank.maybeSave(
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName(name)
+                .setDescription(name)
+                .setQuestionText(LocalizedStrings.of(Locale.US, "What is $this's " + name + "?"))
+                .setEnumeratorId(Optional.of(enumerator.id))
+                .build()),
+        LifecycleStage.ACTIVE);
+  }
+
+  private ImmutableList<Long> blockQuestionIds(ProgramModel program, long blockId)
+      throws ProgramBlockDefinitionNotFoundException {
+    program.refresh();
+    return program
+        .getProgramDefinition()
+        .getBlockDefinition(blockId)
+        .programQuestionDefinitions()
+        .stream()
+        .map(ProgramQuestionDefinition::id)
+        .collect(ImmutableList.toImmutableList());
+  }
+
+  /** The definition stored under {@code id} itself, ignoring any newer revision. */
+  private QuestionDefinition lookupDefinition(long id) {
+    return repo.lookupQuestion(id)
+        .toCompletableFuture()
+        .join()
+        .orElseThrow()
+        .getQuestionDefinition();
+  }
+
+  /** The draft revision of the question named by {@code id}, or the active one if there is none. */
+  private QuestionDefinition latestDefinition(long id) {
+    return versionRepo.getLatestVersionOfQuestion(id).orElseThrow().getQuestionDefinition();
   }
 
   private QuestionDefinition addTagToDefinition(QuestionModel question)
