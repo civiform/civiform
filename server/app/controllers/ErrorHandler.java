@@ -162,9 +162,11 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   }
 
   private static boolean isQuestionImageUpload(RequestHeader request) {
-    return request.header("HX-Request").isPresent()
-        && (request.path().contains("/image/upload")
-            || "question-image-file-input-errors".equals(request.header("HX-Target").orElse("")));
+    boolean isQuestionImagePath =
+        request.path().contains("/questions/") && request.path().contains("/image/upload");
+    boolean isHtmxTarget =
+        "question-image-file-input-errors".equals(request.header("HX-Target").orElse(""));
+    return isQuestionImagePath || isHtmxTarget;
   }
 
   /**
