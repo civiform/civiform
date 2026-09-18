@@ -3,8 +3,6 @@
   th:with="textQuestion=${question.createTextQuestion()},
               questionId=${'id-' + #strings.randomAlphanumeric(8)},
               inputId=${'id-' + #strings.randomAlphanumeric(8)},
-              fieldErrors=${textQuestion.getValidationErrors().get(textQuestion.getTextPath())},
-              questionErrors=${textQuestion.getValidationErrors().get(question.getContextualizedPath())},
               hasErrors=${questionRendererParams.shouldShowErrors() && !textQuestion.getValidationErrors().isEmpty()}"
   th:id="${questionId}"
   class="cf-question-text cf-applicant-question-field"
@@ -16,14 +14,56 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
 
+  <div
+    th:replace="~{this :: textField(
+      question=${question},
+      questionRendererParams=${questionRendererParams},
+      questionId=${questionId},
+      inputId=${inputId},
+      isInitialQuestion=false,
+      ariaLabelledby=null,
+      ariaDescribedby=null)}"
+  ></div>
+</div>
+
+<!--/* Text question rendered as an enumerator's initial question inside an entity row: no title/help
+     (the entity row supplies the "<entity type> #N" label), and the caller passes
+     aria-labelledby/aria-describedby so the first entity announces the enumerator title/help. */-->
+<div
+  th:fragment="textForInitialQuestion(question, questionRendererParams, inputId, ariaLabelledby, ariaDescribedby)"
+>
+  <div
+    th:replace="~{this :: textField(
+      question=${question},
+      questionRendererParams=${questionRendererParams},
+      questionId=null,
+      inputId=${inputId},
+      isInitialQuestion=true,
+      ariaLabelledby=${ariaLabelledby},
+      ariaDescribedby=${ariaDescribedby})}"
+  ></div>
+</div>
+
+<!--/* Shared text input and its validation errors, used by both text and textForInitialQuestion.
+     When isInitialQuestion is true the input is labeled/described by the caller-supplied
+     aria-labelledby/aria-describedby (the enumerator title/help); otherwise it is described by its
+     own title/help text. */-->
+<th:block
+  th:fragment="textField(question, questionRendererParams, questionId, inputId, isInitialQuestion, ariaLabelledby, ariaDescribedby)"
+  th:with="textQuestion=${question.createTextQuestion()},
+              fieldErrors=${textQuestion.getValidationErrors().get(textQuestion.getTextPath())},
+              questionErrors=${textQuestion.getValidationErrors().get(question.getContextualizedPath())},
+              hasErrors=${questionRendererParams.shouldShowErrors() && !textQuestion.getValidationErrors().isEmpty()},
+              errorAnchorId=${isInitialQuestion ? inputId : questionId}"
+>
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
+      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${errorAnchorId})}"
     ></div>
   </th:block>
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${errorAnchorId})}"
   ></div>
 
   <input
@@ -34,9 +74,10 @@
     th:id="${inputId}"
     th:name="${textQuestion.getTextPath()}"
     th:value="${textQuestion.getTextValue().orElse('')}"
-    th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
+    th:aria-labelledby="${isInitialQuestion ? ariaLabelledby : null}"
+    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : questionId + '-description' + (hasErrors ? ' ' + questionId + '-error' : '')}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   />
-</div>
+</th:block>

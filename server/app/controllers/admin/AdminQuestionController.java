@@ -611,9 +611,22 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (existing.isPresent()) {
       updateDefaultLocalizations(existing.get(), updated, questionForm, scoringEnabled);
+      preserveServerOwnedFields(existing.get(), updated);
     }
 
     return updated;
+  }
+
+  /**
+   * Preserves fields that are owned by the server and not represented in the question edit form, so
+   * they survive an update that rebuilds the {@link QuestionDefinition} from client-submitted form
+   * data.
+   */
+  private void preserveServerOwnedFields(
+      QuestionDefinition existing, QuestionDefinitionBuilder updated) {
+    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      updated.setEnumeratorInitialQuestionId(existing.getEnumeratorInitialQuestionId());
+    }
   }
 
   /**
