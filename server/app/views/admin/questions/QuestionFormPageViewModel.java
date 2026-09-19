@@ -106,6 +106,21 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
 
   private final boolean imagesInQuestionFeatureEnabled;
 
+  private final Optional<String> existingImageFileKey;
+  private final String questionImageDescription;
+
+  public boolean hasExistingImage() {
+    return existingImageFileKey != null && existingImageFileKey.isPresent();
+  }
+
+  public Optional<String> getExistingImageFileKey() {
+    return existingImageFileKey;
+  }
+
+  public String getQuestionImageDescription() {
+    return questionImageDescription != null ? questionImageDescription : "";
+  }
+
   /** Page title/heading, with the type label lowercased. */
   public String getTitle() {
     return String.format(
@@ -144,6 +159,16 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
    */
   public String randomFieldId() {
     return RandomStringUtils.randomAlphabetic(8);
+  }
+
+  public String getImageUploadUrl() {
+    return controllers.admin.routes.AdminQuestionImageController.hxUploadQuestionImage(questionId)
+        .url();
+  }
+
+  public String getImageDeleteUrl() {
+    return controllers.admin.routes.AdminQuestionImageController.hxDeleteQuestionImage(questionId)
+        .url();
   }
 
   /**

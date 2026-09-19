@@ -1,7 +1,7 @@
 package models;
 
 public class ConcurrentUpdateException extends RuntimeException {
-  ConcurrentUpdateException(String message) {
+  public ConcurrentUpdateException(String message) {
     super(message);
   }
 }

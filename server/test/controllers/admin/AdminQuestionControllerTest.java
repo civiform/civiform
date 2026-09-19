@@ -21,6 +21,7 @@ import java.util.UUID;
 import models.LifecycleStage;
 import models.QuestionModel;
 import models.QuestionTag;
+import models.VersionModel;
 import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,6 +30,7 @@ import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.QuestionRepository;
 import repository.ResetPostgres;
+import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
@@ -38,22 +40,66 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
+import services.question.types.StaticContentQuestionDefinition;
 import views.html.helper.CSRF;
 
 public class AdminQuestionControllerTest extends ResetPostgres {
   private QuestionRepository questionRepo;
   private AdminQuestionController controller;
+  private VersionModel draftVersion;
 
   @Before
   public void setup() {
     questionRepo = instanceOf(QuestionRepository.class);
     controller = instanceOf(AdminQuestionController.class);
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    draftVersion = versionRepository.getDraftVersionOrCreate();
   }
 
   private ImmutableSet<Long> retrieveAllQuestionIds() {
     return questionRepo.listQuestions().toCompletableFuture().join().stream()
         .map(q -> q.getQuestionDefinition().getId())
         .collect(ImmutableSet.toImmutableSet());
+  }
+
+  @Test
+  public void edit_withExistingImage_preservesExistingImageDetails() {
+    // Create a draft question with an existing image file key and alt text
+    String fileKey = "questions/1/image1.png";
+    String altText = "Alt text description";
+    QuestionDefinition definition =
+        new StaticContentQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("static-question-" + UUID.randomUUID())
+                .setDescription("static content description")
+                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
+                .setImageFileKey(fileKey)
+                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.addVersion(draftVersion);
+    question.save();
+
+    //  Verify the edit page renders successfully
+    Request editRequest = fakeRequestBuilder().addCSRFToken().build();
+    Result editResult =
+        controller
+            .edit(editRequest, question.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
+    assertThat(editResult.status()).isEqualTo(OK);
+
+    // Re-fetch the question from the database to confirm persistence
+    QuestionModel found =
+        questionRepo.lookupQuestion(question.id).toCompletableFuture().join().get();
+    QuestionDefinition foundDefinition = found.getQuestionDefinition();
+
+    // Verify the persisted question has the correct image file key and alt text
+    assertThat(foundDefinition.getImageFileKey()).hasValue(fileKey);
+    assertThat(foundDefinition.getLocalizedImageDescription()).isPresent();
+    assertThat(foundDefinition.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo(altText);
   }
 
   @Test

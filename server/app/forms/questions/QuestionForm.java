@@ -36,6 +36,7 @@ public abstract class QuestionForm {
   private UUID concurrencyToken;
   private QuestionDisplayMode displayMode;
   private ImmutableSet<PrimaryApplicantInfoTag> primaryApplicantInfoTags;
+  private String questionImageDescription;
 
   protected QuestionForm() {
     questionName = "";
@@ -51,6 +52,7 @@ public abstract class QuestionForm {
     concurrencyToken = UUID.randomUUID();
     primaryApplicantInfoTags = ImmutableSet.of();
     displayMode = QuestionDisplayMode.VISIBLE;
+    questionImageDescription = "";
   }
 
   protected QuestionForm(QuestionDefinition qd) {
@@ -78,6 +80,16 @@ public abstract class QuestionForm {
     concurrencyToken = qd.getConcurrencyToken().orElse(UUID.randomUUID());
     primaryApplicantInfoTags = qd.getPrimaryApplicantInfoTags();
     displayMode = qd.getDisplayMode();
+    questionImageDescription =
+        qd.getLocalizedImageDescription().map(LocalizedStrings::getDefault).orElse("");
+  }
+
+  public String getQuestionImageDescription() {
+    return questionImageDescription;
+  }
+
+  public void setQuestionImageDescription(String questionImageDescription) {
+    this.questionImageDescription = questionImageDescription;
   }
 
   public final String getQuestionName() {
