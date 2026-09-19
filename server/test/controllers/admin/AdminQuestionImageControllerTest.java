@@ -1,17 +1,23 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.spy;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import forms.questions.QuestionImageDescriptionForm;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import models.ConcurrentUpdateException;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -26,9 +32,12 @@ import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.cloud.PublicFileNameFormatter;
 import services.question.QuestionService;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
+import services.settings.SettingsManifest;
 import support.FakeRequestBuilder;
 
 public class AdminQuestionImageControllerTest extends ResetPostgres {
@@ -185,5 +194,171 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     question.addVersion(draftVersion);
     question.save();
     return question;
+  }
+
+  private AdminQuestionImageController createControllerWithCustomService(
+      QuestionService customQuestionService) {
+    return new AdminQuestionImageController(
+        instanceOf(ProfileUtils.class),
+        instanceOf(VersionRepository.class),
+        instanceOf(SettingsManifest.class),
+        customQuestionService,
+        instanceOf(MessagesApi.class));
+  }
+
+  @Test
+  public void hxUploadQuestionImage_invalidFileKeyFormat_returnsBadRequest() {
+    QuestionModel question = createDraftQuestion();
+    long id = question.id;
+
+    Result result =
+        controller.hxUploadQuestionImage(
+            createUploadRequest("invalid-file-key", "Valid alt text"), id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("Key incorrectly formatted for question image file.");
+  }
+
+  @Test
+  public void hxUploadQuestionImage_descriptionNotRemovable_returnsBadRequest() throws Exception {
+    QuestionModel question = createDraftQuestion();
+    long id = question.id;
+    String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(id, "myImage.png");
+
+    // First upload sets both file key and description
+    Result firstUpload =
+        controller.hxUploadQuestionImage(createUploadRequest(fileKey, "Initial description"), id);
+    assertThat(firstUpload.status()).isEqualTo(OK);
+
+    // Attempt to clear description while an image is attached (fileKey is null in request)
+    Result result =
+        controller.hxUploadQuestionImage(createUploadRequest(/* fileKey= */ null, ""), id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent)
+        .contains(messages.at("toast.adminQuestionImage.descriptionNotRemovable"));
+  }
+
+  @Test
+  public void hxUploadQuestionImage_unsupportedQuestionType_returnsBadRequest() throws Exception {
+    QuestionService spyService = spy(questionService);
+    doThrow(new UnsupportedQuestionTypeException(QuestionType.TEXT))
+        .when(spyService)
+        .setImageFileKeyAndDescription(anyLong(), any(), any(), any());
+
+    long id = 1L;
+    String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(id, "myImage.png");
+    AdminQuestionImageController customController = createControllerWithCustomService(spyService);
+    Result result =
+        customController.hxUploadQuestionImage(createUploadRequest(fileKey, "description"), id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("Unsupported question type");
+  }
+
+  @Test
+  public void hxUploadQuestionImage_concurrentUpdateException_returnsBadRequest() throws Exception {
+    QuestionService spyService = spy(questionService);
+    doThrow(new ConcurrentUpdateException("concurrent update occurred"))
+        .when(spyService)
+        .setImageFileKeyAndDescription(anyLong(), any(), any(), any());
+
+    long id = 1L;
+    String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(id, "myImage.png");
+    AdminQuestionImageController customController = createControllerWithCustomService(spyService);
+    Result result =
+        customController.hxUploadQuestionImage(createUploadRequest(fileKey, "description"), id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("Please try your edits again");
+  }
+
+  @Test
+  public void hxDeleteQuestionImage_featureFlagDisabled_returnsNotFound() {
+    QuestionModel question = testQuestionBank.staticContent();
+
+    Result result =
+        controller.hxDeleteQuestionImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
+                .method("POST")
+                .build(),
+            question.id);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxDeleteQuestionImage_missingQuestion_returnsNotFound() {
+    Result result =
+        controller.hxDeleteQuestionImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+                .method("POST")
+                .build(),
+            /* questionId= */ Long.MAX_VALUE);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxDeleteQuestionImage_unsupportedQuestionType_returnsBadRequest() throws Exception {
+    QuestionService spyService = spy(questionService);
+    doThrow(new UnsupportedQuestionTypeException(QuestionType.TEXT))
+        .when(spyService)
+        .deleteImageFromQuestion(anyLong());
+
+    AdminQuestionImageController customController = createControllerWithCustomService(spyService);
+    Result result =
+        customController.hxDeleteQuestionImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+                .method("POST")
+                .build(),
+            1L);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("Unsupported question type");
+  }
+
+  @Test
+  public void hxDeleteQuestionImage_success_clearsImageAndReturnsOkWithTrigger() throws Exception {
+    QuestionModel question = createDraftQuestion();
+    long id = question.id;
+    String fileKey = PublicFileNameFormatter.formatPublicQuestionImageFileKey(id, "myImage.png");
+
+    // Upload an image first
+    controller.hxUploadQuestionImage(createUploadRequest(fileKey, "Initial description"), id);
+    assertThat(questionService.getQuestionDefinition(id).getImageFileKey()).isPresent();
+
+    // Now delete the image
+    Result result =
+        controller.hxDeleteQuestionImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+                .method("POST")
+                .build(),
+            id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.headers()).containsEntry("HX-Trigger", "question-image-deleted");
+    String htmlContent = contentAsString(result);
+    assertThat(htmlContent).contains("hx-swap-oob=\"true\"");
+    assertThat(htmlContent).contains("id=\"concurrencyToken\"");
+
+    // Verify in database that image and description were removed
+    QuestionDefinition updated = questionService.getQuestionDefinition(id);
+    assertThat(updated.getImageFileKey()).isEmpty();
+    assertThat(updated.getLocalizedImageDescription()).isEmpty();
   }
 }
