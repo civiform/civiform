@@ -51,9 +51,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   @Before
   public void setup() {
     questionRepo = instanceOf(QuestionRepository.class);
+    controller = instanceOf(AdminQuestionController.class);
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
     draftVersion = versionRepository.getDraftVersionOrCreate();
-    controller = instanceOf(AdminQuestionController.class);
   }
 
   private ImmutableSet<Long> retrieveAllQuestionIds() {
@@ -343,8 +343,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   public void index_returnsQuestions() throws Exception {
     testQuestionBank.addressApplicantAddress();
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
-    // Create a draft version of an already published question and ensure that it
-    // isn't
+    // Create a draft version of an already published question and ensure that it isn't
     // double-counted in the rendered total number of questions.
     QuestionDefinition updatedQuestion =
         new QuestionDefinitionBuilder(nameQuestion).clearId().build();
@@ -1288,16 +1287,14 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .join()
                 .get()
                 .getQuestionDefinition();
-    // The stored scores survive the flag-off edit; the crafted values are
-    // discarded.
+    // The stored scores survive the flag-off edit; the crafted values are discarded.
     assertThat(found.getOptions().stream().map(QuestionOption::score))
         .containsExactly(Optional.of(3.5), Optional.of(5.0));
   }
 
   @Test
   public void update_withoutScoreFields_flagEnabled_rendersErrorWithoutWipingScores() {
-    // A crafted post omitting optionScores[] entirely (the rendered form always
-    // submits them)
+    // A crafted post omitting optionScores[] entirely (the rendered form always submits them)
     // must fail validation, not silently rebuild every option unscored.
     QuestionDefinition definition = createScoredDropdownDefinition();
     QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
@@ -1712,8 +1709,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(content).contains("Library Name");
     assertThat(content).contains("Library Address");
 
-    // Verify the filters are re-indexed (should be filters[0] and filters[1] now,
-    // not [1] and [2])
+    // Verify the filters are re-indexed (should be filters[0] and filters[1] now, not [1] and [2])
     assertThat(content).contains("filters[0]");
     assertThat(content).contains("filters[1]");
     assertThat(content).doesNotContain("filters[2]");
@@ -1729,20 +1725,4 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .setQuestionHelpText(def.getQuestionHelpText())
             .build());
   }
-
-  //  private QuestionModel createDraftQuestion() {
-  //    QuestionDefinition definition =
-  //        new StaticContentQuestionDefinition(
-  //            QuestionDefinitionConfig.builder()
-  //                .setName("static-question-" + UUID.randomUUID())
-  //                .setDescription("static content description")
-  //                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-  //                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help
-  // text"))
-  //                .build());
-  //    QuestionModel question = new QuestionModel(definition);
-  //    question.addVersion(draftVersion);
-  //    question.save();
-  //    return question;
-  //  }
 }
