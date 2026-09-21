@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Page, Locator} from '@playwright/test'
+import {Page, Locator} from '@playwright/test'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -1761,63 +1761,69 @@ export class AdminPrograms {
   }
 
   async isEditNoteVisible(): Promise<boolean> {
-    return this.page.locator(this.editNoteSelector()).isVisible()
+    return this.page.getByRole('button', {name: 'Edit note'}).isVisible()
   }
 
   async isAddNoteVisible(): Promise<boolean> {
-    return this.page.locator(this.addNoteSelector()).isVisible()
+    return this.page.getByRole('button', {name: 'Add note'}).isVisible()
   }
 
   /**
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.noteButtonLocator().click()
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
 
-    const editModal = await waitForAnyModal(this.page)
-    const noteContentArea = (await editModal.$('textarea'))!
-    return noteContentArea.inputValue()
+    const editModal = await waitForAnyModalLocator(this.page)
+    return editModal.locator('textarea').inputValue()
   }
 
   /**
-   * Clicks the edit note button, and returns the modal.
+   * Clicks the "Add note" button, and returns the modal.
    */
-  async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.noteButtonLocator().click()
+  async awaitAddNoteModal(): Promise<Locator> {
+    await this.page.getByRole('button', {name: 'Add note'}).click()
 
-    return await waitForAnyModal(this.page)
+    return waitForAnyModalLocator(this.page)
   }
 
   /**
-   * Clicks the edit note button, sets the note content to the provided text,
+   * Clicks the "Edit note" button, and returns the modal.
+   */
+  async awaitEditNoteModal(): Promise<Locator> {
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
+
+    return waitForAnyModalLocator(this.page)
+  }
+
+  /**
+   * Clicks the "Add note" button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async addNote(noteContent: string) {
+    await this.page.getByRole('button', {name: 'Add note'}).click()
+    await this.fillAndSaveNoteModal(noteContent)
+  }
+
+  /**
+   * Clicks the "Edit note" button, sets the note content to the provided text,
    * and confirms the dialog.
    */
   async editNote(noteContent: string) {
-    const editModal = await this.awaitEditNoteModal()
-    const noteContentArea = (await editModal.$('textarea'))!
-    await noteContentArea.fill(noteContent)
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
+    await this.fillAndSaveNoteModal(noteContent)
+  }
+
+  private async fillAndSaveNoteModal(noteContent: string) {
+    const editModal = await waitForAnyModalLocator(this.page)
+    await editModal.locator('textarea').fill(noteContent)
 
     const responsePromise = this.page.waitForResponse((response) => {
       return response.url().includes('updateNote')
     })
-    const saveButton = (await editModal.$('text=Save'))!
-    await saveButton.click()
+    await editModal.getByRole('button', {name: 'Save'}).click()
     await responsePromise
     await waitForPageJsLoad(this.page)
-  }
-
-  private editNoteSelector() {
-    return 'button:has-text("Edit note")'
-  }
-
-  private addNoteSelector() {
-    return 'button:has-text("Add note")'
-  }
-
-  private noteButtonLocator(): Locator {
-    return this.page
-      .locator(this.addNoteSelector())
-      .or(this.page.locator(this.editNoteSelector()))
   }
 
   async expectNoteUpdatedToast() {
