@@ -87,7 +87,7 @@
       io.ebean.TXN -> for Transaction commit and rollback events
       io.ebean.SUM -> for lazy loading queries and how they relate back to origin queries
   -->
-  <logger name="io.ebean.SQL" level="OFF" />
+  <logger name="io.ebean.SQL" level="ON" />
   <logger name="io.ebean.TXN" level="OFF" />
   <logger name="io.ebean.SUM" level="OFF" />
 

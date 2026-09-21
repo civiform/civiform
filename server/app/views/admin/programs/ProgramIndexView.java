@@ -179,7 +179,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                                     request,
                                     profile,
                                     publishSingleProgramModals,
-                                    universalQuestionIds))
+                                    universalQuestionIds,
+                                    readOnlyQuestionService))
                         .sorted(ProgramCardFactory.programTypeThenLastModifiedThenNameComparator())
                         .map(cardData -> programCardFactory.renderCard(cardData)))));
 
@@ -495,7 +496,8 @@ public final class ProgramIndexView extends BaseHtmlView {
       Http.Request request,
       Optional<CiviFormProfile> profile,
       ImmutableList<Modal> publishSingleProgramModals,
-      ImmutableList<Long> universalQuestionIds) {
+      ImmutableList<Long> universalQuestionIds,
+      ReadOnlyQuestionService readOnlyQuestionService) {
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> draftRow = Optional.empty();
     Optional<ProgramCardFactory.ProgramCardData.ProgramRow> activeRow = Optional.empty();
 
@@ -526,7 +528,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setExtraRowActions(draftRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(draftProgram.get(), universalQuestionIds))
-                  .setTranslationCompletionTag(generateTranslationCompleteText(draftProgram.get()))
+                  .setTranslationCompletionTag(
+                      generateTranslationCompleteText(draftProgram.get(), readOnlyQuestionService))
                   .build());
     }
 
@@ -559,7 +562,8 @@ public final class ProgramIndexView extends BaseHtmlView {
                   .setExtraRowActions(activeRowExtraActions.build())
                   .setUniversalQuestionsText(
                       generateUniversalQuestionText(activeProgram.get(), universalQuestionIds))
-                  .setTranslationCompletionTag(generateTranslationCompleteText(activeProgram.get()))
+                  .setTranslationCompletionTag(
+                      generateTranslationCompleteText(activeProgram.get(), readOnlyQuestionService))
                   .build());
     }
 
@@ -594,9 +598,11 @@ public final class ProgramIndexView extends BaseHtmlView {
     return Optional.of("Contains " + text + " universal questions ");
   }
 
-  Optional<DomContent> generateTranslationCompleteText(ProgramDefinition programDefinition) {
+  Optional<DomContent> generateTranslationCompleteText(
+      ProgramDefinition programDefinition, ReadOnlyQuestionService readOnlyQuestionService) {
     try {
-      boolean isTranslationComplete = programService.isTranslationComplete(programDefinition);
+      boolean isTranslationComplete =
+          programService.isTranslationComplete(programDefinition, readOnlyQuestionService);
       if (isTranslationComplete == true) {
         return Optional.of(
             div(text("Translation complete"), Icons.svg(Icons.CHECK).withClasses("h-4 w-4"))

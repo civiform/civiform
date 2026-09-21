@@ -673,17 +673,19 @@ public final class VersionRepository {
         .findAny();
   }
 
+  /**
+   * Returns true if any program across active or draft versions has {@link DisplayMode#DISABLED}.
+   *
+   * <p>Uses a lightweight EXISTS query rather than loading all program rows and their associations,
+   * which avoids the 2×N category lazy-loads that the previous implementation triggered.
+   */
   public boolean anyDisabledPrograms() {
-    return anyDisabledPrograms(Optional.of(getActiveVersion()))
-        || anyDisabledPrograms(getDraftVersion());
-  }
-
-  private boolean anyDisabledPrograms(Optional<VersionModel> maybeVersion) {
-    return getProgramsForVersion(maybeVersion).stream()
-        .anyMatch(
-            p ->
-                programRepository.getShallowProgramDefinition(p).displayMode()
-                    == DisplayMode.DISABLED);
+    return database
+        .find(ProgramModel.class)
+        .setLabel("VersionRepository.anyDisabledPrograms")
+        .where()
+        .eq("display_mode", DisplayMode.DISABLED.toString())
+        .exists();
   }
 
   /** Returns the names of all the programs. */
