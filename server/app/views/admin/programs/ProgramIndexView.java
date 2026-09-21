@@ -108,11 +108,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .collect(ImmutableList.toImmutableList());
 
     // Include all programs in draft in publishAllDraft modal.
-    ActiveAndDraftPrograms allPrograms =
-        programService.getActiveAndDraftProgramsWithoutQuestionLoad();
+    // Note: We use the `programs` parameter directly here — it was already batch-loaded by
+    // the controller, so calling programService again would trigger a redundant DB query.
     Optional<Modal> maybePublishModal =
         maybeRenderPublishAllModal(
-            allPrograms,
+            programs,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
             request,
             universalQuestionIds);
