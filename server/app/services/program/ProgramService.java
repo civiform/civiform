@@ -184,12 +184,36 @@ public final class ProgramService {
   }
 
   /**
-   * Get the data object about the non-disabled programs that are in the active or draft version
-   * with the full question definitions attached to the programs.
+   * Get the data object about the non-disabled programs that are in the active or draft version.
+   *
+   * <p>Programs are loaded in a single batch query and partitioned into active/draft in memory,
+   * eliminating the N+1 per-program database lookups that previously caused connection pool
+   * exhaustion under load.
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
-    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
-        this, versionRepository);
+    VersionModel active = versionRepository.getActiveVersion();
+    Optional<VersionModel> draft = versionRepository.getDraftVersion();
+
+    ImmutableList<ProgramModel> allPrograms = versionRepository.getProgramsForActiveAndDraft();
+
+    ImmutableList<ProgramModel> activePrograms =
+        allPrograms.stream()
+            .filter(p -> p.getVersions().stream().anyMatch(v -> v.id.equals(active.id)))
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<ProgramModel> draftPrograms =
+        draft
+            .map(
+                draftVersion ->
+                    allPrograms.stream()
+                        .filter(
+                            p ->
+                                p.getVersions().stream()
+                                    .anyMatch(v -> v.id.equals(draftVersion.id)))
+                        .collect(ImmutableList.toImmutableList()))
+            .orElse(ImmutableList.of());
+
+    return ActiveAndDraftPrograms.buildInUseProgramsBatch(activePrograms, draftPrograms);
   }
 
   /** Checks if there is any disabled program in active or draft version. */

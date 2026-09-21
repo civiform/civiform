@@ -96,30 +96,26 @@ public final class VersionRepository {
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
 
-  /**
-   * Loads all active and draft programs in a single database query.
-   */
+  /** Loads all active and draft programs in a single database query. */
   public ImmutableList<ProgramModel> getProgramsForActiveAndDraft() {
     VersionModel active = getActiveVersion();
     Optional<VersionModel> draft = getDraftVersion();
 
-    List<Long> versionIds = draft.isPresent()
-      ? List.of(active.id, draft.get().id)
-      : List.of(active.id);
+    List<Long> versionIds =
+        draft.isPresent() ? List.of(active.id, draft.get().id) : List.of(active.id);
 
     return database
-      .find(ProgramModel.class)
-      .setLabel("models.ProgramModel.batchActiveAndDraft")
-      .fetch("categories")
-      .fetch("versions")
-      .where()
-      .in("versions.id", versionIds)
-      .findList()
-      .stream()
-      .distinct()
-      .collect(ImmutableList.toImmutableList());
+        .find(ProgramModel.class)
+        .setLabel("models.ProgramModel.batchActiveAndDraft")
+        .fetch("categories")
+        .fetch("versions")
+        .where()
+        .in("versions.id", versionIds)
+        .findList()
+        .stream()
+        .distinct()
+        .collect(ImmutableList.toImmutableList());
   }
-
 
   /**
    * Simulates publishing a new version of all programs and questions.
