@@ -340,7 +340,7 @@ public final class AdminImportProgramDataPartialMapperTest {
   }
 
   @Test
-  public void map_multiOptionQuestion_setsOptionTextsWithoutScores() {
+  public void map_multiOptionQuestion_setsOptionsWithoutScores() {
     MultiOptionQuestionDefinition question =
         mockMultiOptionQuestion(
             ImmutableList.of(
