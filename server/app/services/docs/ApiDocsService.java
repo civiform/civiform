@@ -67,8 +67,8 @@ public final class ApiDocsService {
   }
 
   /** Returns a pretty-printed JSON sample of the program's API response. */
-  public String getSampleJsonPreview(ProgramDefinition programDefinition) {
-    return asPrettyJsonString(programJsonSampler.getSampleJson(programDefinition));
+  public String getSampleJsonPreview(ProgramDefinition programDefinition, boolean scoringEnabled) {
+    return asPrettyJsonString(programJsonSampler.getSampleJson(programDefinition, scoringEnabled));
   }
 
   /**
