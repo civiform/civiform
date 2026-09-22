@@ -1007,7 +1007,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "rate(ebean_queries_total_latency_micros[5m]) \n/ \nrate(ebean_queries_total[5m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total[5m]) \n/ \nrate(ebean_queries_total[5m])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1426,7 +1426,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_total_latency_micros{}[1m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1534,7 +1534,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_total_latency_micros{}[1m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"

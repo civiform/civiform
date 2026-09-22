@@ -66,9 +66,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
     // running sum that is neither a mean nor a max.
     assertThat(metricsContent).contains("# TYPE ebean_queries_mean_latency_micros gauge");
     assertThat(metricsContent).contains("# TYPE ebean_queries_max_latency_micros gauge");
-    // Count and total latency are additive and must stay counters.
+    // Count and total latency are additive and must stay counters. Note the client appends
+    // "_total" to a counter's name unless it already ends in "_total", which is why
+    // ebean_queries_total keeps its name but total latency gains a second suffix.
     assertThat(metricsContent).contains("# TYPE ebean_queries_total counter");
-    assertThat(metricsContent).contains("# TYPE ebean_queries_total_latency_micros counter");
+    assertThat(metricsContent).contains("# TYPE ebean_queries_total_latency_micros_total counter");
   }
 
   @Test
