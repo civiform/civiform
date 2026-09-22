@@ -104,17 +104,24 @@ public final class VersionRepository {
     List<Long> versionIds =
         draft.isPresent() ? List.of(active.id, draft.get().id) : List.of(active.id);
 
-    return database
-        .find(ProgramModel.class)
-        .setLabel("models.ProgramModel.batchActiveAndDraft")
-        .fetch("categories")
-        .fetch("versions")
-        .where()
-        .in("versions.id", versionIds)
-        .findList()
-        .stream()
-        .distinct()
-        .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramModel> programs =
+        database
+            .find(ProgramModel.class)
+            .setLabel("models.ProgramModel.batchActiveAndDraft")
+            .fetch("categories")
+            .fetch("versions")
+            .where()
+            .in("versions.id", versionIds)
+            .findList()
+            .stream()
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
+    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
+    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
+    programs.forEach(ProgramModel::loadProgramDefinition);
+    return programs;
   }
 
   /**
