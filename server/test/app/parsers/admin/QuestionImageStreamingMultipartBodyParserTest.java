@@ -33,10 +33,9 @@ import services.cloud.BucketType;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.StorageServiceName;
 
-public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres {
+public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres {
   private static final String MULTIPART_BOUNDARY = "boundary";
-  private static final long PROGRAM_ID = 7L;
-  private static final String EDIT_STATUS = "EDIT";
+  private static final long QUESTION_ID = 42L;
   // Valid PNG header bytes, at least 16 bytes for FileTypeValidation
   private static final byte[] PNG_HEADER = {
     (byte) 0x89,
@@ -57,7 +56,7 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
     0x52
   };
 
-  private ProgramImageStreamingMultipartBodyParser parser;
+  private QuestionImageStreamingMultipartBodyParser parser;
   private Materializer materializer;
   private MultipartUploadSinks sinks;
   private ProfileUtils profileUtils;
@@ -89,18 +88,18 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
         .thenReturn(Optional.of(profile));
 
     parser =
-        new ProgramImageStreamingMultipartBodyParser(
+        new QuestionImageStreamingMultipartBodyParser(
             materializer, errorHandler, sinks, instanceOf(FileTypeValidation.class), profileUtils);
   }
 
   @Test
   public void maxFileSize_isOneMegabyte() {
-    assertThat(ProgramImageStreamingMultipartBodyParser.MAX_FILE_SIZE)
+    assertThat(QuestionImageStreamingMultipartBodyParser.MAX_FILE_SIZE)
         .isEqualTo(1L * 1024L * 1024L);
   }
 
   @Test
-  public void streamingUpload_streamsToPublicBucketWithProgramImageFileKey() throws Exception {
+  public void streamingUpload_streamsToPublicBucketWithQuestionImageFileKey() throws Exception {
     Source<ByteString, ?> source = createMultipartRequestBody("hello.png", PNG_HEADER);
 
     Http.MultipartFormData<String> body = parse(source).right.get();
@@ -113,7 +112,7 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
     String fileKey = filePart.getRef();
     assertThat(fileKey)
         .isEqualTo(
-            PublicFileNameFormatter.formatPublicProgramImageFileKey(PROGRAM_ID, "hello.png"));
+            PublicFileNameFormatter.formatPublicQuestionImageFileKey(QUESTION_ID, "hello.png"));
 
     verify(sinks).getSinkForCloudProvider(eq(BucketType.PUBLIC_BUCKET), eq(fileKey), anyInt());
   }
@@ -147,7 +146,7 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
     Http.RequestHeader request =
         fakeRequest()
             .method("POST")
-            .uri(String.format("/admin/programs/%d/image/upload/%s", PROGRAM_ID, EDIT_STATUS))
+            .uri(String.format("/admin/questions/%d/image/upload", QUESTION_ID))
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 

@@ -2,25 +2,25 @@ package parsers.applicant;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.CiviFormProfile;
 import auth.ProfileFactory;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
-import org.apache.pekko.util.ByteString;
 import parsers.FileTypeSpecifier;
 import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
-import play.libs.F;
-import play.libs.streams.Accumulator;
 import play.mvc.Http;
-import play.mvc.Result;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.BucketType;
 import services.settings.SettingsManifest;
@@ -43,6 +43,7 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
   private final ProfileUtils profileUtils;
   private final SettingsManifest settingsManifest;
 
+  private Optional<Long> applicantIdFromPath = Optional.empty();
   private long applicantId;
   private long programId;
   private String blockId;
@@ -66,31 +67,71 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
   }
 
   @Override
-  public Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>> apply(
-      Http.RequestHeader request) {
+  protected void parseRequestPath(Http.RequestHeader request) {
     Matcher matcher = PROGRAM_BLOCK_PATH_PATTERN.matcher(request.path());
     if (!matcher.find()) {
       throw new IllegalStateException(
           "Request path does not contain program or block ids: " + request.path());
     }
-    String applicantIdFromPath = matcher.group(1);
+
+    this.applicantIdFromPath = Optional.ofNullable(matcher.group(1)).map(Long::parseLong);
     this.programId = Long.parseLong(matcher.group(2));
     this.blockId = matcher.group(3);
-    if (applicantIdFromPath != null) {
-      this.applicantId = Long.parseLong(applicantIdFromPath);
-    } else {
-      this.applicantId =
-          profileUtils
-              .optionalCurrentUserProfile(request)
-              .map(
-                  profile ->
-                      profile
-                          .getProfileData()
-                          .getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class))
-              .filter(Objects::nonNull)
-              .orElseThrow(() -> new IllegalStateException("No applicant id on request"));
+  }
+
+  /**
+   * Mirrors the checks on the upload actions. The route with an applicant id in the path is
+   * restricted to TIs and CiviForm admins who are authorized for that applicant. The route without
+   * one requires a profile that carries an applicant id. This also resolves the applicant id used
+   * to build the file key.
+   */
+  @Override
+  protected CompletionStage<Boolean> isAuthorized(Http.RequestHeader request) {
+    Optional<CiviFormProfile> maybeProfile = profileUtils.optionalCurrentUserProfile(request);
+    if (maybeProfile.isEmpty()) {
+      return CompletableFuture.completedFuture(false);
     }
-    return super.apply(request);
+    CiviFormProfile profile = maybeProfile.get();
+
+    if (applicantIdFromPath.isPresent()) {
+      if (!profile.isTrustedIntermediary() && !profile.isCiviFormAdmin()) {
+        return CompletableFuture.completedFuture(false);
+      }
+      this.applicantId = applicantIdFromPath.get();
+
+      return profile
+          .checkAuthorization(applicantId)
+          .thenApply(unused -> true)
+          .exceptionally(
+              error -> {
+                if (isSecurityException(error)) {
+                  return false;
+                }
+                throw new CompletionException(error);
+              });
+    }
+
+    Long applicantIdFromProfile =
+        profile
+            .getProfileData()
+            .getAttribute(ProfileFactory.APPLICANT_ID_ATTRIBUTE_NAME, Long.class);
+    if (applicantIdFromProfile == null) {
+      return CompletableFuture.completedFuture(false);
+    }
+    this.applicantId = applicantIdFromProfile;
+
+    return CompletableFuture.completedFuture(true);
+  }
+
+  private static boolean isSecurityException(Throwable error) {
+    Throwable current = error;
+    while (current != null) {
+      if (current instanceof SecurityException) {
+        return true;
+      }
+      current = current.getCause();
+    }
+    return false;
   }
 
   @Override

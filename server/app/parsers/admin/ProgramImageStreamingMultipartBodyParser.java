@@ -1,21 +1,22 @@
 package parsers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
-import org.apache.pekko.util.ByteString;
 import parsers.FileTypeSpecifier;
 import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
-import play.libs.F;
-import play.libs.streams.Accumulator;
 import play.mvc.Http;
-import play.mvc.Result;
 import services.cloud.BucketType;
 import services.cloud.PublicFileNameFormatter;
 
@@ -33,6 +34,8 @@ public final class ProgramImageStreamingMultipartBodyParser extends StreamingMul
   private static final Pattern PROGRAM_IMAGE_UPLOAD_PATH_PATTERN =
       Pattern.compile("/admin/programs/(\\d+)/image/upload/([^/]+)(/|$)");
 
+  private final ProfileUtils profileUtils;
+
   private long programId;
 
   @Inject
@@ -40,25 +43,37 @@ public final class ProgramImageStreamingMultipartBodyParser extends StreamingMul
       Materializer materializer,
       DefaultHttpErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
-      FileTypeValidation fileTypeValidation) {
+      FileTypeValidation fileTypeValidation,
+      ProfileUtils profileUtils) {
     super(
         materializer,
         errorHandler,
         streamingMultipartUploadSinks,
         fileTypeValidation,
         MAX_FILE_SIZE);
+    this.profileUtils = checkNotNull(profileUtils);
   }
 
   @Override
-  public Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>> apply(
-      Http.RequestHeader request) {
+  protected void parseRequestPath(Http.RequestHeader request) {
     Matcher matcher = PROGRAM_IMAGE_UPLOAD_PATH_PATTERN.matcher(request.path());
     if (!matcher.find()) {
       throw new IllegalStateException(
           "Request path does not contain program id: " + request.path());
     }
     this.programId = Long.parseLong(matcher.group(1));
-    return super.apply(request);
+  }
+
+  /** Mirrors the {@code @Secure(CIVIFORM_ADMIN)} check on the upload action. */
+  @Override
+  protected CompletionStage<Boolean> isAuthorized(Http.RequestHeader request) {
+    boolean isCiviFormAdmin =
+        profileUtils
+            .optionalCurrentUserProfile(request)
+            .map(profile -> profile.isCiviFormAdmin())
+            .orElse(false);
+
+    return CompletableFuture.completedFuture(isCiviFormAdmin);
   }
 
   @Override

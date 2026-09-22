@@ -12,9 +12,13 @@ import org.apache.pekko.util.ByteString;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
+import play.http.HttpErrorHandler;
+import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.BodyParser;
+import play.mvc.Http;
 import play.mvc.Http.MultipartFormData.FilePart;
+import play.mvc.Result;
 import services.cloud.BucketType;
 
 /**
@@ -27,10 +31,20 @@ import services.cloud.BucketType;
  * <p>Subclasses provide the implementation for handling the streaming, e.g. to different cloud
  * storage providers or a local file system. Each {@link FilePart} produced by this parser carries
  * the cloud-storage file key as its ref so the action can read it back.
+ *
+ * <p>Play runs the body parser before any action composition, so annotations like {@code @Secure}
+ * on the controller method only run after the file has already been streamed to storage. To close
+ * that gap, {@link #apply} calls {@link #isAuthorized} before reading any bytes and rejects the
+ * request with a 403 if the caller is not allowed to upload. Subclasses must implement the same
+ * rule the action enforces so that anything the parser lets through also passes the action.
  */
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<String> {
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
+  private static final String FORBIDDEN_MESSAGE = "Not authorized to upload files.";
+
+  private final Materializer materializer;
+  private final HttpErrorHandler errorHandler;
   private final MultipartUploadSinks uploadSinks;
   private final FileTypeValidation fileTypeValidation;
 
@@ -41,9 +55,52 @@ public abstract class StreamingMultipartBodyParser
       FileTypeValidation fileTypeValidation,
       long maxFileSize) {
     super(materializer, CHUNK_SIZE, maxFileSize, /* allowEmptyFiles= */ false, errorHandler);
+    this.materializer = materializer;
+    this.errorHandler = errorHandler;
     this.uploadSinks = streamingMultipartUploadSinks;
     this.fileTypeValidation = fileTypeValidation;
   }
+
+  /**
+   * Parses the request path and runs the authorization check before any of the body is consumed. An
+   * unauthorized caller gets a 403 and the upstream is cancelled, so no upload sink is ever created
+   * for them.
+   */
+  @Override
+  public final Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>> apply(
+      Http.RequestHeader request) {
+    parseRequestPath(request);
+
+    CompletionStage<Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>>>
+        gated =
+            isAuthorized(request)
+                .thenApply(authorized -> authorized ? super.apply(request) : forbidden(request));
+
+    return Accumulator.flatten(gated, materializer);
+  }
+
+  private Accumulator<ByteString, F.Either<Result, Http.MultipartFormData<String>>> forbidden(
+      Http.RequestHeader request) {
+    CompletionStage<F.Either<Result, Http.MultipartFormData<String>>> rejected =
+        errorHandler
+            .onClientError(request, Http.Status.FORBIDDEN, FORBIDDEN_MESSAGE)
+            .thenApply(result -> F.Either.<Result, Http.MultipartFormData<String>>Left(result));
+
+    return Accumulator.<ByteString, F.Either<Result, Http.MultipartFormData<String>>>done(rejected);
+  }
+
+  /**
+   * Reads any ids the subclass needs out of the request path. Runs before {@link #isAuthorized} so
+   * the authorization check can use them. The default does nothing.
+   */
+  protected void parseRequestPath(Http.RequestHeader request) {}
+
+  /**
+   * Decides whether the caller may upload. This runs before the body is read and must mirror the
+   * checks the controller action performs, since it is the only check that happens before the file
+   * lands in storage.
+   */
+  protected abstract CompletionStage<Boolean> isAuthorized(Http.RequestHeader request);
 
   @Override
   public Function<Multipart.FileInfo, Accumulator<ByteString, FilePart<String>>>
