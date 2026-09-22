@@ -261,8 +261,7 @@ public class ProgramServiceTest extends ResetPostgres {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of());
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
     boolean isComplete =
-        ps.isTranslationComplete(
-            program.getProgramDefinition(), readOnlyQuestionService);
+        ps.isTranslationComplete(program.getProgramDefinition(), readOnlyQuestionService);
 
     assertThat(isComplete).isTrue();
   }
@@ -272,8 +271,7 @@ public class ProgramServiceTest extends ResetPostgres {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
     boolean isComplete =
-        ps.isTranslationComplete(
-            program.getProgramDefinition(), readOnlyQuestionService);
+        ps.isTranslationComplete(program.getProgramDefinition(), readOnlyQuestionService);
 
     assertThat(isComplete).isFalse();
   }
@@ -314,9 +312,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .build();
 
-    assertThat(
-            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
-        .isFalse();
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isFalse();
   }
 
   @Test
@@ -350,9 +346,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
-    assertThat(
-            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
-        .isTrue();
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isTrue();
   }
 
   @Test
@@ -381,9 +375,7 @@ public class ProgramServiceTest extends ResetPostgres {
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .build();
-    assertThat(
-            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
-        .isFalse();
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isFalse();
   }
 
   @Test
@@ -421,9 +413,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
-    assertThat(
-            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
-        .isTrue();
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isTrue();
   }
 
   @Test
@@ -458,9 +448,7 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
-    assertThat(
-            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
-        .isTrue();
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isTrue();
   }
 
   @Test
@@ -569,9 +557,7 @@ public class ProgramServiceTest extends ResetPostgres {
     assertThat(unhydratedPqd.hasQuestionDefinition()).isFalse();
 
     BlockDefinition unhydratedBlock =
-        block.toBuilder()
-            .setProgramQuestionDefinitions(ImmutableList.of(unhydratedPqd))
-            .build();
+        block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of(unhydratedPqd)).build();
     programDefinition =
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(unhydratedBlock))
