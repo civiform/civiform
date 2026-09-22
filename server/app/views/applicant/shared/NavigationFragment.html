@@ -397,17 +397,16 @@
               name="locale"
               type="submit"
               th:value="${language.key.code()}"
-              th:lang="${language.key.code()}"
             >
               <span
                 th:lang="${language.key.code()}"
                 th:text="${language.value}"
               ></span
               ><span
-                lang="en"
+                th:lang="${preferredLanguage.code()}"
                 class="usa-sr-only"
-                th:if="${language.value.matches('.*[^\u0000-\u024F].*')}"
-                th:text="', ' + ${language.key.toLocale().getDisplayLanguage(@java.util.Locale@ENGLISH)}"
+                th:if="${language.key != preferredLanguage}"
+                th:text="${language.key.toLocale().getDisplayLanguage(preferredLanguage.toLocale())}"
               ></span>
             </button>
           </li>
