@@ -222,7 +222,11 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(
+              programId,
+              filters,
+              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
