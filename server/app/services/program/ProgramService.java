@@ -60,7 +60,6 @@ import services.question.QuestionService;
 import services.question.ReadOnlyQuestionService;
 import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
@@ -759,13 +758,9 @@ public final class ProgramService {
           }
         }
         for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
-          QuestionDefinition questionDefinition =
-              question.hasQuestionDefinition()
-                  ? question.getQuestionDefinition()
-                  : questionService.getQuestionDefinition(question.id());
-          if (questionDefinition instanceof NullQuestionDefinition
+          if (!question.hasQuestionDefinition()
               || !this.questionService.isTranslationComplete(
-                  translationLocales, questionDefinition)) {
+                  translationLocales, question.getQuestionDefinition())) {
             return false;
           }
         }

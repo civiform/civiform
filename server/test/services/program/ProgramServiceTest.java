@@ -85,6 +85,7 @@ public class ProgramServiceTest extends ResetPostgres {
   private CategoryRepository categoryRepository;
   private TranslationLocales translationLocales;
   private SettingsManifest mockSettingsManifest;
+  private ReadOnlyQuestionService readOnlyQuestionService;
   private final Request fakeRequest = fakeRequestBuilder().build();
 
   @Before
@@ -118,6 +119,7 @@ public class ProgramServiceTest extends ResetPostgres {
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     categoryRepository = instanceOf(CategoryRepository.class);
     mockSettingsManifest = Mockito.mock(SettingsManifest.class);
+    readOnlyQuestionService = mock(ReadOnlyQuestionService.class);
   }
 
   @Test
@@ -258,7 +260,9 @@ public class ProgramServiceTest extends ResetPostgres {
   public void isTranslationComplete_noTranslatableLocales_returnsTrue() throws Exception {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of());
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
-    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+    boolean isComplete =
+        ps.isTranslationComplete(
+            program.getProgramDefinition(), readOnlyQuestionService);
 
     assertThat(isComplete).isTrue();
   }
@@ -267,7 +271,9 @@ public class ProgramServiceTest extends ResetPostgres {
   public void isTranslationComplete_incomplete_returnsFalse() throws Exception {
     when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
     ProgramModel program = ProgramBuilder.newDraftProgram("test program").build();
-    boolean isComplete = ps.isTranslationComplete(program.getProgramDefinition());
+    boolean isComplete =
+        ps.isTranslationComplete(
+            program.getProgramDefinition(), readOnlyQuestionService);
 
     assertThat(isComplete).isFalse();
   }
@@ -308,7 +314,9 @@ public class ProgramServiceTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .build();
 
-    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+    assertThat(
+            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isFalse();
   }
 
   @Test
@@ -342,7 +350,9 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
-    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+    assertThat(
+            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isTrue();
   }
 
   @Test
@@ -371,7 +381,9 @@ public class ProgramServiceTest extends ResetPostgres {
         programDefinition.toBuilder()
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .build();
-    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
+    assertThat(
+            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isFalse();
   }
 
   @Test
@@ -409,7 +421,9 @@ public class ProgramServiceTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(translatedBlock))
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
-    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+    assertThat(
+            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isTrue();
   }
 
   @Test
@@ -444,7 +458,9 @@ public class ProgramServiceTest extends ResetPostgres {
             .setApplicationSteps(ImmutableList.of(translatedApplicationStep))
             .build();
 
-    assertThat(ps.isTranslationComplete(programDefinition)).isTrue();
+    assertThat(
+            ps.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isTrue();
   }
 
   @Test
@@ -504,11 +520,65 @@ public class ProgramServiceTest extends ResetPostgres {
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);
 
-    assertThat(psWithMock.isTranslationComplete(programDefinition)).isFalse();
+    // Reset invocation count after getFullProgramDefinition (which legitimately calls
+    // getReadOnlyQuestionService internally). We only want to verify isTranslationComplete
+    // does NOT call it.
+    Mockito.clearInvocations(questionService);
+
+    assertThat(psWithMock.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isFalse();
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(true);
 
-    assertThat(psWithMock.isTranslationComplete(programDefinition)).isTrue();
+    assertThat(psWithMock.isTranslationComplete(programDefinition, readOnlyQuestionService))
+        .isTrue();
+
+    // Verify the key behavioral change: isTranslationComplete() must NOT call
+    // getReadOnlyQuestionService() internally — it must use the passed-in service.
+    Mockito.verify(questionService, Mockito.never()).getReadOnlyQuestionService();
+  }
+
+  @Test
+  public void isTranslationComplete_questionNotHydrated_returnsFalse() throws Exception {
+    // If a ProgramQuestionDefinition does not have its QuestionDefinition hydrated in memory
+    // (i.e. hasQuestionDefinition() == false), the translation check must return false rather
+    // than falling back to a database fetch. This guards against lazy-load N+1 regressions.
+    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
+
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("test program", "description")
+            .withLocalizedName(Locale.CHINESE, "测试项目")
+            .withLocalizedDescription(Locale.CHINESE, "描述")
+            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
+            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
+            .withBlock("Screen 1", "Screen 1 description")
+            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+            .build();
+
+    // Start from the shallow program definition and strip the question definition out of the
+    // block to simulate an unhydrated ProgramQuestionDefinition (as happens when programs are
+    // loaded via getShallowProgramDefinition rather than getFullProgramDefinition).
+    ProgramDefinition programDefinition = program.getProgramDefinition();
+    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
+    ProgramQuestionDefinition hydratedPqd = block.programQuestionDefinitions().get(0);
+
+    // Rebuild the PQD with only the ID — no QuestionDefinition attached.
+    ProgramQuestionDefinition unhydratedPqd =
+        ProgramQuestionDefinition.create(
+            hydratedPqd.id(), hydratedPqd.optional(), hydratedPqd.addressCorrectionEnabled());
+    assertThat(unhydratedPqd.hasQuestionDefinition()).isFalse();
+
+    BlockDefinition unhydratedBlock =
+        block.toBuilder()
+            .setProgramQuestionDefinitions(ImmutableList.of(unhydratedPqd))
+            .build();
+    programDefinition =
+        programDefinition.toBuilder()
+            .setBlockDefinitions(ImmutableList.of(unhydratedBlock))
+            .build();
+
+    // Should return false without doing any DB lookup.
+    assertThat(ps.isTranslationComplete(programDefinition, readOnlyQuestionService)).isFalse();
   }
 
   @Test
