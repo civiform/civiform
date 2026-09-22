@@ -209,8 +209,21 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     } else {
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
-      return programSlugHandler.showProgramWithApplicantId(
-          this, request, programName, applicantId, profile);
+      return checkApplicantAuthorization(request, applicantId)
+          .thenComposeAsync(
+              v ->
+                  programSlugHandler.showProgramWithApplicantId(
+                      this, request, programName, applicantId, profile),
+              classLoaderExecutionContext.current())
+          .exceptionally(
+              ex -> {
+                if (ex instanceof CompletionException) {
+                  if (ex.getCause() instanceof SecurityException) {
+                    return redirectToHome();
+                  }
+                }
+                throw new RuntimeException(ex);
+              });
     }
   }
 

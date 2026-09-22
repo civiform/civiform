@@ -1,6 +1,7 @@
 package services.question;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static services.LocalizedStrings.DEFAULT_LOCALE;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
@@ -25,6 +26,9 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.DeletionStatus;
 import services.ErrorAnd;
+import services.ImageDescriptionNotRemovableException;
+import services.ImageWithoutDescriptionException;
+import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
 import services.export.CsvExporterService;
@@ -595,5 +599,90 @@ public final class QuestionService {
       }
     }
     return true;
+  }
+
+  private Optional<LocalizedStrings> getUpdatedImageDescription(
+      QuestionDefinition questionDefinition, Locale locale, String imageDescription) {
+    if (locale.equals(DEFAULT_LOCALE) && imageDescription.isBlank()) {
+      // Clear out all associated translations when the admin deletes a description.
+      return Optional.empty();
+    }
+
+    Optional<LocalizedStrings> currentDescription =
+        questionDefinition.getLocalizedImageDescription();
+    LocalizedStrings newStrings;
+    if (currentDescription.isEmpty()) {
+      newStrings = LocalizedStrings.of(locale, imageDescription);
+    } else {
+      newStrings = currentDescription.get().updateTranslation(locale, imageDescription);
+    }
+    return Optional.of(newStrings);
+  }
+
+  /**
+   * Sets both a filekey and an image description for the given question.
+   *
+   * <p>If the {@code locale} is the default locale and the {@code imageDescription} is empty or
+   * blank, then the description for *all* locales will be erased.
+   *
+   * @throws ImageDescriptionNotRemovableException if the admin tries to remove a description while
+   *     they still have an image
+   */
+  public QuestionDefinition setImageFileKeyAndDescription(
+      long questionId, Optional<String> maybeFileKey, Locale locale, String imageDescription)
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+
+    QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(questionDefinition);
+    if (maybeFileKey.isPresent()) {
+      builder.setImageFileKey(maybeFileKey);
+    }
+    if (imageDescription.isBlank()) {
+      if (questionDefinition.getImageFileKey().isPresent()) {
+        throw new ImageDescriptionNotRemovableException(
+            "Description can't be removed because an image is present. Delete the image before"
+                + " deleting the description.");
+      }
+      if (maybeFileKey.isPresent()) {
+        throw new ImageWithoutDescriptionException(
+            "Image cannot be added without an image description");
+      }
+    }
+
+    Optional<LocalizedStrings> newStrings =
+        getUpdatedImageDescription(questionDefinition, locale, imageDescription);
+    builder.setLocalizedImageDescription(newStrings);
+
+    QuestionModel updatedQuestion = questionRepository.createOrUpdateDraft(builder.build());
+    return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  /**
+   * Removes the image file key and alt-text for the given question so that no image is associated
+   * with it.
+   */
+  public QuestionDefinition deleteImageFromQuestion(long questionId)
+      throws QuestionNotFoundException, UnsupportedQuestionTypeException {
+
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+    QuestionDefinition updatedQuestionDefinition =
+        new QuestionDefinitionBuilder(questionDefinition)
+            .setImageFileKey(Optional.empty())
+            .setLocalizedImageDescription(Optional.empty())
+            .build();
+
+    QuestionModel updatedQuestion =
+        questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
+    return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  public QuestionDefinition getQuestionDefinition(long questionId)
+      throws QuestionNotFoundException {
+    return questionRepository
+        .lookupQuestion(questionId)
+        .toCompletableFuture()
+        .join()
+        .map(questionRepository::getQuestionDefinition)
+        .orElseThrow(() -> new QuestionNotFoundException(questionId));
   }
 }

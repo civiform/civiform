@@ -1,0 +1,38 @@
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportProgramSavedPartialViewModel"*/-->
+<!--/*
+  The htmx partial shown after the imported program is saved
+*/-->
+<div>
+  <div
+    class="usa-alert usa-alert--success mb-2"
+    aria-live="polite"
+    role="alert"
+  >
+    <div class="usa-alert__body">
+      <h4 class="usa-alert__heading">
+        Your program has been successfully imported
+      </h4>
+      <!--/* The double space after "it," reproduces the legacy string. */-->
+      <p
+        class="usa-alert__text"
+        th:text="|${model.programName} and its questions have been imported to your program dashboard. To view it,  visit the program dashboard.|"
+      ></p>
+    </div>
+  </div>
+  <div class="flex my-5">
+    <button
+      type="button"
+      th:attr="data-redirect-to=${model.viewProgramUrl}"
+      class="usa-button mr-2"
+    >
+      View program
+    </button>
+    <button
+      type="button"
+      th:attr="data-redirect-to=${model.importAnotherProgramUrl}"
+      class="usa-button usa-button--outline"
+    >
+      Import another program
+    </button>
+  </div>
+</div>
