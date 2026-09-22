@@ -42,7 +42,7 @@ import services.TranslationNotFoundException;
 import services.applicant.AnswerData;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
-import services.applicant.ApplicationScoreMetadata;
+import services.applicant.ApplicationScores;
 import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
@@ -121,8 +121,7 @@ public final class PdfExporter {
     // actually carries score metadata (a pre-feature or unscored application has none). The
     // snapshot is a fresh private copy of the application's stored data.
     ApplicantData snapshot = application.getApplicantData();
-    Optional<Double> totalScore =
-        snapshot.readDouble(ApplicationScoreMetadata.totalScorePath());
+    Optional<Double> totalScore = snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH);
     Optional<ApplicantData> scoreData =
         isAdmin && includeScores && totalScore.isPresent()
             ? Optional.of(snapshot)
@@ -179,7 +178,7 @@ public final class PdfExporter {
     Path contextualizedPath = answerData.contextualizedPath();
     if (questionType != QuestionType.CHECKBOX) {
       return scoreData
-          .readDouble(ApplicationScoreMetadata.scorePath(contextualizedPath))
+          .readDouble(ApplicantData.scorePath(contextualizedPath))
           .map(
               score ->
                   String.format("%s (Score: %s)", answerText, QuestionOption.formatScore(score)))
@@ -189,7 +188,7 @@ public final class PdfExporter {
     Optional<ImmutableList<Long>> selections =
         scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
     Optional<java.util.List<Double>> scores =
-        scoreData.readNullableDoubleList(ApplicationScoreMetadata.scoresPath(contextualizedPath));
+        scoreData.readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath));
     if (selections.isEmpty() || scores.isEmpty()) {
       return answerText;
     }
@@ -252,6 +251,16 @@ public final class PdfExporter {
       writer = PdfWriter.getInstance(document, byteArrayOutputStream);
       document.open();
 
+      if (scoreData.isPresent()) {
+        double totalScore =
+            scoreData.get().readDouble(ApplicationScores.TOTAL_SCORE_PATH).orElse(0.0);
+        Paragraph totalScoreParagraph =
+            new Paragraph(
+                "Total Calculated Score: " + QuestionOption.formatScore(totalScore), H2_FONT);
+        totalScoreParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+        document.add(totalScoreParagraph);
+      }
+
       Paragraph applicant =
           new Paragraph(
               applicantNameWithApplicationId, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 16));
@@ -270,15 +279,6 @@ public final class PdfExporter {
           new Paragraph(
               "Submit Time: " + submitTime, FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
       document.add(submitTimeInformation);
-      if (scoreData.isPresent()) {
-        double totalScore =
-            scoreData.get().readDouble(ApplicationScoreMetadata.totalScorePath()).orElse(0.0);
-        Paragraph totalScoreParagraph =
-            new Paragraph(
-                "Total score: " + QuestionOption.formatScore(totalScore),
-                FontFactory.getFont(FontFactory.HELVETICA_BOLD, 12));
-        document.add(totalScoreParagraph);
-      }
       document.add(Chunk.NEWLINE);
       boolean isEligibilityEnabledInProgram = programDefinition.hasEligibilityEnabled();
       for (AnswerData answerData : answersOnlyActive) {

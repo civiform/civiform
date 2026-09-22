@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
-import services.applicant.ApplicationScoreMetadata;
+import services.applicant.ApplicationScores;
 import services.applications.PdfExporterService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
@@ -472,8 +472,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.exportApplication(
-            applicationTwo, /* isAdmin= */ true, /* includeScores= */ false);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
@@ -488,14 +487,10 @@ public class PdfExporterTest extends AbstractExporterTest {
       double total, double dropdownScore, List<Double> checkboxScores) {
     ApplicantData data = applicationOne.getApplicantData();
     data.putDouble(
-        ApplicationScoreMetadata.scorePath(sampleQuestionPath(
-            QuestionType.DROPDOWN)),
-        dropdownScore);
+        ApplicantData.scorePath(sampleQuestionPath(QuestionType.DROPDOWN)), dropdownScore);
     data.putArray(
-        ApplicationScoreMetadata.scoresPath(sampleQuestionPath(
-            QuestionType.CHECKBOX)),
-        checkboxScores);
-    data.putDouble(ApplicationScoreMetadata.totalScorePath(), total);
+        ApplicantData.scoresPath(sampleQuestionPath(QuestionType.CHECKBOX)), checkboxScores);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, total);
     applicationOne.setApplicantData(data);
     applicationOne.save();
   }
@@ -505,7 +500,8 @@ public class PdfExporterTest extends AbstractExporterTest {
         .getSampleQuestionsForAllTypes()
         .get(questionType)
         .getQuestionDefinition()
-        .getContextualizedPath(/* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+        .getContextualizedPath(
+            /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
   }
 
   private String extractAllPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
@@ -548,7 +544,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   public void exportApplication_withScores_zeroTotal_rendersZero()
       throws IOException, DocumentException {
     ApplicantData data = applicationOne.getApplicantData();
-    data.putDouble(ApplicationScoreMetadata.totalScorePath(), 0.0);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, 0.0);
     applicationOne.setApplicantData(data);
     applicationOne.save();
     PdfExporter exporter = instanceOf(PdfExporter.class);
