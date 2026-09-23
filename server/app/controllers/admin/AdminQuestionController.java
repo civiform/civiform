@@ -387,11 +387,7 @@ public final class AdminQuestionController extends CiviFormController {
                   }
                   Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
                   Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-                  String existingImageDescription =
-                      questionDefinition
-                          .getLocalizedImageDescription()
-                          .map(LocalizedStrings::getDefault)
-                          .orElse("");
+                  String existingImageDescription = questionForm.getQuestionImageDescription();
                   QuestionFormPageViewModel model =
                       buildEditQuestionPageModel(
                           id,
@@ -597,11 +593,7 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
 
       Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-      String existingImageDescription =
-          questionDefinition
-              .getLocalizedImageDescription()
-              .map(LocalizedStrings::getDefault)
-              .orElse("");
+      String existingImageDescription = questionForm.getQuestionImageDescription();
 
       QuestionFormPageViewModel model =
           buildEditQuestionPageModel(
