@@ -14,14 +14,19 @@ import java.util.ConcurrentModificationException;
 import javax.inject.Inject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.monitoring.MonitoringMetricCounters;
+import services.settings.SettingsManifest;
 
 /**
  * Controller for exporting Prometheus server metrics via HTTP. Based on the implementation found in
  * {@link com.github.stijndehaes.playprometheusfilters.controllers.PrometheusController} and
  * customized to allow disabling via configuration flag.
+ *
+ * <p>In addition to request and database metrics, each scrape reports the effective value of every
+ * feature flag and the build version so that deployments can see which features are enabled.
  */
 public final class MetricsController extends CiviFormController {
   private static final Logger logger = LoggerFactory.getLogger(MetricsController.class);
@@ -38,15 +43,18 @@ public final class MetricsController extends CiviFormController {
   // "class ", which is why we use 6 as the start index.
   private static final int CLASS_SUBSTRING_INDEX = 6;
   private final MonitoringMetricCounters monitoringMetricCounters;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public MetricsController(
       Config config,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      MonitoringMetricCounters monitoringMetricCounters) {
+      MonitoringMetricCounters monitoringMetricCounters,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
-    this.monitoringMetricCounters = monitoringMetricCounters;
+    this.monitoringMetricCounters = checkNotNull(monitoringMetricCounters);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.collectorRegistry = checkNotNull(CollectorRegistry.defaultRegistry);
     this.metricsEnabled = checkNotNull(config).getBoolean("civiform_server_metrics_enabled");
     this.database = DB.getDefault();
@@ -56,10 +64,13 @@ public final class MetricsController extends CiviFormController {
    * Exports server metrics in Prometheus 0.0.4 text format
    * (https://github.com/Showmax/prometheus-docs/blob/master/content/docs/instrumenting/exposition_formats.md#format-version-004).
    */
-  public Result getMetrics() {
+  public Result getMetrics(Http.Request request) {
     if (!metricsEnabled) {
       return notFound();
     }
+
+    recordFeatureFlagMetrics(request);
+    recordBuildInfoMetric();
 
     try {
       database
@@ -124,5 +135,28 @@ public final class MetricsController extends CiviFormController {
     }
 
     return internalServerError();
+  }
+
+  /**
+   * Sets the feature flag gauge to the effective value of each flag. Admin-writeable flags stored
+   * in the database take precedence over the values in the server config, matching what the admin
+   * settings page displays.
+   */
+  private void recordFeatureFlagMetrics(Http.Request request) {
+    settingsManifest
+        .getAllFeatureFlagsSorted(request)
+        .forEach(
+            (flag, enabled) ->
+                monitoringMetricCounters.getFeatureFlagEnabled().labels(flag).set(enabled ? 1 : 0));
+  }
+
+  /** Reports the image tag and version of the running server as labels on a constant gauge. */
+  private void recordBuildInfoMetric() {
+    monitoringMetricCounters
+        .getBuildInfo()
+        .labels(
+            settingsManifest.getCiviformImageTag().orElse("UNKNOWN"),
+            settingsManifest.getCiviformVersion().orElse(""))
+        .set(1);
   }
 }

@@ -328,7 +328,7 @@ GET     /dev/component/catalog                              controllers.dev.Comp
 GET     /dev/component/catalog/:controlName                 controllers.dev.ComponentCatalogController.controlIndex(request: Request, controlName: String)
 
 ## Prometheus metrics export
-GET     /metrics                                            controllers.monitoring.MetricsController.getMetrics()
+GET     /metrics                                            controllers.monitoring.MetricsController.getMetrics(request: Request)
 
 # Nothing to see here
 GET     /teapot                                             controllers.HomeController.teapot()
