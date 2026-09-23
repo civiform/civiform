@@ -26,6 +26,8 @@ services:
     restart: always
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
+      # Read-only, so MetricsControllerTest can check the dashboard against /metrics.
+      - ../monitoring:/usr/src/monitoring:ro
     entrypoint: /bin/bash
     tty: true # keep the container running
     stdin_open: true
