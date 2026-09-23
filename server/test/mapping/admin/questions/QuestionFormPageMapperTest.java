@@ -524,8 +524,8 @@ public final class QuestionFormPageMapperTest {
             /* enumeratorImprovementsEnabled= */ false,
             /* answerOptionScoringEnabled= */ false,
             /* imagesInQuestionFeatureEnabled= */ false,
-            readOnlyQuestionService,
-            Optional.of("Error occurred"),
+            /* readOnlyQuestionService= */ readOnlyQuestionService,
+            /* errorMessage= */ Optional.of("Error occurred"),
             /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"),
             /* existingImageDescription= */ "Alt text for image");
 
