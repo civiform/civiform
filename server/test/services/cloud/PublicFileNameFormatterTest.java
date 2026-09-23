@@ -62,4 +62,24 @@ public class PublicFileNameFormatterTest {
   public void isFileKeyForPublicProgramImage_empty_isFalse() {
     assertThat(PublicFileNameFormatter.isFileKeyForPublicProgramImage("")).isFalse();
   }
+
+  @Test
+  public void isFileKeyForPublicQuestionImage_keyFromFormatMethod_isTrue() {
+    String filename = PublicFileNameFormatter.formatPublicQuestionImageFileKey(156, "myImage.png");
+
+    assertThat(PublicFileNameFormatter.isFileKeyForPublicQuestionImage(filename)).isTrue();
+  }
+
+  @Test
+  public void isFileKeyForPublicQuestionImage_applicantFile_isFalse() {
+    assertThat(
+            PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+                "applicant-10/program-2/block-3/myFile.png"))
+        .isFalse();
+  }
+
+  @Test
+  public void isFileKeyForPublicQuestionImage_empty_isFalse() {
+    assertThat(PublicFileNameFormatter.isFileKeyForPublicQuestionImage("")).isFalse();
+  }
 }

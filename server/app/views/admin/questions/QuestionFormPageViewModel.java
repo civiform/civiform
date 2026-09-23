@@ -6,6 +6,8 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.questions.MultiOptionQuestionForm;
 import forms.questions.QuestionForm;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -145,8 +147,20 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   public String getPreviewUrl() {
-    return controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel)
-        .url();
+    String base =
+        controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel).url();
+    // For static questions, append the image file key and alt text so the preview
+    // endpoint can resolve the public URL and display the inline image.
+    if (existingImageFileKey != null && existingImageFileKey.isPresent()) {
+      String encodedKey =
+          URLEncoder.encode(existingImageFileKey.get(), StandardCharsets.UTF_8);
+      String encodedAlt =
+          URLEncoder.encode(
+              questionImageDescription != null ? questionImageDescription : "",
+              StandardCharsets.UTF_8);
+      return base + "?imageFileKey=" + encodedKey + "&imageAltText=" + encodedAlt;
+    }
+    return base;
   }
 
   public String getGeoJsonPostUrl() {

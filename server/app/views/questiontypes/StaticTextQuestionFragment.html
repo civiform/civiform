@@ -7,5 +7,34 @@
       class="cf-applicant-question-text line-height-sans-6 font-sans-md"
       th:utext="${question.getQuestion().getFormattedTextForRendering(ariaLabel)}"
     ></div>
+
+    <!--/* Inline image block — uses Figma design specifications:
+         outer container: flex column, align-items: flex-start, gap: 8px, maxw-mobile-lg;
+         inner image: 16:9 aspect ratio, align-self: stretch, rounded corners. */-->
+    <div
+      th:if="${questionImageUrl != null and !#strings.isEmpty(questionImageUrl)}"
+      class="cf-question-image-container maxw-mobile-lg margin-top-2"
+      style="display: flex; flex-direction: column; align-items: flex-start; gap: var(--item-spacing-8, 8px); width: 100%;"
+    >
+      <div
+        class="usa-card__img add-aspect-16x9 radius-md"
+        style="display: flex; justify-content: center; align-items: center; gap: 10px; align-self: stretch; width: 100%;"
+      >
+        <img
+          th:src="${questionImageUrl}"
+          th:alt="${questionImageAltText}"
+        />
+      </div>
+      <p class="cf-question-image-caption font-sans-sm line-height-sans-4 margin-0">
+        <span th:text="${questionImageAltText}"></span>
+        <a
+          th:href="${questionImageUrl}"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="usa-link"
+        >Click to enlarge <span class="usa-sr-only" th:text="#{link.opensNewTabSr}"></span><svg aria-hidden="true" focusable="false" class="usa-icon" style="vertical-align:middle;width:1em;height:1em;"><use xlink:href="/assets/img/sprite.svg#launch"></use></svg></a>
+      </p>
+    </div>
   </div>
 </div>
+

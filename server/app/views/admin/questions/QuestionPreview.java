@@ -87,6 +87,10 @@ public class QuestionPreview extends ApplicantBaseView {
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
+    // For static question image preview: set the resolved public URL and alt text so the
+    // StaticTextQuestionFragment can render an inline 16:9 image block when one is present.
+    context.setVariable("questionImageUrl", params.imageUrl().orElse(""));
+    context.setVariable("questionImageAltText", params.imageAltText());
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
@@ -124,6 +128,12 @@ public class QuestionPreview extends ApplicantBaseView {
 
     abstract Messages messages();
 
+    /** Resolved public URL for the question image, empty when no image is set. */
+    abstract Optional<String> imageUrl();
+
+    /** Alt text for the question image, empty string when no image is set. */
+    abstract String imageAltText();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -138,6 +148,10 @@ public class QuestionPreview extends ApplicantBaseView {
       public abstract Builder setType(QuestionType type);
 
       public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setImageUrl(Optional<String> imageUrl);
+
+      public abstract Builder setImageAltText(String imageAltText);
 
       public abstract Params build();
     }
