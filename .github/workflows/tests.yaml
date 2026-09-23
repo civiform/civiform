@@ -187,10 +187,11 @@ jobs:
             browser-test/tmp/html-output/
             browser-test/tmp/videos/
 
-      # Upload the Playwright JSON report on every run, not just failures. It carries per-test
-      # durations, which is the data needed to balance shards by time rather than by file count.
+      # Upload the Playwright JSON report from passing runs. It carries per-test durations, which
+      # is the data needed to balance shards by time rather than by file count. Failing runs are
+      # excluded on purpose: their timings include timeouts and retries and would skew balancing.
       - name: Upload test results JSON
-        if: always()
+        if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
           name: test results json (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
