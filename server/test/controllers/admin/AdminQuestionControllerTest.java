@@ -33,6 +33,7 @@ import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
+import services.question.QuestionService;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -100,6 +101,83 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(foundDefinition.getLocalizedImageDescription()).isPresent();
     assertThat(foundDefinition.getLocalizedImageDescription().get().getDefault())
         .isEqualTo(altText);
+  }
+
+  /**
+   * Regression test for the bug where an image uploaded via the HTMX uploader is silently dropped
+   * when the admin submits Update for an active question that had no draft at page load.
+   *
+   * <p>Scenario: the edit form renders at the active id (no draft exists yet). The admin uploads an
+   * image — hxUploadQuestionImage calls createOrUpdateDraft, which inserts a new draft row with a
+   * new id and stores the image key there. The admin then clicks Update. update() must read its
+   * maybeExisting from the draft row (by name), not from the active row (by URL id), so that
+   * updateDefaultLocalizations copies the image key from the draft rather than the empty active
+   * definition.
+   */
+  @Test
+  public void update_withActiveQuestion_imageUploadedViaHtmxBeforeSubmit_preservesImageKey()
+      throws Exception {
+    // 1. Use an already-published (active) static question.
+    //    testQuestionBank.staticContent() returns a question in the ACTIVE version.
+    QuestionModel activeQuestion = testQuestionBank.staticContent();
+    QuestionDefinition activeDefinition = activeQuestion.getQuestionDefinition();
+    assertThat(activeDefinition.getImageFileKey()).isEmpty();
+
+    // 2. Simulate the HTMX image upload that happens before the admin clicks Update.
+    //    This mirrors what AdminQuestionImageController.hxUploadQuestionImage does: it calls
+    //    questionService.setImageFileKeyAndDescription with the active question's id.
+    //    Because no draft exists yet, createOrUpdateDraft inserts a NEW draft row (new id).
+    String uploadedFileKey = "questions/applicant-static/uploaded-image.png";
+    String uploadedAltText = "Uploaded alt text";
+    QuestionService questionService = instanceOf(QuestionService.class);
+    QuestionDefinition draftAfterUpload =
+        questionService.setImageFileKeyAndDescription(
+            activeQuestion.id, Optional.of(uploadedFileKey), java.util.Locale.US, uploadedAltText);
+    // The draft should now hold the image key.
+    assertThat(draftAfterUpload.getImageFileKey()).hasValue(uploadedFileKey);
+    // The draft id must be different from the active id.
+    assertThat(draftAfterUpload.getId()).isNotEqualTo(activeDefinition.getId());
+
+    // 3. Call update() with the ACTIVE question's id (mimicking the form post that happens
+    //    when the admin clicks Update without having reloaded the page).
+    //    The concurrencyToken in the form is the draft's token (the HTMX upload OOB-swapped it).
+    ImmutableMap<String, String> formData =
+        ImmutableMap.<String, String>builder()
+            .put("questionName", activeDefinition.getName())
+            .put("questionDescription", activeDefinition.getDescription())
+            .put("questionType", activeDefinition.getQuestionType().name())
+            .put("questionText", activeDefinition.getQuestionText().getDefault())
+            .put("questionHelpText", activeDefinition.getQuestionHelpText().getDefault())
+            .put("questionExportState", "NON_DEMOGRAPHIC")
+            .put(
+                "concurrencyToken",
+                draftAfterUpload.getConcurrencyToken().map(java.util.UUID::toString).orElse(""))
+            .build();
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            activeQuestion.id,
+            activeDefinition.getQuestionType().toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    // 4. Look up the draft by name and verify the image key is still present.
+    QuestionDefinition savedDraft =
+        questionService
+            .getReadOnlyQuestionService()
+            .toCompletableFuture()
+            .join()
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(activeDefinition.getName())
+            .orElseThrow(() -> new AssertionError("No draft found for question"));
+    assertThat(savedDraft.getImageFileKey())
+        .as("Image key must survive update() when editing an active question after HTMX upload")
+        .hasValue(uploadedFileKey);
+    assertThat(savedDraft.getLocalizedImageDescription())
+        .as("Alt text must survive update() when editing an active question after HTMX upload")
+        .isPresent();
   }
 
   @Test
