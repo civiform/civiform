@@ -97,11 +97,11 @@ public final class MetricsController extends CiviFormController {
                 monitoringMetricCounters
                     .getQueryMetricMeanLatency()
                     .labels(name, location, className)
-                    .inc((double) metric.mean());
+                    .set((double) metric.mean());
                 monitoringMetricCounters
                     .getQueryMetricMaxLatency()
                     .labels(name, location, className)
-                    .inc((double) metric.max());
+                    .set((double) metric.max());
                 monitoringMetricCounters
                     .getQueryMetricTotalLatency()
                     .labels(name, location, className)
