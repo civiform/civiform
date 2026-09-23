@@ -157,9 +157,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
   /**
    * The family names a dashboard metric name could belong to. Histogram and summary samples carry
    * {@code _bucket}, {@code _count} and {@code _sum} suffixes that do not appear on the family's
-   * {@code # TYPE} line, and a labeled family emits no sample lines at all until first observed,
-   * so matching on the family rather than the sample name is what makes this check independent
-   * of whether anything has been observed yet.
+   * {@code # TYPE} line, and a labeled family emits no sample lines at all until first observed, so
+   * matching on the family rather than the sample name is what makes this check independent of
+   * whether anything has been observed yet.
    */
   private static ImmutableSet<String> familyCandidates(String name) {
     ImmutableSet.Builder<String> candidates = ImmutableSet.builder();
@@ -227,9 +227,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
   }
 
   /**
-   * Extracts metric names from a PromQL expression by stripping label selectors, label lists,
-   * range selectors, and Grafana variables, then keeping every identifier that is not a PromQL
-   * function or keyword.
+   * Extracts metric names from a PromQL expression by stripping label selectors, label lists, range
+   * selectors, and Grafana variables, then keeping every identifier that is not a PromQL function
+   * or keyword.
    */
   private static ImmutableSet<String> metricNamesIn(String expr) {
     String stripped =
