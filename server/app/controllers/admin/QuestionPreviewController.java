@@ -6,6 +6,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import java.util.Optional;
 import javax.inject.Inject;
 import org.pac4j.play.java.Secure;
 import play.i18n.Lang;
@@ -17,6 +18,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
+import services.cloud.PublicStorageClient;
 import services.question.exceptions.InvalidQuestionTypeException;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionPreview;
@@ -25,16 +27,19 @@ import views.admin.questions.QuestionPreview;
 public final class QuestionPreviewController extends CiviFormController {
   private final QuestionPreview questionPreview;
   private final Messages messages;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   public QuestionPreviewController(
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       QuestionPreview questionPreview,
-      MessagesApi messagesApi) {
+      MessagesApi messagesApi,
+      PublicStorageClient publicStorageClient) {
     super(profileUtils, versionRepository);
     this.questionPreview = checkNotNull(questionPreview);
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   @Secure
@@ -50,6 +55,18 @@ public final class QuestionPreviewController extends CiviFormController {
       return badRequest("Invalid question type: " + questionType);
     }
 
+    // Resolve the public display URL for the image, if a file key query param was supplied.
+    Optional<String> imageUrl =
+        request
+            .queryString("imageFileKey")
+            .filter(
+                key ->
+                    !key.isBlank()
+                        && services.cloud.PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+                            key))
+            .map(publicStorageClient::getPublicDisplayUrl);
+    String imageAltText = request.queryString("imageAltText").orElse("");
+
     QuestionPreview.Params params =
         QuestionPreview.Params.builder()
             .setRequest(request)
@@ -58,6 +75,8 @@ public final class QuestionPreviewController extends CiviFormController {
             .setProfile(profile)
             .setType(questionTypeEnum)
             .setMessages(messages)
+            .setImageUrl(imageUrl)
+            .setImageAltText(imageAltText)
             .build();
     String content = questionPreview.render(params);
     return ok(content).as(Http.MimeTypes.HTML);

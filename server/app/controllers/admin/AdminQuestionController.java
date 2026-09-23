@@ -386,6 +386,12 @@ public final class AdminQuestionController extends CiviFormController {
                     questionForm.setRedirectUrl(redirectUrl);
                   }
                   Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                  Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
+                  String existingImageDescription =
+                      questionDefinition
+                          .getLocalizedImageDescription()
+                          .map(LocalizedStrings::getDefault)
+                          .orElse("");
                   QuestionFormPageViewModel model =
                       buildEditQuestionPageModel(
                           id,
@@ -393,7 +399,9 @@ public final class AdminQuestionController extends CiviFormController {
                           maybeEnumerationQuestion,
                           readOnlyService,
                           request,
-                          errorMessage);
+                          errorMessage,
+                          existingImageFileKey,
+                          existingImageDescription);
                   return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
                 } catch (InvalidQuestionTypeException e) {
                   return badRequest(
@@ -444,10 +452,22 @@ public final class AdminQuestionController extends CiviFormController {
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
+    // Resolve maybeExisting from the draft row when one already exists for this question name.
+    // createOrUpdateDraft always targets the draft by name, not by the URL id. If the admin
+    // uploaded an image via the HTMX uploader before clicking Update, that upload called
+    // createOrUpdateDraft and stored the image key in the draft. If we read maybeExisting from
+    // the active definition (identified by the URL id), updateDefaultLocalizations will copy an
+    // empty imageFileKey from the active row onto the builder and overwrite the draft's image.
+    // Using the draft definition as the source keeps the image key intact.
+    QuestionDefinition questionDefinitionForUrlId = roService.getQuestionDefinition(id);
+    Optional<QuestionDefinition> maybeDraft =
+        roService
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionDefinitionForUrlId.getName());
+    Optional<QuestionDefinition> maybeExisting =
+        maybeDraft.isPresent() ? maybeDraft : Optional.of(questionDefinitionForUrlId);
 
     boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
-
     // Invalid scores surface as form validation errors and re-render the form, rather than being
     // silently dropped by the builder below.
     ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
@@ -574,6 +594,15 @@ public final class AdminQuestionController extends CiviFormController {
       ReadOnlyQuestionService roService,
       String errorText) {
     if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
+
+      Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
+      String existingImageDescription =
+          questionDefinition
+              .getLocalizedImageDescription()
+              .map(LocalizedStrings::getDefault)
+              .orElse("");
+
       QuestionFormPageViewModel model =
           buildEditQuestionPageModel(
               id,
@@ -581,7 +610,9 @@ public final class AdminQuestionController extends CiviFormController {
               maybeEnumerationQuestion,
               roService,
               request,
-              Optional.of(errorText));
+              Optional.of(errorText),
+              existingImageFileKey,
+              existingImageDescription);
       return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
@@ -642,6 +673,34 @@ public final class AdminQuestionController extends CiviFormController {
               .getQuestionHelpText()
               .updateTranslation(
                   LocalizedStrings.DEFAULT_LOCALE, questionForm.getQuestionHelpText()));
+    }
+
+    if (currentQuestionDefinition.getQuestionType().equals(QuestionType.STATIC)) {
+      String newImageDescription = questionForm.getQuestionImageDescription();
+
+      // 1. By default: leave existing image and description as such
+      updatedQuestionDefinitionBuilder.setImageFileKey(currentQuestionDefinition.getImageFileKey());
+      updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
+          currentQuestionDefinition.getLocalizedImageDescription());
+
+      // 2. Only update if an image is present and the text actually changed
+      if (currentQuestionDefinition.getImageFileKey().isPresent()
+          && newImageDescription != null
+          && !newImageDescription.isBlank()) {
+
+        String currentDefaultDescription =
+            currentQuestionDefinition
+                .getLocalizedImageDescription()
+                .map(LocalizedStrings::getDefault)
+                .orElse("");
+
+        if (!currentDefaultDescription.equals(newImageDescription.trim())) {
+          updatedQuestionDefinitionBuilder.setLocalizedImageDescription(
+              Optional.of(
+                  LocalizedStrings.of(
+                      LocalizedStrings.DEFAULT_LOCALE, newImageDescription.trim())));
+        }
+      }
     }
 
     if (currentQuestionDefinition.getQuestionType().equals(QuestionType.ENUMERATOR)) {
@@ -851,7 +910,9 @@ public final class AdminQuestionController extends CiviFormController {
       Optional<QuestionDefinition> maybeEnumerationQuestion,
       ReadOnlyQuestionService readOnlyQuestionService,
       Request request,
-      Optional<String> errorMessage) {
+      Optional<String> errorMessage,
+      Optional<String> existingImageFileKey,
+      String existingImageDescription) {
     MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
     return new QuestionFormPageMapper()
         .mapEdit(
@@ -864,7 +925,9 @@ public final class AdminQuestionController extends CiviFormController {
             settingsManifest.getAnswerOptionScoringEnabled(request),
             settingsManifest.getImagesInQuestionFeatureEnabled(request),
             readOnlyQuestionService,
-            errorMessage);
+            errorMessage,
+            existingImageFileKey,
+            existingImageDescription);
   }
 
   /**
