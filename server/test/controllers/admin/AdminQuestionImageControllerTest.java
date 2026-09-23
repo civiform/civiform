@@ -20,6 +20,7 @@ import java.util.UUID;
 import models.ConcurrentUpdateException;
 import models.QuestionModel;
 import models.VersionModel;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.Lang;
@@ -239,7 +240,7 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
     String htmlContent = contentAsString(result);
     assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
-    assertThat(htmlContent)
+    assertThat(StringEscapeUtils.unescapeHtml4(htmlContent))
         .contains(messages.at("validation.adminQuestionImage.descriptionNotRemovable"));
   }
 
