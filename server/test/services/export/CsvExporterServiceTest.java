@@ -9,6 +9,7 @@ import com.google.common.hash.Hashing;
 import com.typesafe.config.ConfigFactory;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.stream.Stream;
@@ -17,6 +18,7 @@ import models.ApplicantModel;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.QuestionModel;
 import models.QuestionTag;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVParser;
@@ -28,8 +30,12 @@ import repository.TimeFilter;
 import repository.VersionRepository;
 import services.DateConverter;
 import services.LocalizedStrings;
+import services.Path;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicationScores;
 import services.application.ApplicationEventDetails.StatusEvent;
+import services.export.enums.MultiOptionSelectionExportType;
 import services.geo.CorrectedAddressState;
 import services.geo.ServiceAreaInclusion;
 import services.geo.ServiceAreaState;
@@ -349,7 +355,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ false),
             DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(0);
@@ -408,7 +414,7 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
     CSVParser parser =
         CSVParser.parse(
             exporterService.getProgramAllVersionsCsv(
-                fakeProgram.id, SubmittedApplicationFilter.EMPTY),
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ false),
             DEFAULT_FORMAT);
 
     assertThat(parser.getRecords()).hasSize(1);
@@ -2191,10 +2197,350 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
         .toString();
   }
 
+  private QuestionModel createScoredMultiOptionQuestion(
+      String name, MultiOptionQuestionDefinition.MultiOptionQuestionType type) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(name)
+            .setDescription(name)
+            .setQuestionText(LocalizedStrings.of(Locale.US, name + "?"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1L,
+                /* displayOrder= */ 0L,
+                /* adminName= */ "scored_option",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.of(10.5)),
+            QuestionOption.create(
+                /* id= */ 2L,
+                /* displayOrder= */ 1L,
+                /* adminName= */ "unscored_option",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "unscored option"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ Optional.empty()));
+    return testQuestionBank.maybeSave(
+        new MultiOptionQuestionDefinition(config, options, type), LifecycleStage.ACTIVE);
+  }
+
+  private void addScoreMetadata(
+      ApplicationModel application,
+      double total,
+      Optional<Double> dropdownScore,
+      QuestionModel dropdownQuestion,
+      ImmutableList<Optional<Double>> checkboxScores,
+      QuestionModel checkboxQuestion) {
+    ApplicantData data = application.getApplicantData();
+    Path dropdownPath =
+        dropdownQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    Path checkboxPath =
+        checkboxQuestion
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+    dropdownScore.ifPresent(score -> data.putScore(dropdownPath, score));
+    data.putScores(checkboxPath, checkboxScores);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, total);
+    application.setApplicantData(data);
+    application.save();
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_scoringEnabled_columnsAdjacentAndCellsPopulated()
+      throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    QuestionModel checkbox =
+        createScoredMultiOptionQuestion(
+            "csv scored checkbox", MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .withQuestion(checkbox)
+            .build();
+    FakeApplicationFiller filler =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .answerCheckboxQuestion(checkbox, ImmutableList.of(1L, 2L))
+            .submit();
+    // A fractional and a whole value: cells render without trailing zeros.
+    ImmutableList<Optional<Double>> checkboxScores =
+        ImmutableList.of(Optional.of(10.5), Optional.empty());
+    addScoreMetadata(
+        filler.getApplication(), 21.0, Optional.of(10.5), dropdown, checkboxScores, checkbox);
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+            DEFAULT_FORMAT);
+    ImmutableList<CSVRecord> records = ImmutableList.copyOf(parser.getRecords());
+    List<String> headers = parser.getHeaderNames();
+
+    // The single-select score column is immediately after its (selection) column.
+    int selectionIndex = headers.indexOf("csv scored dropdown (selection)");
+    assertThat(selectionIndex).isNotNegative();
+    assertThat(headers.get(selectionIndex + 1)).isEqualTo("csv scored dropdown (score)");
+    // The checkbox question has a selection column per option, then a score column per option in
+    // the same order, then the subtotal.
+    int checkboxStart = headers.indexOf("csv scored checkbox (selections - scored_option)");
+    assertThat(checkboxStart).isNotNegative();
+    assertThat(headers.subList(checkboxStart, checkboxStart + 5))
+        .containsExactly(
+            "csv scored checkbox (selections - scored_option)",
+            "csv scored checkbox (selections - unscored_option)",
+            "csv scored checkbox (score - scored_option)",
+            "csv scored checkbox (score - unscored_option)",
+            "csv scored checkbox (score)");
+
+    assertThat(records.get(0).get("csv scored dropdown (score)")).isEqualTo("10.5");
+    // Both options selected: the scored one shows its score, the unscored one is blank, and the
+    // subtotal sums the scored selections.
+    assertThat(records.get(0).get("csv scored checkbox (score - scored_option)")).isEqualTo("10.5");
+    assertThat(records.get(0).get("csv scored checkbox (score - unscored_option)")).isEmpty();
+    assertThat(records.get(0).get("csv scored checkbox (score)")).isEqualTo("10.5");
+
+    // The total column is appended last, not placed with the per-question score columns.
+    assertThat(headers.get(headers.size() - 1)).isEqualTo("Total Score");
+    assertThat(records.get(0).get("Total Score")).isEqualTo("21");
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_scoringEnabled_totalScoreIsLastAndShiftsNoExistingColumn()
+      throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerDropdownQuestion(dropdown, 1L).submit();
+
+    List<String> unscoredHeaders =
+        CSVParser.parse(
+                exporterService.getProgramAllVersionsCsv(
+                    fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ false),
+                DEFAULT_FORMAT)
+            .getHeaderNames();
+    List<String> scoredHeaders =
+        CSVParser.parse(
+                exporterService.getProgramAllVersionsCsv(
+                    fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+                DEFAULT_FORMAT)
+            .getHeaderNames();
+
+    // Total Score follows the last pre-existing metadata column, so enabling scoring on a program
+    // leaves every column a consumer already parses by position where it was.
+    assertThat(scoredHeaders.subList(scoredHeaders.size() - 2, scoredHeaders.size()))
+        .containsExactly("Status Last Modified Time", "Total Score");
+    int statusIndex = scoredHeaders.indexOf("Status");
+    assertThat(scoredHeaders.get(statusIndex + 1)).isEqualTo(unscoredHeaders.get(statusIndex + 1));
+    assertThat(scoredHeaders.subList(0, statusIndex + 1))
+        .containsExactlyElementsOf(unscoredHeaders.subList(0, statusIndex + 1));
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_scoringDisabled_noScoreColumns() throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerDropdownQuestion(dropdown, 1L).submit();
+
+    ImmutableList<CSVRecord> records = getParsedRecords(fakeProgram.id);
+
+    assertThat(records.get(0).getParser().getHeaderNames())
+        .noneMatch(header -> header.contains("(score"))
+        .doesNotContain("Total Score");
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_programNotUsingScoring_noScoreColumns() throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("unscored-csv-program").withQuestion(dropdown).build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerDropdownQuestion(dropdown, 1L).submit();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+            DEFAULT_FORMAT);
+
+    assertThat(parser.getHeaderNames())
+        .noneMatch(header -> header.contains("(score"))
+        .doesNotContain("Total Score");
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_scoringProgramWithNoScoredOptions_scoreColumnsBlank()
+      throws Exception {
+    // Score columns depend only on the feature flag, the program using scoring, and the question
+    // type, matching the JSON export. With no scored options the per-question cell is blank, and
+    // the persisted total of 0 renders 0.
+    QuestionModel dropdown = testQuestionBank.dropdownApplicantIceCream();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    FakeApplicationFiller filler =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .submit();
+    ApplicationModel application = filler.getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, 0.0);
+    application.setApplicantData(data);
+    application.save();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+            DEFAULT_FORMAT);
+    ImmutableList<CSVRecord> records = ImmutableList.copyOf(parser.getRecords());
+    List<String> headers = parser.getHeaderNames();
+
+    int selectionIndex = headers.indexOf("applicant ice cream (selection)");
+    assertThat(selectionIndex).isNotNegative();
+    assertThat(headers.get(selectionIndex + 1)).isEqualTo("applicant ice cream (score)");
+    assertThat(records.get(0).get("applicant ice cream (score)")).isEmpty();
+    assertThat(headers.get(headers.size() - 1)).isEqualTo("Total Score");
+    assertThat(records.get(0).get("Total Score")).isEqualTo("0");
+  }
+
+  @Test
+  public void getProgramAllVersionsCsv_scoreCells_blankZeroAndUnscoredSemantics() throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    QuestionModel checkbox =
+        createScoredMultiOptionQuestion(
+            "csv scored checkbox", MultiOptionQuestionDefinition.MultiOptionQuestionType.CHECKBOX);
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .withQuestion(checkbox)
+            .build();
+
+    // Application with scoring applied: unscored dropdown option selected, checkbox scores cancel
+    // to zero.
+    FakeApplicationFiller scoredFiller =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 2L)
+            .answerCheckboxQuestion(checkbox, ImmutableList.of(1L, 2L))
+            .submit();
+    // Fractional values that cancel exactly: 5.25 + -5.25 renders 0, not a float artifact.
+    ImmutableList<Optional<Double>> cancelToZero =
+        ImmutableList.of(Optional.of(5.25), Optional.of(-5.25));
+    addScoreMetadata(
+        scoredFiller.getApplication(), 0.0, Optional.empty(), dropdown, cancelToZero, checkbox);
+
+    // Application with scoring applied and only the scored checkbox option selected.
+    FakeApplicationFiller partiallySelectedFiller =
+        FakeApplicationFiller.newFillerFor(fakeProgram)
+            .answerDropdownQuestion(dropdown, 1L)
+            .answerCheckboxQuestion(checkbox, ImmutableList.of(1L))
+            .submit();
+    addScoreMetadata(
+        partiallySelectedFiller.getApplication(),
+        15.75,
+        Optional.of(10.5),
+        dropdown,
+        ImmutableList.of(Optional.of(5.25)),
+        checkbox);
+
+    // Application without score metadata (e.g. submitted before scoring was enabled): the columns
+    // exist, but its cells are blank.
+    FakeApplicationFiller.newFillerFor(fakeProgram)
+        .answerDropdownQuestion(dropdown, 1L)
+        .answerCheckboxQuestion(checkbox, ImmutableList.of(2L))
+        .submit();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                fakeProgram.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+            DEFAULT_FORMAT);
+    ImmutableList<CSVRecord> records = ImmutableList.copyOf(parser.getRecords());
+    assertThat(records).hasSize(3);
+
+    for (CSVRecord record : records) {
+      if (record.get("csv scored dropdown (selection)").equals("unscored_option")) {
+        // Scoring applied: unscored single-select option renders blank; each selected checkbox
+        // option shows its own score and the cancel-to-zero subtotal renders explicit 0.
+        assertThat(record.get("csv scored dropdown (score)")).isEmpty();
+        assertThat(record.get("csv scored checkbox (score - scored_option)")).isEqualTo("5.25");
+        assertThat(record.get("csv scored checkbox (score - unscored_option)")).isEqualTo("-5.25");
+        assertThat(record.get("csv scored checkbox (score)")).isEqualTo("0");
+        // A persisted total of 0 renders 0, not blank.
+        assertThat(record.get("Total Score")).isEqualTo("0");
+      } else if (record
+          .get("csv scored checkbox (selections - scored_option)")
+          .equals(MultiOptionSelectionExportType.SELECTED.toString())) {
+        // Scoring applied: an option that was not selected has a blank score cell, and the
+        // subtotal covers only the selected options.
+        assertThat(record.get("csv scored dropdown (score)")).isEqualTo("10.5");
+        assertThat(record.get("csv scored checkbox (score - scored_option)")).isEqualTo("5.25");
+        assertThat(record.get("csv scored checkbox (score - unscored_option)")).isEmpty();
+        assertThat(record.get("csv scored checkbox (score)")).isEqualTo("5.25");
+        assertThat(record.get("Total Score")).isEqualTo("15.75");
+      } else {
+        // Scoring not applied to this application: all score cells blank.
+        assertThat(record.get("csv scored dropdown (score)")).isEmpty();
+        assertThat(record.get("csv scored checkbox (score - scored_option)")).isEmpty();
+        assertThat(record.get("csv scored checkbox (score - unscored_option)")).isEmpty();
+        assertThat(record.get("csv scored checkbox (score)")).isEmpty();
+        assertThat(record.get("Total Score")).isEmpty();
+      }
+    }
+  }
+
+  @Test
+  public void getDemographicsCsv_neverGainsScoreColumns() throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    dropdown.addTag(QuestionTag.DEMOGRAPHIC);
+    dropdown.save();
+    ProgramModel fakeProgram =
+        FakeProgramBuilder.newActiveProgram("scored-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    FakeApplicationFiller.newFillerFor(fakeProgram).answerDropdownQuestion(dropdown, 1L).submit();
+
+    ImmutableList<CSVRecord> records = getParsedRecordsFromDemographicCsv();
+
+    assertThat(records.get(0).getParser().getHeaderNames())
+        .anyMatch(header -> header.contains("csv scored dropdown"))
+        .noneMatch(header -> header.contains("(score"))
+        .doesNotContain("Total Score");
+  }
+
   private ImmutableList<CSVRecord> getParsedRecords(long programId) throws Exception {
     CSVParser parser =
         CSVParser.parse(
-            exporterService.getProgramAllVersionsCsv(programId, SubmittedApplicationFilter.EMPTY),
+            exporterService.getProgramAllVersionsCsv(
+                programId, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ false),
             DEFAULT_FORMAT);
     return ImmutableList.copyOf(parser.getRecords());
   }
