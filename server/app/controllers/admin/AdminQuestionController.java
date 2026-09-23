@@ -387,7 +387,6 @@ public final class AdminQuestionController extends CiviFormController {
                   }
                   Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
                   Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-                  String existingImageDescription = questionForm.getQuestionImageDescription();
                   QuestionFormPageViewModel model =
                       buildEditQuestionPageModel(
                           id,
@@ -396,8 +395,7 @@ public final class AdminQuestionController extends CiviFormController {
                           readOnlyService,
                           request,
                           errorMessage,
-                          existingImageFileKey,
-                          existingImageDescription);
+                          existingImageFileKey);
                   return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
                 } catch (InvalidQuestionTypeException e) {
                   return badRequest(
@@ -593,7 +591,6 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
 
       Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-      String existingImageDescription = questionForm.getQuestionImageDescription();
 
       QuestionFormPageViewModel model =
           buildEditQuestionPageModel(
@@ -603,8 +600,7 @@ public final class AdminQuestionController extends CiviFormController {
               roService,
               request,
               Optional.of(errorText),
-              existingImageFileKey,
-              existingImageDescription);
+              existingImageFileKey);
       return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
@@ -903,8 +899,7 @@ public final class AdminQuestionController extends CiviFormController {
       ReadOnlyQuestionService readOnlyQuestionService,
       Request request,
       Optional<String> errorMessage,
-      Optional<String> existingImageFileKey,
-      String existingImageDescription) {
+      Optional<String> existingImageFileKey) {
     MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
     return new QuestionFormPageMapper()
         .mapEdit(
@@ -918,8 +913,7 @@ public final class AdminQuestionController extends CiviFormController {
             settingsManifest.getImagesInQuestionFeatureEnabled(request),
             readOnlyQuestionService,
             errorMessage,
-            existingImageFileKey,
-            existingImageDescription);
+            existingImageFileKey);
   }
 
   /**

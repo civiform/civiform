@@ -55,8 +55,7 @@ public final class QuestionFormPageMapperTest {
         /* imagesInQuestionFeatureEnabled= */ false,
         readOnlyQuestionService,
         Optional.empty(),
-        /* existingImageFileKey= */ Optional.empty(),
-        /* existingImageDescription= */ "");
+        /* existingImageFileKey= */ Optional.empty());
   }
 
   @Test
@@ -439,8 +438,7 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty(),
-            /* existingImageFileKey= */ Optional.empty(),
-            /* existingImageDescription= */ "");
+            /* existingImageFileKey= */ Optional.empty());
 
     assertThat(result.getQuestionId()).isEqualTo(42L);
   }
@@ -481,8 +479,7 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty(),
-            /* existingImageFileKey= */ Optional.empty(),
-            /* existingImageDescription= */ "");
+            /* existingImageFileKey= */ Optional.empty());
 
     assertThat(result.getEnumeratorDisplayName()).isEqualTo("household-members");
   }
@@ -503,8 +500,7 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.of("Error occurred"),
-            /* existingImageFileKey= */ Optional.empty(),
-            /* existingImageDescription= */ "");
+            /* existingImageFileKey= */ Optional.empty());
 
     assertThat(result.getErrorMessage()).contains("Error: Error occurred");
     assertThat(result.getErrorToastId()).isNotEmpty();
@@ -513,6 +509,7 @@ public final class QuestionFormPageMapperTest {
   @Test
   public void mapEdit_withExistingImage_setsImageFields() {
     TextQuestionForm form = new TextQuestionForm();
+    form.setQuestionImageDescription("Alt text for image");
 
     QuestionFormPageViewModel result =
         mapper.mapEdit(
@@ -526,8 +523,7 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             /* readOnlyQuestionService= */ readOnlyQuestionService,
             /* errorMessage= */ Optional.of("Error occurred"),
-            /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"),
-            /* existingImageDescription= */ "Alt text for image");
+            /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"));
 
     assertThat(result.hasExistingImage()).isTrue();
     assertThat(result.getExistingImageFileKey()).contains("question-image/question-1/test.png");
