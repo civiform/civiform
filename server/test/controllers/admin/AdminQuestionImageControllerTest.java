@@ -240,7 +240,7 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     String htmlContent = contentAsString(result);
     assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
     assertThat(htmlContent)
-        .contains(messages.at("toast.adminQuestionImage.descriptionNotRemovable"));
+        .contains(messages.at("validation.adminQuestionImage.descriptionNotRemovable"));
   }
 
   @Test

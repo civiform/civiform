@@ -452,7 +452,20 @@ public final class AdminQuestionController extends CiviFormController {
     ReadOnlyQuestionService roService =
         service.getReadOnlyQuestionService().toCompletableFuture().join();
 
-    Optional<QuestionDefinition> maybeExisting = Optional.of(roService.getQuestionDefinition(id));
+    // Resolve maybeExisting from the draft row when one already exists for this question name.
+    // createOrUpdateDraft always targets the draft by name, not by the URL id. If the admin
+    // uploaded an image via the HTMX uploader before clicking Update, that upload called
+    // createOrUpdateDraft and stored the image key in the draft. If we read maybeExisting from
+    // the active definition (identified by the URL id), updateDefaultLocalizations will copy an
+    // empty imageFileKey from the active row onto the builder and overwrite the draft's image.
+    // Using the draft definition as the source keeps the image key intact.
+    QuestionDefinition questionDefinitionForUrlId = roService.getQuestionDefinition(id);
+    Optional<QuestionDefinition> maybeDraft =
+        roService
+            .getActiveAndDraftQuestions()
+            .getDraftQuestionDefinition(questionDefinitionForUrlId.getName());
+    Optional<QuestionDefinition> maybeExisting =
+        maybeDraft.isPresent() ? maybeDraft : Optional.of(questionDefinitionForUrlId);
 
     boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
     // Invalid scores surface as form validation errors and re-render the form, rather than being
