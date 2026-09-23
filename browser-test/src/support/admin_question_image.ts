@@ -3,34 +3,50 @@ import {Page} from '@playwright/test'
 import {waitForPageJsLoad} from './wait'
 
 export class AdminQuestionImage {
-  private imageUploadLocator = '#question-image-input'
-  private altTextLocator = '#questionImageDescription'
-  private deleteButtonLocator = '#delete-question-image-button'
-  private existingAlertLocator = '#existing-image-alert'
-  private updateButtonLocator = 'button:has-text("Update")'
-
   private page: Page
 
   constructor(page: Page) {
     this.page = page
   }
 
+  getImageUploadInput() {
+    return this.page.locator('#question-image-input')
+  }
+
+  getAltTextInput() {
+    return this.page.getByRole('textbox', {
+      name: 'Enter image description (Alt Text)',
+    })
+  }
+
+  getDeleteButton() {
+    return this.page.getByRole('button', {name: 'Delete image'})
+  }
+
+  getExistingAlert() {
+    return this.page
+      .getByRole('alert')
+      .filter({hasText: 'A file is currently uploaded for this question.'})
+  }
+
+  getUpdateButton() {
+    return this.page.getByRole('button', {name: 'Update'})
+  }
+
   async setImageDescription(description: string) {
-    await this.page.fill(this.altTextLocator, description)
+    await this.getAltTextInput().fill(description)
   }
 
   async clearImageDescription() {
-    await this.page.fill(this.altTextLocator, '')
+    await this.getAltTextInput().fill('')
   }
 
   async expectDescription(expectedText: string) {
-    await expect(this.page.locator(this.altTextLocator)).toHaveValue(
-      expectedText,
-    )
+    await expect(this.getAltTextInput()).toHaveValue(expectedText)
   }
 
   async setImageFile(imagePath: string) {
-    await this.page.setInputFiles(this.imageUploadLocator, imagePath)
+    await this.getImageUploadInput().setInputFiles(imagePath)
   }
 
   async uploadImageFile(imagePath: string) {
@@ -39,36 +55,36 @@ export class AdminQuestionImage {
   }
 
   async clickDeleteImageButton() {
-    await this.page.click(this.deleteButtonLocator)
+    await this.getDeleteButton().click()
     await this.expectDeleteButtonHidden()
   }
 
   async submitUpdate() {
-    await this.page.click(this.updateButtonLocator)
+    await this.getUpdateButton().click()
     await waitForPageJsLoad(this.page)
   }
 
   async expectDropzoneEnabled() {
-    await expect(this.page.locator(this.imageUploadLocator)).toBeEnabled()
+    await expect(this.getImageUploadInput()).toBeEnabled()
   }
 
   async expectDropzoneDisabled() {
-    await expect(this.page.locator(this.imageUploadLocator)).toBeDisabled()
+    await expect(this.getImageUploadInput()).toBeDisabled()
   }
 
   async expectHasExistingImageAlert() {
-    await expect(this.page.locator(this.existingAlertLocator)).toBeVisible()
+    await expect(this.getExistingAlert()).toBeVisible()
   }
 
   async expectNoExistingImageAlert() {
-    await expect(this.page.locator(this.existingAlertLocator)).toBeHidden()
+    await expect(this.getExistingAlert()).toBeHidden()
   }
 
   async expectDeleteButtonVisible() {
-    await expect(this.page.locator(this.deleteButtonLocator)).toBeVisible()
+    await expect(this.getDeleteButton()).toBeVisible()
   }
 
   async expectDeleteButtonHidden() {
-    await expect(this.page.locator(this.deleteButtonLocator)).toBeHidden()
+    await expect(this.getDeleteButton()).toBeHidden()
   }
 }
