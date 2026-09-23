@@ -188,8 +188,10 @@ jobs:
             browser-test/tmp/videos/
 
       # Upload the Playwright JSON report from passing runs. It carries per-test durations, which
-      # is the data needed to balance shards by time rather than by file count. Failing runs are
-      # excluded on purpose: their timings include timeouts and retries and would skew balancing.
+      # is the data needed to balance shards by time rather than by file count. Note the gate is
+      # coarse: success() only skips shards where a test failed even after its retry. A test that
+      # fails and then passes on retry is still uploaded with both attempts, each carrying `status`
+      # and `retry`, so anything balancing on this data must filter to passed results itself.
       - name: Upload test results JSON
         if: success()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
