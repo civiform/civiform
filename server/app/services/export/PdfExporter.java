@@ -16,6 +16,9 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.List;
 import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
+import com.itextpdf.text.Rectangle;
+import com.itextpdf.text.pdf.PdfPCell;
+import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.typesafe.config.Config;
@@ -30,6 +33,7 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
@@ -172,18 +176,10 @@ public final class PdfExporter {
   private static String scoreAnnotatedAnswerText(AnswerData answerData, ApplicantData scoreData) {
     String answerText = answerData.answerText();
     QuestionType questionType = answerData.questionDefinition().getQuestionType();
-    if (!QuestionType.supportsOptionScores(questionType)) {
+    if (questionType != QuestionType.CHECKBOX || !QuestionType.supportsOptionScores(questionType)) {
       return answerText;
     }
     Path contextualizedPath = answerData.contextualizedPath();
-    if (questionType != QuestionType.CHECKBOX) {
-      return scoreData
-          .readDouble(ApplicantData.scorePath(contextualizedPath))
-          .map(
-              score ->
-                  String.format("%s (Score: %s)", answerText, QuestionOption.formatScore(score)))
-          .orElse(answerText);
-    }
 
     Optional<ImmutableList<Long>> selections =
         scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
@@ -228,6 +224,28 @@ public final class PdfExporter {
                         })
                     .collect(Collectors.joining("\n")))
         .orElse(answerText);
+  }
+
+  /**
+   * Returns the question's total score: the single option's score for non-checkbox questions, or
+   * the sum of all selected options' scores for checkbox questions. Empty when the question type
+   * doesn't support scoring or no score metadata is present.
+   */
+  private static Optional<Double> totalQuestionScore(
+      AnswerData answerData, ApplicantData scoreData) {
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (!QuestionType.supportsOptionScores(questionType)) {
+      return Optional.empty();
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+    if (questionType != QuestionType.CHECKBOX) {
+      return scoreData.readDouble(ApplicantData.scorePath(contextualizedPath));
+    }
+    return scoreData
+        .readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath))
+        .map(
+            scores ->
+                scores.stream().filter(Objects::nonNull).mapToDouble(Double::doubleValue).sum());
   }
 
   private byte[] buildApplicationPdf(
@@ -329,6 +347,20 @@ public final class PdfExporter {
         Paragraph time =
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
+
+        Optional<Paragraph> questionScore =
+            scoreData
+                .flatMap(data -> totalQuestionScore(answerData, data))
+                .map(
+                    score -> {
+                      Paragraph scoreParagraph =
+                          new Paragraph(
+                              "Question Score: " + QuestionOption.formatScore(score),
+                              FontFactory.getFont(FontFactory.HELVETICA, 10));
+                      scoreParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+                      return scoreParagraph;
+                    });
+
         Paragraph eligibility = new Paragraph();
         if (isAdmin && isEligibilityEnabledInProgram) {
           try {
@@ -354,12 +386,27 @@ public final class PdfExporter {
           }
         }
 
-        document.add(question);
-        document.add(answer);
-        document.add(time);
+        PdfPTable row = new PdfPTable(2);
+        row.setWidthPercentage(100);
+        row.setWidths(new float[] {70, 30});
+
+        PdfPCell leftCell = new PdfPCell();
+        leftCell.setBorder(Rectangle.NO_BORDER);
+        leftCell.addElement(question);
+        leftCell.addElement(answer);
+
+        PdfPCell rightCell = new PdfPCell();
+        rightCell.setBorder(Rectangle.NO_BORDER);
+        rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
+        rightCell.addElement(time);
+        questionScore.ifPresent(rightCell::addElement);
         if (!eligibility.isEmpty()) {
-          document.add(eligibility);
+          rightCell.addElement(eligibility);
         }
+
+        row.addCell(leftCell);
+        row.addCell(rightCell);
+        document.add(row);
       }
       if (!answersOnlyHidden.isEmpty()) {
         document.add(Chunk.NEWLINE);
