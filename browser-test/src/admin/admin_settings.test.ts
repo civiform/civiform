@@ -1,8 +1,17 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  disableFeatureFlag,
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateScreenshot,
+} from '../support'
 
 test.describe('Managing system-wide settings', () => {
   test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
   })
@@ -20,7 +29,7 @@ test.describe('Managing system-wide settings', () => {
     await page.setViewportSize({width: 768, height: 720})
     await adminSettings.gotoAdminSettings()
 
-    const navBar = page.locator('header.usa-header').first()
+    const navBar = page.getByRole('navigation', {name: 'Primary navigation'})
     await validateScreenshot(navBar, 'admin-settings-header-narrow')
   })
 

@@ -83,6 +83,7 @@
               ></div>
               <ul
                 th:if="${fileUploadQuestion.getFileKeyListValue().isPresent()}"
+                th:data-can-upload-file="${fileUploadQuestion.canUploadFile()}"
                 data-th-attr="data-uploaded-files=${fileUploadViewStrategy.getUploadedFileData(fileUploadQuestion)}, aria-label=#{label.uploadedFiles}"
                 class="usa-list--unstyled"
               >
