@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
 import models.QuestionModel;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -515,7 +516,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_withScores_asAdmin_rendersTotalAndPerAnswerScores()
+  public void exportApplication_withScores_asAdmin_rendersTotalAndQuestionAndPerAnswerScores()
       throws IOException, DocumentException {
     // applicationOne answered the sample dropdown (option 2) and checkbox (options 1 and 2).
     // Whole and fractional values both render without trailing zeros.
@@ -558,7 +559,7 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  public void exportApplication_withScores_flagOff_noScoreText()
+  public void exportApplication_withScores_includeScoresFalse_noScoreText()
       throws IOException, DocumentException {
     List<Double> checkboxScores = new ArrayList<>();
     checkboxScores.add(2.25);
@@ -608,6 +609,26 @@ public class PdfExporterTest extends AbstractExporterTest {
     // The intact single-select score still renders; the corrupt checkbox metadata does not.
     assertThat(text).contains("Question Score: 5");
     assertThat(text).doesNotContain("(Score: 2.25)");
+  }
+
+  @Test
+  public void exportApplication_noScoredCheckboxOptions_noQuestionScore()
+      throws IOException, DocumentException {
+    List<Double> checkboxScores = new ArrayList<>();
+    checkboxScores.add(null);
+    checkboxScores.add(null);
+    addScoreMetadataToApplicationOne(/* total= */ 5, /* dropdownScore= */ 5.0, checkboxScores);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).contains("Total Calculated Score: 5");
+    // Dropdown question has Question Score but checkbox question does not
+    assertThat(text).contains("Question Score: 5");
+    assertThat(StringUtils.countMatches(text, "Question Score")).isEqualTo(1);
   }
 
   @Test

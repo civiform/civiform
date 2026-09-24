@@ -119,9 +119,8 @@ public final class PdfExporter {
             .join();
 
     // Score text renders only for admins or TIs with the scoring flag on, and only when the
-    // snapshot
-    // actually carries score metadata (a pre-feature or unscored application has none). The
-    // snapshot is a fresh private copy of the application's stored data.
+    // snapshot actually carries score metadata (a pre-feature or unscored application has none).
+    // The snapshot is a fresh private copy of the application's stored data.
     ApplicantData snapshot = application.getApplicantData();
     Optional<Double> totalScore = snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH);
     Optional<ApplicantData> scoreData =
@@ -161,89 +160,6 @@ public final class PdfExporter {
     return submitTime == null
         ? "Application submitted without submission time marked."
         : dateConverter.renderDateTimeHumanReadable(submitTime);
-  }
-
-  /**
-   * Returns the answer text with persisted score annotations rendered inline with the option text
-   * they belong to: {@code optionText (Score: N)}, per selected option line for checkbox. Scores
-   * are read from the application snapshot by contextualized path; answers of unsupported types or
-   * with no persisted score keys render exactly as before.
-   */
-  private static String scoreAnnotatedAnswerText(AnswerData answerData, ApplicantData scoreData) {
-    String answerText = answerData.answerText();
-    QuestionType questionType = answerData.questionDefinition().getQuestionType();
-    if (questionType != QuestionType.CHECKBOX || !QuestionType.supportsOptionScores(questionType)) {
-      return answerText;
-    }
-    Path contextualizedPath = answerData.contextualizedPath();
-
-    Optional<ImmutableList<Long>> selections =
-        scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
-    Optional<java.util.List<Double>> scores =
-        scoreData.readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath));
-    if (selections.isEmpty() || scores.isEmpty()) {
-      return answerText;
-    }
-    if (selections.get().size() != scores.get().size()) {
-      // Corrupt metadata: render the answer without scores rather than mispairing values.
-      logger.warn(
-          "Score metadata length mismatch at {}: {} selections vs {} scores",
-          contextualizedPath,
-          selections.get().size(),
-          scores.get().size());
-      return answerText;
-    }
-    Map<Long, Double> scoreByOptionId = new HashMap<>();
-    for (int i = 0; i < selections.get().size(); i++) {
-      Double score = scores.get().get(i);
-      if (score != null) {
-        scoreByOptionId.putIfAbsent(selections.get().get(i), score);
-      }
-    }
-    // Rebuild the same option lines MultiSelectQuestion#getAnswerString joins (same source list,
-    // same localized text, same order), appending each scored option's suffix to its own line.
-    return answerData
-        .applicantQuestion()
-        .createMultiSelectQuestion()
-        .getSelectedOptionValues()
-        .map(
-            options ->
-                options.stream()
-                    .map(
-                        option -> {
-                          Double score = scoreByOptionId.get(option.id());
-                          return score == null
-                              ? option.optionText()
-                              : String.format(
-                                  "%s (Score: %s)",
-                                  option.optionText(), QuestionOption.formatScore(score));
-                        })
-                    .collect(Collectors.joining("\n")))
-        .orElse(answerText);
-  }
-
-  /**
-   * Returns the question's total score: the single option's score for non-checkbox questions, or
-   * the sum of all selected options' scores for checkbox questions. Empty when the question type
-   * doesn't support scoring or no score metadata is present.
-   */
-  private static Optional<Double> totalQuestionScore(
-      AnswerData answerData, ApplicantData scoreData) {
-    QuestionType questionType = answerData.questionDefinition().getQuestionType();
-    if (!QuestionType.supportsOptionScores(questionType)) {
-      return Optional.empty();
-    }
-    Path contextualizedPath = answerData.contextualizedPath();
-    if (questionType != QuestionType.CHECKBOX) {
-      return scoreData.readDouble(ApplicantData.scorePath(contextualizedPath));
-    }
-    return scoreData
-        .readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath))
-        // filter out questions with no scored options
-        .filter(scores -> scores.stream().anyMatch(Objects::nonNull))
-        .map(
-            scores ->
-                scores.stream().filter(Objects::nonNull).mapToDouble(Double::doubleValue).sum());
   }
 
   private byte[] buildApplicationPdf(
@@ -422,6 +338,89 @@ public final class PdfExporter {
       byteArrayOutputStream.close();
     }
     return byteArrayOutputStream.toByteArray();
+  }
+
+  /**
+   * Returns the answer text with persisted score annotations rendered inline with the option text
+   * they belong to: {@code optionText (Score: N)}, per selected option line for checkbox. Scores
+   * are read from the application snapshot by contextualized path; answers of unsupported types or
+   * with no persisted score keys render exactly as before.
+   */
+  private static String scoreAnnotatedAnswerText(AnswerData answerData, ApplicantData scoreData) {
+    String answerText = answerData.answerText();
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (questionType != QuestionType.CHECKBOX) {
+      return answerText;
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+
+    Optional<ImmutableList<Long>> selections =
+        scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+    Optional<java.util.List<Double>> scores =
+        scoreData.readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath));
+    if (selections.isEmpty() || scores.isEmpty()) {
+      return answerText;
+    }
+    if (selections.get().size() != scores.get().size()) {
+      // Corrupt metadata: render the answer without scores rather than mispairing values.
+      logger.warn(
+          "Score metadata length mismatch at {}: {} selections vs {} scores",
+          contextualizedPath,
+          selections.get().size(),
+          scores.get().size());
+      return answerText;
+    }
+    Map<Long, Double> scoreByOptionId = new HashMap<>();
+    for (int i = 0; i < selections.get().size(); i++) {
+      Double score = scores.get().get(i);
+      if (score != null) {
+        scoreByOptionId.putIfAbsent(selections.get().get(i), score);
+      }
+    }
+    // Rebuild the same option lines MultiSelectQuestion#getAnswerString joins (same source list,
+    // same localized text, same order), appending each scored option's suffix to its own line.
+    return answerData
+        .applicantQuestion()
+        .createMultiSelectQuestion()
+        .getSelectedOptionValues()
+        .map(
+            options ->
+                options.stream()
+                    .map(
+                        option -> {
+                          Double score = scoreByOptionId.get(option.id());
+                          return score == null
+                              ? option.optionText()
+                              : String.format(
+                                  "%s (Score: %s)",
+                                  option.optionText(), QuestionOption.formatScore(score));
+                        })
+                    .collect(Collectors.joining("\n")))
+        .orElse(answerText);
+  }
+
+  /**
+   * Returns the question's total score: the single option's score for non-checkbox questions, or
+   * the sum of all selected options' scores for checkbox questions. Empty when the question type
+   * doesn't support scoring or no score metadata is present.
+   */
+  private static Optional<Double> totalQuestionScore(
+      AnswerData answerData, ApplicantData scoreData) {
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (!QuestionType.supportsOptionScores(questionType)) {
+      return Optional.empty();
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+    if (questionType != QuestionType.CHECKBOX) {
+      return scoreData.readDouble(ApplicantData.scorePath(contextualizedPath));
+    }
+    return scoreData
+        .readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath))
+        // filter out checkbox questions with no scored options
+        .filter(scores -> scores.stream().anyMatch(Objects::nonNull))
+        .map(
+            scores ->
+                scores.stream().filter(Objects::nonNull).mapToDouble(Double::doubleValue).sum());
   }
 
   /**

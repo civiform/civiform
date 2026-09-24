@@ -27,9 +27,9 @@ public final class PdfExporterService {
    * <p>Used for applicants to download a copy of their submitted application and for program admins
    * to review applications.
    *
-   * @param includeScores whether the answer-option-scoring feature flag is on for this request;
-   *     score text renders only for admins when the application snapshot carries score metadata.
-   *     Applicant downloads always pass false.
+   * @param includeScores whether scores should be included on the downloaded PDF; score text
+   *     renders only for admins and TIs when the flag is enabled and the application snapshot
+   *     carries score metadata. Score text is not rendered for applicants.
    */
   public PdfExporter.InMemoryPdf generateApplicationPdf(
       ApplicationModel application, boolean isAdmin, boolean includeScores) {
