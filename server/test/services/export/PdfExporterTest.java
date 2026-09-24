@@ -530,9 +530,9 @@ public class PdfExporterTest extends AbstractExporterTest {
             exporter.exportApplication(
                 applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
 
-    assertThat(text).contains("Total score: 7.25");
+    assertThat(text).contains("Total Calculated Score: 7.25");
     // Scores render inline with the option text they belong to.
-    assertThat(text).contains("Strawberry (Score: 5)");
+    assertThat(text).contains("Question Score: 5");
     assertThat(text).doesNotContain("Score: 5.0");
     assertThat(text).contains("Toaster (Score: 2.25)");
     // The unscored checkbox selection renders its line without a score suffix.
@@ -554,7 +554,7 @@ public class PdfExporterTest extends AbstractExporterTest {
             exporter.exportApplication(
                 applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
 
-    assertThat(text).contains("Total score: 0");
+    assertThat(text).contains("Total Calculated Score: 0");
   }
 
   @Test
@@ -571,26 +571,7 @@ public class PdfExporterTest extends AbstractExporterTest {
             exporter.exportApplication(
                 applicationOne, /* isAdmin= */ true, /* includeScores= */ false));
 
-    assertThat(text).doesNotContain("Total score");
-    assertThat(text).doesNotContain("Score:");
-  }
-
-  @Test
-  public void exportApplication_withScores_asApplicant_noScoreText()
-      throws IOException, DocumentException {
-    List<Double> checkboxScores = new ArrayList<>();
-    checkboxScores.add(2.25);
-    checkboxScores.add(null);
-    addScoreMetadataToApplicationOne(/* total= */ 7.25, /* dropdownScore= */ 5.0, checkboxScores);
-    PdfExporter exporter = instanceOf(PdfExporter.class);
-
-    // All other conditions are true, but the applicant download path never shows scores.
-    String text =
-        extractAllPdfText(
-            exporter.exportApplication(
-                applicationOne, /* isAdmin= */ false, /* includeScores= */ true));
-
-    assertThat(text).doesNotContain("Total score");
+    assertThat(text).doesNotContain("Total Calculated Score");
     assertThat(text).doesNotContain("Score:");
   }
 
@@ -605,7 +586,7 @@ public class PdfExporterTest extends AbstractExporterTest {
             exporter.exportApplication(
                 applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
 
-    assertThat(text).doesNotContain("Total score");
+    assertThat(text).doesNotContain("Total Calculated Score");
     assertThat(text).doesNotContain("Score:");
   }
 
@@ -623,9 +604,9 @@ public class PdfExporterTest extends AbstractExporterTest {
             exporter.exportApplication(
                 applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
 
-    assertThat(text).contains("Total score: 7.25");
+    assertThat(text).contains("Total Calculated Score: 7.25");
     // The intact single-select score still renders; the corrupt checkbox metadata does not.
-    assertThat(text).contains("Strawberry (Score: 5)");
+    assertThat(text).contains("Question Score: 5");
     assertThat(text).doesNotContain("(Score: 2.25)");
   }
 

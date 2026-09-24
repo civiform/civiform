@@ -16,9 +16,6 @@ import com.itextpdf.text.FontFactory;
 import com.itextpdf.text.List;
 import com.itextpdf.text.ListItem;
 import com.itextpdf.text.Paragraph;
-import com.itextpdf.text.Rectangle;
-import com.itextpdf.text.pdf.PdfPCell;
-import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.text.pdf.draw.LineSeparator;
 import com.typesafe.config.Config;
@@ -242,6 +239,8 @@ public final class PdfExporter {
     }
     return scoreData
         .readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath))
+        // filter out questions with no scored options
+        .filter(scores -> scores.stream().anyMatch(Objects::nonNull))
         .map(
             scores ->
                 scores.stream().filter(Objects::nonNull).mapToDouble(Double::doubleValue).sum());
@@ -385,27 +384,17 @@ public final class PdfExporter {
           }
         }
 
-        PdfPTable row = new PdfPTable(2);
-        row.setWidthPercentage(100);
-        row.setWidths(new float[] {70, 30});
+        document.add(question);
+        document.add(answer);
+        document.add(time);
 
-        PdfPCell leftCell = new PdfPCell();
-        leftCell.setBorder(Rectangle.NO_BORDER);
-        leftCell.addElement(question);
-        leftCell.addElement(answer);
-
-        PdfPCell rightCell = new PdfPCell();
-        rightCell.setBorder(Rectangle.NO_BORDER);
-        rightCell.setHorizontalAlignment(Element.ALIGN_RIGHT);
-        rightCell.addElement(time);
-        questionScore.ifPresent(rightCell::addElement);
-        if (!eligibility.isEmpty()) {
-          rightCell.addElement(eligibility);
+        if (questionScore.isPresent()) {
+          document.add(questionScore.get());
         }
 
-        row.addCell(leftCell);
-        row.addCell(rightCell);
-        document.add(row);
+        if (!eligibility.isEmpty()) {
+          document.add(eligibility);
+        }
       }
       if (!answersOnlyHidden.isEmpty()) {
         document.add(Chunk.NEWLINE);
