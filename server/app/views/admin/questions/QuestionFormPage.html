@@ -99,7 +99,7 @@
                 <span
                   id="existing-image-filename"
                   class="font-mono font-bold"
-                  th:text="${model.existingImageFileName.orElse('')}"
+                  th:text="${model.getExistingImageFileName().orElse('')}"
                 ></span
                 >. Selecting a new file will replace it.
               </p>
