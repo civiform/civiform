@@ -125,7 +125,6 @@ export function init() {
     } else if (target.id === FILE_INPUT_ID && status === 200) {
       fileInput.setAttribute('data-has-existing-image', 'true')
       deleteButton?.classList.remove('hidden')
-      existingAlert?.classList.remove('hidden')
       syncAndValidate()
     }
   })
