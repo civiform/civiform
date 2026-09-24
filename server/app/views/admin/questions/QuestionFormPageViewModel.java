@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.io.FilenameUtils;
 import services.RandomStringUtils;
 import views.BaseViewModel;
 
@@ -114,7 +115,11 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   public Optional<String> getExistingImageFileKey() {
-    return existingImageFileKey;
+    return existingImageFileKey != null ? existingImageFileKey : Optional.empty();
+  }
+
+  public Optional<String> getExistingImageFileName() {
+    return getExistingImageFileKey().map(FilenameUtils::getName);
   }
 
   public String getQuestionImageDescription() {

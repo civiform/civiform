@@ -527,6 +527,7 @@ public final class QuestionFormPageMapperTest {
 
     assertThat(result.hasExistingImage()).isTrue();
     assertThat(result.getExistingImageFileKey()).contains("question-image/question-1/test.png");
+    assertThat(result.getExistingImageFileName()).contains("test.png");
     assertThat(result.getQuestionImageDescription()).isEqualTo("Alt text for image");
   }
 }

@@ -26,7 +26,7 @@ export class AdminQuestionImage {
   getExistingAlert() {
     return this.page
       .getByRole('alert')
-      .filter({hasText: 'A file is currently uploaded for this question.'})
+      .filter({hasText: 'A file is currently uploaded for this question'})
   }
 
   getUpdateButton() {
@@ -74,6 +74,10 @@ export class AdminQuestionImage {
 
   async expectHasExistingImageAlert() {
     await expect(this.getExistingAlert()).toBeVisible()
+  }
+
+  async expectExistingImageFileName(fileName: string) {
+    await expect(this.getExistingAlert()).toContainText(fileName)
   }
 
   async expectNoExistingImageAlert() {

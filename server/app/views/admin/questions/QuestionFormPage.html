@@ -95,8 +95,13 @@
           >
             <div class="usa-alert__body">
               <p class="usa-alert__text">
-                A file is currently uploaded for this question. Selecting a new
-                file will replace it.
+                A file is currently uploaded for this question:
+                <span
+                  id="existing-image-filename"
+                  class="font-mono font-bold"
+                  th:text="${model.existingImageFileName.orElse('')}"
+                ></span
+                >. Selecting a new file will replace it.
               </p>
             </div>
           </div>

@@ -70,6 +70,9 @@ test.describe('Admin can manage question image', () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
       await adminQuestionImage.expectDescription(altText)
       await adminQuestionImage.expectHasExistingImageAlert()
+      await adminQuestionImage.expectExistingImageFileName(
+        'program-summary-image-wide.png',
+      )
       await adminQuestionImage.expectDeleteButtonVisible()
       await adminQuestionImage.expectDropzoneEnabled()
     })
@@ -172,6 +175,9 @@ test.describe('Admin can manage question image', () => {
         'true',
       )
       await adminQuestionImage.expectHasExistingImageAlert()
+      await adminQuestionImage.expectExistingImageFileName(
+        'program-summary-image-wide.png',
+      )
       await adminQuestionImage.expectDeleteButtonVisible()
       await adminQuestionImage.expectDropzoneEnabled()
     })
