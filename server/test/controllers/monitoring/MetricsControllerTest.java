@@ -157,14 +157,16 @@ public class MetricsControllerTest extends WithMockedProfiles {
   /**
    * The family names a dashboard metric name could belong to. Histogram and summary samples carry
    * {@code _bucket}, {@code _count} and {@code _sum} suffixes that do not appear on the family's
-   * {@code # TYPE} line, and a labeled family emits no sample lines at all until first observed, so
-   * matching on the family rather than the sample name is what makes this check independent of
-   * whether anything has been observed yet.
+   * {@code # TYPE} line. Counter samples carry {@code _total}; simpleclient's text format keeps it
+   * on the {@code # TYPE} line but OpenMetrics and the 1.x client drop it, so it is stripped too. A
+   * labeled family emits no sample lines at all until first observed, so matching on the family
+   * rather than the sample name is what makes this check independent of whether anything has been
+   * observed yet.
    */
   private static ImmutableSet<String> familyCandidates(String name) {
     ImmutableSet.Builder<String> candidates = ImmutableSet.builder();
     candidates.add(name);
-    for (String suffix : ImmutableList.of("_bucket", "_count", "_sum")) {
+    for (String suffix : ImmutableList.of("_bucket", "_count", "_sum", "_total")) {
       if (name.endsWith(suffix)) {
         candidates.add(name.substring(0, name.length() - suffix.length()));
       }
