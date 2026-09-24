@@ -250,7 +250,7 @@ public final class PdfExporter {
         } else {
           String answerText =
               scoreData.isPresent()
-                  ? scoreAnnotatedAnswerText(answerData, scoreData.get())
+                  ? addCheckboxOptionScores(answerData, scoreData.get())
                   : answerData.answerText();
           answer = new Paragraph(answerText, FontFactory.getFont(FontFactory.HELVETICA, 11));
         }
@@ -341,12 +341,11 @@ public final class PdfExporter {
   }
 
   /**
-   * Returns the answer text with persisted score annotations rendered inline with the option text
-   * they belong to: {@code optionText (Score: N)}, per selected option line for checkbox. Scores
-   * are read from the application snapshot by contextualized path; answers of unsupported types or
-   * with no persisted score keys render exactly as before.
+   * Returns the answer text for checkbox type questions with persisted score annotations rendered
+   * inline with the option text they belong to: {@code optionText (Score: N)}. Scores are read from
+   * the application snapshot by contextualized path.
    */
-  private static String scoreAnnotatedAnswerText(AnswerData answerData, ApplicantData scoreData) {
+  private static String addCheckboxOptionScores(AnswerData answerData, ApplicantData scoreData) {
     String answerText = answerData.answerText();
     QuestionType questionType = answerData.questionDefinition().getQuestionType();
     if (questionType != QuestionType.CHECKBOX) {
