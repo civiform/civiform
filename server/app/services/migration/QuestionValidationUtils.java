@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import services.CiviFormError;
 import services.program.ProgramDefinition;
+import services.question.QuestionOption;
 import services.question.YesNoQuestionOption;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
@@ -100,6 +101,71 @@ final class QuestionValidationUtils {
                             yesNoQuestion.getName(), missingOption)));
 
     return Stream.concat(invalidOptionErrors, missingRequiredErrors);
+  }
+
+  /**
+   * Validates option scores on multi-option questions. A question with any scored option must have
+   * a score for every option, the question type must support scores (YES_NO does not), and scores
+   * must be finite. Scores are validated regardless of the program's usesScoring setting or the
+   * feature flag; they are stored and stay inert until scoring is on.
+   */
+  static ImmutableSet<CiviFormError> validateOptionScores(
+      ImmutableList<QuestionDefinition> questions) {
+    return questions.stream()
+        .filter(question -> question.getQuestionType().isMultiOptionType())
+        .map(question -> (MultiOptionQuestionDefinition) question)
+        .flatMap(QuestionValidationUtils::validateSingleQuestionScores)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  private static Stream<CiviFormError> validateSingleQuestionScores(
+      MultiOptionQuestionDefinition question) {
+    ImmutableList<QuestionOption> scoredOptions =
+        question.getOptions().stream()
+            .filter(option -> option.score().isPresent())
+            .collect(ImmutableList.toImmutableList());
+    if (scoredOptions.isEmpty()) {
+      return Stream.empty();
+    }
+
+    Stream.Builder<CiviFormError> errors = Stream.builder();
+
+    if (!QuestionType.supportsOptionScores(question.getQuestionType())) {
+      scoredOptions.forEach(
+          option ->
+              errors.add(
+                  CiviFormError.of(
+                      String.format(
+                          "Question '%s' of type %s cannot have a score on option '%s'.",
+                          question.getName(), question.getQuestionType(), option.adminName()))));
+    }
+
+    ImmutableList<String> unscoredOptionNames =
+        question.getOptions().stream()
+            .filter(option -> option.score().isEmpty())
+            .map(QuestionOption::adminName)
+            .collect(ImmutableList.toImmutableList());
+    if (!unscoredOptionNames.isEmpty()) {
+      errors.add(
+          CiviFormError.of(
+              String.format(
+                  "Question '%s' must have a score on every option or on none. Options missing a"
+                      + " score: '%s'.",
+                  question.getName(), String.join("', '", unscoredOptionNames))));
+    }
+
+    scoredOptions.stream()
+        .filter(option -> !Double.isFinite(option.score().get()))
+        .forEach(
+            option ->
+                errors.add(
+                    CiviFormError.of(
+                        String.format(
+                            "Option score on option '%s' of question '%s' must be a finite"
+                                + " number.",
+                            option.adminName(), question.getName()))));
+
+    return errors.build();
   }
 
   /**

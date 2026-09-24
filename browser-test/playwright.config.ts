@@ -15,7 +15,11 @@ export default defineConfig({
   forbidOnly: !!process.env.CI,
   snapshotPathTemplate: './image_snapshots/{arg}{ext}',
   globalSetup: './src/setup/global-setup.ts',
-  fullyParallel: false,
+  // Test-level sharding: individual tests are distributed across CI shards instead of whole
+  // files, which evens out per-shard test counts (measured 60-129 per shard with file-level
+  // sharding). This does NOT run tests concurrently within a shard: workers stays at 1 because
+  // the tests share database state that is wiped between tests.
+  fullyParallel: true,
   workers: 1,
   retries: process.env.CI === 'true' ? 1 : 0,
   outputDir: './tmp/test-output',

@@ -5,11 +5,16 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.jayway.jsonpath.DocumentContext;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
@@ -22,14 +27,18 @@ import services.DateConverter;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicationScores;
 import services.applicant.JsonPathProvider;
 import services.applicant.question.ApplicantQuestion;
+import services.applicant.question.Scalar;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.pagination.PaginationResult;
 import services.pagination.SubmitTimeSequentialAccessPaginationSpec;
 import services.program.ProgramDefinition;
 import services.program.ProgramService;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Exports all applications for a given program as JSON. */
@@ -60,17 +69,19 @@ public final class JsonExporterService {
    * @param programDefinition the program definition of the exported application
    * @param paginationSpec the pagination behavior
    * @param filters the filters to apply
+   * @param scoringEnabled whether the answer-option-scoring feature flag is on for this request
    * @return a JSON string representing a list of applications
    */
   public String export(
       ProgramDefinition programDefinition,
       SubmitTimeSequentialAccessPaginationSpec paginationSpec,
-      SubmittedApplicationFilter filters) {
+      SubmittedApplicationFilter filters,
+      boolean scoringEnabled) {
     PaginationResult<ApplicationModel> paginationResult =
         programService.getSubmittedProgramApplicationsAllVersions(
             programDefinition.id(), paginationSpec, filters);
 
-    return exportPage(programDefinition, paginationResult);
+    return exportPage(programDefinition, paginationResult, scoringEnabled);
   }
 
   /**
@@ -79,10 +90,15 @@ public final class JsonExporterService {
    *
    * @param programDefinition the program definition of the exported applications
    * @param paginationResult the page of applications to export
+   * @param scoringEnabled whether the answer-option-scoring feature flag is on for this request
    * @return a JSON string representing a list of applications
    */
   public String exportPage(
-      ProgramDefinition programDefinition, PaginationResult<ApplicationModel> paginationResult) {
+      ProgramDefinition programDefinition,
+      PaginationResult<ApplicationModel> paginationResult,
+      boolean scoringEnabled) {
+    // Score properties require both the feature flag and the program opting into scoring.
+    boolean includeScores = scoringEnabled && programDefinition.usesScoring();
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
@@ -104,6 +120,10 @@ public final class JsonExporterService {
           .forEach(aq -> answersToExport.putIfAbsent(aq.getContextualizedPath(), aq));
     }
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
+    // Multi-select "scores" is null when the application wasn't scored and [] when it was, so
+    // there's no one value the template can hold. Collect the paths here and set the right starting
+    // value per application, then the persisted scores get written on top.
+    Set<Path> templateMultiSelectScoreApiPaths = new HashSet<>();
     for (ApplicantQuestion applicantQuestion : answersToExport.values()) {
       // We suppress the unchecked warning because create() returns a genericized
       // QuestionJsonPresenter, but we ignore the generic's type so that we can get
@@ -114,6 +134,16 @@ public final class JsonExporterService {
               .create(applicantQuestion.getType())
               .getAllJsonEntries(applicantQuestion.getQuestion());
       entriesBuilder.putAll(questionEntries);
+      if (includeScores && QuestionType.supportsOptionScores(applicantQuestion.getType())) {
+        Path apiPath = applicantQuestion.getContextualizedPath().asNestedEntitiesPath();
+        if (applicantQuestion.getType().isMultiSelectType()) {
+          Path scoresApiPath = apiPath.join(Scalar.SCORES);
+          entriesBuilder.put(scoresApiPath, Optional.empty());
+          templateMultiSelectScoreApiPaths.add(scoresApiPath.asApplicationPath());
+        } else {
+          entriesBuilder.put(apiPath.join(Scalar.SCORE), Optional.empty());
+        }
+      }
     }
     CfJsonDocumentContext template = new CfJsonDocumentContext();
     exportApplicationEntriesToJsonApplication(template, entriesBuilder.build());
@@ -121,6 +151,8 @@ public final class JsonExporterService {
     // a JsonData for each application, is more or less efficient than trying to clone a JsonData
     // object.
     String jsonStringTemplate = template.asJsonString();
+    ImmutableSet<Path> multiSelectScoreApiPaths =
+        ImmutableSet.copyOf(templateMultiSelectScoreApiPaths);
 
     // Then use the template when exporting each application.
     DocumentContext jsonData =
@@ -128,13 +160,18 @@ public final class JsonExporterService {
             .map(
                 app ->
                     buildApplicationExportData(
-                        app, programDefinitionsForAllVersions.get(app.getProgram().id)))
+                        app,
+                        programDefinitionsForAllVersions.get(app.getProgram().id),
+                        includeScores))
             .collect(
                 Collectors.collectingAndThen(
                     ImmutableList.toImmutableList(),
                     appDataList ->
                         convertApplicationExportDataListToJsonArray(
-                            appDataList, jsonStringTemplate)));
+                            appDataList,
+                            jsonStringTemplate,
+                            includeScores,
+                            multiSelectScoreApiPaths)));
 
     return jsonData.jsonString();
   }
@@ -146,13 +183,17 @@ public final class JsonExporterService {
    * @return the exported applications, as a JSON array
    */
   public DocumentContext convertApplicationExportDataListToJsonArray(
-      ImmutableList<ApplicationExportData> applicationExportDataList, String jsonTemplate) {
+      ImmutableList<ApplicationExportData> applicationExportDataList,
+      String jsonTemplate,
+      boolean includeScores,
+      ImmutableSet<Path> multiSelectScoreApiPaths) {
     DocumentContext applications = makeEmptyJsonArray();
     applicationExportDataList.forEach(
         applicationExportData -> {
           applications.add(
               "$",
-              convertExportDataToJson(applicationExportData, jsonTemplate)
+              convertExportDataToJson(
+                      applicationExportData, jsonTemplate, includeScores, multiSelectScoreApiPaths)
                   .getDocumentContext()
                   .json());
         });
@@ -160,7 +201,13 @@ public final class JsonExporterService {
   }
 
   private ApplicationExportData buildApplicationExportData(
-      ApplicationModel application, ProgramDefinition programDefinition) {
+      ApplicationModel application, ProgramDefinition programDefinition, boolean includeScores) {
+    // Score values come only from the snapshot's persisted metadata, never re-resolved from current
+    // question versions, so exports stay stable across later score edits.
+    ApplicantData snapshot = application.getApplicantData();
+    Optional<Double> totalScore =
+        includeScores ? snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH) : Optional.empty();
+
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
         .getReadOnlyApplicantProgramService(application, programDefinition)
@@ -175,9 +222,13 @@ public final class JsonExporterService {
               ImmutableMap<Path, Optional<?>> questionEntries =
                   presenterFactory.create(aq.getType()).getAllJsonEntries(aq.getQuestion());
               entriesBuilder.putAll(questionEntries);
+              if (includeScores) {
+                entriesBuilder.putAll(buildScoreEntries(aq, snapshot, totalScore));
+              }
             });
 
     return ApplicationExportData.builder()
+        .setTotalScore(totalScore)
         .setAdminName(programDefinition.adminName())
         .setApplicantId(application.getOriginalApplicantId().orElse(application.getApplicant().id))
         .setApplicationId(application.id)
@@ -212,9 +263,79 @@ public final class JsonExporterService {
         .build();
   }
 
+  /**
+   * Builds the {@code score}/{@code scores} entries for a supported-type question from persisted
+   * snapshot metadata, centrally rather than in each {@link QuestionJsonPresenter}.
+   */
+  private static ImmutableMap<Path, Optional<?>> buildScoreEntries(
+      ApplicantQuestion applicantQuestion, ApplicantData snapshot, Optional<Double> totalScore) {
+    if (!QuestionType.supportsOptionScores(applicantQuestion.getType())) {
+      return ImmutableMap.of();
+    }
+    Path contextualizedPath = applicantQuestion.getContextualizedPath();
+    Path apiPath = contextualizedPath.asNestedEntitiesPath();
+    if (!applicantQuestion.getType().isMultiSelectType()) {
+      // Unanswered, unscored option, and scoring-not-applied all read as absent and emit null.
+      return ImmutableMap.of(apiPath.join(Scalar.SCORE), snapshot.readScore(contextualizedPath));
+    }
+
+    Path scoresApiPath = apiPath.join(Scalar.SCORES);
+    if (totalScore.isEmpty()) {
+      // Scoring was not applied to this application: null.
+      return ImmutableMap.of(scoresApiPath, Optional.empty());
+    }
+    Optional<ImmutableList<Long>> selections =
+        snapshot.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+    Optional<ImmutableList<Optional<Double>>> storedScores =
+        snapshot.readScores(contextualizedPath);
+    if (selections.isEmpty()
+        || storedScores.isEmpty()
+        || selections.get().size() != storedScores.get().size()) {
+      // Scoring applied but unanswered (or corrupt metadata): empty array.
+      return ImmutableMap.of(scoresApiPath, Optional.of(new ArrayList<Double>()));
+    }
+    // Pair the unchanged stored selection ids with the persisted scores (first occurrence wins),
+    // then emit in the same definition order and duplicate-filtering as the selections presenter.
+    Map<Long, Double> scoreByOptionId = new HashMap<>();
+    for (int i = 0; i < selections.get().size(); i++) {
+      Optional<Double> score = storedScores.get().get(i);
+      if (score.isPresent()) {
+        scoreByOptionId.putIfAbsent(selections.get().get(i), score.get());
+      }
+    }
+    ImmutableList<Long> selectedIds = selections.get();
+    List<Double> emittedScores = new ArrayList<>();
+    ((MultiOptionQuestionDefinition) applicantQuestion.getQuestionDefinition())
+        .getOptions().stream()
+            .filter(option -> selectedIds.contains(option.id()))
+            .map(QuestionOption::id)
+            .forEach(optionId -> emittedScores.add(scoreByOptionId.get(optionId)));
+    return ImmutableMap.of(scoresApiPath, Optional.of(emittedScores));
+  }
+
   private CfJsonDocumentContext convertExportDataToJson(
-      ApplicationExportData applicationExportData, String jsonTemplate) {
+      ApplicationExportData applicationExportData,
+      String jsonTemplate,
+      boolean includeScores,
+      ImmutableSet<Path> multiSelectScoreApiPaths) {
     CfJsonDocumentContext jsonApplication = new CfJsonDocumentContext(jsonTemplate);
+
+    if (includeScores) {
+      // Initialize every multi-select scores property for this application: null when scoring was
+      // not applied, [] when it was; persisted values overlay below.
+      for (Path scoresApiPath : multiSelectScoreApiPaths) {
+        if (applicationExportData.totalScore().isPresent()) {
+          jsonApplication.putArray(scoresApiPath, ImmutableList.of());
+        } else {
+          jsonApplication.putNull(scoresApiPath);
+        }
+      }
+      applicationExportData
+          .totalScore()
+          .ifPresentOrElse(
+              total -> jsonApplication.putDouble(ApplicationScores.TOTAL_SCORE_PATH, total),
+              () -> jsonApplication.putNull(ApplicationScores.TOTAL_SCORE_PATH));
+    }
 
     jsonApplication.putString(Path.create("program_name"), applicationExportData.adminName());
     jsonApplication.putLong(Path.create("program_version_id"), applicationExportData.programId());
@@ -282,6 +403,10 @@ public final class JsonExporterService {
         jsonApplication.putLong(path, l);
       } else if (maybeJsonValue.get() instanceof Double d) {
         jsonApplication.putDouble(path, d);
+      } else if (maybeJsonValue.get() instanceof ArrayList<?> nullableList) {
+        // Answer-option score arrays may contain nulls, which ImmutableList rejects, so they are
+        // built as plain ArrayLists and written with null positions preserved.
+        jsonApplication.putArray(path, nullableList);
       } else if (instanceOfNonEmptyImmutableListOfString(maybeJsonValue.get())) {
         @SuppressWarnings("unchecked")
         ImmutableList<String> list = (ImmutableList<String>) maybeJsonValue.get();
@@ -356,6 +481,8 @@ public final class JsonExporterService {
 
     public abstract RevisionState revisionState();
 
+    public abstract Optional<Double> totalScore();
+
     public abstract ImmutableMap<Path, Optional<?>> applicationEntries();
 
     static Builder builder() {
@@ -392,6 +519,8 @@ public final class JsonExporterService {
       public abstract Builder setApplicationNote(Optional<String> applicationNote);
 
       public abstract Builder setRevisionState(RevisionState revisionState);
+
+      public abstract Builder setTotalScore(Optional<Double> totalScore);
 
       abstract ImmutableMap.Builder<Path, Optional<?>> applicationEntriesBuilder();
 
