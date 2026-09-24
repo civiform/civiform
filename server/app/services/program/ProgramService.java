@@ -712,9 +712,7 @@ public final class ProgramService {
     return !localizedStrings.maybeGet(locale).filter(s -> !s.isEmpty()).isPresent();
   }
 
-  // Pass the already-loaded service instead of re-fetching
-  public boolean isTranslationComplete(
-      ProgramDefinition programDefinition, ReadOnlyQuestionService questionService)
+  public boolean isTranslationComplete(ProgramDefinition programDefinition)
       throws ProgramNotFoundException {
     ImmutableList<Locale> supportedLanguages = translationLocales.translatableLocales();
 
@@ -759,7 +757,7 @@ public final class ProgramService {
         }
         for (ProgramQuestionDefinition question : block.programQuestionDefinitions()) {
           if (!question.hasQuestionDefinition()
-              || !this.questionService.isTranslationComplete(
+              || !questionService.isTranslationComplete(
                   translationLocales, question.getQuestionDefinition())) {
             return false;
           }
