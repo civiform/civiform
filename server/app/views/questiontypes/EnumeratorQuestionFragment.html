@@ -31,7 +31,7 @@
         th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
                  rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
                  rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
-                 rowIndexString=${' #' + iterator.count},
+                 rowNumber=${iterator.count},
                  rowAriaLabelledby=${iterator.first ? questionId + '-title ' + rowLabelId : null},
                  rowAriaDescribedby=${iterator.first ? questionId + '-description' : null}"
       >
@@ -41,7 +41,7 @@
             th:replace="~{this :: initialQuestionEntityRowMultipleInput(
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               isFirstEntity=${iterator.first},
               inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
                 ${initialQForEntity},
@@ -53,7 +53,7 @@
             th:replace="~{this :: initialQuestionEntityRowMultipleInput(
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               isFirstEntity=${iterator.first},
               inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
                 ${initialQForEntity},
@@ -65,7 +65,7 @@
             th:replace="~{this :: initialQuestionEntityRowMultipleInput(
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               isFirstEntity=${iterator.first},
               inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
                 ${initialQForEntity},
@@ -80,7 +80,7 @@
             th:replace="~{this :: initialQuestionEntityRowMultipleInput(
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               isFirstEntity=${iterator.first},
               inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
                 ${initialQForEntity},
@@ -94,7 +94,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -109,7 +109,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -124,7 +124,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -139,7 +139,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -156,7 +156,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -171,7 +171,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -186,7 +186,7 @@
               fieldId=${rowFieldId},
               labelId=${rowLabelId},
               inputId=${rowInputId},
-              indexString=${rowIndexString},
+              rowNumber=${rowNumber},
               inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
                 ${initialQForEntity},
                 ${initialQuestionRendererParams},
@@ -277,7 +277,7 @@
      expression (e.g. ~{NameQuestionFragment :: nameForInitialQuestion(...)}) that renders the
      question-type-specific inputs. */-->
 <div
-  th:fragment="initialQuestionEntityRowMultipleInput(fieldId, labelId, indexString, isFirstEntity, inputContent)"
+  th:fragment="initialQuestionEntityRowMultipleInput(fieldId, labelId, rowNumber, isFirstEntity, inputContent)"
   role="group"
   class="maxw-mobile-lg"
   th:id="${fieldId}"
@@ -287,7 +287,7 @@
   <div
     th:id="${labelId}"
     class="usa-legend"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
   <!--/* TODO(#13397): Wire up the delete button. It is inert for now. */-->
@@ -295,7 +295,7 @@
     <button
       type="button"
       class="usa-button--unstyled"
-      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
     ></button>
   </div>
 </div>
@@ -304,7 +304,7 @@
      its own "<entity type> #N" label, and the first entity's input references the
      enumerator title/help via aria-labelledby/aria-describedby. */-->
 <div
-  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, indexString, inputContent)"
+  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, inputContent)"
   class="cf-applicant-question-field maxw-mobile-lg"
   th:id="${fieldId}"
 >
@@ -312,7 +312,7 @@
     th:id="${labelId}"
     class="usa-label"
     th:for="${inputId}"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
   <!--/* TODO(#13397): Wire up the delete button. It is inert for now. */-->
@@ -320,7 +320,7 @@
     <button
       type="button"
       class="usa-button--unstyled"
-      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
     ></button>
   </div>
 </div>

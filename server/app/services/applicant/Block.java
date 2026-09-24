@@ -153,12 +153,12 @@ public final class Block {
                     .findFirst()
                     .orElseThrow(
                         () ->
-                            new RuntimeException(
+                            new IllegalStateException(
                                 "Enumerator block does not contain an enumerator question.")));
       }
       return enumeratorQuestion.get();
     }
-    throw new RuntimeException(
+    throw new IllegalStateException(
         "Only an enumerator block can have an enumeration question definition.");
   }
 
@@ -199,34 +199,33 @@ public final class Block {
    * <p>Returns an empty list when there is no initial question.
    */
   public ImmutableList<ApplicantQuestion> getContextualizedInitialQuestions() {
-    return getInitialQuestion()
-        .map(
-            initialQuestion -> {
-              ApplicantQuestion enumeratorApplicantQuestion = getEnumeratorQuestion();
-              EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-                  (EnumeratorQuestionDefinition)
-                      enumeratorApplicantQuestion.getQuestionDefinition();
-              ImmutableList<String> entityNames =
-                  enumeratorApplicantQuestion.createEnumeratorQuestion().getEntityNames();
-              if (entityNames.isEmpty()) {
-                return ImmutableList.of(
-                    createContextualizedInitialQuestionAtIndex(
-                        initialQuestion,
-                        enumeratorQuestionDefinition,
-                        /* entityName= */ "",
-                        /* entityIndex= */ 0));
-              }
-              return IntStream.range(0, entityNames.size())
-                  .mapToObj(
-                      index ->
-                          createContextualizedInitialQuestionAtIndex(
-                              initialQuestion,
-                              enumeratorQuestionDefinition,
-                              entityNames.get(index),
-                              index))
-                  .collect(toImmutableList());
-            })
-        .orElse(ImmutableList.of());
+    Optional<ApplicantQuestion> maybeInitialQuestion = getInitialQuestion();
+    if (maybeInitialQuestion.isEmpty()) {
+      return ImmutableList.of();
+    }
+    ApplicantQuestion initialQuestion = maybeInitialQuestion.get();
+
+    ApplicantQuestion enumeratorApplicantQuestion = getEnumeratorQuestion();
+    EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+        (EnumeratorQuestionDefinition) enumeratorApplicantQuestion.getQuestionDefinition();
+    ImmutableList<String> entityNames =
+        enumeratorApplicantQuestion.createEnumeratorQuestion().getEntityNames();
+
+    if (entityNames.isEmpty()) {
+      return ImmutableList.of(
+          createContextualizedInitialQuestionAtIndex(
+              initialQuestion,
+              enumeratorQuestionDefinition,
+              /* entityName= */ "",
+              /* entityIndex= */ 0));
+    }
+
+    return IntStream.range(0, entityNames.size())
+        .mapToObj(
+            index ->
+                createContextualizedInitialQuestionAtIndex(
+                    initialQuestion, enumeratorQuestionDefinition, entityNames.get(index), index))
+        .collect(toImmutableList());
   }
 
   /**

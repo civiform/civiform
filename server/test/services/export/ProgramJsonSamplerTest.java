@@ -91,7 +91,7 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     String json = programJsonSampler.getSampleJson(programDefinition);
 
     String expectedJson =
-        """
+"""
 {
   "nextPageToken" : null,
   "payload" : [ {
@@ -188,7 +188,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     "ti_email" : null,
     "ti_organization" : null
   } ]
-}""";
+}\
+""";
 
     assertThat(asPrettyJsonString(json)).isEqualTo(expectedJson);
   }

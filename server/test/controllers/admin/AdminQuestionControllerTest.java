@@ -561,10 +561,12 @@ public class AdminQuestionControllerTest extends ResetPostgres {
             .toCompletableFuture()
             .join()
             .get();
-    // The edit went through...
+
+    // Verify the description has been updated
     assertThat(updatedEnumerator.getQuestionDefinition().getDescription())
         .isEqualTo("a new description");
-    // ...and the initial-question link survived it.
+
+    // Verify the initial question link is maintained
     assertThat(updatedEnumerator.getQuestionDefinition().getEnumeratorInitialQuestionId())
         .hasValue(initialQuestion.id);
   }

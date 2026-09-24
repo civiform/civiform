@@ -75,7 +75,7 @@ public class OpenApi3SchemaGeneratorTest {
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -278,7 +278,7 @@ components:
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -834,7 +834,7 @@ components:
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -932,7 +932,8 @@ components:
                 properties:
 """
             + data.questionSchema()
-            + """
+            +
+"""
               application_id:
                 type: integer
                 format: int32

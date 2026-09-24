@@ -75,7 +75,7 @@ public class Swagger2SchemaGeneratorTest {
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 ---
 swagger: "2.0"
 info:
@@ -274,7 +274,7 @@ definitions:
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 ---
 swagger: "2.0"
 info:
@@ -581,7 +581,7 @@ definitions:
     return ImmutableList.of(
         new Data(
             QuestionType.ADDRESS,
-            """
+"""
                 sample_address_question:
                   type: "object"
                   properties:
@@ -610,7 +610,7 @@ definitions:
 """),
         new Data(
             QuestionType.CHECKBOX,
-            """
+"""
                 sample_checkbox_question:
                   type: "object"
                   properties:
@@ -826,7 +826,7 @@ definitions:
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 ---
 swagger: "2.0"
 info:
@@ -927,7 +927,8 @@ definitions:
               properties:
 """
             + data.questionSchema()
-            + """
+            +
+"""
             application_id:
               type: "integer"
               format: "int32"

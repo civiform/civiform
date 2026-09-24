@@ -563,6 +563,16 @@ public class BlockTest {
   }
 
   @Test
+  public void getEnumeratorQuestion_withInitialQuestionPresent_returnsEnumerator() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getEnumeratorQuestion().getQuestionDefinition().getId())
+        .isEqualTo(ENUMERATOR_QUESTION_ID);
+  }
+
+  @Test
   public void isFileUpload_isTrue() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition =
@@ -1422,16 +1432,6 @@ public class BlockTest {
             .collect(ImmutableList.toImmutableList());
 
     assertThat(visibleQuestionIds).containsExactly(ENUMERATOR_QUESTION_ID);
-  }
-
-  @Test
-  public void getEnumeratorQuestion_withInitialQuestionPresent_returnsEnumerator() {
-    Block block =
-        makeUnrepeatedBlock(
-            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
-
-    assertThat(block.getEnumeratorQuestion().getQuestionDefinition().getId())
-        .isEqualTo(ENUMERATOR_QUESTION_ID);
   }
 
   @Test

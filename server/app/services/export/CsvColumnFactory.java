@@ -70,8 +70,8 @@ final class CsvColumnFactory {
       case DROPDOWN, RADIO_BUTTON, YES_NO ->
           buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
       case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
-        // Enumerator questions themselves are not included in the CSV, but their repeated questions
-        // are.
+      // Enumerator questions themselves are not included in the CSV, but their repeated questions
+      // are.
       case ENUMERATOR -> Stream.empty();
       case FILEUPLOAD ->
           buildColumnsForFileUploadQuestion(aq.createFileUploadQuestion(), columnType);
@@ -80,8 +80,8 @@ final class CsvColumnFactory {
       case NAME -> buildColumnsForNameQuestion(aq.createNameQuestion(), columnType);
       case NUMBER -> buildColumnsForNumberQuestion(aq.createNumberQuestion(), columnType);
       case PHONE -> buildColumnsForPhoneQuestion(aq.createPhoneQuestion(), columnType);
-        // Static content questions are not included in CSV because they do not include an answer
-        // from the user.
+      // Static content questions are not included in CSV because they do not include an answer
+      // from the user.
       case STATIC -> Stream.empty();
       case TEXT -> buildColumnsForTextQuestion(aq.createTextQuestion(), columnType);
       default ->

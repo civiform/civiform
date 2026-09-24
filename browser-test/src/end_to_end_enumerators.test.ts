@@ -1415,6 +1415,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           firstEntity.getByRole('textbox', {name: 'First name'}),
         ).toBeVisible()
+        // Exactly one First name field renders: the initial question is shown only in the entity
+        // row, not also as a standalone question.
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveCount(1)
         await expect(
           firstEntity.getByRole('textbox', {name: 'Last name'}),
         ).toBeVisible()

@@ -27,7 +27,7 @@
 </div>
 
 <!--/* Phone question rendered as an enumerator's initial question inside an entity row: no title/help
-     (the entity row supplies the "<entity type> #N" label), and the caller passes
+     (the entity row supplies its own row-specific label), and the caller passes
      aria-labelledby/aria-describedby so the first entity announces the enumerator title/help. */-->
 <div
   th:fragment="phoneForInitialQuestion(question, questionRendererParams, inputId, ariaLabelledby, ariaDescribedby)"
@@ -77,7 +77,7 @@
       th:name="${phoneQuestion.getPhoneNumberPath()}"
       th:value="${phoneQuestion.getPhoneNumberValue().orElse('')}"
       placeholder="(xxx) xxx-xxxx"
-      th:aria-labelledby="${isInitialQuestion ? ariaLabelledby : null}"
+      th:aria-labelledby="${isInitialQuestion ? ariaLabelledby}"
       th:aria-describedby="${isInitialQuestion ? ariaDescribedby : questionId + '-description' + (hasErrors ? ' ' + questionId + '-error' : '')}"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"
