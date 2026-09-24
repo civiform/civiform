@@ -3,12 +3,16 @@ package services.export;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
+import java.math.BigDecimal;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -34,6 +38,8 @@ import services.applicant.question.TextQuestion;
 import services.export.enums.ColumnType;
 import services.export.enums.MultiOptionSelectionExportType;
 import services.question.LocalizedQuestionOption;
+import services.question.QuestionOption;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.settings.SettingsManifest;
 
@@ -60,15 +66,19 @@ final class CsvColumnFactory {
     this.exportServiceRepository = checkNotNull(exportServiceRepository);
   }
 
-  Stream<Column> buildColumns(ApplicantQuestion aq, ColumnType columnType) {
+  Stream<Column> buildColumns(
+      ApplicantQuestion aq, ColumnType columnType, boolean includeScoreColumns) {
+    boolean scoreColumn = includeScoreColumns && QuestionType.supportsOptionScores(aq.getType());
     return switch (aq.getType()) {
       case ADDRESS -> buildColumnsForAddressQuestion(aq.createAddressQuestion(), columnType);
       case CHECKBOX ->
-          buildColumnsForMultiSelectQuestion(aq.createMultiSelectQuestion(), columnType);
+          buildColumnsForMultiSelectQuestion(
+              aq.createMultiSelectQuestion(), columnType, scoreColumn);
       case CURRENCY -> buildColumnsForCurrencyQuestion(aq.createCurrencyQuestion(), columnType);
       case DATE -> buildColumnsForDateQuestion(aq.createDateQuestion(), columnType);
       case DROPDOWN, RADIO_BUTTON, YES_NO ->
-          buildColumnsForSingleSelectQuestion(aq.createSingleSelectQuestion(), columnType);
+          buildColumnsForSingleSelectQuestion(
+              aq.createSingleSelectQuestion(), columnType, scoreColumn);
       case EMAIL -> buildColumnsForEmailQuestion(aq.createEmailQuestion(), columnType);
       // Enumerator questions themselves are not included in the CSV, but their repeated questions
       // are.
@@ -251,7 +261,7 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForMultiSelectQuestion(
-      MultiSelectQuestion q, ColumnType columnType) {
+      MultiSelectQuestion q, ColumnType columnType, boolean includeScoreColumns) {
     // We only build columns once per unique contextualized question path, so for regular questions
     // this query should only be run once per question.
     // For a repeated multi-select question, which has a unique contextualized path for each
@@ -260,19 +270,118 @@ final class CsvColumnFactory {
     // To fix this we could add a short-lived cache to store the options for each multi-option
     // question, but it should only last for the lifecycle of the export request to avoid it getting
     // stale when the multi-select question is modified.
-    return exportServiceRepository
-        .getAllHistoricMultiOptionAdminNames(q.getQuestionDefinition())
-        .stream()
-        .map(
-            option ->
-                Column.builder()
-                    .setColumnType(columnType)
-                    .setHeader(CsvColumnFactory.formatHeader(q.getSelectionPath(), option))
-                    .setQuestionPath(q.getContextualizedPath())
-                    .setAnswerExtractor(
-                        msq ->
-                            getMultiSelectQuestionAnswerForCsv((MultiSelectQuestion) msq, option))
-                    .build());
+    ImmutableList<String> options =
+        exportServiceRepository.getAllHistoricMultiOptionAdminNames(q.getQuestionDefinition());
+
+    Stream<Column> selectionColumns =
+        options.stream()
+            .map(
+                option ->
+                    Column.builder()
+                        .setColumnType(columnType)
+                        .setHeader(CsvColumnFactory.formatHeader(q.getSelectionPath(), option))
+                        .setQuestionPath(q.getContextualizedPath())
+                        .setAnswerExtractor(
+                            msq ->
+                                getMultiSelectQuestionAnswerForCsv(
+                                    (MultiSelectQuestion) msq, option))
+                        .build());
+    if (!includeScoreColumns) {
+      return selectionColumns;
+    }
+
+    // After the per-option selection columns: one score column per option, in the same option
+    // order, then the question's subtotal.
+    Stream<Column> optionScoreColumns =
+        options.stream().map(option -> buildMultiSelectOptionScoreColumn(q, columnType, option));
+    Stream<Column> subtotalColumn = Stream.of(buildMultiSelectScoreColumn(q, columnType));
+
+    return Stream.concat(selectionColumns, Stream.concat(optionScoreColumns, subtotalColumn));
+  }
+
+  /** The persisted score of one option: blank unless the option was selected and scored. */
+  private static Column buildMultiSelectOptionScoreColumn(
+      MultiSelectQuestion q, ColumnType columnType, String option) {
+    return Column.builder()
+        .setColumnType(columnType)
+        .setHeader(formatHeader(q.getContextualizedPath().join(Scalar.SCORE), option))
+        .setQuestionPath(q.getContextualizedPath())
+        .setAnswerExtractor(
+            msq -> {
+              MultiSelectQuestion question = (MultiSelectQuestion) msq;
+              Optional<ImmutableMap<Long, Double>> scoresByOptionId =
+                  readMultiSelectScoresByOptionId(question);
+              if (scoresByOptionId.isEmpty()) {
+                return "";
+              }
+
+              // Persisted selections are option ids, so resolve the column's admin name through
+              // the row's own question version. An option that did not exist at that version, was
+              // not selected, or was selected but unscored renders blank.
+              return question.getQuestionDefinition().getOptions().stream()
+                  .filter(o -> o.adminName().equals(option))
+                  .findFirst()
+                  .flatMap(o -> Optional.ofNullable(scoresByOptionId.get().get(o.id())))
+                  .map(QuestionOption::formatScore)
+                  .orElse("");
+            })
+        .build();
+  }
+
+  /** The question's subtotal: the sum of the persisted scores of its selected options. */
+  private static Column buildMultiSelectScoreColumn(MultiSelectQuestion q, ColumnType columnType) {
+    return Column.builder()
+        .setColumnType(columnType)
+        .setHeader(formatHeader(q.getContextualizedPath().join(Scalar.SCORE)))
+        .setQuestionPath(q.getContextualizedPath())
+        .setAnswerExtractor(
+            msq -> {
+              Optional<ImmutableMap<Long, Double>> scoresByOptionId =
+                  readMultiSelectScoresByOptionId((MultiSelectQuestion) msq);
+              if (scoresByOptionId.isEmpty() || scoresByOptionId.get().isEmpty()) {
+                // No selected option was scored, so the subtotal renders blank; an explicit 0 or
+                // a cancel-to-zero sum renders 0 below.
+                return "";
+              }
+
+              // Exact decimal arithmetic over the persisted values, so sums of admin-entered
+              // decimals carry no binary floating-point artifacts.
+              BigDecimal sum =
+                  scoresByOptionId.get().values().stream()
+                      .map(BigDecimal::valueOf)
+                      .reduce(BigDecimal.ZERO, BigDecimal::add);
+              return QuestionOption.formatScore(sum.doubleValue());
+            })
+        .build();
+  }
+
+  /** Pairs checkbox selections with their scores */
+  private static Optional<ImmutableMap<Long, Double>> readMultiSelectScoresByOptionId(
+      MultiSelectQuestion question) {
+    ApplicantData data = question.getApplicantQuestion().getApplicantData();
+    Path contextualizedPath = question.getApplicantQuestion().getContextualizedPath();
+    Optional<ImmutableList<Long>> selections =
+        data.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+    Optional<ImmutableList<Optional<Double>>> scores = data.readScores(contextualizedPath);
+    if (selections.isEmpty() || scores.isEmpty()) {
+      return Optional.empty();
+    }
+    if (selections.get().size() != scores.get().size()) {
+      // Corrupt metadata; render blank rather than mispairing.
+      return Optional.empty();
+    }
+
+    // The score array is parallel to the selections. First occurrence wins, matching the JSON
+    // export; a repeated option is persisted with an empty score anyway.
+    Map<Long, Double> scoresByOptionId = new LinkedHashMap<>();
+    for (int i = 0; i < selections.get().size(); i++) {
+      Optional<Double> score = scores.get().get(i);
+      if (score.isPresent()) {
+        scoresByOptionId.putIfAbsent(selections.get().get(i), score.get());
+      }
+    }
+
+    return Optional.of(ImmutableMap.copyOf(scoresByOptionId));
   }
 
   private String getMultiSelectQuestionAnswerForCsv(MultiSelectQuestion q, String option) {
@@ -358,15 +467,41 @@ final class CsvColumnFactory {
   }
 
   private Stream<Column> buildColumnsForSingleSelectQuestion(
-      SingleSelectQuestion q, ColumnType columnType) {
-    return Stream.of(
+      SingleSelectQuestion q, ColumnType columnType, boolean includeScoreColumn) {
+    Column selectionColumn =
         Column.builder()
             .setColumnType(columnType)
             .setHeader(formatHeader(q.getSelectionPath()))
             .setQuestionPath(q.getContextualizedPath())
             .setAnswerExtractor(
                 ssq -> ((SingleSelectQuestion) ssq).getSelectedOptionAdminName().orElse(""))
-            .build());
+            .build();
+    if (!includeScoreColumn) {
+      return Stream.of(selectionColumn);
+    }
+    // The score column comes immediately after the (selection) column.
+    return Stream.of(selectionColumn, buildSingleSelectScoreColumn(q, columnType));
+  }
+
+  private static Column buildSingleSelectScoreColumn(
+      SingleSelectQuestion q, ColumnType columnType) {
+    return Column.builder()
+        .setColumnType(columnType)
+        .setHeader(formatHeader(q.getContextualizedPath().join(Scalar.SCORE)))
+        .setQuestionPath(q.getContextualizedPath())
+        .setAnswerExtractor(
+            ssq -> {
+              // Read from the row's own question, not the question the column was built from.
+              ApplicantQuestion question = ((SingleSelectQuestion) ssq).getApplicantQuestion();
+              // Blank when the application was never scored, the question is unanswered, or the
+              // selected option has no score.
+              return question
+                  .getApplicantData()
+                  .readScore(question.getContextualizedPath())
+                  .map(QuestionOption::formatScore)
+                  .orElse("");
+            })
+        .build();
   }
 
   private Stream<Column> buildColumnsForTextQuestion(TextQuestion q, ColumnType columnType) {

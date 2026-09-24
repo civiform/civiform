@@ -708,6 +708,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       return this;
     }
 
+    FakeProgramBuilder withUsesScoring() {
+      fakeProgramBuilder.withUsesScoring(true);
+      return this;
+    }
+
     /**
      * Adds a question with a visibility predicate. If the text question ({@code applicant favorite
      * color}) is answered with "red" then the date question ({@code applicant birth date}) isn't

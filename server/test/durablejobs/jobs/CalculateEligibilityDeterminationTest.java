@@ -194,7 +194,11 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
     ApplicationModel application =
         applicantService
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 

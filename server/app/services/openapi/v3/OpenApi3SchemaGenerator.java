@@ -15,6 +15,7 @@ import io.swagger.v3.oas.models.media.ArraySchema;
 import io.swagger.v3.oas.models.media.Content;
 import io.swagger.v3.oas.models.media.IntegerSchema;
 import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.NumberSchema;
 import io.swagger.v3.oas.models.media.ObjectSchema;
 import io.swagger.v3.oas.models.media.Schema;
 import io.swagger.v3.oas.models.media.StringSchema;
@@ -72,46 +73,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
                           new ObjectSchema()
                               .addProperty(
                                   "payload",
-                                  new ArraySchema()
-                                      .items(
-                                          new ObjectSchema()
-                                              .addProperty("applicant_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "application",
-                                                  buildApplicationDefinitions(programDefinition))
-                                              .addProperty("application_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "application_note",
-                                                  new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "create_time",
-                                                  new StringSchema().format("date-time"))
-                                              .addProperty(
-                                                  "language", new StringSchema().example("en-US"))
-                                              .addProperty(
-                                                  "program_name",
-                                                  new StringSchema().example("program-name-123"))
-                                              .addProperty(
-                                                  "program_version_id", new IntegerSchema())
-                                              .addProperty(
-                                                  "revision_state",
-                                                  new StringSchema().example("CURRENT"))
-                                              .addProperty(
-                                                  "status", new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "status_last_modified_time",
-                                                  new StringSchema()
-                                                      .format("date-time")
-                                                      .nullable(true))
-                                              .addProperty(
-                                                  "submit_time",
-                                                  new StringSchema().format("date-time"))
-                                              .addProperty("submitter_type", new StringSchema())
-                                              .addProperty(
-                                                  "ti_email", new StringSchema().nullable(true))
-                                              .addProperty(
-                                                  "ti_organization",
-                                                  new StringSchema().nullable(true))))
+                                  new ArraySchema().items(buildResultItemSchema(programDefinition)))
                               .addProperty("nextPageToken", new StringSchema()))
                       .addSecuritySchemes(
                           "basicAuth",
@@ -241,13 +203,41 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
     return result.build();
   }
 
+  /** Builds the schema of one payload item. */
+  private Schema<?> buildResultItemSchema(ProgramDefinition programDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    Schema<?> resultItem =
+        new ObjectSchema()
+            .addProperty("applicant_id", new IntegerSchema())
+            .addProperty("application", buildApplicationDefinitions(programDefinition))
+            .addProperty("application_id", new IntegerSchema())
+            .addProperty("application_note", new StringSchema().nullable(true))
+            .addProperty("create_time", new StringSchema().format("date-time"))
+            .addProperty("language", new StringSchema().example("en-US"))
+            .addProperty("program_name", new StringSchema().example("program-name-123"))
+            .addProperty("program_version_id", new IntegerSchema())
+            .addProperty("revision_state", new StringSchema().example("CURRENT"))
+            .addProperty("status", new StringSchema().nullable(true))
+            .addProperty(
+                "status_last_modified_time", new StringSchema().format("date-time").nullable(true))
+            .addProperty("submit_time", new StringSchema().format("date-time"))
+            .addProperty("submitter_type", new StringSchema())
+            .addProperty("ti_email", new StringSchema().nullable(true))
+            .addProperty("ti_organization", new StringSchema().nullable(true));
+    if (includeScores(programDefinition)) {
+      // Null when the application predates scoring or scoring wasn't applied; double precision.
+      resultItem.addProperty("total_score", new NumberSchema().format("double").nullable(true));
+    }
+    return resultItem;
+  }
+
   /***
    * Entry point to start building the program specific definitions for questions
    */
   public ObjectSchema buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
-    var results = buildApplicationDefinitions(rootNode);
+    var results = buildApplicationDefinitions(rootNode, includeScores(programDefinition));
     var objectProperty = new ObjectSchema();
 
     results.entrySet().stream()
@@ -261,7 +251,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
    * Recursive method used to build out the full object graph from the tree of QuestionDefinitions
    */
   protected ImmutableMap<String, Schema<?>> buildApplicationDefinitions(
-      QuestionDefinitionNode parentQuestionDefinitionNode)
+      QuestionDefinitionNode parentQuestionDefinitionNode, boolean includeScores)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     ImmutableMap.Builder<String, Schema<?>> definitionList = ImmutableMap.builder();
 
@@ -291,10 +281,21 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
               getPropertyFromType(
                   definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
         }
+        // Score scalars are excluded from Scalar.getScalars, so they are added here rather than
+        // picked up by the scalar loop.
+        if (includeScores
+            && QuestionType.supportsOptionScores(questionDefinition.getQuestionType())) {
+          boolean isMultiSelect = questionDefinition.getQuestionType().isMultiSelectType();
+          Schema<?> score = new NumberSchema().format("double").nullable(true);
+          Schema<?> propertyObject =
+              isMultiSelect ? new ArraySchema().items(score).nullable(true) : score;
+          String propertyName = isMultiSelect ? "scores" : "score";
+          containerDefinition.addProperty(propertyName, propertyObject);
+        }
       } else {
         var enumeratorProperties =
             ImmutableMap.<String, Schema>builder()
-                .putAll(buildApplicationDefinitions(childQuestionDefinitionNode))
+                .putAll(buildApplicationDefinitions(childQuestionDefinitionNode, includeScores))
                 .put(Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT), new StringSchema())
                 .build();
 
