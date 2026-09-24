@@ -121,15 +121,14 @@ public final class PdfExporter {
             .toCompletableFuture()
             .join();
 
-    // Score text renders only for admins with the scoring flag on, and only when the snapshot
+    // Score text renders only for admins or TIs with the scoring flag on, and only when the
+    // snapshot
     // actually carries score metadata (a pre-feature or unscored application has none). The
     // snapshot is a fresh private copy of the application's stored data.
     ApplicantData snapshot = application.getApplicantData();
     Optional<Double> totalScore = snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH);
     Optional<ApplicantData> scoreData =
-        isAdmin && includeScores && totalScore.isPresent()
-            ? Optional.of(snapshot)
-            : Optional.empty();
+        includeScores && totalScore.isPresent() ? Optional.of(snapshot) : Optional.empty();
 
     ImmutableList<AnswerData> answersOnlyActive =
         isAdmin
