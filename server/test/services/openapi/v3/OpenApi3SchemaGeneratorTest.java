@@ -33,6 +33,120 @@ public class OpenApi3SchemaGeneratorTest {
       SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS.stream()
           .map(QuestionDefinition::withPopulatedTestId);
 
+  private static ProgramDefinition programWithAllSampleQuestions() {
+    ImmutableList<BlockDefinition> blockDefinitions =
+        ImmutableList.of(
+            BlockDefinition.builder()
+                .setId(135L)
+                .setName("Test Block Definition")
+                .setDescription("Test Block Description")
+                .setProgramQuestionDefinitions(
+                    SampleQuestionDefinitions.ALL_SAMPLE_QUESTION_DEFINITIONS.stream()
+                        .map(QuestionDefinition::withPopulatedTestId)
+                        .map(
+                            questionDefinition ->
+                                ProgramQuestionDefinition.create(
+                                    questionDefinition, Optional.empty()))
+                        .collect(toImmutableList()))
+                .setLocalizedName(LocalizedStrings.builder().build())
+                .setLocalizedDescription(LocalizedStrings.builder().build())
+                .build());
+
+    return ProgramDefinition.builder()
+        .setId(789L)
+        .setAdminName("test-program-admin-name")
+        .setAdminDescription("Test Admin Description")
+        .setExternalLink("https://mytestlink.gov")
+        .setDisplayMode(DisplayMode.PUBLIC)
+        .setProgramType(ProgramType.DEFAULT)
+        .setEligibilityIsGating(false)
+        .setLoginOnly(false)
+        .setAcls(new ProgramAcls())
+        .setBlockDefinitions(blockDefinitions)
+        .setApplicationSteps(
+            ImmutableList.of(new ApplicationStep("step-1-title", "step-1-description")))
+        .setCategories(ImmutableList.of())
+        .setBridgeDefinitions(ImmutableMap.of())
+        .build();
+  }
+
+  @Test
+  public void createSchema_scoringEnabled_addsScoreProperties() {
+    OpenApiSchemaSettings settings =
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ true);
+    ProgramDefinition scoringProgram =
+        programWithAllSampleQuestions().toBuilder().setUsesScoring(true).build();
+
+    String actual = new OpenApi3SchemaGenerator(settings).createSchema(scoringProgram);
+
+    // Scores are double-precision numbers, not integers.
+    assertThat(actual)
+        .contains(
+            """
+                                  score:
+                                    type: number
+                                    format: double
+            """);
+    assertThat(actual)
+        .contains(
+            """
+                                  scores:
+                                    type: array
+            """);
+    assertThat(actual)
+        .contains(
+            """
+                                    items:
+                                      type: number
+                                      format: double
+            """);
+    assertThat(actual)
+        .contains(
+            """
+                          total_score:
+                            type: number
+                            format: double
+            """);
+  }
+
+  @Test
+  public void createSchema_scoringEnabled_programDoesNotUseScoring_omitsScoreProperties() {
+    OpenApiSchemaSettings settings =
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ true);
+
+    String actual =
+        new OpenApi3SchemaGenerator(settings).createSchema(programWithAllSampleQuestions());
+
+    assertThat(actual).doesNotContain("total_score");
+    assertThat(actual).doesNotContain("score:");
+    assertThat(actual).doesNotContain("scores:");
+  }
+
+  @Test
+  public void createSchema_withoutIncludeScores_omitsScoreProperties() {
+    OpenApiSchemaSettings settings =
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ false);
+
+    String actual =
+        new OpenApi3SchemaGenerator(settings).createSchema(programWithAllSampleQuestions());
+
+    assertThat(actual).doesNotContain("total_score");
+    assertThat(actual).doesNotContain("score:");
+    assertThat(actual).doesNotContain("scores:");
+  }
+
   @Test
   public void createSchema_withNoPrograms() {
     ImmutableList<BlockDefinition> blockDefinitions =
@@ -69,13 +183,17 @@ public class OpenApi3SchemaGeneratorTest {
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ false);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -272,13 +390,17 @@ components:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ false);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -828,13 +950,17 @@ components:
             .build();
 
     OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings("baseUrl", "email123@example.com", /* allowHttpScheme= */ true);
+        new OpenApiSchemaSettings(
+            "baseUrl",
+            "email123@example.com",
+            /* allowHttpScheme= */ true,
+            /* scoringEnabled= */ false);
 
     var generator = new OpenApi3SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
 
     String expected =
-        """
+"""
 openapi: 3.0.1
 info:
   title: test-program-admin-name
@@ -932,7 +1058,8 @@ components:
                 properties:
 """
             + data.questionSchema()
-            + """
+            +
+"""
               application_id:
                 type: integer
                 format: int32

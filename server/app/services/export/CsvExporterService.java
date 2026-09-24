@@ -71,7 +71,8 @@ public final class CsvExporterService {
   }
 
   /** Return a string containing a CSV of all applications at all versions of particular program. */
-  public String getProgramAllVersionsCsv(long programId, SubmittedApplicationFilter filters)
+  public String getProgramAllVersionsCsv(
+      long programId, SubmittedApplicationFilter filters, boolean scoringEnabled)
       throws ProgramNotFoundException {
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =
         programService.getAllVersionsFullProgramDefinition(programId).stream()
@@ -88,7 +89,10 @@ public final class CsvExporterService {
 
     CsvExportConfig exportConfig =
         generateCsvConfig(
-            applications, programDefinitionsForAllVersions, currentProgram.hasEligibilityEnabled());
+            applications,
+            programDefinitionsForAllVersions,
+            currentProgram.hasEligibilityEnabled(),
+            /* includeScores= */ scoringEnabled && currentProgram.usesScoring());
 
     return exportCsv(
         exportConfig,
@@ -102,7 +106,8 @@ public final class CsvExporterService {
   private CsvExportConfig generateCsvConfig(
       ImmutableList<ApplicationModel> applications,
       ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions,
-      boolean showEligibilityColumn)
+      boolean showEligibilityColumn,
+      boolean includeScores)
       throws ProgramNotFoundException {
     Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
@@ -124,7 +129,7 @@ public final class CsvExporterService {
             .sorted(Comparator.comparing(aq -> aq.getContextualizedPath().toString()))
             .collect(ImmutableList.toImmutableList());
 
-    return buildColumnHeaders(sortedUniqueQuestions, showEligibilityColumn);
+    return buildColumnHeaders(sortedUniqueQuestions, showEligibilityColumn, includeScores);
   }
 
   /**
@@ -181,7 +186,9 @@ public final class CsvExporterService {
    * config includes all the questions, the application id, and the application submission time.
    */
   private CsvExportConfig buildColumnHeaders(
-      ImmutableList<ApplicantQuestion> exemplarQuestions, boolean showEligibilityColumn) {
+      ImmutableList<ApplicantQuestion> exemplarQuestions,
+      boolean showEligibilityColumn,
+      boolean includeScores) {
     ImmutableList.Builder<Column> columnsBuilder = new ImmutableList.Builder<>();
 
     // Metadata columns
@@ -221,10 +228,12 @@ public final class CsvExporterService {
     columnsBuilder.add(
         Column.builder().setHeader("Status").setColumnType(ColumnType.STATUS_TEXT).build());
 
-    // Add columns for each scalar path to an answer.
+    // Add columns for each scalar path to an answer. When scores are included, every question
+    // whose type supports option scores gets score columns next to the answer they score.
     exemplarQuestions.stream()
         .filter(aq -> !NON_EXPORTED_QUESTION_TYPES.contains(aq.getType()))
-        .flatMap(aq -> csvColumnFactory.buildColumns(aq, ColumnType.APPLICANT_ANSWER))
+        .flatMap(
+            aq -> csvColumnFactory.buildColumns(aq, ColumnType.APPLICANT_ANSWER, includeScores))
         .forEachOrdered(columnsBuilder::add);
     // Adding ADMIN_NOTE as the last coloumn to make sure it doesn't break the existing CSV exports
     columnsBuilder.add(
@@ -234,6 +243,12 @@ public final class CsvExporterService {
             .setHeader("Status Last Modified Time")
             .setColumnType(ColumnType.STATUS_LAST_MODIFIED_TIME)
             .build());
+
+    if (includeScores) {
+      columnsBuilder.add(
+          Column.builder().setHeader("Total Score").setColumnType(ColumnType.TOTAL_SCORE).build());
+    }
+
     return CsvExportConfig.builder().setColumns(columnsBuilder.build()).build();
   }
 
@@ -319,7 +334,8 @@ public final class CsvExporterService {
                       aq,
                       tagType == QuestionTag.DEMOGRAPHIC_PII
                           ? ColumnType.APPLICANT_OPAQUE
-                          : ColumnType.APPLICANT_ANSWER))
+                          : ColumnType.APPLICANT_ANSWER,
+                      /* includeScoreColumns= */ false))
           .forEachOrdered(columnsBuilder::add);
     }
 
