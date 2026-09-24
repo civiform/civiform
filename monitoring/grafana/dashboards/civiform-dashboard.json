@@ -1007,7 +1007,7 @@
           },
           "disableTextWrap": false,
           "editorMode": "code",
-          "expr": "rate(ebean_queries_latency_micros_total[5m]) \n/ \nrate(ebean_queries_total[5m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total[5m]) \n/ \nrate(ebean_queries_total[5m])",
           "fullMetaSearch": false,
           "hide": false,
           "includeNullMetadata": true,
@@ -1124,7 +1124,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "avg_over_time(ebean_queries_mean_latency_micros_total{}[1m])",
+          "expr": "avg_over_time(ebean_queries_mean_latency_micros{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1219,7 +1219,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "max_over_time(ebean_queries_max_latency_micros_total{}[1m])",
+          "expr": "max_over_time(ebean_queries_max_latency_micros{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1331,7 +1331,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "max_over_time(ebean_queries_max_latency_micros_total{}[1m])",
+          "expr": "max_over_time(ebean_queries_max_latency_micros{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1426,7 +1426,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_latency_micros_total{}[1m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
@@ -1534,7 +1534,7 @@
             "uid": "PROMETHEUS_DATA"
           },
           "exemplar": true,
-          "expr": "rate(ebean_queries_latency_micros_total{}[1m])",
+          "expr": "rate(ebean_queries_total_latency_micros_total{}[1m])",
           "interval": "",
           "legendFormat": "{{name}}",
           "refId": "A"
