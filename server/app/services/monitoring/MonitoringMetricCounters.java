@@ -15,6 +15,8 @@ public final class MonitoringMetricCounters {
   private final Gauge queryMetricMaxLatency;
   private final Counter queryMetricTotalLatency;
   private final Counter urlWithProgramIdCall;
+  private final Gauge featureFlagEnabled;
+  private final Gauge buildInfo;
 
   @Inject
   public MonitoringMetricCounters() {
@@ -52,6 +54,20 @@ public final class MonitoringMetricCounters {
             .help("Count of calls to program-related URLs")
             .labelNames("route", "programId")
             .register();
+
+    featureFlagEnabled =
+        Gauge.build()
+            .name("civiform_feature_flag_enabled")
+            .help("Whether a CiviForm feature flag is enabled (1) or disabled (0)")
+            .labelNames("flag")
+            .register();
+
+    buildInfo =
+        Gauge.build()
+            .name("civiform_build_info")
+            .help("CiviForm build information. The value is always 1.")
+            .labelNames("image_tag", "version")
+            .register();
   }
 
   public Counter getQueryMetricCount() {
@@ -72,5 +88,13 @@ public final class MonitoringMetricCounters {
 
   public Counter getUrlWithProgramIdCall() {
     return urlWithProgramIdCall;
+  }
+
+  public Gauge getFeatureFlagEnabled() {
+    return featureFlagEnabled;
+  }
+
+  public Gauge getBuildInfo() {
+    return buildInfo;
   }
 }
