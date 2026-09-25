@@ -77,7 +77,7 @@
       th:name="${phoneQuestion.getPhoneNumberPath()}"
       th:value="${phoneQuestion.getPhoneNumberValue().orElse('')}"
       placeholder="(xxx) xxx-xxxx"
-      th:aria-labelledby="${isInitialQuestion ? ariaLabelledby}"
+      th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
       th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"

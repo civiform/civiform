@@ -80,7 +80,7 @@
     th:value="${value}"
     th:min="${min}"
     th:max="${max}"
-    th:aria-labelledby="${isInitialQuestion ? ariaLabelledby}"
+    th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
     th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"

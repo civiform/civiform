@@ -69,7 +69,7 @@
     th:id="${inputId}"
     th:name="${singleSelectQuestion.getSelectionPath()}"
     th:aria-required="${!question.isOptional()}"
-    th:aria-labelledby="${isInitialQuestion ? ariaLabelledby}"
+    th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
     th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   >

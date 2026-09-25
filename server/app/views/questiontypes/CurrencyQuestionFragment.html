@@ -82,7 +82,7 @@
       th:id="${inputId}"
       th:name="${currencyQuestion.getCurrencyPath()}"
       th:value="${value}"
-      th:aria-labelledby="${isInitialQuestion ? ariaLabelledby}"
+      th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
       th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"
