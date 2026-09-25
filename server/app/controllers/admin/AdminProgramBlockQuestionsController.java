@@ -17,6 +17,7 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
 import models.QuestionModel;
+import models.VersionModel;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.FormFactory;
@@ -181,14 +182,13 @@ public class AdminProgramBlockQuestionsController extends Controller {
     }
 
     final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
-    final Optional<QuestionDefinition> optionalOriginalInitialQuestion;
     final ErrorAnd<QuestionDefinition, CiviFormError> result;
+    Optional<QuestionDefinition> optionalOriginalInitialQuestion = Optional.empty();
 
     // The initial question is required, but isn't attached to the enumerator question yet
     // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
     // Otherwise, resolve the referenced question and create the enumerator normally.
     if (initialQuestionIdFromForm.isEmpty()) {
-      optionalOriginalInitialQuestion = Optional.empty();
       result =
           ErrorAnd.error(
               ImmutableSet.<CiviFormError>builder()
@@ -200,19 +200,41 @@ public class AdminProgramBlockQuestionsController extends Controller {
                                   .getKeyName())))
                   .build());
     } else {
-      QuestionDefinition originalInitialQuestion =
-          questionService
-              .getReadOnlyQuestionServiceSync()
-              .getQuestionDefinition(initialQuestionIdFromForm.getAsLong());
-      if (originalInitialQuestion instanceof NullQuestionDefinition) {
-        return notFound(
-            String.format("Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+      Optional<QuestionModel> maybeOriginalInitialQuestion =
+          versionRepository.getLatestVersionOfQuestion(initialQuestionIdFromForm.getAsLong());
+      Optional<String> errorMsg = Optional.empty();
+      if (maybeOriginalInitialQuestion.isEmpty()) {
+        errorMsg =
+            Optional.of(
+                String.format(
+                    "Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+      } else {
+        QuestionDefinition originalInitialQuestion =
+            maybeOriginalInitialQuestion.get().getQuestionDefinition();
+        VersionModel draft = versionRepository.getDraftVersionOrCreate();
+        if (draft.getTombstonedQuestionNames().contains(originalInitialQuestion.getName())) {
+          errorMsg =
+              Optional.of(
+                  String.format(
+                      "Question has been archived for ID: %d",
+                      initialQuestionIdFromForm.getAsLong()));
+        } else {
+          optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
+        }
       }
-      optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
-      result =
-          questionService.create(
-              pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
+      if (errorMsg.isEmpty()) {
+        result =
+            questionService.create(
+                pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
+      } else {
+        result =
+            ErrorAnd.error(
+                ImmutableSet.<CiviFormError>builder()
+                    .add(CiviFormError.of(errorMsg.get()))
+                    .build());
+      }
     }
+
     // If there are validation errors in the repeated set form
     if (result.isError()) {
       return ok(
