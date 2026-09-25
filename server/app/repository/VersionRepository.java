@@ -22,6 +22,7 @@ import jakarta.persistence.NonUniqueResultException;
 import jakarta.persistence.RollbackException;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -607,6 +608,34 @@ public final class VersionRepository {
         .orElse(0L);
   }
 
+  /** Loads all active and draft programs in a single database query. */
+  public ImmutableList<ProgramModel> getProgramsForActiveAndDraft() {
+    VersionModel active = getActiveVersion();
+    Optional<VersionModel> draft = getDraftVersion();
+
+    List<Long> versionIds =
+      draft.isPresent() ? List.of(active.id, draft.get().id) : List.of(active.id);
+
+    ImmutableList<ProgramModel> programs =
+      database
+        .find(ProgramModel.class)
+        .setLabel("models.ProgramModel.batchActiveAndDraft")
+        .fetch("categories")
+        .fetch("versions")
+        .where()
+        .in("versions.id", versionIds)
+        .findList()
+        .stream()
+        .distinct()
+        .collect(ImmutableList.toImmutableList());
+
+    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
+    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
+    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
+    programs.forEach(ProgramModel::loadProgramDefinition);
+    return programs;
+  }
+
   /**
    * Returns the questions for a version.
    *
@@ -651,13 +680,8 @@ public final class VersionRepository {
         .findAny();
   }
 
-  public boolean anyDisabledPrograms() {
-    return anyDisabledPrograms(Optional.of(getActiveVersion()))
-        || anyDisabledPrograms(getDraftVersion());
-  }
-
   /** Implements a lightweight query to determine if any programs are disabled. */
-  private boolean anyDisabledPrograms(Optional<VersionModel> maybeVersion) {
+  public boolean anyDisabledPrograms() {
     return database
       .find(ProgramModel.class)
       .setLabel("VersionRepository.anyDisabledPrograms")

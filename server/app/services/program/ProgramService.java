@@ -9,6 +9,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.googlejavaformat.Op;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
 import forms.BlockForm;
@@ -188,8 +189,31 @@ public final class ProgramService {
    * with the full question definitions attached to the programs.
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
-    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
-        this, versionRepository);
+//    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
+//        this, versionRepository);
+
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
+    ImmutableList<ProgramModel> allPrograms = versionRepository.getProgramsForActiveAndDraft();
+
+    ImmutableList<ProgramModel> activePrograms =
+      allPrograms.stream()
+        .filter(p -> p.getVersions().stream().anyMatch(v -> v.id.equals(activeVersion.id)))
+        .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<ProgramModel> draftPrograms =
+      draftVersion
+        .map(
+          draft ->
+            allPrograms.stream()
+              .filter(
+                p ->
+                  p.getVersions().stream()
+                    .anyMatch(v -> v.id.equals(draft.id)))
+              .collect(ImmutableList.toImmutableList()))
+        .orElse(ImmutableList.of());
+
+    return ActiveAndDraftPrograms.buildInUseProgramsBatch(activePrograms, draftPrograms);
   }
 
   /** Checks if there is any disabled program in active or draft version. */
