@@ -183,8 +183,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
     final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
     final ErrorAnd<QuestionDefinition, CiviFormError> result;
-    Optional<QuestionDefinition> optionalOriginalInitialQuestion =
-      Optional.empty();
+    Optional<QuestionDefinition> optionalOriginalInitialQuestion = Optional.empty();
 
     // The initial question is required, but isn't attached to the enumerator question yet
     // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
