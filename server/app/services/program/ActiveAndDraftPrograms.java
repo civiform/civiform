@@ -71,28 +71,6 @@ public final class ActiveAndDraftPrograms {
         EnumSet.of(ActiveAndDraftProgramsType.DISABLED));
   }
 
-//  /**
-//   * Queries the existing active and draft versions of non-disabled programs and builds a
-//   * snapshotted view of the program state. These programs won't include the question definition,
-//   * since ProgramService is not provided.
-//   */
-//  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
-//      VersionRepository repository) {
-//    return new ActiveAndDraftPrograms(
-//        repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
-//  }
-
-//  /**
-//   * Queries the existing active and draft versions of non-disabled programs and builds a
-//   * snapshotted view of the program state. These programs will include the question definition,
-//   * since ProgramService is provided.
-//   */
-//  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsSynced(
-//      ProgramService service, VersionRepository repository) {
-//    return new ActiveAndDraftPrograms(
-//        repository, Optional.of(service), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
-//  }
-
   /**
    * Builds a snapshotted view of non-disabled active and draft programs from pre-loaded program
    * models partitioned by version. This avoids N+1 query behavior since the caller has already
@@ -102,7 +80,7 @@ public final class ActiveAndDraftPrograms {
    * @param draftPrograms programs belonging to the draft version
    */
   public static ActiveAndDraftPrograms buildInUseProgramsBatch(
-    ImmutableList<ProgramModel> activePrograms, ImmutableList<ProgramModel> draftPrograms) {
+      ImmutableList<ProgramModel> activePrograms, ImmutableList<ProgramModel> draftPrograms) {
     return new ActiveAndDraftPrograms(activePrograms, draftPrograms);
   }
 
@@ -111,20 +89,22 @@ public final class ActiveAndDraftPrograms {
    * N+1 queries. Filters out DISABLED programs (IN_USE semantics).
    */
   private ActiveAndDraftPrograms(
-    ImmutableList<ProgramModel> activeProgramModels,
-    ImmutableList<ProgramModel> draftProgramModels) {
+      ImmutableList<ProgramModel> activeProgramModels,
+      ImmutableList<ProgramModel> draftProgramModels) {
+
     ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-      activeProgramModels.stream()
-        .map(ProgramModel::getProgramDefinition)
-        .filter(p -> p.displayMode() != DisplayMode.DISABLED)
-        .collect(
-          ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        activeProgramModels.stream()
+            .map(ProgramModel::getProgramDefinition)
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
     ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-      draftProgramModels.stream()
-        .map(ProgramModel::getProgramDefinition)
-        .filter(p -> p.displayMode() != DisplayMode.DISABLED)
-        .collect(
-          ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+        draftProgramModels.stream()
+            .map(ProgramModel::getProgramDefinition)
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
 
     this.activePrograms = activeNameToProgram.values().asList();
     this.draftPrograms = draftNameToProgram.values().asList();
@@ -156,9 +136,9 @@ public final class ActiveAndDraftPrograms {
   }
 
   private ActiveAndDraftPrograms(
-    VersionRepository repository,
-    Optional<ProgramService> service,
-    EnumSet<ActiveAndDraftProgramsType> types) {
+      VersionRepository repository,
+      Optional<ProgramService> service,
+      EnumSet<ActiveAndDraftProgramsType> types) {
     VersionModel active = repository.getActiveVersion();
     VersionModel draft = repository.getDraftVersionOrCreate();
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
@@ -171,44 +151,44 @@ public final class ActiveAndDraftPrograms {
     if (types.containsAll(allProgramTypes)) {
       // All programs (including disabled) — only need the unfiltered maps.
       ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
-        mapNameToProgram(repository, service, active);
+          mapNameToProgram(repository, service, active);
       ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
-        mapNameToProgram(repository, service, draft);
+          mapNameToProgram(repository, service, draft);
 
       this.activePrograms = activeNameToProgramAll.values().asList();
       this.draftPrograms = draftNameToProgramAll.values().asList();
       this.versionedByName =
-        createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
+          createVersionedByNameMap(activeNameToProgramAll, draftNameToProgramAll);
     } else if (types.contains(ActiveAndDraftProgramsType.DISABLED)) {
       // Disabled programs — need both unfiltered (all) and filtered (non-disabled) to compute
       // the difference.
       ImmutableMap<String, ProgramDefinition> activeNameToProgramAll =
-        mapNameToProgram(repository, service, active);
+          mapNameToProgram(repository, service, active);
       ImmutableMap<String, ProgramDefinition> draftNameToProgramAll =
-        mapNameToProgram(repository, service, draft);
+          mapNameToProgram(repository, service, draft);
       ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        mapNameToProgramWithFilter(
-          repository, service, active, Optional.of(DisplayMode.DISABLED));
+          mapNameToProgramWithFilter(
+              repository, service, active, Optional.of(DisplayMode.DISABLED));
       ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
+          mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
 
       // Disabled = all minus non-disabled.
       ImmutableMap<String, ProgramDefinition> disabledActiveNameToProgram =
-        filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
+          filterMapNameToProgram(activeNameToProgramAll, activeNameToProgram);
       ImmutableMap<String, ProgramDefinition> disabledDraftNameToProgram =
-        filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
+          filterMapNameToProgram(draftNameToProgramAll, draftNameToProgram);
 
       this.activePrograms = disabledActiveNameToProgram.values().asList();
       this.draftPrograms = disabledDraftNameToProgram.values().asList();
       this.versionedByName =
-        createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
+          createVersionedByNameMap(disabledActiveNameToProgram, disabledDraftNameToProgram);
     } else if (types.contains(ActiveAndDraftProgramsType.IN_USE)) {
       // Non-disabled programs — only need the filtered maps.
       ImmutableMap<String, ProgramDefinition> activeNameToProgram =
-        mapNameToProgramWithFilter(
-          repository, service, active, Optional.of(DisplayMode.DISABLED));
+          mapNameToProgramWithFilter(
+              repository, service, active, Optional.of(DisplayMode.DISABLED));
       ImmutableMap<String, ProgramDefinition> draftNameToProgram =
-        mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
+          mapNameToProgramWithFilter(repository, service, draft, Optional.of(DisplayMode.DISABLED));
 
       this.activePrograms = activeNameToProgram.values().asList();
       this.draftPrograms = draftNameToProgram.values().asList();
