@@ -656,12 +656,14 @@ public final class VersionRepository {
         || anyDisabledPrograms(getDraftVersion());
   }
 
+  /** Implements a lightweight query to determine if any programs are disabled. */
   private boolean anyDisabledPrograms(Optional<VersionModel> maybeVersion) {
-    return getProgramsForVersion(maybeVersion).stream()
-        .anyMatch(
-            p ->
-                programRepository.getShallowProgramDefinition(p).displayMode()
-                    == DisplayMode.DISABLED);
+    return database
+      .find(ProgramModel.class)
+      .setLabel("VersionRepository.anyDisabledPrograms")
+      .where()
+      .eq("display_mode", DisplayMode.DISABLED.toString())
+      .exists();
   }
 
   /** Returns the names of all the programs. */
