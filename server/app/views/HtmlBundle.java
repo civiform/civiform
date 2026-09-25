@@ -109,6 +109,11 @@ public final class HtmlBundle {
     return this;
   }
 
+  public HtmlBundle addHeaderStyles(String... styles) {
+    headerStyles.addAll(Arrays.asList(styles));
+    return this;
+  }
+
   public HtmlBundle addMainContent(Tag... tags) {
     mainContent.addAll(Arrays.asList(tags));
     return this;
