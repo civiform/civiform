@@ -1,7 +1,11 @@
 package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
@@ -43,11 +47,13 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   private UpsellController subject;
   private SettingsManifest settingsManifest;
+  private PdfExporterService pdfExporterService;
 
   @Before
   public void setUp() {
     resetDatabase();
     settingsManifest = mock(SettingsManifest.class);
+    pdfExporterService = spy(instanceOf(PdfExporterService.class));
     subject =
         new UpsellController(
             instanceOf(ClassLoaderExecutionContext.class),
@@ -58,7 +64,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
             instanceOf(ApplicantUpsellView.class),
             instanceOf(ApplicantPreScreenerUpsellView.class),
             instanceOf(MessagesApi.class),
-            instanceOf(PdfExporterService.class),
+            pdfExporterService,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramSlugHandler.class),
             settingsManifest,
@@ -398,5 +404,67 @@ public class UpsellControllerTest extends WithMockedProfiles {
       throw new RuntimeException(e);
     }
     assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void download_authenticatedApplicant_flagOn_doesNotIncludeScores() throws Exception {
+    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(applicant, programDefinition.toProgram());
+
+    subject.download(fakeRequest(), application.id, applicant.id).toCompletableFuture().join();
+
+    // The last param passed in to generateApplicationPdf is includeScores. We expect it to be false
+    // here because an applicant is downloading the application.
+    verify(pdfExporterService)
+        .generateApplicationPdf(any(ApplicationModel.class), eq(false), eq(false));
+  }
+
+  @Test
+  public void download_tiSubmittedApplication_flagOn_includesScores() throws Exception {
+    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel managedApplicant = createApplicant();
+    createTIWithMockedProfile(managedApplicant);
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+    application.setSubmitterEmail("ti@example.com");
+    application.save();
+
+    subject
+        .download(fakeRequest(), application.id, managedApplicant.id)
+        .toCompletableFuture()
+        .join();
+
+    // The last param passed in to generateApplicationPdf is includeScores. We expect it to be true
+    // here because the flag is on and a TI is downloading the application.
+    verify(pdfExporterService)
+        .generateApplicationPdf(any(ApplicationModel.class), eq(false), eq(true));
+  }
+
+  @Test
+  public void download_tiSubmittedApplication_flagOff_includesScores() throws Exception {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+    ApplicantModel managedApplicant = createApplicant();
+    createTIWithMockedProfile(managedApplicant);
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+    application.setSubmitterEmail("ti@example.com");
+    application.save();
+
+    subject
+        .download(fakeRequest(), application.id, managedApplicant.id)
+        .toCompletableFuture()
+        .join();
+
+    // The last param passed in to generateApplicationPdf is includeScores. We expect it to be false
+    // here because the flag is off.
+    verify(pdfExporterService)
+        .generateApplicationPdf(any(ApplicationModel.class), eq(false), eq(false));
   }
 }

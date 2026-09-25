@@ -28,14 +28,24 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import javax.inject.Inject;
 import models.ApplicationModel;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import services.DateConverter;
+import services.Path;
 import services.TranslationNotFoundException;
 import services.applicant.AnswerData;
+import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
+import services.applicant.ApplicationScores;
 import services.applicant.ReadOnlyApplicantProgramService;
+import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
@@ -51,6 +61,8 @@ import services.statuses.StatusService;
 
 /** PdfExporter is meant to generate PDF files. */
 public final class PdfExporter {
+  private static final Logger logger = LoggerFactory.getLogger(PdfExporter.class);
+
   private final ApplicantService applicantService;
   private final Provider<LocalDateTime> nowProvider;
   private final String baseUrl;
@@ -97,13 +109,22 @@ public final class PdfExporter {
    * inMemoryPDF object. The InMemoryPdf object is passed back to the AdminController Class to
    * generate the required PDF.
    */
-  public InMemoryPdf exportApplication(ApplicationModel application, boolean isAdmin)
+  public InMemoryPdf exportApplication(
+      ApplicationModel application, boolean isAdmin, boolean includeScores)
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(application)
             .toCompletableFuture()
             .join();
+
+    // Score text renders only for admins or TIs with the scoring flag on, and only when the
+    // snapshot actually carries score metadata (a pre-feature or unscored application has none).
+    // The snapshot is a fresh private copy of the application's stored data.
+    ApplicantData snapshot = application.getApplicantData();
+    Optional<Double> totalScore = snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH);
+    Optional<ApplicantData> scoreData =
+        includeScores && totalScore.isPresent() ? Optional.of(snapshot) : Optional.empty();
 
     ImmutableList<AnswerData> answersOnlyActive =
         isAdmin
@@ -130,7 +151,8 @@ public final class PdfExporter {
             application.getProgram().getProgramDefinition(),
             application.getLatestStatus(),
             getSubmitTime(application.getSubmitTime()),
-            isAdmin);
+            isAdmin,
+            scoreData);
     return new InMemoryPdf(bytes, filename);
   }
 
@@ -148,7 +170,8 @@ public final class PdfExporter {
       ProgramDefinition programDefinition,
       Optional<String> statusValue,
       String submitTime,
-      boolean isAdmin)
+      boolean isAdmin,
+      Optional<ApplicantData> scoreData)
       throws DocumentException, IOException {
     ByteArrayOutputStream byteArrayOutputStream = null;
     PdfWriter writer = null;
@@ -159,6 +182,16 @@ public final class PdfExporter {
       document = new Document();
       writer = PdfWriter.getInstance(document, byteArrayOutputStream);
       document.open();
+
+      if (scoreData.isPresent()) {
+        double totalScore =
+            scoreData.get().readDouble(ApplicationScores.TOTAL_SCORE_PATH).orElse(0.0);
+        Paragraph totalScoreParagraph =
+            new Paragraph(
+                "Total Calculated Score: " + QuestionOption.formatScore(totalScore), H2_FONT);
+        totalScoreParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+        document.add(totalScoreParagraph);
+      }
 
       Paragraph applicant =
           new Paragraph(
@@ -215,9 +248,11 @@ public final class PdfExporter {
           answer = new Paragraph();
           answer.add(anchor);
         } else {
-          answer =
-              new Paragraph(
-                  answerData.answerText(), FontFactory.getFont(FontFactory.HELVETICA, 11));
+          String answerText =
+              scoreData.isPresent()
+                  ? addCheckboxOptionScores(answerData, scoreData.get())
+                  : answerData.answerText();
+          answer = new Paragraph(answerText, FontFactory.getFont(FontFactory.HELVETICA, 11));
         }
         LocalDate date =
             Instant.ofEpochMilli(answerData.timestamp())
@@ -226,6 +261,20 @@ public final class PdfExporter {
         Paragraph time =
             new Paragraph("Answered on : " + date, FontFactory.getFont(FontFactory.HELVETICA, 10));
         time.setAlignment(Paragraph.ALIGN_RIGHT);
+
+        Optional<Paragraph> questionScore =
+            scoreData
+                .flatMap(data -> totalQuestionScore(answerData, data))
+                .map(
+                    score -> {
+                      Paragraph scoreParagraph =
+                          new Paragraph(
+                              "Question Score: " + QuestionOption.formatScore(score),
+                              FontFactory.getFont(FontFactory.HELVETICA, 10));
+                      scoreParagraph.setAlignment(Paragraph.ALIGN_RIGHT);
+                      return scoreParagraph;
+                    });
+
         Paragraph eligibility = new Paragraph();
         if (isAdmin && isEligibilityEnabledInProgram) {
           try {
@@ -254,6 +303,11 @@ public final class PdfExporter {
         document.add(question);
         document.add(answer);
         document.add(time);
+
+        if (questionScore.isPresent()) {
+          document.add(questionScore.get());
+        }
+
         if (!eligibility.isEmpty()) {
           document.add(eligibility);
         }
@@ -284,6 +338,88 @@ public final class PdfExporter {
       byteArrayOutputStream.close();
     }
     return byteArrayOutputStream.toByteArray();
+  }
+
+  /**
+   * Returns the answer text for checkbox type questions with persisted score annotations rendered
+   * inline with the option text they belong to: {@code optionText (Score: N)}. Scores are read from
+   * the application snapshot by contextualized path.
+   */
+  private static String addCheckboxOptionScores(AnswerData answerData, ApplicantData scoreData) {
+    String answerText = answerData.answerText();
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (questionType != QuestionType.CHECKBOX) {
+      return answerText;
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+
+    Optional<ImmutableList<Long>> selections =
+        scoreData.readLongList(contextualizedPath.join(Scalar.SELECTIONS));
+    Optional<java.util.List<Double>> scores =
+        scoreData.readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath));
+    if (selections.isEmpty() || scores.isEmpty()) {
+      return answerText;
+    }
+    if (selections.get().size() != scores.get().size()) {
+      // Corrupt metadata: render the answer without scores rather than mispairing values.
+      logger.warn(
+          "Score metadata length mismatch at {}: {} selections vs {} scores",
+          contextualizedPath,
+          selections.get().size(),
+          scores.get().size());
+      return answerText;
+    }
+    Map<Long, Double> scoreByOptionId = new HashMap<>();
+    for (int i = 0; i < selections.get().size(); i++) {
+      Double score = scores.get().get(i);
+      if (score != null) {
+        scoreByOptionId.putIfAbsent(selections.get().get(i), score);
+      }
+    }
+    // Rebuild the same option lines MultiSelectQuestion#getAnswerString joins (same source list,
+    // same localized text, same order), appending each scored option's suffix to its own line.
+    return answerData
+        .applicantQuestion()
+        .createMultiSelectQuestion()
+        .getSelectedOptionValues()
+        .map(
+            options ->
+                options.stream()
+                    .map(
+                        option -> {
+                          Double score = scoreByOptionId.get(option.id());
+                          return score == null
+                              ? option.optionText()
+                              : String.format(
+                                  "%s (Score: %s)",
+                                  option.optionText(), QuestionOption.formatScore(score));
+                        })
+                    .collect(Collectors.joining("\n")))
+        .orElse(answerText);
+  }
+
+  /**
+   * Returns the question's total score: the single option's score for non-checkbox questions, or
+   * the sum of all selected options' scores for checkbox questions. Empty when the question type
+   * doesn't support scoring or no score metadata is present.
+   */
+  private static Optional<Double> totalQuestionScore(
+      AnswerData answerData, ApplicantData scoreData) {
+    QuestionType questionType = answerData.questionDefinition().getQuestionType();
+    if (!QuestionType.supportsOptionScores(questionType)) {
+      return Optional.empty();
+    }
+    Path contextualizedPath = answerData.contextualizedPath();
+    if (questionType != QuestionType.CHECKBOX) {
+      return scoreData.readDouble(ApplicantData.scorePath(contextualizedPath));
+    }
+    return scoreData
+        .readNullableDoubleList(ApplicantData.scoresPath(contextualizedPath))
+        // filter out checkbox questions with no scored options
+        .filter(scores -> scores.stream().anyMatch(Objects::nonNull))
+        .map(
+            scores ->
+                scores.stream().filter(Objects::nonNull).mapToDouble(Double::doubleValue).sum());
   }
 
   /**
