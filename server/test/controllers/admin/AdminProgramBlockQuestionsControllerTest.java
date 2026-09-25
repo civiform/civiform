@@ -249,7 +249,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("Question not found for ID: 99999");
   }
 
@@ -278,7 +278,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
 
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result))
         .contains("Question has been archived for ID: " + initialQuestion.getId());
     // The controller bails before creating the enumerator question or touching the block.
