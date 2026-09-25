@@ -32,6 +32,11 @@ public class LegacyFieldFragmentsTest {
   }
 
   @Test
+  public void markdownIndicatorNoLink() {
+    ThymeleafFragmentTester.run(DIR + "markdownIndicatorNoLink.thtest");
+  }
+
+  @Test
   public void slimInfoAlert_visible() {
     ThymeleafFragmentTester.run(DIR + "slimInfoAlertVisible.thtest");
   }
@@ -69,6 +74,26 @@ public class LegacyFieldFragmentsTest {
   @Test
   public void textField_optionalEmpty() {
     ThymeleafFragmentTester.run(DIR + "textFieldOptionalEmpty.thtest");
+  }
+
+  @Test
+  public void textField_requiredWithCustomMaxLengthAndWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textFieldRequiredCustomMaxLengthAndWrapper.thtest");
+  }
+
+  @Test
+  public void textField_disabledRendersReadonlyAttributesAndClasses() {
+    ThymeleafFragmentTester.run(DIR + "textFieldDisabled.thtest");
+  }
+
+  @Test
+  public void textareaField_markdownIndicatorWithoutDocsLink() {
+    ThymeleafFragmentTester.run(DIR + "textareaFieldMarkdownNoLink.thtest");
+  }
+
+  @Test
+  public void textareaField_disabledWithCustomWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textareaFieldDisabled.thtest");
   }
 
   @Test

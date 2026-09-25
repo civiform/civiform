@@ -1,13 +1,28 @@
 <!--/*
   Labeled textarea field, legacy FieldWithLabel-parity markup for migrated admin pages.
 
+  Parameters beyond the basics mirror FieldWithLabel setters the legacy pages
+  used:
+    disabled       - the legacy pages always set disabled and readonly together,
+                     so one flag renders both attributes plus the read-only
+                     color classes. Pass false for an editable field.
+    markdown       - setMarkdownSupported: renders the "Markdown is supported"
+                     indicator under the field.
+    markdownLink   - setMarkdownLinkText: true renders the indicator with the
+                     docs link (question pages); false renders FieldWithLabel's
+                     link-less default (program form). Ignored when markdown
+                     is false.
+    wrapperClasses - the legacy builders' .withClass(...) call REPLACED the
+                     wrapper's class attribute, so pass FieldWithLabel's
+                     default 'mb-2' unless the page overrode it.
+
   Field ids: callers pass a fixed id, or generate a random 8-character
   alphabetic id with ${model.randomFieldId()} so labels stay associated
   with inputs.
 */-->
 <div
-  th:fragment="textareaField(id, name, label, value, required, markdown)"
-  class="mb-2"
+  th:fragment="textareaField(id, name, label, value, required, disabled, markdown, markdownLink, wrapperClasses)"
+  th:class="${wrapperClasses}"
 >
   <label
     th:for="${id}"
@@ -22,14 +37,27 @@
       th:attr="aria-required=${required} ? 'true'"
       th:id="${id}"
       th:name="${name}"
+      th:disabled="${disabled}"
+      th:readonly="${disabled}"
       class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      th:classappend="${disabled} ? 'read-only:text-gray-500 read-only:bg-gray-100'"
       th:text="${value}"
     ></textarea>
     <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
   </div>
+  <!--/* th:replace sits on an element nested inside each conditional:
+         fragment inclusion is evaluated before th:if/th:unless, so combining
+         them on one element would include both indicators. */-->
   <th:block th:if="${markdown}">
-    <span
-      th:replace="~{admin/shared/LegacyFieldWithLabel/MarkdownIndicator :: markdownIndicator('Markdown is supported, ')}"
-    ></span>
+    <th:block th:if="${markdownLink}">
+      <span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/MarkdownIndicator :: markdownIndicator('Markdown is supported, ')}"
+      ></span>
+    </th:block>
+    <th:block th:unless="${markdownLink}">
+      <span
+        th:replace="~{admin/shared/LegacyFieldWithLabel/MarkdownIndicator :: markdownIndicatorNoLink('Markdown is supported')}"
+      ></span>
+    </th:block>
   </th:block>
 </div>
