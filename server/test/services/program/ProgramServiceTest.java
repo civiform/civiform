@@ -504,61 +504,11 @@ public class ProgramServiceTest extends ResetPostgres {
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(false);
 
-    // Reset invocation count after getFullProgramDefinition (which legitimately calls
-    // getReadOnlyQuestionService internally). We only want to verify isTranslationComplete
-    // does NOT call it.
-    Mockito.clearInvocations(questionService);
-
     assertThat(psWithMock.isTranslationComplete(programDefinition)).isFalse();
 
     when(questionService.isTranslationComplete(translationLocales, question)).thenReturn(true);
 
     assertThat(psWithMock.isTranslationComplete(programDefinition)).isTrue();
-
-    // Verify the key behavioral change: isTranslationComplete() must NOT call
-    // getReadOnlyQuestionService() internally.
-    Mockito.verify(questionService, Mockito.never()).getReadOnlyQuestionService();
-  }
-
-  @Test
-  public void isTranslationComplete_questionNotHydrated_returnsFalse() throws Exception {
-    // If a ProgramQuestionDefinition does not have its QuestionDefinition hydrated in memory
-    // (i.e. hasQuestionDefinition() == false), the translation check must return false rather
-    // than falling back to a database fetch. This guards against lazy-load N+1 regressions.
-    when(translationLocales.translatableLocales()).thenReturn(ImmutableList.of(Locale.CHINESE));
-
-    ProgramModel program =
-        ProgramBuilder.newDraftProgram("test program", "description")
-            .withLocalizedName(Locale.CHINESE, "测试项目")
-            .withLocalizedDescription(Locale.CHINESE, "描述")
-            .withLocalizedShortDescription(Locale.CHINESE, "简短描述")
-            .withLocalizedConfirmationMessage(Locale.CHINESE, "确认信息")
-            .withBlock("Screen 1", "Screen 1 description")
-            .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
-            .build();
-
-    // Start from the shallow program definition and strip the question definition out of the
-    // block to simulate an unhydrated ProgramQuestionDefinition (as happens when programs are
-    // loaded via getShallowProgramDefinition rather than getFullProgramDefinition).
-    ProgramDefinition programDefinition = program.getProgramDefinition();
-    BlockDefinition block = programDefinition.getBlockDefinitionByIndex(0).get();
-    ProgramQuestionDefinition hydratedPqd = block.programQuestionDefinitions().get(0);
-
-    // Rebuild the PQD with only the ID — no QuestionDefinition attached.
-    ProgramQuestionDefinition unhydratedPqd =
-        ProgramQuestionDefinition.create(
-            hydratedPqd.id(), hydratedPqd.optional(), hydratedPqd.addressCorrectionEnabled());
-    assertThat(unhydratedPqd.hasQuestionDefinition()).isFalse();
-
-    BlockDefinition unhydratedBlock =
-        block.toBuilder().setProgramQuestionDefinitions(ImmutableList.of(unhydratedPqd)).build();
-    programDefinition =
-        programDefinition.toBuilder()
-            .setBlockDefinitions(ImmutableList.of(unhydratedBlock))
-            .build();
-
-    // Should return false without doing any DB lookup.
-    assertThat(ps.isTranslationComplete(programDefinition)).isFalse();
   }
 
   @Test

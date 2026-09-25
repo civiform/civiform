@@ -96,34 +96,6 @@ public final class VersionRepository {
     this.programsByVersionCache = checkNotNull(programsByVersionCache);
   }
 
-  /** Loads all active and draft programs in a single database query. */
-  public ImmutableList<ProgramModel> getProgramsForActiveAndDraft() {
-    VersionModel active = getActiveVersion();
-    Optional<VersionModel> draft = getDraftVersion();
-
-    List<Long> versionIds =
-        draft.isPresent() ? List.of(active.id, draft.get().id) : List.of(active.id);
-
-    ImmutableList<ProgramModel> programs =
-        database
-            .find(ProgramModel.class)
-            .setLabel("models.ProgramModel.batchActiveAndDraft")
-            .fetch("categories")
-            .fetch("versions")
-            .where()
-            .in("versions.id", versionIds)
-            .findList()
-            .stream()
-            .distinct()
-            .collect(ImmutableList.toImmutableList());
-
-    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
-    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
-    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
-    programs.forEach(ProgramModel::loadProgramDefinition);
-    return programs;
-  }
-
   /**
    * Simulates publishing a new version of all programs and questions.
    *
@@ -636,6 +608,34 @@ public final class VersionRepository {
         .orElse(0L);
   }
 
+  /** Loads all active and draft programs in a single database query. */
+  public ImmutableList<ProgramModel> getProgramsForActiveAndDraft() {
+    VersionModel active = getActiveVersion();
+    Optional<VersionModel> draft = getDraftVersion();
+
+    List<Long> versionIds =
+        draft.isPresent() ? List.of(active.id, draft.get().id) : List.of(active.id);
+
+    ImmutableList<ProgramModel> programs =
+        database
+            .find(ProgramModel.class)
+            .setLabel("models.ProgramModel.batchActiveAndDraft")
+            .fetch("categories")
+            .fetch("versions")
+            .where()
+            .in("versions.id", versionIds)
+            .findList()
+            .stream()
+            .distinct()
+            .collect(ImmutableList.toImmutableList());
+
+    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
+    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
+    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
+    programs.forEach(ProgramModel::loadProgramDefinition);
+    return programs;
+  }
+
   /**
    * Returns the questions for a version.
    *
@@ -680,12 +680,7 @@ public final class VersionRepository {
         .findAny();
   }
 
-  /**
-   * Returns true if any program across active or draft versions has {@link DisplayMode#DISABLED}.
-   *
-   * <p>Uses a lightweight EXISTS query rather than loading all program rows and their associations,
-   * which avoids the 2×N category lazy-loads that the previous implementation triggered.
-   */
+  /** Implements a lightweight query to determine if any programs are disabled. */
   public boolean anyDisabledPrograms() {
     return database
         .find(ProgramModel.class)

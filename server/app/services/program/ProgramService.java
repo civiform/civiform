@@ -184,32 +184,29 @@ public final class ProgramService {
   }
 
   /**
-   * Get the data object about the non-disabled programs that are in the active or draft version.
+   * Get the data object about the non-disabled programs that are in the active or draft version
+   * with the full question definitions attached to the programs.
    *
    * <p>Programs are loaded in a single batch query and partitioned into active/draft in memory,
    * eliminating the N+1 per-program database lookups that previously caused connection pool
    * exhaustion under load.
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
-    VersionModel active = versionRepository.getActiveVersion();
-    Optional<VersionModel> draft = versionRepository.getDraftVersion();
-
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
     ImmutableList<ProgramModel> allPrograms = versionRepository.getProgramsForActiveAndDraft();
 
     ImmutableList<ProgramModel> activePrograms =
         allPrograms.stream()
-            .filter(p -> p.getVersions().stream().anyMatch(v -> v.id.equals(active.id)))
+            .filter(p -> p.getVersions().stream().anyMatch(v -> v.id.equals(activeVersion.id)))
             .collect(ImmutableList.toImmutableList());
 
     ImmutableList<ProgramModel> draftPrograms =
-        draft
+        draftVersion
             .map(
-                draftVersion ->
+                draft ->
                     allPrograms.stream()
-                        .filter(
-                            p ->
-                                p.getVersions().stream()
-                                    .anyMatch(v -> v.id.equals(draftVersion.id)))
+                        .filter(p -> p.getVersions().stream().anyMatch(v -> v.id.equals(draft.id)))
                         .collect(ImmutableList.toImmutableList()))
             .orElse(ImmutableList.of());
 
