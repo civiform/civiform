@@ -5,6 +5,7 @@ import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.span;
 import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
@@ -193,10 +194,19 @@ public final class QuestionCard {
             visibilityConditionEditLinks.isPresent(), visibilityConditionEditLinks.orElse(null));
   }
 
+  /** Lists the question's options along with their scores if they have one. */
   private static UlTag getOptions(MultiOptionQuestionDefinition question) {
     UlTag options = ul().withClasses("list-disc", "mx-4", "mt-2");
     for (QuestionOption option : question.getOptions()) {
-      options.with(li(option.optionText().getDefault()));
+      options.with(
+          li(
+              span(option.optionText().getDefault()),
+              iff(
+                  option.score().isPresent(),
+                  span(String.format(
+                          "(Score: %s)",
+                          option.score().map(QuestionOption::formatScore).orElse("")))
+                      .withClasses("ml-1", "text-sm", "text-gray-600"))));
     }
     return options;
   }

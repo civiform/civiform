@@ -24,6 +24,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.admin.migration.AdminImportProgramDataPartialViewModel;
 import views.admin.migration.AdminImportProgramDataPartialViewModel.Block;
+import views.admin.migration.AdminImportProgramDataPartialViewModel.Option;
 import views.admin.migration.AdminImportProgramDataPartialViewModel.QuestionCard;
 
 public final class AdminImportProgramDataPartialMapperTest {
@@ -246,7 +247,7 @@ public final class AdminImportProgramDataPartialMapperTest {
     assertThat(card.isDuplicate()).isFalse();
     assertThat(card.getUniversalBadgeText()).isNull();
     assertThat(card.getEnumeratorName()).isNull();
-    assertThat(card.getOptionTexts()).isNull();
+    assertThat(card.getOptions()).isNull();
     assertThat(card.getDuplicateHandling()).isNull();
   }
 
@@ -324,8 +325,8 @@ public final class AdminImportProgramDataPartialMapperTest {
     assertThat(card.getUniversalBadgeText()).isEqualTo("Universal text question");
   }
 
-  @Test
-  public void map_multiOptionQuestion_setsOptionTexts() {
+  private static MultiOptionQuestionDefinition mockMultiOptionQuestion(
+      ImmutableList<QuestionOption> options) {
     MultiOptionQuestionDefinition question = mock(MultiOptionQuestionDefinition.class);
     when(question.getName()).thenReturn("q1");
     when(question.getId()).thenReturn(10L);
@@ -334,8 +335,14 @@ public final class AdminImportProgramDataPartialMapperTest {
     when(question.getQuestionHelpText()).thenReturn(LocalizedStrings.empty());
     when(question.getEnumeratorId()).thenReturn(Optional.empty());
     when(question.isUniversal()).thenReturn(false);
-    when(question.getOptions())
-        .thenReturn(
+    when(question.getOptions()).thenReturn(options);
+    return question;
+  }
+
+  @Test
+  public void map_multiOptionQuestion_setsOptionsWithoutScores() {
+    MultiOptionQuestionDefinition question =
+        mockMultiOptionQuestion(
             ImmutableList.of(
                 QuestionOption.create(
                     1L,
@@ -357,6 +364,44 @@ public final class AdminImportProgramDataPartialMapperTest {
 
     QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
     assertThat(card.getIconFragment()).isEqualTo("iconCheckbox");
-    assertThat(card.getOptionTexts()).containsExactly("Option one", "Option two");
+    assertThat(card.getOptions())
+        .extracting(Option::getText)
+        .containsExactly("Option one", "Option two");
+    assertThat(card.getOptions()).extracting(Option::getScore).containsOnlyNulls();
+  }
+
+  @Test
+  public void map_scoredMultiOptionQuestion_setsFormattedOptionScores() {
+    MultiOptionQuestionDefinition question =
+        mockMultiOptionQuestion(
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L,
+                    /* displayOrder= */ 1L,
+                    "option-one",
+                    LocalizedStrings.withDefaultValue("Option one"),
+                    /* displayInAnswerOptions= */ Optional.of(true),
+                    /* score= */ Optional.of(10.5)),
+                QuestionOption.create(
+                    2L,
+                    /* displayOrder= */ 2L,
+                    "option-two",
+                    LocalizedStrings.withDefaultValue("Option two"),
+                    /* displayInAnswerOptions= */ Optional.of(true),
+                    /* score= */ Optional.of(0.0))));
+
+    // Scores are shown even though the program does not use scoring.
+    AdminImportProgramDataPartialViewModel result =
+        mapper.map(
+            program(block(1L, question)).toBuilder().setUsesScoring(false).build(),
+            ImmutableList.of(question),
+            /* duplicateQuestionNames= */ ImmutableList.of(),
+            PROGRAM_JSON);
+
+    QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
+    assertThat(card.getOptions())
+        .extracting(Option::getText)
+        .containsExactly("Option one", "Option two");
+    assertThat(card.getOptions()).extracting(Option::getScore).containsExactly("10.5", "0");
   }
 }

@@ -1,14 +1,18 @@
 package services.monitoring;
 
 import io.prometheus.client.Counter;
+import io.prometheus.client.Gauge;
 import javax.inject.Inject;
 import javax.inject.Singleton;
 
 @Singleton
 public final class MonitoringMetricCounters {
   private final Counter queryMetricCount;
-  private final Counter queryMetricMeanLatency;
-  private final Counter queryMetricMaxLatency;
+  // Mean and max are point-in-time observations of the most recent collection interval, not
+  // additive quantities, so they are Gauges. Summing them into a Counter produces a
+  // monotonically-increasing series that is neither a mean nor a max.
+  private final Gauge queryMetricMeanLatency;
+  private final Gauge queryMetricMaxLatency;
   private final Counter queryMetricTotalLatency;
   private final Counter urlWithProgramIdCall;
 
@@ -22,14 +26,14 @@ public final class MonitoringMetricCounters {
             .register();
 
     queryMetricMeanLatency =
-        Counter.build()
+        Gauge.build()
             .name("ebean_queries_mean_latency_micros")
             .help("Mean latency of database queries in micros")
             .labelNames("name", "location", "className")
             .register();
 
     queryMetricMaxLatency =
-        Counter.build()
+        Gauge.build()
             .name("ebean_queries_max_latency_micros")
             .help("Max latency of database queries in micros")
             .labelNames("name", "location", "className")
@@ -54,11 +58,11 @@ public final class MonitoringMetricCounters {
     return queryMetricCount;
   }
 
-  public Counter getQueryMetricMeanLatency() {
+  public Gauge getQueryMetricMeanLatency() {
     return queryMetricMeanLatency;
   }
 
-  public Counter getQueryMetricMaxLatency() {
+  public Gauge getQueryMetricMaxLatency() {
     return queryMetricMaxLatency;
   }
 

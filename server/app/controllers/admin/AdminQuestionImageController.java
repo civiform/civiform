@@ -96,7 +96,7 @@ public class AdminQuestionImageController extends CiviFormController {
     } catch (UnsupportedQuestionTypeException e) {
       return renderError("Unsupported question type");
     } catch (ImageDescriptionNotRemovableException e) {
-      return renderError(messages.at("toast.adminQuestionImage.descriptionNotRemovable"));
+      return renderError(messages.at("validation.adminQuestionImage.descriptionNotRemovable"));
     } catch (ConcurrentUpdateException e) {
       return renderError("Please try your edits again");
     }

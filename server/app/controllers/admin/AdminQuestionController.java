@@ -387,11 +387,6 @@ public final class AdminQuestionController extends CiviFormController {
                   }
                   Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
                   Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-                  String existingImageDescription =
-                      questionDefinition
-                          .getLocalizedImageDescription()
-                          .map(LocalizedStrings::getDefault)
-                          .orElse("");
                   QuestionFormPageViewModel model =
                       buildEditQuestionPageModel(
                           id,
@@ -400,8 +395,7 @@ public final class AdminQuestionController extends CiviFormController {
                           readOnlyService,
                           request,
                           errorMessage,
-                          existingImageFileKey,
-                          existingImageDescription);
+                          existingImageFileKey);
                   return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
                 } catch (InvalidQuestionTypeException e) {
                   return badRequest(
@@ -597,11 +591,6 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
 
       Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-      String existingImageDescription =
-          questionDefinition
-              .getLocalizedImageDescription()
-              .map(LocalizedStrings::getDefault)
-              .orElse("");
 
       QuestionFormPageViewModel model =
           buildEditQuestionPageModel(
@@ -611,8 +600,7 @@ public final class AdminQuestionController extends CiviFormController {
               roService,
               request,
               Optional.of(errorText),
-              existingImageFileKey,
-              existingImageDescription);
+              existingImageFileKey);
       return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
@@ -642,9 +630,22 @@ public final class AdminQuestionController extends CiviFormController {
 
     if (existing.isPresent()) {
       updateDefaultLocalizations(existing.get(), updated, questionForm, scoringEnabled);
+      preserveServerOwnedFields(existing.get(), updated);
     }
 
     return updated;
+  }
+
+  /**
+   * Preserves fields that are owned by the server and not represented in the question edit form, so
+   * they survive an update that rebuilds the {@link QuestionDefinition} from client-submitted form
+   * data.
+   */
+  private void preserveServerOwnedFields(
+      QuestionDefinition existing, QuestionDefinitionBuilder updated) {
+    if (existing.getQuestionType().equals(QuestionType.ENUMERATOR)) {
+      updated.setEnumeratorInitialQuestionId(existing.getEnumeratorInitialQuestionId());
+    }
   }
 
   /**
@@ -911,8 +912,7 @@ public final class AdminQuestionController extends CiviFormController {
       ReadOnlyQuestionService readOnlyQuestionService,
       Request request,
       Optional<String> errorMessage,
-      Optional<String> existingImageFileKey,
-      String existingImageDescription) {
+      Optional<String> existingImageFileKey) {
     MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
     return new QuestionFormPageMapper()
         .mapEdit(
@@ -926,8 +926,7 @@ public final class AdminQuestionController extends CiviFormController {
             settingsManifest.getImagesInQuestionFeatureEnabled(request),
             readOnlyQuestionService,
             errorMessage,
-            existingImageFileKey,
-            existingImageDescription);
+            existingImageFileKey);
   }
 
   /**

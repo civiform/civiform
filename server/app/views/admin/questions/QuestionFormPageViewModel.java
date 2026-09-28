@@ -6,13 +6,12 @@ import com.google.common.collect.ImmutableList;
 import controllers.admin.routes;
 import forms.questions.MultiOptionQuestionForm;
 import forms.questions.QuestionForm;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
+import org.apache.commons.io.FilenameUtils;
 import services.RandomStringUtils;
 import views.BaseViewModel;
 
@@ -116,7 +115,11 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   public Optional<String> getExistingImageFileKey() {
-    return existingImageFileKey;
+    return existingImageFileKey != null ? existingImageFileKey : Optional.empty();
+  }
+
+  public Optional<String> getExistingImageFileName() {
+    return getExistingImageFileKey().map(FilenameUtils::getName);
   }
 
   public String getQuestionImageDescription() {
@@ -147,20 +150,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   public String getPreviewUrl() {
-    String base =
-        controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel).url();
-    // For static questions, append the image file key and alt text so the preview
-    // endpoint can resolve the public URL and display the inline image.
-    if (existingImageFileKey != null && existingImageFileKey.isPresent()) {
-      String encodedKey =
-          URLEncoder.encode(existingImageFileKey.get(), StandardCharsets.UTF_8);
-      String encodedAlt =
-          URLEncoder.encode(
-              questionImageDescription != null ? questionImageDescription : "",
-              StandardCharsets.UTF_8);
-      return base + "?imageFileKey=" + encodedKey + "&imageAltText=" + encodedAlt;
-    }
-    return base;
+    return controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel)
+        .url();
   }
 
   public String getGeoJsonPostUrl() {

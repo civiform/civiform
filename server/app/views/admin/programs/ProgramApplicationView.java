@@ -359,7 +359,11 @@ public final class ProgramApplicationView extends BaseHtmlView {
   private Modal renderUpdateNoteConfirmationModal(
       long programId, ApplicationModel application, Optional<String> noteMaybe, Request request) {
     ButtonTag triggerButton =
-        makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
+        makeSvgTextButton("Add note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
+    if (noteMaybe.isPresent() && !noteMaybe.get().isEmpty()) {
+      triggerButton =
+          makeSvgTextButton("Edit note", Icons.EDIT).withClasses(ButtonStyles.CLEAR_WITH_ICON);
+    }
     String formId = Modal.randomModalId();
     // No form action or content is rendered since admin_application_view.ts extracts the values
     // and calls postMessage rather than attempting a submission. The main frame is responsible for

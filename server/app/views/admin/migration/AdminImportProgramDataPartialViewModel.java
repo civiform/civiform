@@ -92,12 +92,25 @@ public final class AdminImportProgramDataPartialViewModel implements BaseViewMod
     // repeated; rendered as the card's data-enumerator attribute.
     private final String enumeratorName;
 
-    // Option texts for multi-option question types. Null for other types.
-    private final ImmutableList<String> optionTexts;
+    // Answer options for multi-option question types. Null for other types.
+    private final ImmutableList<Option> options;
 
     // Duplicate-handling radio group data. Null unless the question is a
     // duplicate.
     private final DuplicateHandling duplicateHandling;
+  }
+
+  /** One answer option of an imported multi-option question. */
+  @Data
+  @Builder
+  public static final class Option {
+    // Default-locale option text.
+    private final String text;
+
+    // The option's score, formatted for display. Null when unscored. Shown
+    // regardless of the program's usesScoring setting so admins can see what
+    // they are importing.
+    private final String score;
   }
 
   /** Data for one duplicate question's handling options. */

@@ -187,6 +187,19 @@ jobs:
             browser-test/tmp/html-output/
             browser-test/tmp/videos/
 
+      # Upload the Playwright JSON report from passing runs. It carries per-test durations, which
+      # is the data needed to balance shards by time rather than by file count. Note the gate is
+      # coarse: success() only skips shards where a test failed even after its retry. A test that
+      # fails and then passes on retry is still uploaded with both attempts, each carrying `status`
+      # and `retry`, so anything balancing on this data must filter to passed results itself.
+      - name: Upload test results JSON
+        if: success()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: test results json (${{ matrix.cloud }}) - shard-${{ matrix.shard_number }}-run-${{ github.run_attempt }}
+          retention-days: 3
+          path: browser-test/tmp/json-output/results.json
+
       - name: Print logs on failure
         if: failure()
         run: cat .dockerlogs

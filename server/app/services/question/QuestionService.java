@@ -637,9 +637,9 @@ public final class QuestionService {
       builder.setImageFileKey(maybeFileKey);
     }
     if (imageDescription.isBlank() && questionDefinition.getImageFileKey().isPresent()) {
-        throw new ImageDescriptionNotRemovableException(
-            "Description can't be removed because an image is present. Delete the image before"
-                + " deleting the description.");
+      throw new ImageDescriptionNotRemovableException(
+          "Description can't be removed because an image is present. Delete the image before"
+              + " deleting the description.");
     }
 
     Optional<LocalizedStrings> newStrings =

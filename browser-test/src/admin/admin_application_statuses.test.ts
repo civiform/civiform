@@ -61,7 +61,8 @@ test.describe('view program statuses', () => {
       )
     })
 
-    test('does not show edit note', async ({page, adminPrograms}) => {
+    test('does not show edit or add note', async ({page, adminPrograms}) => {
+      expect(await adminPrograms.isAddNoteVisible()).toBe(false)
       expect(await adminPrograms.isEditNoteVisible()).toBe(false)
       await page.getByRole('link', {name: 'Back'}).click()
     })
@@ -312,8 +313,14 @@ test.describe('view program statuses', () => {
       page,
       adminPrograms,
     }) => {
-      await adminPrograms.editNote('Some note content')
+      expect(await adminPrograms.isAddNoteVisible()).toBe(true)
+      expect(await adminPrograms.isEditNoteVisible()).toBe(false)
+
+      await adminPrograms.addNote('Some note content')
       await adminPrograms.expectNoteUpdatedToast()
+
+      expect(await adminPrograms.isAddNoteVisible()).toBe(false)
+      expect(await adminPrograms.isEditNoteVisible()).toBe(true)
 
       // Confirm that the application is shown after reloading the page.
       const applicationText = await page
@@ -323,7 +330,7 @@ test.describe('view program statuses', () => {
     })
 
     test('renders the note dialog', async ({page, adminPrograms}) => {
-      await adminPrograms.awaitEditNoteModal()
+      await adminPrograms.awaitAddNoteModal()
       await page.evaluate(() => {
         window.scrollTo(0, 0)
       })
@@ -332,7 +339,7 @@ test.describe('view program statuses', () => {
 
     test('shows the current note content', async ({adminPrograms}) => {
       const noteText = 'Some note content'
-      await adminPrograms.editNote(noteText)
+      await adminPrograms.addNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
       // Reload the note editor.
@@ -344,7 +351,7 @@ test.describe('view program statuses', () => {
 
     test('allows updating a note', async ({adminPrograms}) => {
       const noteText = 'Some note content'
-      await adminPrograms.editNote('first note content')
+      await adminPrograms.addNote('first note content')
       await adminPrograms.expectNoteUpdatedToast()
       await adminPrograms.editNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
@@ -357,7 +364,7 @@ test.describe('view program statuses', () => {
     })
 
     test('allow notes to be exported', async ({page, adminPrograms}) => {
-      await adminPrograms.editNote('Note is exported')
+      await adminPrograms.addNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
       const noApplyFilters = false
       await page.getByRole('link', {name: 'Back'}).click()
@@ -367,7 +374,7 @@ test.describe('view program statuses', () => {
     })
 
     test('export only the latest note', async ({page, adminPrograms}) => {
-      await adminPrograms.editNote('Note is exported')
+      await adminPrograms.addNote('Note is exported')
       await adminPrograms.expectNoteUpdatedToast()
       const noApplyFilters = false
 
@@ -389,7 +396,7 @@ test.describe('view program statuses', () => {
       await adminPrograms.viewApplications(programWithStatusesName)
       await adminPrograms.viewApplicationForApplicant('Guest')
       const noteText = 'Some note content\nwithseparatelines'
-      await adminPrograms.editNote(noteText)
+      await adminPrograms.addNote(noteText)
       await adminPrograms.expectNoteUpdatedToast()
 
       expect(await adminPrograms.getNoteContent()).toBe(noteText)

@@ -34,6 +34,7 @@ import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
 import services.question.QuestionService;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.NameQuestionDefinition;
@@ -42,6 +43,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import services.question.types.StaticContentQuestionDefinition;
+import services.question.types.TextQuestionDefinition;
 import views.html.helper.CSRF;
 
 public class AdminQuestionControllerTest extends ResetPostgres {
@@ -107,10 +109,10 @@ public class AdminQuestionControllerTest extends ResetPostgres {
    * Regression test for the bug where an image uploaded via the HTMX uploader is silently dropped
    * when the admin submits Update for an active question that had no draft at page load.
    *
-   * <p>Scenario: the edit form renders at the active id (no draft exists yet). The admin uploads
-   * an image — hxUploadQuestionImage calls createOrUpdateDraft, which inserts a new draft row
-   * with a new id and stores the image key there. The admin then clicks Update. update() must read
-   * its maybeExisting from the draft row (by name), not from the active row (by URL id), so that
+   * <p>Scenario: the edit form renders at the active id (no draft exists yet). The admin uploads an
+   * image — hxUploadQuestionImage calls createOrUpdateDraft, which inserts a new draft row with a
+   * new id and stores the image key there. The admin then clicks Update. update() must read its
+   * maybeExisting from the draft row (by name), not from the active row (by URL id), so that
    * updateDefaultLocalizations copies the image key from the draft rather than the empty active
    * definition.
    */
@@ -132,10 +134,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     QuestionService questionService = instanceOf(QuestionService.class);
     QuestionDefinition draftAfterUpload =
         questionService.setImageFileKeyAndDescription(
-            activeQuestion.id,
-            Optional.of(uploadedFileKey),
-            java.util.Locale.US,
-            uploadedAltText);
+            activeQuestion.id, Optional.of(uploadedFileKey), java.util.Locale.US, uploadedAltText);
     // The draft should now hold the image key.
     assertThat(draftAfterUpload.getImageFileKey()).hasValue(uploadedFileKey);
     // The draft id must be different from the active id.
@@ -160,7 +159,9 @@ public class AdminQuestionControllerTest extends ResetPostgres {
 
     Result result =
         controller.update(
-            requestBuilder.build(), activeQuestion.id, activeDefinition.getQuestionType().toString());
+            requestBuilder.build(),
+            activeQuestion.id,
+            activeDefinition.getQuestionType().toString());
 
     assertThat(result.status()).isEqualTo(SEE_OTHER);
 
@@ -624,6 +625,74 @@ public class AdminQuestionControllerTest extends ResetPostgres {
         .isEqualTo("a new description");
     assertThat(updatedNameQuestion.getQuestionTags())
         .isEqualTo(ImmutableList.of(QuestionTag.DEMOGRAPHIC_PII));
+  }
+
+  @Test
+  public void update_enumeratorQuestion_preservesInitialQuestionId() {
+    // The initial question the enumerator points to.
+    QuestionModel initialQuestion =
+        testQuestionBank.maybeSave(
+            new TextQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("household member name")
+                    .setDescription("desc")
+                    .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
+                    .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                    .build()),
+            LifecycleStage.DRAFT);
+
+    // A draft enumerator question that references the initial question. The enumerator edit form
+    // has no field for the initialQuestionId, so editing the enumerator must not drop it.
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.maybeSave(
+            new EnumeratorQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName("household members")
+                    .setDescription("desc")
+                    .setQuestionText(
+                        LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                    .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                    .setEnumeratorInitialQuestionId(initialQuestion.id)
+                    .build(),
+                LocalizedStrings.of(Locale.US, "household member")),
+            LifecycleStage.DRAFT);
+
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", enumeratorQuestion.getQuestionDefinition().getName())
+        .put("questionDescription", "a new description")
+        .put("questionType", QuestionType.ENUMERATOR.name())
+        .put("questionText", "Who are your household members?")
+        .put("questionHelpText", "help text")
+        .put("entityType", "household member")
+        .put("concurrencyToken", enumeratorQuestion.getConcurrencyToken().toString());
+    RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(formData.build());
+
+    Result result =
+        controller.update(
+            requestBuilder.build(),
+            enumeratorQuestion.getQuestionDefinition().getId(),
+            QuestionType.ENUMERATOR.toString());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    QuestionModel updatedEnumerator =
+        questionRepo
+            .lookupQuestion(enumeratorQuestion.getQuestionDefinition().getId())
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    // Verify the description has been updated
+    assertThat(updatedEnumerator.getQuestionDefinition().getDescription())
+        .isEqualTo("a new description");
+
+    // Verify the initial question link is maintained
+    assertThat(updatedEnumerator.getQuestionDefinition().getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestion.id);
   }
 
   @Test
