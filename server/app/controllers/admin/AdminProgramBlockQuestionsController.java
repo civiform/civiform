@@ -200,24 +200,23 @@ public class AdminProgramBlockQuestionsController extends Controller {
                                   .getKeyName())))
                   .build());
     } else {
-      Optional<QuestionModel> maybeOriginalInitialQuestion =
+      Optional<QuestionModel> optionalOriginalInitialQuestionModel =
           versionRepository.getLatestVersionOfQuestion(initialQuestionIdFromForm.getAsLong());
       Optional<String> errorMsg = Optional.empty();
-      if (maybeOriginalInitialQuestion.isEmpty()) {
+      if (optionalOriginalInitialQuestionModel.isEmpty()) {
         errorMsg =
             Optional.of(
                 String.format(
                     "Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
       } else {
         QuestionDefinition originalInitialQuestion =
-            maybeOriginalInitialQuestion.get().getQuestionDefinition();
+            optionalOriginalInitialQuestionModel.get().getQuestionDefinition();
         VersionModel draft = versionRepository.getDraftVersionOrCreate();
         if (draft.getTombstonedQuestionNames().contains(originalInitialQuestion.getName())) {
           errorMsg =
               Optional.of(
-                  String.format(
-                      "Question has been archived for ID: %d",
-                      initialQuestionIdFromForm.getAsLong()));
+                    "Error: Initial question has been archived. Select a new " +
+                      "initial question.");
         } else {
           optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
         }
