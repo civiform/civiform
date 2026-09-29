@@ -7,6 +7,7 @@ import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
 import javax.inject.Inject;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -37,7 +38,7 @@ public final class QuestionPreviewController extends CiviFormController {
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public Result sampleQuestion(Request request, String questionType) {
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);
