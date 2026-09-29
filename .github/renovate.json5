@@ -126,6 +126,15 @@
       allowedVersions: "<17.0.0",
       prHeader: "Release Notes: https://www.postgresql.org/docs/release",
     },
+    // USWDS provides most of CiviForm's applicant-facing UI, so an upgrade can change
+    // accessibility behavior. Don't open upgrade PRs automatically: someone has to
+    // request one from the Dependency Dashboard, and the PR needs an accessibility
+    // review before it merges.
+    {
+      matchPackageNames: ["@uswds/uswds"],
+      dependencyDashboardApproval: true,
+      prHeader: "**USWDS upgrade: needs a deliberate accessibility review before merging.** Read the release notes (https://github.com/uswds/uswds/releases) for component, markup, focus, and ARIA changes. Check that browser tests with accessibility checks pass, then manually check the applicant flow with keyboard only and with a screen reader. Record what you checked in this PR.",
+    },
     {
       groupName: "tailwindcss",
       matchPackageNames: ["tailwindcss"],
