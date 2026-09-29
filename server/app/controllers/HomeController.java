@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -116,7 +117,7 @@ public class HomeController extends Controller {
     return notFound();
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public Result securePlayIndex() {
     return ok("You are logged in.");
   }

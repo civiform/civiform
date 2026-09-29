@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -77,7 +78,7 @@ public final class FileUploadController extends CiviFormController {
     this.fileUploadQuestionPartialView = checkNotNull(fileUploadQuestionPartialView);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
       Request request, long programId, String blockId) {
@@ -203,7 +204,7 @@ public final class FileUploadController extends CiviFormController {
    * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to refresh the file
    * list and related UI (validation errors, number of allowed uploads left).
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
