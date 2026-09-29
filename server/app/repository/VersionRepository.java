@@ -567,16 +567,6 @@ public final class VersionRepository {
         .collect(ImmutableSet.toImmutableSet());
   }
 
-  /**
-   * If a question by the given name exists, return it. A maximum of one question by a given name
-   * can exist in a version.
-   */
-  public Optional<QuestionModel> getQuestionByNameForVersion(String name, VersionModel version) {
-    return getQuestionsForVersion(version).stream()
-        .filter(q -> questionRepository.getQuestionDefinition(q).getName().equals(name))
-        .findAny();
-  }
-
   /** Return the number of programs that exist in a given version. */
   public Long getProgramCountForVersion(VersionModel version) {
     String sql =
@@ -620,6 +610,33 @@ public final class VersionRepository {
           String.valueOf(version.id), version::getQuestions);
     }
     return getQuestionsForVersionWithoutCache(version);
+  }
+
+  /**
+   * Returns the question for a version.
+   *
+   * <p>If the cache is enabled, we will get the data from the cache and set it if it is not
+   * present. This method is meant to be efficient by not loading all questions if there's no other
+   * utility to it.
+   */
+  public Optional<QuestionModel> getQuestionByNameForVersion(String name,
+                                                        VersionModel version) {
+    // Only get the version cache for active and obsolete versions
+    if (settingsManifest.getVersionCacheEnabled() && version.id <= getActiveVersion().id) {
+      return questionsByVersionCache
+          .getOrElseUpdate(String.valueOf(version.id), version::getQuestions)
+          .stream()
+          .filter(qm -> qm.getQuestionDefinition().getName().equals(name))
+          .findFirst();
+    }
+    return database
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findByNameForVersion")
+        .setProfileLocation(profileLocationBuilder.create("getQuestionForVersionMaybeCache"))
+        .where()
+        .eq("name", name)
+        .eq("versions.id", version.id)
+        .findOneOrEmpty();
   }
 
   /** Returns the questions for a version if the version is present. */
@@ -711,33 +728,28 @@ public final class VersionRepository {
   /**
    * Given any revision of a question, return the most recent conceptual version of it. Will return
    * the current DRAFT version if present then the current ACTIVE version.
+   *
+   * <p>Does not take into account if the question is archived.
    */
   public Optional<QuestionModel> getLatestVersionOfQuestion(long questionId) {
-    String questionName =
+    Optional<String> maybeQuestionName =
         database
             .find(QuestionModel.class)
             .setId(questionId)
             .select("name")
             .setLabel("QuestionModel.findLatest")
             .setProfileLocation(profileLocationBuilder.create("getLatestVersionOfQuestion"))
-            .findSingleAttribute();
+            .findSingleAttributeOrEmpty();
+    if (maybeQuestionName.isEmpty()) {
+      return Optional.empty();
+    }
+    String questionName = maybeQuestionName.get();
     Optional<QuestionModel> draftQuestion =
-        getQuestionsForVersion(getDraftVersion()).stream()
-            .filter(
-                question ->
-                    questionRepository
-                        .getQuestionDefinition(question)
-                        .getName()
-                        .equals(questionName))
-            .findFirst();
+        getDraftVersion().flatMap(draft -> getQuestionByNameForVersion(questionName, draft));
     if (draftQuestion.isPresent()) {
       return draftQuestion;
     }
-    return getQuestionsForVersion(getActiveVersion()).stream()
-        .filter(
-            question ->
-                questionRepository.getQuestionDefinition(question).getName().equals(questionName))
-        .findFirst();
+    return getQuestionByNameForVersion(questionName, getActiveVersion());
   }
 
   /**
