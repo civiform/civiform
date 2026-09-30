@@ -28,6 +28,30 @@
   ></div>
 </th:block>
 
+<!--/* Same as titleAndHelpTextMultipleInput, but renders the title as a div rather than a legend so
+     it can be referenced from a role="group" element's aria-labelledby without an enclosing
+     fieldset. The enumerator initial-question rows use role="group" + aria-labelledby rather than a
+     fieldset/legend because the first row's group label is a combination of two elements — the
+     enumerator question title and the per-entity label ("<entity type> #N") — which a single
+     <legend> can't express. */-->
+<th:block
+  th:fragment="titleAndHelpTextGroupLabel(question, questionId)"
+  th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
+  th:remove="tag"
+>
+  <!--/* Question title */-->
+  <div th:id="${questionId} + '-title'" class="usa-legend display-flex">
+    <div th:replace="~{this :: titleContent(${question})}"></div>
+  </div>
+
+  <!--/* Question help text */-->
+  <div
+    th:id="${questionId} + '-description'"
+    th:utext="${question.getFormattedQuestionHelpText(ariaLabelForNewTabs)}"
+    class="font-sans-xs padding-top-05 cf-applicant-question-help-text margin-bottom-105"
+  ></div>
+</th:block>
+
 <div
   th:fragment="titleAndHelpTextSingleInput(question, questionId, inputId)"
   class="margin-bottom-105"
