@@ -87,11 +87,45 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
   }
 
   @Test
+  public void getSampleJson_withScores_includesSampleScoreValues() {
+    ProgramDefinition scoringProgram = programDefinition.toBuilder().setUsesScoring(true).build();
+
+    String json =
+        asPrettyJsonString(
+            programJsonSampler.getSampleJson(scoringProgram, /* scoringEnabled= */ true));
+
+    // Single-select sample questions (dropdown, radio) get a sample score.
+    assertThat(json).contains("\"score\" : 2.0");
+    // Checkbox sample questions show the nullable-array semantics.
+    assertThat(json).contains("\"scores\" : [ 1.5, null ]");
+    // Two single-select questions at 2.0 plus one scored checkbox selection at 1.5.
+    assertThat(json).contains("\"total_score\" : 5.5");
+  }
+
+  @Test
+  public void getSampleJson_withScores_programDoesNotUseScoring_omitsScoreProperties() {
+    String json = programJsonSampler.getSampleJson(programDefinition, /* scoringEnabled= */ true);
+
+    assertThat(json).doesNotContain("\"score\"");
+    assertThat(json).doesNotContain("\"scores\"");
+    assertThat(json).doesNotContain("\"total_score\"");
+  }
+
+  @Test
+  public void getSampleJson_withoutScores_omitsScoreProperties() {
+    String json = programJsonSampler.getSampleJson(programDefinition, /* scoringEnabled= */ false);
+
+    assertThat(json).doesNotContain("\"score\"");
+    assertThat(json).doesNotContain("\"scores\"");
+    assertThat(json).doesNotContain("\"total_score\"");
+  }
+
+  @Test
   public void samplesFullProgram() {
-    String json = programJsonSampler.getSampleJson(programDefinition);
+    String json = programJsonSampler.getSampleJson(programDefinition, /* scoringEnabled= */ false);
 
     String expectedJson =
-        """
+"""
 {
   "nextPageToken" : null,
   "payload" : [ {
@@ -188,7 +222,8 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     "ti_email" : null,
     "ti_organization" : null
   } ]
-}""";
+}\
+""";
 
     assertThat(asPrettyJsonString(json)).isEqualTo(expectedJson);
   }

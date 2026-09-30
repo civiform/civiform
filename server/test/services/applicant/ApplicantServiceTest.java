@@ -97,6 +97,7 @@ import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.DateQuestionDefinition;
 import services.question.types.EmailQuestionDefinition;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.FileUploadQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
@@ -1085,6 +1086,133 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void stageAndUpdateIfValid_pathEndingInReservedScoreKey_isRejected() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            "applicant.color.score", "9999",
+            "applicant.toppings.scores[0]", "9999",
+            "total_score", "9999");
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        updates,
+                        false,
+                        false,
+                        /* apiBridgeEnabled= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(IllegalArgumentException.class)
+        .withMessageContaining("Path contained reserved score key");
+  }
+
+  @Test
+  public void isReservedScoreUpdatePath_rejectsScoreKeyWrites() {
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("total_score"))).isTrue();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("total_score[0]"))).isTrue();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.color.score")))
+        .isTrue();
+    assertThat(
+            ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.toppings.scores[0]")))
+        .isTrue();
+    assertThat(
+            ApplicantService.isReservedScoreUpdatePath(
+                Path.create("applicant.household[0].toppings.scores[1]")))
+        .isTrue();
+  }
+
+  @Test
+  public void isReservedScoreUpdatePath_allowsEnumeratorEntityAndOrdinaryPaths() {
+    // Enumerator entity updates address the question's array element directly; the service
+    // appends entity_name later.
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.score[0]")))
+        .isFalse();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.scores[2]")))
+        .isFalse();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.total_score[0]")))
+        .isFalse();
+    assertThat(
+            ApplicantService.isReservedScoreUpdatePath(
+                Path.create("applicant.household[0].score[1]")))
+        .isFalse();
+    // Scalars of questions named like a score key, and ordinary answers.
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.score.text")))
+        .isFalse();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("applicant.color.selection")))
+        .isFalse();
+    assertThat(ApplicantService.isReservedScoreUpdatePath(Path.empty())).isFalse();
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_enumeratorNamedLikeScoreKey_addsAndRenamesEntities() {
+    for (String adminName : ImmutableList.of("score", "scores", "total score")) {
+      QuestionDefinition enumerator = createEnumeratorQuestion(adminName);
+      ProgramDefinition progDef =
+          ProgramBuilder.newDraftProgram("enumerator " + adminName, "desc")
+              .withBlock()
+              .withRequiredQuestionDefinition(enumerator)
+              .buildDefinition();
+      versionRepository.publishNewSynchronizedVersion();
+      ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+      Path enumeratorPath = ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment());
+
+      stageEnumeratorUpdates(
+          progDef, applicant, "1", ImmutableMap.of(enumeratorPath.atIndex(0).toString(), "Alice"));
+      stageEnumeratorUpdates(
+          progDef,
+          applicant,
+          "1",
+          ImmutableMap.of(
+              enumeratorPath.atIndex(0).toString(), "Alicia",
+              enumeratorPath.atIndex(1).toString(), "Bob"));
+
+      ApplicantData applicantDataAfter =
+          accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+      assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath))
+          .as(adminName)
+          .containsExactly("Alicia", "Bob");
+    }
+  }
+
+  private QuestionDefinition createEnumeratorQuestion(String adminName) {
+    return questionService
+        .create(
+            new EnumeratorQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(adminName)
+                    .setDescription("description")
+                    .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                    .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                    .build(),
+                LocalizedStrings.empty()))
+        .getResult();
+  }
+
+  private void stageEnumeratorUpdates(
+      ProgramDefinition progDef,
+      ApplicantModel applicant,
+      String blockId,
+      ImmutableMap<String, String> updates) {
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            progDef.id(),
+            blockId,
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+  }
+
+  @Test
   public void createApplicant_createsANewApplicant() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
 
@@ -1135,7 +1263,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1166,7 +1298,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1192,7 +1328,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                tiApplicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                tiApplicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1253,7 +1393,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                progDef.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     assertThat(application.getEligibilityDetermination())
@@ -1379,7 +1523,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                progDef.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1425,7 +1573,11 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     subject
         .submitApplication(
-            blankApplicant.id, progDef.id(), trustedIntermediaryProfile, fakeRequest())
+            blankApplicant.id,
+            progDef.id(),
+            trustedIntermediaryProfile,
+            fakeRequest(),
+            /* answerOptionScoringEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1501,11 +1653,20 @@ public class ApplicantServiceTest extends ResetPostgres {
         .join();
 
     var storedFile = new StoredFileModel().setName(fileKey);
+    // The real upload callback records the uploader in applicantReadAcls at creation
+    // (getOrMakeFileRecord); submission only expands program ACLs for files the
+    // applicant can read.
+    storedFile.getAcls().addApplicantToReaders(applicant.id);
     storedFile.save();
 
     Request request = fakeRequest();
     subject
-        .submitApplication(applicant.id, firstProgram.id, trustedIntermediaryProfile, request)
+        .submitApplication(
+            applicant.id,
+            firstProgram.id,
+            trustedIntermediaryProfile,
+            request,
+            /* answerOptionScoringEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1514,7 +1675,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(firstProgram.getProgramDefinition().adminName());
 
     subject
-        .submitApplication(applicant.id, secondProgram.id, trustedIntermediaryProfile, request)
+        .submitApplication(
+            applicant.id,
+            secondProgram.id,
+            trustedIntermediaryProfile,
+            request,
+            /* answerOptionScoringEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1523,6 +1689,96 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsOnly(
             firstProgram.getProgramDefinition().adminName(),
             secondProgram.getProgramDefinition().adminName());
+  }
+
+  @Test
+  public void submitApplication_foreignFileKey_doesNotGrantUnrelatedProgramReadAccess() {
+    // An applicant who references another applicant's exact StoredFile key must not cause an
+    // unrelated program (or its admins) to gain read access to that file at submission.
+
+    // Victim owns a stored file.
+    ApplicantModel victim = subject.createApplicant().toCompletableFuture().join();
+    victim.setAccount(resourceCreator.insertAccount());
+    victim.save();
+    var victimFileKey = "victim-file-key";
+    var victimFile = new StoredFileModel().setName(victimFileKey);
+    victimFile.getAcls().addApplicantToReaders(victim.id);
+    victimFile.save();
+
+    // Attacker is a different applicant.
+    ApplicantModel attacker = subject.createApplicant().toCompletableFuture().join();
+    attacker.setAccount(resourceCreator.insertAccount());
+    attacker.save();
+
+    var fileUploadQuestion =
+        questionService
+            .create(
+                new FileUploadQuestionDefinition(
+                    QuestionDefinitionConfig.builder()
+                        .setName("fileupload")
+                        .setDescription("description")
+                        .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+                        .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                        .build()))
+            .getResult();
+    versionRepository.publishNewSynchronizedVersion();
+
+    ProgramModel programB =
+        ProgramBuilder.newActiveProgram("attacker destination program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(fileUploadQuestion))
+            .build();
+    programB.save();
+
+    // A program admin for the unrelated destination program.
+    AccountModel programBAdmin = resourceCreator.insertAccount();
+    programBAdmin.addAdministeredProgram(programB.getProgramDefinition());
+    programBAdmin.save();
+
+    // Preconditions: program B is absent from the victim file's ACL and its admin cannot read it.
+    victimFile.refresh();
+    assertThat(victimFile.getAcls().getProgramReadAcls()).isEmpty();
+    assertThat(victimFile.getAcls().hasProgramReadPermission(programBAdmin)).isFalse();
+
+    // Attacker stages a file-upload answer referencing the victim's exact file key.
+    ImmutableMap<String, String> updates =
+        ImmutableMap.<String, String>builder()
+            .put(
+                Path.create("applicant.fileupload")
+                    .join(Scalar.FILE_KEY_LIST + Path.ARRAY_SUFFIX)
+                    .atIndex(0)
+                    .toString(),
+                victimFileKey)
+            .build();
+    subject
+        .stageAndUpdateIfValid(
+            attacker.id,
+            programB.id,
+            "1",
+            updates,
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    // Attacker submits to program B.
+    subject
+        .submitApplication(
+            attacker.id,
+            programB.id,
+            trustedIntermediaryProfile,
+            fakeRequest(),
+            /* answerOptionScoringEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    // The foreign reference must not delegate the victim's file to the unrelated program.
+    victimFile.refresh();
+    assertThat(victimFile.getAcls().getProgramReadAcls())
+        .doesNotContain(programB.getProgramDefinition().adminName());
+    assertThat(victimFile.getAcls().hasProgramReadPermission(programBAdmin)).isFalse();
+    assertThat(victimFile.getAcls().hasApplicantReadPermission(attacker.id)).isFalse();
   }
 
   @Test
@@ -1547,7 +1803,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel oldApplication =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1566,7 +1826,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel newApplication =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1606,7 +1870,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1654,7 +1922,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1749,7 +2021,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1831,7 +2107,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1896,7 +2176,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), applicantProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                applicantProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1946,7 +2230,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
@@ -1986,13 +2274,154 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
     application.refresh();
 
     assertThat(application.getLatestStatus()).isEmpty();
     assertThat(application.getApplicationEvents().size()).isEqualTo(0);
+  }
+
+  private QuestionDefinition saveScoredDropdown(String name, double score) {
+    return testQuestionBank
+        .maybeSave(
+            new MultiOptionQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription(name)
+                    .setQuestionText(LocalizedStrings.of(Locale.US, name + "?"))
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build(),
+                ImmutableList.of(
+                    QuestionOption.create(
+                        /* id= */ 1L,
+                        /* displayOrder= */ 0L,
+                        /* adminName= */ "scored_option",
+                        /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+                        /* displayInAnswerOptions= */ Optional.of(true),
+                        /* score= */ Optional.of(score))),
+                MultiOptionQuestionType.DROPDOWN),
+            LifecycleStage.ACTIVE)
+        .getQuestionDefinition();
+  }
+
+  private ProgramDefinition createScoringProgram(
+      String name, boolean usesScoring, QuestionDefinition dropdown) {
+    return ProgramBuilder.newActiveProgram(name)
+        .withUsesScoring(usesScoring)
+        .withBlock()
+        .withRequiredQuestionDefinition(dropdown)
+        .buildDefinition();
+  }
+
+  /** Answers the scored dropdown through the service so the answer carries its metadata. */
+  private Path answerScoredDropdown(
+      ApplicantModel applicant, ProgramDefinition program, QuestionDefinition dropdown) {
+    Path questionPath = ApplicantData.APPLICANT_PATH.join(dropdown.getQuestionPathSegment());
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            program.id(),
+            "1",
+            ImmutableMap.of(questionPath.join(Scalar.SELECTION).toString(), "1"),
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+    return questionPath;
+  }
+
+  @Test
+  public void submitApplication_scoringFlagOff_writesNoScores() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    QuestionDefinition dropdown = saveScoredDropdown("flag off dropdown", 10);
+    ProgramDefinition program = createScoringProgram("flag-off", /* usesScoring= */ true, dropdown);
+    Path questionPath = answerScoredDropdown(applicant, program, dropdown);
+
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id,
+                program.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
+            .toCompletableFuture()
+            .join();
+
+    ApplicantData submittedApplicantData = application.getApplicantData();
+    assertThat(submittedApplicantData.hasPath(ApplicationScores.TOTAL_SCORE_PATH)).isFalse();
+    assertThat(submittedApplicantData.hasPath(ApplicantData.scorePath(questionPath))).isFalse();
+  }
+
+  @Test
+  public void submitApplication_flagOnButProgramNotScoring_writesNoScores() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    QuestionDefinition dropdown = saveScoredDropdown("program off dropdown", 10);
+    ProgramDefinition program =
+        createScoringProgram("program-not-scoring", /* usesScoring= */ false, dropdown);
+    Path questionPath = answerScoredDropdown(applicant, program, dropdown);
+
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id,
+                program.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    ApplicantData submittedApplicantData = application.getApplicantData();
+    assertThat(submittedApplicantData.hasPath(ApplicationScores.TOTAL_SCORE_PATH)).isFalse();
+    assertThat(submittedApplicantData.hasPath(ApplicantData.scorePath(questionPath))).isFalse();
+  }
+
+  @Test
+  public void submitApplication_scoringApplies_writesScoresToApplicationOnly() {
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+    QuestionDefinition dropdown = saveScoredDropdown("applied dropdown", 10.5);
+    ProgramDefinition program =
+        createScoringProgram("scoring-applied", /* usesScoring= */ true, dropdown);
+    Path questionPath = answerScoredDropdown(applicant, program, dropdown);
+    String applicantJsonBefore =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData().asJsonString();
+
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id,
+                program.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ true)
+            .toCompletableFuture()
+            .join();
+
+    ApplicantData submittedApplicantData = application.getApplicantData();
+    assertThat(submittedApplicantData.readDouble(ApplicationScores.TOTAL_SCORE_PATH))
+        .hasValue(10.5);
+    assertThat(submittedApplicantData.readDouble(ApplicantData.scorePath(questionPath)))
+        .hasValue(10.5);
+
+    // The applicant's own row never carries score metadata.
+    String applicantJsonAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData().asJsonString();
+    assertThat(applicantJsonAfter).isEqualTo(applicantJsonBefore);
+    assertThat(applicantJsonAfter).doesNotContain("\"score\":").doesNotContain("\"total_score\":");
   }
 
   @Test
@@ -2006,7 +2435,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                         9999L,
                         /* tiSubmitterEmail= */ Optional.empty(),
                         /* eligibilityDetermination= */ EligibilityDetermination.NOT_COMPUTED,
-                        fakeRequest())
+                        /* scores= */ Optional.empty())
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationSubmissionException.class)
@@ -2048,7 +2477,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        fakeRequest())
+                        fakeRequest(),
+                        /* answerOptionScoringEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationNotEligibleException.class)
@@ -2088,7 +2518,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel application =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, fakeRequest())
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                fakeRequest(),
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -2453,7 +2887,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         applicant.id,
                         programDefinition.id(),
                         trustedIntermediaryProfile,
-                        fakeRequest())
+                        fakeRequest(),
+                        /* answerOptionScoringEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
@@ -2658,7 +3093,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -2761,7 +3197,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -2847,7 +3284,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             preScreenerForm.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     result =
@@ -2890,7 +3328,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -2956,7 +3395,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -3064,7 +3504,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms result =
@@ -3101,7 +3542,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     ApplicantService.ApplicationPrograms secondResult =
@@ -3143,7 +3585,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             primaryApplicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -3193,7 +3636,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             originalProgramForSubmit.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -3255,7 +3699,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             originalProgramForSubmittedApp.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -3333,7 +3778,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             originalProgramForSubmittedApp.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     // Create a new program version.
@@ -3413,7 +3859,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             originalProgramForSubmittedApp.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     HashSet<Long> tiAcls = new HashSet<>();
@@ -3496,7 +3943,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programForDraftApp.id,
                 Optional.empty(),
-                EligibilityDetermination.NOT_COMPUTED)
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join();
     Instant firstAppSubmitTime = firstApp.orElseThrow().getSubmitTime();
@@ -3510,7 +3958,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programForSubmittedApp.id,
                 Optional.empty(),
-                EligibilityDetermination.NOT_COMPUTED)
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join();
     Instant secondAppSubmitTime = secondApp.orElseThrow().getSubmitTime();
@@ -3571,7 +4020,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programForSubmitted.id,
                 Optional.empty(),
-                EligibilityDetermination.NOT_COMPUTED)
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join()
             .get();
@@ -3584,7 +4034,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmitted.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
     // We want to ensure ordering is occurring by submit time, NOT by application ID.
@@ -3609,7 +4060,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 programForDraft.id,
                 Optional.empty(),
-                EligibilityDetermination.NOT_COMPUTED)
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join()
             .get();
@@ -3669,7 +4121,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel submittedApplication =
         applicationRepository
             .submitApplication(
-                applicant.id, program.id, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+                applicant.id,
+                program.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join()
             .get();
@@ -3734,7 +4190,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 applicant.id,
                 originalProgram.id,
                 Optional.empty(),
-                EligibilityDetermination.NOT_COMPUTED)
+                EligibilityDetermination.NOT_COMPUTED,
+                /* scores= */ Optional.empty())
             .toCompletableFuture()
             .join()
             .get();
@@ -3857,7 +4314,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programForSubmittedApp.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -4027,7 +4485,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicant.id,
             programWithEligibleAndIneligibleAnswers.id,
             Optional.empty(),
-            EligibilityDetermination.NOT_COMPUTED)
+            EligibilityDetermination.NOT_COMPUTED,
+            /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
 
@@ -4970,7 +5429,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel ineligibleApplication =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -4994,7 +5457,11 @@ public class ApplicantServiceTest extends ResetPostgres {
     ApplicationModel eligibleApplication =
         subject
             .submitApplication(
-                applicant.id, programDefinition.id(), trustedIntermediaryProfile, request)
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
 

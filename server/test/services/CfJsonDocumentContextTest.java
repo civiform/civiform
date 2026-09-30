@@ -542,6 +542,27 @@ public class CfJsonDocumentContextTest {
   }
 
   @Test
+  public void readNullableDoubleList_roundTripsNullHoles() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+    Path path = Path.create("applicant.toppings.scores");
+    java.util.List<Double> scores = new java.util.ArrayList<>();
+    scores.add(3.5);
+    scores.add(null);
+    scores.add(-7.25);
+
+    data.putArray(path, scores);
+
+    assertThat(data.readNullableDoubleList(path)).hasValue(scores);
+  }
+
+  @Test
+  public void readNullableDoubleList_pathNotPresent_returnsEmptyOptional() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThat(data.readNullableDoubleList(Path.create("not.here"))).isEmpty();
+  }
+
+  @Test
   public void readLongList_withTypeMismatch_returnsEmptyOptional() {
     String testData =
         """

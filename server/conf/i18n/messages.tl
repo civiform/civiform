@@ -105,6 +105,12 @@ input.singleFileUploadHint=Pumili ng file
 input.multipleFileUploadHint=Pumili ng isa o higit pang file (maximum na {0})
 # Hint placed above file inputs which accept any number of files.
 input.unlimitedFileUploadHint=Pumili ng isa o higit pang file
+# Screen reader text for the file input when exactly 1 file has already been uploaded.
+# Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
+input.filesAlreadyUploadedAriaLabel.singular=1 file ang nai-upload na. Pumili ng file upang mag-upload pa.
+# Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
+# Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
+input.filesAlreadyUploadedAriaLabel.plural={0} (na) file ang nai-upload na. Pumili ng file upang mag-upload pa.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=Susunod
 # The button text for navigating to the previous screen in the form.
@@ -691,6 +697,7 @@ label.zipcode=Zip code
 validation.streetRequired=Maaari lamang na ilagay ang wasto na pangalan ng kalye, at ang numero.
 validation.cityRequired=Maaari lamang na ilagay ang Lungsod.
 validation.currencyMisformatted=Ang currency ay dapat nasa isa sa mga sumusunod na format: 1000 1,000 1000.30 1,000.30
+validation.currencyMisformatted.v2=Ang pera ay dapat may dalawang numerikal na karakter (0-9) pagkatapos ng sampuing tuldok. Ang pinakamahabang haba ay 19 na karakter.
 validation.stateRequired=Maaari lamang na ilagay ang Estado.
 validation.invalidZipcode=Maaari lamang na ilagay ang 5-bilang na ZIP code.
 validation.noPoBox=Maaari lamang na ilagay ang wasto na adres. Kami ay hindi natanggap ng mga PO Box.
@@ -814,7 +821,7 @@ validation.fileRequired=Maaari lamang ay pumili ng file.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=Masyadong malaki ang iyong file. Pumili ng file na wala pang {0} MB.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=Hindi mai-upload ang file. Naabot na ang pinakamaraming bilang ng mga file.
 # Shown when an HTMX file upload request fails (any non-success response).
 validation.fileUploadRequestFailed=Hindi namin mai-upload ang iyong file. Mangyaring subukang muli.
 # Text shown on a tag while a file is uploading.
@@ -880,6 +887,7 @@ validation.lastNameRequired=Maaari lamang na ilagay ang inyong apelyido.
 validation.numberTooBig=Dapat ay hindi hihigit sa {0}.
 validation.numberTooSmall=Dapat ay hindi bababa sa {0}.
 validation.numberNonInteger=Dapat ay naglalaman lamang ng mga numero.
+validation.numberNonInteger.v2=Ang numero ay dapat isang positibong buong numero at maaari lang maglaman ng mga numerikal na karakter na 0-9. Ang pinakamahabang haba ay 19 na karakter.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
@@ -1192,17 +1200,19 @@ session.length.warning.message.loggedIn=Malapit nang matapos ang iyong sesyon. M
 #  ADMIN PROGRAM BLOCK EDIT                                                    #
 #------------------------------------------------------------------------------#
 
-# Heading for the repeated set creation method radio buttons
+# A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
+ariaLabel.indentedPage=
+# Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=
-# Option for allowing an admin to create a new repeated set
+# Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=
-# Option for allowing an admin to choose an existing repeated set
+# Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=
-# Label for the new repeated set form
+# Label for the new list set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=
-# Label for the text input field asking for the admin identifier of the repeated set
+# Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=
@@ -1216,21 +1226,21 @@ input.repeatedSet.hintText=
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
-# Label for the field on the new repeated set form where an admin will select the question that the user will complete first in the enumerator flow
+# Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=
 # Description explaining what the initial question is and what the "Add question" button does
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
-# Alert shown when the admin submits the new repeated set form without selecting an initial question.
+# Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=
-# Alert shown to notify admin that creating a new repeated set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Ang paggawa ng isang inuulit na set ay magdaragdag ng bagong tanong sa kaban ng mga tanong.
-# Alert shown in the question bank section listing repeated questions that are already associated with this repeated set
+# Alert shown to notify admin that creating a new list set will add a new question to the question bank
+alert.repeatedSet.newQuestion=
+# Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=
-# Submission button for creating a new repeated set
+# Submission button for creating a new list set
 button.repeatedSet.submitNew=
-# Button for admins to add a new repeated set
+# Button for admins to add a new list set
 button.repeatedSet.addNew=
 # Button label on the initial question card that clears the selection
 button.repeatedSet.initialQuestion.delete=
@@ -1240,15 +1250,15 @@ button.repeatedSet.initialQuestion.removeAriaLabel=
 text.repeatedSet=
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=
-#An additional description explaining the uneditable prefix within the screen editing modal
+# Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
-# Heading above the repeated set question in the program block editor
+# Heading above the list set question in the program block editor
 heading.repeatedSet.question=
-# Heading shown above repeated questions in the question bank that are already associated with this repeated set
+# Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
@@ -1260,19 +1270,21 @@ description.repeatedSet.adminId=
 description.repeatedSet.questionText=
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=
-#An informative description below the option to create a new repeated set question
+#An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=
-# A button for admins to add a repeated screen to a program
+# A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=
-# A button for admins to add a nested repeated set to a program
+# A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=
+# A button for admins to navigate from a parent screen to its first child screen (sub screen)
+button.continueToChildScreen=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=
-# A tooltip shown to admins when the delete question button is disabled for a repeated set question
+# A tooltip shown to admins when the delete question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#

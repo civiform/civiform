@@ -11,7 +11,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.Inject;
 import controllers.BadRequestException;
-import controllers.admin.ImageDescriptionNotRemovableException;
 import forms.BlockForm;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -49,6 +48,7 @@ import repository.SubmittedApplicationFilter;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
+import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
 import services.ProgramBlockValidation.AddQuestionResult;
 import services.ProgramBlockValidationFactory;
@@ -2220,10 +2220,7 @@ public final class ProgramService {
       Optional<Boolean> isEnumerator,
       boolean isNested,
       boolean enumeratorImprovementsEnabled) {
-    String blockName =
-        maybeEnumeratorBlockId.isPresent()
-            ? String.format("Screen %d (repeated from %d)", blockId, maybeEnumeratorBlockId.get())
-            : String.format("Screen %d", blockId);
+    String blockName = String.format("Screen %d", blockId);
     String blockDescription = String.format("Screen %d description", blockId);
     Optional<String> namePrefix = Optional.empty();
     if (maybeEnumeratorBlockId.isPresent() && enumeratorImprovementsEnabled) {

@@ -12,6 +12,7 @@ public enum ScalarType {
   CURRENCY_CENTS, // A currency represented as a number of cents.
   DATE,
   DOUBLE,
+  LIST_OF_DOUBLES,
   LIST_OF_STRINGS,
   LONG,
   STRING,

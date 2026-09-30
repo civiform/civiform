@@ -25,6 +25,7 @@ import controllers.admin.ProgramMigrationWrapper;
 import helpers.UniqueAdminNameGenerator;
 import java.util.HashSet;
 import java.util.Locale;
+import java.util.Optional;
 import models.CategoryModel;
 import models.DisplayMode;
 import models.ProgramModel;
@@ -45,10 +46,14 @@ import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
+import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.types.EnumeratorQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionDefinitionConfig;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
@@ -369,6 +374,238 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     ProgramDefinition output = service.prepForExport(program);
 
     assertThat(output.programType()).isEqualTo(ProgramType.DEFAULT);
+  }
+
+  /** Builds a two-option question whose options carry the given scores, in order. */
+  private static QuestionDefinition createMultiOptionQuestionWithScores(
+      String adminName,
+      long id,
+      MultiOptionQuestionType multiOptionType,
+      Optional<Double> firstScore,
+      Optional<Double> secondScore) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(adminName)
+            .setDescription(adminName)
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setId(id)
+            .build();
+    ImmutableList<QuestionOption> options =
+        ImmutableList.of(
+            QuestionOption.create(
+                /* id= */ 1L,
+                /* displayOrder= */ 0L,
+                /* adminName= */ "yes",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "first"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ firstScore),
+            QuestionOption.create(
+                /* id= */ 2L,
+                /* displayOrder= */ 1L,
+                /* adminName= */ "no",
+                /* optionText= */ LocalizedStrings.of(Locale.US, "second"),
+                /* displayInAnswerOptions= */ Optional.of(true),
+                /* score= */ secondScore));
+    return new MultiOptionQuestionDefinition(config, options, multiOptionType);
+  }
+
+  private static QuestionDefinition createFullyScoredMultiOptionQuestion(
+      String adminName, long id, MultiOptionQuestionType multiOptionType) {
+    return createMultiOptionQuestionWithScores(
+        adminName, id, multiOptionType, Optional.of(10.5), Optional.of(0.0));
+  }
+
+  private static boolean mentionsScores(CiviFormError error) {
+    return error.message().toLowerCase(Locale.ROOT).contains("score");
+  }
+
+  @Test
+  public void serializeThenDeserialize_dropdownWithScores_roundTrips() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("Scored Program").buildDefinition();
+    // Partially scored on purpose: serialization must round-trip an absent score as well as a
+    // present one. Validation of the all-or-none rule is covered separately.
+    QuestionDefinition scoredDropdown =
+        createMultiOptionQuestionWithScores(
+            "scored dropdown",
+            15L,
+            MultiOptionQuestionType.DROPDOWN,
+            Optional.of(10.5),
+            Optional.empty());
+
+    ErrorAnd<String, String> serializeResult =
+        service.serialize(programDefinition, ImmutableList.of(scoredDropdown));
+    assertThat(serializeResult.isError()).isFalse();
+
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        service.deserialize(serializeResult.getResult());
+
+    assertThat(deserializeResult.isError()).isFalse();
+    MultiOptionQuestionDefinition question =
+        (MultiOptionQuestionDefinition) deserializeResult.getResult().getQuestions().get(0);
+    // The unscored option reads back as empty.
+    assertThat(question.getOptions().stream().map(QuestionOption::score))
+        .containsExactly(Optional.of(10.5), Optional.empty());
+  }
+
+  @Test
+  public void deserializeThenValidate_doubleOverflowingScore_returnsFiniteError() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("Scored Program").buildDefinition();
+    QuestionDefinition scoredDropdown =
+        createMultiOptionQuestionWithScores(
+            "scored dropdown",
+            15L,
+            MultiOptionQuestionType.DROPDOWN,
+            Optional.of(10.5),
+            Optional.of(2.0));
+    String programJson =
+        service.serialize(programDefinition, ImmutableList.of(scoredDropdown)).getResult();
+    // 1e999 is a valid JSON number, so Jackson binds it to infinity rather than rejecting it.
+    // Deserialization succeeds and the finite check happens in question validation.
+    String overflowingJson = programJson.replace("\"score\" : 10.5", "\"score\" : 1e999");
+    assertThat(overflowingJson).isNotEqualTo(programJson);
+
+    ErrorAnd<ProgramMigrationWrapper, String> deserializeResult =
+        service.deserialize(overflowingJson);
+    assertThat(deserializeResult.isError()).isFalse();
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            deserializeResult.getResult().getProgram(),
+            deserializeResult.getResult().getQuestions(),
+            ImmutableList.of());
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "Option score on option 'yes' of question 'scored dropdown' must be a finite number.");
+  }
+
+  @Test
+  public void validateQuestions_scoreOnYesNoQuestion_returnsError() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinition scoredYesNo =
+        createFullyScoredMultiOptionQuestion("scored yes no", 16L, MultiOptionQuestionType.YES_NO);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(scoredYesNo), ImmutableList.of());
+
+    assertThat(errors)
+        .anyMatch(
+            error ->
+                error.message().contains("cannot have a score on option")
+                    && error.message().contains("scored yes no"));
+  }
+
+  @Test
+  public void validateQuestions_nonFiniteScore_returnsError() {
+    // Jackson binds overflowing JSON numbers to infinity, so this check is the only guard.
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("infinite score")
+            .setDescription("infinite score")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setId(18L)
+            .build();
+    QuestionDefinition infiniteScoreDropdown =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(
+                    /* id= */ 1L,
+                    /* displayOrder= */ 0L,
+                    /* adminName= */ "opt1",
+                    /* optionText= */ LocalizedStrings.of(Locale.US, "first"),
+                    /* displayInAnswerOptions= */ Optional.of(true),
+                    /* score= */ Optional.of(Double.POSITIVE_INFINITY))),
+            MultiOptionQuestionType.DROPDOWN);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            program, ImmutableList.of(infiniteScoreDropdown), ImmutableList.of());
+
+    assertThat(errors).anyMatch(error -> error.message().contains("must be a finite number"));
+  }
+
+  @Test
+  public void validateQuestions_fullyScoredDropdownQuestion_noScoreError() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinition scoredDropdown =
+        createFullyScoredMultiOptionQuestion(
+            "scored dropdown", 17L, MultiOptionQuestionType.DROPDOWN);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+
+    assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
+  }
+
+  @Test
+  public void validateQuestions_partiallyScoredQuestion_returnsError() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinition partiallyScored =
+        createMultiOptionQuestionWithScores(
+            "partially scored",
+            19L,
+            MultiOptionQuestionType.RADIO_BUTTON,
+            Optional.of(3.0),
+            Optional.empty());
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(partiallyScored), ImmutableList.of());
+
+    assertThat(errors.stream().map(CiviFormError::message))
+        .contains(
+            "Question 'partially scored' must have a score on every option or on none. Options"
+                + " missing a score: 'no'.");
+  }
+
+  @Test
+  public void validateQuestions_unscoredQuestion_noScoreError() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinition unscored =
+        createMultiOptionQuestionWithScores(
+            "unscored", 20L, MultiOptionQuestionType.CHECKBOX, Optional.empty(), Optional.empty());
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(unscored), ImmutableList.of());
+
+    assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
+  }
+
+  @Test
+  public void validateQuestions_scoredQuestionInProgramNotUsingScoring_noScoreError() {
+    // Scores are allowed whether or not the program uses scoring.
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram().buildDefinition().toBuilder()
+            .setUsesScoring(false)
+            .build();
+    QuestionDefinition scoredDropdown =
+        createFullyScoredMultiOptionQuestion(
+            "scored dropdown", 21L, MultiOptionQuestionType.DROPDOWN);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+
+    assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
+  }
+
+  @Test
+  public void validateQuestions_scoredQuestionInProgramUsingScoring_noScoreError() {
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram().buildDefinition().toBuilder()
+            .setUsesScoring(true)
+            .build();
+    QuestionDefinition scoredDropdown =
+        createFullyScoredMultiOptionQuestion(
+            "scored dropdown", 22L, MultiOptionQuestionType.DROPDOWN);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+
+    assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
   }
 
   @Test

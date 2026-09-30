@@ -89,6 +89,15 @@ public enum QuestionType {
         || getSupportedQuestion() == MultiSelectQuestion.class;
   }
 
+  /**
+   * Returns true if this question type lets the applicant select more than one of its pre-defined
+   * answer options, storing the answer as a {@code selections} list rather than a single {@code
+   * selection}. Returns false otherwise.
+   */
+  public boolean isMultiSelectType() {
+    return getSupportedQuestion() == MultiSelectQuestion.class;
+  }
+
   public static QuestionType of(String name) throws InvalidQuestionTypeException {
     // Match naive string, e.g. "PHONE" -> PHONE
     String upperName = name.toUpperCase(Locale.ROOT);

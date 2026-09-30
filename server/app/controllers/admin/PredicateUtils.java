@@ -16,10 +16,8 @@ public final class PredicateUtils {
   public static ReadablePredicate getReadablePredicateDescription(
       String blockName,
       PredicateDefinition predicate,
-      ImmutableList<QuestionDefinition> questionDefinitions,
-      boolean expandedFormLogicEnabled) {
-    String headingSuffix =
-        expandedFormLogicEnabled ? "conditions are true:" : "of the following is true:";
+      ImmutableList<QuestionDefinition> questionDefinitions) {
+    String headingSuffix = "conditions are true:";
     return switch (predicate.predicateFormat()) {
       case SINGLE_CONDITION ->
           ReadablePredicate.create(

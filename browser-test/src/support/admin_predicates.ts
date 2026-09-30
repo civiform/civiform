@@ -54,12 +54,6 @@ export class AdminPredicates {
     this.page = page
   }
 
-  async addValueRows(count: number) {
-    for (let i = 0; i < count; i++) {
-      await this.page.click('#predicate-add-value-row')
-    }
-  }
-
   async clickEditPredicateButton(predicateType: 'visibility' | 'eligibility') {
     await this.page.click(
       `button:has-text("Edit existing ${predicateType} condition")`,
@@ -74,72 +68,14 @@ export class AdminPredicates {
     )
   }
 
-  async updateEligibilityMessage(
-    eligibilityMsg: string,
-    expandedFormLogicEnabled: boolean = false,
-  ) {
-    if (expandedFormLogicEnabled) {
-      await this.page
-        .getByLabel('Display message shown to ineligible applicants')
-        .fill(eligibilityMsg)
-      await this.clickSaveAndExitButton()
-    } else {
-      await this.page.getByLabel('Eligibility Message').fill(eligibilityMsg)
-      await this.page
-        .getByRole('button', {name: 'Save eligibility message'})
-        .click()
-    }
+  async updateEligibilityMessage(eligibilityMsg: string) {
+    await this.page
+      .getByLabel('Display message shown to ineligible applicants')
+      .fill(eligibilityMsg)
+    await this.clickSaveAndExitButton()
   }
 
-  // (Overload) Add predicates using the legacy predicate view
-  // If expandedFormLogicEnabled is false or not provided, will add predicates using the legacy view.
-  // If expandedFormLogicEnabled is true, will add predicates using the updated predicate logic view.
-  async addPredicates(...predicateSpecs: PredicateSpec[]): Promise<void>
-
-  async addPredicates(
-    expandedFormLogicEnabled: boolean,
-    ...predicateSpecs: PredicateSpec[]
-  ): Promise<void>
-
-  async addPredicates(
-    expandedFormLogicOrSpec: boolean | PredicateSpec,
-    ...predicateSpecs: PredicateSpec[]
-  ) {
-    // Set default flag value.
-    let expandedFormLogicEnabled = false
-    // Deal with the overload by checking the type of the first parameter.
-    // If it's a boolean, it's the expandedFormLogicEnabled flag.
-    // Else it's a PredicateSpec and we should add it to the list of specs to configure.
-    if (typeof expandedFormLogicOrSpec === 'boolean') {
-      expandedFormLogicEnabled = expandedFormLogicOrSpec
-    } else {
-      predicateSpecs.unshift(expandedFormLogicOrSpec)
-    }
-
-    if (expandedFormLogicEnabled) {
-      await this.addSubconditionsFromPredicateSpecs(predicateSpecs)
-      return
-    }
-
-    for (const predicateSpec of predicateSpecs) {
-      await this.selectQuestionForPredicate(predicateSpec.questionName)
-    }
-
-    await this.clickAddConditionButton()
-    const totalRowsNeeded = predicateSpecs[0]?.values?.length ?? 0
-    await this.addValueRows(Math.max(totalRowsNeeded - 1, 0))
-
-    for (const predicateSpec of predicateSpecs) {
-      await this.configurePredicate(predicateSpec)
-    }
-
-    await this.clickSaveConditionButton()
-  }
-
-  // Add subconditions in new predicate view, given a list of legacy PredicateSpecs.
-  private async addSubconditionsFromPredicateSpecs(
-    predicateSpecs: PredicateSpec[],
-  ) {
+  async addPredicates(...predicateSpecs: PredicateSpec[]) {
     for (let i = 0; i < predicateSpecs.length; i++) {
       const conditionId = i + 1
       await this.addAndExpectCondition(conditionId)
@@ -182,10 +118,6 @@ export class AdminPredicates {
     }
 
     await this.clickSaveAndExitButton()
-  }
-
-  async selectQuestionForPredicate(questionName: string) {
-    await this.page.click(`label:has-text("Admin ID: ${questionName}")`)
   }
 
   async clickAddConditionButton() {
@@ -402,16 +334,6 @@ export class AdminPredicates {
     expect(toastMessages).toContain(`One or more ${type} is missing`)
   }
 
-  async getQuestionId(questionName: string): Promise<string> {
-    const questionNameField = this.page.getByTestId(questionName)
-    await expect(questionNameField).toHaveCount(1)
-
-    const questionId = await questionNameField.getAttribute('data-question-id')
-    expect(questionId).not.toBeNull()
-
-    return questionId as string
-  }
-
   // Gets the displayed question text for a given question name if it's present in the subcondition dropdown options.
   async getQuestionText(
     conditionId: number,
@@ -427,48 +349,6 @@ export class AdminPredicates {
     expect(questionText).not.toBeNull()
 
     return questionText
-  }
-
-  /**
-   * Configures a predicate with the given inputs. For the values, it uses the first defined parameter in this order:
-   * 1. complexValues
-   * 2. values
-   * 3. value
-   */
-  async configurePredicate({
-    questionName,
-    action,
-    scalar,
-    operator,
-    value,
-    values,
-    complexValues,
-  }: PredicateSpec) {
-    const questionId = await this.getQuestionId(questionName)
-
-    if (action != null) {
-      await this.page.selectOption(`.cf-predicate-action select`, {
-        label: action,
-      })
-    }
-    await this.page.selectOption(
-      `.cf-scalar-select[data-question-id="${questionId}"] select`,
-      {
-        label: scalar,
-      },
-    )
-    await this.page.selectOption(
-      `.cf-operator-select[data-question-id="${questionId}"] select`,
-      {
-        label: operator,
-      },
-    )
-
-    const valuesToSet = this.coalesceValueOptions(complexValues, values, value)
-    let groupNum = 1
-    for (const valueToSet of valuesToSet) {
-      await this.legacyFillValue(scalar, valueToSet, groupNum++, questionId)
-    }
   }
 
   /**
@@ -540,59 +420,6 @@ export class AdminPredicates {
   async expectSubconditionsEqual(subconditions: SubconditionSpec[]) {
     for (const subcondition of subconditions) {
       await this.expectSubconditionEquals(subcondition)
-    }
-  }
-
-  coalesceValueOptions(
-    complexValues?: PredicateValue[],
-    values?: string[],
-    value?: string,
-  ): PredicateValue[] {
-    if (complexValues) {
-      return complexValues
-    }
-    if (values) {
-      return values.map((v) => ({value: v}))
-    }
-    if (value) {
-      return [{value: value}]
-    }
-    return []
-  }
-
-  async legacyFillValue(
-    scalar: string,
-    valueToSet: PredicateValue,
-    groupNum: number,
-    questionId: string,
-  ) {
-    // Service areas are the only value input that use a select
-    if (scalar === 'service area') {
-      const valueSelect = this.page.locator(
-        `select[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-      )
-      await valueSelect.selectOption({label: valueToSet.value})
-      return
-    }
-
-    const valueInput = this.page.locator(
-      `input[name="group-${groupNum}-question-${questionId}-predicateValue"]`,
-    )
-
-    if ((await valueInput.count()) > 0) {
-      await valueInput.fill(valueToSet.value || '')
-    } else {
-      const valueArray = valueToSet.value.split(',')
-      for (const value of valueArray) {
-        await this.page.getByLabel(value).check()
-      }
-    }
-
-    const secondValueInput = this.page.locator(
-      `input[name="group-${groupNum}-question-${questionId}-predicateSecondValue"]:enabled`,
-    )
-    if ((await secondValueInput.count()) > 0) {
-      await secondValueInput.fill(valueToSet.secondValue || '')
     }
   }
 

@@ -69,12 +69,28 @@ public enum Scalar {
 
   // Metadata scalars
   UPDATED_AT("updated at", ScalarType.LONG),
-  PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG);
+  PROGRAM_UPDATED_IN("program updated in", ScalarType.LONG),
+
+  // Answer-option score scalars, written to a submitted application's applicant data at submit
+  // time and never applicant-updatable. SCORE sits next to SELECTION, SCORES next to SELECTIONS,
+  // and TOTAL_SCORE at the document root next to "applicant". They are not included in getScalars
+  // or getMetadataScalars, which keeps them out of predicates, API bridges, and schema generation.
+  SCORE("score", ScalarType.DOUBLE),
+  SCORES("scores", ScalarType.LIST_OF_DOUBLES),
+  TOTAL_SCORE("total score", ScalarType.DOUBLE);
 
   private static final ImmutableSet<Scalar> METADATA_SCALARS =
       ImmutableSet.of(UPDATED_AT, PROGRAM_UPDATED_IN);
   private static final ImmutableSet<String> METADATA_SCALAR_KEYS =
       METADATA_SCALARS.stream()
+          .map(Scalar::name)
+          .map(String::toLowerCase)
+          .collect(ImmutableSet.toImmutableSet());
+
+  private static final ImmutableSet<Scalar> SCORE_SCALARS =
+      ImmutableSet.of(SCORE, SCORES, TOTAL_SCORE);
+  private static final ImmutableSet<String> SCORE_SCALAR_KEYS =
+      SCORE_SCALARS.stream()
           .map(Scalar::name)
           .map(String::toLowerCase)
           .collect(ImmutableSet.toImmutableSet());
@@ -162,5 +178,15 @@ public enum Scalar {
   /** A set of Scalars as strings that represent keys where metadata is stored. */
   public static ImmutableSet<String> getMetadataScalarKeys() {
     return METADATA_SCALAR_KEYS;
+  }
+
+  /** The scalars answer-option scores are stored under. See {@link #SCORE}. */
+  public static ImmutableSet<Scalar> getScoreScalars() {
+    return SCORE_SCALARS;
+  }
+
+  /** A set of Scalars as strings that represent keys where answer-option scores are stored. */
+  public static ImmutableSet<String> getScoreScalarKeys() {
+    return SCORE_SCALAR_KEYS;
   }
 }

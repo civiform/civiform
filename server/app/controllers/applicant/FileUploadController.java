@@ -15,6 +15,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +34,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.ApplicantFileNameFormatter;
 import services.program.PathNotInBlockException;
 import services.program.ProgramNotFoundException;
 import services.question.exceptions.UnsupportedScalarTypeException;
@@ -76,7 +78,7 @@ public final class FileUploadController extends CiviFormController {
     this.fileUploadQuestionPartialView = checkNotNull(fileUploadQuestionPartialView);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
       Request request, long programId, String blockId) {
@@ -202,7 +204,7 @@ public final class FileUploadController extends CiviFormController {
    * upload question in {@code blockId}. Returns an HTML partial with OOB swaps to refresh the file
    * list and related UI (validation errors, number of allowed uploads left).
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
     if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
       return CompletableFuture.completedFuture(notFound());
@@ -343,7 +345,21 @@ public final class FileUploadController extends CiviFormController {
               // the applicant has uploaded a file with the same name for the same
               // block and question, overwriting the original in file storage.
               if (maybeStoredFile.isPresent()) {
-                return completedFuture(maybeStoredFile.get());
+                StoredFileModel existingFile = maybeStoredFile.get();
+                // An existing file may only be referenced by an applicant who owns it or
+                // has been granted read access; possession of the key is not authorization.
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)
+                        || existingFile.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
+                  return failedFuture(
+                      new SecurityException(
+                          String.format(
+                              "Applicant %d is not authorized to reference the file key in this"
+                                  + " request.",
+                              applicantId)));
+                }
+                return completedFuture(existingFile);
               }
 
               var storedFile = new StoredFileModel();

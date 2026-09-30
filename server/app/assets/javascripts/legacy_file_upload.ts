@@ -1,10 +1,13 @@
 import {addEventListenerToElements, assertNotNull} from '@/util'
 import {
+  canUploadMoreFiles,
   getUniqueName,
   hideError,
   isFileTooLarge,
   showError,
+  maybeShowFileLimitError,
 } from '@/file_upload_util'
+import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 const UPLOAD_ATTR = 'data-upload-text'
 const UPLOADED_FILE_ATTR = 'data-uploaded-files'
@@ -66,6 +69,13 @@ export function init() {
       })
       document.body.classList.add(CF_FILE_UPLOADING_CLASS)
       blockForm.submit()
+    } else {
+      const fileInput: HTMLInputElement = event.target as HTMLInputElement
+      const fileLimitErrorContainer: HTMLElement = assertNotNull(
+        document.getElementById('cf-fileupload-file-limit-reached-error'),
+      )
+
+      maybeShowFileLimitError(blockForm, fileInput, fileLimitErrorContainer)
     }
   })
 
@@ -179,6 +189,20 @@ function validateFileUploadQuestion(blockForm: Element): boolean {
     hideError(fileTooLargeErrorDiv, fileInput)
   }
 
+  const canUploadMore = canUploadMoreFiles(blockForm)
+  const fileLimitReachedErrorDiv = document.getElementById(
+    'cf-fileupload-file-limit-reached-error',
+  ) as HTMLElement
+  if (!canUploadMore) {
+    showError(fileLimitReachedErrorDiv, fileInput)
+    fileInput.value = ''
+    uswdsFileInput.off(fileInput)
+    uswdsFileInput.on(fileInput)
+    fileInput.focus()
+  } else {
+    hideError(fileLimitReachedErrorDiv, fileInput)
+  }
+
   // A valid file upload question is one that has an uploaded file that isn't too large.
-  return isFileUploaded && !isFileTooLargeResult
+  return isFileUploaded && !isFileTooLargeResult && canUploadMore
 }
