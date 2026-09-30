@@ -15,6 +15,7 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
+import io.ebean.meta.MetaQueryMetric;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import junitparams.JUnitParamsRunner;
@@ -714,15 +715,28 @@ public class EbeanInvariantTest extends ResetPostgres {
 
   /** Inserts a program with several categories and returns its id. */
   private long insertProgramWithCategories() {
+    return insertProgramWithCategories("invariant-program");
+  }
+
+  /** Inserts a named program with several categories and returns its id. */
+  private long insertProgramWithCategories(String adminName) {
     ImmutableList<CategoryModel> categories =
         ImmutableList.of(
             resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Food")),
             resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Family")),
             resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Health")));
-    return ProgramBuilder.newActiveProgram("invariant-program")
-        .withCategories(categories)
-        .build()
-        .id;
+    return ProgramBuilder.newActiveProgram(adminName).withCategories(categories).build().id;
+  }
+
+  /**
+   * Counts queries run since the previous call. Collecting metrics also resets them.
+   *
+   * <p>Note this will not work if we ever parallelize unit tests.
+   */
+  private long queriesSinceLastCount() {
+    return database.metaInfo().collectMetrics().queryMetrics().stream()
+        .mapToLong(MetaQueryMetric::count)
+        .sum();
   }
 
   @Test
@@ -743,8 +757,8 @@ public class EbeanInvariantTest extends ResetPostgres {
     // by the time findList() returns they have all been read.
     assertThat(program.getCategories()).hasSize(3);
 
-    // The copy taken during @PostLoad is wrong. The callback ran on the first join row, when a single
-    // category had been read, and rows two and three did not re-fire it.
+    // The copy taken during @PostLoad is wrong. The callback ran on the first join row, when a
+    // single category had been read, and rows two and three did not re-fire it.
     assertThat(program.getProgramDefinition().categories()).hasSize(1);
 
     // Rerunning the PostLoad method after the query completes corrects the data copy.
@@ -755,7 +769,7 @@ public class EbeanInvariantTest extends ResetPostgres {
   }
 
   @Test
-  public void collectionFetch_queryJoinIsNotTruncated_butCostsAQueryPerBean() {
+  public void collectionFetch_queryJoinIsNotTruncated() {
     long programId = insertProgramWithCategories();
 
     ProgramModel program =
@@ -770,7 +784,49 @@ public class EbeanInvariantTest extends ResetPostgres {
     // A query join leaves the collection an unloaded proxy when @PostLoad runs, so reading it
     // there forces a complete load and no rebuild is needed. The cost is that the load happens
     // per bean while the main result set is still open, rather than as one batched secondary
-    // query, so this is not simply the better choice for multi-bean queries.
+    // query.
     assertThat(program.getProgramDefinition().categories()).hasSize(3);
+  }
+
+  @Test
+  public void collectionFetch_lazyCollectionIsNotTruncated() {
+    long programId = insertProgramWithCategories();
+
+    // No fetch at all, so categories is left as an unloaded proxy.
+    ProgramModel program =
+        database.find(ProgramModel.class).where().eq("id", programId).findList().getFirst();
+
+    // Reading that proxy inside @PostLoad forces it to load in full, exactly as the query join
+    // does. Only a SQL joined collection escapes this, because it is not a proxy at all, just a
+    // real list that is still being filled.
+    assertThat(program.getProgramDefinition().categories()).hasSize(3);
+  }
+
+  @Test
+  public void collectionFetch_onlyTheJoinAvoidsAQueryPerBean() {
+    int programCount = 3;
+    for (int i = 0; i < programCount; i++) {
+      insertProgramWithCategories("invariant-program-" + i);
+    }
+    queriesSinceLastCount();
+
+    database.find(ProgramModel.class).fetch("categories").findList();
+    long joinQueries = queriesSinceLastCount();
+
+    database.find(ProgramModel.class).fetch("categories", FetchConfig.ofQuery()).findList();
+    long queryJoinQueries = queriesSinceLastCount();
+
+    database.find(ProgramModel.class).findList();
+    long lazyQueries = queriesSinceLastCount();
+
+    // The join reads every program and every category in one statement.
+    assertThat(joinQueries).isEqualTo(1);
+
+    // The other two each pay one extra query per bean. @PostLoad touches the proxy while the
+    // main result set is still being read, so the load buffer holds only the bean just read and
+    // Ebean never gets to batch them. Notably ofQuery asks for a single batched secondary query
+    // and does not get one, making it indistinguishable from lazy loading here.
+    assertThat(queryJoinQueries).isEqualTo(1 + programCount);
+    assertThat(lazyQueries).isEqualTo(1 + programCount);
   }
 }
