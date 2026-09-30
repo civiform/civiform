@@ -163,9 +163,6 @@ public final class ProgramCardFactory {
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 
-    boolean isTranslationManagementImprovementEnabled =
-        settingsManifest.getTranslationManagementImprovementEnabled();
-
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
         // the correct element for testing. In the future this should be accounted
@@ -194,8 +191,7 @@ public final class ProgramCardFactory {
                             programRow.universalQuestionsText().isPresent(),
                             p(programRow.universalQuestionsText().orElse("")))
                         .condWith(
-                            programRow.translationCompletionTag().isPresent()
-                                && isTranslationManagementImprovementEnabled,
+                            programRow.translationCompletionTag().isPresent(),
                             p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()
