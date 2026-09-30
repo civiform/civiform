@@ -72,6 +72,16 @@ public class LegacyFieldFragmentsTest {
   }
 
   @Test
+  public void textField_disabledWithCustomMaxLengthAndWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textFieldDisabled.thtest");
+  }
+
+  @Test
+  public void textareaField_disabledWithCustomWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textareaFieldDisabled.thtest");
+  }
+
+  @Test
   public void numberField() {
     ThymeleafFragmentTester.run(DIR + "numberField.thtest");
   }
