@@ -33,6 +33,11 @@ public class MainModule extends AbstractModule {
 
   public static final Slugify SLUGIFIER = Slugify.builder().build();
 
+  @Override
+  protected void configure() {
+    bind(play.http.DefaultHttpErrorHandler.class).to(controllers.ErrorHandler.class);
+  }
+
   @Provides
   @EnUsLang
   public Messages provideEnUsMessages(MessagesApi messagesApi) {
