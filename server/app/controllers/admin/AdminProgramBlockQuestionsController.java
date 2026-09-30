@@ -19,6 +19,8 @@ import javax.inject.Inject;
 import models.QuestionModel;
 import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -57,6 +59,8 @@ import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
+  private static final Logger logger =
+      LoggerFactory.getLogger(AdminProgramBlockQuestionsController.class);
 
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -204,6 +208,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
           versionRepository.getLatestVersionOfQuestion(initialQuestionIdFromForm.getAsLong());
       Optional<String> errorMsg = Optional.empty();
       if (optionalOriginalInitialQuestionModel.isEmpty()) {
+        logger.warn(
+            "An initial question ID was specified by the UI that is not valid: {}",
+            initialQuestionIdFromForm.getAsLong());
         errorMsg =
             Optional.of(
                 messages.at(MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_NOT_FOUND.getKeyName()));
