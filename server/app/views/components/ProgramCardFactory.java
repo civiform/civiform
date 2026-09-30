@@ -20,7 +20,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -31,14 +30,11 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(
-      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public DivTag renderCard(ProgramCardData cardData) {
