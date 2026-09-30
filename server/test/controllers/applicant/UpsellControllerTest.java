@@ -22,6 +22,7 @@ import java.time.Instant;
 import java.util.Optional;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.TrustedIntermediaryGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.i18n.MessagesApi;
@@ -424,7 +425,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void download_tiSubmittedApplication_flagOn_includesScores() throws Exception {
+  public void download_tiUser_flagOn_includesScores() throws Exception {
     when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
@@ -447,7 +448,34 @@ public class UpsellControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void download_tiSubmittedApplication_flagOff_includesScores() throws Exception {
+  public void download_tiSubmitter_applicantUser_doesNotIncludeScores() throws Exception {
+    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    // Mock an applicant profile managed by a TI Group
+    TrustedIntermediaryGroupModel tiGroup = resourceCreator.insertTrustedIntermediaryGroup();
+    ApplicantModel managedApplicant = createManagedApplicantWithMockedProfile(tiGroup);
+
+    ApplicationModel application =
+        resourceCreator.insertActiveApplication(managedApplicant, programDefinition.toProgram());
+    application.setSubmitterEmail("ti@example.com");
+    application.save();
+
+    subject
+        .download(fakeRequest(), application.id, managedApplicant.id)
+        .toCompletableFuture()
+        .join();
+
+    // The last param passed in to generateApplicationPdf is includeScores. We expect it to be false
+    // here because an applicant is downloading the application.
+    verify(pdfExporterService)
+        .generateApplicationPdf(any(ApplicationModel.class), eq(false), eq(false));
+  }
+
+  @Test
+  public void download_tiSubmittedApplication_flagOff_doesNotIncludeScores() throws Exception {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel managedApplicant = createApplicant();

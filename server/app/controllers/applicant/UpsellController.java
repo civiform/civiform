@@ -242,9 +242,10 @@ public final class UpsellController extends CiviFormController {
               }
 
               // Only TIs should see scores in the pdf download
+              boolean isTi = profileUtils.currentUserProfile(request).isTrustedIntermediary();
+
               boolean includeScores =
-                  application.getSubmitterEmail().isPresent()
-                      && settingsManifest.getAnswerOptionScoringEnabled(request);
+                  isTi && settingsManifest.getAnswerOptionScoringEnabled(request);
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
                       application, /* isAdmin= */ false, /* includeScores= */ includeScores);
