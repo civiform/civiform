@@ -35,7 +35,7 @@ RUN cd "${PROJECT_LOC}" && \
 
 # This is a common trick to shrink container sizes. We discard everything added
 # during the build phase and use only the inflated artifacts created by sbt dist.
-FROM eclipse-temurin:25.0.4_7-jre-alpine@sha256:3137541deb3cac6626b5d9a4a2187bc0d6a34312f858bd2c67dd01e732e6b682 AS stage2
+FROM eclipse-temurin:25.0.4_7-jre-alpine@sha256:2ca9adf44f5c29d28ecd26cf92d75cc0c66b7f32bfd839a4439e363a8b428af8 AS stage2
 COPY --from=stage1 /civiform-server-0.0.1 /civiform-server-0.0.1
 
 # Upgrade packages for stage2 to include latest versions.
