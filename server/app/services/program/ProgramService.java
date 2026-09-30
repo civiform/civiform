@@ -199,7 +199,43 @@ public final class ProgramService {
             ? versionRepository.getProgramsForVersion(draftVersion.get())
             : ImmutableList.of();
 
-    return ActiveAndDraftPrograms.buildInUsePrograms(activePrograms, draftPrograms);
+    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionServiceSync();
+
+    ImmutableList<ProgramModel> hydratedActivePrograms =
+        activePrograms.stream()
+            .map(
+                p ->
+                    toFullProgramDefinition(p, roQuestionService, /* isDraft= */ false).toProgram())
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<ProgramModel> hydratedDraftPrograms =
+        draftPrograms.stream()
+            .map(
+                p -> toFullProgramDefinition(p, roQuestionService, /* isDraft= */ true).toProgram())
+            .collect(ImmutableList.toImmutableList());
+
+    return ActiveAndDraftPrograms.buildInUsePrograms(
+        hydratedActivePrograms, hydratedDraftPrograms);
+  }
+
+  private ProgramDefinition toFullProgramDefinition(
+      ProgramModel program, ReadOnlyQuestionService roQuestionService, boolean isDraft) {
+    if (!isDraft) {
+      Optional<ProgramDefinition> cached =
+          programRepository.getFullProgramDefinitionFromCache(program);
+      if (cached.isPresent()) {
+        return cached.get();
+      }
+    }
+
+    ProgramDefinition synced =
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), roQuestionService)
+            .orderBlockDefinitions();
+
+    if (!isDraft) {
+      programRepository.setFullProgramDefinitionCache(program.id, synced);
+    }
+    return synced;
   }
 
   /** Checks if there is any disabled program in active or draft version. */
