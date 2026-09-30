@@ -73,13 +73,12 @@ public final class ActiveAndDraftPrograms {
 
   /**
    * Builds a snapshotted view of non-disabled active and draft programs from pre-loaded program
-   * models partitioned by version. This avoids N+1 query behavior since the caller has already
-   * batch-loaded all programs in a single query.
+   * models partitioned by version.
    *
    * @param activePrograms programs belonging to the active version
    * @param draftPrograms programs belonging to the draft version
    */
-  public static ActiveAndDraftPrograms buildInUseProgramsBatch(
+  public static ActiveAndDraftPrograms buildInUsePrograms(
       ImmutableList<ProgramModel> activePrograms, ImmutableList<ProgramModel> draftPrograms) {
     return new ActiveAndDraftPrograms(activePrograms, draftPrograms);
   }
@@ -144,9 +143,6 @@ public final class ActiveAndDraftPrograms {
     // Note: Building this lookup has N+1 query behavior since a call to getProgramDefinition does
     // an additional database lookup in order to sync the set of questions associated with the
     // program.
-    //
-    // To minimize the impact, we only build the maps that are actually needed for the requested
-    // program type, rather than eagerly building all 4 maps upfront.
 
     if (types.containsAll(allProgramTypes)) {
       // All programs (including disabled) — only need the unfiltered maps.
