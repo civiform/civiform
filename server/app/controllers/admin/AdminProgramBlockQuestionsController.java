@@ -206,8 +206,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
       if (optionalOriginalInitialQuestionModel.isEmpty()) {
         errorMsg =
             Optional.of(
-                String.format(
-                    "Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+                messages.at(MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_NOT_FOUND.getKeyName()));
       } else {
         QuestionDefinition originalInitialQuestion =
             optionalOriginalInitialQuestionModel.get().getQuestionDefinition();
@@ -215,8 +214,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
         if (draft.getTombstonedQuestionNames().contains(originalInitialQuestion.getName())) {
           errorMsg =
               Optional.of(
-                    "Error: Initial question has been archived. Select a new " +
-                      "initial question.");
+                  messages.at(
+                      MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_ARCHIVED.getKeyName()));
         } else {
           optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
         }

@@ -1243,6 +1243,10 @@ label.repeatedSet.initialQuestion=Initial question
 description.repeatedSet.initialQuestion=Add the question that the applicant will use to list out an entity. The response provided by the applicant will serve as the label for that entity. The added question will be duplicated for this list set in the question bank. Note that the question and hint text for this question will not display to the applicant.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=A list set question must first be added before repeated questions can be. Please navigate to the parent screen to add a list set question.
+# Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
+alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question.
+# Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
+alert.repeatedSet.initialQuestionNotFound=Initial question not found. Please select a new initial question.
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Initial question must be added
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank

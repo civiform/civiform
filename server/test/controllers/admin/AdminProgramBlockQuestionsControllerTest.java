@@ -232,7 +232,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxCreateEnumerator_withUnknownInitialQuestionId_returnsNotFound() {
+  public void hxCreateEnumerator_withUnknownInitialQuestionId_returnsErrorMessage() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
     Request request =
@@ -250,11 +250,11 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Question not found for ID: 99999");
+    assertThat(contentAsString(result)).contains("Initial question not found");
   }
 
   @Test
-  public void hxCreateEnumerator_withArchivedInitialQuestion_returnsNotFound()
+  public void hxCreateEnumerator_withArchivedInitialQuestion_returnsErrorMessage()
       throws InvalidUpdateException,
           ProgramBlockDefinitionNotFoundException,
           ProgramNotFoundException {
@@ -279,8 +279,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxCreateEnumerator(request, program.id, 1);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("Question has been archived for ID: " + initialQuestion.getId());
+    assertThat(contentAsString(result)).contains("Initial question has been archived");
     // The controller bails before creating the enumerator question or touching the block.
     assertThat(
             questionService.getReadOnlyQuestionServiceSync().getAllQuestions().stream()
