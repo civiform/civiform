@@ -187,7 +187,8 @@ public final class ProgramService {
    * Get the data object about the non-disabled programs that are in the active or draft version
    * with the full question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
+  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms(
+      ReadOnlyQuestionService roQuestionService) {
     VersionModel activeVersion = versionRepository.getActiveVersion();
     Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
 
@@ -198,8 +199,6 @@ public final class ProgramService {
         draftVersion.isPresent()
             ? versionRepository.getProgramsForVersion(draftVersion.get())
             : ImmutableList.of();
-
-    ReadOnlyQuestionService roQuestionService = questionService.getReadOnlyQuestionServiceSync();
 
     ImmutableList<ProgramModel> hydratedActivePrograms =
         activePrograms.stream()
@@ -214,8 +213,7 @@ public final class ProgramService {
                 p -> toFullProgramDefinition(p, roQuestionService, /* isDraft= */ true).toProgram())
             .collect(ImmutableList.toImmutableList());
 
-    return ActiveAndDraftPrograms.buildInUsePrograms(
-        hydratedActivePrograms, hydratedDraftPrograms);
+    return ActiveAndDraftPrograms.buildInUsePrograms(hydratedActivePrograms, hydratedDraftPrograms);
   }
 
   private ProgramDefinition toFullProgramDefinition(
