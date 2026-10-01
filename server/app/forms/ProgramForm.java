@@ -27,6 +27,7 @@ public final class ProgramForm {
   private Boolean confirmedChangePreScreenerForm = false;
   private Boolean eligibilityIsGating = true;
   private Boolean loginOnly = false;
+  private Boolean usesScoring = false;
   private List<Long> tiGroups = new ArrayList<>();
   private List<Long> categories = new ArrayList<>();
   private List<Map<String, String>> applicationSteps = new ArrayList<>();

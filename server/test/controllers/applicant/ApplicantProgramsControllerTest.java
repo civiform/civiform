@@ -420,6 +420,28 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void showWithApplicantId_redirectsUnauthorizedTi() {
+    ProgramModel program = resourceCreator().insertActiveProgram("program");
+
+    ApplicantModel applicantOne = createApplicant();
+    // create a TI that manages applicantOne
+    createTIWithMockedProfile(applicantOne);
+
+    ApplicantModel applicantTwo = createApplicant();
+    // create a TI that does not manage applicantOne. This is the current logged in user.
+    createTIWithMockedProfile(applicantTwo);
+
+    Result result =
+        controller
+            .showWithApplicantId(fakeRequest(), applicantOne.id, program.getSlug())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue("/");
+  }
+
+  @Test
   public void showInfoDisabledProgram() {
     resourceCreator.insertActiveDisabledProgram("disabledProgram");
 

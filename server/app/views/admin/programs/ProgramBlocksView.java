@@ -652,8 +652,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             blockDefinition.id(),
             blockDefinition.visibilityPredicate(),
             blockDefinition.name(),
-            allQuestions,
-            settingsManifest.getExpandedFormLogicEnabled());
+            allQuestions);
 
     Optional<DivTag> maybeEligibilityPredicateDisplay = Optional.empty();
     if (!program.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
@@ -664,8 +663,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   blockDefinition.id(),
                   blockDefinition.eligibilityDefinition(),
                   blockDefinition.name(),
-                  allQuestions,
-                  settingsManifest.getExpandedFormLogicEnabled()));
+                  allQuestions));
     }
 
     boolean showRepeatedQuestionsSectionStyling =
@@ -1418,8 +1416,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<PredicateDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      boolean expandedFormLogicEnabled) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withId("visibility-predicate")
@@ -1442,8 +1439,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.VISIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false,
-              expandedFormLogicEnabled));
+              /* expanded= */ false));
     }
   }
 
@@ -1455,8 +1451,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       long blockId,
       Optional<EligibilityDefinition> predicate,
       String blockName,
-      ImmutableList<QuestionDefinition> questions,
-      boolean expandedFormLogicEnabled) {
+      ImmutableList<QuestionDefinition> questions) {
     DivTag div =
         div()
             .withId("eligibility-predicate")
@@ -1482,8 +1477,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               questions,
               PredicateUseCase.ELIGIBILITY,
               /* includeEditFooter= */ viewAllowsEditingProgram(),
-              /* expanded= */ false,
-              /* expandedFormLogicEnabled= */ expandedFormLogicEnabled));
+              /* expanded= */ false));
     }
   }
 

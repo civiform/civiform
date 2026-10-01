@@ -35,7 +35,7 @@ Read the guidelines [here](https://github.com/civiform/civiform/wiki/Database#wr
 - [ ] Guarded against already existing resources using `IF NOT EXISTS` and `IF EXISTS`
 - [ ] Downs created to undo changes in Ups
 - [ ] Every comment in script should begin with -- and not # --- unless it denotes Ups or Downs. See [here](https://www.playframework.com/documentation/2.9.x/Evolutions) for details.
-- [ ] Tested both the Downs and the Ups scripts manually (When testing, include all comments from the evolution in your test script to ensure any syntax errors in the comments are caught.)
+- [ ] Tested both the Downs and the Ups manually by running the app on your branch (applies Ups), then running the app on main (applies Downs) and testing that features that intersect with your Downs still work (eg. features that load a table you dropped a column in).
 - [ ] Data migrations aren't being done (please use a [Durable Job](https://github.com/civiform/civiform/wiki/Database#durable-jobs-for-data-updates) if doing a data migration)
 - [ ] Update the model documentation in our [wiki](https://github.com/civiform/civiform/wiki/Database) if necessary
 

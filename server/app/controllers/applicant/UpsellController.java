@@ -17,6 +17,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicationModel;
 import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import play.i18n.MessagesApi;
 import play.libs.concurrent.ClassLoaderExecutionContext;
@@ -82,7 +83,7 @@ public final class UpsellController extends CiviFormController {
     this.metricCounters = checkNotNull(metricCounters);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> considerRegister(
       Http.Request request,
       // TODO(#13249): Remove after the change to Optional is released.
@@ -221,7 +222,7 @@ public final class UpsellController extends CiviFormController {
   }
 
   /** Download a PDF file of the application to the program. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> download(
       Http.Request request, long applicationId, long applicantId) throws ProgramNotFoundException {
     CompletableFuture<Void> authorization = checkApplicantAuthorization(request, applicantId);
@@ -241,8 +242,14 @@ public final class UpsellController extends CiviFormController {
                         applicantId, applicationId));
               }
 
+              // Only TIs should see scores in the pdf download
+              boolean isTi = profileUtils.currentUserProfile(request).isTrustedIntermediary();
+
+              boolean includeScores =
+                  isTi && settingsManifest.getAnswerOptionScoringEnabled(request);
               PdfExporter.InMemoryPdf pdf =
-                  pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ false);
+                  pdfExporterService.generateApplicationPdf(
+                      application, /* isAdmin= */ false, /* includeScores= */ includeScores);
 
               return ok(pdf.getByteArray())
                   .as("application/pdf")

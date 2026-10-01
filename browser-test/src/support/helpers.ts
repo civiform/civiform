@@ -61,12 +61,18 @@ export const closeWarningMessage = async (page: Page) => {
 /**
  * Run accessibility tests using axe accessibility testing engine
  * @param {Page} page Playwright page to operate against
+ * @param {string} include Optional CSS selector to scope the analysis to (e.g. a
+ *   single form), when the rest of the page is validated elsewhere.
  */
-export const validateAccessibility = async (page: Page) => {
+export const validateAccessibility = async (page: Page, include?: string) => {
   await test.step(
     'Validate accessiblity',
     async () => {
-      const results = await new AxeBuilder({page}).analyze()
+      const builder = new AxeBuilder({page})
+      if (include !== undefined) {
+        builder.include(include)
+      }
+      const results = await builder.analyze()
       const errorMessage = `Found ${results.violations.length} axe accessibility violations\nOn page: ${page.url()}`
       expect(results.violations, errorMessage).toEqual([])
     },

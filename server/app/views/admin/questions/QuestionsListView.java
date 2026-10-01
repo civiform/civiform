@@ -375,9 +375,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 div()
                     .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
                     .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
-                    .condWith(
-                        settingsManifest.getTranslationManagementImprovementEnabled(request),
-                        generateTranslationCompleteText(question).orElse(div())))
+                    .with(generateTranslationCompleteText(question).orElse(div())))
             .with(actionsCellAndModal.getLeft());
 
     return Pair.of(row, actionsCellAndModal.getRight());
@@ -716,9 +714,7 @@ public final class QuestionsListView extends BaseHtmlView {
         modals.add(discardDraftButtonAndModal.getRight());
       }
     }
-    if (isActive
-        && isEditable
-        && settingsManifest.getTranslationManagementImprovementEnabled(request)) {
+    if (isActive && isEditable) {
       Optional<ButtonTag> maybeTranslationLink = renderQuestionTranslationLink(question);
       maybeTranslationLink.ifPresent(extraActions::add);
     }

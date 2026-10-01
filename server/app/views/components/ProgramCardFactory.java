@@ -18,10 +18,8 @@ import java.util.Comparator;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
-import play.mvc.Http;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -32,17 +30,14 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(
-      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  public DivTag renderCard(ProgramCardData cardData, Http.Request request) {
+  public DivTag renderCard(ProgramCardData cardData) {
     ProgramDefinition displayProgram = getDisplayProgram(cardData);
 
     String programTitleText = displayProgram.localizedName().getDefault();
@@ -64,8 +59,7 @@ public final class ProgramCardFactory {
               renderProgramRow(
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ false,
-                  cardData.draftProgram().get(),
-                  request));
+                  cardData.draftProgram().get()));
     }
 
     if (cardData.activeProgram().isPresent()) {
@@ -75,7 +69,6 @@ public final class ProgramCardFactory {
                   cardData.isCiviFormAdmin(),
                   /* isActive= */ true,
                   cardData.activeProgram().get(),
-                  request,
                   cardData.draftProgram().isPresent() ? "border-t" : ""));
     }
 
@@ -142,7 +135,6 @@ public final class ProgramCardFactory {
       boolean isCiviFormAdmin,
       boolean isActive,
       ProgramCardData.ProgramRow programRow,
-      Http.Request request,
       String... extraStyles) {
     ProgramDefinition program = programRow.program();
     String updatedPrefix = isActive ? "Published on " : "Edited on ";
@@ -166,9 +158,6 @@ public final class ProgramCardFactory {
             isActive ? ProgramDisplayType.ACTIVE : ProgramDisplayType.DRAFT,
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
-
-    boolean isTranslationManagementImprovementEnabled =
-        settingsManifest.getTranslationManagementImprovementEnabled(request);
 
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
@@ -198,8 +187,7 @@ public final class ProgramCardFactory {
                             programRow.universalQuestionsText().isPresent(),
                             p(programRow.universalQuestionsText().orElse("")))
                         .condWith(
-                            programRow.translationCompletionTag().isPresent()
-                                && isTranslationManagementImprovementEnabled,
+                            programRow.translationCompletionTag().isPresent(),
                             p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()

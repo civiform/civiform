@@ -6,7 +6,6 @@ import static views.ViewUtils.ProgramDisplayType.DRAFT;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.specialized.DivTag;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
@@ -40,8 +39,7 @@ public class ProgramBaseViewTest {
           testQuestionBank.emailApplicantEmail().getQuestionDefinition());
 
   @Test
-  @Parameters({"true", "false"})
-  public void renderExistingPredicate_singleQuestion(boolean expandedFormLogicEnabled) {
+  public void renderExistingPredicate_singleQuestion() {
     var predicateDefinition =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -63,19 +61,18 @@ public class ProgramBaseViewTest {
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false,
-                /* expanded= */ false,
-                expandedFormLogicEnabled);
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
             """
             Block_name is <strong>hidden</strong> if <strong>&quot;applicant birth \
-            date&quot;</strong> date is equal to <strong>2023-01-01</strong>""");
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong>\
+            """);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void renderExistingPredicate_includeEditFooter(boolean expandedFormLogicEnabled) {
+  public void renderExistingPredicate_includeEditFooter() {
     var predicateDefinition =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -97,16 +94,13 @@ public class ProgramBaseViewTest {
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ true,
-                /* expanded= */ false,
-                expandedFormLogicEnabled);
+                /* expanded= */ false);
 
     assertThat(result.render()).contains("Edit visibility conditions");
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void renderExistingPredicate_orOfSingleLayerAnds_withSingleAnd(
-      boolean expandedFormLogicEnabled) {
+  public void renderExistingPredicate_orOfSingleLayerAnds_withSingleAnd() {
     var predicateDefinition =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -144,8 +138,7 @@ public class ProgramBaseViewTest {
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false,
-                /* expanded= */ false,
-                expandedFormLogicEnabled);
+                /* expanded= */ false);
 
     assertThat(result.render())
         .contains(
@@ -153,13 +146,12 @@ public class ProgramBaseViewTest {
             Block_name is <strong>hidden</strong> if <strong>&quot;applicant \
             birth date&quot;</strong> date is equal to <strong>2023-01-01</strong> \
             AND <strong>&quot;applicant email address&quot;</strong> email is \
-            equal to <strong>&quot;test@example.com&quot;</strong>""");
+            equal to <strong>&quot;test@example.com&quot;</strong>\
+            """);
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void renderExistingPredicate_orOfSingleLayerAnds_withMultipleAnd(
-      boolean expandedFormLogicEnabled) {
+  public void renderExistingPredicate_orOfSingleLayerAnds_withMultipleAnd() {
     var predicateDefinition =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -218,34 +210,20 @@ public class ProgramBaseViewTest {
                 questionDefinitions,
                 PredicateUseCase.VISIBILITY,
                 /* includeEditFooter= */ false,
-                /* expanded= */ false,
-                expandedFormLogicEnabled);
+                /* expanded= */ false);
 
-    if (expandedFormLogicEnabled) {
-      assertThat(result.render())
-          .contains(
-              """
-              Block_name is <strong>hidden</strong> if <strong>any</strong> conditions are \
-              true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
-              date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
-              <strong>&quot;applicant email address&quot;</strong> email is equal to \
-              <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant birth \
-              date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND \
-              <strong>&quot;applicant email address&quot;</strong> email is equal to \
-              <strong>&quot;other@example.com&quot;</strong></li>""");
-    } else {
-      assertThat(result.render())
-          .contains(
-              """
-              Block_name is <strong>hidden</strong> if <strong>any</strong> of the following is \
-              true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
-              date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
-              <strong>&quot;applicant email address&quot;</strong> email is equal to \
-              <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant birth \
-              date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND \
-              <strong>&quot;applicant email address&quot;</strong> email is equal to \
-              <strong>&quot;other@example.com&quot;</strong></li>""");
-    }
+    assertThat(result.render())
+        .contains(
+            """
+            Block_name is <strong>hidden</strong> if <strong>any</strong> conditions are \
+            true:</p><ol class="list-decimal ml-4 pt-4"><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-01-01</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;test@example.com&quot;</strong></li><li><strong>&quot;applicant birth \
+            date&quot;</strong> date is equal to <strong>2023-03-03</strong> AND \
+            <strong>&quot;applicant email address&quot;</strong> email is equal to \
+            <strong>&quot;other@example.com&quot;</strong></li>\
+            """);
   }
 
   private static final class ProgramBlockBaseViewTestChild extends ProgramBaseView {

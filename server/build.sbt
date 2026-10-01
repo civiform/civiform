@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.3.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -61,7 +61,7 @@ lazy val root = (project in file("."))
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.13",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.29.0",
-      "com.h2database" % "h2" % "2.4.240" % Test,
+      "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
@@ -87,18 +87,18 @@ lazy val root = (project in file("."))
       "org.glassfish.jaxb" % "jaxb-runtime" % "4.0.9",
 
       // Code autogeneration
-      "org.projectlombok" % "lombok" % "1.18.46" % "provided",
+      "org.projectlombok" % "lombok" % "1.18.48" % "provided",
 
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.6",
+      "org.pac4j" % "pac4j-core" % "6.5.9",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.6",
+      "org.pac4j" % "pac4j-http" % "6.5.9",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.6",
+      "org.pac4j" % "pac4j-oidc" % "6.5.9",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.6",
+      "org.pac4j" % "pac4j-saml" % "6.5.9",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.2.2",
+      "org.checkerframework" % "dataflow-errorprone" % "4.2.3",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.37",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.38",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -156,8 +156,8 @@ lazy val root = (project in file("."))
       "io.swagger" % "swagger-parser" % "1.0.76",
 
       // OpenAPI 3.x Dependencies
-      "io.swagger.core.v3" % "swagger-core" % "2.2.54",
-      "io.swagger.parser.v3" % "swagger-parser" % "2.1.47",
+      "io.swagger.core.v3" % "swagger-core" % "2.2.55",
+      "io.swagger.parser.v3" % "swagger-parser" % "2.1.48",
 
       // JSON Schema validation
       "com.networknt" % "json-schema-validator" % "2.0.7",
@@ -338,8 +338,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.2",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.3",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 

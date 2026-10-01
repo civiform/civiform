@@ -7,6 +7,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import auth.ProgramAcls;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.guava.GuavaModule;
 import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
@@ -1906,5 +1907,81 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .build();
     assertThat(result.blockDefinitions())
         .containsExactly(expectedBlockA, expectedBlockB, expectedBlockC, expectedBlockD);
+  }
+
+  @Test
+  public void usesScoring_unset_buildsAndReadsFalse() {
+    // Builders that never call setUsesScoring must still build (deserialization-safe default).
+    assertThat(minimalProgramDefinition(/* usesScoring= */ false).usesScoring()).isFalse();
+  }
+
+  @Test
+  public void serde_usesScoringTrue_roundTrips() throws JsonProcessingException {
+    ObjectMapper objectMapper = migrationStyleObjectMapper();
+
+    String json = objectMapper.writeValueAsString(minimalProgramDefinition(true));
+    ProgramDefinition result = objectMapper.readValue(json, ProgramDefinition.class);
+
+    assertThat(json).contains("\"usesScoring\"");
+    assertThat(result.usesScoring()).isTrue();
+  }
+
+  @Test
+  public void deserialize_preFeatureExportWithoutUsesScoring_readsFalse()
+      throws JsonProcessingException {
+    ObjectMapper objectMapper = migrationStyleObjectMapper();
+    // Simulate a program export created before the property existed.
+    ObjectNode node =
+        (ObjectNode)
+            objectMapper.readTree(objectMapper.writeValueAsString(minimalProgramDefinition(true)));
+    node.remove("usesScoring");
+
+    ProgramDefinition result = objectMapper.readValue(node.toString(), ProgramDefinition.class);
+
+    assertThat(result.usesScoring()).isFalse();
+  }
+
+  @Test
+  public void deserialize_explicitNullUsesScoring_readsFalse() throws JsonProcessingException {
+    ObjectMapper objectMapper = migrationStyleObjectMapper();
+    ObjectNode node =
+        (ObjectNode)
+            objectMapper.readTree(objectMapper.writeValueAsString(minimalProgramDefinition(true)));
+    node.putNull("usesScoring");
+
+    ProgramDefinition result = objectMapper.readValue(node.toString(), ProgramDefinition.class);
+
+    assertThat(result.usesScoring()).isFalse();
+  }
+
+  private ProgramDefinition minimalProgramDefinition(boolean usesScoring) {
+    ProgramDefinition.Builder builder =
+        ProgramDefinition.builder()
+            .setId(123L)
+            .setAdminName("uses-scoring-test")
+            .setAdminDescription("Admin description")
+            .setLocalizedName(LocalizedStrings.of(Locale.US, "The Program"))
+            .setLocalizedDescription(LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedShortDescription(
+                LocalizedStrings.of(Locale.US, "This program is for testing."))
+            .setLocalizedConfirmationMessage(LocalizedStrings.withEmptyDefault())
+            .setExternalLink("")
+            .setDisplayMode(DisplayMode.PUBLIC)
+            .setBlockDefinitions(ImmutableList.of())
+            .setProgramType(ProgramType.DEFAULT)
+            .setEligibilityIsGating(true)
+            .setLoginOnly(false)
+            .setAcls(new ProgramAcls())
+            .setCategories(ImmutableList.of())
+            .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .setBridgeDefinitions(ImmutableMap.of());
+    if (usesScoring) {
+      builder.setUsesScoring(true);
+    }
+    return builder.build();
+  }
+
+  private static ObjectMapper migrationStyleObjectMapper() {
+    return new ObjectMapper().registerModule(new GuavaModule()).registerModule(new Jdk8Module());
   }
 }

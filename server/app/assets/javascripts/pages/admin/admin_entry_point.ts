@@ -8,7 +8,6 @@ import * as radio from '@/radio'
 import * as toast from '@/toast'
 import * as adminApiKeys from '@/admin_api_keys'
 import * as adminApplicationView from '@/admin_application_view'
-import * as legacyAdminPredicates from '@/admin_predicate_configuration'
 import * as adminPredicateEdit from '@/admin_predicate_edit'
 import * as adminProgramImage from '@/admin_program_image'
 import * as legacyAdminProgramImage from '@/legacy_admin_program_image'
@@ -33,9 +32,11 @@ import * as trustedIntermediaryController from '@/admin_trusted_intermediary_lis
 import * as legacyFileUpload from '@/legacy_file_upload'
 import * as azureUpload from '@/azure_upload'
 import htmx from '@/htmx'
+import * as questionImages from '@/admin_question_image'
 
 import {AdminProgramApiBridge} from '@/admin_program_api_bridge'
 import {featureFlags} from '@/global/shared/feature_flags'
+import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 
 // Ensure the object path exists
 window.app = window.app || {}
@@ -46,11 +47,12 @@ window.app.scripts = window.app.scripts || {}
 window.app.scripts.AdminProgramApiBridge = AdminProgramApiBridge
 window.app.scripts.AdminPredicateEdit = adminPredicateEdit.AdminPredicateEdit
 
+// Register at module level so it doesn't miss early HTMX settles
+htmx.on('htmx:afterSettle', () => {
+  afterSettle()
+})
 window.addEventListener('load', () => {
   initializeEverything()
-  htmx.on('htmx:afterSettle', () => {
-    afterSettle()
-  })
 })
 
 function initializeEverything(): void {
@@ -61,7 +63,6 @@ function initializeEverything(): void {
   toast.init()
   adminApiKeys.init()
   adminApplicationView.init()
-  legacyAdminPredicates.init()
   adminPredicateEdit.init()
   if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
     adminProgramImage.init()
@@ -87,10 +88,17 @@ function initializeEverything(): void {
   legacyFileUpload.init()
   azureUpload.init(AZURE_ADMIN_FILEUPLOAD_FORM_ID)
   SessionTimeoutHandler.init()
+  questionImages.init()
 }
 
 function afterSettle(): void {
   PreviewController.updateListeners()
   map.init()
   enumerator.updateListeners()
+
+  const preview = document.getElementById('sample-question')
+  if (preview && preview.querySelector('.usa-file-input')) {
+    uswdsFileInput.off(preview)
+    uswdsFileInput.on(preview)
+  }
 }

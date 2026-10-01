@@ -96,16 +96,14 @@ public class StoredFileRepositoryTest extends ResetPostgres {
                     supersetApplicantId, /* programId= */ 20L, /* blockId= */ "5"));
     supersetApplicantFile.save();
 
-    List<StoredFileModel> result =
-        repo.lookupFilesByApplicant(applicantId).toCompletableFuture().join();
+    List<StoredFileModel> result = repo.lookupFilesByApplicant(applicantId);
 
     assertThat(result).containsExactlyInAnyOrder(applicantFile1, applicantFile2);
   }
 
   @Test
   public void lookupFilesByApplicant_noFiles_returnsEmpty() {
-    List<StoredFileModel> result =
-        repo.lookupFilesByApplicant(/* applicantId= */ 99L).toCompletableFuture().join();
+    List<StoredFileModel> result = repo.lookupFilesByApplicant(/* applicantId= */ 99L);
 
     assertThat(result).isEmpty();
   }

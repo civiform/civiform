@@ -39,13 +39,13 @@ Resources:
 - [ ] Check #eng-ci Slack channel daily to monitor failed pushes and e2e test runs
 - [ ] Once per shift, check Transifex to see if strings are ready to be sent for translation. See [Managing Translations](https://github.com/civiform/civiform/wiki/Exygy-Admin-Info#managing-translations) for detailed instructions.
 - [ ] Make a weeks worth of progress (4 days) on an issue from the [On Call board](https://github.com/orgs/civiform/projects/1/views/95), a broken dependency update (see below), or a more urgent issue if one was assigned to you from the EM or PM.
-- [ ] Check for dependency updates
-  - Resolve mergeable dependency updates a few times per shift in batches of 3-5.
+- [ ] Check for dependency updates daily
+  - Resolve mergeable dependency updates daily in batches of 3-5.
   - If there are broken dependency updates, pick one to look into during your shift. If it's a small fix that you can do in < 2 days, fix it and merge it.
-  - Otherwise, create a new GitHub issue for the dependency update and document your findings. Ping Rocky so the issue gets added to our roadmap, mark the Renovate PR as "draft", and add a comment on the PR with the link to the new issue.
+  - Otherwise, create a new GitHub issue for the dependency update and document your findings. Mark the Renovate PR as "draft" and add a comment on the PR with the link to the new issue.
   - If you have time/interest, feel free to look into other broken dependencies and write comments on the PRs with your findings.
   - Review our [oncall docs](https://github.com/civiform/civiform/wiki/On-Call-Guide#dependency-updates) for more guidance and best practices for merging dependency updates.
-  - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Frenovate)
+  - [ ] Renovate PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/civiform-github-automation)
   - [ ] Dependabot PRs for [civiform/civiform](https://github.com/civiform/civiform/pulls/app%2Fdependabot)
   - [ ] Renovate PRs for [civiform/civiform-staging-deploy](https://github.com/civiform/civiform-staging-deploy/pulls/app%2Frenovate)
   - [ ] Renovate PRs for [civiform/cloud-deploy-infra](https://github.com/civiform/cloud-deploy-infra/pulls/app%2Frenovate)

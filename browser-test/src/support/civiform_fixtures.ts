@@ -16,6 +16,7 @@ import {
 import {BridgeDiscoveryPage} from '../page/admin/api_bridge/bridge_discovery_page'
 import {AdminApiKeys} from './admin_api_keys'
 import {AdminProgramMigration} from './admin_program_migration'
+import {AdminQuestionImage} from './admin_question_image'
 import {ApplicantProgramList} from './applicant_program_list'
 import {ApplicantProgramOverview} from './applicant_program_overview'
 import {Seeding} from './seeding'
@@ -31,6 +32,7 @@ type CiviformFixtures = {
   adminPredicates: AdminPredicates
   adminTranslations: AdminTranslations
   adminProgramImage: AdminProgramImage
+  adminQuestionImage: AdminQuestionImage
   adminSettings: AdminSettings
   applicantFileQuestion: ApplicantFileQuestion
   applicantProgramList: ApplicantProgramList
@@ -79,6 +81,10 @@ export const test = base.extend<CiviformFixtures>({
 
   adminProgramImage: async ({page}, use) => {
     await use(new AdminProgramImage(page))
+  },
+
+  adminQuestionImage: async ({page}, use) => {
+    await use(new AdminQuestionImage(page))
   },
 
   adminSettings: async ({page}, use) => {

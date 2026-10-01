@@ -3,7 +3,6 @@ package repository;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
-import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.time.Instant;
@@ -13,35 +12,34 @@ import java.util.Optional;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
-import models.ApplicationStep;
-import models.DisplayMode;
 import models.EligibilityDetermination;
 import models.LifecycleStage;
 import models.ProgramModel;
-import models.VersionModel;
 import org.junit.Before;
 import org.junit.Test;
 import services.DateConverter;
+import services.LocalizedStrings;
 import services.Path;
+import services.applicant.ApplicantData;
+import services.applicant.ApplicationScores;
 import services.applicant.exception.DuplicateApplicationException;
-import services.program.ProgramType;
+import services.question.QuestionAnswerer;
+import services.question.QuestionOption;
+import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.MultiOptionQuestionDefinition.MultiOptionQuestionType;
+import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionConfig;
 import support.CfTestHelpers;
+import support.ProgramBuilder;
 
 public class ApplicationRepositoryTest extends ResetPostgres {
   private ApplicationRepository repo;
   private DateConverter dateConverter;
 
-  private VersionModel draftVersion;
-  private VersionModel activeVersion;
-
   @Before
   public void setUp() {
     repo = instanceOf(ApplicationRepository.class);
     dateConverter = instanceOf(DateConverter.class);
-    draftVersion = new VersionModel(LifecycleStage.DRAFT);
-    draftVersion.save();
-    activeVersion = new VersionModel(LifecycleStage.ACTIVE);
-    activeVersion.save();
   }
 
   @Test
@@ -597,6 +595,117 @@ public class ApplicationRepositoryTest extends ResetPostgres {
         .hasMessageContaining("Program not found");
   }
 
+  private QuestionDefinition saveScoredDropdown(String name, double score) {
+    return testQuestionBank
+        .maybeSave(
+            new MultiOptionQuestionDefinition(
+                QuestionDefinitionConfig.builder()
+                    .setName(name)
+                    .setDescription(name)
+                    .setQuestionText(LocalizedStrings.of(Locale.US, name + "?"))
+                    .setQuestionHelpText(LocalizedStrings.empty())
+                    .build(),
+                ImmutableList.of(
+                    QuestionOption.create(
+                        /* id= */ 1L,
+                        /* displayOrder= */ 0L,
+                        /* adminName= */ "scored_option",
+                        /* optionText= */ LocalizedStrings.of(Locale.US, "scored option"),
+                        /* displayInAnswerOptions= */ Optional.of(true),
+                        /* score= */ Optional.of(score))),
+                MultiOptionQuestionType.DROPDOWN),
+            LifecycleStage.ACTIVE)
+        .getQuestionDefinition();
+  }
+
+  private Path answerScoredDropdown(ApplicantModel applicant, QuestionDefinition dropdown) {
+    Path path = Path.create("applicant").join(dropdown.getQuestionPathSegment());
+    QuestionAnswerer.answerSingleSelectQuestion(applicant.getApplicantData(), path, 1L);
+    applicant.save();
+    return path;
+  }
+
+  /** Scores as the service would compute them for a single scored dropdown answer. */
+  private static ApplicationScores scoresFor(Path questionPath, double score) {
+    return ApplicationScores.builder().total(score).singleSelectScore(questionPath, score).build();
+  }
+
+  @Test
+  public void submitApplication_withScores_writesMetadataToApplicationOnly() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("applied dropdown", 10.5);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("scoring-applied")
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    Path questionPath = answerScoredDropdown(applicant, dropdown);
+    applicant.getApplicantData().setPreferredLocale(Locale.FRENCH);
+    applicant.save();
+    String applicantJsonBefore = applicant.getApplicantData().asJsonString();
+
+    ApplicationModel application =
+        repo.submitApplication(
+                applicant.id,
+                program.id,
+                Optional.empty(),
+                EligibilityDetermination.NOT_COMPUTED,
+                Optional.of(scoresFor(questionPath, 10.5)))
+            .toCompletableFuture()
+            .join()
+            .get();
+
+    // The application's copy carries the score metadata and keeps the source's preferred locale.
+    assertThat(application.getApplicantData().readDouble(ApplicationScores.TOTAL_SCORE_PATH))
+        .hasValue(10.5);
+    assertThat(application.getApplicantData().readDouble(ApplicantData.scorePath(questionPath)))
+        .hasValue(10.5);
+    assertThat(application.getApplicantData().preferredLocale()).isEqualTo(Locale.FRENCH);
+
+    // The applicant's own shared row never carries score metadata.
+    ApplicantModel refreshedApplicant =
+        instanceOf(AccountRepository.class)
+            .lookupApplicant(applicant.id)
+            .toCompletableFuture()
+            .join()
+            .get();
+    assertThat(refreshedApplicant.getApplicantData().asJsonString())
+        .doesNotContain("\"score\":")
+        .doesNotContain("\"total_score\":");
+    assertThat(refreshedApplicant.getApplicantData().asJsonString()).isEqualTo(applicantJsonBefore);
+  }
+
+  @Test
+  public void submitApplication_duplicateOfScoredApplication_stillDetected() {
+    ApplicantModel applicant = saveApplicant("Alice");
+    QuestionDefinition dropdown = saveScoredDropdown("duplicate dropdown", 10);
+    ProgramModel program =
+        ProgramBuilder.newActiveProgram("scored-duplicate")
+            .withBlock()
+            .withRequiredQuestionDefinition(dropdown)
+            .build();
+    Path questionPath = answerScoredDropdown(applicant, dropdown);
+
+    repo.submitApplication(
+            applicant.id,
+            program.id,
+            Optional.empty(),
+            EligibilityDetermination.NOT_COMPUTED,
+            Optional.of(scoresFor(questionPath, 10)))
+        .toCompletableFuture()
+        .join();
+
+    // The previous application carries score metadata and the live applicant does not; identical
+    // answers must still be detected as a duplicate.
+    assertThatThrownBy(
+            () ->
+                repo.submitApplication(
+                        applicant, program, Optional.empty(), EligibilityDetermination.NOT_COMPUTED)
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(DuplicateApplicationException.class);
+  }
+
   private ApplicantModel saveApplicant(String name) {
     AccountModel account = new AccountModel();
     // TODO (#5503): This can be removed when we are no longer checking name
@@ -612,35 +721,10 @@ public class ApplicationRepositoryTest extends ResetPostgres {
   }
 
   private ProgramModel createDraftProgram(String name) {
-    return createProgram(name, draftVersion);
+    return ProgramBuilder.newDraftProgram(name).build();
   }
 
   private ProgramModel createActiveProgram(String name) {
-    return createProgram(name, activeVersion);
-  }
-
-  private ProgramModel createProgram(String name, VersionModel version) {
-    ProgramModel program =
-        new ProgramModel(
-            name,
-            "desc",
-            name,
-            "desc",
-            "short desc",
-            "",
-            "",
-            DisplayMode.PUBLIC.getValue(),
-            ImmutableList.of(),
-            ImmutableList.of(),
-            version,
-            ProgramType.DEFAULT,
-            /* eligibilityIsGating= */ true,
-            /* loginOnly= */ false,
-            new ProgramAcls(),
-            /* categories= */ ImmutableList.of(),
-            ImmutableList.of(new ApplicationStep("title", "description")));
-    ;
-    program.save();
-    return program;
+    return ProgramBuilder.newActiveProgram(name).build();
   }
 }

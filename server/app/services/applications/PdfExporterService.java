@@ -26,12 +26,16 @@ public final class PdfExporterService {
    *
    * <p>Used for applicants to download a copy of their submitted application and for program admins
    * to review applications.
+   *
+   * @param includeScores whether scores should be included on the downloaded PDF; score text
+   *     renders only for admins and TIs when the flag is enabled and the application snapshot
+   *     carries score metadata. Score text is not rendered for applicants.
    */
   public PdfExporter.InMemoryPdf generateApplicationPdf(
-      ApplicationModel application, boolean isAdmin) {
+      ApplicationModel application, boolean isAdmin, boolean includeScores) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.exportApplication(application, isAdmin);
+      pdf = pdfExporter.exportApplication(application, isAdmin, includeScores);
     } catch (DocumentException | IOException e) {
       throw new RuntimeException(e);
     }
@@ -45,12 +49,10 @@ public final class PdfExporterService {
    * <p>Used for admins to see their current program setup.
    */
   public PdfExporter.InMemoryPdf generateProgramPreviewPdf(
-      ProgramDefinition programDefinition,
-      ImmutableList<QuestionDefinition> allQuestions,
-      boolean expandedFormLogicEnabled) {
+      ProgramDefinition programDefinition, ImmutableList<QuestionDefinition> allQuestions) {
     PdfExporter.InMemoryPdf pdf;
     try {
-      pdf = pdfExporter.exportProgram(programDefinition, allQuestions, expandedFormLogicEnabled);
+      pdf = pdfExporter.exportProgram(programDefinition, allQuestions);
     } catch (DocumentException | IOException | TranslationNotFoundException e) {
       throw new RuntimeException(e);
     }

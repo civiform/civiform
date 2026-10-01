@@ -177,7 +177,8 @@ public final class AdminApplicationController extends CiviFormController {
         jsonExporterService.export(
             program,
             SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
-            filters);
+            filters,
+            /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -221,7 +222,11 @@ public final class AdminApplicationController extends CiviFormController {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       checkProgramAdminAuthorization(request, program.adminName()).join();
       String filename = String.format("%s-%s.csv", program.adminName(), nowProvider.get());
-      String csv = exporterService.getProgramAllVersionsCsv(programId, filters);
+      String csv =
+          exporterService.getProgramAllVersionsCsv(
+              programId,
+              filters,
+              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -296,7 +301,10 @@ public final class AdminApplicationController extends CiviFormController {
     }
     ApplicationModel application = applicationMaybe.get();
     PdfExporter.InMemoryPdf pdf =
-        pdfExporterService.generateApplicationPdf(application, /* isAdmin= */ true);
+        pdfExporterService.generateApplicationPdf(
+            application,
+            /* isAdmin= */ true,
+            /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request));
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(

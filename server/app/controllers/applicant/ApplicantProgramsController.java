@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -209,8 +210,21 @@ public final class ApplicantProgramsController extends CiviFormController {
       return CompletableFuture.completedFuture(redirectToHome());
     } else {
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
-      return programSlugHandler.showProgramWithApplicantId(
-          this, request, programName, applicantId, profile);
+      return checkApplicantAuthorization(request, applicantId)
+          .thenComposeAsync(
+              v ->
+                  programSlugHandler.showProgramWithApplicantId(
+                      this, request, programName, applicantId, profile),
+              classLoaderExecutionContext.current())
+          .exceptionally(
+              ex -> {
+                if (ex instanceof CompletionException) {
+                  if (ex.getCause() instanceof SecurityException) {
+                    return redirectToHome();
+                  }
+                }
+                throw new RuntimeException(ex);
+              });
     }
   }
 
@@ -340,7 +354,7 @@ public final class ApplicantProgramsController extends CiviFormController {
     return editInternal(request, applicantId.get(), programParam);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> showInfoDisabledProgram(Request request, String programSlug) {
     Optional<Long> applicantId = getApplicantId(request);
     CompletionStage<ApplicantPersonalInfo> applicantStage =
@@ -359,7 +373,7 @@ public final class ApplicantProgramsController extends CiviFormController {
    * Serves an HTMX partial view when the user selects program category filters. The partial view
    * displays recommended and other programs based on the selected categories.
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> hxFilter(
       Request request, List<String> categories, String applicantId) {
     Optional<Long> maybeApplicantId = parseApplicantId(request, applicantId);

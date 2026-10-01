@@ -7,7 +7,6 @@ import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Optional;
 import org.pac4j.oidc.client.OidcClient;
-import repository.DatabaseExecutionContext;
 
 /**
  * Provider for auth0.com. Auth0 mostly implements OIDC protocol so it relies on base implementation
@@ -19,9 +18,8 @@ import repository.DatabaseExecutionContext;
 public class Auth0ClientProvider extends GenericOidcClientProvider {
 
   @Inject
-  public Auth0ClientProvider(
-      OidcClientProviderParams params, DatabaseExecutionContext dbExecutionContext) {
-    super(params, dbExecutionContext);
+  public Auth0ClientProvider(OidcClientProviderParams params) {
+    super(params);
   }
 
   @Override

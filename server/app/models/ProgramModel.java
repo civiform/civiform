@@ -70,6 +70,9 @@ public class ProgramModel extends BaseModel {
   /** If the program is for logged in applicants only. */
   @Constraints.Required private Boolean loginOnly;
 
+  /** If true, the program applies answer-option scores to submitted applications. */
+  @Constraints.Required private Boolean usesScoring;
+
   /** The notification preferences for this program */
   @Constraints.Required
   private @DbArray List<ProgramNotificationPreference> notificationPreferences;
@@ -195,6 +198,7 @@ public class ProgramModel extends BaseModel {
     this.notificationPreferences = new ArrayList<>(definition.notificationPreferences());
     this.programType = definition.programType();
     this.eligibilityIsGating = definition.eligibilityIsGating();
+    this.usesScoring = definition.usesScoring();
     this.acls = definition.acls();
 
     // Ebeans needs to manage the collection so add categories instead of
@@ -233,6 +237,7 @@ public class ProgramModel extends BaseModel {
       ProgramType programType,
       boolean eligibilityIsGating,
       boolean loginOnly,
+      boolean usesScoring,
       ProgramAcls programAcls,
       ImmutableList<CategoryModel> categories,
       ImmutableList<ApplicationStep> applicationSteps) {
@@ -253,6 +258,7 @@ public class ProgramModel extends BaseModel {
     this.programType = programType;
     this.eligibilityIsGating = eligibilityIsGating;
     this.loginOnly = loginOnly;
+    this.usesScoring = usesScoring;
     this.acls = programAcls;
 
     // Ebeans needs to manage the collection so add categories instead of
@@ -280,6 +286,7 @@ public class ProgramModel extends BaseModel {
     programType = programDefinition.programType();
     eligibilityIsGating = programDefinition.eligibilityIsGating();
     loginOnly = programDefinition.loginOnly();
+    usesScoring = programDefinition.usesScoring();
     acls = programDefinition.acls();
     localizedSummaryImageDescription =
         programDefinition.localizedSummaryImageDescription().orElse(null);
@@ -318,6 +325,7 @@ public class ProgramModel extends BaseModel {
             .setProgramType(programType)
             .setEligibilityIsGating(eligibilityIsGating)
             .setLoginOnly(loginOnly)
+            .setUsesScoring(usesScoring)
             .setAcls(acls)
             .setCategories(ImmutableList.copyOf(categories))
             .setApplicationSteps(ImmutableList.copyOf(applicationSteps))

@@ -30,6 +30,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
 import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -51,6 +52,7 @@ import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.FileUploadQuestion;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressSuggestion;
 import services.geo.AddressSuggestionGroup;
@@ -298,7 +300,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request,
       long applicantId,
@@ -327,7 +329,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddress(
       Request request,
       long programId,
@@ -414,7 +416,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
    *     resources are not found
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previousWithApplicantId(
       Request request,
       long applicantId,
@@ -537,7 +539,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previous(
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
@@ -564,7 +566,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   private CompletionStage<Result> editOrReview(
       Request request,
       long applicantId,
@@ -653,7 +655,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file removal
    * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFile(
       Request request, Long programId, String blockId, String fileKeyToRemove, boolean inReview) {
 
@@ -669,7 +671,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programId, blockId, fileKeyToRemove, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
@@ -806,7 +808,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file processing
    * @return a CompletionStage that resolves to a Result handled by addFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFile(
       Request request, long programId, String blockId, boolean inReview) {
     // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -822,7 +824,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return addFileWithApplicantId(request, applicantId, programId, blockId, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -1027,7 +1029,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *       </ul>
    * </ul>
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> updateWithApplicantId(
       Request request,
       long applicantId,
@@ -1214,7 +1216,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** See {@link #updateWithApplicantId}. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> update(
       Request request,
       String programParam,
@@ -1610,7 +1612,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               // the applicant has uploaded a file with the same name for the same
               // block and question, overwriting the original in file storage.
               if (maybeStoredFile.isPresent()) {
-                return completedFuture(maybeStoredFile.get());
+                StoredFileModel existingFile = maybeStoredFile.get();
+                // An existing file may only be referenced by an applicant who owns it or
+                // has been granted read access; possession of the key is not authorization.
+                boolean applicantCanReadFile =
+                    ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)
+                        || existingFile.getAcls().hasApplicantReadPermission(applicantId);
+                if (!applicantCanReadFile) {
+                  return failedFuture(
+                      new SecurityException(
+                          String.format(
+                              "Applicant %d is not authorized to reference the file key in this"
+                                  + " request.",
+                              applicantId)));
+                }
+                return completedFuture(existingFile);
               }
 
               var storedFile = new StoredFileModel();

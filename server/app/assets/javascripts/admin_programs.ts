@@ -103,6 +103,12 @@ class AdminPrograms {
       /* shouldHide= */ disableProgramEligibility,
     )
 
+    // Application scoring
+    this.updateUSWDSCheckboxesDisabledState(
+      /* fieldSelectors= */ '[id^="program-scoring"]',
+      /* shouldDisable= */ programType === ProgramType.EXTERNAL,
+    )
+
     // Program external link
     const externalLink = document.getElementById(
       'program-external-link-input',

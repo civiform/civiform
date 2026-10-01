@@ -36,7 +36,8 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        service.generateApplicationPdf(applicationOne, /* isAdmin= */ true);
+        service.generateApplicationPdf(
+            applicationOne, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -76,9 +77,7 @@ public class PdfExporterServiceTest extends AbstractExporterTest {
 
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(
-            fakeProgram.getProgramDefinition(),
-            getFakeQuestionDefinitions(),
-            /* expandedFormLogicEnabled= */ true);
+            fakeProgram.getProgramDefinition(), getFakeQuestionDefinitions());
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();

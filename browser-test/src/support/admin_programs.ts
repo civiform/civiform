@@ -1,5 +1,5 @@
 import {expect} from './civiform_fixtures'
-import {ElementHandle, Page, Locator} from '@playwright/test'
+import {Page, Locator} from '@playwright/test'
 import {readFileSync} from 'fs'
 import {
   clickAndWaitForModal,
@@ -776,7 +776,9 @@ export class AdminPrograms {
    */
   async expectReadOnlyProgramBlock(blockId: string) {
     // The block info shows us we are viewing a block.
-    expect(this.page.locator('id=block-info-display-' + blockId)).not.toBeNull()
+    await expect(
+      this.page.locator('id=block-info-display-' + blockId),
+    ).toBeVisible()
     // The absence of one of the edit buttons ensures it is the read only view.
     await expect(
       this.page.locator('id=block-description-modal-button'),
@@ -994,6 +996,21 @@ export class AdminPrograms {
     }
   }
 
+  async setShouldUseApplicationScoring(checked: boolean) {
+    const checkbox = this.page.getByRole('checkbox', {
+      name: 'Enable application scoring',
+    })
+    const isCurrentlyChecked = await checkbox.isChecked()
+
+    if (isCurrentlyChecked !== checked) {
+      // Note: We click on the label instead of directly interacting with the checkbox
+      // because USWDS styling hides the actual checkbox input and styles the label to
+      // look like a checkbox. The actual input element is visually hidden or positioned
+      // off-screen, making it inaccessible to Playwright's direct interactions.
+      await this.page.locator('label[for="program-uses-scoring"]').click()
+    }
+  }
+
   /**
    * Opens the export program page by clicking on a program's card action or
    * extra action (depending on the program lifecycle)
@@ -1067,24 +1084,18 @@ export class AdminPrograms {
   async goToEditBlockVisibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
     // Click on the edit predicate button
     await this.page.click('#cf-edit-visibility-predicate')
     await waitForPageJsLoad(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.VISIBILITY)
-    } else {
-      await this.expectEditVisibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.VISIBILITY)
   }
 
   async goToEditBlockEligibilityPredicatePage(
     programName: string,
     blockName: string,
-    expandedFormLogicEnabled: boolean = false,
   ) {
     await this.goToBlockInProgram(programName, blockName)
 
@@ -1092,11 +1103,7 @@ export class AdminPrograms {
     await this.page.click('#cf-edit-eligibility-predicate')
     await waitForPageJsLoad(this.page)
     await waitForHtmxReady(this.page)
-    if (expandedFormLogicEnabled) {
-      await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
-    } else {
-      await this.expectEditEligibilityPredicatePage(blockName)
-    }
+    await this.expectEditPredicatePage(PredicateType.ELIGIBILITY)
   }
 
   async goToProgramDescriptionPage(
@@ -1174,18 +1181,6 @@ export class AdminPrograms {
       'A public display name for the program is required.',
     )
     expect(toastMessages).toContain('Error: ')
-  }
-
-  async expectEditVisibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Visibility condition for ' + blockName,
-    )
-  }
-
-  async expectEditEligibilityPredicatePage(blockName: string) {
-    expect(await this.page.innerText('h1')).toContain(
-      'Eligibility condition for ' + blockName,
-    )
   }
 
   async expectEditPredicatePage(predicateType: PredicateType) {
@@ -1766,45 +1761,69 @@ export class AdminPrograms {
   }
 
   async isEditNoteVisible(): Promise<boolean> {
-    return this.page.locator(this.editNoteSelector()).isVisible()
+    return this.page.getByRole('button', {name: 'Edit note'}).isVisible()
+  }
+
+  async isAddNoteVisible(): Promise<boolean> {
+    return this.page.getByRole('button', {name: 'Add note'}).isVisible()
   }
 
   /**
    * Returns the content of the note modal when viewing an application.
    */
   async getNoteContent() {
-    await this.page.locator(this.editNoteSelector()).click()
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
 
-    const editModal = await waitForAnyModal(this.page)
-    const noteContentArea = (await editModal.$('textarea'))!
-    return noteContentArea.inputValue()
+    const editModal = await waitForAnyModalLocator(this.page)
+    return editModal.locator('textarea').inputValue()
   }
 
   /**
-   * Clicks the edit note button, and returns the modal.
+   * Clicks the "Add note" button, and returns the modal.
    */
-  async awaitEditNoteModal(): Promise<ElementHandle<HTMLElement>> {
-    await this.page.locator(this.editNoteSelector()).click()
+  async awaitAddNoteModal(): Promise<Locator> {
+    await this.page.getByRole('button', {name: 'Add note'}).click()
 
-    return await waitForAnyModal(this.page)
+    return waitForAnyModalLocator(this.page)
   }
 
   /**
-   * Clicks the edit note button, sets the note content to the provided text,
+   * Clicks the "Edit note" button, and returns the modal.
+   */
+  async awaitEditNoteModal(): Promise<Locator> {
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
+
+    return waitForAnyModalLocator(this.page)
+  }
+
+  /**
+   * Clicks the "Add note" button, sets the note content to the provided text,
+   * and confirms the dialog.
+   */
+  async addNote(noteContent: string) {
+    await this.page.getByRole('button', {name: 'Add note'}).click()
+    await this.fillAndSaveNoteModal(noteContent)
+  }
+
+  /**
+   * Clicks the "Edit note" button, sets the note content to the provided text,
    * and confirms the dialog.
    */
   async editNote(noteContent: string) {
-    const editModal = await this.awaitEditNoteModal()
-    const noteContentArea = (await editModal.$('textarea'))!
-    await noteContentArea.fill(noteContent)
-
-    const saveButton = (await editModal.$('text=Save'))!
-    await saveButton.click()
-    await waitForPageJsLoad(this.page)
+    await this.page.getByRole('button', {name: 'Edit note'}).click()
+    await this.fillAndSaveNoteModal(noteContent)
   }
 
-  private editNoteSelector() {
-    return 'button:has-text("Edit note")'
+  private async fillAndSaveNoteModal(noteContent: string) {
+    const editModal = await waitForAnyModalLocator(this.page)
+    await editModal.locator('textarea').fill(noteContent)
+
+    const responsePromise = this.page.waitForResponse((response) => {
+      return response.url().includes('updateNote')
+    })
+    await editModal.getByRole('button', {name: 'Save'}).click()
+    await responsePromise
+    await waitForPageJsLoad(this.page)
   }
 
   async expectNoteUpdatedToast() {

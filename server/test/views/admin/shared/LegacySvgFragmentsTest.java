@@ -244,4 +244,10 @@ public class LegacySvgFragmentsTest {
   public void iconAddress_questionCard() {
     ThymeleafFragmentTester.run(DIR + "iconAddressQuestionCard.thtest");
   }
+
+  /** Legacy source: AdminExportView back-to-all-programs link. */
+  @Test
+  public void iconArrowLeft_backLink() {
+    ThymeleafFragmentTester.run(DIR + "iconArrowLeft.thtest");
+  }
 }

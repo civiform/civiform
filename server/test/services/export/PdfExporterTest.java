@@ -13,21 +13,24 @@ import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import models.QuestionModel;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.ApplicationScores;
 import services.applications.PdfExporterService;
 import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 
 @RunWith(JUnitParamsRunner.class)
 public class PdfExporterTest extends AbstractExporterTest {
@@ -47,7 +50,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationOne.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationOne, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationOne, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -106,7 +110,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -161,7 +166,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -211,7 +217,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -262,7 +269,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -302,7 +310,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
 
     assertFileUploadLink(
@@ -344,7 +353,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     PdfExporter exporter = instanceOf(PdfExporter.class);
 
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -387,7 +397,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationFive.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationFive, /* isAdmin= */ true);
+        exporter.exportApplication(
+            applicationFive, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
 
@@ -424,7 +435,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationSeven.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationSeven, /* isAdmin= */ true);
+        exporter.exportApplication(
+            applicationSeven, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     String programName = applicationSeven.getProgram().getProgramDefinition().adminName();
@@ -448,7 +460,8 @@ public class PdfExporterTest extends AbstractExporterTest {
     String applicantNameWithApplicationId =
         String.format("%s (%d)", applicantName, applicationTwo.id);
     PdfExporter.InMemoryPdf result =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ false);
+        exporter.exportApplication(
+            applicationTwo, /* isAdmin= */ false, /* includeScores= */ false);
     PdfReader pdfReader = new PdfReader(result.getByteArray());
     StringBuilder textFromPDF = new StringBuilder();
     textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, 1));
@@ -460,7 +473,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).doesNotContain("Meets eligibility");
     PdfExporter.InMemoryPdf resultWithEligibility =
-        exporter.exportApplication(applicationTwo, /* isAdmin= */ true);
+        exporter.exportApplication(applicationTwo, /* isAdmin= */ true, /* includeScores= */ false);
     PdfReader pdfReaderTwo = new PdfReader(resultWithEligibility.getByteArray());
     StringBuilder textFromPDFTwo = new StringBuilder();
     textFromPDFTwo.append(PdfTextExtractor.getTextFromPage(pdfReaderTwo, 1));
@@ -471,13 +484,159 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(textFromPDFTwo).contains("Meets eligibility");
   }
 
+  private void addScoreMetadataToApplicationOne(
+      double total, double dropdownScore, List<Double> checkboxScores) {
+    ApplicantData data = applicationOne.getApplicantData();
+    data.putDouble(
+        ApplicantData.scorePath(sampleQuestionPath(QuestionType.DROPDOWN)), dropdownScore);
+    data.putArray(
+        ApplicantData.scoresPath(sampleQuestionPath(QuestionType.CHECKBOX)), checkboxScores);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, total);
+    applicationOne.setApplicantData(data);
+    applicationOne.save();
+  }
+
+  private Path sampleQuestionPath(QuestionType questionType) {
+    return testQuestionBank
+        .getSampleQuestionsForAllTypes()
+        .get(questionType)
+        .getQuestionDefinition()
+        .getContextualizedPath(
+            /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH);
+  }
+
+  private String extractAllPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
+    PdfReader pdfReader = new PdfReader(pdf.getByteArray());
+    StringBuilder textFromPDF = new StringBuilder();
+    for (int pageNum = 1; pageNum <= pdfReader.getNumberOfPages(); pageNum++) {
+      textFromPDF.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+    }
+    pdfReader.close();
+    return textFromPDF.toString();
+  }
+
+  @Test
+  public void exportApplication_withScores_asAdmin_rendersTotalAndQuestionAndPerAnswerScores()
+      throws IOException, DocumentException {
+    // applicationOne answered the sample dropdown (option 2) and checkbox (options 1 and 2).
+    // Whole and fractional values both render without trailing zeros.
+    List<Double> checkboxScores = new ArrayList<>();
+    checkboxScores.add(2.25);
+    checkboxScores.add(null);
+    addScoreMetadataToApplicationOne(/* total= */ 7.25, /* dropdownScore= */ 5.0, checkboxScores);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).contains("Total Calculated Score: 7.25");
+    // Scores render inline with the option text they belong to.
+    assertThat(text).contains("Question Score: 5");
+    assertThat(text).doesNotContain("Score: 5.0");
+    assertThat(text).contains("Toaster (Score: 2.25)");
+    // The unscored checkbox selection renders its line without a score suffix.
+    assertThat(text).contains("Pepper Grinder");
+    assertThat(text).doesNotContain("Pepper Grinder (Score");
+  }
+
+  @Test
+  public void exportApplication_withScores_zeroTotal_rendersZero()
+      throws IOException, DocumentException {
+    ApplicantData data = applicationOne.getApplicantData();
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, 0.0);
+    applicationOne.setApplicantData(data);
+    applicationOne.save();
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).contains("Total Calculated Score: 0");
+  }
+
+  @Test
+  public void exportApplication_withScores_includeScoresFalse_noScoreText()
+      throws IOException, DocumentException {
+    List<Double> checkboxScores = new ArrayList<>();
+    checkboxScores.add(2.25);
+    checkboxScores.add(null);
+    addScoreMetadataToApplicationOne(/* total= */ 7.25, /* dropdownScore= */ 5.0, checkboxScores);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ false));
+
+    assertThat(text).doesNotContain("Total Calculated Score");
+    assertThat(text).doesNotContain("Score:");
+  }
+
+  @Test
+  public void exportApplication_applicationWithoutScoreMetadata_noScoreText()
+      throws IOException, DocumentException {
+    // An application predating scoring (or from a non-scoring program) has no total_score.
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).doesNotContain("Total Calculated Score");
+    assertThat(text).doesNotContain("Score:");
+  }
+
+  @Test
+  public void exportApplication_checkboxScoreLengthMismatch_rendersAnswerWithoutScores()
+      throws IOException, DocumentException {
+    // Two selections but only one score entry: corrupt metadata renders without checkbox scores.
+    List<Double> mismatchedScores = new ArrayList<>();
+    mismatchedScores.add(2.25);
+    addScoreMetadataToApplicationOne(/* total= */ 7.25, /* dropdownScore= */ 5.0, mismatchedScores);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).contains("Total Calculated Score: 7.25");
+    // The intact single-select score still renders; the corrupt checkbox metadata does not.
+    assertThat(text).contains("Question Score: 5");
+    assertThat(text).doesNotContain("(Score: 2.25)");
+  }
+
+  @Test
+  public void exportApplication_noScoredCheckboxOptions_noQuestionScore()
+      throws IOException, DocumentException {
+    List<Double> checkboxScores = new ArrayList<>();
+    checkboxScores.add(null);
+    checkboxScores.add(null);
+    addScoreMetadataToApplicationOne(/* total= */ 5, /* dropdownScore= */ 5.0, checkboxScores);
+    PdfExporter exporter = instanceOf(PdfExporter.class);
+
+    String text =
+        extractAllPdfText(
+            exporter.exportApplication(
+                applicationOne, /* isAdmin= */ true, /* includeScores= */ true));
+
+    assertThat(text).contains("Total Calculated Score: 5");
+    // Dropdown question has Question Score but checkbox question does not
+    assertThat(text).contains("Question Score: 5");
+    assertThat(StringUtils.countMatches(text, "Question Score")).isEqualTo(1);
+  }
+
   @Test
   public void exportProgram_hasMainProgramInfo() throws IOException {
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     List<String> linesFromPdf = getPdfLines(result);
     assertThat(linesFromPdf).isNotEmpty();
@@ -522,8 +681,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     // For every block (which is every question, since our fake program creates one block per
@@ -580,8 +738,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgram.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
 
@@ -604,17 +761,14 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void exportProgram_hasEligibilityPredicate(boolean expandedFormLogicEnabled)
-      throws IOException {
+  public void exportProgram_hasEligibilityPredicate() throws IOException {
     createFakeProgramWithEligibilityPredicateAndThreeApplications();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
@@ -623,17 +777,14 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void exportProgram_hasVisibilityPredicate(boolean expandedFormLogicEnabled)
-      throws IOException {
+  public void exportProgram_hasVisibilityPredicate() throws IOException {
     createFakeProgramWithVisibilityPredicate();
 
     PdfExporterService service = instanceOf(PdfExporterService.class);
     ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), expandedFormLogicEnabled);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText)
@@ -648,8 +799,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
-        service.generateProgramPreviewPdf(
-            programDef, getFakeQuestionDefinitions(), /* expandedFormLogicEnabled= */ true);
+        service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
     assertThat(pdfText).contains("What is the $this's name?");

@@ -6,7 +6,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import com.google.common.collect.ImmutableList;
 import j2html.tags.UnescapedText;
 import junitparams.JUnitParamsRunner;
-import junitparams.Parameters;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import services.applicant.question.Scalar;
@@ -22,9 +21,7 @@ import services.program.predicate.PredicateValue;
 @RunWith(JUnitParamsRunner.class)
 public class PredicateUtilsTest {
   @Test
-  @Parameters({"true", "false"})
-  public void getReadablePredicateDescription_singleQuestion_headingOnly(
-      boolean expandedFormLogicEnabled) {
+  public void getReadablePredicateDescription_singleQuestion_headingOnly() {
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -37,7 +34,7 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
+            "My Test Block", predicate, ImmutableList.of());
 
     assertThat(readablePredicate.heading())
         .isEqualTo("My Test Block is shown if number is greater than or equal to 1000");
@@ -45,15 +42,14 @@ public class PredicateUtilsTest {
         .isEqualTo(
             """
             My Test Block is <strong>shown</strong> if number is greater than or equal to \
-            <strong>1000</strong>""");
+            <strong>1000</strong>\
+            """);
     assertThat(readablePredicate.conditionList()).isEmpty();
     assertThat(readablePredicate.formattedHtmlConditionList()).isEmpty();
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void getReadablePredicateDescription_singleAnd_headingOnly(
-      boolean expandedFormLogicEnabled) {
+  public void getReadablePredicateDescription_singleAnd_headingOnly() {
     ImmutableList<PredicateExpressionNode> andStatements =
         ImmutableList.of(
             PredicateExpressionNode.create(
@@ -84,27 +80,27 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
+            "My Test Block", predicate, ImmutableList.of());
 
     assertThat(readablePredicate.heading())
         .isEqualTo(
             """
             My Test Block is hidden if city is equal to "Phoenix" AND number is less than 4 AND \
-            text is not equal to "hello\"""");
+            text is not equal to "hello\"\
+            """);
     assertThat(readablePredicate.formattedHtmlHeading().toString())
         .isEqualTo(
             """
             My Test Block is <strong>hidden</strong> if city is equal to \
             <strong>&quot;Phoenix&quot;</strong> AND number is less than <strong>4</strong> \
-            AND text is not equal to <strong>&quot;hello&quot;</strong>""");
+            AND text is not equal to <strong>&quot;hello&quot;</strong>\
+            """);
     assertThat(readablePredicate.conditionList()).isEmpty();
     assertThat(readablePredicate.formattedHtmlConditionList()).isEmpty();
   }
 
   @Test
-  @Parameters({"true", "false"})
-  public void getReadablePredicateDescription_multipleAnds_headingAndConditionList(
-      boolean expandedFormLogicEnabled) {
+  public void getReadablePredicateDescription_multipleAnds_headingAndConditionList() {
     // number == 4 && text == "four"
     ImmutableList<PredicateExpressionNode> andStatements1 =
         ImmutableList.of(
@@ -146,24 +142,15 @@ public class PredicateUtilsTest {
 
     ReadablePredicate readablePredicate =
         PredicateUtils.getReadablePredicateDescription(
-            "My Test Block", predicate, ImmutableList.of(), expandedFormLogicEnabled);
+            "My Test Block", predicate, ImmutableList.of());
 
-    if (expandedFormLogicEnabled) {
-      assertThat(readablePredicate.heading())
-          .isEqualTo("Applicant is eligible if any conditions are true:");
-      assertThat(readablePredicate.formattedHtmlHeading().toString())
-          .isEqualTo(
-              """
-Applicant is <strong>eligible</strong> if <strong>any</strong> conditions are true:""");
-    } else {
-      assertThat(readablePredicate.heading())
-          .isEqualTo("Applicant is eligible if any of the following is true:");
-      assertThat(readablePredicate.formattedHtmlHeading().toString())
-          .isEqualTo(
-              """
-              Applicant is <strong>eligible</strong> if <strong>any</strong> of the \
-              following is true:""");
-    }
+    assertThat(readablePredicate.heading())
+        .isEqualTo("Applicant is eligible if any conditions are true:");
+    assertThat(readablePredicate.formattedHtmlHeading().toString())
+        .isEqualTo(
+"""
+Applicant is <strong>eligible</strong> if <strong>any</strong> conditions are true:\
+""");
     assertThat(readablePredicate.conditionList()).isPresent();
     assertThat(readablePredicate.conditionList().get().size()).isEqualTo(2);
     assertThat(readablePredicate.conditionList().get().get(0))
@@ -176,12 +163,14 @@ Applicant is <strong>eligible</strong> if <strong>any</strong> conditions are tr
         .isEqualTo(
             """
             number is equal to <strong>4</strong> AND text is equal to \
-            <strong>&quot;four&quot;</strong>""");
+            <strong>&quot;four&quot;</strong>\
+            """);
     assertThat(readablePredicate.formattedHtmlConditionList().get().get(1).toString())
         .isEqualTo(
             """
             number is equal to <strong>5</strong> AND text is equal to \
-            <strong>&quot;five&quot;</strong>""");
+            <strong>&quot;five&quot;</strong>\
+            """);
   }
 
   @Test

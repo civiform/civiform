@@ -113,7 +113,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           QuestionAnswerer.answerAddressQuestion(
               applicantDataOne, answerPath, "street st", "apt 100", "city", "AB", "54321");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case CHECKBOX -> {
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 0, 1L);
         QuestionAnswerer.answerMultiSelectQuestion(applicantDataOne, answerPath, 1, 2L);
@@ -123,19 +123,19 @@ public abstract class AbstractExporterTest extends ResetPostgres {
           QuestionAnswerer.answerCurrencyQuestion(applicantDataOne, answerPath, "1,234.56");
       case DATE -> QuestionAnswerer.answerDateQuestion(applicantDataOne, answerPath, "1980-01-01");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case DROPDOWN ->
           QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 2L);
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case EMAIL ->
           QuestionAnswerer.answerEmailQuestion(applicantDataOne, answerPath, "one@example.com");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case FILEUPLOAD ->
           QuestionAnswerer.answerFileQuestion(applicantDataOne, answerPath, "my-file-key");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case ID -> {
         QuestionAnswerer.answerIdQuestion(applicantDataOne, answerPath, "012");
         QuestionAnswerer.answerIdQuestion(applicantDataTwo, answerPath, "123");
@@ -148,21 +148,21 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       }
       case NUMBER -> QuestionAnswerer.answerNumberQuestion(applicantDataOne, answerPath, "123456");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case RADIO_BUTTON ->
           QuestionAnswerer.answerSingleSelectQuestion(applicantDataOne, answerPath, 1L);
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case ENUMERATOR ->
           QuestionAnswerer.answerEnumeratorQuestion(
               applicantDataOne, answerPath, ImmutableList.of("item1", "item2"));
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case TEXT ->
           QuestionAnswerer.answerTextQuestion(
               applicantDataOne, answerPath, "Some Value \" containing ,,, special characters");
 
-        // applicant two did not answer this question.
+      // applicant two did not answer this question.
       case PHONE ->
           QuestionAnswerer.answerPhoneQuestion(
               applicantDataOne, answerPath, "US", "(615) 757-1010");
@@ -170,7 +170,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
       case STATIC -> {
         // Do nothing.
       }
-        // TODO(#11007): Allow export of Map question data.
+      // TODO(#11007): Allow export of Map question data.
       case MAP, NULL_QUESTION -> {
         // Do nothing.
       }
@@ -705,6 +705,11 @@ public abstract class AbstractExporterTest extends ResetPostgres {
 
     FakeProgramBuilder withQuestion(QuestionModel question) {
       fakeProgramBuilder.withBlock().withRequiredQuestion(question).build();
+      return this;
+    }
+
+    FakeProgramBuilder withUsesScoring() {
+      fakeProgramBuilder.withUsesScoring(true);
       return this;
     }
 
