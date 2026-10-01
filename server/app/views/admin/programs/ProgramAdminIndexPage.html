@@ -1,0 +1,21 @@
+<!--/*
+  Program admin's list of the programs they administer.
+
+  1:1 Thymeleaf port of the legacy j2html ProgramAdministratorProgramListView on
+  the transitional LegacyTailwindLayout; slated for replacement by an
+  AdminLayoutBaseView page in the admin redesign.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramAdminIndexPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so this div is
+         the direct child of <main> in the legacy j2html DOM. */-->
+  <div class="px-20">
+    <h1 class="my-4" th:text="${model.title}"></h1>
+    <th:block th:each="card : ${model.programCards}">
+      <div
+        th:replace="~{admin/programs/fragments/ProgramAdminProgramCard :: programCard(${card})}"
+      ></div>
+    </th:block>
+  </div>
+</th:block>
