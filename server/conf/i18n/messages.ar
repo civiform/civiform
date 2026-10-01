@@ -1243,6 +1243,10 @@ label.repeatedSet.initialQuestion=
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
+# Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
+alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+# Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
+alert.repeatedSet.initialQuestionNotFound=
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
