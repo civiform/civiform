@@ -536,7 +536,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
+    QuestionDefinition initialQuestionAfter =
+        latestDefinition(fixture.newFlowSet1InitialQuestionId());
     // There's a new initial question, and it kept the edit that created it.
     assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1InitialQuestionId());
     assertThat(initialQuestionAfter.getDescription()).isEqualTo("updated");
@@ -565,8 +566,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
-    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.newFlowSet1NestedQuestionId());
+    QuestionDefinition initialQuestionAfter =
+        latestDefinition(fixture.newFlowSet1InitialQuestionId());
+    QuestionDefinition repeatedQuestionAfter =
+        latestDefinition(fixture.newFlowSet1NestedQuestionId());
     // There's a new repeated question.
     assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1NestedQuestionId());
     // The new repeated question points at the new enumerator.
@@ -591,7 +594,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
-    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
+    QuestionDefinition extraRepeatedQuestion =
+        latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
     assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
     assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
@@ -638,7 +642,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
+    QuestionDefinition initialQuestionAfter =
+        latestDefinition(fixture.newFlowSet1InitialQuestionId());
     // There's a new enumerator, and it kept the edit that created it.
     assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.newFlowSet1EnumeratorId());
     assertThat(enumeratorAfter.getDescription()).isEqualTo("updated");
@@ -667,7 +672,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
-    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.newFlowSet1NestedQuestionId());
+    QuestionDefinition repeatedQuestionAfter =
+        latestDefinition(fixture.newFlowSet1NestedQuestionId());
     // There's a new repeated question.
     assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1NestedQuestionId());
     // The new repeated question points at the new enumerator.
@@ -690,7 +696,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
-    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
+    QuestionDefinition extraRepeatedQuestion =
+        latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
     assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
     assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
@@ -771,12 +778,12 @@ public class QuestionRepositoryTest extends ResetPostgres {
   /**
    * Builds a draft program with five blocks and seven ACTIVE questions.
    *
-   * <p>Block 1 is a new flow enumerator and holds the enumerator and its
-   * initial question, which point at each other. Block 2
-   * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
+   * <p>Block 1 is a new flow enumerator and holds the enumerator and its initial question, which
+   * point at each other. Block 2 repeats on block 1 and holds a third question whose enumerator id
+   * is the block 1 enumerator.
    *
-   * <p>Blocks 3, 4 and 5 are controls to allow for ensuring that when Block 1 & 2
-   * are changed by code under test, that 3, 4 & 5 are not.
+   * <p>Blocks 3, 4 and 5 are controls to allow for ensuring that when Block 1 & 2 are changed by
+   * code under test, that 3, 4 & 5 are not.
    *
    * <p>Block 3 holds a new-flow enumerator and its initial question, which point at each other.
    *
@@ -786,7 +793,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
   private EnumeratorFixture newEnumeratorFixture() {
     QuestionModel newFlowSet1Enumerator =
         saveActiveEnumerator("newFlowSet1Enumerator", "Who is in your household?");
-    QuestionModel newFlowSet1InitialQuestion = saveActiveNestedQuestion("household member name", newFlowSet1Enumerator);
+    QuestionModel newFlowSet1InitialQuestion =
+        saveActiveNestedQuestion("household member name", newFlowSet1Enumerator);
     pointAtInitialQuestion(newFlowSet1Enumerator, newFlowSet1InitialQuestion);
     QuestionModel newFlowSet1NestedQuestion =
         saveActiveNestedQuestion("household member nickname", newFlowSet1Enumerator);
@@ -797,7 +805,8 @@ public class QuestionRepositoryTest extends ResetPostgres {
         saveActiveNestedQuestion("extra repeated question", newFlowSet2Enumerator);
     pointAtInitialQuestion(newFlowSet2Enumerator, newFlowSet2InitialQuestion);
 
-    QuestionModel oldFlowEnumerator = saveActiveEnumerator("oldFlowEnumerator", "Where have you lived?");
+    QuestionModel oldFlowEnumerator =
+        saveActiveEnumerator("oldFlowEnumerator", "Where have you lived?");
     QuestionModel oldFlowNestedQuestion =
         saveActiveNestedQuestion("oldFlowNestedQuestion", oldFlowEnumerator);
 
