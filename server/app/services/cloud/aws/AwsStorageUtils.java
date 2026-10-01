@@ -30,4 +30,5 @@ public final class AwsStorageUtils extends AbstractS3StorageUtils {
   public String prodActionLink(String bucketName, Region region) {
     return String.format("https://%s.s3.%s.amazonaws.com/", bucketName, region.id());
   }
+
 }
