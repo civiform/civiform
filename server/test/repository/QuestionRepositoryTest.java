@@ -720,13 +720,13 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
-    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
+    QuestionDefinition oldNestedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
     // There's no new enumerator, and it still has no initial question.
     assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldFlowEnumeratorId());
     assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
     // There's no new repeated question, and it still points at the same enumerator.
-    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
-    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
+    assertThat(oldNestedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
+    assertThat(oldNestedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
     // Blocks 4 and 5 still contain the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
         .containsExactly(fixture.oldFlowEnumeratorId());
