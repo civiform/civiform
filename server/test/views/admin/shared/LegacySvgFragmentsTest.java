@@ -250,4 +250,34 @@ public class LegacySvgFragmentsTest {
   public void iconArrowLeft_backLink() {
     ThymeleafFragmentTester.run(DIR + "iconArrowLeft.thtest");
   }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Share link" on program cards). */
+  @Test
+  public void iconContentCopy_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconContentCopySvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Applications"/"Forms" on program cards). */
+  @Test
+  public void iconTextSnippet_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconTextSnippetSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ProgramCardFactory.createImageIcon placeholder. */
+  @Test
+  public void iconImage_programCardPlaceholder() {
+    ThymeleafFragmentTester.run(DIR + "iconImagePlaceholder.thtest");
+  }
+
+  /** Legacy source: ProgramCardFactory.getProgramTypeIndicator (external program). */
+  @Test
+  public void iconLabel_programTypeIndicator() {
+    ThymeleafFragmentTester.run(DIR + "iconLabelProgramTypeIndicator.thtest");
+  }
+
+  /** Legacy source: ProgramCardFactory.getProgramTypeIndicator (pre-screener). */
+  @Test
+  public void iconCheck_programTypeIndicator() {
+    ThymeleafFragmentTester.run(DIR + "iconCheckProgramTypeIndicator.thtest");
+  }
 }
