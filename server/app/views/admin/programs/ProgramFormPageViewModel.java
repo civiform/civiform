@@ -80,8 +80,9 @@ public final class ProgramFormPageViewModel implements BaseViewModel {
   private final boolean disableConfirmationMessage;
   private final boolean categoriesDisabled;
 
-  // Program type radios can be disabled when editing (a program can become
-  // external, but an external program cannot change type).
+  // Program type radios are disabled when editing so a program cannot switch
+  // between external and non-external after creation. Default and pre-screener
+  // can still switch between each other.
   private final boolean defaultProgramFieldDisabled;
   private final boolean preScreenerFieldDisabled;
   private final boolean externalProgramFieldDisabled;

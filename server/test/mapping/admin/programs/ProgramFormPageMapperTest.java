@@ -194,7 +194,7 @@ public final class ProgramFormPageMapperTest {
   }
 
   @Test
-  public void map_externalProgram_disablesEmailLoginOnlyAndConfirmation() {
+  public void map_externalProgram_disablesNonExternalFields() {
     ProgramForm form = new ProgramForm();
     form.setProgramTypeValue("external");
 
@@ -206,6 +206,8 @@ public final class ProgramFormPageMapperTest {
     assertThat(result.isDisableLoginOnly()).isTrue();
     assertThat(result.isDisableConfirmationMessage()).isTrue();
     assertThat(result.isDisableProgramEligibility()).isTrue();
+    assertThat(result.isDisableLongDescription()).isTrue();
+    assertThat(result.isDisableApplicationSteps()).isTrue();
   }
 
   @Test
@@ -459,6 +461,19 @@ public final class ProgramFormPageMapperTest {
 
     ProgramFormPageViewModel result =
         mapEdit(program, ProgramEditStatus.EDIT, Optional.of(new ProgramForm()));
+
+    assertThat(result.isDefaultProgramFieldDisabled()).isFalse();
+    assertThat(result.isPreScreenerFieldDisabled()).isFalse();
+    assertThat(result.isExternalProgramFieldDisabled()).isTrue();
+  }
+
+  @Test
+  public void mapEdit_editStatus_disablesExternalProgramTypeForPreScreenerForm() {
+    ProgramDefinition program = mockProgram();
+    ProgramForm form = new ProgramForm();
+    form.setProgramTypeValue("common_intake_form");
+
+    ProgramFormPageViewModel result = mapEdit(program, ProgramEditStatus.EDIT, Optional.of(form));
 
     assertThat(result.isDefaultProgramFieldDisabled()).isFalse();
     assertThat(result.isPreScreenerFieldDisabled()).isFalse();
