@@ -1,0 +1,37 @@
+%NAME translationTextareaField - forwards call-site rows, markdown off, no text-input branch
+%TEMPLATE_MODE HTML
+# Mirror of the text-input case for the textarea variant used by status
+# email bodies: the row count comes from the call site, markdown is always
+# off (the legacy program form never enabled it), and the fake TextField
+# proves the text-input branch does not render alongside.
+%CONTEXT
+# TranslationField(id, name, value, required, defaultTextHtml)
+field = @views.admin.programs.ProgramTranslationPageViewModel$TranslationField@builder() \
+    .id("email-es").name("localized-email-0").value("Fue aprobado").required(false) \
+    .defaultTextHtml("<p>You were approved</p>").build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextareaField(${field}, 'Email content', 8)}"></div>
+# ----------------------------------------------------------------------
+# Swaps the real TextareaField for a fake that just prints its arguments.
+# The real textarea markup has its own thtests in LegacyFieldFragmentsTest.
+%INPUT[admin/shared/LegacyFieldWithLabel/TextareaField]
+<div
+  th:fragment="textareaFieldWithRows(id, name, label, value, required, disabled, markdown, markdownLink, wrapperClasses, rows)"
+  th:text="|textareaFieldWithRows(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, markdown=${markdown}, markdownLink=${markdownLink}, wrapper=${wrapperClasses}, rows=${rows})|"
+></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacyFieldWithLabel/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required, disabled, maxlength, wrapperClasses)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, maxlength=${maxlength}, wrapper=${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="grid gap-6 grid-cols-2">
+  <div>textareaFieldWithRows(email-es, localized-email-0, Email content, Fue aprobado, required=false, disabled=false, markdown=false, markdownLink=false, wrapper=mb-2, rows=8)</div>
+  <div class="px-2 py-1 text-sm bg-gray-100">
+    <p class="font-medium">English text:</p>
+    <div class="font-sans"><p>You were approved</p></div>
+  </div>
+</div>

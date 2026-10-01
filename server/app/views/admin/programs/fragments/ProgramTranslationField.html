@@ -1,0 +1,44 @@
+<!--/*
+  A single translatable program field, paired with the default (English) text
+  so admins can see what they are translating.
+
+  Legacy counterpart: TranslationFormView#fieldWithDefaultLocaleTextHint, which
+  wrapped a FieldWithLabel input/textarea and the English-text hint in a
+  two-column grid. The label lives at the call site so the mapper carries only
+  data; the English hint HTML is markdown-rendered and sanitized by the mapper.
+*/-->
+<!--/*@thymesVar id="field" type="views.admin.programs.ProgramTranslationPageViewModel.TranslationField"*/-->
+
+<!--/* Text input variant (FieldWithLabel.input().getInputTag()). */-->
+<div
+  th:fragment="translationTextField(field, label)"
+  class="grid gap-6 grid-cols-2"
+>
+  <div
+    th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, ${label}, ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+  ></div>
+  <div th:replace="~{this :: englishTextHint(${field.defaultTextHtml})}"></div>
+</div>
+
+<!--/* Textarea variant (FieldWithLabel.textArea().setRows(...).getTextareaTag()).
+       The legacy program form never enabled markdown on these. */-->
+<div
+  th:fragment="translationTextareaField(field, label, rows)"
+  class="grid gap-6 grid-cols-2"
+>
+  <div
+    th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaFieldWithRows(${field.id}, ${field.name}, ${label}, ${field.value}, ${field.required}, false, false, false, 'mb-2', ${rows})}"
+  ></div>
+  <div th:replace="~{this :: englishTextHint(${field.defaultTextHtml})}"></div>
+</div>
+
+<!--/* The default-locale text shown beside every field. */-->
+<div
+  th:fragment="englishTextHint(defaultTextHtml)"
+  class="px-2 py-1 text-sm bg-gray-100"
+>
+  <p class="font-medium">English text:</p>
+  <!--/* Markdown-rendered and sanitized by the mapper, as
+         TextFormatter.formatTextForAdmins did for the legacy view. */-->
+  <div class="font-sans" th:utext="${defaultTextHtml}"></div>
+</div>

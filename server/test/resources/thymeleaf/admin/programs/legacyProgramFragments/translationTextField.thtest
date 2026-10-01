@@ -1,0 +1,33 @@
+%NAME translationTextField - forwards field values and call-site label to textField; unescaped English hint
+%TEMPLATE_MODE HTML
+# ProgramTranslationField just picks a shared field fragment and adds the
+# English hint, so the shared fragment is faked here and only the wiring is
+# checked: the field's id/name/value/required flag reach textField together
+# with the label given at the call site and the fixed editable/maxlength/
+# wrapper arguments, and the hint HTML lands unescaped
+# via th:utext.
+%CONTEXT
+# TranslationField(id, name, value, required, defaultTextHtml)
+field = @views.admin.programs.ProgramTranslationPageViewModel$TranslationField@builder() \
+    .id("name-es").name("displayName").value("Mi Programa").required(true) \
+    .defaultTextHtml("<p>My <strong>Program</strong></p>").build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramTranslationField :: translationTextField(${field}, 'Program name')}"></div>
+# ----------------------------------------------------------------------
+# Swaps the real TextField for a fake that just prints its arguments. The
+# real text input markup has its own thtests in LegacyFieldFragmentsTest.
+%INPUT[admin/shared/LegacyFieldWithLabel/TextField]
+<div
+  th:fragment="textField(id, name, label, value, required, disabled, maxlength, wrapperClasses)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, maxlength=${maxlength}, wrapper=${wrapperClasses})|"
+></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="grid gap-6 grid-cols-2">
+  <div>textField(name-es, displayName, Program name, Mi Programa, required=true, disabled=false, maxlength=10000, wrapper=mb-2)</div>
+  <div class="px-2 py-1 text-sm bg-gray-100">
+    <p class="font-medium">English text:</p>
+    <div class="font-sans"><p>My <strong>Program</strong></p></div>
+  </div>
+</div>

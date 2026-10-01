@@ -40,6 +40,12 @@ final class AppViewsTestableResolver implements ITestableResolver {
   private static final Pattern TEMPLATE_REFERENCE =
       Pattern.compile("~\\{\\s*([A-Za-z0-9_][A-Za-z0-9_/.\\-]*)\\s*(?:}|::)");
 
+  /**
+   * Thymeleaf's explicit self-reference ({@code ~{this :: frag}}), equivalent to {@code ~{::
+   * frag}}. It names the current template, not a file under {@code app/views/}.
+   */
+  private static final String SELF_REFERENCE = "this";
+
   private final StandardTestableResolver delegate = new StandardTestableResolver();
 
   @Override
@@ -70,7 +76,8 @@ final class AppViewsTestableResolver implements ITestableResolver {
     Matcher matcher = TEMPLATE_REFERENCE.matcher(item.readAsText());
     while (matcher.find()) {
       String templateName = matcher.group(1);
-      if (test.getAdditionalInputs().containsKey(templateName)) {
+      if (SELF_REFERENCE.equals(templateName)
+          || test.getAdditionalInputs().containsKey(templateName)) {
         continue;
       }
       String path = APP_VIEWS_ROOT + templateName + ".html";
