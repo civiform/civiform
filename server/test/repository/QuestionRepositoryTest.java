@@ -536,20 +536,20 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftInitialQuestion(fixture);
 
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
     // There's a new initial question, and it kept the edit that created it.
-    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.initialQuestionId());
+    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1InitialQuestionId());
     assertThat(initialQuestionAfter.getDescription()).isEqualTo("updated");
     // There's a new enumerator which now points at the new initial question.
-    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
-    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
+    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.newFlowSet1EnumeratorId());
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
         .hasValue(initialQuestionAfter.getId());
     // The new initial question points at the new enumerator.
     assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // The previous active enumerator has not changed.
-    assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
-        .hasValue(fixture.initialQuestionId());
+    assertThat(lookupDefinition(fixture.newFlowSet1EnumeratorId()).getEnumeratorInitialQuestionId())
+        .hasValue(fixture.newFlowSet1InitialQuestionId());
     // Block 1 contains both of the new questions.
     assertThat(blockQuestionIds(fixture.program(), 1L))
         .containsExactly(enumeratorAfter.getId(), initialQuestionAfter.getId());
@@ -564,14 +564,14 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftInitialQuestion(fixture);
 
-    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
-    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.newFlowSet1NestedQuestionId());
     // There's a new repeated question.
-    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.repeatedQuestionId());
+    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1NestedQuestionId());
     // The new repeated question points at the new enumerator.
     assertThat(repeatedQuestionAfter.getEnumeratorId())
-        .hasValue(latestDefinition(fixture.enumeratorId()).getId());
+        .hasValue(latestDefinition(fixture.newFlowSet1EnumeratorId()).getId());
     // The new enumerator points at its new initial question and not the
     // new repeated question.
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
@@ -590,18 +590,18 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftInitialQuestion(fixture);
 
-    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
-    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
     assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
-        .hasValue(fixture.extraRepeatedQuestionId());
+        .hasValue(fixture.newFlowSet2InitialQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
-    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
-        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
+        .containsExactly(fixture.newFlowSet2EnumeratorId(), fixture.newFlowSet2InitialQuestionId());
   }
 
   @Test
@@ -613,17 +613,17 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftInitialQuestion(fixture);
 
-    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
-    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
+    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
+    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
     // There's no new enumerator, and it still has no initial question.
-    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
+    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldFlowEnumeratorId());
     assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
     // There's no new repeated question, and it still points at the same enumerator.
-    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldRepeatedQuestionId());
-    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
+    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
+    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
     // Block 4 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
-        .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
+        .containsExactly(fixture.oldFlowEnumeratorId(), fixture.oldFlowNestedQuestionId());
   }
 
   @Test
@@ -635,21 +635,21 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftEnumerator(fixture);
 
-    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
-    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.initialQuestionId());
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
+    QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
     // There's a new enumerator, and it kept the edit that created it.
-    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.enumeratorId());
+    assertThat(enumeratorAfter.getId()).isNotEqualTo(fixture.newFlowSet1EnumeratorId());
     assertThat(enumeratorAfter.getDescription()).isEqualTo("updated");
     // There's a new initial question.
-    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.initialQuestionId());
+    assertThat(initialQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1InitialQuestionId());
     // The new enumerator points at the new initial question.
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId())
         .hasValue(initialQuestionAfter.getId());
     // The new initial question points at the new enumerator.
     assertThat(initialQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // The previous active enumerator has not changed.
-    assertThat(lookupDefinition(fixture.enumeratorId()).getEnumeratorInitialQuestionId())
-        .hasValue(fixture.initialQuestionId());
+    assertThat(lookupDefinition(fixture.newFlowSet1EnumeratorId()).getEnumeratorInitialQuestionId())
+        .hasValue(fixture.newFlowSet1InitialQuestionId());
     // Block 1 contains both of the new questions.
     assertThat(blockQuestionIds(fixture.program(), 1L))
         .containsExactly(enumeratorAfter.getId(), initialQuestionAfter.getId());
@@ -664,10 +664,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftEnumerator(fixture);
 
-    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
-    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.repeatedQuestionId());
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
+    QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.newFlowSet1NestedQuestionId());
     // There's a new repeated question.
-    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.repeatedQuestionId());
+    assertThat(repeatedQuestionAfter.getId()).isNotEqualTo(fixture.newFlowSet1NestedQuestionId());
     // The new repeated question points at the new enumerator.
     assertThat(repeatedQuestionAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // The new enumerator does not point at it, because it is not the initial question.
@@ -687,18 +687,18 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftEnumerator(fixture);
 
-    QuestionDefinition extraEnumerator = latestDefinition(fixture.extraEnumeratorId());
-    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.extraRepeatedQuestionId());
+    QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
+    QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(extraEnumerator.getId()).isEqualTo(fixture.extraEnumeratorId());
+    assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
     assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
-        .hasValue(fixture.extraRepeatedQuestionId());
+        .hasValue(fixture.newFlowSet2InitialQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.extraRepeatedQuestionId());
-    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.extraEnumeratorId());
+    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
+    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
-        .containsExactly(fixture.extraEnumeratorId(), fixture.extraRepeatedQuestionId());
+        .containsExactly(fixture.newFlowSet2EnumeratorId(), fixture.newFlowSet2InitialQuestionId());
   }
 
   @Test
@@ -710,17 +710,17 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftEnumerator(fixture);
 
-    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldEnumeratorId());
-    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldRepeatedQuestionId());
+    QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
+    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
     // There's no new enumerator, and it still has no initial question.
-    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldEnumeratorId());
+    assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldFlowEnumeratorId());
     assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
     // There's no new repeated question, and it still points at the same enumerator.
-    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldRepeatedQuestionId());
-    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldEnumeratorId());
+    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
+    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
     // Block 4 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
-        .containsExactly(fixture.oldEnumeratorId(), fixture.oldRepeatedQuestionId());
+        .containsExactly(fixture.oldFlowEnumeratorId(), fixture.oldFlowNestedQuestionId());
   }
 
   @Test
@@ -731,10 +731,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
     EnumeratorFixture fixture = newEnumeratorFixture();
     QuestionModel firstDraft =
         repo.createOrUpdateDraft(
-            new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+            new QuestionDefinitionBuilder(lookupDefinition(fixture.newFlowSet1InitialQuestionId()))
                 .setDescription("first edit")
                 .build());
-    long enumeratorDraftId = latestDefinition(fixture.enumeratorId()).getId();
+    long enumeratorDraftId = latestDefinition(fixture.newFlowSet1EnumeratorId()).getId();
 
     QuestionModel secondDraft =
         repo.createOrUpdateDraft(
@@ -743,7 +743,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
                 .build());
 
     assertThat(secondDraft.id).isEqualTo(firstDraft.id);
-    QuestionDefinition enumeratorAfter = latestDefinition(fixture.enumeratorId());
+    QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
     assertThat(enumeratorAfter.getId()).isEqualTo(enumeratorDraftId);
     assertThat(enumeratorAfter.getEnumeratorInitialQuestionId()).hasValue(firstDraft.id);
   }
@@ -755,66 +755,70 @@ public class QuestionRepositoryTest extends ResetPostgres {
    * are indicated with 'old'.
    */
   private record EnumeratorFixture(
-      long enumeratorId,
-      long initialQuestionId,
-      long repeatedQuestionId,
-      long extraEnumeratorId,
-      long extraRepeatedQuestionId,
-      long oldEnumeratorId,
-      long oldRepeatedQuestionId,
+      long newFlowSet1EnumeratorId,
+      long newFlowSet1InitialQuestionId,
+      long newFlowSet1NestedQuestionId,
+      long newFlowSet2EnumeratorId,
+      long newFlowSet2InitialQuestionId,
+      long oldFlowEnumeratorId,
+      long oldFlowNestedQuestionId,
       ProgramModel program) {}
 
   /**
    * Builds a draft program with four blocks and seven ACTIVE questions.
    *
-   * <p>Block 1 holds the enumerator and its initial question, which point at each other. Block 2
+   * <p>Block 1 is a new flow enumerator and holds the enumerator and its
+   * initial question, which point at each other. Block 2
    * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
    *
-   * <p>Blocks 3 and 4 are controls that nothing done to the block 1 cluster may touch. Block 3
-   * holds a new-flow enumerator and its initial question, which point at each other. Block 4 holds
-   * an old-flow enumerator and a repeated question, where only the repeated question points at the
-   * enumerator.
+   * <p>Blocks 3 and 4 are controls to allow for ensuring that when Block 1 & 2
+   * are changed by code under test, that 3 & 4 are not.
+   *
+   * <p>Block 3 holds a new-flow enumerator and its initial question, which point at each other.
+   *
+   * <p>Block 4 holds an old-flow enumerator and a nested question, where only
+   * the nested question points at the enumerator.
    */
   private EnumeratorFixture newEnumeratorFixture() {
-    QuestionModel enumerator =
-        saveActiveEnumerator("household members", "Who is in your household?");
-    QuestionModel initialQuestion = saveActiveRepeatedQuestion("household member name", enumerator);
-    pointAtInitialQuestion(enumerator, initialQuestion);
-    QuestionModel repeatedQuestion =
-        saveActiveRepeatedQuestion("household member nickname", enumerator);
+    QuestionModel newFlowSet1Enumerator =
+        saveActiveEnumerator("newFlowSet1Enumerator", "Who is in your household?");
+    QuestionModel newFlowSet1InitialQuestion = saveActiveNestedQuestion("household member name", newFlowSet1Enumerator);
+    pointAtInitialQuestion(newFlowSet1Enumerator, newFlowSet1InitialQuestion);
+    QuestionModel newFlowSet1NestedQuestion =
+        saveActiveNestedQuestion("household member nickname", newFlowSet1Enumerator);
 
-    QuestionModel extraEnumerator =
-        saveActiveEnumerator("extra enumerator", "Where have you worked?");
-    QuestionModel extraRepeatedQuestion =
-        saveActiveRepeatedQuestion("extra repeated question", extraEnumerator);
-    pointAtInitialQuestion(extraEnumerator, extraRepeatedQuestion);
+    QuestionModel newFlowSet2Enumerator =
+        saveActiveEnumerator("newFlowSet2Enumerator", "Where have you worked?");
+    QuestionModel newFlowSet2InitialQuestion =
+        saveActiveNestedQuestion("extra repeated question", newFlowSet2Enumerator);
+    pointAtInitialQuestion(newFlowSet2Enumerator, newFlowSet2InitialQuestion);
 
-    QuestionModel oldEnumerator = saveActiveEnumerator("old enumerator", "Where have you lived?");
-    QuestionModel oldRepeatedQuestion =
-        saveActiveRepeatedQuestion("old repeated question", oldEnumerator);
+    QuestionModel oldFlowEnumerator = saveActiveEnumerator("oldFlowEnumerator", "Where have you lived?");
+    QuestionModel oldFlowNestedQuestion =
+        saveActiveNestedQuestion("oldFlowNestedQuestion", oldFlowEnumerator);
 
     ProgramModel program =
         ProgramBuilder.newDraftProgram("enumerator program")
             .withBlock("block 1")
-            .withRequiredQuestion(enumerator)
-            .withRequiredQuestion(initialQuestion)
+            .withRequiredQuestion(newFlowSet1Enumerator)
+            .withRequiredQuestion(newFlowSet1InitialQuestion)
             .withRepeatedBlock("block 2")
-            .withRequiredQuestion(repeatedQuestion)
+            .withRequiredQuestion(newFlowSet1NestedQuestion)
             .withBlock("block 3")
-            .withRequiredQuestion(extraEnumerator)
-            .withRequiredQuestion(extraRepeatedQuestion)
+            .withRequiredQuestion(newFlowSet2Enumerator)
+            .withRequiredQuestion(newFlowSet2InitialQuestion)
             .withBlock("block 4")
-            .withRequiredQuestion(oldEnumerator)
-            .withRequiredQuestion(oldRepeatedQuestion)
+            .withRequiredQuestion(oldFlowEnumerator)
+            .withRequiredQuestion(oldFlowNestedQuestion)
             .build();
     return new EnumeratorFixture(
-        enumerator.id,
-        initialQuestion.id,
-        repeatedQuestion.id,
-        extraEnumerator.id,
-        extraRepeatedQuestion.id,
-        oldEnumerator.id,
-        oldRepeatedQuestion.id,
+        newFlowSet1Enumerator.id,
+        newFlowSet1InitialQuestion.id,
+        newFlowSet1NestedQuestion.id,
+        newFlowSet2Enumerator.id,
+        newFlowSet2InitialQuestion.id,
+        oldFlowEnumerator.id,
+        oldFlowNestedQuestion.id,
         program);
   }
 
@@ -822,7 +826,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   private void draftInitialQuestion(EnumeratorFixture fixture)
       throws UnsupportedQuestionTypeException {
     repo.createOrUpdateDraft(
-        new QuestionDefinitionBuilder(lookupDefinition(fixture.initialQuestionId()))
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.newFlowSet1InitialQuestionId()))
             .setDescription("updated")
             .build());
   }
@@ -830,7 +834,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   /** Creates a new draft revision of the block 1 enumerator. */
   private void draftEnumerator(EnumeratorFixture fixture) throws UnsupportedQuestionTypeException {
     repo.createOrUpdateDraft(
-        new QuestionDefinitionBuilder(lookupDefinition(fixture.enumeratorId()))
+        new QuestionDefinitionBuilder(lookupDefinition(fixture.newFlowSet1EnumeratorId()))
             .setDescription("updated")
             .build());
   }
@@ -856,7 +860,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     enumerator.refresh();
   }
 
-  private QuestionModel saveActiveRepeatedQuestion(String name, QuestionModel enumerator) {
+  private QuestionModel saveActiveNestedQuestion(String name, QuestionModel enumerator) {
     return testQuestionBank.maybeSave(
         new TextQuestionDefinition(
             QuestionDefinitionConfig.builder()
