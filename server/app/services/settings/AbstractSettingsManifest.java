@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Function;
 import org.slf4j.Logger;
@@ -20,6 +21,11 @@ import play.mvc.Http;
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
+  public static final String EXPERIMENTAL_SETTING_SECTION_NAME = "Experimental";
+
+  /** Names of the sections whose boolean settings are treated as feature flags. */
+  private static final ImmutableList<String> FEATURE_FLAG_SECTION_NAMES =
+      ImmutableList.of(FEATURE_FLAG_SETTING_SECTION_NAME, EXPERIMENTAL_SETTING_SECTION_NAME);
 
   private final Config config;
   private static final Logger logger = LoggerFactory.getLogger("SettingsManifest");
@@ -29,8 +35,9 @@ public abstract class AbstractSettingsManifest {
   }
 
   /**
-   * Returns a map containing the names of the settings in the "Feature Flags" section mapped to
-   * their current values.
+   * Returns a map containing the names of the boolean settings in the "Feature Flags" and
+   * "Experimental" sections mapped to their effective values for the given request. A value stored
+   * in the database by an admin takes precedence over the value in the HOCON config.
    */
   public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.RequestHeader request) {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
@@ -57,10 +64,13 @@ public abstract class AbstractSettingsManifest {
   }
 
   private ImmutableList<SettingDescription> getAllFeatureFlagsSettingDescriptions() {
-    return Optional.of(getSections())
-        .map(m -> m.get(FEATURE_FLAG_SETTING_SECTION_NAME))
-        .map(this::getSettingDescriptions)
-        .orElseGet(ImmutableList::of);
+    ImmutableMap<String, SettingsSection> sections = getSections();
+    return FEATURE_FLAG_SECTION_NAMES.stream()
+        .map(sections::get)
+        .filter(Objects::nonNull)
+        .flatMap(section -> getSettingDescriptions(section).stream())
+        .filter(settingDescription -> settingDescription.settingType() == SettingType.BOOLEAN)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ImmutableList<SettingDescription> getSettingDescriptions(SettingsSection section) {
