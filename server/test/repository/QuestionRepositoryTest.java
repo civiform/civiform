@@ -534,7 +534,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // enumerator.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftInitialQuestion(fixture);
+    draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
     // There's a new initial question, and it kept the edit that created it.
@@ -562,7 +562,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // repeated on its enumerator.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftInitialQuestion(fixture);
+    draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
     QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
@@ -588,7 +588,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // question alone.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftInitialQuestion(fixture);
+    draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
     QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
@@ -611,7 +611,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // question of its own, and its repeated question alone.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftInitialQuestion(fixture);
+    draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
     QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
@@ -635,7 +635,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // enumerator draft points at that new initial question rather than the published one.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftEnumerator(fixture);
+    draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
     QuestionDefinition initialQuestionAfter = latestDefinition(fixture.newFlowSet1InitialQuestionId());
@@ -664,7 +664,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // on it, and those do not take over its initial question reference.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftEnumerator(fixture);
+    draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition enumeratorAfter = latestDefinition(fixture.newFlowSet1EnumeratorId());
     QuestionDefinition repeatedQuestionAfter = latestDefinition(fixture.newFlowSet1NestedQuestionId());
@@ -687,7 +687,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // question alone.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftEnumerator(fixture);
+    draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
     QuestionDefinition extraRepeatedQuestion = latestDefinition(fixture.newFlowSet2InitialQuestionId());
@@ -710,7 +710,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // question of its own, and its repeated question alone.
     EnumeratorFixture fixture = newEnumeratorFixture();
 
-    draftEnumerator(fixture);
+    draftQuestion(fixture.newFlowSet1EnumeratorId());
 
     QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
     QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
@@ -827,19 +827,10 @@ public class QuestionRepositoryTest extends ResetPostgres {
         program);
   }
 
-  /** Creates a new draft revision of the block 1 initial question. */
-  private void draftInitialQuestion(EnumeratorFixture fixture)
-      throws UnsupportedQuestionTypeException {
+  /** Creates a new draft revision of the question with {@code questionId}. */
+  private void draftQuestion(long questionId) throws UnsupportedQuestionTypeException {
     repo.createOrUpdateDraft(
-        new QuestionDefinitionBuilder(lookupDefinition(fixture.newFlowSet1InitialQuestionId()))
-            .setDescription("updated")
-            .build());
-  }
-
-  /** Creates a new draft revision of the block 1 enumerator. */
-  private void draftEnumerator(EnumeratorFixture fixture) throws UnsupportedQuestionTypeException {
-    repo.createOrUpdateDraft(
-        new QuestionDefinitionBuilder(lookupDefinition(fixture.newFlowSet1EnumeratorId()))
+        new QuestionDefinitionBuilder(lookupDefinition(questionId))
             .setDescription("updated")
             .build());
   }
