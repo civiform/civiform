@@ -621,9 +621,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // There's no new repeated question, and it still points at the same enumerator.
     assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
     assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
-    // Block 4 still contains the original questions.
+    // Blocks 4 and 5 still contain the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
-        .containsExactly(fixture.oldFlowEnumeratorId(), fixture.oldFlowNestedQuestionId());
+        .containsExactly(fixture.oldFlowEnumeratorId());
+    assertThat(blockQuestionIds(fixture.program(), 5L))
+        .containsExactly(fixture.oldFlowNestedQuestionId());
   }
 
   @Test
@@ -718,9 +720,11 @@ public class QuestionRepositoryTest extends ResetPostgres {
     // There's no new repeated question, and it still points at the same enumerator.
     assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
     assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
-    // Block 4 still contains the original questions.
+    // Blocks 4 and 5 still contain the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
-        .containsExactly(fixture.oldFlowEnumeratorId(), fixture.oldFlowNestedQuestionId());
+        .containsExactly(fixture.oldFlowEnumeratorId());
+    assertThat(blockQuestionIds(fixture.program(), 5L))
+        .containsExactly(fixture.oldFlowNestedQuestionId());
   }
 
   @Test
@@ -765,19 +769,19 @@ public class QuestionRepositoryTest extends ResetPostgres {
       ProgramModel program) {}
 
   /**
-   * Builds a draft program with four blocks and seven ACTIVE questions.
+   * Builds a draft program with five blocks and seven ACTIVE questions.
    *
    * <p>Block 1 is a new flow enumerator and holds the enumerator and its
    * initial question, which point at each other. Block 2
    * repeats on block 1 and holds a third question whose enumerator id is the block 1 enumerator.
    *
-   * <p>Blocks 3 and 4 are controls to allow for ensuring that when Block 1 & 2
-   * are changed by code under test, that 3 & 4 are not.
+   * <p>Blocks 3, 4 and 5 are controls to allow for ensuring that when Block 1 & 2
+   * are changed by code under test, that 3, 4 & 5 are not.
    *
    * <p>Block 3 holds a new-flow enumerator and its initial question, which point at each other.
    *
-   * <p>Block 4 holds an old-flow enumerator and a nested question, where only
-   * the nested question points at the enumerator.
+   * <p>Block 4 holds an old-flow enumerator. Block 5 repeats on block 4 and holds a nested
+   * question, where only the nested question points at the enumerator.
    */
   private EnumeratorFixture newEnumeratorFixture() {
     QuestionModel newFlowSet1Enumerator =
@@ -809,6 +813,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(newFlowSet2InitialQuestion)
             .withBlock("block 4")
             .withRequiredQuestion(oldFlowEnumerator)
+            .withRepeatedBlock("block 5")
             .withRequiredQuestion(oldFlowNestedQuestion)
             .build();
     return new EnumeratorFixture(
