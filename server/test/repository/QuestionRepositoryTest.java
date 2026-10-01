@@ -557,7 +557,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingRepeatedQuestion()
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingNestedQuestion()
       throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
     // Creating a draft of an initial question creates an updated draft of the other questions
     // repeated on its enumerator.
@@ -593,16 +593,16 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
-    QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
-    QuestionDefinition extraRepeatedQuestion =
+    QuestionDefinition otherNewFlowEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
+    QuestionDefinition otherNewFlowNestedQuestion =
         latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
-    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+    assertThat(otherNewFlowEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
+    assertThat(otherNewFlowEnumerator.getEnumeratorInitialQuestionId())
         .hasValue(fixture.newFlowSet2InitialQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
-    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
+    assertThat(otherNewFlowNestedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
+    assertThat(otherNewFlowNestedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
         .containsExactly(fixture.newFlowSet2EnumeratorId(), fixture.newFlowSet2InitialQuestionId());
@@ -618,13 +618,13 @@ public class QuestionRepositoryTest extends ResetPostgres {
     draftQuestion(fixture.newFlowSet1InitialQuestionId());
 
     QuestionDefinition oldEnumerator = latestDefinition(fixture.oldFlowEnumeratorId());
-    QuestionDefinition oldRepeatedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
+    QuestionDefinition oldNestedQuestion = latestDefinition(fixture.oldFlowNestedQuestionId());
     // There's no new enumerator, and it still has no initial question.
     assertThat(oldEnumerator.getId()).isEqualTo(fixture.oldFlowEnumeratorId());
     assertThat(oldEnumerator.getEnumeratorInitialQuestionId()).isEmpty();
     // There's no new repeated question, and it still points at the same enumerator.
-    assertThat(oldRepeatedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
-    assertThat(oldRepeatedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
+    assertThat(oldNestedQuestion.getId()).isEqualTo(fixture.oldFlowNestedQuestionId());
+    assertThat(oldNestedQuestion.getEnumeratorId()).hasValue(fixture.oldFlowEnumeratorId());
     // Blocks 4 and 5 still contain the original questions.
     assertThat(blockQuestionIds(fixture.program(), 4L))
         .containsExactly(fixture.oldFlowEnumeratorId());
@@ -663,7 +663,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void createOrUpdateDraft_draftingEnumerator_carriesSiblingRepeatedQuestionForward()
+  public void createOrUpdateDraft_draftingEnumerator_carriesSiblingNestedQuestionForward()
       throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
     // Creating a draft of an enumerator creates an updated draft of the other questions repeated
     // on it, and those do not take over its initial question reference.
@@ -695,16 +695,16 @@ public class QuestionRepositoryTest extends ResetPostgres {
 
     draftQuestion(fixture.newFlowSet1EnumeratorId());
 
-    QuestionDefinition extraEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
-    QuestionDefinition extraRepeatedQuestion =
+    QuestionDefinition otherNewFlowEnumerator = latestDefinition(fixture.newFlowSet2EnumeratorId());
+    QuestionDefinition otherNewFlowNestedQuestion =
         latestDefinition(fixture.newFlowSet2InitialQuestionId());
     // There's no new enumerator, and it still points at the same initial question.
-    assertThat(extraEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
-    assertThat(extraEnumerator.getEnumeratorInitialQuestionId())
+    assertThat(otherNewFlowEnumerator.getId()).isEqualTo(fixture.newFlowSet2EnumeratorId());
+    assertThat(otherNewFlowEnumerator.getEnumeratorInitialQuestionId())
         .hasValue(fixture.newFlowSet2InitialQuestionId());
     // There's no new initial question, and it still points at the same enumerator.
-    assertThat(extraRepeatedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
-    assertThat(extraRepeatedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
+    assertThat(otherNewFlowNestedQuestion.getId()).isEqualTo(fixture.newFlowSet2InitialQuestionId());
+    assertThat(otherNewFlowNestedQuestion.getEnumeratorId()).hasValue(fixture.newFlowSet2EnumeratorId());
     // Block 3 still contains the original questions.
     assertThat(blockQuestionIds(fixture.program(), 3L))
         .containsExactly(fixture.newFlowSet2EnumeratorId(), fixture.newFlowSet2InitialQuestionId());
