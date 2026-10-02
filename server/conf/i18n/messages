@@ -1258,8 +1258,8 @@ button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set
 # Button label on the initial question card that clears the selection
-button.repeatedSet.initialQuestion.delete=Delete
-# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+button.repeatedSet.initialQuestion.remove=Remove
+# Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=List set
