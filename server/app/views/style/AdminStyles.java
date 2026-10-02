@@ -38,7 +38,7 @@ public final class AdminStyles {
           StyleUtils.hover("bg-gray-200", "text-gray-900"));
 
   public static final String BODY =
-      StyleUtils.joinStyles(BODY_GRADIENT_STYLE, "box-border", "flex", "min-h-screen", "mt-5");
+      StyleUtils.joinStyles(BODY_GRADIENT_STYLE, "box-border", "flex", "flex-col", "min-h-screen");
 
   public static final String MAIN_CENTERED =
       StyleUtils.joinStyles("px-2", "max-w-screen-2xl", "mx-auto");
@@ -50,10 +50,12 @@ public final class AdminStyles {
           "bg-white",
           "border",
           "border-gray-200",
-          "mt-12",
           "shadow-lg",
           "w-screen",
           "admin-responsive-main-padding");
+
+  public static final String HEADER =
+      StyleUtils.joinStyles("position-sticky", "sticky", "top-0", "z-10", "width-full");
 
   public static final String HEADER_BUTTON_STYLES =
       StyleUtils.joinStyles(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "my-5", "mr-2");
