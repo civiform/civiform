@@ -1139,7 +1139,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private ButtonTag renderInitialQuestionRemoveButton(
       Messages messages, long programId, long blockId, String questionAdminId) {
     return ViewUtils.makeSvgTextButton(
-            messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE.getKeyName()),
+            messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()),
             Icons.DELETE)
         .withType("button")
         .attr(
@@ -1873,7 +1873,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean enumeratorImprovementsEnabled,
       Messages messages) {
     ButtonTag deleteButton =
-        ViewUtils.makeSvgTextButton("Remove", Icons.DELETE)
+        ViewUtils.makeSvgTextButton(
+                messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()), Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")

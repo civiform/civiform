@@ -87,8 +87,8 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT("button.nextPage"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
+  BUTTON_REMOVE_QUESTION("button.removeQuestion"),
   BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
-  BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE("button.repeatedSet.initialQuestion.remove"),
   BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL(
       "button.repeatedSet.initialQuestion.removeAriaLabel"),
   BUTTON_REPEATED_SET_SUBMIT_NEW("button.repeatedSet.submitNew"),
