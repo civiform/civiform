@@ -1271,7 +1271,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(newEnumeratorQuestionFormButton).toBeVisible()
         await expect(
           newEnumeratorQuestionForm.getByRole('button', {
-            name: 'Add question',
+            name: 'Add initial question',
           }),
         ).toBeVisible()
       })
