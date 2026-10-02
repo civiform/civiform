@@ -4,7 +4,6 @@ import static play.test.Helpers.fakeApplication;
 
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.meta.MetaQueryMetric;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -12,6 +11,7 @@ import models.LifecycleStage;
 import models.Models;
 import models.VersionModel;
 import org.apache.pekko.stream.Materializer;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -21,6 +21,7 @@ import play.test.Helpers;
 import services.settings.SettingsService;
 import support.ProgramBuilder;
 import support.ResourceCreator;
+import support.SqlStatementCounter;
 import support.TestQuestionBank;
 
 public class ResetPostgres {
@@ -35,6 +36,8 @@ public class ResetPostgres {
   protected static ResourceCreator resourceCreator;
 
   protected static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+
+  private final SqlStatementCounter sqlStatementCounter = new SqlStatementCounter();
 
   @BeforeClass
   public static void startPlay() {
@@ -62,15 +65,20 @@ public class ResetPostgres {
   }
 
   /**
-   * Counts ORM queries run since the previous call. Collecting metrics also resets them, so call
-   * this once before the code under test to discard queries from test setup.
+   * Counts SQL statements, split into reads and writes, run since the previous call. Counting
+   * starts on the first call, so call this once before the code under test. Statements in a
+   * transaction begun before that first call are not counted.
    *
-   * <p>Note this will not work if we ever parallelize unit tests.
+   * <p>See {@link SqlStatementCounter} for what is counted.
    */
-  protected static long queriesSinceLastCount() {
-    return DB.getDefault().metaInfo().collectMetrics().queryMetrics().stream()
-        .mapToLong(MetaQueryMetric::count)
-        .sum();
+  protected SqlStatementCounter.SqlCounts sqlStatementsSinceLastCount() {
+    sqlStatementCounter.start();
+    return sqlStatementCounter.collect();
+  }
+
+  @After
+  public void stopCountingStatements() {
+    sqlStatementCounter.stop();
   }
 
   @Before

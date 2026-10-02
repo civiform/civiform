@@ -33,6 +33,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
 import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 
 /**
  * Ebean documentation is unfortunately sparse without a lot of practical examples.
@@ -728,32 +729,71 @@ public class EbeanInvariantTest extends ResetPostgres {
   }
 
   /**
-   * queriesSinceLastCount() only sees ORM queries. Raw SQL reads, even labelled ones, and all
-   * writes are invisible to it, so query count assertions undercount code paths that use them.
+   * sqlStatementsSinceLastCount() classifies Ebean's SQL log lines, so this pins the log format it
+   * relies on. Ebean's own query metrics are not used as they only see ORM queries, missing raw SQL
+   * and all writes.
    */
   @Test
-  public void queryMetrics_onlyCountOrmQueries() {
+  public void statementCounts_seeEveryStatementKind() {
     new AccountModel().insert();
-    queriesSinceLastCount();
+    sqlStatementsSinceLastCount();
 
     database.find(AccountModel.class).findList();
-    assertThat(queriesSinceLastCount()).isEqualTo(1);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
 
     database.sqlQuery("SELECT id FROM accounts").findList();
-    assertThat(queriesSinceLastCount()).isEqualTo(0);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
 
-    // A label does not opt a raw SQL query into the metrics.
-    database.sqlQuery("SELECT id FROM accounts").setLabel("labelled").findList();
-    assertThat(queriesSinceLastCount()).isEqualTo(0);
+    database.sqlQuery("WITH x AS (SELECT id FROM accounts) SELECT id FROM x").findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
 
-    database.sqlQuery("SELECT count(*) FROM accounts").mapToScalar(Long.class).findOne();
-    assertThat(queriesSinceLastCount()).isEqualTo(0);
+    // Locking reads are still reads.
+    database.sqlQuery("SELECT id FROM accounts FOR UPDATE").findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
 
     database.sqlUpdate("UPDATE accounts SET email_address = 'a@b.com'").execute();
-    assertThat(queriesSinceLastCount()).isEqualTo(0);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+
+    database.sqlUpdate("DELETE FROM accounts WHERE id = -1").execute();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
 
     new AccountModel().insert();
-    assertThat(queriesSinceLastCount()).isEqualTo(0);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+
+    // A batch is one round trip regardless of its size. The commit is not counted.
+    try (Transaction transaction = database.beginTransaction()) {
+      transaction.setBatchMode(true);
+      new AccountModel().insert();
+      new AccountModel().insert();
+      new AccountModel().insert();
+      transaction.commit();
+    }
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+  }
+
+  /**
+   * Ebean decides whether a transaction logs its SQL when the transaction begins, so statements in
+   * a transaction begun before counting starts are never counted.
+   */
+  @Test
+  public void statementCounts_missTransactionsBegunBeforeCountingStarts() {
+    new AccountModel().insert();
+
+    try (Transaction transaction = database.beginTransaction()) {
+      sqlStatementsSinceLastCount();
+      database.find(AccountModel.class).findList();
+      new AccountModel().insert();
+      assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(0, 0));
+      transaction.commit();
+    }
+
+    // A transaction begun after counting starts is counted.
+    try (Transaction transaction = database.beginTransaction()) {
+      database.find(AccountModel.class).findList();
+      new AccountModel().insert();
+      assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(1, 1));
+      transaction.commit();
+    }
   }
 
   @Test
@@ -825,16 +865,16 @@ public class EbeanInvariantTest extends ResetPostgres {
     for (int i = 0; i < programCount; i++) {
       insertProgramWithCategories("invariant-program-" + i);
     }
-    queriesSinceLastCount();
+    sqlStatementsSinceLastCount();
 
     database.find(ProgramModel.class).fetch("categories").findList();
-    long joinQueries = queriesSinceLastCount();
+    long joinQueries = sqlStatementsSinceLastCount().reads();
 
     database.find(ProgramModel.class).fetch("categories", FetchConfig.ofQuery()).findList();
-    long queryJoinQueries = queriesSinceLastCount();
+    long queryJoinQueries = sqlStatementsSinceLastCount().reads();
 
     database.find(ProgramModel.class).findList();
-    long lazyQueries = queriesSinceLastCount();
+    long lazyQueries = sqlStatementsSinceLastCount().reads();
 
     // The join reads every program and every category in one statement.
     assertThat(joinQueries).isEqualTo(1);

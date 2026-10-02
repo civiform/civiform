@@ -44,6 +44,7 @@ import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 import support.TestQuestionBank;
 
 public class ProgramRepositoryTest extends ResetPostgres {
@@ -414,7 +415,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
-    queriesSinceLastCount();
+    sqlStatementsSinceLastCount();
 
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
@@ -427,7 +428,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
                     ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
     // Guards against query count regressions on the admin applications list.
-    assertThat(queriesSinceLastCount()).isEqualTo(2);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(2));
 
     assertThat(
             paginationResult.getPageContents().stream()
