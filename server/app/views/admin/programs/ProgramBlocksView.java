@@ -1134,8 +1134,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
   /**
    * Renders the HTMX Delete button shown on the initial question card during the
    * enumerator-creation flow. Clicking it swaps {@code #initial-question-slot} back to its empty
-   * "Add initial question" state. The question has not yet been attached to the block, so this is
-   * a view-state reset rather than a destructive delete.
+   * "Add initial question" state. The question has not yet been attached to the block, so this is a
+   * view-state reset rather than a destructive delete.
    */
   private ButtonTag renderInitialQuestionDeleteButton(
       Messages messages, long programId, long blockId, String questionAdminId) {
