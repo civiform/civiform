@@ -232,9 +232,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await addRepeatedSetBlocks(page)
         })
 
-        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await test.step('Open the question bank by clicking the "Add initial question" button', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
           await expect(questionBankSidebar).toBeVisible()
         })
@@ -292,7 +292,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Open the question bank', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
         })
 
@@ -352,7 +352,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Open the question bank via the initial-question slot', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
         })
 
@@ -442,9 +442,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await fillEnumeratorQuestionForm(page)
         })
 
-        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await test.step('Open the question bank by clicking the "Add initial question" button', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
           await expect(questionBankSidebar).toBeVisible()
         })
@@ -559,7 +559,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('create an enumerator with initial question', async () => {
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
@@ -703,7 +703,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Select an initial question so we can verify it survives the next error re-render', async () => {
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
         await expect(questionBankSidebar).toBeVisible()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
@@ -1936,7 +1936,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           name: 'Add a question',
         })
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
         await expect(questionBankSidebar).toBeVisible()
         await pickQuestionFromBank(page, initialQuestion)
@@ -2013,21 +2013,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   }
 
   /**
-   * Verifies that the initial question slot reverts to the empty "Add question" state.
+   * Verifies that the initial question slot reverts to the empty "Add initial question" state.
    */
   async function expectAddQuestionButton(page: Page, questionAdminId: string) {
     const initialQuestionSlot = page
       .getByTestId('block-panel-edit')
       .locator('#initial-question-slot')
 
-    await test.step('Validate the initial question slot reverts to the empty "Add question" state', async () => {
+    await test.step('Validate the initial question slot reverts to the empty "Add initial question" state', async () => {
       await expect(
         initialQuestionSlot.getByTestId(
           `question-admin-name-${questionAdminId}`,
         ),
       ).toBeHidden()
       await expect(
-        initialQuestionSlot.getByRole('button', {name: 'Add question'}),
+        initialQuestionSlot.getByRole('button', {name: 'Add initial question'}),
       ).toBeVisible()
     })
   }
