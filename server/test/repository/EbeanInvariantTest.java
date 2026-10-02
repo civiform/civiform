@@ -15,7 +15,6 @@ import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
 import io.ebean.annotation.TxIsolation;
-import io.ebean.meta.MetaQueryMetric;
 import java.util.Locale;
 import java.util.concurrent.atomic.AtomicInteger;
 import junitparams.JUnitParamsRunner;
@@ -726,17 +725,6 @@ public class EbeanInvariantTest extends ResetPostgres {
             resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Family")),
             resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Health")));
     return ProgramBuilder.newActiveProgram(adminName).withCategories(categories).build().id;
-  }
-
-  /**
-   * Counts queries run since the previous call. Collecting metrics also resets them.
-   *
-   * <p>Note this will not work if we ever parallelize unit tests.
-   */
-  private long queriesSinceLastCount() {
-    return database.metaInfo().collectMetrics().queryMetrics().stream()
-        .mapToLong(MetaQueryMetric::count)
-        .sum();
   }
 
   @Test

@@ -207,7 +207,11 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactly("second-program");
 
     // Now actually publish the version and assert the results.
+    queriesSinceLastCount();
     versionRepository.publishNewSynchronizedVersion();
+    // Guards against query count regressions when an admin publishes. Fewer queries are issued
+    // inside a transaction, likely because its persistence context serves repeated lookups.
+    assertThat(queriesSinceLastCount()).isEqualTo(useTransaction ? 11 : 17);
 
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);

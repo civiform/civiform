@@ -414,6 +414,7 @@ public class ProgramRepositoryTest extends ResetPostgres {
     ApplicantModel jane =
         resourceCreator.insertApplicantWithAccount(Optional.of("jane@example.com"));
     makeApplicationWithName(jane, program, "Jane", "MiddleName", "Doe", "Suffix");
+    queriesSinceLastCount();
 
     PaginationResult<ApplicationModel> paginationResult =
         repo.getApplicationsForAllProgramVersions(
@@ -425,6 +426,8 @@ public class ProgramRepositoryTest extends ResetPostgres {
                 .setLifecycleStages(
                     ImmutableList.of(LifecycleStage.ACTIVE, LifecycleStage.OBSOLETE))
                 .build());
+    // Guards against query count regressions on the admin applications list.
+    assertThat(queriesSinceLastCount()).isEqualTo(2);
 
     assertThat(
             paginationResult.getPageContents().stream()

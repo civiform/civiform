@@ -690,6 +690,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_withUpdates_isOk() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    queriesSinceLastCount();
 
     subject
         .stageAndUpdateIfValid(
@@ -702,6 +703,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
+    // Guards against query count regressions when an applicant saves a block.
+    assertThat(queriesSinceLastCount()).isEqualTo(27);
 
     ApplicantData applicantDataAfter =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -1259,6 +1262,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
+    queriesSinceLastCount();
 
     ApplicationModel application =
         subject
@@ -1270,6 +1274,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
+    // Guards against query count regressions when an applicant submits an application.
+    assertThat(queriesSinceLastCount()).isEqualTo(40);
 
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
@@ -3097,12 +3103,15 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
+    queriesSinceLastCount();
 
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
+    // Guards against query count regressions on the applicant program index.
+    assertThat(queriesSinceLastCount()).isEqualTo(41);
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);

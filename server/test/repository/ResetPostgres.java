@@ -4,6 +4,7 @@ import static play.test.Helpers.fakeApplication;
 
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.meta.MetaQueryMetric;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
@@ -58,6 +59,18 @@ public class ResetPostgres {
 
   protected <T> T instanceOf(Class<T> clazz) {
     return app.injector().instanceOf(clazz);
+  }
+
+  /**
+   * Counts ORM queries run since the previous call. Collecting metrics also resets them, so call
+   * this once before the code under test to discard queries from test setup.
+   *
+   * <p>Note this will not work if we ever parallelize unit tests.
+   */
+  protected static long queriesSinceLastCount() {
+    return DB.getDefault().metaInfo().collectMetrics().queryMetrics().stream()
+        .mapToLong(MetaQueryMetric::count)
+        .sum();
   }
 
   @Before
