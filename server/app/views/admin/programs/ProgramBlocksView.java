@@ -1139,8 +1139,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private ButtonTag renderInitialQuestionRemoveButton(
       Messages messages, long programId, long blockId, String questionAdminId) {
     return ViewUtils.makeSvgTextButton(
-            messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()),
-            Icons.DELETE)
+            messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()), Icons.DELETE)
         .withType("button")
         .attr(
             "aria-label",
