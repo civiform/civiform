@@ -96,21 +96,15 @@ export class ApplicantFileQuestion {
   }
 
   async expectFileInputEnabled() {
-    await expect(
-      this.page.getByLabel('Drag file here or choose from folder'),
-    ).toBeEnabled()
+    await expect(this.page.locator('input[type="file"]')).toBeEnabled()
   }
 
   async expectFileInputDisabled() {
-    await expect(
-      this.page.getByLabel('Drag file here or choose from folder'),
-    ).toBeDisabled()
+    await expect(this.page.locator('input[type="file"]')).toBeDisabled()
   }
 
   async expectFileInputFocused() {
-    await expect(
-      this.page.getByLabel('Drag file here or choose from folder'),
-    ).toBeFocused()
+    await expect(this.page.locator('input[type="file"]')).toBeFocused()
   }
 
   async clickSkip() {
