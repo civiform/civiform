@@ -1224,7 +1224,7 @@ export class AdminPrograms {
       await this.page.click(
         this.withinQuestionCardSelectorInProgramView(
           questionName,
-          'button:has-text("Delete")',
+          'button:has-text("Remove")',
         ),
       )
     }
