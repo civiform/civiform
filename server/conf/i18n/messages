@@ -1295,7 +1295,7 @@ button.addNestedRepeatedSet=Add nested list set
 button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Add question
-# A button on a question card for admins to remove the question from the screen. The question itself is not deleted.
+# A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
