@@ -727,6 +727,35 @@ public class EbeanInvariantTest extends ResetPostgres {
     return ProgramBuilder.newActiveProgram(adminName).withCategories(categories).build().id;
   }
 
+  /**
+   * queriesSinceLastCount() only sees ORM queries. Raw SQL reads, even labelled ones, and all
+   * writes are invisible to it, so query count assertions undercount code paths that use them.
+   */
+  @Test
+  public void queryMetrics_onlyCountOrmQueries() {
+    new AccountModel().insert();
+    queriesSinceLastCount();
+
+    database.find(AccountModel.class).findList();
+    assertThat(queriesSinceLastCount()).isEqualTo(1);
+
+    database.sqlQuery("SELECT id FROM accounts").findList();
+    assertThat(queriesSinceLastCount()).isEqualTo(0);
+
+    // A label does not opt a raw SQL query into the metrics.
+    database.sqlQuery("SELECT id FROM accounts").setLabel("labelled").findList();
+    assertThat(queriesSinceLastCount()).isEqualTo(0);
+
+    database.sqlQuery("SELECT count(*) FROM accounts").mapToScalar(Long.class).findOne();
+    assertThat(queriesSinceLastCount()).isEqualTo(0);
+
+    database.sqlUpdate("UPDATE accounts SET email_address = 'a@b.com'").execute();
+    assertThat(queriesSinceLastCount()).isEqualTo(0);
+
+    new AccountModel().insert();
+    assertThat(queriesSinceLastCount()).isEqualTo(0);
+  }
+
   @Test
   public void collectionFetch_joinTruncatesThePostLoadCopyUntilReloaded() {
     long programId = insertProgramWithCategories();
