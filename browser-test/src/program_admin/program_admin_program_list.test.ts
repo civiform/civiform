@@ -122,4 +122,76 @@ test.describe('Translation tag showing as expected', () => {
       await expect(page.getByText('Translation Complete')).toBeHidden()
     })
   })
+
+  test('Tag translation complete shows up when program has translated questions', async ({
+    page,
+    adminPrograms,
+    adminQuestions,
+    adminTranslations,
+  }) => {
+    const questionName = 'q-for-translation'
+    const programWithQuestion = 'Program with translated question'
+    const languages = [
+      'Amharic',
+      'Arabic',
+      'Traditional Chinese',
+      'French',
+      'Japanese',
+      'Korean',
+      'Lao',
+      'Russian',
+      'Somali',
+      'Spanish',
+      'Tagalog',
+      'Vietnamese',
+    ]
+
+    await test.step('Create and translate a question', async () => {
+      await loginAsAdmin(page)
+      await adminQuestions.addTextQuestion({
+        questionName,
+        questionText: 'English question text',
+      })
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      for (const language of languages) {
+        await adminTranslations.selectLanguage(language)
+        await adminTranslations.editQuestionTranslations(
+          `${language} text`,
+          `${language} help text`,
+        )
+      }
+    })
+
+    await test.step('Create program, add the question, and translate program fields', async () => {
+      await adminPrograms.addProgram(programWithQuestion)
+      await adminPrograms.editProgramBlock(programWithQuestion, 'Screen 1', [
+        questionName,
+      ])
+
+      await adminPrograms.gotoDraftProgramManageTranslationsPage(
+        programWithQuestion,
+      )
+      for (const language of languages) {
+        await adminTranslations.selectLanguage(language)
+        await adminTranslations.editProgramTranslations({
+          name: `${language} name`,
+          description: `${language} description`,
+          shortDescription: `${language} short description`,
+          blockName: `${language} block name`,
+          blockDescription: `${language} block description`,
+          confirmationMsg: `${language} confirmation message`,
+          statuses: [],
+        })
+      }
+    })
+
+    await test.step('Verify Translation Complete is visible on the program list', async () => {
+      await adminPrograms.gotoAdminProgramsPage()
+      const programCard = page.locator(
+        `.cf-admin-program-card:has-text("${programWithQuestion}")`,
+      )
+      await expect(programCard.getByText('Translation Complete')).toBeVisible()
+      await expect(programCard.getByText('Translation Incomplete')).toBeHidden()
+    })
+  })
 })
