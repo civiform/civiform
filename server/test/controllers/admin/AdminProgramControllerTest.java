@@ -129,6 +129,12 @@ public class AdminProgramControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("two");
     assertThat(contentAsString(result)).contains("three");
     assertThat(contentAsString(result)).contains("four");
+
+    // Load again to measure the page once any caches have been warmed by the first load.
+    sqlStatementsSinceLastCount();
+    Result warmResult = controller.index(fakeRequest());
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(288));
+    assertThat(warmResult.status()).isEqualTo(OK);
   }
 
   @Test
