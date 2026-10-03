@@ -107,6 +107,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
 public class ApplicantServiceTest extends ResetPostgres {
@@ -690,6 +691,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_withUpdates_isOk() {
     ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    sqlStatementsSinceLastCount();
 
     subject
         .stageAndUpdateIfValid(
@@ -702,6 +704,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
+    // Guards against query count regressions when an applicant saves a block.
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(27, 1));
 
     ApplicantData applicantDataAfter =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
@@ -1259,6 +1263,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* apiBridgeEnabled= */ false)
         .toCompletableFuture()
         .join();
+    sqlStatementsSinceLastCount();
 
     ApplicationModel application =
         subject
@@ -1270,6 +1275,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 /* answerOptionScoringEnabled= */ false)
             .toCompletableFuture()
             .join();
+    // Guards against query count regressions when an applicant submits an application.
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(40, 1));
 
     assertThat(application.getApplicant()).isEqualTo(applicant);
     assertThat(application.getProgram().id).isEqualTo(programDefinition.id());
@@ -3097,12 +3104,15 @@ public class ApplicantServiceTest extends ResetPostgres {
             /* scores= */ Optional.empty())
         .toCompletableFuture()
         .join();
+    sqlStatementsSinceLastCount();
 
     ApplicantService.ApplicationPrograms result =
         subject
             .relevantProgramsForApplicant(applicant.id, trustedIntermediaryProfile, fakeRequest())
             .toCompletableFuture()
             .join();
+    // Guards against query count regressions on the applicant program index.
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(43));
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);
