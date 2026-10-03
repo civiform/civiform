@@ -734,7 +734,7 @@ public class EbeanInvariantTest extends ResetPostgres {
    * and all writes.
    */
   @Test
-  public void statementCounts_seeEveryStatementKind() {
+  public void sqlStatementCounter_seesEveryStatementKind() {
     new AccountModel().insert();
     sqlStatementsSinceLastCount();
 
