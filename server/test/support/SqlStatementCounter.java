@@ -104,6 +104,8 @@ public final class SqlStatementCounter {
     protected void append(ILoggingEvent event) {
       String message = event.getFormattedMessage();
       String sql = message;
+      // Strip a transaction prefix, e.g. the "txn[] " of:
+      //   txn[] delete from accounts where id = -1; -- bind(null) rows(0)
       if (sql.startsWith("txn[")) {
         sql = sql.substring(sql.indexOf(']') + 1);
       }
@@ -111,15 +113,26 @@ public final class SqlStatementCounter {
       String keyword = sql.toLowerCase(Locale.ROOT);
 
       if (keyword.startsWith("-- executebatch()")) {
+        // A batch being sent, counted as one write however many rows it holds, e.g.
+        //   txn[]  -- executeBatch() size:3 sql:insert into accounts (...) values (?,?,...)
         writes++;
       } else if (keyword.startsWith("--")) {
-        // The bind values of one row in a batch.
+        // The bind values of one row in a batch, e.g.
+        //   txn[]  -- bind(false,[],null,null,null,{},null,2026-10-02T17:01:40.758Z,null,null)
       } else if (keyword.startsWith("select") || keyword.startsWith("with")) {
+        // A read, from an ORM query or raw SQL, e.g.
+        //   select t0.id, ... from accounts t0; --bind() --micros(251)
+        //   SELECT id FROM accounts FOR UPDATE; --bind() --micros(27)
+        //   WITH x AS (SELECT id FROM accounts) SELECT id FROM x; --bind() --micros(22)
         reads++;
       } else if (keyword.startsWith("insert")
           || keyword.startsWith("update")
           || keyword.startsWith("delete")) {
-        // Without a bind this is a batch's SQL, which is counted by its executeBatch line.
+        // A write sent on its own includes its bind, e.g.
+        //   txn[] insert into accounts (...) values (?,?,...); -- bind(false,[],...)
+        //   txn[] UPDATE accounts SET email_address = 'a@b.com'; -- bind(null) rows(1)
+        // Without a bind this is a batch's SQL, which is counted by its executeBatch line, e.g.
+        //   txn[] insert into accounts (...) values (?,?,...)
         if (sql.contains("-- bind(")) {
           writes++;
         }
