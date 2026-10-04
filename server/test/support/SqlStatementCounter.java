@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  *       executeBatch line is counted.
  * </ul>
  *
- * <p>Note this will not work if we ever parallelize unit tests and is not thread safe.
+ * <p>Note this will not work if we ever parallelize unit tests.
  */
 public final class SqlStatementCounter {
 
@@ -51,10 +51,10 @@ public final class SqlStatementCounter {
 
   private final Logger sqlLogger = (Logger) LoggerFactory.getLogger(SQL_LOGGER_NAME);
   private final ClassifyingAppender appender = new ClassifyingAppender();
-  // Record logger setting to reset after usage
+  private boolean running = false;
+  // Record logger settings to reset after usage.
   private Level originalLevel;
   private boolean originalAdditive;
-  private boolean running = false;
 
   /** Starts counting if not already, otherwise does nothing. */
   public void start() {

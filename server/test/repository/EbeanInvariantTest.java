@@ -729,9 +729,8 @@ public class EbeanInvariantTest extends ResetPostgres {
   }
 
   /**
-   * sqlStatementsSinceLastCount() classifies Ebean's SQL log lines, so this pins the log format it
-   * relies on. Ebean's own query metrics are not used as they only see ORM queries, missing raw SQL
-   * and all writes.
+   * sqlStatementsSinceLastCount() classifies Ebean's SQL log lines pinned to the current log format
+   * it uses. This test verifies that there hasn't been drift in what is logged or how.
    */
   @Test
   public void sqlStatementCounter_seesEveryStatementKind() {
