@@ -117,7 +117,10 @@ public class QuestionPreview extends ApplicantBaseView {
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_QuestionPreview_Params.Builder();
+      return new AutoValue_QuestionPreview_Params.Builder()
+          .setImageUrl(Optional.empty())
+          .setImageAltText("")
+          .setQuestionDefinition(Optional.empty());
     }
 
     abstract Request request();
