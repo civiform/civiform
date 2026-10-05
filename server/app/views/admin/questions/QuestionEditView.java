@@ -253,7 +253,8 @@ public final class QuestionEditView extends BaseHtmlView {
             .attr("hx-swap", "outerHTML")
             .attr(
                 "hx-get",
-                controllers.admin.routes.QuestionPreviewController.sampleQuestion(type.getLabel()))
+                controllers.admin.routes.QuestionPreviewController.sampleQuestion(
+                    type.getLabel(), Optional.empty()))
             .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =
