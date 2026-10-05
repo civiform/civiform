@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   ClientInformation,
   loginAsAdmin,
@@ -14,7 +15,7 @@ import {ProgramCategories} from './support/admin_programs'
 
 test.describe('Trusted intermediaries', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
+    await disableFeatureFlag(
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
     )
