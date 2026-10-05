@@ -692,14 +692,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
     // With the flag off, hide an enumerator's initial question so admins only see the legacy
     // repeated set experience.
     ImmutableList<ProgramQuestionDefinition> displayedBlockQuestions =
-        enumeratorImprovementsEnabled || !blockDefinition.getIsEnumerator()
-            ? blockQuestions
-            : blockQuestions.stream()
+        !enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator()
+            ? blockQuestions.stream()
                 .filter(
                     question ->
                         findQuestionDefinition(question, allPreviousVersionQuestions)
                             .isEnumerator())
-                .collect(ImmutableList.toImmutableList());
+                .collect(ImmutableList.toImmutableList())
+            : blockQuestions;
 
     IntStream.range(0, displayedBlockQuestions.size())
         .forEach(
