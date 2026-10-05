@@ -36,6 +36,7 @@ import services.program.ProgramType;
 import services.question.QuestionService;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramFormPageView;
 import views.admin.programs.ProgramIndexView;
@@ -113,12 +114,27 @@ public class AdminProgramControllerTest extends ResetPostgres {
   public void index_returnsPrograms() {
     ProgramBuilder.newDraftProgram("one").build();
     ProgramBuilder.newDraftProgram("two").build();
+    ProgramBuilder.newActiveProgram("three").build();
+    // An active program with a draft of it in progress.
+    ProgramBuilder.newActiveProgram("four").build();
+    ProgramBuilder.newDraftProgram("four").build();
+    sqlStatementsSinceLastCount();
 
     Result result = controller.index(fakeRequest());
+    // Guards against query count regressions on the admin program list.
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(309));
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
     assertThat(contentAsString(result)).contains("two");
+    assertThat(contentAsString(result)).contains("three");
+    assertThat(contentAsString(result)).contains("four");
+
+    // Load again to measure the page once any caches have been warmed by the first load.
+    sqlStatementsSinceLastCount();
+    Result warmResult = controller.index(fakeRequest());
+    assertThat(warmResult.status()).isEqualTo(OK);
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(288));
   }
 
   @Test
