@@ -1,5 +1,6 @@
 package views.applicant.blocks;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -27,10 +28,13 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MapQuestion;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
@@ -51,6 +55,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final GeoJsonDataRepository mapDataRepository;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   ApplicantProgramBlockEditView(
@@ -62,7 +67,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
-      GeoJsonDataRepository mapDataRepository) {
+      GeoJsonDataRepository mapDataRepository,
+      PublicStorageClient publicStorageClient) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -73,6 +79,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.mapDataRepository = mapDataRepository;
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
@@ -87,6 +94,25 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             applicationParams.messages());
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
+
+    String questionImageUrl = "";
+    String questionImageAltText = "";
+    for (ApplicantQuestion question : applicationParams.block().getVisibleQuestions()) {
+      QuestionDefinition qd = question.getQuestionDefinition();
+      if (qd.getImageFileKey().isPresent() && !qd.getImageFileKey().get().isBlank()) {
+        String fileKey = qd.getImageFileKey().get();
+        if (PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
+          questionImageUrl = publicStorageClient.getPublicDisplayUrl(fileKey);
+          questionImageAltText =
+              qd.getLocalizedImageDescription()
+                  .map(desc -> desc.getOrDefault(applicationParams.messages().lang().toLocale()))
+                  .orElse("");
+          break;
+        }
+      }
+    }
+    context.setVariable("questionImageUrl", questionImageUrl);
+    context.setVariable("questionImageAltText", questionImageAltText);
 
     String pageTitle =
         pageTitleWithBlockProgress(
