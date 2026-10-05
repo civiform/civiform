@@ -150,7 +150,8 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   }
 
   public String getPreviewUrl() {
-    return controllers.admin.routes.QuestionPreviewController.sampleQuestion(questionTypeLabel)
+    return controllers.admin.routes.QuestionPreviewController.sampleQuestion(
+            questionTypeLabel, Optional.ofNullable(questionId))
         .url();
   }
 
