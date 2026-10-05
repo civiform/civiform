@@ -6,6 +6,7 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import controllers.CiviFormController;
+import java.util.Optional;
 import javax.inject.Inject;
 import models.QuestionModel;
 import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
@@ -28,8 +29,6 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import views.admin.questions.QuestionPreview;
 
-import java.util.Optional;
-
 /** Controller for rendering inputs for questions. */
 public final class QuestionPreviewController extends CiviFormController {
   private final QuestionPreview questionPreview;
@@ -50,7 +49,6 @@ public final class QuestionPreviewController extends CiviFormController {
     this.messages = messagesApi.preferred(ImmutableList.of(Lang.defaultLang()));
     this.publicStorageClient = checkNotNull(publicStorageClient);
     this.questionRepository = checkNotNull(questionRepository);
-
   }
 
   @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
