@@ -450,7 +450,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
     assertThat(content).contains("id=\"initial-question-slot\"");
-    assertThat(content).contains("Add question");
+    assertThat(content).contains("Add initial question");
   }
 
   @Test
