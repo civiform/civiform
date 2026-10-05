@@ -45,7 +45,7 @@ lazy val root = (project in file("."))
       "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
       "org.commonmark" % "commonmark" % "0.30.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.30.0",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260313.1",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260924.2",
 
       // Amazon AWS SDK
       "software.amazon.awssdk" % "s3" % "2.54.2",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.38",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.40",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
