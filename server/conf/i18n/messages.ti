@@ -1239,7 +1239,7 @@ input.repeatedSet.minEntities=
 input.repeatedSet.maxEntities=
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=
-# Description explaining what the initial question is and what the "Add question" button does
+# Description explaining what the initial question is and what the "Add initial question" button does
 description.repeatedSet.initialQuestion=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
@@ -1257,6 +1257,8 @@ alert.repeatedSet.previouslyUsed=
 button.repeatedSet.submitNew=
 # Button for admins to add a new list set
 button.repeatedSet.addNew=
+# Button on the new list set form that opens the question bank so admins can add the initial question
+button.repeatedSet.initialQuestion.add=Add initial question
 # Button label on the initial question card that clears the selection
 button.repeatedSet.initialQuestion.delete=
 # Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
