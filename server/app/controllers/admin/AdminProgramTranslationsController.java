@@ -12,6 +12,7 @@ import forms.translation.ProgramTranslationForm;
 import java.util.Locale;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramTranslationPageMapper;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
 import parsers.LargeFormUrlEncodedBodyParser;
@@ -27,9 +28,12 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.statuses.OutOfDateStatusesException;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
+import views.admin.programs.ProgramTranslationPageView;
+import views.admin.programs.ProgramTranslationPageViewModel;
 import views.admin.programs.ProgramTranslationView;
 import views.components.ToastMessage;
 
@@ -39,10 +43,12 @@ public class AdminProgramTranslationsController extends CiviFormController {
   private final ProgramService service;
   private final ProgramRepository programRepository;
   private final ProgramTranslationView translationView;
+  private final ProgramTranslationPageView translationPageView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstTranslatableLocale;
   private final StatusService statusService;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramTranslationsController(
@@ -51,16 +57,20 @@ public class AdminProgramTranslationsController extends CiviFormController {
       ProgramRepository programRepository,
       ProgramService service,
       ProgramTranslationView translationView,
+      ProgramTranslationPageView translationPageView,
       FormFactory formFactory,
       TranslationLocales translationLocales,
-      StatusService statusService) {
+      StatusService statusService,
+      SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.programRepository = checkNotNull(programRepository);
     this.translationView = checkNotNull(translationView);
+    this.translationPageView = checkNotNull(translationPageView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
     this.statusService = checkNotNull(statusService);
+    this.settingsManifest = checkNotNull(settingsManifest);
     this.maybeFirstTranslatableLocale =
         this.translationLocales.translatableLocales().stream().findFirst();
   }
@@ -105,6 +115,19 @@ public class AdminProgramTranslationsController extends CiviFormController {
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(programName);
     Locale localeToEdit = maybeLocaleToEdit.get();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ProgramTranslationPageViewModel model =
+          buildTranslationPageModel(
+              program,
+              activeStatusDefinitions,
+              ProgramTranslationForm.fromProgram(
+                  program, localeToEdit, formFactory, activeStatusDefinitions),
+              localeToEdit,
+              request.flash().get(FlashKey.ERROR));
+      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         translationView.render(
             request,
@@ -114,6 +137,27 @@ public class AdminProgramTranslationsController extends CiviFormController {
             ProgramTranslationForm.fromProgram(
                 program, localeToEdit, formFactory, activeStatusDefinitions),
             errorMessage));
+  }
+
+  private ProgramTranslationPageViewModel buildTranslationPageModel(
+      ProgramDefinition program,
+      StatusDefinitions statusDefinitions,
+      ProgramTranslationForm translationForm,
+      Locale locale,
+      Optional<String> errorMessage) {
+    ImmutableList<Long> blockIds =
+        program.blockDefinitions().stream()
+            .map(blockDefinition -> blockDefinition.id())
+            .collect(ImmutableList.toImmutableList());
+
+    return new ProgramTranslationPageMapper()
+        .map(
+            program,
+            statusDefinitions,
+            translationForm.getUpdateData(blockIds),
+            locale,
+            translationLocales.translatableLocales(),
+            errorMessage);
   }
 
   private ProgramDefinition getDraftAndActiveProgramDefinition(String programName)
@@ -186,6 +230,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
         service.updateLocalization(
             program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
     if (result.isError()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        ProgramTranslationPageViewModel model =
+            buildTranslationPageModel(
+                program,
+                currentStatusDefinitions,
+                translationForm,
+                localeToUpdate,
+                Optional.of(joinErrors(result.getErrors())));
+        return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
       ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
       return ok(
           translationView.render(
@@ -206,6 +261,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing(FlashKey.ERROR, e.userFacingMessage());
     }
     if (statusUpdate.isError()) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        ProgramTranslationPageViewModel model =
+            buildTranslationPageModel(
+                program,
+                currentStatusDefinitions,
+                translationForm,
+                localeToUpdate,
+                Optional.of(joinErrors(statusUpdate.getErrors())));
+        return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+      }
+
       ToastMessage errorMessage =
           ToastMessage.errorNonLocalized(joinErrors(statusUpdate.getErrors()));
       return ok(
@@ -216,6 +282,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
               currentStatusDefinitions,
               translationForm,
               Optional.of(errorMessage)));
+    }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      ProgramTranslationPageViewModel model =
+          buildTranslationPageModel(
+              program,
+              statusUpdate.getResult(),
+              translationForm,
+              localeToUpdate,
+              /* errorMessage= */ Optional.empty());
+      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
     return ok(
