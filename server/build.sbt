@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.2",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.2",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.2",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.2",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.3",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.3.1",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.3",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -61,7 +61,7 @@ lazy val root = (project in file("."))
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.13",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.29.0",
-      "com.h2database" % "h2" % "2.4.240" % Test,
+      "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus
       "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
@@ -338,8 +338,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.2",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.2",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.3",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.3",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 

@@ -15,19 +15,19 @@ field = @views.admin.questions.QuestionTranslationPageViewModel$TranslationField
 # Both field fragments are faked; see translationFieldTextarea.thtest.
 %INPUT[admin/shared/LegacyFieldWithLabel/TextareaField]
 <div
-  th:fragment="textareaField(id, name, label, value, required, markdown)"
-  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, markdown=${markdown})|"
+  th:fragment="textareaField(id, name, label, value, required, disabled, markdown, markdownLink, wrapperClasses)"
+  th:text="|textareaField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, markdown=${markdown}, markdownLink=${markdownLink}, ${wrapperClasses})|"
 ></div>
 # ----------------------------------------------------------------------
 %INPUT[admin/shared/LegacyFieldWithLabel/TextField]
 <div
-  th:fragment="textField(id, name, label, value, required)"
-  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required})|"
+  th:fragment="textField(id, name, label, value, required, disabled, maxlength, wrapperClasses)"
+  th:text="|textField(${id}, ${name}, ${label}, ${value}, required=${required}, disabled=${disabled}, ${maxlength}, ${wrapperClasses})|"
 ></div>
 # ----------------------------------------------------------------------
 %OUTPUT
 <div class="grid gap-6 grid-cols-2">
-  <div>textField(opt-1-es, options[], Answer option, Si, required=false)</div>
+  <div>textField(opt-1-es, options[], Answer option, Si, required=false, disabled=false, 10000, mb-2)</div>
   <div class="px-2 py-1 text-sm bg-gray-100">
     <p class="font-medium">English text:</p>
     <div class="font-sans"><p>Yes</p></div>
