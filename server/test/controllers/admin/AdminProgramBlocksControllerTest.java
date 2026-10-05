@@ -639,6 +639,32 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_enumeratorBlockWithInitialQuestion_whenFlagOff_hidesInitialQuestionCard()
+      throws Exception {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long initialQuestionId =
+        enumeratorQuestion.getQuestionDefinition().getEnumeratorInitialQuestionId().orElseThrow();
+    QuestionDefinition initialQuestion =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(initialQuestionId);
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withEnumeratorBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .withRequiredQuestionDefinition(initialQuestion)
+            .build();
+
+    Result result = controller.edit(fakeRequest(), program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Admin ID: " + enumeratorQuestion.getQuestionDefinition().getName());
+    assertThat(content).doesNotContain("question-admin-name-" + initialQuestion.getName());
+    assertThat(content).doesNotContain("Admin ID: " + initialQuestion.getName());
+  }
+
+  @Test
   public void
       edit_withInitialQuestionIdQueryParam_whenEnumeratorSetup_rendersInitialQuestionCard() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();

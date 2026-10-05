@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -606,6 +607,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           blockPanel.getByText(
             'Initial question: income-non-repeated-question -_- a',
           ),
+        ).toBeVisible()
+      })
+    })
+
+    test('hides the initial question when the feature flag is turned off and shows it again when turned back on', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const enumeratorQuestionCard = blockPanel.getByTestId(
+        'question-admin-name-pets enumerator',
+      )
+      const initialQuestionAdminId = 'income-non-repeated-question -_- a'
+
+      await addRepeatedSetBlocks(page)
+
+      await test.step('Create an enumerator with an initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await fillAndSubmitEnumeratorQuestionForm(page)
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
+        ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off and verify only the enumerator card is shown', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByTestId(
+            `question-admin-name-${initialQuestionAdminId}`,
+          ),
+        ).toBeHidden()
+        await expect(blockPanel.getByText('Initial question:')).toBeHidden()
+      })
+
+      await test.step('Turn the feature flag back on and verify the initial question is preserved', async () => {
+        await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
         ).toBeVisible()
       })
     })
