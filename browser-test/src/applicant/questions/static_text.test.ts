@@ -62,6 +62,7 @@ test.describe('Static text question for applicant flow', () => {
   test('renders inline image for applicant when question has an image', async ({
     page,
     adminQuestions,
+    adminQuestionImage,
     adminPrograms,
     applicantQuestions,
   }) => {
@@ -69,52 +70,70 @@ test.describe('Static text question for applicant flow', () => {
     const imageQuestionName = 'static-img-q'
     const imageDescription = 'Sample tax form example'
 
-    await loginAsAdmin(page)
-    await enableFeatureFlag(page, 'images_in_question_feature_enabled')
-
-    await adminQuestions.addStaticQuestion({
-      questionName: imageQuestionName,
-      questionText: 'Please review this image',
-      markdownText: 'Some markdown info',
+    await test.step('Login as a CiviForm admin and enable two flags', async () => {
+      await loginAsAdmin(page)
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+      await enableFeatureFlag(page, 'IMAGES_IN_QUESTION_FEATURE_ENABLED')
     })
 
-    await adminQuestions.gotoQuestionEditPage(imageQuestionName)
-    await page.fill('#questionImageDescription', imageDescription)
-    await page.setInputFiles(
-      '#question-image-input',
-      'src/assets/program-summary-image-wide.png',
-    )
-    await page.waitForResponse(
-      (response) =>
-        response.url().includes('/hx/image/upload') &&
-        response.status() === 200,
-    )
+    await test.step('Add a static question and save', async () => {
+      await adminQuestions.addStaticQuestion({
+        questionName: imageQuestionName,
+        questionText: 'Please review this image',
+        markdownText: 'Some markdown info',
+      })
+    })
 
-    await adminPrograms.addAndPublishProgramWithQuestions(
-      [imageQuestionName, SAMPLE_QUESTIONS.email],
-      programWithImage,
-    )
-    await logout(page)
+    await test.step('Edit the static question', async () => {
+      await adminQuestions.gotoQuestionEditPage(imageQuestionName)
+    })
 
-    await applicantQuestions.applyProgram(programWithImage)
+    await test.step('Upload an image, add alt-text and save', async () => {
+      await adminQuestionImage.setImageDescription(imageDescription)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestions.clickSubmitButtonAndNavigate('Update')
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
 
-    const imageContainer = page.locator('.cf-question-image-container')
-    await expect(imageContainer).toBeVisible()
+    await test.step('Publish all questions/programs', async () => {
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [imageQuestionName, SAMPLE_QUESTIONS.email],
+        programWithImage,
+      )
+      await logout(page)
+    })
 
-    const img = imageContainer.locator('.cf-question-image')
-    await expect(img).toBeVisible()
-    await expect(img).toHaveAttribute('alt', imageDescription)
+    await test.step('Visit the program as an applicant and land on the screen containing the static question', async () => {
+      await applicantQuestions.applyProgram(programWithImage)
+    })
 
-    const desc = imageContainer.locator('.cf-question-image-description')
-    await expect(desc).toBeVisible()
-    await expect(desc).toHaveText(`${imageDescription}.`)
+    await test.step('Verify the image', async () => {
+      const imageContainer = page.locator('.cf-question-image-container')
+      await expect(imageContainer).toBeVisible()
 
-    const enlargeLink = imageContainer.locator('.cf-question-image-link')
-    await expect(enlargeLink).toBeVisible()
-    await expect(enlargeLink).toContainText('Click to enlarge')
-    await expect(enlargeLink).toHaveAttribute('target', '_blank')
+      const frameLink = imageContainer.locator('.cf-question-image-frame')
+      await expect(frameLink).toBeVisible()
 
-    await validateAccessibility(page)
+      const img = imageContainer.locator('.cf-question-image')
+      await expect(img).toBeVisible()
+      await expect(img).toHaveAttribute('alt', imageDescription)
+
+      const desc = imageContainer.locator('.cf-question-image-description')
+      await expect(desc).toBeVisible()
+      await expect(desc).toHaveText(`${imageDescription}.`)
+
+      const enlargeLink = imageContainer.locator('.cf-question-image-link')
+      await expect(enlargeLink).toBeVisible()
+      await expect(enlargeLink).toContainText('Click to enlarge')
+      await expect(enlargeLink).toHaveAttribute('target', '_blank')
+
+      await validateAccessibility(page)
+    })
   })
 })
 

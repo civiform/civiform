@@ -1,56 +1,24 @@
 <div th:fragment="static-text(question)" data-testid="staticQuestionRoot">
-  <div
-    class="cf-question-static cf-applicant-question-field"
-    th:with="ariaLabel=#{link.opensNewTabSr}"
-  >
-    <div
-      class="cf-applicant-question-text line-height-sans-6 font-sans-md"
-      th:utext="${question.getQuestion().getFormattedTextForRendering(ariaLabel)}"
-    ></div>
+  <div class="cf-question-static cf-applicant-question-field" th:with="ariaLabel=#{link.opensNewTabSr}">
+    <div class="cf-applicant-question-text line-height-sans-6 font-sans-md"
+      th:utext="${question.getQuestion().getFormattedTextForRendering(ariaLabel)}"></div>
 
-    <!--/* Inline image block — uses Figma design specifications */-->
-    <div
-      th:if="${questionImageUrl != null and !#strings.isEmpty(questionImageUrl)}"
-      class="cf-question-image-container maxw-mobile-lg margin-top-2"
-    >
-      <a
-        th:href="${questionImageUrl}"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="cf-question-image-frame"
-        aria-label="Click to enlarge image"
-      >
-        <img
-          th:src="${questionImageUrl}"
-          th:alt="${questionImageAltText}"
-          class="cf-question-image"
-        />
+    <div th:if="${questionImageUrl != null and !#strings.isEmpty(questionImageUrl)}"
+      class="cf-question-image-container maxw-mobile-lg margin-top-2">
+      <a th:href="${questionImageUrl}" target="_blank" rel="noopener noreferrer" class="cf-question-image-frame"
+        aria-label="Click to enlarge image">
+        <img th:src="${questionImageUrl}" th:alt="${questionImageAltText}" class="cf-question-image" />
       </a>
       <p class="cf-question-image-caption margin-0">
-        <span
-          class="cf-question-image-description"
-          th:text="${#strings.isEmpty(questionImageAltText) ? '' : (#strings.endsWith(questionImageAltText, '.') ? questionImageAltText : questionImageAltText + '.')}"
-        ></span>
-        <a
-          th:href="${questionImageUrl}"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="usa-link margin-left-05 cf-question-image-link"
-          >Click to enlarge<span
-            class="usa-sr-only"
-            th:text="#{link.opensNewTabSr}"
-          ></span
-          ><svg
-            aria-hidden="true"
-            focusable="false"
-            class="usa-icon margin-left-05"
-            style="vertical-align: middle; width: 1em; height: 1em"
-          >
-            <use
-              href="/assets/Images/uswds/sprite.svg#launch"
-              xlink:href="/assets/Images/uswds/sprite.svg#launch"
-            ></use></svg
-        ></a>
+        <span class="cf-question-image-description"
+          th:text="${#strings.isEmpty(questionImageAltText) ? '' : (#strings.endsWith(questionImageAltText, '.') ? questionImageAltText : questionImageAltText + '.')}"></span>
+        <a th:href="${questionImageUrl}" target="_blank" rel="noopener noreferrer"
+          class="usa-link margin-left-05 cf-question-image-link">Click to enlarge<span class="usa-sr-only"
+            th:text="#{link.opensNewTabSr}"></span><svg aria-hidden="true" focusable="false"
+            class="usa-icon margin-left-05" role="img">
+            <use href="/assets/Images/uswds/sprite.svg#launch" xlink:href="/assets/Images/uswds/sprite.svg#launch">
+            </use>
+          </svg></a>
       </p>
     </div>
   </div>
