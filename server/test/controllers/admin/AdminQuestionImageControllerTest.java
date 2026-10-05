@@ -83,6 +83,7 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
+    assertThat(result.headers()).containsEntry("HX-Trigger", "question-image-changed");
     String htmlContent = contentAsString(result);
     assertThat(htmlContent).contains("hx-swap-oob=\"true\"");
     assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
@@ -352,7 +353,7 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
             id);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(result.headers()).containsEntry("HX-Trigger", "question-image-deleted");
+    assertThat(result.headers()).containsEntry("HX-Trigger", "question-image-changed");
     String htmlContent = contentAsString(result);
     assertThat(htmlContent).contains("hx-swap-oob=\"true\"");
     assertThat(htmlContent).contains("id=\"concurrencyToken\"");

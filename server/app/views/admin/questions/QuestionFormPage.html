@@ -90,8 +90,9 @@
           <div
             id="existing-image-alert"
             role="alert"
+            aria-live="polite"
             th:classappend="${model.hasExistingImage() ? '' : 'hidden'}"
-            class="usa-alert usa-alert--info usa-alert--slim margin-bottom-2"
+            class="usa-alert usa-alert--info usa-alert--slim mb-2"
           >
             <div class="usa-alert__body">
               <p class="usa-alert__text">
@@ -562,11 +563,12 @@
     ></div>
   </div>
 
-  <!--/* Question preview, loaded over HTMX. */-->
+  <!--/* Question preview container, kept in the DOM so it can re-fetch when question image changes */-->
   <div
-    hx-swap="outerHTML"
+    class="flex-5"
+    hx-swap="innerHTML"
     th:hx-get="${model.previewUrl}"
-    hx-trigger="load"
+    hx-trigger="load, question-image-changed from:body"
   ></div>
 </th:block>
 

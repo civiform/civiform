@@ -23,9 +23,11 @@ public class QuestionPreviewControllerTest extends ResetPostgres {
   public void sampleQuestion_staticQuestionWithImage_succeeds() {
     Request request =
         fakeRequest(
-            routes.QuestionPreviewController.sampleQuestion("Static Text").url()
+            routes.QuestionPreviewController.sampleQuestion(
+                        "Static Text", java.util.Optional.empty())
+                    .url()
                 + "?imageFileKey=question-image/question-333/my-image.png&imageAltText=altText");
-    Result result = controller.sampleQuestion(request, "Static Text");
+    Result result = controller.sampleQuestion(request, "Static Text", java.util.Optional.empty());
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("my-image.png");
     assertThat(contentAsString(result)).contains("altText");

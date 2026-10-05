@@ -115,6 +115,7 @@ public class AdminQuestionImageController extends CiviFormController {
                 .withValue(newConcurrencyToken)
                 .attr("hx-swap-oob", "true")
                 .render())
+        .withHeader("HX-Trigger", "question-image-changed")
         .as(Http.MimeTypes.HTML);
   }
 
@@ -144,7 +145,7 @@ public class AdminQuestionImageController extends CiviFormController {
             .withValue(newConcurrencyToken)
             .attr("hx-swap-oob", "true")
             .render())
-        .withHeader("HX-Trigger", "question-image-deleted")
+        .withHeader("HX-Trigger", "question-image-changed")
         .as(Http.MimeTypes.HTML);
   }
 
