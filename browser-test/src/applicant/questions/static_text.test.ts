@@ -51,12 +51,15 @@ test.describe('Static text question for applicant flow', () => {
     await validateAccessibility(page)
   })
 
-  test('does not render image container when question has no image', async ({
+  test('does not render image when question has no image', async ({
     page,
     applicantQuestions,
   }) => {
     await applicantQuestions.applyProgram(programName)
-    await expect(page.locator('.cf-question-image-container')).toHaveCount(0)
+    await expect(page.getByTestId('question-image-container')).toHaveCount(0)
+    await expect(
+      page.getByTestId('staticQuestionRoot').getByRole('img'),
+    ).toHaveCount(0)
   })
 
   test('renders inline image for applicant when question has an image', async ({
@@ -113,21 +116,23 @@ test.describe('Static text question for applicant flow', () => {
     })
 
     await test.step('Verify the image', async () => {
-      const imageContainer = page.locator('.cf-question-image-container')
+      const imageContainer = page.getByTestId('question-image-container')
       await expect(imageContainer).toBeVisible()
 
-      const frameLink = imageContainer.locator('.cf-question-image-frame')
+      const img = imageContainer.getByRole('img', {name: imageDescription})
+      await expect(img).toBeVisible()
+
+      const frameLink = imageContainer.getByRole('link', {
+        name: 'Click to enlarge image',
+      })
       await expect(frameLink).toBeVisible()
 
-      const img = imageContainer.locator('.cf-question-image')
-      await expect(img).toBeVisible()
-      await expect(img).toHaveAttribute('alt', imageDescription)
-
-      const desc = imageContainer.locator('.cf-question-image-description')
+      const desc = imageContainer.getByText(`${imageDescription}.`)
       await expect(desc).toBeVisible()
-      await expect(desc).toHaveText(`${imageDescription}.`)
 
-      const enlargeLink = imageContainer.locator('.cf-question-image-link')
+      const enlargeLink = imageContainer.getByRole('link', {
+        name: /Click to enlarge.*opens in a new tab/i,
+      })
       await expect(enlargeLink).toBeVisible()
       await expect(enlargeLink).toContainText('Click to enlarge')
       await expect(enlargeLink).toHaveAttribute('target', '_blank')

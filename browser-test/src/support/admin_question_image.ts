@@ -10,7 +10,7 @@ export class AdminQuestionImage {
   }
 
   getImageUploadInput() {
-    return this.page.locator('#question-image-input')
+    return this.page.getByLabel('Image upload')
   }
 
   getAltTextInput() {
