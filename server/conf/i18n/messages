@@ -1257,6 +1257,8 @@ alert.repeatedSet.previouslyUsed=Questions that are associated with a different 
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set
+# Button on the new list set form that opens the question bank so admins can add the initial question
+button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
