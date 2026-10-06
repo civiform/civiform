@@ -73,6 +73,10 @@ public abstract class ApplicantQuestionRendererParams {
 
   public abstract Optional<Boolean> isNameSuffixEnabled();
 
+  public abstract Optional<String> questionImageUrl();
+
+  public abstract Optional<String> questionImageAltText();
+
   public abstract ErrorDisplayMode errorDisplayMode();
 
   public boolean shouldShowErrors() {
@@ -121,6 +125,10 @@ public abstract class ApplicantQuestionRendererParams {
     public abstract Builder setAutofocus(AutoFocusTarget autofocus);
 
     public abstract Builder setGeoJson(FeatureCollection geoJson);
+
+    public abstract Builder setQuestionImageUrl(String questionImageUrl);
+
+    public abstract Builder setQuestionImageAltText(String questionImageAltText);
 
     public abstract ApplicantQuestionRendererParams build();
   }

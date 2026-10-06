@@ -95,25 +95,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("csrfToken", CSRF.getToken(request.asScala()).value());
     context.setVariable("applicationParams", applicationParams);
 
-    String questionImageUrl = "";
-    String questionImageAltText = "";
-    for (ApplicantQuestion question : applicationParams.block().getVisibleQuestions()) {
-      QuestionDefinition qd = question.getQuestionDefinition();
-      if (qd.getImageFileKey().isPresent() && !qd.getImageFileKey().get().isBlank()) {
-        String fileKey = qd.getImageFileKey().get();
-        if (PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
-          questionImageUrl = publicStorageClient.getPublicDisplayUrl(fileKey);
-          questionImageAltText =
-              qd.getLocalizedImageDescription()
-                  .map(desc -> desc.getOrDefault(applicationParams.messages().lang().toLocale()))
-                  .orElse("");
-          break;
-        }
-      }
-    }
-    context.setVariable("questionImageUrl", questionImageUrl);
-    context.setVariable("questionImageAltText", questionImageAltText);
-
     String pageTitle =
         pageTitleWithBlockProgress(
             applicationParams.programTitle(),
@@ -402,6 +383,19 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                                 getFileUploadSignedRequestKey(params), redirectWithFile(params));
                     paramsBuilder.setSignedFileUploadRequest(signedRequest);
                   }
+
+                  QuestionDefinition qd = question.getQuestionDefinition();
+                  if (qd.getImageFileKey().isPresent() && !qd.getImageFileKey().get().isBlank()) {
+                    String fileKey = qd.getImageFileKey().get();
+                    if (PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
+                      paramsBuilder.setQuestionImageUrl(
+                          publicStorageClient.getPublicDisplayUrl(fileKey));
+                      qd.getLocalizedImageDescription()
+                          .map(desc -> desc.getOrDefault(params.messages().lang().toLocale()))
+                          .ifPresent(paramsBuilder::setQuestionImageAltText);
+                    }
+                  }
+
                   return paramsBuilder.build();
                 }));
   }

@@ -1,7 +1,12 @@
-<div th:fragment="static-text(question)" data-testid="staticQuestionRoot">
+<div
+  th:fragment="static-text(question, questionRendererParams)"
+  data-testid="staticQuestionRoot"
+>
   <div
     class="cf-question-static cf-applicant-question-field"
-    th:with="ariaLabel=#{link.opensNewTabSr}"
+    th:with="ariaLabel=#{link.opensNewTabSr},
+             questionImageUrl=${questionRendererParams != null and questionRendererParams.questionImageUrl().isPresent() ? questionRendererParams.questionImageUrl().get() : ''},
+             questionImageAltText=${questionRendererParams != null and questionRendererParams.questionImageAltText().isPresent() ? questionRendererParams.questionImageAltText().get() : ''}"
   >
     <div
       class="cf-applicant-question-text line-height-sans-6 font-sans-md"
@@ -18,7 +23,7 @@
         target="_blank"
         rel="noopener noreferrer"
         class="cf-question-image-frame"
-        aria-label="Click to enlarge image"
+        th:aria-label="#{staticQuestion.imageEnlargeAltText}"
       >
         <img
           th:src="${questionImageUrl}"
@@ -36,10 +41,8 @@
           target="_blank"
           rel="noopener noreferrer"
           class="usa-link margin-left-05 cf-question-image-link"
-          >Click to enlarge<span
-            class="usa-sr-only"
-            th:text="#{link.opensNewTabSr}"
-          ></span
+          th:text="#{staticQuestion.imageEnlargeAltText}"
+          ><span class="usa-sr-only" th:text="#{link.opensNewTabSr}"></span
           ><svg
             aria-hidden="true"
             focusable="false"
