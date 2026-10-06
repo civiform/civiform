@@ -611,8 +611,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('hides the initial question when the feature flag is turned off and shows it again when turned back on', async ({
+    test('hides the initial question when the feature flag is turned off and can still apply', async ({
       page,
+      adminPrograms,
+      applicantQuestions,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
@@ -658,6 +660,20 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
         ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off again and publish the program', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await adminPrograms.publishProgram('Enumerator test program')
+        await logout(page)
+      })
+
+      await test.step('Apply to the program as an applicant and submit', async () => {
+        await applicantQuestions.applyProgram('Enumerator test program')
+        await addRepeatedEntity(page, 'Pets', 'Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
