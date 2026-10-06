@@ -200,13 +200,18 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
 
-      // Initial-question context for enumerator blocks when enumerator improvements are enabled and
-      // the enumerator has an initial question configured. When absent, the enumerator fragment
+      // Initial-question context for enumerator blocks when enumerator improvements
+      // are enabled and
+      // the enumerator has an initial question configured. When absent, the
+      // enumerator fragment
       // falls back to the legacy text input.
       if (settingsManifest.getEnumeratorImprovementsEnabled(request)
           && applicationParams.block().getInitialQuestion().isPresent()) {
         setInitialQuestionContext(context, applicationParams);
       }
+      context.setVariable(
+          "imagesInQuestionFeatureEnabled",
+          settingsManifest.getImagesInQuestionFeatureEnabled(request));
 
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }

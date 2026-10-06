@@ -14,7 +14,7 @@
     ></div>
 
     <div
-      th:if="${questionImageUrl != null and !#strings.isEmpty(questionImageUrl)}"
+      th:if="${imagesInQuestionFeatureEnabled and questionImageUrl != null and !#strings.isEmpty(questionImageUrl)}"
       class="cf-question-image-container maxw-mobile-lg margin-top-2"
       data-testid="question-image-container"
     >
