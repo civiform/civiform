@@ -568,10 +568,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
-      await test.step('Delete the enumerator question', async () => {
+      await test.step('Remove the enumerator question', async () => {
         await blockPanel
           .getByTestId('question-admin-name-pets enumerator')
-          .getByRole('button', {name: 'Delete'})
+          .getByRole('button', {name: 'Remove'})
           .click()
 
         // Deleting the enumerator also removes its paired initial question,
@@ -938,7 +938,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         'question-admin-name-pets enumerator',
       )
       const removeQuestionButton = enumeratorQuestionCard.getByRole('button', {
-        name: 'Delete',
+        name: 'Remove',
       })
 
       await test.step('Add a new repeated set and save the enumerator question on the parent block', async () => {
@@ -1041,10 +1041,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         initialQuestion: SAMPLE_QUESTIONS.number,
       })
 
-      await test.step('Delete the enumerator question so the setup form re-appears', async () => {
+      await test.step('Remove the enumerator question so the setup form re-appears', async () => {
         await blockPanel
           .getByTestId('question-admin-name-pets enumerator')
-          .getByRole('button', {name: 'Delete'})
+          .getByRole('button', {name: 'Remove'})
           .click()
       })
 
@@ -2046,14 +2046,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   }
 
   /**
-   * Clicks the Delete button on the initial question card for `questionAdminId`.
+   * Clicks the Remove button on the initial question card for `questionAdminId`.
    */
   async function removeInitialQuestion(page: Page, questionAdminId: string) {
     const initialQuestionSlot = page
       .getByTestId('block-panel-edit')
       .locator('#initial-question-slot')
 
-    await test.step(`Click "Delete" on the "${questionAdminId}" initial question card`, async () => {
+    await test.step(`Click "Remove" on the "${questionAdminId}" initial question card`, async () => {
       await initialQuestionSlot
         .getByRole('button', {
           name: `Remove the ${questionAdminId} initial question`,
