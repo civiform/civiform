@@ -381,6 +381,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
+        await test.step('Take a screenshot of the list set section', async () => {
+          // Clear the heading's focus outline so this matches the general screenshot.
+          await blockPanel.getByText('List set question').blur()
+          await validateScreenshot(
+            page.locator('#repeated-set-question-section'),
+            'enumerator-list-set-section',
+            {fullPage: false},
+          )
+        })
+
         await test.step('Click "Continue to child screen" and verify we landed on the child screen', async () => {
           await blockPanel
             .getByRole('link', {name: 'Continue to child screen'})
@@ -400,6 +410,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             /* expectedScreenNumber= */ 2,
           )
           await expect(enumeratorQuestionCard).toBeVisible()
+        })
+
+        await test.step('Take a screenshot of the list set section after a full page load', async () => {
+          await validateScreenshot(
+            page.locator('#repeated-set-question-section'),
+            'enumerator-list-set-section',
+            {fullPage: false},
+          )
         })
 
         await test.step('Verify both the enumerator and the copied initial question appear on the Questions list page', async () => {

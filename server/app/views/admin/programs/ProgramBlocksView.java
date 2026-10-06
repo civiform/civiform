@@ -689,10 +689,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
-    // With the flag off, hide an enumerator's initial question so admins only see the legacy
-    // repeated set experience.
+    // An enumerator block only shows the enumerator's card, and not the
+    // initial question in the new and old flow.
     ImmutableList<ProgramQuestionDefinition> displayedBlockQuestions =
-        !enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator()
+        blockDefinition.getIsEnumerator()
             ? blockQuestions.stream()
                 .filter(
                     question ->

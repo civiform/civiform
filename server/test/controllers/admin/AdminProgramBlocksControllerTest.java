@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.FlashKey;
 import models.ProgramModel;
 import models.QuestionModel;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -661,6 +662,36 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     assertThat(content)
         .contains("Admin ID: " + enumeratorQuestion.getQuestionDefinition().getName());
     assertThat(content).doesNotContain(initialQuestion.getName());
+  }
+
+  @Test
+  public void edit_enumeratorBlockWithInitialQuestion_whenFlagOn_hidesReorderButtons() {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long initialQuestionId =
+        enumeratorQuestion.getQuestionDefinition().getEnumeratorInitialQuestionId().orElseThrow();
+    QuestionDefinition initialQuestion =
+        questionService.getReadOnlyQuestionServiceSync().getQuestionDefinition(initialQuestionId);
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withEnumeratorBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .withRequiredQuestionDefinition(initialQuestion)
+            .build();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true").build();
+
+    Result result = controller.edit(request, program.id, /* blockId= */ 1L);
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains("Admin ID: " + enumeratorQuestion.getQuestionDefinition().getName());
+    // The enumerator is the only question card shown, so both its move up and move down buttons
+    // are hidden.
+    assertThat(content).containsOnlyOnce("aria-label=\"move up\"");
+    assertThat(content).containsOnlyOnce("aria-label=\"move down\"");
+    assertThat(StringUtils.countMatches(content, "inline-block mx-1 invisible")).isEqualTo(2);
   }
 
   @Test
