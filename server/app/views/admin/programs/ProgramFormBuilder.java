@@ -413,11 +413,9 @@ public class ProgramFormBuilder extends BaseHtmlView {
     boolean preScreenerFieldDisabled = false;
     boolean externalProgramFieldDisabled = false;
 
-    // When editing a program:
-    //   - external program field is disabled when program type is default or pre-screener form,
-    // since a program can be changed to external after creation.
-    //   - pre-screener and default program fields are disabled when program type is external
-    // program, since an external program cannot change type after creation.
+    // Program type radios are disabled when editing so a program cannot switch between external
+    // and non-external after creation. Default and pre-screener can still switch between each
+    // other.
     if (programEditStatus.equals(ProgramEditStatus.EDIT)) {
       switch (programType) {
         case DEFAULT, PRE_SCREENER_FORM -> {

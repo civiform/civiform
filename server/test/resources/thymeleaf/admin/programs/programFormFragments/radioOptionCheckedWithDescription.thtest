@@ -1,0 +1,20 @@
+%NAME uswdsRadioOption - checked, with description span
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/UswdsRadioOption :: uswdsRadioOption('default-program-option', 'programTypeValue', 'default', true, false, 'CiviForm program', 'This program opens details on the CiviForm website.')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="usa-radio">
+  <input
+    id="default-program-option"
+    class="usa-radio__input usa-radio__input--tile"
+    type="radio"
+    name="programTypeValue"
+    value="default"
+    checked="checked"
+  />
+  <label for="default-program-option" class="usa-radio__label"
+    >CiviForm program<span class="usa-checkbox__label-description">This program opens details on the CiviForm website.</span></label
+  >
+</div>

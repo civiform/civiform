@@ -17,3 +17,12 @@
     ></span
   >
 </span>
+
+<!--/* Link-less variant. */-->
+<span
+  th:fragment="markdownIndicatorNoLink(text)"
+  class="flex flex-row mt-2 items-center"
+>
+  <svg th:replace="~{admin/shared/LegacySvgFragments :: iconMarkdown}"></svg>
+  <span class="text-gray-600 text-sm" th:text="${text}"></span>
+</span>

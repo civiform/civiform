@@ -1239,10 +1239,14 @@ input.repeatedSet.minEntities=Minimum entity count
 input.repeatedSet.maxEntities=Maximum entity count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Initial question
-# Description explaining what the initial question is and what the "Add question" button does
+# Description explaining what the initial question is and what the "Add initial question" button does
 description.repeatedSet.initialQuestion=Add the question that the applicant will use to list out an entity. The response provided by the applicant will serve as the label for that entity. The added question will be duplicated for this list set in the question bank. Note that the question and hint text for this question will not display to the applicant.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=A list set question must first be added before repeated questions can be. Please navigate to the parent screen to add a list set question.
+# Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
+alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+# Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
+alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Initial question must be added
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
@@ -1253,9 +1257,9 @@ alert.repeatedSet.previouslyUsed=Questions that are associated with a different 
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set
-# Button label on the initial question card that clears the selection
-button.repeatedSet.initialQuestion.delete=Delete
-# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+# Button on the new list set form that opens the question bank so admins can add the initial question
+button.repeatedSet.initialQuestion.add=Add initial question
+# Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=List set
@@ -1293,9 +1297,11 @@ button.addNestedRepeatedSet=Add nested list set
 button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Add question
+# A button on a question card for admins to remove the question from the screen.
+button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
-# A tooltip shown to admins when the delete question button is disabled for a list set question
+# A tooltip shown to admins when the remove question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
 
 #------------------------------------------------------------------------------#

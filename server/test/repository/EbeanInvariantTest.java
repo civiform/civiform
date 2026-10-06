@@ -5,9 +5,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import io.ebean.BeanState;
 import io.ebean.DB;
 import io.ebean.Database;
+import io.ebean.FetchConfig;
 import io.ebean.Query;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -17,7 +20,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.AccountModel;
+import models.CategoryModel;
 import models.LifecycleStage;
+import models.ProgramModel;
 import models.QuestionModel;
 import models.VersionModel;
 import org.junit.Before;
@@ -27,6 +32,8 @@ import services.LocalizedStrings;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 import services.question.types.TextQuestionDefinition;
+import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 
 /**
  * Ebean documentation is unfortunately sparse without a lot of practical examples.
@@ -689,5 +696,193 @@ public class EbeanInvariantTest extends ResetPostgres {
       beanState.setPropertyLoaded("questions", false);
       assertThat(versionFromAsync.getQuestions()).hasSize(1);
     }
+  }
+
+  /* Collection fetch tests.
+   *
+   * Ebean invokes @PostLoad once per bean, on that bean's FIRST result-set row. Later rows find
+   * the bean already in the Persistence Context and skip the callback.
+   *
+   * <p>That is invisible for scalar columns, which repeat identically on every row. It matters
+   * for a to-many fetched as a SQL join, because such a collection is spread across one row per
+   * element and is still being filled after the callback has run. A @PostLoad that copies the
+   * collection therefore copies a partial one.
+   *
+   * <p>ProgramModel does exactly that: loadProgramDefinition() builds an immutable
+   * ProgramDefinition, including a copy of the categories. The entity ends up correct while the
+   * copy held inside it does not.
+   */
+
+  /** Inserts a program with several categories and returns its id. */
+  private long insertProgramWithCategories() {
+    return insertProgramWithCategories("invariant-program");
+  }
+
+  /** Inserts a named program with several categories and returns its id. */
+  private long insertProgramWithCategories(String adminName) {
+    ImmutableList<CategoryModel> categories =
+        ImmutableList.of(
+            resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Food")),
+            resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Family")),
+            resourceCreator.insertCategory(ImmutableMap.of(Locale.US, "Health")));
+    return ProgramBuilder.newActiveProgram(adminName).withCategories(categories).build().id;
+  }
+
+  /**
+   * sqlStatementsSinceLastCount() classifies Ebean's SQL log lines pinned to the current log format
+   * it uses. This test verifies that there hasn't been drift in what is logged or how.
+   */
+  @Test
+  public void sqlStatementCounter_seesEveryStatementKind() {
+    new AccountModel().insert();
+    sqlStatementsSinceLastCount();
+
+    database.find(AccountModel.class).findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
+
+    database.sqlQuery("SELECT id FROM accounts").findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
+
+    database.sqlQuery("WITH x AS (SELECT id FROM accounts) SELECT id FROM x").findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
+
+    // Locking reads are still reads.
+    database.sqlQuery("SELECT id FROM accounts FOR UPDATE").findList();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(1));
+
+    database.sqlUpdate("UPDATE accounts SET email_address = 'a@b.com'").execute();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+
+    database.sqlUpdate("DELETE FROM accounts WHERE id = -1").execute();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+
+    new AccountModel().insert();
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+
+    // A batch is one round trip regardless of its size. The commit is not counted.
+    try (Transaction transaction = database.beginTransaction()) {
+      transaction.setBatchMode(true);
+      new AccountModel().insert();
+      new AccountModel().insert();
+      new AccountModel().insert();
+      transaction.commit();
+    }
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyWrites(1));
+  }
+
+  /**
+   * Ebean decides whether a transaction logs its SQL when the transaction begins, so statements in
+   * a transaction begun before counting starts are never counted.
+   */
+  @Test
+  public void statementCounts_missTransactionsBegunBeforeCountingStarts() {
+    new AccountModel().insert();
+
+    try (Transaction transaction = database.beginTransaction()) {
+      sqlStatementsSinceLastCount();
+      database.find(AccountModel.class).findList();
+      new AccountModel().insert();
+      assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(0, 0));
+      transaction.commit();
+    }
+
+    // A transaction begun after counting starts is counted.
+    try (Transaction transaction = database.beginTransaction()) {
+      database.find(AccountModel.class).findList();
+      new AccountModel().insert();
+      assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withReadsAndWrites(1, 1));
+      transaction.commit();
+    }
+  }
+
+  @Test
+  public void collectionFetch_joinTruncatesThePostLoadCopyUntilReloaded() {
+    long programId = insertProgramWithCategories();
+
+    // Fetched as a SQL join, so the collection arrives one element per row.
+    ProgramModel program =
+        database
+            .find(ProgramModel.class)
+            .fetch("categories")
+            .where()
+            .eq("id", programId)
+            .findList()
+            .getFirst();
+
+    // The entity itself is never wrong. Every join row is appended to the bean's collection, and
+    // by the time findList() returns they have all been read.
+    assertThat(program.getCategories()).hasSize(3);
+
+    // The copy taken during @PostLoad is wrong. The callback ran on the first join row, when a
+    // single category had been read, and rows two and three did not re-fire it.
+    assertThat(program.getProgramDefinition().categories()).hasSize(1);
+
+    // Rerunning the PostLoad method after the query completes corrects the data copy.
+    program.loadProgramDefinition();
+    assertThat(program.getProgramDefinition().categories()).hasSize(3);
+    assertThat(program.getProgramDefinition().categories())
+        .containsExactlyInAnyOrderElementsOf(program.getCategories());
+  }
+
+  @Test
+  public void collectionFetch_queryJoinIsNotTruncated() {
+    long programId = insertProgramWithCategories();
+
+    ProgramModel program =
+        database
+            .find(ProgramModel.class)
+            .fetch("categories", FetchConfig.ofQuery())
+            .where()
+            .eq("id", programId)
+            .findList()
+            .getFirst();
+
+    // A query join leaves the collection an unloaded proxy when @PostLoad runs, so reading it
+    // there forces a complete load and no rebuild is needed. The cost is that the load happens
+    // per bean while the main result set is still open, rather than as one batched secondary
+    // query.
+    assertThat(program.getProgramDefinition().categories()).hasSize(3);
+  }
+
+  @Test
+  public void collectionFetch_lazyCollectionIsNotTruncated() {
+    long programId = insertProgramWithCategories();
+
+    // No fetch at all, so categories is left as an unloaded proxy.
+    ProgramModel program =
+        database.find(ProgramModel.class).where().eq("id", programId).findList().getFirst();
+
+    // Reading that proxy inside @PostLoad forces it to load in full, exactly as the query join
+    // does. Only a SQL joined collection escapes this, because it is not a proxy at all, just a
+    // real list that is still being filled.
+    assertThat(program.getProgramDefinition().categories()).hasSize(3);
+  }
+
+  @Test
+  public void collectionFetch_onlyTheJoinAvoidsAQueryPerBean() {
+    int programCount = 3;
+    for (int i = 0; i < programCount; i++) {
+      insertProgramWithCategories("invariant-program-" + i);
+    }
+    sqlStatementsSinceLastCount();
+
+    database.find(ProgramModel.class).fetch("categories").findList();
+    long joinQueries = sqlStatementsSinceLastCount().reads();
+
+    database.find(ProgramModel.class).fetch("categories", FetchConfig.ofQuery()).findList();
+    long queryJoinQueries = sqlStatementsSinceLastCount().reads();
+
+    database.find(ProgramModel.class).findList();
+    long lazyQueries = sqlStatementsSinceLastCount().reads();
+
+    // The join reads every program and every category in one statement.
+    assertThat(joinQueries).isEqualTo(1);
+
+    // The other two each pay one extra query per bean. @PostLoad touches the proxy while the
+    // main result set is still being read, so the load buffer holds only the bean just read and
+    // Ebean never gets to batch them. Notably ofQuery asks for a single batched secondary query
+    // and does not get one, making it indistinguishable from lazy loading here.
+    assertThat(queryJoinQueries).isEqualTo(1 + programCount);
+    assertThat(lazyQueries).isEqualTo(1 + programCount);
   }
 }

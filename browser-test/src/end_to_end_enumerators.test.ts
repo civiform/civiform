@@ -232,9 +232,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await addRepeatedSetBlocks(page)
         })
 
-        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await test.step('Open the question bank by clicking the "Add initial question" button', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
           await expect(questionBankSidebar).toBeVisible()
         })
@@ -292,7 +292,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Open the question bank', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
         })
 
@@ -352,7 +352,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Open the question bank via the initial-question slot', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
         })
 
@@ -442,9 +442,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await fillEnumeratorQuestionForm(page)
         })
 
-        await test.step('Open the question bank by clicking the initial-question "Add question" button', async () => {
+        await test.step('Open the question bank by clicking the "Add initial question" button', async () => {
           await initialQuestionSlot
-            .getByRole('button', {name: 'Add question'})
+            .getByRole('button', {name: 'Add initial question'})
             .click()
           await expect(questionBankSidebar).toBeVisible()
         })
@@ -559,7 +559,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('create an enumerator with initial question', async () => {
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
@@ -567,10 +567,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
-      await test.step('Delete the enumerator question', async () => {
+      await test.step('Remove the enumerator question', async () => {
         await blockPanel
           .getByTestId('question-admin-name-pets enumerator')
-          .getByRole('button', {name: 'Delete'})
+          .getByRole('button', {name: 'Remove'})
           .click()
 
         // Deleting the enumerator also removes its paired initial question,
@@ -703,7 +703,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Select an initial question so we can verify it survives the next error re-render', async () => {
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
         await expect(questionBankSidebar).toBeVisible()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
@@ -887,7 +887,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         'question-admin-name-pets enumerator',
       )
       const removeQuestionButton = enumeratorQuestionCard.getByRole('button', {
-        name: 'Delete',
+        name: 'Remove',
       })
 
       await test.step('Add a new repeated set and save the enumerator question on the parent block', async () => {
@@ -990,10 +990,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         initialQuestion: SAMPLE_QUESTIONS.number,
       })
 
-      await test.step('Delete the enumerator question so the setup form re-appears', async () => {
+      await test.step('Remove the enumerator question so the setup form re-appears', async () => {
         await blockPanel
           .getByTestId('question-admin-name-pets enumerator')
-          .getByRole('button', {name: 'Delete'})
+          .getByRole('button', {name: 'Remove'})
           .click()
       })
 
@@ -1271,7 +1271,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(newEnumeratorQuestionFormButton).toBeVisible()
         await expect(
           newEnumeratorQuestionForm.getByRole('button', {
-            name: 'Add question',
+            name: 'Add initial question',
           }),
         ).toBeVisible()
       })
@@ -1936,7 +1936,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           name: 'Add a question',
         })
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
         await expect(questionBankSidebar).toBeVisible()
         await pickQuestionFromBank(page, initialQuestion)
@@ -1995,14 +1995,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   }
 
   /**
-   * Clicks the Delete button on the initial question card for `questionAdminId`.
+   * Clicks the Remove button on the initial question card for `questionAdminId`.
    */
   async function removeInitialQuestion(page: Page, questionAdminId: string) {
     const initialQuestionSlot = page
       .getByTestId('block-panel-edit')
       .locator('#initial-question-slot')
 
-    await test.step(`Click "Delete" on the "${questionAdminId}" initial question card`, async () => {
+    await test.step(`Click "Remove" on the "${questionAdminId}" initial question card`, async () => {
       await initialQuestionSlot
         .getByRole('button', {
           name: `Remove the ${questionAdminId} initial question`,
@@ -2013,21 +2013,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   }
 
   /**
-   * Verifies that the initial question slot reverts to the empty "Add question" state.
+   * Verifies that the initial question slot reverts to the empty "Add initial question" state.
    */
   async function expectAddQuestionButton(page: Page, questionAdminId: string) {
     const initialQuestionSlot = page
       .getByTestId('block-panel-edit')
       .locator('#initial-question-slot')
 
-    await test.step('Validate the initial question slot reverts to the empty "Add question" state', async () => {
+    await test.step('Validate the initial question slot reverts to the empty "Add initial question" state', async () => {
       await expect(
         initialQuestionSlot.getByTestId(
           `question-admin-name-${questionAdminId}`,
         ),
       ).toBeHidden()
       await expect(
-        initialQuestionSlot.getByRole('button', {name: 'Add question'}),
+        initialQuestionSlot.getByRole('button', {name: 'Add initial question'}),
       ).toBeVisible()
     })
   }

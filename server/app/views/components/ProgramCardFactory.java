@@ -20,7 +20,6 @@ import java.util.Optional;
 import javax.inject.Inject;
 import services.program.ProgramDefinition;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import views.ProgramImageUtils;
 import views.ViewUtils;
 import views.ViewUtils.ProgramDisplayType;
@@ -31,14 +30,11 @@ import views.style.StyleUtils;
 public final class ProgramCardFactory {
   private final ViewUtils viewUtils;
   private final ProgramImageUtils programImageUtils;
-  private final SettingsManifest settingsManifest;
 
   @Inject
-  public ProgramCardFactory(
-      ViewUtils viewUtils, ProgramImageUtils programImageUtils, SettingsManifest settingsManifest) {
+  public ProgramCardFactory(ViewUtils viewUtils, ProgramImageUtils programImageUtils) {
     this.viewUtils = checkNotNull(viewUtils);
     this.programImageUtils = checkNotNull(programImageUtils);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public DivTag renderCard(ProgramCardData cardData) {
@@ -163,9 +159,6 @@ public final class ProgramCardFactory {
             "ml-2",
             StyleUtils.responsiveXLarge("ml-8"));
 
-    boolean isTranslationManagementImprovementEnabled =
-        settingsManifest.getTranslationManagementImprovementEnabled();
-
     return div()
         // This is used to provide the uniqueness needed for Playwright to locate
         // the correct element for testing. In the future this should be accounted
@@ -194,8 +187,7 @@ public final class ProgramCardFactory {
                             programRow.universalQuestionsText().isPresent(),
                             p(programRow.universalQuestionsText().orElse("")))
                         .condWith(
-                            programRow.translationCompletionTag().isPresent()
-                                && isTranslationManagementImprovementEnabled,
+                            programRow.translationCompletionTag().isPresent(),
                             p(programRow.translationCompletionTag().orElse(badge)))),
             div().withClass("flex-grow"),
             div()

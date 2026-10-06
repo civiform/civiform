@@ -72,6 +72,16 @@ public class LegacyFieldFragmentsTest {
   }
 
   @Test
+  public void textField_disabledWithCustomMaxLengthAndWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textFieldDisabled.thtest");
+  }
+
+  @Test
+  public void textareaField_disabledWithCustomWrapper() {
+    ThymeleafFragmentTester.run(DIR + "textareaFieldDisabled.thtest");
+  }
+
+  @Test
   public void numberField() {
     ThymeleafFragmentTester.run(DIR + "numberField.thtest");
   }
@@ -89,5 +99,10 @@ public class LegacyFieldFragmentsTest {
   @Test
   public void radioOption_unchecked() {
     ThymeleafFragmentTester.run(DIR + "radioOptionUnchecked.thtest");
+  }
+
+  @Test
+  public void emailField() {
+    ThymeleafFragmentTester.run(DIR + "emailField.thtest");
   }
 }

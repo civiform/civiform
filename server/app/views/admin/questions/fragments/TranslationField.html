@@ -13,12 +13,12 @@
          them on one element would include both fragments. */-->
   <th:block th:if="${field.textarea}">
     <div
-      th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false, ${field.markdown})}"
+      th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false, false, ${field.markdown}, true, 'mb-2')}"
     ></div>
   </th:block>
   <th:block th:unless="${field.textarea}">
     <div
-      th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false)}"
+      th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, ${field.label}, ${field.value}, false, false, '10000', 'mb-2')}"
     ></div>
   </th:block>
   <div class="px-2 py-1 text-sm bg-gray-100">
