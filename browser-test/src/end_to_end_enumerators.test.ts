@@ -625,7 +625,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Create an enumerator with an initial question', async () => {
         await initialQuestionSlot
-          .getByRole('button', {name: 'Add question'})
+          .getByRole('button', {name: 'Add initial question'})
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await fillAndSubmitEnumeratorQuestionForm(page)
