@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   validateAccessibility,
@@ -48,6 +49,102 @@ test.describe('Static text question for applicant flow', () => {
   test('has no accessiblity violations', async ({page, applicantQuestions}) => {
     await applicantQuestions.applyProgram(programName)
     await validateAccessibility(page)
+  })
+
+  test.describe('with question image feature flag enabled', () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+      await enableFeatureFlag(page, 'IMAGES_IN_QUESTION_FEATURE_ENABLED')
+    })
+
+    test('does not render image when question has no image', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+      await expect(page.getByTestId('question-image-container')).toHaveCount(0)
+      await expect(
+        page.getByTestId('staticQuestionRoot').getByRole('img'),
+      ).toHaveCount(0)
+    })
+
+    test('renders inline image for applicant when question has an image', async ({
+      page,
+      adminQuestions,
+      adminQuestionImage,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programWithImage = 'Program with Static Image'
+      const imageQuestionName = 'static-img-q'
+      const imageDescription = 'Sample tax form example'
+
+      await test.step('Login as a CiviForm admin', async () => {
+        await loginAsAdmin(page)
+      })
+
+      await test.step('Add a static question and save', async () => {
+        await adminQuestions.addStaticQuestion({
+          questionName: imageQuestionName,
+          questionText: 'Please review this image',
+          markdownText: 'Some markdown info',
+        })
+      })
+
+      await test.step('Edit the static question', async () => {
+        await adminQuestions.gotoQuestionEditPage(imageQuestionName)
+      })
+
+      await test.step('Upload an image, add alt-text and save', async () => {
+        await adminQuestionImage.setImageDescription(imageDescription)
+        await adminQuestionImage.uploadImageFile(
+          'src/assets/program-summary-image-wide.png',
+        )
+        await adminQuestions.clickSubmitButtonAndNavigate('Update')
+        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+      })
+
+      await test.step('Publish all questions/programs', async () => {
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          [imageQuestionName, SAMPLE_QUESTIONS.email],
+          programWithImage,
+        )
+        await logout(page)
+      })
+
+      await test.step('Visit the program as an applicant and land on the screen containing the static question', async () => {
+        await applicantQuestions.applyProgram(programWithImage)
+      })
+
+      await test.step('Verify the image', async () => {
+        const imageContainer = page.getByTestId('question-image-container')
+        await expect(imageContainer).toBeVisible()
+
+        const img = imageContainer.getByRole('img', {name: imageDescription})
+        await expect(img).toBeVisible()
+
+        const frameLink = imageContainer.getByRole('link', {
+          name: 'Click to enlarge image',
+          exact: true,
+        })
+        await expect(frameLink).toBeVisible()
+
+        const desc = imageContainer.getByText(`${imageDescription}.`)
+        await expect(desc).toBeVisible()
+
+        const enlargeLink = imageContainer.getByRole('link', {
+          name: /Click to enlarge.*opens in a new tab/i,
+        })
+        await expect(enlargeLink).toBeVisible()
+        await expect(enlargeLink).toContainText('Click to enlarge')
+        await expect(enlargeLink).toHaveAttribute('target', '_blank')
+
+        await validateAccessibility(page)
+      })
+    })
   })
 })
 
