@@ -113,8 +113,8 @@ public final class VersionRepository {
     // * Programs can NOT reference a Tombstoned Question
     // * When a Question becomes a Draft, all referencing programs are
     // also updated as Drafts.
-    //   * This means all programs referenced in 1 & 2 above will
-    //   reference the same version of any given question
+    // * This means all programs referenced in 1 & 2 above will
+    // reference the same version of any given question
     return transactionManager.execute(
         () -> {
           VersionModel draft =
@@ -244,7 +244,8 @@ public final class VersionRepository {
               draft.questionIsTombstoned(
                   questionRepository.getQuestionDefinition(question).getName());
 
-      // Associate any active programs that aren't present in the draft with the draft.
+      // Associate any active programs that aren't present in the draft with the
+      // draft.
       getProgramsForVersionWithoutCache(active).stream()
           // Exclude programs deleted in the draft.
           .filter(not(programIsDeletedInDraft))
@@ -253,15 +254,20 @@ public final class VersionRepository {
               activeProgram ->
                   !draftProgramsNames.contains(
                       programRepository.getShallowProgramDefinition(activeProgram).adminName()))
-          // For each active program not associated with the draft, associate it with the draft.
-          // The relationship between Programs and Versions is many-to-may. When updating the
-          // relationship, one of the EBean models needs to be saved. We update the Version
+          // For each active program not associated with the draft, associate it with the
+          // draft.
+          // The relationship between Programs and Versions is many-to-may. When updating
+          // the
+          // relationship, one of the EBean models needs to be saved. We update the
+          // Version
           // side of the relationship rather than the Program side in order to prevent the
-          // save causing the "updated" timestamp to be changed for a Program. We intend for
+          // save causing the "updated" timestamp to be changed for a Program. We intend
+          // for
           // that timestamp only to be updated for actual changes to the program.
           .forEach(draft::addProgram);
 
-      // Associate any active questions that aren't present in the draft with the draft.
+      // Associate any active questions that aren't present in the draft with the
+      // draft.
       getQuestionsForVersionWithoutCache(active).stream()
           // Exclude questions deleted in the draft.
           .filter(not(questionIsDeletedInDraft))
@@ -272,10 +278,14 @@ public final class VersionRepository {
                       questionRepository.getQuestionDefinition(activeQuestion).getName()))
           // For each active question not associated with the draft, associate it with the
           // draft.
-          // The relationship between Questions and Versions is many-to-may. When updating the
-          // relationship, one of the EBean models needs to be saved. We update the Version
-          // side of the relationship rather than the Question side in order to prevent the
-          // save causing the "updated" timestamp to be changed for a Question. We intend for
+          // The relationship between Questions and Versions is many-to-may. When updating
+          // the
+          // relationship, one of the EBean models needs to be saved. We update the
+          // Version
+          // side of the relationship rather than the Question side in order to prevent
+          // the
+          // save causing the "updated" timestamp to be changed for a Question. We intend
+          // for
           // that timestamp only to be updated for actual changes to the question.
           .forEach(draft::addQuestion);
 
@@ -284,7 +294,8 @@ public final class VersionRepository {
       // rely on database queries that need to see these newly added associations.
       draft.save();
 
-      // Remove any questions / programs both added and archived in the current version.
+      // Remove any questions / programs both added and archived in the current
+      // version.
       getQuestionsForVersion(draft).stream()
           .filter(questionIsDeletedInDraft)
           .forEach(
@@ -347,9 +358,11 @@ public final class VersionRepository {
           getProgramQuestionNamesInVersion(
               programRepository.getShallowProgramDefinition(programToPublish), existingDraft);
 
-      // Check if any draft questions referenced by programToPublish are also referenced by other
+      // Check if any draft questions referenced by programToPublish are also
+      // referenced by other
       // programs. If so, publishing the program is disallowed.
-      // We only need to look at draft programs because if a question has been modified, any
+      // We only need to look at draft programs because if a question has been
+      // modified, any
       // programs that reference it will have been added to the draft.
       if (anyQuestionIsShared(existingDraft, questionsToPublishNames)) {
         throw new CantPublishProgramWithSharedQuestionsException();
@@ -379,7 +392,8 @@ public final class VersionRepository {
                 existingDraft.removeQuestion(question);
               });
 
-      // Associate any active programs and questions that aren't present in the draft with the
+      // Associate any active programs and questions that aren't present in the draft
+      // with the
       // draft.
       getProgramsForVersion(active).stream()
           .filter(
@@ -408,19 +422,23 @@ public final class VersionRepository {
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
       transaction.rollback(e);
       // We must end the transaction here since we are going to recurse and try again.
-      // We cannot have this transaction on the thread-local transaction stack when that
+      // We cannot have this transaction on the thread-local transaction stack when
+      // that
       // happens.
       transaction.end();
-      // Since this is in a `SERIALIZABLE` transaction,  the transaction runs as if it is the
-      // the only transaction running on the whole database. According to the docs "applications
-      // using this level must be prepared to retry transactions due to serialization failures."
+      // Since this is in a `SERIALIZABLE` transaction, the transaction runs as if it
+      // is the
+      // the only transaction running on the whole database. According to the docs
+      // "applications
+      // using this level must be prepared to retry transactions due to serialization
+      // failures."
       // We recurse to retry here.
       // https://www.postgresql.org/docs/9.1/transaction-iso.html#XACT-SERIALIZABLE.
       publishNewSynchronizedVersion(programToPublishAdminName);
     } finally {
       // This may come after a prior call to `transaction.end` in the event of a
       // precondition failure - this is okay, since it a double-call to `end` on
-      // a particular transaction.  Only double calls to database.endTransaction
+      // a particular transaction. Only double calls to database.endTransaction
       // must be avoided.
       transaction.end();
     }
@@ -446,13 +464,20 @@ public final class VersionRepository {
     }
 
     // Suspends any existing thread-local transaction if one exists.
-    // This method is often called by two portions of the same outer transaction, microseconds
-    // apart.  It's extremely important that there only ever be one draft version, so we need the
-    // highest transaction isolation level; `SERIALIZABLE` means that the two transactions run as if
-    // each transaction was the only transaction running on the whole database.  That is, if any
-    // other code accesses these rows or executes any query which would modify them, the transaction
-    // is rolled back (a RollbackException is thrown).  We are forced to retry.  This is expensive
-    // in relative terms, but new drafts are very rare.  It is unlikely this will represent a real
+    // This method is often called by two portions of the same outer transaction,
+    // microseconds
+    // apart. It's extremely important that there only ever be one draft version, so
+    // we need the
+    // highest transaction isolation level; `SERIALIZABLE` means that the two
+    // transactions run as if
+    // each transaction was the only transaction running on the whole database. That
+    // is, if any
+    // other code accesses these rows or executes any query which would modify them,
+    // the transaction
+    // is rolled back (a RollbackException is thrown). We are forced to retry. This
+    // is expensive
+    // in relative terms, but new drafts are very rare. It is unlikely this will
+    // represent a real
     // performance penalty for any applicant - or even any admin, really.
     Transaction transaction =
         database.beginTransaction(TxScope.required().setIsolation(TxIsolation.SERIALIZABLE));
@@ -470,20 +495,24 @@ public final class VersionRepository {
       transaction.commit();
       return newDraftVersion;
     } catch (NonUniqueResultException | SerializableConflictException | RollbackException e) {
-      // If we are in a nested transaction any serialization exceptions will be thrown when the
-      // outer transaction is committed, so here we only handle the case where this is the only
+      // If we are in a nested transaction any serialization exceptions will be thrown
+      // when the
+      // outer transaction is committed, so here we only handle the case where this is
+      // the only
       // transaction.
       transaction.rollback(e);
       // We must end the transaction here since we are going to recurse and try again.
-      // We cannot have this transaction on the thread-local transaction stack when that
+      // We cannot have this transaction on the thread-local transaction stack when
+      // that
       // happens.
       transaction.end();
       return getDraftVersionOrCreate();
     } finally {
       // This may come after a prior call to `transaction.end` in the event of a
       // precondition failure - this is okay, since it a double-call to `end` on
-      // a particular transaction.  Only double calls to database.endTransaction
-      // must be avoided. Additionally, if we're in a nested transaction, `transaction.end()` is a
+      // a particular transaction. Only double calls to database.endTransaction
+      // must be avoided. Additionally, if we're in a nested transaction,
+      // `transaction.end()` is a
       // no-op.
       transaction.end();
     }
@@ -650,12 +679,25 @@ public final class VersionRepository {
         .findAny();
   }
 
-  /** Implements a query to determine if any programs are disabled. */
+  /** Implements a query to determine if any programs in active or draft versions are disabled. */
   public boolean anyDisabledPrograms() {
+    ImmutableSet.Builder<Long> versionIds = ImmutableSet.builder();
+    VersionModel activeVersion = getActiveVersion();
+    if (activeVersion != null) {
+      versionIds.add(activeVersion.id);
+    }
+    getDraftVersion().ifPresent(draft -> versionIds.add(draft.id));
+    ImmutableSet<Long> ids = versionIds.build();
+
+    if (ids.isEmpty()) {
+      return false;
+    }
+
     return database
         .find(ProgramModel.class)
         .setLabel("VersionRepository.anyDisabledPrograms")
         .where()
+        .in("versions.id", ids)
         .eq("display_mode", DisplayMode.DISABLED.toString())
         .exists();
   }
@@ -694,7 +736,8 @@ public final class VersionRepository {
         database
             .find(ProgramModel.class)
             // We set the label to 'models.ProgramModel' to ensure Ebean records the metric
-            // under the same name as it did when this used version.getPrograms() lazy loading.
+            // under the same name as it did when this used version.getPrograms() lazy
+            // loading.
             // This keeps MetricsControllerTest passing and maintains metric continuity.
             .setLabel("models.ProgramModel")
             .fetch("categories")
@@ -703,9 +746,12 @@ public final class VersionRepository {
             .findList()
             .stream()
             .collect(ImmutableList.toImmutableList());
-    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
-    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
-    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
+    // @PostLoad fires before Ebean merges eager-fetched associations (e.g.
+    // categories) back into
+    // the entity, so the ProgramDefinition built during @PostLoad will have empty
+    // categories.
+    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched
+    // categories are included.
     // Refer https://github.com/civiform/civiform/issues/14055 for more details.
     programs.forEach(ProgramModel::loadProgramDefinition);
     return programs;
@@ -820,9 +866,9 @@ public final class VersionRepository {
    */
   private void validateProgramQuestionState() {
     // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as they likely updated the Database before
-    //  calling this and the reads here should be in a transaction with them.
-    //  Short of that manage a transaction here.
+    // manage the transaction as they likely updated the Database before
+    // calling this and the reads here should be in a transaction with them.
+    // Short of that manage a transaction here.
     transactionManager.execute(
         () -> {
           VersionModel activeVersion = getActiveVersion();
@@ -887,9 +933,9 @@ public final class VersionRepository {
   /** Updates all questions referenced in {@code block} to their latest versions */
   private BlockDefinition updateQuestionVersions(long programDefinitionId, BlockDefinition block) {
     // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as this method reads from the DB, and the
-    //  caller likely read/updated it and will seemingly save the response
-    //  this provides.
+    // manage the transaction as this method reads from the DB, and the
+    // caller likely read/updated it and will seemingly save the response
+    // this provides.
     return transactionManager.execute(
         () -> {
           BlockDefinition.Builder updatedBlock =
@@ -944,8 +990,8 @@ public final class VersionRepository {
   @VisibleForTesting
   PredicateExpressionNode updatePredicateNodeVersions(PredicateExpressionNode node) {
     // TODO(#10557): This would be a good place to require the caller to
-    //  manage the transaction as this method reads from the DB, and the
-    //  caller likely read/updated it and will seemingly save the response.
+    // manage the transaction as this method reads from the DB, and the
+    // caller likely read/updated it and will seemingly save the response.
     return switch (node.getType()) {
       case AND -> {
         AndNode and = node.getAndNode();
@@ -995,7 +1041,8 @@ public final class VersionRepository {
                           .hasQuestion(oldQuestionId))
               .forEach(this::updateQuestionVersions);
 
-          // Update any ACTIVE program without a DRAFT that references the question, a new DRAFT is
+          // Update any ACTIVE program without a DRAFT that references the question, a new
+          // DRAFT is
           // created.
           getProgramsForVersion(getActiveVersion()).stream()
               .filter(

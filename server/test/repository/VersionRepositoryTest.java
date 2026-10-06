@@ -109,7 +109,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     // The result map is empty because the only program/question were tombstoned.
     assertThat(versionRepository.previewPublishNewVersion()).isEmpty();
 
-    // Ensure that the Active and Draft versions are still as expected after the preview.
+    // Ensure that the Active and Draft versions are still as expected after the
+    // preview.
     assertThat(versionRepository.getActiveVersion().getPrograms()).isEmpty();
     assertThat(versionRepository.getActiveVersion().getTombstonedProgramNames()).isEmpty();
     assertThat(versionRepository.getActiveVersion().getQuestions()).isEmpty();
@@ -627,7 +628,8 @@ public class VersionRepositoryTest extends ResetPostgres {
             .withRequiredQuestion(firstQuestion)
             .build();
 
-    // secondProgramDraft and its question, secondQuestionUpdated, should be published.
+    // secondProgramDraft and its question, secondQuestionUpdated, should be
+    // published.
     QuestionModel secondQuestionUpdated = resourceCreator.insertQuestion("second-question");
     secondQuestionUpdated.addVersion(versionRepository.getDraftVersionOrCreate()).save();
     ProgramModel secondProgramDraft =
@@ -666,13 +668,15 @@ public class VersionRepositoryTest extends ResetPostgres {
     oldActive.refresh();
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
-    // The newly created draft should contain the remaining draft programs and questions.
+    // The newly created draft should contain the remaining draft programs and
+    // questions.
     assertThat(versionRepository.getDraftVersionOrCreate().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(thirdProgramDraft.id);
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(thirdQuestion.id);
 
-    // The active version should contain the newly published program and question and the existing
+    // The active version should contain the newly published program and question
+    // and the existing
     // active programs and questions.
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(
@@ -718,7 +722,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
-    // The active version should contain the newly published program and the existing active
+    // The active version should contain the newly published program and the
+    // existing active
     // programs and questions.
     assertThat(versionRepository.getActiveVersion().getPrograms().stream().map(p -> p.id))
         .containsExactlyInAnyOrder(secondProgramDraft.id, firstProgramActive.id);
@@ -928,11 +933,11 @@ public class VersionRepositoryTest extends ResetPostgres {
     newTwo.save();
 
     // Build a predicate tree that covers all node types:
-    //        AND
-    //      /     \
-    //   LEAF1    OR
-    //          /    \
-    //       LEAF2   LEAF_ADDRESS
+    // AND
+    // / \
+    // LEAF1 OR
+    // / \
+    // LEAF2 LEAF_ADDRESS
     PredicateExpressionNode leafOne =
         PredicateExpressionNode.create(
             LeafOperationExpressionNode.create(
@@ -951,7 +956,8 @@ public class VersionRepositoryTest extends ResetPostgres {
 
     PredicateExpressionNode updated = versionRepository.updatePredicateNodeVersions(and);
 
-    // The tree should have the same structure, just with question IDs for the draft version.
+    // The tree should have the same structure, just with question IDs for the draft
+    // version.
     PredicateExpressionNode expectedLeafOne =
         PredicateExpressionNode.create(
             leafOne.getLeafOperationNode().toBuilder().setQuestionId(newOne.id).build());
@@ -1250,7 +1256,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
 
-    // Create another version and publish it, so the original version becomes obsolete
+    // Create another version and publish it, so the original version becomes
+    // obsolete
     VersionModel version2 = versionRepository.getDraftVersionOrCreate();
     ProgramBuilder.newDraftProgram("draft program2").build();
     version2.save();
@@ -1317,7 +1324,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     versionRepository.publishNewSynchronizedVersion();
     version1.refresh();
 
-    // Create another version and publish it, so the original version becomes obsolete
+    // Create another version and publish it, so the original version becomes
+    // obsolete
     VersionModel version2 = versionRepository.getDraftVersionOrCreate();
     resourceCreator.insertDraftProgram("second-program");
     versionRepository.publishNewSynchronizedVersion();
@@ -1368,7 +1376,8 @@ public class VersionRepositoryTest extends ResetPostgres {
     // When no programs, there are no disabled programs
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
-    // Adding a non-disabled active program and verify that there are still no disabled programs
+    // Adding a non-disabled active program and verify that there are still no
+    // disabled programs
     ProgramBuilder.newActiveProgram("active-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
@@ -1382,12 +1391,44 @@ public class VersionRepositoryTest extends ResetPostgres {
     // When no programs, there are no disabled programs
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
-    // Adding non-disabled draft programs and verify that there are still no disabled programs
+    // Adding non-disabled draft programs and verify that there are still no
+    // disabled programs
     ProgramBuilder.newDraftProgram("draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isFalse();
 
     // Adding a disabled program and verify that now we have disabled programs
     ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+  }
+
+  @Test
+  public void testAnyDisabledPrograms_disabledProgramReEnabledAfterPublishes() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled active program
+    ProgramBuilder.newActiveProgram("disabled-program", DisplayMode.DISABLED).build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // A few publishes happen while the program remains disabled
+    ProgramBuilder.newDraftProgram("other-program-1").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newDraftProgram("other-program-2").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newActiveProgram("other-program-3", DisplayMode.PUBLIC).build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // Re-enable the program in a draft and publish
+    ProgramBuilder.newDraftProgram("disabled-program").build();
+    versionRepository.publishNewSynchronizedVersion();
+
+    // The program is now re-enabled, so disabled programs in obsolete versions
+    // should not cause anyDisabledPrograms() to return true.
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
   }
 }
