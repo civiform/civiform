@@ -1259,9 +1259,7 @@ button.repeatedSet.submitNew=
 button.repeatedSet.addNew=
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
-# Button label on the initial question card that clears the selection
-button.repeatedSet.initialQuestion.delete=
-# Screen-reader-only aria-label for the Delete button on the initial question card. {0} is the question's admin identifier.
+# Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=
@@ -1299,9 +1297,11 @@ button.addNestedRepeatedSet=
 button.continueToChildScreen=
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=
+# A button on a question card for admins to remove the question from the screen.
+button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=
-# A tooltip shown to admins when the delete question button is disabled for a list set question
+# A tooltip shown to admins when the remove question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=
 
 #------------------------------------------------------------------------------#
