@@ -557,7 +557,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
   }
 
   @Test
-  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingRepeatedQuestion()
+  public void createOrUpdateDraft_draftingInitialQuestion_repointsSiblingsAtNewDraftEnum()
       throws ProgramBlockDefinitionNotFoundException, UnsupportedQuestionTypeException {
     // Creating a draft of an initial question creates an updated draft of the other questions
     // under its enumerator, including a nested enumerator and its own initial question.
