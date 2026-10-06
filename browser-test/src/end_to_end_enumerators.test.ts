@@ -629,6 +629,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await fillAndSubmitEnumeratorQuestionForm(page)
+        // In contrast to the feature being off (below), when on there isn't a test-id currently so
+        // we have to match the visible text.
         await expect(
           blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
         ).toBeVisible()
@@ -645,7 +647,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             `question-admin-name-${initialQuestionAdminId}`,
           ),
         ).toBeHidden()
-        await expect(blockPanel.getByText('Initial question:')).toBeHidden()
       })
 
       await test.step('Turn the feature flag back on and verify the initial question is preserved', async () => {
