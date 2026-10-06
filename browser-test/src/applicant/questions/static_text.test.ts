@@ -128,6 +128,7 @@ test.describe('Static text question for applicant flow', () => {
 
         const frameLink = imageContainer.getByRole('link', {
           name: 'Click to enlarge image',
+          exact: true,
         })
         await expect(frameLink).toBeVisible()
 
