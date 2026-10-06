@@ -660,8 +660,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     String content = contentAsString(result);
     assertThat(content)
         .contains("Admin ID: " + enumeratorQuestion.getQuestionDefinition().getName());
-    assertThat(content).doesNotContain("question-admin-name-" + initialQuestion.getName());
-    assertThat(content).doesNotContain("Admin ID: " + initialQuestion.getName());
+    assertThat(content).doesNotContain(initialQuestion.getName());
   }
 
   @Test
