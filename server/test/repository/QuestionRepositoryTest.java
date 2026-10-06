@@ -581,8 +581,7 @@ public class QuestionRepositoryTest extends ResetPostgres {
     QuestionDefinition nestedInitialQuestionAfter =
         latestDefinition(fixture.newFlowSet1NestedInitialQuestionId());
     // There's a new nested enumerator draft, and it points at the new enumerator.
-    assertThat(nestedEnumeratorAfter.getId())
-        .isNotEqualTo(fixture.newFlowSet1NestedEnumeratorId());
+    assertThat(nestedEnumeratorAfter.getId()).isNotEqualTo(fixture.newFlowSet1NestedEnumeratorId());
     assertThat(nestedEnumeratorAfter.getEnumeratorId()).hasValue(enumeratorAfter.getId());
     // There's a new nested initial question draft, and it points at the new nested enumerator.
     assertThat(nestedInitialQuestionAfter.getId())
