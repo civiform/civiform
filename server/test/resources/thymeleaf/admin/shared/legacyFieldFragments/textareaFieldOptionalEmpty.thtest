@@ -2,7 +2,7 @@
 %TEMPLATE_MODE HTML
 # ----------------------------------------------------------------------
 %INPUT
-<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('help-text', 'questionHelpText', 'Question help text', null, false, false)}"></div>
+<div th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField('help-text', 'questionHelpText', 'Question help text', null, false, false, false, false, 'mb-2')}"></div>
 # ----------------------------------------------------------------------
 %OUTPUT
 <div class="mb-2">

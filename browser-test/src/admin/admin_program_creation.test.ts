@@ -16,6 +16,13 @@ import {dismissModal, waitForAnyModalLocator} from '../support/wait'
 import {Page} from '@playwright/test'
 
 test.describe('program creation', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('create program page', async ({
     page,
     adminPrograms,

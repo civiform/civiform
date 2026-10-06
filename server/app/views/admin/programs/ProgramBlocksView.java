@@ -1094,7 +1094,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 QuestionCard.renderForInitialQuestion(
                     selectedQuestion,
                     Optional.of(
-                        renderInitialQuestionDeleteButton(
+                        renderInitialQuestionRemoveButton(
                             messages, programId, blockId, selectedQuestion.getName()))),
                 input()
                     .withType("hidden")
@@ -1109,14 +1109,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
-   * Renders the empty {@code #initial-question-slot} containing the "Add question" button. Used
-   * both for the initial render when no initial question is selected and as the HTMX response when
-   * the admin clicks Delete on the initial question card to clear the selection.
+   * Renders the empty {@code #initial-question-slot} containing the "Add initial question" button.
+   * Used both for the initial render when no initial question is selected and as the HTMX response
+   * when the admin clicks Remove on the initial question card to clear the selection.
    */
   public DivTag renderEmptyInitialQuestionSlot(Messages messages, long programId, long blockId) {
     return div(button("")
             .withClasses("usa-button", "usa-button--outline", "margin-top-05")
-            .attr("aria-describedby", "initial-question-label initial-question-description")
+            .attr("aria-describedby", "initial-question-description")
             .attr("required")
             .attr(
                 "hx-get",
@@ -1126,21 +1126,21 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
             .attr("hx-swap", "outerHTML")
             .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-            .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+            .withText(
+                messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD.getKeyName())))
         .withId("initial-question-slot");
   }
 
   /**
-   * Renders the HTMX Delete button shown on the initial question card during the
+   * Renders the HTMX Remove button shown on the initial question card during the
    * enumerator-creation flow. Clicking it swaps {@code #initial-question-slot} back to its empty
-   * "Add question" state. The question has not yet been attached to the block, so this is a
+   * "Add initial question" state. The question has not yet been attached to the block, so this is a
    * view-state reset rather than a destructive delete.
    */
-  private ButtonTag renderInitialQuestionDeleteButton(
+  private ButtonTag renderInitialQuestionRemoveButton(
       Messages messages, long programId, long blockId, String questionAdminId) {
     return ViewUtils.makeSvgTextButton(
-            messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_DELETE.getKeyName()),
-            Icons.DELETE)
+            messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()), Icons.DELETE)
         .withType("button")
         .attr(
             "aria-label",
@@ -1873,7 +1873,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean enumeratorImprovementsEnabled,
       Messages messages) {
     ButtonTag deleteButton =
-        ViewUtils.makeSvgTextButton("Delete", Icons.DELETE)
+        ViewUtils.makeSvgTextButton(
+                messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()), Icons.DELETE)
             .withType("submit")
             .withId("block-question-" + questionDefinition.getId())
             .withName("questionDefinitionId")

@@ -1,8 +1,15 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {loginAsAdmin} from '../support'
+import {enableFeatureFlag, loginAsAdmin} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
 
 test.describe('login only program', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('default login only value for any program is false', async ({
     page,
     adminPrograms,

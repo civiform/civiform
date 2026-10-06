@@ -1,0 +1,18 @@
+%NAME uswdsCheckboxOption - checked, with value
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/UswdsCheckboxOption :: uswdsCheckboxOption('notification-preferences-email', 'notificationPreferences', 'EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS', true, false, 'Send Program Admins an email notification every time an application is submitted', 'usa-checkbox')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="usa-checkbox">
+  <input
+    id="notification-preferences-email"
+    class="usa-checkbox__input usa-checkbox__input--tile"
+    type="checkbox"
+    name="notificationPreferences"
+    value="EMAIL_PROGRAM_ADMIN_ALL_SUBMISSIONS"
+    checked="checked"
+  />
+  <label for="notification-preferences-email" class="usa-checkbox__label">Send Program Admins an email notification every time an application is submitted</label>
+</div>
