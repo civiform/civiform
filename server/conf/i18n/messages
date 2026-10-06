@@ -1033,7 +1033,7 @@ adminValidation.multiOptionEmpty=Multi option questions cannot have blank option
 adminValidation.multiOptionAdminError=Admin names can only contain lowercase letters, numbers, underscores, and dashes.
 
 #---------------------------------------------------------------------#
-# STATIC QUESTION IMAGE TEXTS - text that is shown on the applicant facing page when a question has a static image attatched.
+# STATIC QUESTION IMAGE TEXTS - text that is shown on the applicant facing page when a static question has an image attatched.
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
