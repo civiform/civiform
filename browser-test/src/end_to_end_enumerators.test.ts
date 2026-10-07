@@ -273,8 +273,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
+        await test.step('Validate focus moves to the "Remove" button on the initial question card', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: 'Remove the income-non-repeated-question initial question',
+            }),
+          ).toBeFocused()
+        })
+
         await removeInitialQuestion(page, 'income-non-repeated-question')
         await expectAddQuestionButton(page, 'income-non-repeated-question')
+
+        await test.step('Validate focus moves to the "Add initial question" button', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: 'Add initial question',
+            }),
+          ).toBeFocused()
+        })
       })
 
       test('shows only valid question types in the "Create new question" dropdown for an initial question', async ({
@@ -504,6 +520,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await expect(
             initialQuestionCard.getByText(`Admin ID: ${newQuestionAdminId}`),
           ).toBeVisible()
+        })
+
+        await test.step('Validate focus is on the "Remove" button on the new initial question card', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: `Remove the ${newQuestionAdminId} initial question`,
+            }),
+          ).toBeFocused()
         })
 
         await fillAndSubmitEnumeratorQuestionForm(page)

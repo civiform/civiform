@@ -370,7 +370,7 @@ class AdminPrograms {
           this.focusOnEnumeratorQuestionSection()
         }
       } else if (targetElement.id === 'initial-question-slot') {
-        this.focusOnInitialQuestionHeading()
+        this.focusOnInitialQuestionSlotActiveButton()
       }
     })
   }
@@ -412,13 +412,32 @@ class AdminPrograms {
     }
   }
 
-  static focusOnInitialQuestionHeading() {
-    const initialQuestionHeading = document.getElementById(
-      'initial-question-label',
-    )
-    if (initialQuestionHeading) {
-      initialQuestionHeading.focus()
+  /**
+   * Moves focus to the actionable button in the initial question slot after an HTMX swap. When an
+   * existing question has just been selected from the question bank, focus goes to the card's
+   * "Remove" button so screen reader users hear that the question was added. When it has just been
+   * removed, focus goes to the "Add initial question" button.
+   */
+  static focusOnInitialQuestionSlotActiveButton() {
+    const button =
+      document.getElementById('initial-question-remove-button') ??
+      document.getElementById('add-initial-question-button')
+    if (button) {
+      button.focus()
     }
+  }
+
+  /**
+   * After redirecting back to the block edit page from creating a new initial question, the
+   * controller appends ?initialQuestionId=<id> so the view renders the new question's card. Move
+   * focus to that card's "Remove" button to indicate the question was created.
+   */
+  static focusOnInitialQuestionRemoveButtonFromUrlParam() {
+    const url = new URL(window.location.href)
+    if (!url.searchParams.has('initialQuestionId')) {
+      return
+    }
+    document.getElementById('initial-question-remove-button')?.focus()
   }
 
   /**
@@ -606,5 +625,6 @@ export function init() {
   AdminPrograms.attachEventListenerToEnumeratorCreationMethod()
   AdminPrograms.attachEventListenerToRepeatedSetFieldAutofill()
   AdminPrograms.focusOnEnumeratorQuestionSectionFromUrlParam()
+  AdminPrograms.focusOnInitialQuestionRemoveButtonFromUrlParam()
   AdminPrograms.attachEnumeratorFormInputStorage()
 }
