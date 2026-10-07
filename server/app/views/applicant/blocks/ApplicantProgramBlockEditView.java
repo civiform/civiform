@@ -207,6 +207,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
           && applicationParams.block().getInitialQuestion().isPresent()) {
         setInitialQuestionContext(context, applicationParams);
       }
+      context.setVariable(
+          "imagesInQuestionFeatureEnabled",
+          settingsManifest.getImagesInQuestionFeatureEnabled(request));
 
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }

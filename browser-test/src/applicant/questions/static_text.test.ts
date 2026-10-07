@@ -3,6 +3,7 @@ import {test, expect} from '../../support/civiform_fixtures'
 import {
   AdminQuestions,
   AdminPrograms,
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -52,13 +53,38 @@ test.describe('Static text question for applicant flow', () => {
   })
 
   test.describe('with question image feature flag enabled', () => {
-    test.beforeEach(async ({page}) => {
-      await enableFeatureFlag(
-        page,
-        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
-      )
-      await enableFeatureFlag(page, 'IMAGES_IN_QUESTION_FEATURE_ENABLED')
-    })
+    const programWithImage = 'Program with Static Image'
+    const imageQuestionName = 'static-img-q'
+    const imageDescription = 'Sample tax form example'
+
+    test.beforeEach(
+      async ({page, adminQuestions, adminQuestionImage, adminPrograms}) => {
+        await enableFeatureFlag(
+          page,
+          'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+        )
+        await enableFeatureFlag(page, 'IMAGES_IN_QUESTION_FEATURE_ENABLED')
+
+        await loginAsAdmin(page)
+        await adminQuestions.addStaticQuestion({
+          questionName: imageQuestionName,
+          questionText: 'Please review this image',
+          markdownText: 'Some markdown info',
+        })
+        await adminQuestions.gotoQuestionEditPage(imageQuestionName)
+        await adminQuestionImage.setImageDescription(imageDescription)
+        await adminQuestionImage.uploadImageFile(
+          'src/assets/program-summary-image-wide.png',
+        )
+        await adminQuestions.clickSubmitButtonAndNavigate('Update')
+        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+        await adminPrograms.addAndPublishProgramWithQuestions(
+          [imageQuestionName, SAMPLE_QUESTIONS.email],
+          programWithImage,
+        )
+        await logout(page)
+      },
+    )
 
     test('does not render image when question has no image', async ({
       page,
@@ -73,48 +99,8 @@ test.describe('Static text question for applicant flow', () => {
 
     test('renders inline image for applicant when question has an image', async ({
       page,
-      adminQuestions,
-      adminQuestionImage,
-      adminPrograms,
       applicantQuestions,
     }) => {
-      const programWithImage = 'Program with Static Image'
-      const imageQuestionName = 'static-img-q'
-      const imageDescription = 'Sample tax form example'
-
-      await test.step('Login as a CiviForm admin', async () => {
-        await loginAsAdmin(page)
-      })
-
-      await test.step('Add a static question and save', async () => {
-        await adminQuestions.addStaticQuestion({
-          questionName: imageQuestionName,
-          questionText: 'Please review this image',
-          markdownText: 'Some markdown info',
-        })
-      })
-
-      await test.step('Edit the static question', async () => {
-        await adminQuestions.gotoQuestionEditPage(imageQuestionName)
-      })
-
-      await test.step('Upload an image, add alt-text and save', async () => {
-        await adminQuestionImage.setImageDescription(imageDescription)
-        await adminQuestionImage.uploadImageFile(
-          'src/assets/program-summary-image-wide.png',
-        )
-        await adminQuestions.clickSubmitButtonAndNavigate('Update')
-        await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-      })
-
-      await test.step('Publish all questions/programs', async () => {
-        await adminPrograms.addAndPublishProgramWithQuestions(
-          [imageQuestionName, SAMPLE_QUESTIONS.email],
-          programWithImage,
-        )
-        await logout(page)
-      })
-
       await test.step('Visit the program as an applicant and land on the screen containing the static question', async () => {
         await applicantQuestions.applyProgram(programWithImage)
       })
@@ -143,6 +129,28 @@ test.describe('Static text question for applicant flow', () => {
         await expect(enlargeLink).toHaveAttribute('target', '_blank')
 
         await validateAccessibility(page)
+      })
+    })
+
+    test('does not render image when feature flag is disabled', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await test.step('Disable the flag- IMAGES_IN_QUESTION_FEATURE_ENABLED', async () => {
+        await disableFeatureFlag(page, 'IMAGES_IN_QUESTION_FEATURE_ENABLED')
+      })
+
+      await test.step('Visit the program as an applicant and land on the screen containing the static question', async () => {
+        await applicantQuestions.applyProgram(programWithImage)
+      })
+
+      await test.step('Verify the image', async () => {
+        await expect(page.getByTestId('question-image-container')).toHaveCount(
+          0,
+        )
+        await expect(
+          page.getByTestId('staticQuestionRoot').getByRole('img'),
+        ).toHaveCount(0)
       })
     })
   })
