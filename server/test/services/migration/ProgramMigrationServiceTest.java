@@ -475,7 +475,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         service.validateQuestions(
             deserializeResult.getResult().getProgram(),
             deserializeResult.getResult().getQuestions(),
-            ImmutableList.of());
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
             "Option score on option 'yes' of question 'scored dropdown' must be a finite number.");
@@ -488,7 +489,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         createFullyScoredMultiOptionQuestion("scored yes no", 16L, MultiOptionQuestionType.YES_NO);
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(scoredYesNo), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(scoredYesNo),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors)
         .anyMatch(
@@ -524,7 +529,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         service.validateQuestions(
-            program, ImmutableList.of(infiniteScoreDropdown), ImmutableList.of());
+            program,
+            ImmutableList.of(infiniteScoreDropdown),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).anyMatch(error -> error.message().contains("must be a finite number"));
   }
@@ -537,7 +545,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             "scored dropdown", 17L, MultiOptionQuestionType.DROPDOWN);
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(scoredDropdown),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
   }
@@ -554,7 +566,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             Optional.empty());
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(partiallyScored), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(partiallyScored),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors.stream().map(CiviFormError::message))
         .contains(
@@ -570,7 +586,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             "unscored", 20L, MultiOptionQuestionType.CHECKBOX, Optional.empty(), Optional.empty());
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(unscored), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(unscored),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
   }
@@ -587,7 +607,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             "scored dropdown", 21L, MultiOptionQuestionType.DROPDOWN);
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(scoredDropdown),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
   }
@@ -603,7 +627,11 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
             "scored dropdown", 22L, MultiOptionQuestionType.DROPDOWN);
 
     ImmutableSet<CiviFormError> errors =
-        service.validateQuestions(program, ImmutableList.of(scoredDropdown), ImmutableList.of());
+        service.validateQuestions(
+            program,
+            ImmutableList.of(scoredDropdown),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).noneMatch(ProgramMigrationServiceTest::mentionsScores);
   }
@@ -1086,7 +1114,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         service.validateQuestions(
-            programDefinition, ImmutableList.of(VALID_YES_NO_QUESTION), ImmutableList.of());
+            programDefinition,
+            ImmutableList.of(VALID_YES_NO_QUESTION),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).isEmpty();
   }
@@ -1101,7 +1132,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         service.validateQuestions(
-            programDefinition, ImmutableList.of(INVALID_YES_NO_QUESTION), ImmutableList.of());
+            programDefinition,
+            ImmutableList.of(INVALID_YES_NO_QUESTION),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -1124,7 +1158,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         service.validateQuestions(
             programDefinition,
             ImmutableList.of(QUESTION_1, INVALID_YES_NO_QUESTION),
-            ImmutableList.of());
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())
@@ -1143,7 +1178,10 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
 
     ImmutableSet<CiviFormError> errors =
         service.validateQuestions(
-            programDefinition, ImmutableList.of(QUESTION_1, DROPDOWN_QUESTION), ImmutableList.of());
+            programDefinition,
+            ImmutableList.of(QUESTION_1, DROPDOWN_QUESTION),
+            ImmutableList.of(),
+            /* fileUploadQuestionImprovementsEnabled= */ false);
 
     assertThat(errors).isEmpty();
   }

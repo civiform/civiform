@@ -161,16 +161,22 @@ public final class ProgramMigrationService {
    * @param program The program definition being validated.
    * @param questions The questions to validate.
    * @param existingAdminNames The existing admin names of questions in the Question Bank.
+   * @param fileUploadQuestionImprovementsEnabled Whether file upload questions may share a screen
+   *     with other questions.
    * @return A set of validation errors from all validation checks.
    */
   public ImmutableSet<CiviFormError> validateQuestions(
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
-      ImmutableList<String> existingAdminNames) {
+      ImmutableList<String> existingAdminNames,
+      boolean fileUploadQuestionImprovementsEnabled) {
 
     return ImmutableSet.<CiviFormError>builder()
         .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
         .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
+        .addAll(
+            QuestionValidationUtils.validateFileUploadBlocks(
+                program, questions, fileUploadQuestionImprovementsEnabled))
         .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
         .addAll(QuestionValidationUtils.validateOptionScores(questions))
         .addAll(
