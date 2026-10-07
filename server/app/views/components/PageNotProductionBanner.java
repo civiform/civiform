@@ -52,6 +52,16 @@ public final class PageNotProductionBanner {
     String notForProductionBannerLine2 =
         messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName(), link);
 
+    boolean isInfoBanner =
+        settingsManifest
+            .getNotProductionBannerType(request)
+            .map(type -> type.equalsIgnoreCase("info"))
+            .orElse(false);
+
+    // "info" type uses a calmer blue background with dark text; default "emergency" uses red.
+    String bgColor = isInfoBanner ? "bg-blue-400" : "bg-red-600";
+    String textColor = isInfoBanner ? "text-black" : "text-white";
+
     return Optional.of(
         div()
             .with(h4(notForProductionBannerLine1).withClasses("text-xl", "font-bold"))
@@ -64,8 +74,8 @@ public final class PageNotProductionBanner {
                 "top-0",
                 "left-0",
                 "z-50",
-                "text-white",
-                "bg-red-600",
+                textColor,
+                bgColor,
                 "p-6",
                 "flex",
                 "flex-col",

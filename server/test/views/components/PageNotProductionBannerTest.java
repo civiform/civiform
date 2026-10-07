@@ -57,6 +57,7 @@ public class PageNotProductionBannerTest {
         .thenReturn(Optional.of(productionUrl));
     when(settingsManifest.getWhitelabelCivicEntityFullName(request))
         .thenReturn(Optional.of("civic-entity-name"));
+    when(settingsManifest.getNotProductionBannerType(request)).thenReturn(Optional.empty());
 
     PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
@@ -69,12 +70,15 @@ public class PageNotProductionBannerTest {
     assertThat(actualString).contains("href");
     assertThat(actualString).contains("line2");
     assertThat(actualString).contains(productionUrl);
+    assertThat(actualString).contains("bg-red-600");
+    assertThat(actualString).contains("text-white");
   }
 
   @Test
   public void whenShowBannerSettingEnabled_andNoProductionUrlSetting_returnsComponent() {
     when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
     when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getNotProductionBannerType(request)).thenReturn(Optional.empty());
 
     PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
 
@@ -86,5 +90,59 @@ public class PageNotProductionBannerTest {
     assertThat(actualString).contains("line1");
     assertThat(actualString).doesNotContain("href");
     assertThat(actualString).doesNotContain("line2");
+  }
+
+  @Test
+  public void whenBannerTypeIsInfo_usesBlueBackground() {
+    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getNotProductionBannerType(request))
+        .thenReturn(Optional.of("info"));
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isNotEqualTo(Optional.empty());
+
+    String actualString = actual.toString();
+    assertThat(actualString).contains("bg-blue-400");
+    assertThat(actualString).contains("text-black");
+    assertThat(actualString).doesNotContain("bg-red-600");
+    assertThat(actualString).doesNotContain("text-white");
+  }
+
+  @Test
+  public void whenBannerTypeIsEmergency_usesRedBackground() {
+    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getNotProductionBannerType(request))
+        .thenReturn(Optional.of("emergency"));
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isNotEqualTo(Optional.empty());
+
+    String actualString = actual.toString();
+    assertThat(actualString).contains("bg-red-600");
+    assertThat(actualString).contains("text-white");
+    assertThat(actualString).doesNotContain("bg-blue-400");
+  }
+
+  @Test
+  public void whenBannerTypeIsCaseInsensitive_usesBlueBackground() {
+    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+    when(settingsManifest.getNotProductionBannerType(request))
+        .thenReturn(Optional.of("INFO"));
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isNotEqualTo(Optional.empty());
+
+    String actualString = actual.toString();
+    assertThat(actualString).contains("bg-blue-400");
+    assertThat(actualString).contains("text-black");
   }
 }

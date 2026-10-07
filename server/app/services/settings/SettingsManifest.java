@@ -1057,6 +1057,14 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
   }
 
+  /**
+   * Controls the visual style of the not-production banner. Returns "info" for a blue
+   * informative banner, or "emergency" (default) for the standard red warning banner.
+   */
+  public Optional<String> getNotProductionBannerType(RequestHeader request) {
+    return getOptionalString("NOT_PRODUCTION_BANNER_TYPE", request);
+  }
+
   /** Enables civiform admins to set up a customized eligibility message per screen. */
   public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
     return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
@@ -2326,6 +2334,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " a link to your production site.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "NOT_PRODUCTION_BANNER_TYPE",
+                          "Controls the visual style of the not-production banner. Set to"
+                              + " \"info\" for a blue informative banner, or leave at \"emergency\""
+                              + " (default) for a red warning banner. Only takes effect when"
+                              + " SHOW_NOT_PRODUCTION_BANNER_ENABLED is true.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
