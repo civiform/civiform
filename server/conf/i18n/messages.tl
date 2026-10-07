@@ -1032,6 +1032,16 @@ adminValidation.multiOptionEmpty=Ang mga katanungan na maraming pagpipiliang ops
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at gitling lang ang puwedeng gamitin para sa mga pangalan ng admin.
 
+#---------------------------------------------------------------------#
+# STATIC QUESTION IMAGE TEXTS - text that is shown on the applicant facing page when a question has a static image attatched.
+#---------------------------------------------------------------------#
+
+#Label shown to enlarge an image in the questions screen
+staticQuestion.imageEnlargeAltText = Click to enlarge image
+
+# Label shown to indicate that an image will open in a new tab
+staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+
 #----------------------------------#
 # ERRORS - various error messages  #
 #----------------------------------#
