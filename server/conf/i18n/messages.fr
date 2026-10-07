@@ -1032,6 +1032,16 @@ adminValidation.multiOptionEmpty=Les questions à choix multiples ne peuvent pas
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=Les noms d''administrateur ne peuvent contenir que des minuscules, des chiffres, des traits de soulignement et des tirets.
 
+#---------------------------------------------------------------------#
+# STATIC QUESTION IMAGE TEXTS - text that is shown on the applicant facing page when a question has a static image attatched.
+#---------------------------------------------------------------------#
+
+#Label shown to enlarge an image in the questions screen
+staticQuestion.imageEnlargeAltText = Click to enlarge image
+
+# Label shown to indicate that an image will open in a new tab
+staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+
 #----------------------------------#
 # ERRORS - various error messages  #
 #----------------------------------#
