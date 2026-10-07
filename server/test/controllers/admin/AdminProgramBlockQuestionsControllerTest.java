@@ -15,6 +15,7 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -229,6 +230,53 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(initialOnBlock.getName()).isEqualTo(initialQuestion.getName());
     assertThat(initialOnBlock.getEnumeratorId()).contains(enumeratorOnBlock.getId());
     assertThat(enumeratorOnBlock.getEnumeratorInitialQuestionId()).contains(initialOnBlock.getId());
+  }
+
+  @Test
+  public void hxCreateEnumerator_onNestedBlock_setsEnumeratorIdToParentEnumerator()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    QuestionDefinition initialQuestion =
+        testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionModel parentEnumerator = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram().withBlock().withRequiredQuestion(parentEnumerator).build();
+    long nestedBlockId =
+        programService
+            .addNestedRepeatedSetToProgram(
+                program.id,
+                /* parentEnumeratorBlockId= */ 1L,
+                /* enumeratorImprovementsEnabled= */ true)
+            .getResult()
+            .maybeAddedBlock()
+            .orElseThrow()
+            .id();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "entityType", "Jobs",
+                    "questionName", "jobs enumerator",
+                    // No "$this", which the new flow doesn't require.
+                    "questionText", "List the jobs.",
+                    "questionHelpText", "help text",
+                    "initialQuestionId", String.valueOf(initialQuestion.getId())))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, nestedBlockId);
+
+    assertThat(result.status()).withFailMessage(contentAsString(result)).isEqualTo(OK);
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(nestedBlockId);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(2);
+    QuestionDefinition enumeratorOnBlock =
+        blockAfter.programQuestionDefinitions().get(0).getQuestionDefinition();
+    QuestionDefinition initialOnBlock =
+        blockAfter.programQuestionDefinitions().get(1).getQuestionDefinition();
+    assertThat(enumeratorOnBlock.isEnumerator()).isTrue();
+    assertThat(enumeratorOnBlock.getEnumeratorId()).contains(parentEnumerator.id);
+    assertThat(initialOnBlock.getEnumeratorId()).contains(enumeratorOnBlock.getId());
   }
 
   @Test

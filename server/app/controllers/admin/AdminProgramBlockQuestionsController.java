@@ -177,9 +177,30 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
+    // A repeated set nested under another repeated set repeats under the parent block's
+    // enumerator question. Set it before creation since a question's enumeratorId is immutable.
+    final Optional<Long> parentEnumeratorQuestionId;
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      parentEnumeratorQuestionId =
+          block.isRepeated()
+              ? Optional.of(
+                  program
+                      .getBlockDefinition(block.enumeratorId().get())
+                      .getEnumeratorQuestionDefinition()
+                      .getId())
+              : Optional.empty();
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    }
+
     final QuestionDefinition pendingEnumeratorQuestion;
     try {
-      pendingEnumeratorQuestion = questionForm.getBuilder().build();
+      pendingEnumeratorQuestion =
+          questionForm.getBuilder().setEnumeratorId(parentEnumeratorQuestionId).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
