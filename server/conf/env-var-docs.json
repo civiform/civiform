@@ -686,6 +686,16 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for providing more information for the immigration status informational banner.",
         "type": "string"
+      },
+      "DEMO_BANNER_LEARN_MORE_URL": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The HREF for providing more information for the demo informational banner.",
+        "type": "string"
+      },
+      "DEMO_BANNER_EXPIRATION_DATE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "The expiration date for the demo instance formatted as yyyy-mm-dd.",
+        "type": "string"
       }
     }
   },
@@ -937,6 +947,12 @@
       "IMMIGRATION_STATUS_INFO_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enable showing an immigration status informational banner to applicants.",
+        "type": "bool",
+        "required": false
+      },
+      "DEMO_BANNER_ENABLED": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Enable showing a demo informational banner to applicants and admins.",
         "type": "bool",
         "required": false
       },

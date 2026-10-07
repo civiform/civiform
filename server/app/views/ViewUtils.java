@@ -56,6 +56,10 @@ public final class ViewUtils {
     this.dateConverter = checkNotNull(dateConverter);
   }
 
+  public DateConverter getDateConverter() {
+    return dateConverter;
+  }
+
   public ImgTag makeLocalImageTag(String filename) {
     return img().withSrc(assetsFinder.path("Images/" + filename + ".png"));
   }
