@@ -1032,6 +1032,16 @@ adminValidation.multiOptionEmpty=多肢選択式の質問は選択肢を選ぶ�
 # An error messaging saying that the admin name (a unique, admin-facing identifier) that the admin just entered is invalid.
 adminValidation.multiOptionAdminError=管理者名に使用できるのは、小文字のアルファベット、数字、アンダースコア、ダッシュのみです。
 
+#---------------------------------------------------------------------#
+# STATIC QUESTION IMAGE TEXTS - text that is shown on the applicant facing page when a question has a static image attatched.
+#---------------------------------------------------------------------#
+
+#Label shown to enlarge an image in the questions screen
+staticQuestion.imageEnlargeAltText = Click to enlarge image
+
+# Label shown to indicate that an image will open in a new tab
+staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+
 #----------------------------------#
 # ERRORS - various error messages  #
 #----------------------------------#
