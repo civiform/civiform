@@ -81,7 +81,7 @@
     </th:block>
     <th:block th:case="'Static Text'">
       <div
-        th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question})}"
+        th:replace="~{questiontypes/StaticTextQuestionFragment :: static-text(${question}, ${questionRendererParams})}"
       ></div>
     </th:block>
     <th:block th:case="'Text'">
