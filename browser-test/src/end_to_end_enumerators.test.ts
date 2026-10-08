@@ -2128,10 +2128,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     const repeatedSetPanel = page.locator('#repeated-set-question-section')
 
     await test.step('Validate the repeated set hides its move up and move down buttons', async () => {
-      const moveUpButton = repeatedSetPanel.locator('[aria-label="move up"]')
-      const moveDownButton = repeatedSetPanel.locator(
-        '[aria-label="move down"]',
-      )
+      const moveUpButton = repeatedSetPanel.getByLabel('move up')
+      const moveDownButton = repeatedSetPanel.getByLabel('move down')
       await expect(moveUpButton).toHaveCount(1)
       await expect(moveUpButton).toBeHidden()
       await expect(moveDownButton).toHaveCount(1)
