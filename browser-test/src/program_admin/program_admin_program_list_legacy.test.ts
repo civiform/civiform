@@ -1,6 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
+  disableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -10,7 +10,7 @@ import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program admin program list', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
+    await disableFeatureFlag(
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
     )
@@ -65,69 +65,6 @@ test.describe('Program admin program list', () => {
         page,
         'program-admin-program-list-visible-disabled-program',
       )
-    })
-  })
-})
-
-test.describe('Translation tag showing as expected', () => {
-  const programName = 'Program for translation tags'
-
-  test('Tag translation incomplete and complete shows up as expected', async ({
-    page,
-    adminPrograms,
-    adminTranslations,
-    adminProgramStatuses,
-  }) => {
-    await test.step('Tag translation incomplete is visible', async () => {
-      await loginAsAdmin(page)
-      await adminPrograms.addProgram(programName)
-      await adminPrograms.gotoAdminProgramsPage()
-      await expect(page.getByText('Translation Incomplete')).toBeVisible()
-      await expect(page.getByText('Translation Complete')).toBeHidden()
-    })
-
-    await test.step('Translate all fields available', async () => {
-      await adminPrograms.gotoDraftProgramManageTranslationsPage(programName)
-      const languages = [
-        'Amharic',
-        'Arabic',
-        'Traditional Chinese',
-        'French',
-        'Japanese',
-        'Korean',
-        'Lao',
-        'Russian',
-        'Somali',
-        'Spanish',
-        'Tagalog',
-        'Vietnamese',
-      ]
-
-      for (const language of languages) {
-        await adminTranslations.selectLanguage(language)
-        await adminTranslations.editProgramTranslations({
-          name: `${language} name`,
-          description: `${language} description`,
-          blockName: `${language} block name`,
-          blockDescription: `${language} block description`,
-          confirmationMsg: `${language} confirmation message`,
-          statuses: [],
-        })
-      }
-    })
-
-    await test.step('Tag translation complete is visible', async () => {
-      await adminPrograms.gotoAdminProgramsPage()
-      await expect(page.getByText('Translation Complete')).toBeVisible()
-      await expect(page.getByText('Translation Incomplete')).toBeHidden()
-    })
-
-    await test.step('Tag translation incomplete shows when a new field to the proram needs to be translated', async () => {
-      await adminPrograms.gotoDraftProgramManageStatusesPage(programName)
-      await adminProgramStatuses.createStatus('testStatus')
-      await adminPrograms.gotoAdminProgramsPage()
-      await expect(page.getByText('Translation Incomplete')).toBeVisible()
-      await expect(page.getByText('Translation Complete')).toBeHidden()
     })
   })
 })

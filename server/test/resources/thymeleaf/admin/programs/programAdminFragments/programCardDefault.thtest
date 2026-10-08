@@ -1,0 +1,89 @@
+%NAME programCard - default program seen by a program admin: share link, applications button, no type indicator
+%TEMPLATE_MODE HTML
+%CONTEXT
+card = @views.admin.programs.ProgramAdminIndexPageViewModel$ProgramCard@builder() \
+    .id(1L).title("Utility Discount").shortDescription("Help with utilities") \
+    .programType(@services.program.ProgramType@DEFAULT).preScreenerForm(false) \
+    .adminNote(null).visibilityState("Public").categoriesText("None") \
+    .publishedDateTime("2024/01/01 at 9:00 AM PST").publishedDate("2024/01/01") \
+    .blockCount(3).questionCount(5) \
+    .programLink("https://civiform.example.com/programs/utility-discount").applicationsUrl("/admin/programs/1/applications") \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramAdminProgramCard :: programCard(${card})}"></div>
+# ----------------------------------------------------------------------
+# The icons are faked so these tests stay about the card; each icon has its
+# own thtests under admin/shared/legacySvgFragments/.
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconCheck(classes)" th:text="|iconCheck(${classes})|"></svg>
+<svg th:fragment="iconLabel(classes)" th:text="|iconLabel(${classes})|"></svg>
+<svg th:fragment="iconNoiseControlOff(classes)" th:text="|iconNoiseControlOff(${classes})|"></svg>
+<svg th:fragment="iconContentCopy(classes)" th:text="|iconContentCopy(${classes})|"></svg>
+<svg th:fragment="iconTextSnippet(classes)" th:text="|iconTextSnippet(${classes})|"></svg>
+<svg th:fragment="iconMoreVert(classes)" th:text="|iconMoreVert(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-admin-program-card w-full my-4 pl-6 border border-gray-300 rounded-lg">
+  <div class="flex">
+    <div class="w-1/4 py-7 pr-2">
+      <p class="cf-program-title text-black font-bold text-xl">Utility Discount</p>
+      <div class="cf-program-description line-clamp-2 text-sm lg:text-base mb-4">
+        <span>Help with utilities</span>
+      </div>
+      <p class="text-sm lg:text-base mb-4">
+        <span class="font-semibold">Visibility state: </span><span>Public</span>
+      </p>
+      <p class="text-sm lg:text-base">
+        <span class="font-semibold">Categories:  </span><span>None</span>
+      </p>
+    </div>
+    <div class="flex-grow text-sm lg:text-base">
+      <div data-lifecycle-stage="active" class="py-7 flex flex-row hover:bg-gray-100">
+        <p
+          class="bg-civiform-green-light text-civiform-green font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8"
+        >
+          <svg>iconNoiseControlOff(inline-block w-5 h-5)</svg><span class="mr-1">Active</span>
+        </p>
+        <div class="ml-4 xl:ml-10">
+          <p>
+            <span>Published on </span><span class="cf-bt-date font-semibold hidden lg:inline">2024/01/01 at 9:00 AM PST</span><span class="cf-bt-date font-semibold lg:hidden">2024/01/01</span>
+          </p>
+          <p>
+            <span class="font-semibold">3</span><span> screens, </span><span class="font-semibold">5</span><span> questions</span>
+          </p>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex space-x-2 pr-6 font-medium">
+          <button
+            class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+            data-copyable-program-link="https://civiform.example.com/programs/utility-discount"
+          >
+            <svg>iconContentCopy(inline-block h-4.5 w-4.5)</svg>
+            <span class="text-left">Share link</span>
+          </button>
+          <button
+            class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+            data-redirect-to="/admin/programs/1/applications"
+          >
+            <svg>iconTextSnippet(inline-block h-4.5 w-4.5)</svg>
+            <span class="text-left">Applications</span>
+          </button>
+          <div class="relative">
+            <button
+              id="extra-actions-1"
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12 invisible"
+            >
+              <svg>iconMoreVert(inline-block h-4.5 w-4.5)</svg>
+              <span class="text-left"></span>
+            </button>
+            <div
+              id="extra-actions-1-dropdown"
+              class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,20 @@
+%NAME iconLabel - program type indicator sizing (legacy ProgramCardFactory.getProgramTypeIndicator)
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconLabel('inline-block ml-3 mr-2 w-5 h-5')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  class="inline-block ml-3 mr-2 w-5 h-5"
+>
+  <path
+    d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"
+  ></path>
+</svg>
