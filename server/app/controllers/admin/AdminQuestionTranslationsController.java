@@ -145,7 +145,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               .builderWithUpdates(toUpdate, localeToUpdate)
               .build();
       ErrorAnd<QuestionDefinition, CiviFormError> result =
-          questionService.update(definitionWithUpdates);
+          questionService.update(
+              /* previousDefinition= */ Optional.empty(),
+              definitionWithUpdates,
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
 
       if (result.isError()) {
         String errorText = joinErrors(result.getErrors());
