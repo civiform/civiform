@@ -1127,6 +1127,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    */
   public DivTag renderEmptyInitialQuestionSlot(Messages messages, long programId, long blockId) {
     return div(button("")
+            .withId("add-initial-question-button")
             .withClasses("usa-button", "usa-button--outline", "margin-top-05")
             .attr("aria-describedby", "initial-question-description")
             .attr("required")
@@ -1153,6 +1154,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Messages messages, long programId, long blockId, String questionAdminId) {
     return ViewUtils.makeSvgTextButton(
             messages.at(MessageKey.BUTTON_REMOVE_QUESTION.getKeyName()), Icons.DELETE)
+        .withId("initial-question-remove-button")
         .withType("button")
         .attr(
             "aria-label",
@@ -1358,8 +1360,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 div(span(messages.at(MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                         .with(ViewUtils.requiredQuestionIndicator()))
                     .withId("initial-question-label")
-                    .withClasses("usa-label")
-                    .withTabindex(-1),
+                    .withClasses("usa-label"),
                 p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
                     .withId("initial-question-description")
                     .withClasses("font-ui-sm", "text-base"),
