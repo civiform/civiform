@@ -70,6 +70,16 @@
       matchPackageNames: ["com.fasterxml.jackson{/,}**"],
       allowedVersions: "< 3.0.0"
     },
+    // Stay on Jackson 2: json-schema-validator v3 and logstash-logback-encoder v9
+    // depend on Jackson 3. Revisit when Play supports Jackson 3 (see the jackson rule above).
+    {
+      matchPackageNames: ["com.networknt:json-schema-validator"],
+      allowedVersions: "< 3.0.0"
+    },
+    {
+      matchPackageNames: ["net.logstash.logback:logstash-logback-encoder"],
+      allowedVersions: "< 9.0.0"
+    },
     {
       groupName: "jdk and jre",
       // Allow for version 25.*
