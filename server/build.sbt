@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.13",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.29.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus
@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.2.3",
+      "org.checkerframework" % "dataflow-errorprone" % "4.3.0",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
