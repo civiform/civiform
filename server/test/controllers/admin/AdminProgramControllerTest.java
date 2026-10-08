@@ -122,7 +122,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
 
     Result result = controller.index(fakeRequest());
     // Guards against query count regressions on the admin program list.
-    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(309));
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(52));
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("one");
@@ -134,7 +134,7 @@ public class AdminProgramControllerTest extends ResetPostgres {
     sqlStatementsSinceLastCount();
     Result warmResult = controller.index(fakeRequest());
     assertThat(warmResult.status()).isEqualTo(OK);
-    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(288));
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(44));
   }
 
   @Test

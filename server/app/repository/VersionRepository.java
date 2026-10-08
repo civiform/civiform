@@ -13,7 +13,6 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import io.ebean.DB;
 import io.ebean.Database;
-import io.ebean.FetchConfig;
 import io.ebean.SerializableConflictException;
 import io.ebean.Transaction;
 import io.ebean.TxScope;
@@ -694,18 +693,25 @@ public final class VersionRepository {
 
   /** Returns the programs for a version without using the cache. */
   public ImmutableList<ProgramModel> getProgramsForVersionWithoutCache(VersionModel version) {
-    return database
-        .find(ProgramModel.class)
-        // We set the label to 'models.ProgramModel' to ensure Ebean records the metric
-        // under the same name as it did when this used version.getPrograms() lazy loading.
-        // This keeps MetricsControllerTest passing and maintains metric continuity.
-        .setLabel("models.ProgramModel")
-        .fetch("categories", FetchConfig.ofQuery())
-        .where()
-        .eq("versions.id", version.id)
-        .findList()
-        .stream()
-        .collect(ImmutableList.toImmutableList());
+    ImmutableList<ProgramModel> programs =
+        database
+            .find(ProgramModel.class)
+            // We set the label to 'models.ProgramModel' to ensure Ebean records the metric
+            // under the same name as it did when this used version.getPrograms() lazy loading.
+            // This keeps MetricsControllerTest passing and maintains metric continuity.
+            .setLabel("models.ProgramModel")
+            .fetch("categories")
+            .where()
+            .eq("versions.id", version.id)
+            .findList()
+            .stream()
+            .collect(ImmutableList.toImmutableList());
+    // @PostLoad fires before Ebean merges eager-fetched associations (e.g. categories) back into
+    // the entity, so the ProgramDefinition built during @PostLoad will have empty categories.
+    // Re-calling loadProgramDefinition() here ensures the eagerly-fetched categories are included.
+    // Refer https://github.com/civiform/civiform/issues/14055 for more details.
+    programs.forEach(ProgramModel::loadProgramDefinition);
+    return programs;
   }
 
   /**

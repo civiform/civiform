@@ -12,6 +12,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import models.DisplayMode;
+import models.ProgramModel;
 import models.VersionModel;
 import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
@@ -71,25 +72,42 @@ public final class ActiveAndDraftPrograms {
   }
 
   /**
-   * Queries the existing active and draft versions of non-disabled programs and builds a
-   * snapshotted view of the program state. These programs won't include the question definition,
-   * since ProgramService is not provided.
+   * Builds a snapshotted view of non-disabled active and draft programs from pre-loaded program
+   * models partitioned by version.
+   *
+   * @param activePrograms programs belonging to the active version
+   * @param draftPrograms programs belonging to the draft version
    */
-  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
-      VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  public static ActiveAndDraftPrograms buildInUsePrograms(
+      ImmutableList<ProgramModel> activePrograms, ImmutableList<ProgramModel> draftPrograms) {
+    return new ActiveAndDraftPrograms(activePrograms, draftPrograms);
   }
 
   /**
-   * Queries the existing active and draft versions of non-disabled programs and builds a
-   * snapshotted view of the program state. These programs will include the question definition,
-   * since ProgramService is provided.
+   * Builds ActiveAndDraftPrograms from pre-loaded and pre-partitioned program lists, avoiding all
+   * N+1 queries. Filters out DISABLED programs (IN_USE semantics).
    */
-  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsSynced(
-      ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, Optional.of(service), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  private ActiveAndDraftPrograms(
+      ImmutableList<ProgramModel> activeProgramModels,
+      ImmutableList<ProgramModel> draftProgramModels) {
+
+    ImmutableMap<String, ProgramDefinition> activeNameToProgram =
+        activeProgramModels.stream()
+            .map(ProgramModel::getProgramDefinition)
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftNameToProgram =
+        draftProgramModels.stream()
+            .map(ProgramModel::getProgramDefinition)
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    this.activePrograms = activeNameToProgram.values().asList();
+    this.draftPrograms = draftNameToProgram.values().asList();
+    this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(
