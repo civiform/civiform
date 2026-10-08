@@ -1405,4 +1405,35 @@ public class VersionRepositoryTest extends ResetPostgres {
     ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
   }
+
+  @Test
+  public void testAnyDisabledPrograms_disabledProgramReEnabledAfterPublishes() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled active program
+    ProgramBuilder.newActiveProgram("disabled-program", DisplayMode.DISABLED).build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // A few publishes happen while the program remains disabled
+    ProgramBuilder.newDraftProgram("other-program-1").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newDraftProgram("other-program-2").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newActiveProgram("other-program-3", DisplayMode.PUBLIC).build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // Re-enable the program in a draft and publish
+    ProgramBuilder.newDraftProgram("disabled-program").build();
+    versionRepository.publishNewSynchronizedVersion();
+
+    // The program is now re-enabled, so disabled programs in obsolete versions
+    // should not cause anyDisabledPrograms() to return true.
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+  }
 }
