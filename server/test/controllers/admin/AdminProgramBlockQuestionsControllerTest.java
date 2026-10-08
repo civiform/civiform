@@ -15,7 +15,6 @@ import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import models.LifecycleStage;
 import models.ProgramModel;
-import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Http.Request;
@@ -142,35 +141,6 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("id=\"repeated-set-question-section-heading\"");
     assertThat(contentAsString(result))
         .contains("data-testid=\"question-admin-name-pets enumerator\"");
-  }
-
-  @Test
-  public void hxCreateEnumerator_hidesReorderButtonsOnEnumeratorCard() {
-    QuestionDefinition initialQuestion =
-        testQuestionBank.nameApplicantName().getQuestionDefinition();
-    ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
-
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(
-                ImmutableMap.of(
-                    "entityType", "Pets",
-                    "questionName", "pets enumerator",
-                    "questionText", "List your pets.",
-                    "questionHelpText", "help text",
-                    "initialQuestionId", String.valueOf(initialQuestion.getId())))
-            .build();
-
-    Result result = controller.hxCreateEnumerator(request, program.id, 1);
-
-    assertThat(result.status()).isEqualTo(OK);
-    String content = contentAsString(result);
-    // The enumerator is the only question card shown, so both its move up and move down buttons
-    // are hidden.
-    assertThat(content).containsOnlyOnce("aria-label=\"move up\"");
-    assertThat(content).containsOnlyOnce("aria-label=\"move down\"");
-    assertThat(StringUtils.countMatches(content, "inline-block mx-1 invisible")).isEqualTo(2);
   }
 
   @Test

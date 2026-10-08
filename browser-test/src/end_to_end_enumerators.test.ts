@@ -373,6 +373,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await expect(enumeratorQuestionCard).toBeVisible()
         })
 
+        await expectRepeatedSetReorderButtonsHidden(page)
+
         await test.step('Verify the initial question line shows the newly-created copy (" -_- a" suffix)', async () => {
           await expect(
             blockPanel.getByText(
@@ -411,6 +413,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           )
           await expect(enumeratorQuestionCard).toBeVisible()
         })
+
+        await expectRepeatedSetReorderButtonsHidden(page)
 
         await test.step('Take a screenshot of the list set section after a full page load', async () => {
           await validateScreenshot(
@@ -2114,6 +2118,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await expect(
         initialQuestionSlot.getByRole('button', {name: 'Add initial question'}),
       ).toBeVisible()
+    })
+  }
+
+  /**
+   * Verifies the repeated set question list has one set of reorder buttons and they are hidden.
+   */
+  async function expectRepeatedSetReorderButtonsHidden(page: Page) {
+    const repeatedSetPanel = page.locator('#repeated-set-question-section')
+
+    await test.step('Validate the repeated set hides its move up and move down buttons', async () => {
+      const moveUpButton = repeatedSetPanel.locator('[aria-label="move up"]')
+      const moveDownButton = repeatedSetPanel.locator(
+        '[aria-label="move down"]',
+      )
+      await expect(moveUpButton).toHaveCount(1)
+      await expect(moveUpButton).toBeHidden()
+      await expect(moveDownButton).toHaveCount(1)
+      await expect(moveDownButton).toBeHidden()
     })
   }
 
