@@ -13,7 +13,7 @@
   "dependencies": {
     "@mswjs/http-middleware": "^0.10.1",
     "express": "^5.2.1",
-    "msw": "^2.7.0"
+    "msw": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",
