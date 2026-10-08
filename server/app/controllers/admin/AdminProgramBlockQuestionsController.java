@@ -323,7 +323,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         persistedEnumeratorQuestion,
                         programQuestionDefinition,
                         /* questionIndex= */ 0,
-                        blockDefinition.getQuestionCount(),
+                        // The enumerator is the only card shown; its initial question is not.
+                        /* questionsCount= */ 1,
                         request,
                         messages)),
                 /* blockHasEnumeratorQuestion= */ true,
