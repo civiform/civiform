@@ -689,10 +689,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
-    IntStream.range(0, blockQuestions.size())
+    // With the flag off, hide an enumerator's initial question so admins only see the legacy
+    // repeated set experience.
+    ImmutableList<ProgramQuestionDefinition> displayedBlockQuestions =
+        !enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator()
+            ? blockQuestions.stream()
+                .filter(
+                    question ->
+                        findQuestionDefinition(question, allPreviousVersionQuestions)
+                            .isEnumerator())
+                .collect(ImmutableList.toImmutableList())
+            : blockQuestions;
+
+    IntStream.range(0, displayedBlockQuestions.size())
         .forEach(
             index -> {
-              ProgramQuestionDefinition question = blockQuestions.get(index);
+              ProgramQuestionDefinition question = displayedBlockQuestions.get(index);
               QuestionDefinition questionDefinition =
                   findQuestionDefinition(question, allPreviousVersionQuestions);
 
@@ -704,7 +716,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       questionDefinition,
                       question,
                       index,
-                      blockQuestions.size(),
+                      displayedBlockQuestions.size(),
                       request,
                       messages));
             });

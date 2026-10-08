@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -631,6 +632,72 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'Initial question: income-non-repeated-question -_- a',
           ),
         ).toBeVisible()
+      })
+    })
+
+    test('hides the initial question when the feature flag is turned off and can still apply', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const enumeratorQuestionCard = blockPanel.getByTestId(
+        'question-admin-name-pets enumerator',
+      )
+      const initialQuestionAdminId = 'income-non-repeated-question -_- a'
+
+      await addRepeatedSetBlocks(page)
+
+      await test.step('Create an enumerator with an initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await fillAndSubmitEnumeratorQuestionForm(page)
+        // In contrast to the feature being off (below), when on there isn't a test-id currently so
+        // we have to match the visible text.
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
+        ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off and verify only the enumerator card is shown', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByTestId(
+            `question-admin-name-${initialQuestionAdminId}`,
+          ),
+        ).toBeHidden()
+      })
+
+      await test.step('Turn the feature flag back on and verify the initial question is preserved', async () => {
+        await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
+        ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off again and publish the program', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await adminPrograms.publishProgram('Enumerator test program')
+        await logout(page)
+      })
+
+      await test.step('Apply to the program as an applicant and submit', async () => {
+        await applicantQuestions.applyProgram('Enumerator test program')
+        await addRepeatedEntity(page, 'Pets', 'Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
