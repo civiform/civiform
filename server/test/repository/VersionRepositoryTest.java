@@ -240,7 +240,7 @@ public class VersionRepositoryTest extends ResetPostgres {
         .isEqualTo(
             useTransaction
                 ? SqlCounts.withReadsAndWrites(11, 4)
-                : SqlCounts.withReadsAndWrites(17, 4));
+                : SqlCounts.withReadsAndWrites(14, 4));
   }
 
   @Test
