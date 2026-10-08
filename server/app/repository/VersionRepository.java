@@ -650,27 +650,17 @@ public final class VersionRepository {
         .findAny();
   }
 
-  /** Implements a query to determine if any programs are disabled. */
   public boolean anyDisabledPrograms() {
-    ImmutableSet.Builder<Long> versionIds = ImmutableSet.builder();
-    VersionModel activeVersion = getActiveVersion();
-    if (activeVersion != null) {
-      versionIds.add(activeVersion.id);
-    }
-    getDraftVersion().ifPresent(draft -> versionIds.add(draft.id));
-    ImmutableSet<Long> ids = versionIds.build();
+    return anyDisabledPrograms(Optional.of(getActiveVersion()))
+        || anyDisabledPrograms(getDraftVersion());
+  }
 
-    if (ids.isEmpty()) {
-      return false;
-    }
-
-    return database
-        .find(ProgramModel.class)
-        .setLabel("VersionRepository.anyDisabledPrograms")
-        .where()
-        .in("versions.id", ids)
-        .eq("display_mode", DisplayMode.DISABLED.toString())
-        .exists();
+  private boolean anyDisabledPrograms(Optional<VersionModel> maybeVersion) {
+    return getProgramsForVersion(maybeVersion).stream()
+        .anyMatch(
+            p ->
+                programRepository.getShallowProgramDefinition(p).displayMode()
+                    == DisplayMode.DISABLED);
   }
 
   /** Returns the names of all the programs. */
