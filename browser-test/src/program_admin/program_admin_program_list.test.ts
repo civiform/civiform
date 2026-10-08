@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   logout,
@@ -8,6 +9,13 @@ import {
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Program admin program list', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows all the programs that are active', async ({
     page,
     adminPrograms,

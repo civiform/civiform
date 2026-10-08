@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   logout,
@@ -273,8 +274,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
+        await test.step('Validate focus moves to the "Remove" button on the initial question card', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: 'Remove the income-non-repeated-question initial question',
+            }),
+          ).toBeFocused()
+        })
+
         await removeInitialQuestion(page, 'income-non-repeated-question')
         await expectAddQuestionButton(page, 'income-non-repeated-question')
+
+        await test.step('Validate focus moves to the "Add initial question" button', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: 'Add initial question',
+            }),
+          ).toBeFocused()
+        })
       })
 
       test('shows only valid question types in the "Create new question" dropdown for an initial question', async ({
@@ -372,12 +389,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await expect(enumeratorQuestionCard).toBeVisible()
         })
 
+        await expectRepeatedSetReorderButtonsHidden(page)
+
         await test.step('Verify the initial question line shows the newly-created copy (" -_- a" suffix)', async () => {
           await expect(
             blockPanel.getByText(
               'Initial question: income-non-repeated-question -_- a',
             ),
           ).toBeVisible()
+        })
+
+        await test.step('Take a screenshot of the list set section', async () => {
+          // Clear the heading's focus outline so this matches the general screenshot.
+          await blockPanel.getByText('List set question').blur()
+          await validateScreenshot(
+            page.locator('#repeated-set-question-section'),
+            'enumerator-list-set-section',
+            {fullPage: false},
+          )
         })
 
         await test.step('Click "Continue to child screen" and verify we landed on the child screen', async () => {
@@ -399,6 +428,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             /* expectedScreenNumber= */ 2,
           )
           await expect(enumeratorQuestionCard).toBeVisible()
+        })
+
+        await expectRepeatedSetReorderButtonsHidden(page)
+
+        await test.step('Take a screenshot of the list set section after a full page load', async () => {
+          await validateScreenshot(
+            page.locator('#repeated-set-question-section'),
+            'enumerator-list-set-section',
+            {fullPage: false},
+          )
         })
 
         await test.step('Verify both the enumerator and the copied initial question appear on the Questions list page', async () => {
@@ -506,6 +545,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
+        await test.step('Validate focus is on the "Remove" button on the new initial question card', async () => {
+          await expect(
+            initialQuestionSlot.getByRole('button', {
+              name: `Remove the ${newQuestionAdminId} initial question`,
+            }),
+          ).toBeFocused()
+        })
+
         await fillAndSubmitEnumeratorQuestionForm(page)
 
         await test.step('Verify the enumerator question card is shown', async () => {
@@ -607,6 +654,72 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'Initial question: income-non-repeated-question -_- a',
           ),
         ).toBeVisible()
+      })
+    })
+
+    test('hides the initial question when the feature flag is turned off and can still apply', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
+      const enumeratorQuestionCard = blockPanel.getByTestId(
+        'question-admin-name-pets enumerator',
+      )
+      const initialQuestionAdminId = 'income-non-repeated-question -_- a'
+
+      await addRepeatedSetBlocks(page)
+
+      await test.step('Create an enumerator with an initial question', async () => {
+        await initialQuestionSlot
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await fillAndSubmitEnumeratorQuestionForm(page)
+        // In contrast to the feature being off (below), when on there isn't a test-id currently so
+        // we have to match the visible text.
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
+        ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off and verify only the enumerator card is shown', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByTestId(
+            `question-admin-name-${initialQuestionAdminId}`,
+          ),
+        ).toBeHidden()
+      })
+
+      await test.step('Turn the feature flag back on and verify the initial question is preserved', async () => {
+        await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(enumeratorQuestionCard).toBeVisible()
+        await expect(
+          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
+        ).toBeVisible()
+      })
+
+      await test.step('Turn the feature flag off again and publish the program', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await adminPrograms.publishProgram('Enumerator test program')
+        await logout(page)
+      })
+
+      await test.step('Apply to the program as an applicant and submit', async () => {
+        await applicantQuestions.applyProgram('Enumerator test program')
+        await addRepeatedEntity(page, 'Pets', 'Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
@@ -2029,6 +2142,22 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await expect(
         initialQuestionSlot.getByRole('button', {name: 'Add initial question'}),
       ).toBeVisible()
+    })
+  }
+
+  /**
+   * Verifies the repeated set question list has one set of reorder buttons and they are hidden.
+   */
+  async function expectRepeatedSetReorderButtonsHidden(page: Page) {
+    const repeatedSetPanel = page.locator('#repeated-set-question-section')
+
+    await test.step('Validate the repeated set hides its move up and move down buttons', async () => {
+      const moveUpButton = repeatedSetPanel.getByLabel('move up')
+      const moveDownButton = repeatedSetPanel.getByLabel('move down')
+      await expect(moveUpButton).toHaveCount(1)
+      await expect(moveUpButton).toBeHidden()
+      await expect(moveDownButton).toHaveCount(1)
+      await expect(moveDownButton).toBeHidden()
     })
   }
 
