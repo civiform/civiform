@@ -52,6 +52,40 @@ final class QuestionValidationUtils {
   }
 
   /**
+   * When file upload question improvements are disabled, ensures each file upload question is the
+   * only question on its screen. This mirrors {@link services.ProgramBlockValidation}, which
+   * enforces the same rule in the admin UI.
+   */
+  static ImmutableSet<CiviFormError> validateFileUploadBlocks(
+      ProgramDefinition program,
+      ImmutableList<QuestionDefinition> questions,
+      boolean fileUploadQuestionImprovementsEnabled) {
+    if (fileUploadQuestionImprovementsEnabled) {
+      return ImmutableSet.of();
+    }
+    // Imported blocks only reference question IDs, so look up question types from the import.
+    ImmutableSet<Long> fileUploadQuestionIds =
+        questions.stream()
+            .filter(question -> question.getQuestionType() == QuestionType.FILEUPLOAD)
+            .map(QuestionDefinition::getId)
+            .collect(ImmutableSet.toImmutableSet());
+    return program.blockDefinitions().stream()
+        .filter(block -> block.programQuestionDefinitions().size() > 1)
+        .filter(
+            block ->
+                block.programQuestionDefinitions().stream()
+                    .anyMatch(question -> fileUploadQuestionIds.contains(question.id())))
+        .map(
+            block ->
+                CiviFormError.of(
+                    String.format(
+                        "Screen '%s' has a file upload question and other questions. A file"
+                            + " upload question must be the only question on its screen.",
+                        block.name())))
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
    * Validates YES_NO questions and returns errors for any that contain invalid options.
    *
    * <p>Only validates YES_NO question types. Other question types are ignored. Valid YES_NO options

@@ -43,6 +43,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
       createQuestionDefinition("age", 2L, QuestionType.TEXT);
   private static final QuestionDefinition REPEATED_NAME_QUESTION =
       createQuestionDefinitionWithEnumId("repeated_name", 3L, QuestionType.TEXT, 1L);
+  private static final QuestionDefinition FILE_UPLOAD_QUESTION =
+      createQuestionDefinition("file_upload", 4L, QuestionType.FILEUPLOAD);
   private static final String PROGRAM_NAME_1 = "Program 1";
 
   @Test
@@ -124,6 +126,66 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
         .contains(
             "Question ID " + AGE_QUESTION.getId() + " is not defined",
             "Question ID 3 is not defined");
+  }
+
+  @Test
+  public void validateFileUploadBlocks_fileUploadAlone_noErrors() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(PROGRAM_NAME_1)
+            .withBlock("Screen 1")
+            .withRequiredQuestionDefinition(NAME_QUESTION)
+            .withRequiredQuestionDefinition(AGE_QUESTION)
+            .withBlock("Screen 2")
+            .withRequiredQuestionDefinition(FILE_UPLOAD_QUESTION)
+            .buildDefinition();
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(NAME_QUESTION, AGE_QUESTION, FILE_UPLOAD_QUESTION);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateFileUploadBlocks(
+            programDefinition, questions, /* fileUploadQuestionImprovementsEnabled= */ false);
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateFileUploadBlocks_fileUploadWithOtherQuestion_returnsError() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(PROGRAM_NAME_1)
+            .withBlock("Screen 1")
+            .withRequiredQuestionDefinition(NAME_QUESTION)
+            .withRequiredQuestionDefinition(FILE_UPLOAD_QUESTION)
+            .buildDefinition();
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(NAME_QUESTION, FILE_UPLOAD_QUESTION);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateFileUploadBlocks(
+            programDefinition, questions, /* fileUploadQuestionImprovementsEnabled= */ false);
+
+    assertThat(errors)
+        .containsExactly(
+            CiviFormError.of(
+                "Screen 'Screen 1' has a file upload question and other questions. A file upload"
+                    + " question must be the only question on its screen."));
+  }
+
+  @Test
+  public void validateFileUploadBlocks_improvementsEnabled_noErrors() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram(PROGRAM_NAME_1)
+            .withBlock("Screen 1")
+            .withRequiredQuestionDefinition(NAME_QUESTION)
+            .withRequiredQuestionDefinition(FILE_UPLOAD_QUESTION)
+            .buildDefinition();
+    ImmutableList<QuestionDefinition> questions =
+        ImmutableList.of(NAME_QUESTION, FILE_UPLOAD_QUESTION);
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateFileUploadBlocks(
+            programDefinition, questions, /* fileUploadQuestionImprovementsEnabled= */ true);
+
+    assertThat(errors).isEmpty();
   }
 
   @Test
