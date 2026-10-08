@@ -433,11 +433,9 @@ class AdminPrograms {
    * focus to that card's "Remove" button to indicate the question was created.
    */
   static focusOnInitialQuestionRemoveButtonFromUrlParam() {
-    const url = new URL(window.location.href)
-    if (!url.searchParams.has('initialQuestionId')) {
-      return
+    if (new URLSearchParams(window.location.search).has('initialQuestionId')) {
+      document.getElementById('initial-question-remove-button')?.focus()
     }
-    document.getElementById('initial-question-remove-button')?.focus()
   }
 
   /**
