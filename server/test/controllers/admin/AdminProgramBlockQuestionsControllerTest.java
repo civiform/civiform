@@ -411,6 +411,44 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxCreateEnumerator_onNestedBlockWithoutInitialQuestion_doesNotRequireThis()
+      throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .build();
+    long nestedBlockId =
+        programService
+            .addNestedRepeatedSetToProgram(
+                program.id,
+                /* parentEnumeratorBlockId= */ 1L,
+                /* enumeratorImprovementsEnabled= */ true)
+            .getResult()
+            .maybeAddedBlock()
+            .orElseThrow()
+            .id();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                // Missing initialQuestionId, and no "$this" in the question text.
+                ImmutableMap.of(
+                    "entityType", "Jobs",
+                    "questionName", "jobs enumerator",
+                    "questionText", "List the jobs.",
+                    "questionHelpText", "help text"))
+            .build();
+
+    Result result = controller.hxCreateEnumerator(request, program.id, nestedBlockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Error: Initial question must be added.");
+    assertThat(contentAsString(result)).doesNotContain("Repeated questions must reference");
+  }
+
+  @Test
   public void hxSelectInitialQuestion_returnsSlotFragmentAndCloseTrigger() {
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();

@@ -217,7 +217,10 @@ public class AdminProgramBlockQuestionsController extends Controller {
       result =
           ErrorAnd.error(
               ImmutableSet.<CiviFormError>builder()
-                  .addAll(pendingEnumeratorQuestion.validate())
+                  .addAll(
+                      pendingEnumeratorQuestion.validate(
+                          /* previousDefinition= */ Optional.empty(),
+                          /* enumeratorImprovementsEnabled= */ true))
                   .add(
                       CiviFormError.of(
                           messages.at(
