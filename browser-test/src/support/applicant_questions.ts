@@ -1093,7 +1093,7 @@ export class ApplicantQuestions {
     const modalContinueButton = 'Go to the review page without saving'
     const modalFixButton = 'Stay here and fix your answers'
 
-    const modal = this.page.getByRole('dialog', {state: 'visible'})
+    const modal = this.page.getByRole('dialog')
     await expect(modal.getByText(modalTitle)).toBeVisible()
     await expect(modal.getByText(modalContent)).toBeVisible()
     await expect(
@@ -1116,7 +1116,7 @@ export class ApplicantQuestions {
     const modalContinueButton = 'Go to the previous page without saving'
     const modalFixButton = 'Stay here and fix your answers'
 
-    const modal = this.page.getByRole('dialog', {state: 'visible'})
+    const modal = this.page.getByRole('dialog')
     await expect(modal.getByText(modalTitle)).toBeVisible()
     await expect(modal.getByText(modalContent)).toBeVisible()
     await expect(
