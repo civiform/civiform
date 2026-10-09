@@ -260,6 +260,52 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void hxImportProgram_repeatedQuestionsWithoutThis_enumeratorImprovementsEnabled_noError() {
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", programJsonWithEnumeratorsWithoutThis()))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("Repeated questions must reference");
+    assertThat(contentAsString(result)).contains("What color is the cat?");
+  }
+
+  @Test
+  public void hxImportProgram_repeatedQuestionsWithoutThis_enumeratorImprovementsDisabled_error() {
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", programJsonWithEnumeratorsWithoutThis()))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Repeated questions must reference");
+  }
+
+  /**
+   * The nested enumerator and its initial question, with "$this" removed from their text. Also adds
+   * the short description that the import preview requires, which this fixture predates.
+   */
+  private static String programJsonWithEnumeratorsWithoutThis() {
+    String json =
+        PROGRAM_JSON_WITH_ENUMERATORS
+            .replace("Please list each cat owned by $this", "Please list each cat.")
+            .replace("What color is $this?", "What color is the cat?")
+            .replace(
+                "\"localizedConfirmationMessage\" : {",
+                "\"localizedShortDescription\" : { \"translations\" : { \"en_US\" : \"short"
+                    + " description\" }, \"isRequired\" : true }, \"localizedConfirmationMessage\""
+                    + " : {");
+    assertThat(json).doesNotContain("$this");
+    return json;
+  }
+
+  @Test
   public void hxSaveProgram_savesTheProgramWithoutQuestions() {
     Result result =
         controller.hxSaveProgram(

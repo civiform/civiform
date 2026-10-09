@@ -161,15 +161,19 @@ public final class ProgramMigrationService {
    * @param program The program definition being validated.
    * @param questions The questions to validate.
    * @param existingAdminNames The existing admin names of questions in the Question Bank.
+   * @param enumeratorImprovementsEnabled Whether the enumerator improvements feature is enabled.
    * @return A set of validation errors from all validation checks.
    */
   public ImmutableSet<CiviFormError> validateQuestions(
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
-      ImmutableList<String> existingAdminNames) {
+      ImmutableList<String> existingAdminNames,
+      boolean enumeratorImprovementsEnabled) {
 
     return ImmutableSet.<CiviFormError>builder()
-        .addAll(QuestionValidationUtils.validateQuestionOptionAdminNames(questions))
+        .addAll(
+            QuestionValidationUtils.validateQuestionOptionAdminNames(
+                questions, enumeratorImprovementsEnabled))
         .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
         .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))
         .addAll(QuestionValidationUtils.validateOptionScores(questions))
