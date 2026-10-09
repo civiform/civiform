@@ -59,7 +59,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
         QuestionValidationUtils.validateQuestionOptionAdminNames(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
-                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)));
+                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors).isEmpty();
   }
@@ -79,7 +80,8 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
         QuestionValidationUtils.validateQuestionOptionAdminNames(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
-                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)));
+                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())

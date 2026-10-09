@@ -23,16 +23,20 @@ final class QuestionValidationUtils {
    * Validates attributes of the question, including admin name, help text, and question options.
    */
   static ImmutableSet<CiviFormError> validateQuestionOptionAdminNames(
-      ImmutableList<QuestionDefinition> questions) {
+      ImmutableList<QuestionDefinition> questions, boolean enumeratorImprovementsEnabled) {
     return questions.stream()
         .map(
             question -> {
               if (question.getQuestionType().isMultiOptionType()) {
                 MultiOptionQuestionDefinition multiOptionQuestion =
                     (MultiOptionQuestionDefinition) question;
-                return multiOptionQuestion.setValidateQuestionOptionAdminNames(false).validate();
+                return multiOptionQuestion
+                    .setValidateQuestionOptionAdminNames(false)
+                    .validate(
+                        /* previousDefinition= */ Optional.empty(), enumeratorImprovementsEnabled);
               }
-              return question.validate();
+              return question.validate(
+                  /* previousDefinition= */ Optional.empty(), enumeratorImprovementsEnabled);
             })
         .flatMap(errors -> errors.stream())
         .collect(ImmutableSet.toImmutableSet());
