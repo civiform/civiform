@@ -189,34 +189,10 @@ public final class ProgramService {
    */
   public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms(
       ReadOnlyQuestionService roQuestionService) {
-    VersionModel activeVersion = versionRepository.getActiveVersion();
-    Optional<VersionModel> draftVersion = versionRepository.getDraftVersion();
-
-    ImmutableList<ProgramModel> activePrograms =
-        versionRepository.getProgramsForVersion(activeVersion);
-
-    ImmutableList<ProgramModel> draftPrograms =
-        draftVersion.isPresent()
-            ? versionRepository.getProgramsForVersion(draftVersion.get())
-            : ImmutableList.of();
-
-    ImmutableList<ProgramModel> hydratedActivePrograms =
-        activePrograms.stream()
-            .map(
-                p ->
-                    toFullProgramDefinition(p, roQuestionService, /* isDraft= */ false).toProgram())
-            .collect(ImmutableList.toImmutableList());
-
-    ImmutableList<ProgramModel> hydratedDraftPrograms =
-        draftPrograms.stream()
-            .map(
-                p -> toFullProgramDefinition(p, roQuestionService, /* isDraft= */ true).toProgram())
-            .collect(ImmutableList.toImmutableList());
-
-    return ActiveAndDraftPrograms.buildInUsePrograms(hydratedActivePrograms, hydratedDraftPrograms);
+    return ActiveAndDraftPrograms.buildInUsePrograms(versionRepository, this, roQuestionService);
   }
 
-  private ProgramDefinition toFullProgramDefinition(
+  ProgramDefinition toFullProgramDefinition(
       ProgramModel program, ReadOnlyQuestionService roQuestionService, boolean isDraft) {
     if (!isDraft) {
       Optional<ProgramDefinition> cached =
