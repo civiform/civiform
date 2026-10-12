@@ -25,7 +25,7 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.0.0",
-    "typescript": "^6.0.0"
+    "typescript": "^7.0.0"
   },
   "license": "Apache-2.0",
   "engines": {
