@@ -1369,7 +1369,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   })
 
   test.describe('Applicant', () => {
-    test('renders a name initial question on the applicant enumerator screen', async ({
+    test('renders, adds, and removes repeated entities on the enumerator screen with a name initial question', async ({
       page,
       adminPrograms,
       applicantQuestions,
@@ -1400,14 +1400,15 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(page.getByText('What is your name?')).toBeHidden()
       })
 
+      // A multi-input initial question renders each entity row as a role="group".
+      // The first entity's group is labeled by the enumerator question text plus the
+      // entity label, and described by the enumerator help text.
+      const firstEntity = blockForm.getByRole('group', {
+        name: 'List the names of your pets. Pets name #1',
+        exact: true,
+      })
+
       await test.step('Verify the name fields render, grouped and labeled for the first entity', async () => {
-        // A multi-input initial question renders each entity row as a role="group".
-        // The first entity's group is labeled by the enumerator question text plus the
-        // entity label, and described by the enumerator help text.
-        const firstEntity = blockForm.getByRole('group', {
-          name: 'List the names of your pets. Pets name #1',
-          exact: true,
-        })
         await expect(firstEntity).toBeVisible()
         await expect(firstEntity).toHaveAccessibleDescription(
           'List all of your pets by name.',
@@ -1424,8 +1425,113 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await validateAccessibility(page, '#cf-block-form')
       })
 
+      await test.step('Fill the first entity and add a second entity', async () => {
+        await firstEntity.getByRole('textbox', {name: 'First name'}).fill('Rex')
+        await firstEntity.getByRole('textbox', {name: 'Last name'}).fill('Woof')
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        // The added entity is not first, so its group is labeled only by its own entity label.
+        await expect(
+          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+        ).toBeVisible()
+      })
+
       await test.step('Take a screenshot of the enumerator form', async () => {
         await validateScreenshot(blockForm, 'enumerator-name-initial-question')
+      })
+
+      await test.step('Remove the first entity', async () => {
+        page.once('dialog', (dialog) => dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Pets #1'}).click()
+      })
+
+      await test.step('Verify the promoted entity takes over the enumerator title and help text', async () => {
+        // The remaining entity is re-indexed back to #1.
+        await expect(
+          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+        ).toBeHidden()
+        const promotedEntity = blockForm.getByRole('group', {
+          name: 'List the names of your pets. Pets name #1',
+          exact: true,
+        })
+        await expect(promotedEntity).toBeVisible()
+        await expect(promotedEntity).toHaveAccessibleDescription(
+          'List all of your pets by name.',
+        )
+        // The promoted entity is the originally-empty second entity, not the removed (filled)
+        // first one, so its inputs are blank.
+        await expect(
+          promotedEntity.getByRole('textbox', {name: 'First name'}),
+        ).toHaveValue('')
+        await expect(
+          promotedEntity.getByRole('textbox', {name: 'Last name'}),
+        ).toHaveValue('')
+      })
+    })
+
+    test('adds and removes entities on a single-input initial question', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator number initial question program'
+
+      await test.step('Publish a program whose enumerator has a number initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Apply to the program', async () => {
+        await applicantQuestions.applyProgram(programName)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
+      // The first entity's input is labeled by the enumerator question text plus the entity label.
+      const firstEntityInput = blockForm.getByRole('spinbutton', {
+        name: 'List the names of your pets. Pets name #1',
+      })
+
+      await test.step('Verify only one entity input is shown to start', async () => {
+        await expect(
+          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+        ).toBeHidden()
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(1)
+      })
+
+      await test.step('Verify the add button is disabled while the last row is empty', async () => {
+        await expect(addButton).toBeDisabled()
+      })
+
+      await test.step('Fill the first entity and add a second entity', async () => {
+        await firstEntityInput.fill('1')
+        await expect(addButton).toBeEnabled()
+        await addButton.click()
+        await waitForHtmxReady(page)
+      })
+
+      await test.step('Verify a second entity row is shown', async () => {
+        // The added entity is not first, so its input is labeled only by its own entity label.
+        await expect(
+          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+        ).toBeVisible()
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
+      })
+
+      await test.step('Remove the second entity', async () => {
+        page.once('dialog', (dialog) => dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Pets #2'}).click()
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(1)
+        await expect(
+          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+        ).toBeHidden()
       })
     })
 

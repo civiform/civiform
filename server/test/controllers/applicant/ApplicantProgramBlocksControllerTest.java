@@ -35,6 +35,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,6 +45,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
+import repository.QuestionRepository;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.Address;
@@ -265,6 +267,80 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .join();
 
     assertThat(result.status()).isEqualTo(UNAUTHORIZED);
+  }
+
+  @Test
+  public void hxAddEnumeratorEntityWithApplicantId_whenFlagDisabled_returnsNotFound() {
+    // getEnumeratorImprovementsEnabled defaults to false on the mock.
+    Result result =
+        subject
+            .hxAddEnumeratorEntityWithApplicantId(
+                fakeRequest(), applicant.id, program.id, /* blockId= */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxAddEnumeratorEntityWithApplicantId_whenBlockIsNotEnumerator_returnsNotFound() {
+    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+
+    // Block "1" holds a name question, not an enumerator.
+    Result result =
+        subject
+            .hxAddEnumeratorEntityWithApplicantId(
+                fakeRequest(), applicant.id, program.id, /* blockId= */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxAddEnumeratorEntityWithApplicantId_usesClientEntityCountForRowIndex() {
+    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
+
+    // No entities are saved, but the client reports two visible rows, so the new row takes index 2
+    // (displayed as "#3").
+    Result result =
+        subject
+            .hxAddEnumeratorEntityWithApplicantId(
+                fakeRequestBuilder().bodyForm(ImmutableMap.of("entityCount", "2")).build(),
+                applicant.id,
+                enumeratorProgram.id,
+                /* blockId= */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("#3");
+  }
+
+  /**
+   * Builds an active program whose first block is an enumerator with an initial question. Both the
+   * enumerator question and its linked initial question live on the same block, so {@link
+   * services.applicant.Block#getInitialQuestion()} can resolve the initial question.
+   */
+  private ProgramModel programWithEnumeratorInitialQuestion() {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    long initialQuestionId =
+        enumeratorQuestion
+            .getQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .orElseThrow();
+    QuestionModel initialQuestion =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestion(initialQuestionId)
+            .toCompletableFuture()
+            .join()
+            .orElseThrow();
+    return ProgramBuilder.newActiveProgram()
+        .withBlock()
+        .withRequiredQuestions(enumeratorQuestion, initialQuestion)
+        .build();
   }
 
   @Test

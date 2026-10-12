@@ -162,6 +162,11 @@ public final class Block {
         "Only an enumerator block can have an enumeration question definition.");
   }
 
+  /** Returns the number of entities the applicant has added to this enumerator block. */
+  public int getEnumeratorEntityCount() {
+    return getEnumeratorQuestion().createEnumeratorQuestion().getEntityNames().size();
+  }
+
   /**
    * Returns the initial {@link ApplicantQuestion} for an enumerator block, or {@link
    * Optional#empty()} if the enumerator has no initial question set.
@@ -230,7 +235,29 @@ public final class Block {
   }
 
   /**
-   * Creates an {@link ApplicantQuestion} for the initial question, contextualized to the entity at
+   * Creates an empty {@link ApplicantQuestion} for an enumerator initial question, contextualized to the
+   * entity at the given index, or {@link Optional#empty()} if this block has no initial question.
+   * Used by the HTMX add-entity endpoint to render the field(s) for a newly added entity row.
+   */
+  public Optional<ApplicantQuestion> createContextualizedInitialQuestion(int entityIndex) {
+    if (!isEnumerator()) {
+      return Optional.empty();
+    }
+    return getInitialQuestion()
+        .map(
+            initialQuestion -> {
+              EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+                  (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
+              return createContextualizedInitialQuestionAtIndex(
+                  initialQuestion,
+                  enumeratorQuestionDefinition,
+                  /* entityName= */ "",
+                  entityIndex);
+            });
+  }
+
+  /**
+   * Creates an {@link ApplicantQuestion} for an enumerator initial question, contextualized to the entity at
    * the given index so its scalar paths resolve to that entity (e.g. {@code
    * applicant.household_members[0].member_name.first_name}).
    */

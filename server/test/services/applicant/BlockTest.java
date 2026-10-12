@@ -1474,6 +1474,63 @@ public class BlockTest {
     assertThat(contextualizedQuestions.get(0).getContextualizedPath().toString()).contains("[0]");
   }
 
+  @Test
+  public void getEnumeratorEntityCount_withNoEntities_returnsZero() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getEnumeratorEntityCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void getEnumeratorEntityCount_withEntities_returnsCount() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), applicantData);
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("first", "second"));
+
+    assertThat(block.getEnumeratorEntityCount()).isEqualTo(2);
+  }
+
+  @Test
+  public void createContextualizedInitialQuestion_contextualizesToGivenIndex() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    Optional<ApplicantQuestion> initialQuestion = block.createContextualizedInitialQuestion(3);
+
+    assertThat(initialQuestion).isPresent();
+    assertThat(initialQuestion.get().getContextualizedPath().toString()).contains("[3]");
+    assertThat(initialQuestion.get().getQuestionDefinition().getId()).isEqualTo(INITIAL_QUESTION_ID);
+  }
+
+  @Test
+  public void createContextualizedInitialQuestion_withNoInitialQuestion_returnsEmpty() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1",
+            enumeratorBlockWithoutInitialQuestion(),
+            new ApplicantModel(),
+            new ApplicantData());
+
+    assertThat(block.createContextualizedInitialQuestion(0)).isEmpty();
+  }
+
+  @Test
+  public void createContextualizedInitialQuestion_withNonEnumeratorBlock_returnsEmpty() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", setUpBlockWithQuestions(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.createContextualizedInitialQuestion(0)).isEmpty();
+  }
+
   private static BlockDefinition enumeratorBlockWithInitialQuestion() {
     return BlockDefinition.builder()
         .setId(30L)
