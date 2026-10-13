@@ -16,4 +16,4 @@ addSbtPlugin("com.github.sbt" % "sbt-gzip" % "2.0.0")
 addSbtPlugin("com.github.sbt" % "sbt-jacoco" % "3.7.0")
 
 // Formatting plugin
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.2")
