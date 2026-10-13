@@ -5,9 +5,12 @@
   // actions to run and lessen calls to docker hub.
   //
   // This will allow the schedule to run within this time range:
-  //   PST/PDT -> 9pm - 3am
-  //   EST/EDT -> Midnight - 6am 
-  schedule: ["after 4am", "before 10am"],
+  //   PST 5pm - 3am / PDT 6pm - 4am
+  //   EST 8pm - 6am / EDT 9pm - 7am
+  //
+  // Entries in the schedule array are ORed, so the window has to be a single
+  // expression.
+  schedule: ["* 1-10 * * *"],
   // Github label(s) applied to the generated pull request, unless overridden below
   labels: ["dependencies"],
   // Amount of time to wait after a release before opening a PR, to avoid chasing yanked or broken releases.
