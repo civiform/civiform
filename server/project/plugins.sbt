@@ -3,7 +3,7 @@ addSbtPlugin("org.playframework" % "sbt-plugin" % "3.0.12")
 addSbtPlugin("org.playframework" % "sbt-play-ebean" % "8.5.0")
 
 // Dependency tree plugin. To use, open an sbt shell and run dependencyBrowseTree
-addSbtPlugin("net.virtual-void" % "sbt-dependency-graph" % "0.10.0-RC1")
+addDependencyTreePlugin
 
 // IDE compatibility plugin
 addSbtPlugin("com.typesafe.sbteclipse" % "sbteclipse-plugin" % "5.2.4")
