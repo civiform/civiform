@@ -55,7 +55,9 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
-      matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
+      matchPackageNames: [
+        "com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer",
+      ],
       versioning: "regex:^(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})\\.(?<build>\\d+)$",
     },
     {
@@ -71,17 +73,17 @@
     {
       groupName: "jackson",
       matchPackageNames: ["com.fasterxml.jackson{/,}**"],
-      allowedVersions: "< 3.0.0"
+      allowedVersions: "< 3.0.0",
     },
     // Stay on Jackson 2: json-schema-validator v3 and logstash-logback-encoder v9
     // depend on Jackson 3. Revisit when Play supports Jackson 3 (see the jackson rule above).
     {
       matchPackageNames: ["com.networknt:json-schema-validator"],
-      allowedVersions: "< 3.0.0"
+      allowedVersions: "< 3.0.0",
     },
     {
       matchPackageNames: ["net.logstash.logback:logstash-logback-encoder"],
-      allowedVersions: "< 9.0.0"
+      allowedVersions: "< 9.0.0",
     },
     {
       groupName: "jdk and jre",
@@ -101,7 +103,7 @@
     {
       groupName: "microsoft graph",
       matchPackageNames: ["com.microsoft.graph:{/,}**"],
-      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
+      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md",
     },
     {
       groupName: "pac4j",
@@ -154,8 +156,8 @@
       allowedVersions: "<4.0.0",
     },
     {
-      "groupName": "vite and vitest",
-      "matchPackagePatterns": ["^vite", "^@vitejs/", "^@vitest/"]
+      groupName: "vite and vitest",
+      matchPackageNames: ["/^vite/", "/^@vitejs//", "/^@vitest//"],
     },
     {
       // Using groupName null prevents all the GitHub Actions updates being done in a single commit
