@@ -36,6 +36,14 @@ public abstract class AbstractOpenApiSchemaGenerator {
     return ImmutableList.of(Scheme.HTTPS);
   }
 
+  /**
+   * Whether answer-option score properties belong in the schema for this program: the feature flag
+   * must be on for the request and the program must apply scoring.
+   */
+  protected boolean includeScores(ProgramDefinition programDefinition) {
+    return openApiSchemaSettings.scoringEnabled() && programDefinition.usesScoring();
+  }
+
   /** Gets the baseurl without scheme */
   protected String getHostName() {
     return openApiSchemaSettings.baseUrl().replace("https://", "").replace("http://", "");

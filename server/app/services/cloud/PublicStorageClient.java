@@ -34,7 +34,8 @@ public abstract class PublicStorageClient {
    *     publicly accessible.
    */
   public final String getPublicDisplayUrl(String fileKey) {
-    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)) {
+    if (!PublicFileNameFormatter.isFileKeyForPublicProgramImage(fileKey)
+        && !PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
       throw new IllegalArgumentException("File key incorrectly formatted for public use");
     }
     return getPublicDisplayUrlInternal(fileKey);

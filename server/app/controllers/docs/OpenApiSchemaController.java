@@ -82,7 +82,8 @@ public final class OpenApiSchemaController {
           new OpenApiSchemaSettings(
               settingsManifest.getBaseUrl().orElse(""),
               getEmailAddress(request),
-              deploymentType.isDev());
+              deploymentType.isDev(),
+              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
 
       OpenApiSchemaGenerator openApiSchemaGenerator =
           OpenApiSchemaGeneratorFactory.createGenerator(openApiVersionType, openApiSchemaSettings);

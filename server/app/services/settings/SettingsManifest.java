@@ -1087,11 +1087,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
-  /** Enables translation management improvement phase one */
-  public boolean getTranslationManagementImprovementEnabled() {
-    return getBool("TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED");
-  }
-
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
   public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
@@ -2367,12 +2362,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                       SettingDescription.create(
                           "SESSION_TIMEOUT_ENABLED",
                           "Enable session timeout based on inactivity and maximum duration.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED",
-                          "Enables translation management improvement phase one",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE))))

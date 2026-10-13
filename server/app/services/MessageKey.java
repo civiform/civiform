@@ -48,6 +48,8 @@ public enum MessageKey {
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
+  ALERT_REPEATED_SET_INITIAL_QUESTION_ARCHIVED("alert.repeatedSet.initialQuestionArchived"),
+  ALERT_REPEATED_SET_INITIAL_QUESTION_NOT_FOUND("alert.repeatedSet.initialQuestionNotFound"),
   ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED("alert.repeatedSet.initialQuestionRequired"),
   ALERT_REPEATED_SET_NEW_QUESTION("alert.repeatedSet.newQuestion"),
   ALERT_REPEATED_SET_PREVIOUSLY_USED("alert.repeatedSet.previouslyUsed"),
@@ -85,8 +87,9 @@ public enum MessageKey {
   BUTTON_LOGOUT("button.logout"),
   BUTTON_NEXT("button.nextPage"),
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
+  BUTTON_REMOVE_QUESTION("button.removeQuestion"),
   BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
-  BUTTON_REPEATED_SET_INITIAL_QUESTION_DELETE("button.repeatedSet.initialQuestion.delete"),
+  BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD("button.repeatedSet.initialQuestion.add"),
   BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL(
       "button.repeatedSet.initialQuestion.removeAriaLabel"),
   BUTTON_REPEATED_SET_SUBMIT_NEW("button.repeatedSet.submitNew"),

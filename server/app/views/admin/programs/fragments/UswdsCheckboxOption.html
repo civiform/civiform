@@ -1,0 +1,26 @@
+<!--/*
+  USWDS tile checkbox option.
+
+  value is optional: pass null to omit the attribute (th:attr drops null
+  attributes; empty string values also drop, so options needing a literal
+  value="" cannot use this fragment).
+
+  outerClasses is the wrapper's full class attribute. Pass 'usa-checkbox' for
+  the standard rendering; grid-laid-out options pass their grid classes
+  instead.
+*/-->
+<div
+  th:fragment="uswdsCheckboxOption(id, name, value, checked, disabled, label, outerClasses)"
+  th:class="${outerClasses}"
+>
+  <input
+    th:id="${id}"
+    class="usa-checkbox__input usa-checkbox__input--tile"
+    type="checkbox"
+    th:name="${name}"
+    th:attr="value=${value}"
+    th:checked="${checked}"
+    th:disabled="${disabled}"
+  />
+  <label th:for="${id}" class="usa-checkbox__label" th:text="${label}"></label>
+</div>

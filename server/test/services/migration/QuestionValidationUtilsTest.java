@@ -10,6 +10,7 @@ import static support.TestQuestionBank.createYesNoQuestionDefinition;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
+import java.util.Optional;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.CiviFormError;
@@ -649,5 +650,155 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
                 + " 'invalid-option'. Only 'yes', 'no', 'maybe', and 'not-sure' options are"
                 + " allowed.",
             "YES_NO question 'missing-and-invalid-question' is missing required 'no' option.");
+  }
+
+  // Option score validation tests
+  private static QuestionOption option(long id, String adminName, Optional<Double> score) {
+    return QuestionOption.create(
+        id,
+        /* displayOrder= */ id,
+        adminName,
+        LocalizedStrings.of(Locale.US, adminName),
+        /* displayInAnswerOptions= */ Optional.of(true),
+        score);
+  }
+
+  private static QuestionDefinition multiOptionQuestion(
+      String adminName, MultiOptionQuestionType type, QuestionOption... options) {
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName(adminName)
+            .setDescription(adminName)
+            .setQuestionText(LocalizedStrings.of(Locale.US, adminName))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .build();
+
+    return new MultiOptionQuestionDefinition(config, ImmutableList.copyOf(options), type);
+  }
+
+  @Test
+  public void validateOptionScores_allOptionsScored_noErrors() {
+    QuestionDefinition question =
+        multiOptionQuestion(
+            "fully-scored",
+            MultiOptionQuestionType.DROPDOWN,
+            option(1L, "option-a", Optional.of(1.5)),
+            option(2L, "option-b", Optional.of(0.0)),
+            option(3L, "option-c", Optional.of(-2.0)));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(question));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateOptionScores_noOptionsScored_noErrors() {
+    QuestionDefinition question =
+        multiOptionQuestion(
+            "unscored",
+            MultiOptionQuestionType.CHECKBOX,
+            option(1L, "option-a", Optional.empty()),
+            option(2L, "option-b", Optional.empty()));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(question));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateOptionScores_someOptionsScored_returnsErrorNamingUnscoredOptions() {
+    QuestionDefinition question =
+        multiOptionQuestion(
+            "partially-scored",
+            MultiOptionQuestionType.RADIO_BUTTON,
+            option(1L, "option-a", Optional.of(4.0)),
+            option(2L, "option-b", Optional.empty()),
+            option(3L, "option-c", Optional.empty()));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(question));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            "Question 'partially-scored' must have a score on every option or on none. Options"
+                + " missing a score: 'option-b', 'option-c'.");
+  }
+
+  @Test
+  public void validateOptionScores_scoreOnYesNoQuestion_returnsErrorPerScoredOption() {
+    QuestionDefinition question =
+        multiOptionQuestion(
+            "scored-yes-no",
+            MultiOptionQuestionType.YES_NO,
+            option(1L, "yes", Optional.of(1.0)),
+            option(2L, "no", Optional.of(0.0)));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(question));
+
+    assertThat(errors.stream().map(CiviFormError::message))
+        .containsExactlyInAnyOrder(
+            "Question 'scored-yes-no' of type YES_NO cannot have a score on option 'yes'.",
+            "Question 'scored-yes-no' of type YES_NO cannot have a score on option 'no'.");
+  }
+
+  @Test
+  public void validateOptionScores_nonFiniteScore_returnsError() {
+    QuestionDefinition question =
+        multiOptionQuestion(
+            "infinite",
+            MultiOptionQuestionType.DROPDOWN,
+            option(1L, "option-a", Optional.of(Double.POSITIVE_INFINITY)),
+            option(2L, "option-b", Optional.of(1.0)));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(question));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message())
+        .isEqualTo(
+            "Option score on option 'option-a' of question 'infinite' must be a finite number.");
+  }
+
+  @Test
+  public void validateOptionScores_ignoresNonMultiOptionQuestions() {
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of(NAME_QUESTION, AGE_QUESTION));
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateOptionScores_emptyQuestionList_noErrors() {
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(ImmutableList.of());
+
+    assertThat(errors).isEmpty();
+  }
+
+  @Test
+  public void validateOptionScores_multipleQuestions_reportsOnlyInvalidQuestions() {
+    QuestionDefinition valid =
+        multiOptionQuestion(
+            "valid",
+            MultiOptionQuestionType.DROPDOWN,
+            option(1L, "option-a", Optional.of(1.0)),
+            option(2L, "option-b", Optional.of(2.0)));
+    QuestionDefinition partial =
+        multiOptionQuestion(
+            "partial",
+            MultiOptionQuestionType.DROPDOWN,
+            option(1L, "option-a", Optional.of(1.0)),
+            option(2L, "option-b", Optional.empty()));
+
+    ImmutableSet<CiviFormError> errors =
+        QuestionValidationUtils.validateOptionScores(
+            ImmutableList.of(valid, NAME_QUESTION, partial));
+
+    assertThat(errors).hasSize(1);
+    assertThat(errors.iterator().next().message()).contains("Question 'partial'");
   }
 }

@@ -52,13 +52,6 @@ See the radio-option below as an example.
   max-width: none;
 }
 
-/* Hide duplicate instructions and boxes when USWDS double-initializes and nests elements inside .usa-file-input__input */
-.usa-file-input__input .usa-file-input__instructions,
-.usa-file-input__input .usa-file-input__box,
-.usa-file-input__input .usa-sr-only {
-  display: none !important;
-}
-
 .cf-question-error-message {
   @include u-text('secondary-dark', 'bold');
   @include u-font('sans', 'xs');
@@ -442,7 +435,7 @@ body {
   box-shadow:
     0 10px 15px -3px rgb(0 0 0 / 0.1),
     0 4px 6px -4px rgba(0, 0, 0, 0.1); // tailwind shadow-lg
-  color: color('gray-cool-70');
+  color: #11161b;
   transition: opacity 300ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
@@ -460,10 +453,6 @@ body {
 
 .bg-cf-toast-warning {
   background-color: color('yellow-10v');
-}
-
-.opacity-40:hover {
-  opacity: 1;
 }
 
 .cf-predicate-condition-separator {
@@ -580,4 +569,59 @@ hr.code-separator {
   @include u-border('1px', 'dashed');
   @include u-margin-y(4);
   @include u-margin-x(0);
+}
+
+// Inline question image block
+.cf-question-image-container {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--item-spacing-8, 8px);
+  width: 100%;
+}
+
+.cf-question-image-frame {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  align-self: stretch;
+  aspect-ratio: 16 / 9;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.cf-question-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.cf-question-image-caption {
+  color: #000;
+  font-family: var(--usa-font-family-body, 'Source Sans Pro');
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  margin: 0;
+}
+
+.cf-question-image-link {
+  color: var(--text-text-link, #1e40af);
+  font-family: var(--usa-font-family-body, 'Source Sans Pro');
+  font-size: 1rem;
+  font-style: normal;
+  font-weight: 400;
+  line-height: 24px;
+  text-decoration-line: underline;
+  text-decoration-style: solid;
+  text-decoration-skip-ink: none;
+  text-decoration-thickness: auto;
+  text-underline-offset: auto;
+  text-underline-position: from-font;
 }

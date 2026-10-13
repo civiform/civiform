@@ -37,7 +37,7 @@
             initialQForEntity=${initialQForEntity},
             questionId=${questionId},
             isFirstEntity=${iterator.first},
-            indexCount=${iterator.count},
+            rowNumber=${iterator.count},
             isSaved=${iterator.index < enumeratorQuestion.getEntityNames().size()},
             entityIndex=${iterator.index})}"
         ></div>
@@ -129,11 +129,10 @@
      delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
      are grouped with role="group"; single-input types carry a plain label on the control. */-->
 <th:block
-  th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, indexCount, isSaved, entityIndex)"
+  th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex)"
   th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
            rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
-           rowIndexString=${' #' + indexCount},
            rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
            rowAriaDescribedby=${isFirstEntity ? questionId + '-description' : null}"
 >
@@ -144,7 +143,7 @@
         questionId=${questionId},
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
@@ -159,7 +158,7 @@
         questionId=${questionId},
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
@@ -174,7 +173,7 @@
         questionId=${questionId},
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
@@ -190,7 +189,7 @@
         questionId=${questionId},
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
@@ -206,7 +205,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
@@ -223,7 +222,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
@@ -240,7 +239,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
@@ -257,7 +256,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
@@ -274,7 +273,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
@@ -291,7 +290,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
@@ -308,7 +307,7 @@
         fieldId=${rowFieldId},
         labelId=${rowLabelId},
         inputId=${rowInputId},
-        indexString=${rowIndexString},
+        rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
@@ -329,7 +328,7 @@
      receives a fragment expression (e.g. ~{NameQuestionFragment :: nameForInitialQuestion(...)})
      that renders the question-type-specific inputs. */-->
 <div
-  th:fragment="initialQuestionEntityRowMultipleInput(questionId, fieldId, labelId, indexString, isFirstEntity, isSaved, deleteButtonId, inputContent)"
+  th:fragment="initialQuestionEntityRowMultipleInput(questionId, fieldId, labelId, rowNumber, isFirstEntity, isSaved, deleteButtonId, inputContent)"
   role="group"
   class="cf-enumerator-field maxw-mobile-lg"
   th:id="${fieldId}"
@@ -340,14 +339,14 @@
   <div
     th:id="${labelId}"
     class="usa-legend cf-entity-index-label"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
   <div
     th:replace="~{this :: enumeratorEntityDeleteButton(
       isSaved=${isSaved},
       deleteButtonId=${deleteButtonId},
-      indexString=${indexString})}"
+      rowNumber=${rowNumber})}"
   ></div>
 </div>
 
@@ -355,7 +354,7 @@
      its own "<entity type> #N" label, and the first entity's input references the
      enumerator title/help via aria-labelledby/aria-describedby. */-->
 <div
-  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, indexString, isSaved, deleteButtonId, inputContent)"
+  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, isSaved, deleteButtonId, inputContent)"
   class="cf-enumerator-field cf-applicant-question-field maxw-mobile-lg"
   th:id="${fieldId}"
   th:attr="data-entity-saved=${isSaved ? 'true' : null}"
@@ -364,14 +363,14 @@
     th:id="${labelId}"
     class="usa-label cf-entity-index-label"
     th:for="${inputId}"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
   <div
     th:replace="~{this :: enumeratorEntityDeleteButton(
       isSaved=${isSaved},
       deleteButtonId=${deleteButtonId},
-      indexString=${indexString})}"
+      rowNumber=${rowNumber})}"
   ></div>
 </div>
 
@@ -379,7 +378,7 @@
      entity index as the button id so TS can submit a delete marker (see deleteInputTemplate); an
      unsaved (HTMX-added) row has no id and is just removed from the DOM. */-->
 <div
-  th:fragment="enumeratorEntityDeleteButton(isSaved, deleteButtonId, indexString)"
+  th:fragment="enumeratorEntityDeleteButton(isSaved, deleteButtonId, rowNumber)"
   class="display-flex flex-justify-end"
 >
   <button
@@ -387,7 +386,7 @@
     class="cf-enumerator-delete-button usa-button--unstyled"
     th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
     th:id="${isSaved ? deleteButtonId : null}"
-    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ${indexString}"
+    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></button>
 </div>
 

@@ -1,0 +1,40 @@
+<!--/*
+  A settings section and its contents. Top level sections get an h2 with the
+  slugified section name as its id, which the side nav links to; subsections
+  get an h3 and are not linked. Both render their settings in the same grid and
+  then recurse into their own subsections, as the legacy page did.
+*/-->
+<div th:fragment="topSection(section)">
+  <h2
+    th:id="${section.slug}"
+    class="text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"
+    th:text="${section.name}"
+  ></h2>
+  <div th:replace="~{:: sectionContents(${section})}"></div>
+</div>
+
+<div th:fragment="subSection(section)">
+  <h3
+    class="text-l font-bold py-2 mt-4 underline underline-offset-2"
+    th:text="${section.name}"
+  ></h3>
+  <div th:replace="~{:: sectionContents(${section})}"></div>
+</div>
+
+<!--/*
+  The section's settings grid followed by its subsections. This is a th:block
+  so that the grid and the subsections stay siblings of the heading, matching
+  the legacy DOM.
+*/-->
+<th:block th:fragment="sectionContents(section)">
+  <div class="grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-8">
+    <th:block th:each="setting : ${section.settings}">
+      <div
+        th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"
+      ></div>
+    </th:block>
+  </div>
+  <th:block th:each="subsection : ${section.subsections}">
+    <div th:replace="~{:: subSection(${subsection})}"></div>
+  </th:block>
+</th:block>

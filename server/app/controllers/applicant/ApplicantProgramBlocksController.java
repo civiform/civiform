@@ -30,6 +30,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
 import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -300,7 +301,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request,
       long applicantId,
@@ -329,7 +330,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddress(
       Request request,
       long programId,
@@ -416,7 +417,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
    *     resources are not found
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previousWithApplicantId(
       Request request,
       long applicantId,
@@ -539,7 +540,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previous(
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
@@ -566,7 +567,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   private CompletionStage<Result> editOrReview(
       Request request,
       long applicantId,
@@ -655,7 +656,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file removal
    * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFile(
       Request request, Long programId, String blockId, String fileKeyToRemove, boolean inReview) {
 
@@ -671,7 +672,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programId, blockId, fileKeyToRemove, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
@@ -802,7 +803,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return a CompletionStage that resolves to a Result handled by
    *     hxAddEnumeratorEntityWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> hxAddEnumeratorEntity(
       Request request, Long programId, String blockId) {
     Optional<Long> optionalApplicantId = getApplicantId(request);
@@ -824,10 +825,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @param applicantId ID of the applicant the entity is being added for
    * @param programId ID of the program
    * @param blockId the unique identifier of the enumerator block
-   * @return a CompletionStage resolving to the rendered entity row HTML, or notFound() when the flag
-   *     is off or the block is not an enumerator with an initial question
+   * @return a CompletionStage resolving to the rendered entity row HTML, or notFound() when the
+   *     flag is off or the block is not an enumerator with an initial question
    */
-  @Secure
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> hxAddEnumeratorEntityWithApplicantId(
       Request request, long applicantId, Long programId, String blockId) {
     if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
@@ -920,7 +921,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file processing
    * @return a CompletionStage that resolves to a Result handled by addFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFile(
       Request request, long programId, String blockId, boolean inReview) {
     // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -936,7 +937,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return addFileWithApplicantId(request, applicantId, programId, blockId, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -1141,7 +1142,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *       </ul>
    * </ul>
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> updateWithApplicantId(
       Request request,
       long applicantId,
@@ -1328,7 +1329,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** See {@link #updateWithApplicantId}. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> update(
       Request request,
       String programParam,

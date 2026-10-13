@@ -45,16 +45,14 @@ public class AdfsProfileCreator extends CiviformOidcProfileCreator {
 
   @Override
   protected void adaptForRole(CiviFormProfile profile, ImmutableSet<Role> roles) {
-    if (roles.contains(Role.ROLE_CIVIFORM_ADMIN)) {
-      profile
-          .getAccount()
-          .thenAccept(
-              account -> {
-                account.setGlobalAdmin(true);
-                account.save();
-              })
-          .join();
-    }
+    profile
+        .getAccount()
+        .thenAccept(
+            account -> {
+              account.setGlobalAdmin(roles.contains(Role.ROLE_CIVIFORM_ADMIN));
+              account.save();
+            })
+        .join();
   }
 
   private boolean isGlobalAdmin(OidcProfile profile) {

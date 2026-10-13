@@ -16,6 +16,7 @@ import io.swagger.models.auth.BasicAuthDefinition;
 import io.swagger.models.parameters.QueryParameter;
 import io.swagger.models.properties.ArrayProperty;
 import io.swagger.models.properties.DateTimeProperty;
+import io.swagger.models.properties.DoubleProperty;
 import io.swagger.models.properties.IntegerProperty;
 import io.swagger.models.properties.ObjectProperty;
 import io.swagger.models.properties.Property;
@@ -155,33 +156,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
           "result",
           new ModelImpl()
               .type("object")
-              .property(
-                  "payload",
-                  new ArrayProperty(
-                      new ObjectProperty()
-                          .property("applicant_id", new IntegerProperty())
-                          .property("application", buildApplicationDefinitions(programDefinition))
-                          .property("application_id", new IntegerProperty())
-                          .property(
-                              "application_note",
-                              new StringProperty().vendorExtension("x-nullable", true))
-                          .property("create_time", new DateTimeProperty())
-                          .property("language", new StringProperty())
-                          .property("program_name", new StringProperty())
-                          .property("program_version_id", new IntegerProperty())
-                          .property("revision_state", new StringProperty())
-                          .property(
-                              "status", new StringProperty().vendorExtension("x-nullable", true))
-                          .property(
-                              "status_last_modified_time",
-                              new DateTimeProperty().vendorExtension("x-nullable", true))
-                          .property("submit_time", new DateTimeProperty())
-                          .property("submitter_type", new StringProperty())
-                          .property(
-                              "ti_email", new StringProperty().vendorExtension("x-nullable", true))
-                          .property(
-                              "ti_organization",
-                              new StringProperty().vendorExtension("x-nullable", true))))
+              .property("payload", new ArrayProperty(buildResultItemProperty(programDefinition)))
               .property("nextPageToken", new StringProperty()));
 
       return Yaml.pretty().writeValueAsString(swaggerRoot);
@@ -193,13 +168,42 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
     }
   }
 
+  /** Builds the schema of one payload item. */
+  private ObjectProperty buildResultItemProperty(ProgramDefinition programDefinition)
+      throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
+    ObjectProperty resultItem =
+        new ObjectProperty()
+            .property("applicant_id", new IntegerProperty())
+            .property("application", buildApplicationDefinitions(programDefinition))
+            .property("application_id", new IntegerProperty())
+            .property("application_note", new StringProperty().vendorExtension("x-nullable", true))
+            .property("create_time", new DateTimeProperty())
+            .property("language", new StringProperty())
+            .property("program_name", new StringProperty())
+            .property("program_version_id", new IntegerProperty())
+            .property("revision_state", new StringProperty())
+            .property("status", new StringProperty().vendorExtension("x-nullable", true))
+            .property(
+                "status_last_modified_time",
+                new DateTimeProperty().vendorExtension("x-nullable", true))
+            .property("submit_time", new DateTimeProperty())
+            .property("submitter_type", new StringProperty())
+            .property("ti_email", new StringProperty().vendorExtension("x-nullable", true))
+            .property("ti_organization", new StringProperty().vendorExtension("x-nullable", true));
+    if (includeScores(programDefinition)) {
+      // Null when the application predates scoring or scoring wasn't applied; double precision.
+      resultItem.property("total_score", new DoubleProperty().vendorExtension("x-nullable", true));
+    }
+    return resultItem;
+  }
+
   /***
    * Entry point to start building the program specific definitions for questions
    */
   private Property buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
-    var results = buildApplicationDefinitions(rootNode);
+    var results = buildApplicationDefinitions(rootNode, includeScores(programDefinition));
     var objectProperty = new ObjectProperty();
 
     results.entrySet().stream()
@@ -212,7 +216,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
    * Recursive method used to build out the full object graph from the tree of QuestionDefinitions
    */
   protected ImmutableMap<String, Property> buildApplicationDefinitions(
-      QuestionDefinitionNode parentQuestionDefinitionNode)
+      QuestionDefinitionNode parentQuestionDefinitionNode, boolean includeScores)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     ImmutableMap.Builder<String, Property> definitionList = ImmutableMap.builder();
 
@@ -240,10 +244,21 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
               getPropertyFromType(
                   definitionType, getSwaggerFormat(scalar), arrayItemDefinitionType));
         }
+        // Score scalars are excluded from Scalar.getScalars, so they are added here rather than
+        // picked up by the scalar loop.
+        if (includeScores
+            && QuestionType.supportsOptionScores(questionDefinition.getQuestionType())) {
+          boolean isMultiSelect = questionDefinition.getQuestionType().isMultiSelectType();
+          Property score = new DoubleProperty().vendorExtension("x-nullable", true);
+          Property propertyObject =
+              isMultiSelect ? new ArrayProperty(score).vendorExtension("x-nullable", true) : score;
+          String propertyName = isMultiSelect ? "scores" : "score";
+          containerDefinition.property(propertyName, propertyObject);
+        }
       } else {
         var enumeratorProperties =
             ImmutableMap.<String, Property>builder()
-                .putAll(buildApplicationDefinitions(childQuestionDefinitionNode))
+                .putAll(buildApplicationDefinitions(childQuestionDefinitionNode, includeScores))
                 .put(Scalar.ENTITY_NAME.name().toLowerCase(Locale.ROOT), new StringProperty())
                 .build();
 

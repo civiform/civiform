@@ -3,6 +3,7 @@ package forms.questions;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.Test;
 import services.LocalizedStrings;
@@ -53,5 +54,24 @@ public class StaticContentQuestionFormTest {
     QuestionDefinition actual = form.getBuilder().build();
 
     assertThat(actual).isEqualTo(originalQd);
+  }
+
+  @Test
+  public void constructorWithQuestionDefinition_copiesImageDescription() throws Exception {
+    StaticContentQuestionDefinition originalQd =
+        new StaticContentQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("name")
+                .setDescription("description")
+                .setQuestionText(
+                    LocalizedStrings.of(Locale.US, "Some text. Not an actual question."))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setConcurrencyToken(UUID.randomUUID())
+                .setLocalizedImageDescription(
+                    Optional.of(LocalizedStrings.withDefaultValue("An image description")))
+                .build());
+
+    StaticContentQuestionForm form = new StaticContentQuestionForm(originalQd);
+    assertThat(form.getQuestionImageDescription()).isEqualTo("An image description");
   }
 }

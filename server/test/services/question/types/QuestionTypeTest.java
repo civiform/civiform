@@ -67,4 +67,13 @@ public class QuestionTypeTest {
       assertThat(QuestionType.supportsOptionScores(type)).isFalse();
     }
   }
+
+  @Test
+  public void isMultiSelectType_impliesMultiOptionType() {
+    for (QuestionType type : QuestionType.values()) {
+      if (type.isMultiSelectType()) {
+        assertThat(type.isMultiOptionType()).as("%s", type).isTrue();
+      }
+    }
+  }
 }

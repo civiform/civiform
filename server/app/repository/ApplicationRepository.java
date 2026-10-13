@@ -22,6 +22,8 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import services.applicant.ApplicantData;
+import services.applicant.ApplicationScores;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.DuplicateApplicationException;
 import services.program.ProgramNotFoundException;
@@ -62,7 +64,11 @@ public final class ApplicationRepository {
     return supplyAsync(
         () ->
             submitApplicationInternal(
-                applicant, program, tiSubmitterEmail, eligibilityDetermination),
+                applicant,
+                program,
+                tiSubmitterEmail,
+                eligibilityDetermination,
+                /* scores= */ Optional.empty()),
         dbExecutionContext.current());
   }
 
@@ -70,25 +76,35 @@ public final class ApplicationRepository {
    * Submit an application, which will delete any in-progress drafts, obsolete any submitted
    * applications to a program with the same name (to include past versions of the same program),
    * and create a new application in the active state.
+   *
+   * @param scores the answer-option scores computed for this submission against the program version
+   *     identified by {@code programId}, or empty when scoring does not apply. Present scores are
+   *     written to the application's copy of the applicant data, never to the applicant's row.
    */
   public CompletionStage<Optional<ApplicationModel>> submitApplication(
       long applicantId,
       long programId,
       Optional<String> tiSubmitterEmail,
-      EligibilityDetermination eligibilityDetermination) {
+      EligibilityDetermination eligibilityDetermination,
+      Optional<ApplicationScores> scores) {
     return this.perform(
         applicantId,
         programId,
         (ApplicationArguments appArgs) ->
             submitApplicationInternal(
-                appArgs.applicant, appArgs.program, tiSubmitterEmail, eligibilityDetermination));
+                appArgs.applicant,
+                appArgs.program,
+                tiSubmitterEmail,
+                eligibilityDetermination,
+                scores));
   }
 
   private ApplicationModel submitApplicationInternal(
       ApplicantModel applicant,
       ProgramModel program,
       Optional<String> tiSubmitterEmail,
-      EligibilityDetermination eligibilityDetermination) {
+      EligibilityDetermination eligibilityDetermination,
+      Optional<ApplicationScores> scores) {
     return transactionManager.execute(
         () -> {
           List<ApplicationModel> oldApplications =
@@ -164,9 +180,17 @@ public final class ApplicationRepository {
             appModel.setLifecycleStage(LifecycleStage.OBSOLETE);
             appModel.save();
           }
+
+          // Write scores to a private copy. ApplicantModel memoizes getApplicantData(), so
+          // writing in place would leak score keys into the applicant's row on a later save.
+          ApplicantData submittedApplicantData =
+              scores
+                  .map(s -> s.applyTo(applicant.getApplicantData().copy()))
+                  .orElseGet(applicant::getApplicantData);
+
           application
               .setEligibilityDetermination(eligibilityDetermination)
-              .setApplicantData(applicant.getApplicantData())
+              .setApplicantData(submittedApplicantData)
               .setLifecycleStage(LifecycleStage.ACTIVE)
               .setSubmitTimeToNow();
           tiSubmitterEmail.ifPresent(application::setSubmitterEmail);

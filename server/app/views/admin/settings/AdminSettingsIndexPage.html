@@ -1,0 +1,71 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.settings.AdminSettingsIndexPageViewModel"*/-->
+<th:block th:fragment="content">
+  <div class="flex flex-grow flex-col px-2 2xl:px-16">
+    <div class="flex flex-grow">
+      <div class="relative md:px-4 px-0 xl:w-2/12 w-3/12">
+        <!--/* admin_settings_view.ts scrolls to a section when one of these
+               links is clicked. */-->
+        <div id="admin-settings-side-nav" class="fixed">
+          <h1 class="text-3xl py-6">Settings</h1>
+          <a
+            th:each="section : ${model.sections}"
+            class="block bold py-1"
+            th:href="|#${section.slug}|"
+            th:text="${section.name}"
+          ></a>
+          <button type="submit" class="mt-12" form="settings-update-form">
+            Save changes
+          </button>
+        </div>
+      </div>
+      <form
+        th:action="${model.formActionUrl}"
+        method="POST"
+        id="settings-update-form"
+        class="my-10"
+      >
+        <input
+          hidden
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <th:block th:each="section : ${model.sections}">
+          <div
+            th:replace="~{admin/settings/fragments/SettingsSection :: topSection(${section})}"
+          ></div>
+        </th:block>
+      </form>
+    </div>
+
+    <!--/* Toasts, consumed by toast.ts. They are hidden data holders, so they
+           sit inside the page content rather than in the legacy header. */-->
+    <!--/* The save-failed toast. The message is held in a literal substitution
+           so its apostrophe needs no escaping, and the "Error: " prefix comes
+           from the same message key the legacy ToastMessage.error used. */-->
+    <div
+      th:if="${model.errorToastId != null}"
+      th:with="errorText=|That update didn't look quite right. Please fix the errors in the form and try saving again.|"
+      class="hidden cf-toast-data"
+      th:id="${model.errorToastId}"
+      canDismiss="false"
+      canIgnore="false"
+      toastDuration="0"
+      condOnStorageKey
+      toastType="ERROR"
+      th:text="#{toast.errorMessageOutline(${errorText})}"
+    ></div>
+    <th:block th:each="toast : ${model.flashToasts}">
+      <div
+        class="hidden cf-toast-data"
+        th:id="${toast.id}"
+        canDismiss="true"
+        canIgnore="false"
+        toastDuration="0"
+        condOnStorageKey
+        th:attr="toastType=${toast.type}"
+        th:text="${toast.message}"
+      ></div>
+    </th:block>
+  </div>
+</th:block>

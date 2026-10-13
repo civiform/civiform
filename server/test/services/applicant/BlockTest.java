@@ -563,6 +563,16 @@ public class BlockTest {
   }
 
   @Test
+  public void getEnumeratorQuestion_withInitialQuestionPresent_returnsEnumerator() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getEnumeratorQuestion().getQuestionDefinition().getId())
+        .isEqualTo(ENUMERATOR_QUESTION_ID);
+  }
+
+  @Test
   public void isFileUpload_isTrue() {
     ApplicantData applicantData = new ApplicantData();
     BlockDefinition definition =
@@ -1425,16 +1435,6 @@ public class BlockTest {
   }
 
   @Test
-  public void getEnumeratorQuestion_withInitialQuestionPresent_returnsEnumerator() {
-    Block block =
-        makeUnrepeatedBlock(
-            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
-
-    assertThat(block.getEnumeratorQuestion().getQuestionDefinition().getId())
-        .isEqualTo(ENUMERATOR_QUESTION_ID);
-  }
-
-  @Test
   public void getContextualizedInitialQuestions_withNoInitialQuestion_returnsEmpty() {
     BlockDefinition definition = enumeratorBlockWithoutInitialQuestion();
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
@@ -1507,7 +1507,8 @@ public class BlockTest {
 
     assertThat(initialQuestion).isPresent();
     assertThat(initialQuestion.get().getContextualizedPath().toString()).contains("[3]");
-    assertThat(initialQuestion.get().getQuestionDefinition().getId()).isEqualTo(INITIAL_QUESTION_ID);
+    assertThat(initialQuestion.get().getQuestionDefinition().getId())
+        .isEqualTo(INITIAL_QUESTION_ID);
   }
 
   @Test

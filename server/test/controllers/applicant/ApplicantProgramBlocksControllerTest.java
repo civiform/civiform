@@ -327,10 +327,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     QuestionModel enumeratorQuestion =
         testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
     long initialQuestionId =
-        enumeratorQuestion
-            .getQuestionDefinition()
-            .getEnumeratorInitialQuestionId()
-            .orElseThrow();
+        enumeratorQuestion.getQuestionDefinition().getEnumeratorInitialQuestionId().orElseThrow();
     QuestionModel initialQuestion =
         instanceOf(QuestionRepository.class)
             .lookupQuestion(initialQuestionId)

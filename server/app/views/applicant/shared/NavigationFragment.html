@@ -397,8 +397,18 @@
               name="locale"
               type="submit"
               th:value="${language.key.code()}"
-              th:text="${language.value}"
-            ></button>
+            >
+              <span
+                th:lang="${language.key.code()}"
+                th:text="${language.value}"
+              ></span
+              ><span
+                th:lang="${preferredLanguage.code()}"
+                class="usa-sr-only"
+                th:if="${language.key != preferredLanguage}"
+                th:text="${language.key.toLocale().getDisplayLanguage(preferredLanguage.toLocale())}"
+              ></span>
+            </button>
           </li>
         </ul>
       </li>

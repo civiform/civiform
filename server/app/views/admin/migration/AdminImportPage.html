@@ -1,0 +1,124 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.migration.AdminImportPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The id identifies the import page in admin JS. */-->
+  <div id="admin-import-header" class="pt-10 px-20 font-family-sans grid-col-8">
+    <div class="flex items-center mb-5">
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconArrowLeft('mr-2 w-5 h-5')}"
+      ></svg>
+      <a th:href="${model.backUrl}" class="usa-link">Back to all programs</a>
+    </div>
+    <h1>Import an existing program</h1>
+    <p class="my-2">
+      Import a program that exists in another environment into this environment.
+    </p>
+    <hr class="usa-hr my-5" />
+
+    <div>
+      <h2>How to import a program</h2>
+      <ol class="usa-process-list">
+        <li class="usa-process-list__item">
+          <h4 class="usa-process-list__heading">
+            Export your program from your other environment
+          </h4>
+          <p class="margin-top-05">
+            Find your program and choose the “Export program” option from the
+            overflow menu. Then either copy or download the JSON code.
+          </p>
+        </li>
+        <li class="usa-process-list__item">
+          <h4 class="usa-process-list__heading">
+            Paste the JSON code in the field below
+          </h4>
+          <p class="margin-top-05">
+            Locate the JSON code in your browser or on your local device. Copy
+            and paste the code into the field below.
+          </p>
+        </li>
+        <li class="usa-process-list__item">
+          <h4 class="usa-process-list__heading">
+            Preview program before saving
+          </h4>
+          <p class="margin-top-05">
+            Review your program information, name and questions, for any errors.
+            If something looks out of place, you can delete and start the
+            process over.
+          </p>
+        </li>
+        <li class="usa-process-list__item">
+          <h4 class="usa-process-list__heading">Save your program</h4>
+          <p class="margin-top-05">
+            Click Save to save the program to this environment. You should now
+            be able to view the program in your program list.
+          </p>
+        </li>
+      </ol>
+    </div>
+
+    <div>
+      <h2 class="mb-4">Program import</h2>
+      <div id="program-data">
+        <div>
+          <p>
+            To import a program, copy the JSON file content and paste into the
+            box below.
+          </p>
+          <p class="text-gray-600 text-sm pb-2">
+            Note: Programs larger than 256,000 characters will cause an error.
+            If you need to import a larger program, please contact the
+            engineering team.
+          </p>
+          <form
+            hx-encoding="application/x-www-form-urlencoded"
+            th:hx-post="${model.hxImportProgramUrl}"
+            hx-target="#program-data"
+            hx-swap="outerHTML"
+            hx-indicator="#hx-submit-button"
+            hx-disabled-elt="#hx-submit-button"
+          >
+            <input
+              hidden
+              th:value="${templateGlobals.csrfToken()}"
+              name="csrfToken"
+            />
+            <th:block th:with="fieldId=${model.randomFieldId()}">
+              <div class="mb-2">
+                <!--/* FieldWithLabel.textArea with no label text rendered an
+                     sr-only label holding only the hidden required
+                     indicator. */-->
+                <label th:for="${fieldId}" class="sr-only"
+                  ><span
+                    th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+                  ></span
+                ></label>
+                <div class="flex flex-col">
+                  <textarea
+                    rows="10"
+                    spellcheck="false"
+                    maxlength="512000"
+                    th:id="${fieldId}"
+                    name="programJson"
+                    placeholder="Paste the JSON file contents into this box."
+                    class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+                  ></textarea>
+                  <div
+                    th:id="|${fieldId}-errors|"
+                    class="text-red-600 text-xs p-1 hidden"
+                  ></div>
+                </div>
+              </div>
+            </th:block>
+            <button
+              type="submit"
+              class="usa-button usa-button--outline mb-5"
+              id="hx-submit-button"
+            >
+              Preview program
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</th:block>

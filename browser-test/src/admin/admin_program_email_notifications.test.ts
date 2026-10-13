@@ -1,10 +1,17 @@
 import {test} from '../support/civiform_fixtures'
-import {loginAsAdmin} from '../support'
+import {enableFeatureFlag, loginAsAdmin} from '../support'
 import {ProgramLifecycle} from '../support/admin_programs'
 
 // TODO(#8576): Add tests that emails are actually sent, once #8575 is complete
 
 test.describe('program email notifications', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('program admin application submission email preference persists through error', async ({
     page,
     adminPrograms,

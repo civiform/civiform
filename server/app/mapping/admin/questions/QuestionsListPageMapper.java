@@ -1,6 +1,5 @@
 package mapping.admin.questions;
 
-import com.google.common.base.CaseFormat;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -136,8 +135,10 @@ public final class QuestionsListPageMapper {
                           /* isRepeatingBlock= */ Optional.of("true"))
                       .url())
               .label(type.getLabel())
-              .iconFragment(questionTypeIconFragment(type))
-              .svgLinkId(String.format("svg-link-%s", questionTypeIconName(type)))
+              .iconFragment(QuestionTypeIconFragments.questionTypeIconFragment(type))
+              .svgLinkId(
+                  String.format(
+                      "svg-link-%s", QuestionTypeIconFragments.questionTypeIconName(type)))
               .build());
     }
 
@@ -258,7 +259,8 @@ public final class QuestionsListPageMapper {
 
     return QuestionRow.builder()
         .universalBadgeText(universalBadgeText)
-        .iconFragment(questionTypeIconFragment(latestDefinition.getQuestionType()))
+        .iconFragment(
+            QuestionTypeIconFragments.questionTypeIconFragment(latestDefinition.getQuestionType()))
         .questionTextHtml(formatForAdmins(latestDefinition.getQuestionText().getDefault()))
         .helpTextHtml(formatForAdmins(helpText))
         .adminName(latestDefinition.getName())
@@ -469,38 +471,6 @@ public final class QuestionsListPageMapper {
     return programs.stream()
         .map(program -> program.localizedName().getDefault())
         .collect(ImmutableList.toImmutableList());
-  }
-
-  /**
-   * The legacy icon name for a question type: the Icons enum constant lowercased, mirroring
-   * Icons.getIconTypeFromQuestionType.
-   */
-  private static String questionTypeIconName(QuestionType type) {
-    return switch (type) {
-      case ADDRESS -> "address";
-      case CHECKBOX -> "checkbox";
-      case CURRENCY -> "currency";
-      case DATE -> "date";
-      case DROPDOWN -> "dropdown";
-      case EMAIL -> "email";
-      case FILEUPLOAD -> "fileupload";
-      case ID -> "id";
-      case MAP -> "map";
-      case NAME -> "name";
-      case NUMBER -> "number";
-      case RADIO_BUTTON, YES_NO -> "radio_button";
-      case ENUMERATOR -> "enumerator";
-      case STATIC -> "annotation";
-      case TEXT -> "text";
-      case PHONE -> "phone";
-      default -> "unknown";
-    };
-  }
-
-  /** The question type's icon fragment name in LegacySvgFragments.html ("iconAddress", ...). */
-  private static String questionTypeIconFragment(QuestionType type) {
-    return "icon"
-        + CaseFormat.LOWER_UNDERSCORE.to(CaseFormat.UPPER_CAMEL, questionTypeIconName(type));
   }
 
   private static String formatForAdmins(String text) {

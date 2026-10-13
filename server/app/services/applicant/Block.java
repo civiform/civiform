@@ -153,12 +153,12 @@ public final class Block {
                     .findFirst()
                     .orElseThrow(
                         () ->
-                            new RuntimeException(
+                            new IllegalStateException(
                                 "Enumerator block does not contain an enumerator question.")));
       }
       return enumeratorQuestion.get();
     }
-    throw new RuntimeException(
+    throw new IllegalStateException(
         "Only an enumerator block can have an enumeration question definition.");
   }
 
@@ -204,40 +204,40 @@ public final class Block {
    * <p>Returns an empty list when there is no initial question.
    */
   public ImmutableList<ApplicantQuestion> getContextualizedInitialQuestions() {
-    return getInitialQuestion()
-        .map(
-            initialQuestion -> {
-              ApplicantQuestion enumeratorApplicantQuestion = getEnumeratorQuestion();
-              EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-                  (EnumeratorQuestionDefinition)
-                      enumeratorApplicantQuestion.getQuestionDefinition();
-              ImmutableList<String> entityNames =
-                  enumeratorApplicantQuestion.createEnumeratorQuestion().getEntityNames();
-              if (entityNames.isEmpty()) {
-                return ImmutableList.of(
-                    createContextualizedInitialQuestionAtIndex(
-                        initialQuestion,
-                        enumeratorQuestionDefinition,
-                        /* entityName= */ "",
-                        /* entityIndex= */ 0));
-              }
-              return IntStream.range(0, entityNames.size())
-                  .mapToObj(
-                      index ->
-                          createContextualizedInitialQuestionAtIndex(
-                              initialQuestion,
-                              enumeratorQuestionDefinition,
-                              entityNames.get(index),
-                              index))
-                  .collect(toImmutableList());
-            })
-        .orElse(ImmutableList.of());
+    Optional<ApplicantQuestion> maybeInitialQuestion = getInitialQuestion();
+    if (maybeInitialQuestion.isEmpty()) {
+      return ImmutableList.of();
+    }
+    ApplicantQuestion initialQuestion = maybeInitialQuestion.get();
+
+    ApplicantQuestion enumeratorApplicantQuestion = getEnumeratorQuestion();
+    EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+        (EnumeratorQuestionDefinition) enumeratorApplicantQuestion.getQuestionDefinition();
+    ImmutableList<String> entityNames =
+        enumeratorApplicantQuestion.createEnumeratorQuestion().getEntityNames();
+
+    if (entityNames.isEmpty()) {
+      return ImmutableList.of(
+          createContextualizedInitialQuestionAtIndex(
+              initialQuestion,
+              enumeratorQuestionDefinition,
+              /* entityName= */ "",
+              /* entityIndex= */ 0));
+    }
+
+    return IntStream.range(0, entityNames.size())
+        .mapToObj(
+            index ->
+                createContextualizedInitialQuestionAtIndex(
+                    initialQuestion, enumeratorQuestionDefinition, entityNames.get(index), index))
+        .collect(toImmutableList());
   }
 
   /**
-   * Creates an empty {@link ApplicantQuestion} for an enumerator initial question, contextualized to the
-   * entity at the given index, or {@link Optional#empty()} if this block has no initial question.
-   * Used by the HTMX add-entity endpoint to render the field(s) for a newly added entity row.
+   * Creates an empty {@link ApplicantQuestion} for an enumerator initial question, contextualized
+   * to the entity at the given index, or {@link Optional#empty()} if this block has no initial
+   * question. Used by the HTMX add-entity endpoint to render the field(s) for a newly added entity
+   * row.
    */
   public Optional<ApplicantQuestion> createContextualizedInitialQuestion(int entityIndex) {
     if (!isEnumerator()) {
@@ -249,16 +249,13 @@ public final class Block {
               EnumeratorQuestionDefinition enumeratorQuestionDefinition =
                   (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
               return createContextualizedInitialQuestionAtIndex(
-                  initialQuestion,
-                  enumeratorQuestionDefinition,
-                  /* entityName= */ "",
-                  entityIndex);
+                  initialQuestion, enumeratorQuestionDefinition, /* entityName= */ "", entityIndex);
             });
   }
 
   /**
-   * Creates an {@link ApplicantQuestion} for an enumerator initial question, contextualized to the entity at
-   * the given index so its scalar paths resolve to that entity (e.g. {@code
+   * Creates an {@link ApplicantQuestion} for an enumerator initial question, contextualized to the
+   * entity at the given index so its scalar paths resolve to that entity (e.g. {@code
    * applicant.household_members[0].member_name.first_name}).
    */
   private ApplicantQuestion createContextualizedInitialQuestionAtIndex(

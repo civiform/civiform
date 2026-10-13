@@ -16,6 +16,7 @@ import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.ApplicantModel;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
@@ -67,7 +68,7 @@ public final class ApplicantInformationController extends CiviFormController {
    * Sets the applicant's preferred language based on their browser session, then redirects them
    * accordingly.
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> setLangFromBrowser(Http.Request request, long applicantId) {
 
     return checkApplicantAuthorization(request, applicantId)
@@ -146,7 +147,7 @@ public final class ApplicantInformationController extends CiviFormController {
    * Sets the applicant's preferred language based on their language form selection, then redirects
    * them.
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> setLangFromSwitcher(Http.Request request, long applicantId) {
     Form<ApplicantInformationForm> form = formFactory.form(ApplicantInformationForm.class);
 

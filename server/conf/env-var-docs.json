@@ -945,12 +945,6 @@
         "description": "Enable session timeout based on inactivity and maximum duration.",
         "type": "bool",
         "required": false
-      },
-      "TRANSLATION_MANAGEMENT_IMPROVEMENT_ENABLED": {
-        "mode": "ADMIN_READABLE",
-        "description": "Enables translation management improvement phase one",
-        "type": "bool",
-        "required": false
       }
     }
   },
