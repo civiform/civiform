@@ -291,7 +291,7 @@ function addIndexToLabelAndButton(field: Element, index: number) {
 
 /** Replace a trailing " #<n>" index suffix (if present) with the given one. */
 function replaceIndexSuffix(text: string, indexString: string): string {
-  return text.replace(/ #\d+$/, '') + indexString
+  return text.replace(/\s*#\d+\s*$/, '').trim() + indexString
 }
 
 /**
