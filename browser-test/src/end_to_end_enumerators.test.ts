@@ -240,6 +240,34 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await expect(questionBankSidebar).toBeVisible()
         })
 
+        await test.step('Close the question bank with the X button', async () => {
+          await adminPrograms.closeQuestionBank()
+          await expect(questionBankSidebar).toBeHidden()
+        })
+
+        await test.step('Re-open the question bank to continue', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add initial question'})
+            .click()
+          await expect(questionBankSidebar).toBeVisible()
+        })
+
+        await test.step('Close the question bank by clicking the glasspane', async () => {
+          // The question bank panel occupies the right half, so click the left edge to land on the glasspane
+          // rather than the panel.
+          await page
+            .locator('.cf-question-bank-glasspane')
+            .click({position: {x: 10, y: 10}})
+          await expect(questionBankSidebar).toBeHidden()
+        })
+
+        await test.step('Re-open the question bank again to continue', async () => {
+          await initialQuestionSlot
+            .getByRole('button', {name: 'Add initial question'})
+            .click()
+          await expect(questionBankSidebar).toBeVisible()
+        })
+
         await test.step('Validate the bank shows valid types and hides invalid ones', async () => {
           await expect(
             questionBankSidebar.getByText('income-non-repeated-question'),
