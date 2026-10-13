@@ -477,9 +477,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
     context.setVariable(
         "contextualizedInitialQuestions", params.block().getContextualizedInitialQuestions());
-    // Set the enumerator question globally so the shared initialQuestionEntityRow fragment and its
-    // row wrappers can resolve it regardless of fragment nesting depth (the HTMX add-entity partial
-    // sets it the same way).
     context.setVariable(
         "enumeratorQuestion", params.block().getEnumeratorQuestion().createEnumeratorQuestion());
     context.setVariable(

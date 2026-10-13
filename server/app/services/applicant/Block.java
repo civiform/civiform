@@ -243,14 +243,17 @@ public final class Block {
     if (!isEnumerator()) {
       return Optional.empty();
     }
-    return getInitialQuestion()
-        .map(
-            initialQuestion -> {
-              EnumeratorQuestionDefinition enumeratorQuestionDefinition =
-                  (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
-              return createContextualizedInitialQuestionAtIndex(
-                  initialQuestion, enumeratorQuestionDefinition, /* entityName= */ "", entityIndex);
-            });
+    Optional<ApplicantQuestion> maybeInitialQuestion = getInitialQuestion();
+    if (maybeInitialQuestion.isEmpty()) {
+      return Optional.empty();
+    }
+    ApplicantQuestion initialQuestion = maybeInitialQuestion.get();
+
+    EnumeratorQuestionDefinition enumeratorQuestionDefinition =
+        (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
+    return Optional.of(
+        createContextualizedInitialQuestionAtIndex(
+            initialQuestion, enumeratorQuestionDefinition, /* entityName= */ "", entityIndex));
   }
 
   /**
