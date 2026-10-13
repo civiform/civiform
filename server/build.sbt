@@ -63,8 +63,11 @@ lazy val root = (project in file("."))
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
-      // Metrics collection and export for Prometheus
-      "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
+      // Metrics collection and export for Prometheus. See filters.PrometheusRequestMetricsFilter
+      // and modules.PrometheusModule.
+      "io.prometheus" % "simpleclient" % "0.16.0",
+      "io.prometheus" % "simpleclient_common" % "0.16.0",
+      "io.prometheus" % "simpleclient_hotspot" % "0.16.0",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,
