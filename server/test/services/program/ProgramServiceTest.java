@@ -241,10 +241,12 @@ public class ProgramServiceTest extends ResetPostgres {
         .withRequiredQuestionDefinition(questionOne)
         .buildDefinition();
 
+    ReadOnlyQuestionService roQuestionService =
+        instanceOf(services.question.QuestionService.class).getReadOnlyQuestionServiceSync();
     ImmutableList<ProgramDefinition> draftPrograms =
-        ps.getInUseActiveAndDraftPrograms().getDraftPrograms();
+        ps.getInUseActiveAndDraftPrograms(roQuestionService).getDraftPrograms();
     ImmutableList<ProgramDefinition> activePrograms =
-        ps.getInUseActiveAndDraftPrograms().getActivePrograms();
+        ps.getInUseActiveAndDraftPrograms(roQuestionService).getActivePrograms();
 
     ProgramDefinition draftProgramDef = draftPrograms.get(0);
     assertThat(draftProgramDef.getBlockCount()).isEqualTo(2);
