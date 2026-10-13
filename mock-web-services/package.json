@@ -6,14 +6,13 @@
   "scripts": {
     "build": "tsc",
     "start": "tsc && node dist/server.js",
-    "dev": "ts-node src/server.ts",
     "lint": "eslint src/**/*.ts",
     "type-check": "tsc --noEmit"
   },
   "dependencies": {
-    "@mswjs/http-middleware": "^0.10.1",
+    "@msw/serve": "^0.11.0",
     "express": "^5.2.1",
-    "msw": "^2.7.0"
+    "msw": "^3.0.0"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.0",
@@ -26,7 +25,6 @@
     "eslint-config-google": "^0.14.0",
     "eslint-config-prettier": "^10.1.8",
     "globals": "^17.0.0",
-    "ts-node": "^10.9.2",
     "typescript": "^6.0.0"
   },
   "license": "Apache-2.0",

@@ -43,23 +43,23 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
-      "org.commonmark" % "commonmark" % "0.30.0",
+      "org.commonmark" % "commonmark" % "0.30.1",
       "org.commonmark" % "commonmark-ext-autolink" % "0.30.0",
-      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20260924.2",
+      "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.54.2",
-      "software.amazon.awssdk" % "ses" % "2.54.2",
+      "software.amazon.awssdk" % "s3" % "2.55.14",
+      "software.amazon.awssdk" % "ses" % "2.55.14",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
       "com.azure" % "azure-storage-blob" % "12.32.0",
 
       // Graph API
-      "com.microsoft.graph" % "microsoft-graph" % "6.67.0",
+      "com.microsoft.graph" % "microsoft-graph" % "6.71.0",
 
       // Database and database testing libraries
-      "org.postgresql" % "postgresql" % "42.7.13",
+      "org.postgresql" % "postgresql" % "42.7.14",
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
@@ -110,7 +110,7 @@ lazy val root = (project in file("."))
       ),
       // Errorprone
       "com.google.errorprone" % "error_prone_core" % "2.50.0",
-      "org.checkerframework" % "dataflow-errorprone" % "4.3.0",
+      "org.checkerframework" % "dataflow-errorprone" % "4.3.1",
 
       // Apache libraries for export
       "org.apache.commons" % "commons-csv" % "1.14.1",
@@ -119,7 +119,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.40",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.41",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -146,7 +146,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.6.3",
+      "ch.qos.logback" % "logback-classic" % "1.6.5",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
