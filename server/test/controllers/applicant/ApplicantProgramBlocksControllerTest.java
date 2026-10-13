@@ -2068,6 +2068,40 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(callerCanRead).isFalse();
   }
 
+  // The ownership check must still allow the legitimate case: a trusted intermediary uploading a
+  // file on behalf of a managed client. The upload key is in the client's namespace (the applicant
+  // the TI is acting as), so it passes the check.
+  @Test
+  public void addFileWithApplicantId_trustedIntermediaryUploadsForManagedClient_succeeds() {
+    ApplicantModel client = createApplicant();
+    // TI manages `client`; this mocks the TI's profile as the caller on the request.
+    createTIWithMockedProfile(client);
+
+    String clientKey =
+        String.format("applicant-%d/program-%d/block-2/resume.pdf", client.id, program.id);
+
+    RequestBuilder request = fakeRequestBuilder();
+    addQueryString(
+        request,
+        ImmutableMap.of(
+            "key", clientKey, "bucket", "fake-bucket", "originalFileName", "resume.pdf"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(), client.id, program.id, /* blockId= */ "2", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+    Optional<StoredFileModel> stored =
+        storedFileRepository.lookupFile(clientKey).toCompletableFuture().join();
+    assertThat(stored).isPresent();
+    assertThat(stored.get().getAcls().hasApplicantReadPermission(client.id)).isTrue();
+  }
+
   @Test
   public void addFileWithApplicantId_failsIfAddingMoreThanMax() {
     FileUploadQuestionDefinition fileUploadWithMaxDefinition =
