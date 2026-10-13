@@ -1,5 +1,5 @@
 import express from 'express';
-import {createMiddleware} from '@mswjs/http-middleware';
+import {createMiddleware} from '@msw/serve/express';
 import {handlers} from './handlers.js';
 import {CONFIG} from './config.js';
 
