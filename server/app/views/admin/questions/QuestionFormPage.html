@@ -196,21 +196,24 @@
           ></p>
           <input hidden name="questionName" th:value="${model.questionName}" />
         </div>
-        <!--/* The enumerator select below is disabled in edit mode, so this
-               hidden input carries its value. */-->
-        <input
-          hidden
-          name="enumeratorId"
-          th:value="${model.selectedEnumeratorId}"
-        />
       </th:block>
 
       <div
         th:replace="~{admin/shared/LegacyFieldWithLabel/TextareaField :: textareaField(${model.randomFieldId()}, 'questionDescription', 'Question note for administrative use only', ${model.questionDescription}, false, false, false, false, 'mb-2')}"
       ></div>
 
-      <!--/* Question enumerator select. Locked when editing (the hidden
-             input above carries the value). */-->
+      <!--/* The enumerator select is disabled when editing, or when the admin may not
+             choose an enumerator (creating a repeated question under a fixed enumerator).
+             A disabled select doesn't submit, so this hidden input carries the value. */-->
+      <input
+        th:if="${model.editMode || !model.enumeratorSelectEnabled}"
+        hidden
+        name="enumeratorId"
+        th:value="${model.selectedEnumeratorId}"
+      />
+
+      <!--/* Question enumerator select. Locked when editing or when the admin may
+             not choose an enumerator; the hidden input above carries the value. */-->
       <div class="mb-2">
         <label
           for="question-enumerator-select"
@@ -225,8 +228,8 @@
             maxlength="10000"
             aria-required="true"
             class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
-            th:classappend="${!model.enumeratorSelectEnabled} ? 'read-only:text-gray-500 read-only:bg-gray-100'"
-            th:attr="id='question-enumerator-select',name='enumeratorId',readonly=${!model.enumeratorSelectEnabled} ? 'readonly'"
+            th:classappend="${!model.enumeratorSelectEnabled} ? 'disabled:text-gray-500 disabled:bg-gray-100'"
+            th:attr="id='question-enumerator-select',name='enumeratorId',disabled=${!model.enumeratorSelectEnabled} ? 'disabled'"
           >
             <option
               value=""
@@ -247,8 +250,8 @@
             th:if="${model.editMode}"
             maxlength="10000"
             aria-required="true"
-            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5 read-only:text-gray-500 read-only:bg-gray-100"
-            th:attr="id='question-enumerator-select',name='enumeratorId',readonly='readonly',disabled='disabled'"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5 disabled:text-gray-500 disabled:bg-gray-100"
+            th:attr="id='question-enumerator-select',name='enumeratorId',disabled='disabled'"
           >
             <option
               value=""

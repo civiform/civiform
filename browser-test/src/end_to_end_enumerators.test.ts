@@ -503,6 +503,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         const newQuestionAdminId = 'household-member-name'
         const newQuestionText = 'What is the household member name?'
 
+        // Run the question-creation form on the Thymeleaf-migrated path so this covers the disabled
+        // enumerator select plus its hidden-field value submission in QuestionFormPage.html.
+        await enableFeatureFlag(
+          page,
+          'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+        )
+
         await addRepeatedSetBlocks(page)
 
         await test.step('Fill out the enumerator form fields before leaving to create the initial question', async () => {
