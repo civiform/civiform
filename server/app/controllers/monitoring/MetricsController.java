@@ -18,11 +18,7 @@ import play.mvc.Result;
 import repository.VersionRepository;
 import services.monitoring.MonitoringMetricCounters;
 
-/**
- * Controller for exporting Prometheus server metrics via HTTP. Based on the implementation found in
- * {@link com.github.stijndehaes.playprometheusfilters.controllers.PrometheusController} and
- * customized to allow disabling via configuration flag.
- */
+/** Controller for exporting Prometheus server metrics via HTTP. Can be disabled via config. */
 public final class MetricsController extends CiviFormController {
   private static final Logger logger = LoggerFactory.getLogger(MetricsController.class);
 

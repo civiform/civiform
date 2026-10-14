@@ -3112,7 +3112,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
     // Guards against query count regressions on the applicant program index.
-    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(43));
+    assertThat(sqlStatementsSinceLastCount()).isEqualTo(SqlCounts.withOnlyReads(38));
 
     assertThat(result.inProgress().stream().map(p -> p.program().id()))
         .containsExactly(programForDraft.id);

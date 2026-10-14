@@ -1,4 +1,4 @@
-import {http, HttpResponse} from 'msw';
+import {http, HttpResponse} from 'msw/http';
 import {readJsonFile} from '../utils/fileReader.js';
 import {CONFIG} from '../config.js';
 

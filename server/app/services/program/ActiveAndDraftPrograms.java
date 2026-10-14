@@ -12,9 +12,11 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
 import models.DisplayMode;
+import models.ProgramModel;
 import models.VersionModel;
 import org.apache.pekko.japi.Pair;
 import repository.VersionRepository;
+import services.question.ReadOnlyQuestionService;
 
 /**
  * A data class storing the current active and draft programs. For efficient querying of information
@@ -72,24 +74,54 @@ public final class ActiveAndDraftPrograms {
 
   /**
    * Queries the existing active and draft versions of non-disabled programs and builds a
-   * snapshotted view of the program state. These programs won't include the question definition,
-   * since ProgramService is not provided.
+   * snapshotted view of their state with question definitions synced via the provided
+   * ReadOnlyQuestionService.
    */
-  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsUnsynced(
-      VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, /* service= */ Optional.empty(), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  public static ActiveAndDraftPrograms buildInUsePrograms(
+      VersionRepository repository,
+      ProgramService service,
+      ReadOnlyQuestionService roQuestionService) {
+    VersionModel activeVersion = repository.getActiveVersion();
+    Optional<VersionModel> draftVersion = repository.getDraftVersion();
+
+    ImmutableList<ProgramModel> activePrograms = repository.getProgramsForVersion(activeVersion);
+    ImmutableList<ProgramModel> draftPrograms =
+        draftVersion.isPresent()
+            ? repository.getProgramsForVersion(draftVersion.get())
+            : ImmutableList.of();
+
+    ImmutableList<ProgramDefinition> hydratedActive =
+        activePrograms.stream()
+            .map(p -> service.toFullProgramDefinition(p, roQuestionService, /* isDraft= */ false))
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(ImmutableList.toImmutableList());
+
+    ImmutableList<ProgramDefinition> hydratedDraft =
+        draftPrograms.stream()
+            .map(p -> service.toFullProgramDefinition(p, roQuestionService, /* isDraft= */ true))
+            .filter(p -> p.displayMode() != DisplayMode.DISABLED)
+            .collect(ImmutableList.toImmutableList());
+
+    return new ActiveAndDraftPrograms(hydratedActive, hydratedDraft);
   }
 
-  /**
-   * Queries the existing active and draft versions of non-disabled programs and builds a
-   * snapshotted view of the program state. These programs will include the question definition,
-   * since ProgramService is provided.
-   */
-  public static ActiveAndDraftPrograms buildInUseProgramFromCurrentVersionsSynced(
-      ProgramService service, VersionRepository repository) {
-    return new ActiveAndDraftPrograms(
-        repository, Optional.of(service), EnumSet.of(ActiveAndDraftProgramsType.IN_USE));
+  /** Builds ActiveAndDraftPrograms from pre-partitioned definition lists. */
+  private ActiveAndDraftPrograms(
+      ImmutableList<ProgramDefinition> activeDefinitions,
+      ImmutableList<ProgramDefinition> draftDefinitions) {
+    ImmutableMap<String, ProgramDefinition> activeNameToProgram =
+        activeDefinitions.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    ImmutableMap<String, ProgramDefinition> draftNameToProgram =
+        draftDefinitions.stream()
+            .collect(
+                ImmutableMap.toImmutableMap(ProgramDefinition::adminName, Function.identity()));
+
+    this.activePrograms = activeNameToProgram.values().asList();
+    this.draftPrograms = draftNameToProgram.values().asList();
+    this.versionedByName = createVersionedByNameMap(activeNameToProgram, draftNameToProgram);
   }
 
   private ImmutableMap<String, ProgramDefinition> mapNameToProgramWithFilter(

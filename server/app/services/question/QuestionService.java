@@ -292,7 +292,8 @@ public final class QuestionService {
     ErrorAnd<QuestionDefinition, CiviFormError> updatedEnumeratorQuestion =
         update(
             /* previousDefinition= */ Optional.of(enumeratorQuestion),
-            /* updatedDefinition= */ enumeratorQuestionWithInitialId);
+            /* updatedDefinition= */ enumeratorQuestionWithInitialId,
+            /* enumeratorImprovementsEnabled= */ true);
     if (updatedEnumeratorQuestion.isError()) {
       throw new RuntimeException(
           String.format(

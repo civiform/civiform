@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   db:
-    image: postgres:16.15@sha256:e17e86066e5ef83e0952a9347f5c792b7ece00972e2aa787a6986f471b3dd3d5
+    image: postgres:16.15@sha256:ca0bd484cb98bf4b24eb1010e73fb3fcbd6714d240fbc1a10eea5b7dbecb641d
     restart: always
     expose:
       - '5432'
@@ -26,6 +26,8 @@ services:
     restart: always
     volumes:
       - ../server/code-coverage:/usr/src/server/code-coverage
+      # Read-only, so MetricsControllerTest can check the dashboard against /metrics.
+      - ../monitoring:/usr/src/monitoring:ro
     entrypoint: /bin/bash
     tty: true # keep the container running
     stdin_open: true

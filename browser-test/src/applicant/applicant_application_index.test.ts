@@ -1164,7 +1164,7 @@ test.describe('applicant program index page with images', () => {
       await applicantQuestions.clickApplyProgramButton(externalProgramAName)
 
       // Verify external program modal is visible
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       await expect(
         modal.getByRole('heading', {
           name: 'This will open a different website',
@@ -1181,7 +1181,7 @@ test.describe('applicant program index page with images', () => {
     })
 
     await test.step("accepting external program A modal redirects to the program's external site", async () => {
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
 
       const pagePromise = page.context().waitForEvent('page')
@@ -1202,13 +1202,13 @@ test.describe('applicant program index page with images', () => {
 
       // We don't need to check each modal element's visibility since
       // previous step verified them
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
       await expect(continueButton).toBeVisible()
     })
 
     await test.step("accepting external program B modal redirects to the program's external site", async () => {
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
 
       const pagePromise = page.context().waitForEvent('page')
@@ -1279,13 +1279,13 @@ test.describe('applicant program index page with images', () => {
     await test.step('clicking on external program card opens a modal', async () => {
       await applicantQuestions.clickApplyProgramButton(externalProgramName)
 
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
       await expect(continueButton).toBeVisible()
     })
 
     await test.step("selecting 'go back' closes the modal", async () => {
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const goBackButton = modal.getByRole('button', {name: 'Go back'})
       await expect(goBackButton).toBeVisible()
       await goBackButton.click()
@@ -1295,7 +1295,7 @@ test.describe('applicant program index page with images', () => {
     await test.step('trigger the external program modal again', async () => {
       await applicantQuestions.clickApplyProgramButton(externalProgramName)
 
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
       await expect(continueButton).toBeVisible()
     })
@@ -1311,20 +1311,20 @@ test.describe('applicant program index page with images', () => {
         await page.mouse.click(wrapperBox.x, wrapperBox.y)
       }
 
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       await expect(modal).toBeHidden()
     })
 
     await test.step('trigger the external program modal again', async () => {
       await applicantQuestions.clickApplyProgramButton(externalProgramName)
 
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
       await expect(continueButton).toBeVisible()
     })
 
     await test.step("selecting 'continue' redirects to the program's external site", async () => {
-      const modal = page.getByRole('dialog', {state: 'visible'})
+      const modal = page.getByRole('dialog')
       const continueButton = modal.getByRole('link', {name: 'Continue'})
 
       const pagePromise = page.context().waitForEvent('page')
