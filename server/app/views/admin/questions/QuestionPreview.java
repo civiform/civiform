@@ -91,6 +91,9 @@ public class QuestionPreview extends ApplicantBaseView {
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
+    context.setVariable(
+        "imagesInQuestionFeatureEnabled",
+        settingsManifest.getImagesInQuestionFeatureEnabled(params.request()));
     // For static question image preview: set the resolved public URL and alt text so the
     // StaticTextQuestionFragment can render an inline 16:9 image block when one is present.
     context.setVariable("questionImageUrl", params.imageUrl().orElse(""));
@@ -104,6 +107,10 @@ public class QuestionPreview extends ApplicantBaseView {
             .setMessages(params.messages())
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE);
+    params.imageUrl().ifPresent(paramsBuilder::setQuestionImageUrl);
+    if (!params.imageAltText().isEmpty()) {
+      paramsBuilder.setQuestionImageAltText(params.imageAltText());
+    }
     return paramsBuilder.build();
   }
 
