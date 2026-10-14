@@ -469,7 +469,7 @@ public final class QuestionEditView extends BaseHtmlView {
             p().withId("question-name-preview")
                 .withClasses("text-xs", "text-gray-500", "pb-3")
                 .with(span("Visible in the API as: "), span("").withId("formatted-name")));
-    if (!forCreate) {
+    if (!forCreate || !questionForm.getEnumeratorSelectEnabled()) {
       formTag.with(
           input()
               .isHidden()
@@ -488,9 +488,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .setDisabled(!submittable)
             .setValue(questionForm.getQuestionDescription())
             .getTextareaTag(),
-        enumeratorOptions
-            .setReadOnly(!questionForm.getEnumeratorSelectEnabled() || !forCreate)
-            .getSelectTag());
+        enumeratorOptions.getSelectTag());
 
     if (questionType.equals(QuestionType.MAP)) {
       formTag.with(
@@ -824,8 +822,7 @@ public final class QuestionEditView extends BaseHtmlView {
         .setLabelText("Question enumerator")
         .setOptions(options)
         .setValue(selected)
-        .setDisabled(formMode.equals(FormMode.EDIT))
-        .setReadOnly(formMode.equals(FormMode.EDIT) || !enabled)
+        .setDisabled(formMode.equals(FormMode.EDIT) || !enabled)
         .setRequired(true);
   }
 

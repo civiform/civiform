@@ -58,7 +58,10 @@ public class ProgramBridgeControllerTest extends WithMockedProfiles {
   @Test
   public void edit_returnSuccess() {
     ProgramModel program = ProgramBuilder.newDraftProgram("program-name-1").build();
-    bridgeConfigurationRepository.insert(createApiBridgeConfigurationModel());
+    bridgeConfigurationRepository
+        .insert(createApiBridgeConfigurationModel())
+        .toCompletableFuture()
+        .join();
 
     var request = fakeRequestBuilder().build();
     var response = controller.edit(request, program.id).toCompletableFuture().join();
@@ -121,7 +124,7 @@ public class ProgramBridgeControllerTest extends WithMockedProfiles {
             .build();
 
     ApiBridgeConfigurationModel bridgeConfig = createApiBridgeConfigurationModel();
-    bridgeConfigurationRepository.insert(bridgeConfig);
+    bridgeConfigurationRepository.insert(bridgeConfig).toCompletableFuture().join();
 
     var request =
         fakeRequestBuilder().bodyForm(ImmutableMap.of("bridgeAdminName", "bridge-success")).build();
@@ -135,7 +138,7 @@ public class ProgramBridgeControllerTest extends WithMockedProfiles {
   public void hxBridgeConfiguration_successWithoutExistingBridgeDefinition() {
     ProgramModel program = ProgramBuilder.newDraftProgram("program-name-1").build();
     ApiBridgeConfigurationModel bridgeConfig = createApiBridgeConfigurationModel();
-    bridgeConfigurationRepository.insert(bridgeConfig);
+    bridgeConfigurationRepository.insert(bridgeConfig).toCompletableFuture().join();
 
     var request =
         fakeRequestBuilder().bodyForm(ImmutableMap.of("bridgeAdminName", "bridge-success")).build();
@@ -186,7 +189,7 @@ public class ProgramBridgeControllerTest extends WithMockedProfiles {
   public void save_successfulSave() {
     ProgramModel program = ProgramBuilder.newDraftProgram("program-name-1").build();
     ApiBridgeConfigurationModel bridgeConfig = createApiBridgeConfigurationModel();
-    bridgeConfigurationRepository.insert(bridgeConfig);
+    bridgeConfigurationRepository.insert(bridgeConfig).toCompletableFuture().join();
 
     var request =
         fakeRequestBuilder()
