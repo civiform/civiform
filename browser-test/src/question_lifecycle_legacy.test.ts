@@ -603,7 +603,7 @@ test.describe('normal question lifecycle', () => {
         enumeratorOne,
       )
       await expect(page.getByLabel('Question enumerator')).toBeDisabled()
-      })
+    })
   })
 
   test('radio and checkbox questions show optional score fields when flag enabled', async ({
