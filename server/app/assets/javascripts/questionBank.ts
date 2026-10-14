@@ -20,6 +20,7 @@ class QuestionBankController {
   constructor() {
     QuestionBankController.attachFilterAndSortListeners()
     QuestionBankController.initToggleQuestionBankButtons()
+    QuestionBankController.attachCloseButtonListener()
     QuestionBankController.initOpenOnHtmxTrigger()
     QuestionBankController.initCloseOnHtmxTrigger()
     QuestionBankController.rebindCreateQuestionDropdownOnHtmxSwap()
@@ -92,19 +93,33 @@ class QuestionBankController {
         QuestionBankController.showQuestionBank(questionBankContainer)
       })
     }
-    const closeQuestionBankElements = Array.from(
-      document.getElementsByClassName(
-        QuestionBankController.CLOSE_QUESTION_BANK_BUTTON,
-      ),
-    )
-    for (const element of closeQuestionBankElements) {
-      element.addEventListener('click', () => {
-        QuestionBankController.hideQuestionBank(questionBankContainer)
-      })
-    }
     if (!questionBankContainer.classList.contains('hidden')) {
       QuestionBankController.makeBodyNonScrollable()
     }
+  }
+
+  /**
+   * Close the question bank on a click on any close control — the glasspane or the X button.
+   * Delegated on the container (which is NOT part of the swapped panel form) rather than binding
+   * the close buttons directly, so the listener survives the HTMX outerHTML swap that replaces the
+   * X button in initial-question mode. closest() also handles clicks landing on the X button's
+   * inner SVG.
+   */
+  private static attachCloseButtonListener() {
+    const container = document.getElementById(
+      QuestionBankController.QUESTION_BANK_CONTAINER,
+    )
+    if (container == null) {
+      return
+    }
+    container.addEventListener('click', (event) => {
+      const closeControl = (event.target as HTMLElement | null)?.closest(
+        '.' + QuestionBankController.CLOSE_QUESTION_BANK_BUTTON,
+      )
+      if (closeControl != null) {
+        QuestionBankController.hideQuestionBank(container)
+      }
+    })
   }
 
   static showQuestionBank(container: HTMLElement) {

@@ -35,6 +35,7 @@ import models.AccountModel;
 import models.ApplicantModel;
 import models.LifecycleStage;
 import models.ProgramModel;
+import models.StoredFileModel;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -52,6 +53,7 @@ import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantService;
 import services.applicant.question.Scalar;
+import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
 import services.geo.AddressLocation;
 import services.geo.AddressSuggestion;
@@ -1999,7 +2001,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     addQueryString(
         request,
         ImmutableMap.of(
-            "key", "fake-key", "bucket", "fake-bucket", "originalFileName", "fake-file-name"));
+            "key",
+            String.format("applicant-%d/fake-key", applicant.id),
+            "bucket",
+            "fake-bucket",
+            "originalFileName",
+            "fake-file-name"));
 
     Result result =
         subject
@@ -2019,6 +2026,80 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     applicant.refresh();
     String applicantData = applicant.getApplicantData().asJsonString();
     assertThat(applicantData).contains("fake-key", "fake-file-name");
+  }
+
+  // An applicant must not be able to create a file record for a key in another applicant's
+  // namespace. Creating such a record would add the caller to that key's read ACL without the
+  // caller owning the key. This complements the existing-record authorization check:
+  // getOrMakeFileRecord must reject a non-owned key both when referencing an existing record and
+  // when creating a new one.
+  @Test
+  public void addFileWithApplicantId_cannotCreateRecordForAnotherApplicantsKey() {
+    // `applicant` is the caller (mocked profile authorized for its own id). `other` is a separate
+    // applicant the caller neither owns nor manages. Block "2" is the file-upload block in the
+    // program built in setUp.
+    ApplicantModel other = createApplicant();
+    String otherKey =
+        String.format("applicant-%d/program-%d/block-2/resume.pdf", other.id, program.id);
+
+    // Precondition: the caller does not own this key.
+    assertThat(ApplicantFileNameFormatter.isApplicantOwnedFileKey(otherKey, applicant.id))
+        .isFalse();
+
+    RequestBuilder request = fakeRequestBuilder();
+    addQueryString(
+        request,
+        ImmutableMap.of(
+            "key", otherKey, "bucket", "fake-bucket", "originalFileName", "resume.pdf"));
+
+    subject
+        .addFileWithApplicantId(
+            request.build(), applicant.id, program.id, /* blockId= */ "2", /* inReview= */ false)
+        .toCompletableFuture()
+        .join();
+
+    // The caller must not have gained read access to the other applicant's key: either no record
+    // was created, or any record present does not list the caller in its read ACL.
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+    Optional<StoredFileModel> stored =
+        storedFileRepository.lookupFile(otherKey).toCompletableFuture().join();
+    boolean callerCanRead =
+        stored.map(f -> f.getAcls().hasApplicantReadPermission(applicant.id)).orElse(false);
+    assertThat(callerCanRead).isFalse();
+  }
+
+  // The ownership check must still allow the legitimate case: a trusted intermediary uploading a
+  // file on behalf of a managed client. The upload key is in the client's namespace (the applicant
+  // the TI is acting as), so it passes the check.
+  @Test
+  public void addFileWithApplicantId_trustedIntermediaryUploadsForManagedClient_succeeds() {
+    ApplicantModel client = createApplicant();
+    // TI manages `client`; this mocks the TI's profile as the caller on the request.
+    createTIWithMockedProfile(client);
+
+    String clientKey =
+        String.format("applicant-%d/program-%d/block-2/resume.pdf", client.id, program.id);
+
+    RequestBuilder request = fakeRequestBuilder();
+    addQueryString(
+        request,
+        ImmutableMap.of(
+            "key", clientKey, "bucket", "fake-bucket", "originalFileName", "resume.pdf"));
+
+    Result result =
+        subject
+            .addFileWithApplicantId(
+                request.build(), client.id, program.id, /* blockId= */ "2", /* inReview= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+
+    StoredFileRepository storedFileRepository = instanceOf(StoredFileRepository.class);
+    Optional<StoredFileModel> stored =
+        storedFileRepository.lookupFile(clientKey).toCompletableFuture().join();
+    assertThat(stored).isPresent();
+    assertThat(stored.get().getAcls().hasApplicantReadPermission(client.id)).isTrue();
   }
 
   @Test
@@ -2049,7 +2130,10 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Add the first file
     RequestBuilder firstRequest = fakeRequestBuilder();
-    addQueryString(firstRequest, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    addQueryString(
+        firstRequest,
+        ImmutableMap.of(
+            "key", String.format("applicant-%d/fake-key", applicant.id), "bucket", "fake-bucket"));
     Result result =
         subject
             .addFileWithApplicantId(
@@ -2065,7 +2149,13 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
     // Now add the second file.
     RequestBuilder secondRequest = fakeRequestBuilder();
-    addQueryString(secondRequest, ImmutableMap.of("key", "fake-key-2", "bucket", "fake-bucket"));
+    addQueryString(
+        secondRequest,
+        ImmutableMap.of(
+            "key",
+            String.format("applicant-%d/fake-key-2", applicant.id),
+            "bucket",
+            "fake-bucket"));
     result =
         subject
             .addFileWithApplicantId(
@@ -2097,7 +2187,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     addQueryString(
         requestOne,
         ImmutableMap.of(
-            "key", "keyOne", "bucket", "fake-bucket", "originalFileName", "fileNameOne"));
+            "key",
+            String.format("applicant-%d/keyOne", applicant.id),
+            "bucket",
+            "fake-bucket",
+            "originalFileName",
+            "fileNameOne"));
 
     subject
         .addFileWithApplicantId(
@@ -2109,7 +2204,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     addQueryString(
         requestTwo,
         ImmutableMap.of(
-            "key", "keyTwo", "bucket", "fake-bucket", "originalFileName", "fileNameTwo"));
+            "key",
+            String.format("applicant-%d/keyTwo", applicant.id),
+            "bucket",
+            "fake-bucket",
+            "originalFileName",
+            "fileNameTwo"));
 
     subject
         .addFileWithApplicantId(
@@ -2124,7 +2224,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             requestThree.build(),
             program.id,
             /* blockId= */ "1",
-            /* fileKeyToRemove= */ "keyTwo",
+            /* fileKeyToRemove= */ String.format("applicant-%d/keyTwo", applicant.id),
             /* inReview= */ false)
         .toCompletableFuture()
         .join();
@@ -2133,7 +2233,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     addQueryString(
         requestFour,
         ImmutableMap.of(
-            "key", "keyThree", "bucket", "fake-bucket", "originalFileName", "fileNameThree"));
+            "key",
+            String.format("applicant-%d/keyThree", applicant.id),
+            "bucket",
+            "fake-bucket",
+            "originalFileName",
+            "fileNameThree"));
 
     subject
         .addFileWithApplicantId(
@@ -2157,7 +2262,11 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     // Verify the files exist.
     var storedFiles =
         storedFileRepo
-            .lookupFiles(ImmutableList.of("keyOne", "keyTwo", "keyThree"))
+            .lookupFiles(
+                ImmutableList.of(
+                    String.format("applicant-%d/keyOne", applicant.id),
+                    String.format("applicant-%d/keyTwo", applicant.id),
+                    String.format("applicant-%d/keyThree", applicant.id)))
             .toCompletableFuture()
             .join();
     assertThat(storedFiles.size()).isEqualTo(3);
@@ -2216,7 +2325,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     var storedFileRepo = instanceOf(StoredFileRepository.class);
     int storedFileCount =
         storedFileRepo
-            .lookupFiles(ImmutableList.of("fake-key"))
+            .lookupFiles(ImmutableList.of(String.format("applicant-%d/fake-key", applicant.id)))
             .toCompletableFuture()
             .join()
             .size();
@@ -3232,7 +3341,12 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   private Request fakeRequestWithKeyAndBucket() {
     RequestBuilder requestBuilder = fakeRequestBuilder();
-    addQueryString(requestBuilder, ImmutableMap.of("key", "fake-key", "bucket", "fake-bucket"));
+    // Real upload keys are always in the uploading applicant's namespace (see
+    // ApplicantFileNameFormatter); use an owned key so getOrMakeFileRecord accepts it.
+    addQueryString(
+        requestBuilder,
+        ImmutableMap.of(
+            "key", String.format("applicant-%d/fake-key", applicant.id), "bucket", "fake-bucket"));
     return requestBuilder.build();
   }
 }
