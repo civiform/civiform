@@ -91,4 +91,32 @@ export class AdminQuestionImage {
   async expectDeleteButtonHidden() {
     await expect(this.getDeleteButton()).toBeHidden()
   }
+
+  getPreviewImageContainer() {
+    return this.page
+      .locator('#sample-question')
+      .getByTestId('question-image-container')
+  }
+
+  getPreviewImage(altText?: string) {
+    return altText
+      ? this.getPreviewImageContainer().getByRole('img', {name: altText})
+      : this.getPreviewImageContainer().getByRole('img')
+  }
+
+  async expectPreviewImageWithAltText(altText: string) {
+    const previewContainer = this.getPreviewImageContainer()
+    await expect(previewContainer).toBeVisible()
+    await expect(this.getPreviewImage(altText)).toBeVisible()
+    const descriptionText = altText.endsWith('.') ? altText : `${altText}.`
+    await expect(previewContainer).toContainText(descriptionText)
+  }
+
+  async expectPreviewHasImageAndAltText(altText: string) {
+    await this.expectPreviewImageWithAltText(altText)
+  }
+
+  async expectNoPreviewImage() {
+    await expect(this.getPreviewImageContainer()).toBeHidden()
+  }
 }
