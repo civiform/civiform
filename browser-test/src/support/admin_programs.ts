@@ -1371,7 +1371,7 @@ export class AdminPrograms {
   }
 
   async closeQuestionBank() {
-    await this.page.click('button.cf-close-question-bank-button')
+    await this.page.getByRole('button', {name: 'Close', exact: true}).click()
     await this.waitForQuestionBankAnimationToFinish()
   }
 
