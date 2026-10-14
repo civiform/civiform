@@ -44,6 +44,10 @@ export default defineConfig({
   // Server options are for the dev server and are for local development
   server: {
     port: 5173,
+    // Pages are served by Play on a different port, so asset URLs emitted
+    // into JS (such as the MapLibre worker) must be absolute to reach this
+    // server. Must match bundler.devServerUrl in application.dev.conf.
+    origin: 'http://localhost:5173',
     host: '0.0.0.0', // Listen on all network interfaces for Docker
     cors: true,
     strictPort: true, // Make Vite error if the default port is in use, otherwise it will try the next port up.
