@@ -503,6 +503,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         const newQuestionAdminId = 'household-member-name'
         const newQuestionText = 'What is the household member name?'
 
+        // Run the question-creation form on the Thymeleaf-migrated path so this covers the disabled
+        // enumerator select plus its hidden-field value submission in QuestionFormPage.html.
+        await enableFeatureFlag(
+          page,
+          'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+        )
+
         await addRepeatedSetBlocks(page)
 
         await test.step('Fill out the enumerator form fields before leaving to create the initial question', async () => {
@@ -523,11 +530,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Name', exact: true}).click()
         })
 
-        await test.step('Verify the "Question enumerator" dropdown is read only', async () => {
-          await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-            'readonly',
-            'readonly',
-          )
+        await test.step('Verify the "Question enumerator" dropdown is disabled', async () => {
+          await expect(page.getByLabel('Question enumerator')).toBeDisabled()
         })
 
         await test.step('Fill out the new question form and submit it', async () => {
@@ -1321,10 +1325,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
 
-        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-          'readonly',
-          'readonly',
-        )
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+
         await expect(
           page.getByLabel('Question enumerator').locator('option[selected]'),
         ).toHaveText('pets enumerator')
@@ -1452,11 +1454,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
-      await test.step('Verify that the "Question enumerator" dropdown is read only', async () => {
-        await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-          'readonly',
-          'readonly',
-        )
+      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
+        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
       })
     })
 

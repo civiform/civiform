@@ -597,14 +597,12 @@ test.describe('normal question lifecycle', () => {
       })
     })
 
-    await test.step('edit text question and confirm correct enumerator option is selected and readonly', async () => {
+    await test.step('edit text question and confirm correct enumerator option is selected and disabled', async () => {
       await adminQuestions.gotoQuestionEditPage(textQuestion)
       await expect(page.getByLabel('Question enumerator')).toContainText(
         enumeratorOne,
       )
-      await expect(page.getByLabel('Question enumerator')).toHaveAttribute(
-        'readonly',
-      )
+      await expect(page.getByLabel('Question enumerator')).toBeDisabled()
     })
   })
 
