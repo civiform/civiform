@@ -43,7 +43,7 @@ RUN set -o pipefail && \
     apk update && \
     apk add --upgrade apk-tools && \
     apk upgrade --available && \
-    apk add --no-cache --update bash openssh
+    apk add --no-cache --update bash
 
 ARG image_tag
 ENV CIVIFORM_IMAGE_TAG=$image_tag
