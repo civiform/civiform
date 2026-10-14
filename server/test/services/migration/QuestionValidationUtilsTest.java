@@ -56,10 +56,11 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             QuestionOption.create(3L, "vanilla_admin", LocalizedStrings.of(Locale.US, "vanilla")));
 
     ImmutableSet<CiviFormError> errors =
-        QuestionValidationUtils.validateQuestionOptionAdminNames(
+        QuestionValidationUtils.validateQuestionAttributes(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
-                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)));
+                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors).isEmpty();
   }
@@ -76,10 +77,11 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             QuestionOption.create(3L, "vanilla_admin", LocalizedStrings.of(Locale.US, "vanilla")));
 
     ImmutableSet<CiviFormError> errors =
-        QuestionValidationUtils.validateQuestionOptionAdminNames(
+        QuestionValidationUtils.validateQuestionAttributes(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
-                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)));
+                    QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors).hasSize(1);
     assertThat(errors.iterator().next().message())

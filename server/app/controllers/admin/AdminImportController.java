@@ -282,7 +282,11 @@ public class AdminImportController extends CiviFormController {
       ImmutableList<String> existingAdminNames =
           programMigrationService.getExistingAdminNames(questions);
       ImmutableSet<CiviFormError> questionErrors =
-          programMigrationService.validateQuestions(program, questions, existingAdminNames);
+          programMigrationService.validateQuestions(
+              program,
+              questions,
+              existingAdminNames,
+              settingsManifest.getEnumeratorImprovementsEnabled(request));
       if (!questionErrors.isEmpty()) {
         if (thymeleafEnabled) {
           return ok(adminImportErrorPartialView.render(
