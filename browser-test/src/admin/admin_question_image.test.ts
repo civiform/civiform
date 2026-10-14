@@ -161,7 +161,7 @@ test.describe('Admin can manage question image', () => {
         await expect(previewContainer).toContainText(`${altText}.`)
 
         await validateScreenshot(
-          previewContainer,
+          page.getByRole('main'),
           'question-preview-with-image',
           {fullPage: false},
         )
