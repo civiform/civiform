@@ -22,7 +22,7 @@ final class QuestionValidationUtils {
   /**
    * Validates attributes of the question, including admin name, help text, and question options.
    */
-  static ImmutableSet<CiviFormError> validateQuestionOptionAdminNames(
+  static ImmutableSet<CiviFormError> validateQuestionAttributes(
       ImmutableList<QuestionDefinition> questions, boolean enumeratorImprovementsEnabled) {
     return questions.stream()
         .map(

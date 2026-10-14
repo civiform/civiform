@@ -56,7 +56,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             QuestionOption.create(3L, "vanilla_admin", LocalizedStrings.of(Locale.US, "vanilla")));
 
     ImmutableSet<CiviFormError> errors =
-        QuestionValidationUtils.validateQuestionOptionAdminNames(
+        QuestionValidationUtils.validateQuestionAttributes(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
                     QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),
@@ -77,7 +77,7 @@ public final class QuestionValidationUtilsTest extends ResetPostgres {
             QuestionOption.create(3L, "vanilla_admin", LocalizedStrings.of(Locale.US, "vanilla")));
 
     ImmutableSet<CiviFormError> errors =
-        QuestionValidationUtils.validateQuestionOptionAdminNames(
+        QuestionValidationUtils.validateQuestionAttributes(
             ImmutableList.of(
                 new MultiOptionQuestionDefinition(
                     QUESTION_CONFIG, questionOptions, MultiOptionQuestionType.CHECKBOX)),

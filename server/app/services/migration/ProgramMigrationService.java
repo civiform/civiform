@@ -172,7 +172,7 @@ public final class ProgramMigrationService {
 
     return ImmutableSet.<CiviFormError>builder()
         .addAll(
-            QuestionValidationUtils.validateQuestionOptionAdminNames(
+            QuestionValidationUtils.validateQuestionAttributes(
                 questions, enumeratorImprovementsEnabled))
         .addAll(QuestionValidationUtils.validateAllProgramQuestionsPresent(program, questions))
         .addAll(QuestionValidationUtils.validateYesNoQuestions(questions))

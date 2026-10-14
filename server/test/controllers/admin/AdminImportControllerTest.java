@@ -288,8 +288,8 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   /**
-   * The nested enumerator and its initial question, with "$this" removed from their text. Also adds
-   * the short description that the import preview requires, which this fixture predates.
+   * The nested enumerator and its initial question, with "$this" removed from their text. This
+   * fixture was written before the import preview required a short description, so this adds one.
    */
   private static String programJsonWithEnumeratorsWithoutThis() {
     String json =
