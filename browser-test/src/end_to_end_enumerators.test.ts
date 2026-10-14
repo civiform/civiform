@@ -1643,13 +1643,48 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
       })
 
-      await test.step('Remove the second entity', async () => {
+      await test.step('Fill the second entity and add a third', async () => {
+        await blockForm
+          .getByRole('spinbutton', {name: 'Pets name #2'})
+          .fill('2')
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm
+          .getByRole('spinbutton', {name: 'Pets name #3'})
+          .fill('3')
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
+      })
+
+      await test.step('Remove the middle entity', async () => {
         page.once('dialog', (dialog) => dialog.accept())
         await blockForm.getByRole('button', {name: 'Remove Pets #2'}).click()
-        await expect(blockForm.getByRole('spinbutton')).toHaveCount(1)
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
+        // The surviving third entity is relabeled to #2.
         await expect(
           blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
-        ).toBeHidden()
+        ).toHaveValue('3')
+      })
+
+      await test.step('Add another entity and verify no entity index is reused', async () => {
+        await expect(addButton).toBeEnabled()
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
+
+        // Each row must POST a distinct, contiguous entity index.
+        const names = await blockForm
+          .getByRole('spinbutton')
+          .evaluateAll((inputs) =>
+            inputs.map((input) => (input as HTMLInputElement).name),
+          )
+        expect(new Set(names).size).toBe(names.length)
+        const entityIndices = names
+          .map((name) => {
+            const brackets = [...name.matchAll(/\[(\d+)\]/g)]
+            return Number(brackets[brackets.length - 1][1])
+          })
+          .sort((a, b) => a - b)
+        expect(entityIndices).toEqual([0, 1, 2])
       })
     })
 

@@ -247,8 +247,8 @@ function isLastEntityRowEmpty(): boolean {
 }
 
 /**
- * When enumerator entities are removed from the page, we need to repaint all
- * labels and buttons so the index orders remain correct.
+ * When enumerator entities are removed from the page, we need to reindex all
+ * labels, buttons and input names so the index orders remain correct.
  */
 function repaintAllLabelsAndButtons() {
   const enumeratorFields = document.querySelectorAll(
@@ -257,6 +257,36 @@ function repaintAllLabelsAndButtons() {
   enumeratorFields.forEach((field, index) => {
     addIndexToLabelAndButton(field, index)
     repointEntityAria(field, index)
+    renumberEntityInputNames(field, index)
+  })
+}
+
+/**
+ * Rewrite the enumerator entity index in every input name in a row so it matches the row's current
+ * position. Initial-question inputs bake a concrete index into their name (e.g.
+ * applicant.pets[2].pet_name.text); after a non-last row is removed these must be renumbered to stay
+ * contiguous 0..N-1, which is what the server requires for enumerator updates. Legacy rows use the
+ * "[]" array suffix with no concrete index (Play assigns indices by submission order), so the regex
+ * matches nothing and leaves them untouched.
+ * @param {Element} field The entity row.
+ * @param {number} index The zero-based position of the entity in the visible list.
+ */
+function renumberEntityInputNames(field: Element, index: number) {
+  const controls = field.querySelectorAll<HTMLElement>(
+    'input, select, textarea',
+  )
+  controls.forEach((control) => {
+    const name = control.getAttribute('name')
+    if (name === null) {
+      return
+    }
+    // Replace the enumerator's index bracket — the last [digits] in the path, since the initial
+    // question's scalar follows it and any parent enumerator's index precedes it — with the new
+    // index.
+    const renumbered = name.replace(/\[\d+\](?!.*\[\d+\])/, `[${index}]`)
+    if (renumbered !== name) {
+      control.setAttribute('name', renumbered)
+    }
   })
 }
 
