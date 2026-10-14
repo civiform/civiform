@@ -106,13 +106,11 @@ public final class ProgramIndexView extends BaseHtmlView {
             .filter(QuestionDefinition::isUniversal)
             .map(QuestionDefinition::getId)
             .collect(ImmutableList.toImmutableList());
-
-    // Include all programs in draft in publishAllDraft modal.
-    ActiveAndDraftPrograms allPrograms =
-        programService.getActiveAndDraftProgramsWithoutQuestionLoad();
+    // Note: We use the `programs` parameter directly here — it was already batch-loaded by
+    // the controller, so calling programService again would trigger a redundant DB query.
     Optional<Modal> maybePublishModal =
         maybeRenderPublishAllModal(
-            allPrograms,
+            programs,
             readOnlyQuestionService.getActiveAndDraftQuestions(),
             request,
             universalQuestionIds);
@@ -359,8 +357,12 @@ public final class ProgramIndexView extends BaseHtmlView {
         questions.getDraftQuestions().stream()
             .sorted(Comparator.comparing(QuestionDefinition::getName))
             .collect(ImmutableList.toImmutableList());
+
+    // Use all programs (including disabled) for the publish modal, since disabled draft programs
+    // are also published when publishing all drafts. The `programs` param only contains in-use
+    // programs (filtered by the batch load path), so we fetch all here without question load.
     ImmutableList<ProgramDefinition> sortedDraftPrograms =
-        programs.getDraftPrograms().stream()
+        programService.getActiveAndDraftProgramsWithoutQuestionLoad().getDraftPrograms().stream()
             .sorted(Comparator.comparing(ProgramDefinition::adminName))
             .collect(ImmutableList.toImmutableList());
 

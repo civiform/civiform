@@ -1742,6 +1742,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 return completedFuture(existingFile);
               }
 
+              // A new file record may only be created for a key in the creating applicant's
+              // own namespace; possession of a key is not authorization. This mirrors the
+              // authorization check on the existing-record path above. Cross-applicant read
+              // access is granted deliberately elsewhere, never at record creation.
+              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)) {
+                return failedFuture(
+                    new SecurityException(
+                        String.format(
+                            "Applicant %d may not create a file record for a key it does not"
+                                + " own.",
+                            applicantId)));
+              }
+
               var storedFile = new StoredFileModel();
               storedFile.setName(key);
               storedFile.getAcls().addApplicantToReaders(applicantId);

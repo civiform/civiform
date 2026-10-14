@@ -43,13 +43,13 @@ lazy val root = (project in file("."))
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
       "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
-      "org.commonmark" % "commonmark" % "0.30.0",
-      "org.commonmark" % "commonmark-ext-autolink" % "0.30.0",
+      "org.commonmark" % "commonmark" % "0.30.1",
+      "org.commonmark" % "commonmark-ext-autolink" % "0.30.1",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.55.13",
-      "software.amazon.awssdk" % "ses" % "2.55.13",
+      "software.amazon.awssdk" % "s3" % "2.55.14",
+      "software.amazon.awssdk" % "ses" % "2.55.14",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -63,8 +63,11 @@ lazy val root = (project in file("."))
       "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
-      // Metrics collection and export for Prometheus
-      "io.github.jyllands-posten" %% "play-prometheus-filters" % "1.0.2",
+      // Metrics collection and export for Prometheus. See filters.PrometheusRequestMetricsFilter
+      // and modules.PrometheusModule.
+      "io.prometheus" % "simpleclient" % "0.16.0",
+      "io.prometheus" % "simpleclient_common" % "0.16.0",
+      "io.prometheus" % "simpleclient_hotspot" % "0.16.0",
 
       // Parameterized testing
       "pl.pragmatists" % "JUnitParams" % "1.1.1" % Test,

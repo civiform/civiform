@@ -187,9 +187,29 @@ public final class ProgramService {
    * Get the data object about the non-disabled programs that are in the active or draft version
    * with the full question definitions attached to the programs.
    */
-  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms() {
-    return ActiveAndDraftPrograms.buildInUseProgramFromCurrentVersionsSynced(
-        this, versionRepository);
+  public ActiveAndDraftPrograms getInUseActiveAndDraftPrograms(
+      ReadOnlyQuestionService roQuestionService) {
+    return ActiveAndDraftPrograms.buildInUsePrograms(versionRepository, this, roQuestionService);
+  }
+
+  ProgramDefinition toFullProgramDefinition(
+      ProgramModel program, ReadOnlyQuestionService roQuestionService, boolean isDraft) {
+    if (!isDraft) {
+      Optional<ProgramDefinition> cached =
+          programRepository.getFullProgramDefinitionFromCache(program);
+      if (cached.isPresent()) {
+        return cached.get();
+      }
+    }
+
+    ProgramDefinition synced =
+        syncProgramDefinitionQuestions(program.getProgramDefinition(), roQuestionService)
+            .orderBlockDefinitions();
+
+    if (!isDraft) {
+      programRepository.setFullProgramDefinitionCache(program.id, synced);
+    }
+    return synced;
   }
 
   /** Checks if there is any disabled program in active or draft version. */
