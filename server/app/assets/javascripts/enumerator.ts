@@ -265,13 +265,16 @@ function repaintAllLabelsAndButtons() {
  * Rewrite the enumerator entity index in every input name in a row so it matches the row's current
  * position. Initial-question inputs bake a concrete index into their name (e.g.
  * applicant.pets[2].pet_name.text); after a non-last row is removed these must be renumbered to stay
- * contiguous 0..N-1, which is what the server requires for enumerator updates. Legacy rows use the
- * "[]" array suffix with no concrete index (Play assigns indices by submission order), so the regex
- * matches nothing and leaves them untouched.
+ * contiguous 0..N-1, which is what the server requires for enumerator updates. Legacy rows don't
+ * need this (Play assigns indices by submission order via the "[]" suffix) and are skipped.
  * @param {Element} field The entity row.
  * @param {number} index The zero-based position of the entity in the visible list.
  */
 function renumberEntityInputNames(field: Element, index: number) {
+  // Only initial-question rows; a legacy row has no concrete index of its own to renumber.
+  if (field.querySelector('.cf-entity-index-label') === null) {
+    return
+  }
   const controls = field.querySelectorAll<HTMLElement>(
     'input, select, textarea',
   )
