@@ -100,6 +100,22 @@ public final class ProgramRepository {
         .exists();
   }
 
+  /**
+   * Returns true if any version of the program with the given admin name has scoring enabled.
+   * Exports use this so scores stay visible for applications that were scored when the program used
+   * scoring, even if scoring was turned off later.
+   */
+  public boolean anyVersionUsesScoring(String programAdminName) {
+    return database
+        .find(ProgramModel.class)
+        .setLabel("ProgramModel.anyVersionUsesScoring")
+        .setProfileLocation(queryProfileLocationBuilder.create("anyVersionUsesScoring"))
+        .where()
+        .eq("name", programAdminName)
+        .eq("usesScoring", true)
+        .exists();
+  }
+
   private Optional<ProgramModel> lookupProgramSync(long id) {
     return database
         .find(ProgramModel.class)
