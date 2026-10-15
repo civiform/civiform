@@ -566,12 +566,11 @@
     ></div>
   </div>
 
-  <!--/* Question preview container, kept in the DOM so it can re-fetch when question image changes */-->
+  <!--/* Question preview, loaded over HTMX. */-->
   <div
-    class="flex-5"
-    hx-swap="innerHTML"
+    hx-swap="outerHTML"
     th:hx-get="${model.previewUrl}"
-    hx-trigger="load, question-image-changed from:body"
+    hx-trigger="load"
   ></div>
 </th:block>
 

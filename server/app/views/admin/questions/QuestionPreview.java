@@ -98,6 +98,7 @@ public class QuestionPreview extends ApplicantBaseView {
     // StaticTextQuestionFragment can render an inline 16:9 image block when one is present.
     context.setVariable("questionImageUrl", params.imageUrl().orElse(""));
     context.setVariable("questionImageAltText", params.imageAltText());
+    context.setVariable("previewUrl", params.request().uri());
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
