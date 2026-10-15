@@ -4,6 +4,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 import com.google.common.collect.ImmutableList;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -170,8 +171,10 @@ public class ApplicationModelTest extends ResetPostgres {
   public void create_new_application_updatesLastActivityTime() {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
-    // Wait for the next tick to ensure the new application has a newer timestamp
-    while (!Instant.now().isAfter(activitytimeBeforeUpdate)) {}
+    // Wait for the next millisecond to ensure the new application has a newer timestamp. The
+    // stored timestamp only has millisecond precision, so comparing against the full-precision
+    // Instant.now() can return before the clock has actually ticked over.
+    while (!Instant.now().truncatedTo(ChronoUnit.MILLIS).isAfter(activitytimeBeforeUpdate)) {}
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.refresh();
 
