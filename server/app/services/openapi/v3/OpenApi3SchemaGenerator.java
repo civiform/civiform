@@ -224,7 +224,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
             .addProperty("submitter_type", new StringSchema())
             .addProperty("ti_email", new StringSchema().nullable(true))
             .addProperty("ti_organization", new StringSchema().nullable(true));
-    if (includeScores(programDefinition)) {
+    if (includeScores()) {
       // Null when the application predates scoring or scoring wasn't applied; double precision.
       resultItem.addProperty("total_score", new NumberSchema().format("double").nullable(true));
     }
@@ -237,7 +237,7 @@ public class OpenApi3SchemaGenerator extends AbstractOpenApiSchemaGenerator
   public ObjectSchema buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
-    var results = buildApplicationDefinitions(rootNode, includeScores(programDefinition));
+    var results = buildApplicationDefinitions(rootNode, includeScores());
     var objectProperty = new ObjectSchema();
 
     results.entrySet().stream()

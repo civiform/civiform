@@ -24,6 +24,7 @@ import services.program.ProgramQuestionDefinition;
 import services.program.ProgramType;
 import services.question.types.QuestionDefinition;
 import services.statuses.StatusDefinitions;
+import support.ProgramBuilder;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ProgramJsonSamplerTest extends ResetPostgres {
@@ -86,8 +87,16 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     repo.createOrUpdateStatusDefinitions(programDefinition.adminName(), possibleProgramStatuses);
   }
 
+  /** Saves a program version with the same admin name, as exports look versions up by name. */
+  private void saveProgramVersion(boolean usesScoring) {
+    ProgramBuilder.newObsoleteProgram(programDefinition.adminName())
+        .withUsesScoring(usesScoring)
+        .build();
+  }
+
   @Test
   public void getSampleJson_withScores_includesSampleScoreValues() {
+    saveProgramVersion(/* usesScoring= */ true);
     ProgramDefinition scoringProgram = programDefinition.toBuilder().setUsesScoring(true).build();
 
     String json =
@@ -100,6 +109,16 @@ public class ProgramJsonSamplerTest extends ResetPostgres {
     assertThat(json).contains("\"scores\" : [ 1.5, null ]");
     // Two single-select questions at 2.0 plus one scored checkbox selection at 1.5.
     assertThat(json).contains("\"total_score\" : 5.5");
+  }
+
+  @Test
+  public void getSampleJson_withScores_earlierVersionUsedScoring_includesScoreProperties() {
+    // An older version used scoring, but the current one has it turned off.
+    saveProgramVersion(/* usesScoring= */ true);
+
+    String json = programJsonSampler.getSampleJson(programDefinition, /* scoringEnabled= */ true);
+
+    assertThat(json).contains("\"total_score\"");
   }
 
   @Test

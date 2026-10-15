@@ -71,13 +71,13 @@ public class Swagger2SchemaGeneratorTest {
   }
 
   @Test
-  public void createSchema_scoringEnabled_addsScoreProperties() {
+  public void createSchema_includeScores_addsScoreProperties() {
     OpenApiSchemaSettings settings =
         new OpenApiSchemaSettings(
             "baseUrl",
             "email123@example.com",
             /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ true);
+            /* includeScores= */ true);
     ProgramDefinition scoringProgram =
         programWithAllSampleQuestions().toBuilder().setUsesScoring(true).build();
 
@@ -114,30 +114,13 @@ public class Swagger2SchemaGeneratorTest {
   }
 
   @Test
-  public void createSchema_scoringEnabled_programDoesNotUseScoring_omitsScoreProperties() {
-    OpenApiSchemaSettings settings =
-        new OpenApiSchemaSettings(
-            "baseUrl",
-            "email123@example.com",
-            /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ true);
-
-    String actual =
-        new Swagger2SchemaGenerator(settings).createSchema(programWithAllSampleQuestions());
-
-    assertThat(actual).doesNotContain("total_score");
-    assertThat(actual).doesNotContain("score:");
-    assertThat(actual).doesNotContain("scores:");
-  }
-
-  @Test
   public void createSchema_withoutIncludeScores_omitsScoreProperties() {
     OpenApiSchemaSettings settings =
         new OpenApiSchemaSettings(
             "baseUrl",
             "email123@example.com",
             /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ false);
+            /* includeScores= */ false);
 
     String actual =
         new Swagger2SchemaGenerator(settings).createSchema(programWithAllSampleQuestions());
@@ -187,7 +170,7 @@ public class Swagger2SchemaGeneratorTest {
             "baseUrl",
             "email123@example.com",
             /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ false);
+            /* includeScores= */ false);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -390,7 +373,7 @@ definitions:
             "baseUrl",
             "email123@example.com",
             /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ false);
+            /* includeScores= */ false);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
@@ -946,7 +929,7 @@ definitions:
             "baseUrl",
             "email123@example.com",
             /* allowHttpScheme= */ true,
-            /* scoringEnabled= */ false);
+            /* includeScores= */ false);
 
     var generator = new Swagger2SchemaGenerator(settings);
     String actual = generator.createSchema(programDefinition);
