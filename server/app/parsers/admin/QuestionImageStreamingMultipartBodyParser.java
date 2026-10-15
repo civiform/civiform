@@ -1,6 +1,7 @@
 package parsers.admin;
 
 import com.google.common.collect.ImmutableList;
+import controllers.ErrorHandler;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
@@ -11,7 +12,6 @@ import parsers.FileTypeValidation;
 import parsers.StreamingMultipartBodyParser;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
-import play.http.DefaultHttpErrorHandler;
 import play.libs.F;
 import play.libs.streams.Accumulator;
 import play.mvc.Http;
@@ -28,16 +28,16 @@ import services.cloud.PublicFileNameFormatter;
 public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
   public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
 
-  // Matches /admin/questions/questionId/image/upload in the request path.
+  // Matches /admin/questions/questionId/hx/image/upload in the request path.
   private static final Pattern QUESTION_IMAGE_UPLOAD_PATH_PATTERN =
-      Pattern.compile("/admin/questions/(\\d+)/image/upload(/|$)");
+      Pattern.compile("/admin/questions/(\\d+)/hx/image/upload(/|$)");
 
   private long questionId;
 
   @Inject
   public QuestionImageStreamingMultipartBodyParser(
       Materializer materializer,
-      DefaultHttpErrorHandler errorHandler,
+      ErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation) {
     super(

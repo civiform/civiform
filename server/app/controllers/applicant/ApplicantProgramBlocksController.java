@@ -30,6 +30,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.StoredFileModel;
 import org.apache.commons.lang3.StringUtils;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -50,6 +51,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
@@ -299,7 +301,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddressWithApplicantId(
       Request request,
       long applicantId,
@@ -328,7 +330,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** Handles the applicant's selection from the address correction options. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> confirmAddress(
       Request request,
       long programId,
@@ -415,7 +417,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     page, or error responses (unauthorized, not found, or redirect) if authorization fails or
    *     resources are not found
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previousWithApplicantId(
       Request request,
       long applicantId,
@@ -538,7 +540,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * @return a CompletionStage that resolves to a Result containing the rendered review page or a
    *     redirect response
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> previous(
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
@@ -565,7 +567,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programParam, previousBlockIndex, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   private CompletionStage<Result> editOrReview(
       Request request,
       long applicantId,
@@ -654,7 +656,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file removal
    * @return a CompletionStage that resolves to a Result handled by removeFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFile(
       Request request, Long programId, String blockId, String fileKeyToRemove, boolean inReview) {
 
@@ -670,7 +672,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         request, applicantId, programId, blockId, fileKeyToRemove, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> removeFileWithApplicantId(
       Request request,
       long applicantId,
@@ -791,6 +793,118 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /**
+   * Renders the HTML for a new enumerator entity row and returns it for HTMX to append to the
+   * enumerator block. Used when an applicant clicks "Add &lt;entity&gt;" on an enumerator block
+   * that has an initial question. Resolves the applicant id from the session.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programId ID of the program
+   * @param blockId the unique identifier of the enumerator block
+   * @return a CompletionStage that resolves to a Result handled by
+   *     hxAddEnumeratorEntityWithApplicantId()
+   */
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
+  public CompletionStage<Result> hxAddEnumeratorEntity(
+      Request request, Long programId, String blockId) {
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    return hxAddEnumeratorEntityWithApplicantId(
+        request, optionalApplicantId.get(), programId, blockId);
+  }
+
+  /**
+   * Renders the HTML for a new enumerator entity row and returns it for HTMX to append to the
+   * enumerator block.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param applicantId ID of the applicant the entity is being added for
+   * @param programId ID of the program
+   * @param blockId the unique identifier of the enumerator block
+   * @return a CompletionStage resolving to the rendered entity row HTML, or notFound() when the
+   *     flag is off or the block is not an enumerator with an initial question
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
+  public CompletionStage<Result> hxAddEnumeratorEntityWithApplicantId(
+      Request request, long applicantId, Long programId, String blockId) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            roApplicantProgramService -> {
+              Optional<Block> maybeBlock = roApplicantProgramService.getActiveBlock(blockId);
+              if (maybeBlock.isEmpty() || !maybeBlock.get().isEnumerator()) {
+                return notFound();
+              }
+
+              Block block = maybeBlock.get();
+              int entityIndex = nextEntityIndex(request, block);
+
+              Optional<ApplicantQuestion> maybeInitialQuestion =
+                  block.createContextualizedInitialQuestion(entityIndex);
+              if (maybeInitialQuestion.isEmpty()) {
+                return notFound();
+              }
+
+              String entityRowHtml =
+                  applicantProgramBlockEditView.hxRenderNewEnumeratorEntityRow(
+                      request,
+                      maybeInitialQuestion.get(),
+                      block.getEnumeratorQuestion(),
+                      entityIndex,
+                      messagesApi.preferred(request));
+              return ok(entityRowHtml).as(Http.MimeTypes.HTML);
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound();
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  /**
+   * Returns the index to assign to the next entity row. Defaults to the number of saved entities,
+   * but honors a larger {@code entityCount} sent by the client (via HTMX hx-vals) so rows added
+   * before the form is submitted still get contiguous indices.
+   */
+  private int nextEntityIndex(Request request, Block block) {
+    int entityIndex = block.getEnumeratorEntityCount();
+
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String entityCountParam = form.get("entityCount");
+    if (entityCountParam != null && !entityCountParam.isBlank()) {
+      try {
+        entityIndex = Math.max(entityIndex, Integer.parseInt(entityCountParam));
+      } catch (NumberFormatException e) {
+        // Fall back to the server-side count.
+      }
+    }
+    return entityIndex;
+  }
+
+  /**
    * Used by the file upload question. We let users directly upload files to S3 bucket from
    * browsers. On success, users are redirected to this method. The redirect is a GET method with
    * file key in the query string. We add this to the list of uploaded files, or if it's already
@@ -807,7 +921,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *     (false), which affects navigation behavior after file processing
    * @return a CompletionStage that resolves to a Result handled by addFileWithApplicantId()
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFile(
       Request request, long programId, String blockId, boolean inReview) {
     // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -823,7 +937,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     return addFileWithApplicantId(request, applicantId, programId, blockId, inReview);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
@@ -1028,7 +1142,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    *       </ul>
    * </ul>
    */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> updateWithApplicantId(
       Request request,
       long applicantId,
@@ -1215,7 +1329,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   }
 
   /** See {@link #updateWithApplicantId}. */
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> update(
       Request request,
       String programParam,
@@ -1626,6 +1740,19 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               applicantId)));
                 }
                 return completedFuture(existingFile);
+              }
+
+              // A new file record may only be created for a key in the creating applicant's
+              // own namespace; possession of a key is not authorization. This mirrors the
+              // authorization check on the existing-record path above. Cross-applicant read
+              // access is granted deliberately elsewhere, never at record creation.
+              if (!ApplicantFileNameFormatter.isApplicantOwnedFileKey(key, applicantId)) {
+                return failedFuture(
+                    new SecurityException(
+                        String.format(
+                            "Applicant %d may not create a file record for a key it does not"
+                                + " own.",
+                            applicantId)));
               }
 
               var storedFile = new StoredFileModel();

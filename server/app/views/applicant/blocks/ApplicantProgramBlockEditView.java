@@ -1,5 +1,6 @@
 package views.applicant.blocks;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import com.google.common.annotations.VisibleForTesting;
@@ -27,10 +28,13 @@ import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.MapQuestion;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
 import services.geojson.Feature;
 import services.geojson.FeatureCollection;
 import services.question.types.MapQuestionDefinition.MapValidationPredicates;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
@@ -51,6 +55,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   private final FileUploadViewStrategy fileUploadViewStrategy;
   private final GeoJsonDataRepository mapDataRepository;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   ApplicantProgramBlockEditView(
@@ -62,7 +67,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
-      GeoJsonDataRepository mapDataRepository) {
+      GeoJsonDataRepository mapDataRepository,
+      PublicStorageClient publicStorageClient) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -73,6 +79,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         deploymentType);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.mapDataRepository = mapDataRepository;
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
@@ -192,6 +199,18 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+
+      // Initial-question context for enumerator blocks when enumerator improvements are enabled and
+      // the enumerator has an initial question configured. When absent, the enumerator fragment
+      // falls back to the legacy text input.
+      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
+          && applicationParams.block().getInitialQuestion().isPresent()) {
+        setInitialQuestionContext(context, applicationParams);
+      }
+      context.setVariable(
+          "imagesInQuestionFeatureEnabled",
+          settingsManifest.getImagesInQuestionFeatureEnabled(request));
+
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
   }
@@ -367,6 +386,19 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                                 getFileUploadSignedRequestKey(params), redirectWithFile(params));
                     paramsBuilder.setSignedFileUploadRequest(signedRequest);
                   }
+
+                  QuestionDefinition qd = question.getQuestionDefinition();
+                  if (qd.getImageFileKey().isPresent() && !qd.getImageFileKey().get().isBlank()) {
+                    String fileKey = qd.getImageFileKey().get();
+                    if (PublicFileNameFormatter.isFileKeyForPublicQuestionImage(fileKey)) {
+                      paramsBuilder.setQuestionImageUrl(
+                          publicStorageClient.getPublicDisplayUrl(fileKey));
+                      qd.getLocalizedImageDescription()
+                          .map(desc -> desc.getOrDefault(params.messages().lang().toLocale()))
+                          .ifPresent(paramsBuilder::setQuestionImageAltText);
+                    }
+                  }
+
                   return paramsBuilder.build();
                 }));
   }
@@ -432,6 +464,68 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
+  }
+
+  /**
+   * Adds the initial-question context variables consumed by the enumerator fragment: the initial
+   * question's {@link QuestionType} (used to branch to the correct per-type fragment) and one
+   * contextualized {@link ApplicantQuestion} per existing entity so its inputs resolve to the right
+   * per-entity paths.
+   */
+  private void setInitialQuestionContext(
+      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams params) {
+    context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
+    context.setVariable(
+        "contextualizedInitialQuestions", params.block().getContextualizedInitialQuestions());
+    context.setVariable(
+        "enumeratorQuestion", params.block().getEnumeratorQuestion().createEnumeratorQuestion());
+    context.setVariable(
+        "hxAddEnumeratorEntityUrl",
+        applicantRoutes
+            .hxAddEnumeratorEntity(
+                params.profile(), params.applicantId(), params.programId(), params.block().getId())
+            .url());
+    // TODO (#13398): Show validation errors and set the autofocus target
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(params.messages())
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
+  }
+
+  /**
+   * Renders a single new enumerator repeated entity row for the HTMX add-entity flow. The row is
+   * always a subsequent (non-first) entity, so the aria-labelledBy does not reference the
+   * enumerator title/help.
+   */
+  public String hxRenderNewEnumeratorEntityRow(
+      Request request,
+      ApplicantQuestion contextualizedInitialQuestion,
+      ApplicantQuestion enumeratorApplicantQuestion,
+      int entityIndex,
+      play.i18n.Messages messages) {
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    context.setVariable("contextualizedInitialQuestion", contextualizedInitialQuestion);
+    context.setVariable("initialQuestionType", contextualizedInitialQuestion.getType());
+    context.setVariable(
+        "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
+    context.setVariable("entityIndex", entityIndex);
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("nameSuffixOptions", Suffix.values());
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    // A brand new entity row has no answers yet, so never shows errors.
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
+
+    return templateEngine.process("questiontypes/EnumeratorNewEntityRowPartial", context);
   }
 
   private void addFileUploadParameters(

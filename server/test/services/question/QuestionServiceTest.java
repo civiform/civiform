@@ -25,7 +25,6 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.ImageDescriptionNotRemovableException;
-import services.ImageWithoutDescriptionException;
 import services.LocalizedStrings;
 import services.Path;
 import services.TranslationLocales;
@@ -856,27 +855,6 @@ public class QuestionServiceTest extends ResetPostgres {
                     question.getId(), Optional.empty(), LocalizedStrings.DEFAULT_LOCALE, "   "))
         .isInstanceOf(ImageDescriptionNotRemovableException.class)
         .hasMessageContaining("Description can't be removed because an image is present");
-  }
-
-  @Test
-  public void
-      setImageFileKeyAndDescription_noImage_hasFileKeyAndBlankDescription_throwsImageWithoutDescriptionException()
-          throws Exception {
-    QuestionDefinition question = questionService.create(questionDefinition).getResult();
-
-    assertThatThrownBy(
-            () ->
-                questionService.setImageFileKeyAndDescription(
-                    question.getId(), Optional.of("fileKey.png"), Locale.US, ""))
-        .isInstanceOf(ImageWithoutDescriptionException.class)
-        .hasMessageContaining("Image cannot be added without an image description");
-
-    assertThatThrownBy(
-            () ->
-                questionService.setImageFileKeyAndDescription(
-                    question.getId(), Optional.of("fileKey.png"), Locale.US, "   "))
-        .isInstanceOf(ImageWithoutDescriptionException.class)
-        .hasMessageContaining("Image cannot be added without an image description");
   }
 
   @Test

@@ -21,9 +21,7 @@ import services.monitoring.MonitoringMetricCounters;
 import services.settings.SettingsManifest;
 
 /**
- * Controller for exporting Prometheus server metrics via HTTP. Based on the implementation found in
- * {@link com.github.stijndehaes.playprometheusfilters.controllers.PrometheusController} and
- * customized to allow disabling via configuration flag.
+ * Controller for exporting Prometheus server metrics via HTTP. Can be disabled via config.
  *
  * <p>In addition to request and database metrics, each scrape reports the effective value of every
  * feature flag and the build version so that deployments can see which features are enabled.

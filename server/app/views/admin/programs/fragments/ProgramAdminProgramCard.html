@@ -1,0 +1,156 @@
+<!--/*
+  A program card on the program admin's program list page. This page only
+  ever shows a card's active row: no draft row and no extra actions, so the
+  extra-actions dropdown button is always rendered invisible.
+*/-->
+<!--/*@thymesVar id="card" type="views.admin.programs.ProgramAdminIndexPageViewModel.ProgramCard"*/-->
+<div
+  th:fragment="programCard(card)"
+  class="cf-admin-program-card w-full my-4 pl-6 border border-gray-300 rounded-lg"
+>
+  <div class="flex">
+    <div class="w-1/4 py-7 pr-2">
+      <p
+        class="cf-program-title text-black font-bold text-xl"
+        th:text="${card.title}"
+      ></p>
+      <div
+        class="cf-program-description line-clamp-2 text-sm lg:text-base mb-4"
+      >
+        <span th:text="${card.shortDescription}"></span>
+      </div>
+
+      <!--/* Program type indicator. DEFAULT programs have none. Each icon is
+             nested inside its case so only the matching one is included. */-->
+      <th:block th:switch="${card.programType.name()}">
+        <div
+          th:case="'PRE_SCREENER_FORM'"
+          class="text-black items-center flex mb-4"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('inline-block ml-3 mr-2 w-5 h-5')}"
+          ></svg>
+          <span class="text-base font-semibold">Pre-Screener</span>
+        </div>
+        <div th:case="'EXTERNAL'" class="text-black items-center flex mb-4">
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconLabel('inline-block ml-3 mr-2 w-5 h-5')}"
+          ></svg>
+          <span class="text-base font-semibold">External program</span>
+        </div>
+      </th:block>
+
+      <!--/* The label spans hug their value spans so no whitespace text node
+             lands between them. The labels' trailing spaces (and the two after
+             "Categories:") are intentional, hence the th:text literals. */-->
+      <p
+        th:if="${card.adminNote != null}"
+        class="line-clamp-3 text-sm lg:text-base"
+      >
+        <span class="font-semibold" th:text="'Admin note: '"></span
+        ><span th:text="${card.adminNote}"></span>
+      </p>
+      <p class="text-sm lg:text-base mb-4">
+        <span class="font-semibold" th:text="'Visibility state: '"></span
+        ><span th:text="${card.visibilityState}"></span>
+      </p>
+      <p class="text-sm lg:text-base">
+        <span class="font-semibold" th:text="'Categories:  '"></span
+        ><span th:text="${card.categoriesText}"></span>
+      </p>
+    </div>
+
+    <div class="flex-grow text-sm lg:text-base">
+      <!--/* data-lifecycle-stage gives Playwright a unique handle on the row. */-->
+      <div
+        data-lifecycle-stage="active"
+        class="py-7 flex flex-row hover:bg-gray-100"
+      >
+        <!--/* Active lifecycle badge. */-->
+        <p
+          class="bg-civiform-green-light text-civiform-green font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconNoiseControlOff('inline-block w-5 h-5')}"
+          ></svg
+          ><span class="mr-1">Active</span>
+        </p>
+
+        <div class="ml-4 xl:ml-10">
+          <!--/* Date and time on wide screens, date only on narrow ones. */-->
+          <p>
+            <span th:text="'Published on '"></span
+            ><span
+              class="cf-bt-date font-semibold hidden lg:inline"
+              th:text="${card.publishedDateTime}"
+            ></span
+            ><span
+              class="cf-bt-date font-semibold lg:hidden"
+              th:text="${card.publishedDate}"
+            ></span>
+          </p>
+          <p>
+            <span class="font-semibold" th:text="${card.blockCount}"></span
+            ><span
+              th:text="${card.blockCount == 1} ? ' screen, ' : ' screens, '"
+            ></span
+            ><span class="font-semibold" th:text="${card.questionCount}"></span
+            ><span
+              th:text="${card.questionCount == 1} ? ' question' : ' questions'"
+            ></span>
+          </p>
+        </div>
+
+        <div class="flex-grow"></div>
+
+        <div class="flex space-x-2 pr-6 font-medium">
+          <!--/* Row actions; external programs have none. admin_programs.ts
+                 copies data-copyable-program-link on click and main.ts follows
+                 data-redirect-to. */-->
+          <th:block th:if="${card.programLink != null}">
+            <button
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+              th:data-copyable-program-link="${card.programLink}"
+            >
+              <svg
+                th:replace="~{admin/shared/LegacySvgFragments :: iconContentCopy('inline-block h-4.5 w-4.5')}"
+              ></svg>
+              <span class="text-left">Share link</span>
+            </button>
+            <button
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+              th:data-redirect-to="${card.applicationsUrl}"
+            >
+              <svg
+                th:replace="~{admin/shared/LegacySvgFragments :: iconTextSnippet('inline-block h-4.5 w-4.5')}"
+              ></svg>
+              <span
+                class="text-left"
+                th:text="${card.preScreenerForm} ? 'Forms' : 'Applications'"
+              ></span>
+            </button>
+          </th:block>
+
+          <!--/* Extra actions dropdown (main.ts pairs .cf-with-dropdown with
+                 the <id>-dropdown sibling). This page never has extra actions,
+                 so the button is invisible and the dropdown empty. */-->
+          <div class="relative">
+            <button
+              th:id="|extra-actions-${card.id}|"
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12 invisible"
+            >
+              <svg
+                th:replace="~{admin/shared/LegacySvgFragments :: iconMoreVert('inline-block h-4.5 w-4.5')}"
+              ></svg>
+              <span class="text-left"></span>
+            </button>
+            <div
+              th:id="|extra-actions-${card.id}-dropdown|"
+              class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

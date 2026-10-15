@@ -244,6 +244,60 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_repeatedQuestionWithoutThis_enumeratorImprovementsEnabled_savesTranslation()
+      throws TranslationNotFoundException {
+    QuestionModel question = createDraftRepeatedQuestionWithoutThis();
+    Http.RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    SPANISH_QUESTION_TEXT,
+                    "questionHelpText",
+                    SPANISH_QUESTION_HELP_TEXT,
+                    "concurrencyToken",
+                    question.getConcurrencyToken().toString()));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("Repeated questions must reference");
+    QuestionDefinition updatedQuestion =
+        questionRepository
+            .lookupQuestion(question.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getQuestionDefinition();
+    assertThat(updatedQuestion.getQuestionText().get(ES_LOCALE)).isEqualTo(SPANISH_QUESTION_TEXT);
+  }
+
+  @Test
+  public void update_repeatedQuestionWithoutThis_enumeratorImprovementsDisabled_rendersError() {
+    QuestionModel question = createDraftRepeatedQuestionWithoutThis();
+    Http.RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    SPANISH_QUESTION_TEXT,
+                    "questionHelpText",
+                    SPANISH_QUESTION_HELP_TEXT,
+                    "concurrencyToken",
+                    question.getConcurrencyToken().toString()));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Repeated questions must reference");
+  }
+
+  @Test
   public void add_translation_activeQuestion() {
     QuestionModel question = createActiveQuestionEnglishOnly();
 
@@ -288,6 +342,23 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
                 .build());
     QuestionModel question = new QuestionModel(definition);
     // Only draft questions are editable.
+    question.addVersion(draftVersion);
+    question.save();
+    return question;
+  }
+
+  /** A repeated question whose text has no "$this", which the new enumerator flow allows. */
+  private QuestionModel createDraftRepeatedQuestionWithoutThis() {
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("household member name")
+                .setDescription("name of household member")
+                .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
+                .setEnumeratorId(testQuestionBank.enumeratorApplicantHouseholdMembers().id)
+                .build());
+    QuestionModel question = new QuestionModel(definition);
     question.addVersion(draftVersion);
     question.save();
     return question;

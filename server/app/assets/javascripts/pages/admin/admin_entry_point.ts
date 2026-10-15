@@ -8,7 +8,6 @@ import * as radio from '@/radio'
 import * as toast from '@/toast'
 import * as adminApiKeys from '@/admin_api_keys'
 import * as adminApplicationView from '@/admin_application_view'
-import * as legacyAdminPredicates from '@/admin_predicate_configuration'
 import * as adminPredicateEdit from '@/admin_predicate_edit'
 import * as adminProgramImage from '@/admin_program_image'
 import * as legacyAdminProgramImage from '@/legacy_admin_program_image'
@@ -64,7 +63,6 @@ function initializeEverything(): void {
   toast.init()
   adminApiKeys.init()
   adminApplicationView.init()
-  legacyAdminPredicates.init()
   adminPredicateEdit.init()
   if (featureFlags().isFileUploadQuestionImprovementsEnabled) {
     adminProgramImage.init()

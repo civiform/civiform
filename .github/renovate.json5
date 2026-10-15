@@ -5,9 +5,12 @@
   // actions to run and lessen calls to docker hub.
   //
   // This will allow the schedule to run within this time range:
-  //   PST/PDT -> 9pm - 3am
-  //   EST/EDT -> Midnight - 6am 
-  schedule: ["after 4am", "before 10am"],
+  //   PST 5pm - 3am / PDT 6pm - 4am
+  //   EST 8pm - 6am / EDT 9pm - 7am
+  //
+  // Entries in the schedule array are ORed, so the window has to be a single
+  // expression.
+  schedule: ["* 1-10 * * *"],
   // Github label(s) applied to the generated pull request, unless overridden below
   labels: ["dependencies"],
   // Amount of time to wait after a release before opening a PR, to avoid chasing yanked or broken releases.
@@ -52,7 +55,9 @@
       matchPackageNames: ["com.google.auto.value:{/,}**"],
     },
     {
-      matchPackageNames: ["com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer"],
+      matchPackageNames: [
+        "com.googlecode.owasp-java-html-sanitizer:owasp-java-html-sanitizer",
+      ],
       versioning: "regex:^(?<major>\\d{4})(?<minor>\\d{2})(?<patch>\\d{2})\\.(?<build>\\d+)$",
     },
     {
@@ -68,7 +73,17 @@
     {
       groupName: "jackson",
       matchPackageNames: ["com.fasterxml.jackson{/,}**"],
-      allowedVersions: "< 3.0.0"
+      allowedVersions: "< 3.0.0",
+    },
+    // Stay on Jackson 2: json-schema-validator v3 and logstash-logback-encoder v9
+    // depend on Jackson 3. Revisit when Play supports Jackson 3 (see the jackson rule above).
+    {
+      matchPackageNames: ["com.networknt:json-schema-validator"],
+      allowedVersions: "< 3.0.0",
+    },
+    {
+      matchPackageNames: ["net.logstash.logback:logstash-logback-encoder"],
+      allowedVersions: "< 9.0.0",
     },
     {
       groupName: "jdk and jre",
@@ -88,7 +103,7 @@
     {
       groupName: "microsoft graph",
       matchPackageNames: ["com.microsoft.graph:{/,}**"],
-      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md"
+      prHeader: "Release Notes: https://github.com/microsoftgraph/msgraph-sdk-java/blob/main/CHANGELOG.md",
     },
     {
       groupName: "pac4j",
@@ -126,14 +141,23 @@
       allowedVersions: "<17.0.0",
       prHeader: "Release Notes: https://www.postgresql.org/docs/release",
     },
+    // USWDS provides most of CiviForm's applicant-facing UI, so an upgrade can change
+    // accessibility behavior. Open upgrade PRs as drafts so they can't be merged like
+    // routine dependency updates: someone has to do an accessibility review, then
+    // mark the PR ready for review.
+    {
+      matchPackageNames: ["@uswds/uswds"],
+      draftPR: true,
+      prHeader: "**USWDS upgrade: needs a deliberate accessibility review before merging.** This PR opens as a draft on purpose. Read the release notes (https://github.com/uswds/uswds/releases) for component, markup, focus, and ARIA changes. Check that browser tests with accessibility checks pass, then manually test the applicant flow, going through the criteria in the manual accessibility testing guide (https://github.com/civiform/civiform/wiki/Accessibility#manual-accessibility-testing). Record what you checked in this PR, then mark it ready for review.",
+    },
     {
       groupName: "tailwindcss",
       matchPackageNames: ["tailwindcss"],
       allowedVersions: "<4.0.0",
     },
     {
-      "groupName": "vite and vitest",
-      "matchPackagePatterns": ["^vite", "^@vitejs/", "^@vitest/"]
+      groupName: "vite and vitest",
+      matchPackageNames: ["/^vite/", "/^@vitejs//", "/^@vitest//"],
     },
     {
       // Using groupName null prevents all the GitHub Actions updates being done in a single commit

@@ -44,6 +44,7 @@ import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 import support.ProgramBuilder;
+import support.SqlStatementCounter.SqlCounts;
 
 @RunWith(JUnitParamsRunner.class)
 public class VersionRepositoryTest extends ResetPostgres {
@@ -161,6 +162,9 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(versionRepository.getDraftVersionOrCreate().getQuestions().stream().map(q -> q.id))
         .containsExactlyInAnyOrder(secondQuestionUpdated.id);
 
+    // Start counting before the transaction begins, as Ebean decides whether a transaction logs
+    // its SQL when it begins.
+    sqlStatementsSinceLastCount();
     Optional<Transaction> maybeTransaction = Optional.empty();
     if (useTransaction) {
       maybeTransaction =
@@ -207,7 +211,9 @@ public class VersionRepositoryTest extends ResetPostgres {
         .containsExactly("second-program");
 
     // Now actually publish the version and assert the results.
+    sqlStatementsSinceLastCount();
     versionRepository.publishNewSynchronizedVersion();
+    SqlCounts publishCounts = sqlStatementsSinceLastCount();
 
     oldDraft.refresh();
     assertThat(oldDraft.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
@@ -226,6 +232,15 @@ public class VersionRepositoryTest extends ResetPostgres {
     assertThat(oldActive.getLifecycleStage()).isEqualTo(LifecycleStage.OBSOLETE);
 
     maybeTransaction.ifPresent(Transaction::end);
+
+    // Guards against query count regressions when an admin publishes. Fewer reads are issued
+    // inside a transaction, likely because its persistence context serves repeated lookups.
+    // Asserted after the transaction ends so a failure doesn't leave it open for later tests.
+    assertThat(publishCounts)
+        .isEqualTo(
+            useTransaction
+                ? SqlCounts.withReadsAndWrites(11, 4)
+                : SqlCounts.withReadsAndWrites(14, 4));
   }
 
   @Test
@@ -1389,5 +1404,36 @@ public class VersionRepositoryTest extends ResetPostgres {
     // Adding a disabled program and verify that now we have disabled programs
     ProgramBuilder.newDisabledDraftProgram("disabled-draft-program").build();
     assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+  }
+
+  @Test
+  public void testAnyDisabledPrograms_disabledProgramReEnabledAfterPublishes() {
+    // When no programs, there are no disabled programs
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
+
+    // Adding a disabled active program
+    ProgramBuilder.newActiveProgram("disabled-program", DisplayMode.DISABLED).build();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // A few publishes happen while the program remains disabled
+    ProgramBuilder.newDraftProgram("other-program-1").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newDraftProgram("other-program-2").build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    ProgramBuilder.newActiveProgram("other-program-3", DisplayMode.PUBLIC).build();
+    versionRepository.publishNewSynchronizedVersion();
+    assertThat(versionRepository.anyDisabledPrograms()).isTrue();
+
+    // Re-enable the program in a draft and publish
+    ProgramBuilder.newDraftProgram("disabled-program").build();
+    versionRepository.publishNewSynchronizedVersion();
+
+    // The program is now re-enabled, so disabled programs in obsolete versions
+    // should not cause anyDisabledPrograms() to return true.
+    assertThat(versionRepository.anyDisabledPrograms()).isFalse();
   }
 }

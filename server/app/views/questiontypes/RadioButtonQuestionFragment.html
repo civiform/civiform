@@ -18,29 +18,65 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
     ></div>
 
-    <!--/* Display errors */-->
     <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+      th:replace="~{this :: radioFields(
+        question=${question},
+        questionRendererParams=${questionRendererParams},
+        questionId=${questionId})}"
     ></div>
-
-    <!--/* Render each radio button option */-->
-    <div
-      class="usa-radio cf-multi-option-question-option"
-      th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
-      th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}"
-    >
-      <div
-        th:replace="~{components/RadioButtonOptionFragment :: radioButtonOptionFragment(
-            ${inputId},
-            ${option.id()},
-            ${singleSelectQuestion.getSelectionPath()},
-            ${singleSelectQuestion.optionIsSelected(option)},
-            ${!question.isOptional()},
-            ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
-            ${option.formattedOptionText(ariaLabelForNewTabs)},
-            ${hasErrors},
-            ${questionId})}"
-      ></div>
-    </div>
   </fieldset>
 </div>
+
+<!--/* Radio question rendered as an enumerator's initial question inside an entity row. The entity
+     row (see EnumeratorQuestionFragment :: initialQuestionEntityRowMultipleInput) supplies the
+     role="group" wrapper and the group label, so the title, help text, and standalone fieldset are
+     omitted here. */-->
+<div
+  th:fragment="radioForInitialQuestion(question, questionRendererParams)"
+  th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
+  singleSelectQuestion=${question.createSingleSelectQuestion()},
+  hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
+  th:id="${questionId}"
+  class="cf-question-radio cf-applicant-question-field"
+  th:classappend="${hasErrors ? 'cf-question-field-with-error' : ''}"
+>
+  <div
+    th:replace="~{this :: radioFields(
+      question=${question},
+      questionRendererParams=${questionRendererParams},
+      questionId=${questionId})}"
+  ></div>
+</div>
+
+<!--/* The radio option inputs and question-level errors, shared by the standalone and
+     initial-question fragments. */-->
+<th:block
+  th:fragment="radioFields(question, questionRendererParams, questionId)"
+  th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
+  hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
+>
+  <!--/* Display errors */-->
+  <div
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())}, ${questionRendererParams}, ${questionId})}"
+  ></div>
+
+  <!--/* Render each radio button option */-->
+  <div
+    class="usa-radio cf-multi-option-question-option"
+    th:each="option,iterator: ${singleSelectQuestion.getOptions()}"
+    th:with="inputId=${'id-' + #strings.randomAlphanumeric(8)},ariaLabelForNewTabs=#{link.opensNewTabSr}"
+  >
+    <div
+      th:replace="~{components/RadioButtonOptionFragment :: radioButtonOptionFragment(
+          ${inputId},
+          ${option.id()},
+          ${singleSelectQuestion.getSelectionPath()},
+          ${singleSelectQuestion.optionIsSelected(option)},
+          ${!question.isOptional()},
+          ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
+          ${option.formattedOptionText(ariaLabelForNewTabs)},
+          ${hasErrors},
+          ${questionId})}"
+    ></div>
+  </div>
+</th:block>

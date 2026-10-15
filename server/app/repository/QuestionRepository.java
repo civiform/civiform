@@ -77,15 +77,16 @@ public final class QuestionRepository {
   }
 
   public CompletionStage<Optional<QuestionModel>> lookupQuestion(long id) {
-    return supplyAsync(
-        () ->
-            database
-                .find(QuestionModel.class)
-                .setLabel("QuestionModel.findById")
-                .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
-                .setId(id)
-                .findOneOrEmpty(),
-        dbExecutionContext);
+    return supplyAsync(() -> lookupQuestionSync(id));
+  }
+
+  public Optional<QuestionModel> lookupQuestionSync(long id) {
+    return database
+        .find(QuestionModel.class)
+        .setLabel("QuestionModel.findById")
+        .setProfileLocation(queryProfileLocationBuilder.create("lookupQuestion"))
+        .setId(id)
+        .findOneOrEmpty();
   }
 
   /**
@@ -146,6 +147,13 @@ public final class QuestionRepository {
       if (definition.isEnumerator()) {
         transaction.setNestedUseSavepoint();
         updateAllRepeatedQuestions(newDraftQuestion.id, definition.getId());
+      }
+      // Update the enumerator for an initial question.
+      if (definition.getEnumeratorId().isPresent()) {
+        updateEnumeratorQuestion(
+            definition.getEnumeratorId().get(),
+            /* newInitialQuestionId= */ newDraftQuestion.id,
+            /* oldInitialQuestionId= */ definition.getId());
       }
 
       // Update programs that reference the previous question. A bit round about but this will
@@ -270,6 +278,19 @@ public final class QuestionRepository {
         .values()
         // Update to the new enumerator ID.
         .forEach(qd -> createOrUpdateDraft(updateEnumeratorId(qd, newEnumeratorId)));
+  }
+
+  /**
+   * Updates the enumerator to use {@code newInitialQuestionId} if it currently points to {@code
+   * oldInitialQuestionId} .
+   */
+  public void updateEnumeratorQuestion(
+      long enumeratorId, long newInitialQuestionId, long oldInitialQuestionId) {
+    lookupQuestionSync(enumeratorId)
+        .map(QuestionModel::getQuestionDefinition)
+        .filter(qd -> qd.getEnumeratorInitialQuestionId().equals(Optional.of(oldInitialQuestionId)))
+        .map(qd -> updateEnumeratorInitialQuestionId(qd, newInitialQuestionId))
+        .ifPresent(this::createOrUpdateDraft);
   }
 
   public QuestionDefinition updateEnumeratorId(

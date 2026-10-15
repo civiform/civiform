@@ -6,6 +6,15 @@
 function toggleModalVisibility(modalWrapper: Element, showModal: boolean) {
   modalWrapper.classList.toggle('is-visible', showModal)
   modalWrapper.classList.toggle('is-hidden', !showModal)
+  // USWDS sets aria-hidden on modal wrappers at setup and only removes it in its
+  // own toggleModal, which this path bypasses.
+  if (showModal) {
+    modalWrapper.removeAttribute('aria-hidden')
+    modalWrapper.setAttribute('aria-modal', 'true')
+  } else {
+    modalWrapper.setAttribute('aria-hidden', 'true')
+    modalWrapper.removeAttribute('aria-modal')
+  }
 }
 
 /**
@@ -121,15 +130,18 @@ export class NorthStarModalController {
 
       showModal(modalWrapper)
 
-      // Focus on an element in the modal wrapper when it opens
-      const openFocusEl: HTMLElement | null = modalWrapper.querySelector(
-        `usa-modal *[data-focus]`,
-      )
-        ? modalWrapper.querySelector(`.usa-modal *[data-focus]`)
-        : modalWrapper.querySelector(`.usa-modal`)
-      if (openFocusEl) {
-        openFocusEl.focus()
-      }
+      // Focus on an element in the modal wrapper when it opens, using the same
+      // order as USWDS 3.14's toggleModal: [data-focus], then the first enabled
+      // footer button, then the first enabled button.
+      const openFocusEl =
+        modalWrapper.querySelector<HTMLElement>('.usa-modal [data-focus]') ??
+        modalWrapper.querySelector<HTMLElement>(
+          '.usa-modal__footer button:not([disabled])',
+        ) ??
+        modalWrapper.querySelector<HTMLElement>(
+          '.usa-modal button:not([disabled])',
+        )
+      openFocusEl?.focus()
 
       // Add listener to hide modal when a close attribute is clicked
       const closeButtons = modalWrapper.querySelectorAll('[data-close-modal]')

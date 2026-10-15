@@ -13,7 +13,7 @@ jobs:
     if: github.repository_owner == 'civiform' && github.event.pull_request.head.repo.fork == false
     steps:
       - name: Request review based on files changes and/or groups the author belongs to
-        uses: necojackarc/auto-request-review@e89da1a8cd7c8c16d9de9c6e763290b6b0e3d424 # v0.13.0
+        uses: necojackarc/auto-request-review@9a4b11888f2d60c79120c5413f13eb63febc2b68 # v0.14.0
         with:
           # This does not use the built in GITHUB_TOKEN because we are using Github
           # teams to specify the list of reviewers. Because of that we need to

@@ -1,0 +1,291 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramTranslationPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
+         the direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="mb-4 mt-3" th:text="${model.title}"></h1>
+  <h2 class="mb-4">Enter text in the language(s) you want to translate to</h2>
+
+  <!--/* Language picker. The currently selected locale is underlined. */-->
+  <div class="m-2">
+    <a
+      th:each="link : ${model.languageLinks}"
+      th:href="${link.href}"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center cf-admin-language-link m-2"
+      th:classappend="${link.selected} ? 'border-blue-400 border-b-2'"
+      th:text="${link.displayLanguage}"
+    ></a>
+  </div>
+
+  <form
+    method="POST"
+    th:action="${model.formActionUrl}"
+    id="program-translation-form"
+  >
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+
+    <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
+      <legend>
+        <span>Applicant-visible program details</span
+        ><a
+          th:href="${model.editProgramDetailsUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${model.displayNameField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Program name', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <!--/* Only DEFAULT programs have a long description. */-->
+        <div
+          th:if="${model.showDisplayDescription}"
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${model.displayDescriptionField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Program description', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <!--/* External programs have no confirmation screen. */-->
+        <div
+          th:if="${model.showConfirmationMessage}"
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${model.confirmationMessageField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Custom confirmation screen message', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <!--/* Only shown when a summary image description is configured. */-->
+        <div
+          th:if="${model.showImageDescription}"
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${model.imageDescriptionField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Program image description', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <div
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${model.shortDescriptionField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Short program description', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!--/* One section per application step with a default-locale title. */-->
+    <fieldset
+      th:each="step : ${model.applicationSteps}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Application step ${step.stepNumber}|"></span
+        ><a
+          th:href="${model.editProgramDetailsUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div class="grid gap-6 grid-cols-2" th:with="field=${step.titleField}">
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Title', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <div
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${step.descriptionField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Description', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!--/* One section per application status. The fields of a status are
+           siblings grouped by a shared index in their names. */-->
+    <fieldset
+      th:each="status : ${model.statuses}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Application status: ${status.statusText}|"></span
+        ><a
+          th:href="${model.editStatusesUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <!--/* Tells the form which status the translations belong to; not
+               configurable. */-->
+        <input
+          hidden
+          th:name="${status.statusKeyFieldName}"
+          th:value="${status.statusText}"
+        />
+        <div
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${status.statusNameField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Status name', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <div
+          th:if="${status.showEmailBody}"
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${status.emailBodyField}"
+        >
+          <div class="mb-2">
+            <label
+              th:for="${field.id}"
+              class="pointer-events-none text-gray-600 text-base px-1 py-2"
+              >Email content<span
+                class="usa-hint--required hidden"
+                aria-hidden="true"
+                >&nbsp;*</span
+              ></label
+            >
+            <div class="flex flex-col">
+              <textarea
+                maxlength="10000"
+                rows="8"
+                th:id="${field.id}"
+                th:name="${field.name}"
+                class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+                th:text="${field.value}"
+              ></textarea>
+              <div
+                th:id="|${field.id}-errors|"
+                class="text-red-600 text-xs p-1 hidden"
+              ></div>
+            </div>
+          </div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <!--/* One section per screen. Empty for external programs. */-->
+    <fieldset
+      th:each="screen : ${model.screens}"
+      class="my-4 pt-1 pb-2 px-2 border border-gray-200"
+    >
+      <legend>
+        <span th:text="|Screen ${screen.screenNumber}|"></span
+        ><a
+          th:href="${screen.editUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center ml-2"
+          >(edit default)</a
+        >
+      </legend>
+      <div class="flex-row space-y-4">
+        <div class="grid gap-6 grid-cols-2" th:with="field=${screen.nameField}">
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Screen name', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <div
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${screen.descriptionField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Screen description', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+        <!--/* Only screens with an eligibility message configured get this
+               field. */-->
+        <div
+          th:if="${screen.showEligibilityMessage}"
+          class="grid gap-6 grid-cols-2"
+          th:with="field=${screen.eligibilityMessageField}"
+        >
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${field.id}, ${field.name}, 'Screen eligibility message', ${field.value}, ${field.required}, false, '10000', 'mb-2')}"
+          ></div>
+          <div class="px-2 py-1 text-sm bg-gray-100">
+            <p class="font-medium">English text:</p>
+            <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
+          </div>
+        </div>
+      </div>
+    </fieldset>
+
+    <div class="flex flex-row gap-x-2">
+      <button
+        type="submit"
+        id="update-localizations-button"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        th:text="|Save ${model.displayLanguage} updates|"
+      ></button>
+    </div>
+  </form>
+
+  <!--/* Error toast (save failures and flash errors), consumed by toast.ts. */-->
+  <div
+    th:if="${model.errorMessage.isPresent()}"
+    class="hidden cf-toast-data"
+    th:id="${model.errorToastId}"
+    canDismiss="true"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage.get()}"
+  ></div>
+</th:block>

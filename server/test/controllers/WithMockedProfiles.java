@@ -137,6 +137,21 @@ public class WithMockedProfiles {
     return ti;
   }
 
+  protected ApplicantModel createManagedApplicantWithMockedProfile(
+      TrustedIntermediaryGroupModel group) {
+    ApplicantModel applicant = createApplicant();
+    AccountModel account = applicant.getAccount();
+    account.setManagedByGroup(group);
+    account.save();
+    CiviFormProfile profile = profileFactory.wrap(applicant);
+    mockProfile(profile);
+
+    when(MOCK_UTILS.getApplicantId(not(argThat(skipUserProfile()))))
+        .thenReturn(Optional.of(applicant.id));
+
+    return applicant;
+  }
+
   protected AccountModel createProgramAdminWithMockedProfile(ProgramModel program) {
     AccountModel programAdmin = resourceCreator.insertAccount();
 

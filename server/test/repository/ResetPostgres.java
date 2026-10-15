@@ -11,6 +11,7 @@ import models.LifecycleStage;
 import models.Models;
 import models.VersionModel;
 import org.apache.pekko.stream.Materializer;
+import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
@@ -20,6 +21,7 @@ import play.test.Helpers;
 import services.settings.SettingsService;
 import support.ProgramBuilder;
 import support.ResourceCreator;
+import support.SqlStatementCounter;
 import support.TestQuestionBank;
 
 public class ResetPostgres {
@@ -34,6 +36,8 @@ public class ResetPostgres {
   protected static ResourceCreator resourceCreator;
 
   protected static TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+
+  private final SqlStatementCounter sqlStatementCounter = new SqlStatementCounter();
 
   @BeforeClass
   public static void startPlay() {
@@ -58,6 +62,23 @@ public class ResetPostgres {
 
   protected <T> T instanceOf(Class<T> clazz) {
     return app.injector().instanceOf(clazz);
+  }
+
+  /**
+   * Counts SQL statements, split into reads and writes, run since the previous call. Counting
+   * starts on the first call, so call this once before the code under test. Statements in a
+   * transaction begun before that first call are not counted.
+   *
+   * <p>See {@link SqlStatementCounter} for what is counted.
+   */
+  protected SqlStatementCounter.SqlCounts sqlStatementsSinceLastCount() {
+    sqlStatementCounter.start();
+    return sqlStatementCounter.collect();
+  }
+
+  @After
+  public void stopCountingStatements() {
+    sqlStatementCounter.stop();
   }
 
   @Before

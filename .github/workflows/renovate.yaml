@@ -22,13 +22,37 @@ name: Renovate
 # .github/renovate.json5. Self-hosted settings are the RENOVATE_* variables on
 # the run step below.
 
+# Triggers mirror the Mend-hosted app (Community OSS plan): a scheduled run
+# every 4 hours, plus webhook-style runs when something a person is waiting on
+# changes. The renovate.json5 schedule (5pm Pacific to 7am Eastern) still gates
+# new branches and PRs; runs outside it handle automerge, the dashboard and
+# checkbox requests.
 on:
   schedule:
-    # UTC. renovate.json5 only allows work "after 4am" and "before 10am" UTC,
-    # so runs outside that window would find nothing to do. Two runs give a
-    # second chance after a transient registry error.
-    - cron: "23 4 * * *"
-    - cron: "23 7 * * *"
+    # UTC. Starting a bit past the hour gets three overnight runs inside the window.
+    - cron: "23 1-23/4 * * *"
+  # Renovate config or package file changed on main. This also covers merged
+  # Renovate PRs, which often leave other Renovate PRs needing a rebase.
+  push:
+    branches: [main]
+    paths:
+      - .github/renovate.json5
+      - .github/workflows/**
+      - "**/package.json"
+      - "**/package-lock.json"
+      - "**/*.sbt"
+      - "**/project/build.properties"
+      - "**/*Dockerfile"
+      - "**/*compose*.yml"
+      - "**/pyproject.toml"
+  # Rebase/retry checkbox ticked on a Renovate PR, or a Renovate PR closed
+  # without merging. pull_request_target runs the workflow from main, never
+  # the PR's code.
+  pull_request_target:
+    types: [edited, closed]
+  # Checkbox ticked on the Dependency Dashboard.
+  issues:
+    types: [edited]
   workflow_dispatch:
     inputs:
       dryRun:
@@ -53,12 +77,41 @@ concurrency:
 jobs:
   renovate:
     runs-on: ubuntu-latest
-    if: github.repository == 'civiform/civiform'
+    # Only run in civiform/civiform. Forks get this workflow too but have no
+    # token, and we don't want them opening PRs against themselves.
+    #
+    # The scheduled, push and manual triggers always run. The PR and issue
+    # triggers fire for every PR and issue in the repo, so they need filtering
+    # down to the ones Renovate cares about.
+    #
+    # For PRs: the branch has to be renovate/*, and the person who made the
+    # edit can't be the PR author. Renovate rewrites the PR body on every run,
+    # and without that check each run would kick off the next one. Someone
+    # ticking the rebase checkbox is a different sender, so that still gets
+    # through. Merged PRs are skipped because the push trigger already covers
+    # them; closing a PR without merging is how you tell Renovate to stop
+    # offering that update, so that one runs.
+    #
+    # For issues: same idea. It has to be the Dependency Dashboard, and the
+    # editor can't be the issue author, so only a person ticking a box counts.
+    if: >-
+      github.repository == 'civiform/civiform' && (
+        github.event_name != 'pull_request_target' || (
+          startsWith(github.event.pull_request.head.ref, 'renovate/') &&
+          github.event.sender.login != github.event.pull_request.user.login &&
+          !github.event.pull_request.merged
+        )
+      ) && (
+        github.event_name != 'issues' || (
+          github.event.issue.title == 'Dependency Dashboard' &&
+          github.event.sender.login != github.event.issue.user.login
+        )
+      )
     timeout-minutes: 60
     env:
       CACHE_DIR: /tmp/renovate/cache
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
@@ -88,7 +141,7 @@ jobs:
           sudo chown -R 12021:0 /tmp/renovate
 
       - name: Run Renovate
-        uses: renovatebot/github-action@37beffda261423addd537c33f2d126df7f6ffbab # v46.2.6
+        uses: renovatebot/github-action@f0f41e5f2e706165f6814b1d0f0d0e319de7d1d9 # v46.3.8
         with:
           token: ${{ secrets.CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE }}
         env:

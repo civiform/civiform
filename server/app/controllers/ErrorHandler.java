@@ -1,6 +1,7 @@
 package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static j2html.TagCreator.div;
 
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
@@ -15,6 +16,7 @@ import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
 import org.thymeleaf.exceptions.TemplateInputException;
+import parsers.FileUploadTypeException;
 import play.Environment;
 import play.api.OptionalSourceMapper;
 import play.api.PlayException;
@@ -54,6 +56,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   private static final ImmutableSet<Class<? extends Exception>> BAD_REQUEST_EXCEPTION_TYPES =
       ImmutableSet.of(
+          FileUploadTypeException.class,
           AccountHasNoEmailException.class,
           ApiKeyNotFoundException.class,
           ApplicantNotFoundException.class,
@@ -104,7 +107,17 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
 
     if (match.isPresent()) {
-      return CompletableFuture.completedFuture(Results.badRequest(match.get().getMessage()));
+      String errorMessage = match.get().getMessage();
+      if (isQuestionImageUpload(request)) {
+        return CompletableFuture.completedFuture(
+            Results.badRequest(
+                    div(errorMessage)
+                        .withClasses("text-red-500", "text-base", "py-2")
+                        .withId("question-image-file-input-errors")
+                        .render())
+                .as(play.mvc.Http.MimeTypes.HTML));
+      }
+      return CompletableFuture.completedFuture(Results.badRequest(errorMessage));
     }
 
     match = findThrowableByTypes(exception, UNAUTHORIZED_REQUEST_EXCEPTION_TYPES);
@@ -126,6 +139,34 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     }
 
     return super.onServerError(request, exception);
+  }
+
+  /**
+   * For client-level parser rejections like "Request entity too large", Play's message is passed
+   * directly into the target error <div> instead of rendering Play's full HTML error page
+   */
+  @Override
+  public CompletionStage<Result> onClientError(
+      RequestHeader request, int statusCode, String message) {
+    if (isQuestionImageUpload(request)) {
+      return CompletableFuture.completedFuture(
+          Results.status(
+                  statusCode,
+                  div(message)
+                      .withClasses("text-red-500", "text-base", "py-2")
+                      .withId("question-image-file-input-errors")
+                      .render())
+              .as(play.mvc.Http.MimeTypes.HTML));
+    }
+    return super.onClientError(request, statusCode, message);
+  }
+
+  private static boolean isQuestionImageUpload(RequestHeader request) {
+    boolean isQuestionImagePath =
+        request.path().contains("/questions/") && request.path().contains("/image/upload");
+    boolean isHtmxTarget =
+        "question-image-file-input-errors".equals(request.header("HX-Target").orElse(""));
+    return isQuestionImagePath || isHtmxTarget;
   }
 
   /**

@@ -15,9 +15,51 @@
     th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextSingleInput(${question}, ${questionId}, ${inputId})}"
   ></div>
 
+  <div
+    th:replace="~{this :: dropdownField(
+      question=${question},
+      questionRendererParams=${questionRendererParams},
+      inputId=${inputId},
+      isInitialQuestion=false,
+      ariaLabelledby=null,
+      ariaDescribedby=null,
+      errorAnchorId=${questionId})}"
+  ></div>
+</div>
+
+<!--/* Dropdown question rendered as an enumerator's initial question inside an entity row: no
+     title/help (the entity row supplies its own row-specific label), and the caller passes
+     aria-labelledby/aria-describedby so the first entity announces the enumerator title/help. */-->
+<div
+  th:fragment="dropdownForInitialQuestion(question, questionRendererParams, inputId, ariaLabelledby, ariaDescribedby)"
+>
+  <div
+    th:replace="~{this :: dropdownField(
+      question=${question},
+      questionRendererParams=${questionRendererParams},
+      inputId=${inputId},
+      isInitialQuestion=true,
+      ariaLabelledby=${ariaLabelledby},
+      ariaDescribedby=${ariaDescribedby},
+      errorAnchorId=${inputId})}"
+  ></div>
+</div>
+
+<!--/* Shared dropdown select and its validation errors, used by both dropdown and
+     dropdownForInitialQuestion. When isInitialQuestion is true the select is labeled/described by the
+     caller-supplied aria-labelledby/aria-describedby (the enumerator title/help); otherwise it is
+     described by its own title/help text. The caller supplies errorAnchorId (the standalone question
+     id, or the input id for an initial question), which the error/description element ids hang off
+     of. */-->
+<th:block
+  th:fragment="dropdownField(question, questionRendererParams, inputId, isInitialQuestion, ariaLabelledby, ariaDescribedby, errorAnchorId)"
+  th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
+              questionErrors=${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())},
+              hasErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()}"
+>
   <!--/* Display errors */-->
   <div
-    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
+    th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${errorAnchorId})}"
   ></div>
 
   <select
@@ -27,7 +69,8 @@
     th:id="${inputId}"
     th:name="${singleSelectQuestion.getSelectionPath()}"
     th:aria-required="${!question.isOptional()}"
-    th:aria-describedby="${questionId} + '-description' + (${hasErrors} ? ' ' + ${questionId} + '-error' : '')"
+    th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
+    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
     th:autofocus="${questionRendererParams.autofocusFirstError()}"
   >
     <option
@@ -43,4 +86,4 @@
       th:selected="${singleSelectQuestion.optionIsSelected(option)}"
     ></option>
   </select>
-</div>
+</th:block>

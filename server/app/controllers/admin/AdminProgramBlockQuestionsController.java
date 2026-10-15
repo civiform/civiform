@@ -17,7 +17,10 @@ import java.util.Optional;
 import java.util.OptionalLong;
 import javax.inject.Inject;
 import models.QuestionModel;
+import models.VersionModel;
 import org.pac4j.play.java.Secure;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
 import play.i18n.Messages;
@@ -56,6 +59,8 @@ import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
 public class AdminProgramBlockQuestionsController extends Controller {
+  private static final Logger logger =
+      LoggerFactory.getLogger(AdminProgramBlockQuestionsController.class);
 
   private final ProgramService programService;
   private final QuestionService questionService;
@@ -172,27 +177,50 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return badRequest(e.getMessage());
     }
 
+    // A repeated set nested under another repeated set repeats under the parent block's
+    // enumerator question. Set it before creation since a question's enumeratorId is immutable.
+    final Optional<Long> parentEnumeratorQuestionId;
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      parentEnumeratorQuestionId =
+          block.isRepeated()
+              ? Optional.of(
+                  program
+                      .getBlockDefinition(block.enumeratorId().get())
+                      .getEnumeratorQuestionDefinition()
+                      .getId())
+              : Optional.empty();
+    } catch (ProgramNotFoundException e) {
+      return notFound(String.format("Program ID %d not found.", programId));
+    } catch (ProgramBlockDefinitionNotFoundException e) {
+      return notFound(String.format("Block ID %d not found for Program %d", blockId, programId));
+    }
+
     final QuestionDefinition pendingEnumeratorQuestion;
     try {
-      pendingEnumeratorQuestion = questionForm.getBuilder().build();
+      pendingEnumeratorQuestion =
+          questionForm.getBuilder().setEnumeratorId(parentEnumeratorQuestionId).build();
     } catch (UnsupportedQuestionTypeException e) {
       // Valid question type that is not yet fully supported.
       return badRequest(e.getMessage());
     }
 
     final OptionalLong initialQuestionIdFromForm = questionForm.getInitialQuestionId();
-    final Optional<QuestionDefinition> optionalOriginalInitialQuestion;
     final ErrorAnd<QuestionDefinition, CiviFormError> result;
+    Optional<QuestionDefinition> optionalOriginalInitialQuestion = Optional.empty();
 
     // The initial question is required, but isn't attached to the enumerator question yet
     // so we can't enforce it through QuestionDefinition.validate. Enforce it here instead.
     // Otherwise, resolve the referenced question and create the enumerator normally.
     if (initialQuestionIdFromForm.isEmpty()) {
-      optionalOriginalInitialQuestion = Optional.empty();
       result =
           ErrorAnd.error(
               ImmutableSet.<CiviFormError>builder()
-                  .addAll(pendingEnumeratorQuestion.validate())
+                  .addAll(
+                      pendingEnumeratorQuestion.validate(
+                          /* previousDefinition= */ Optional.empty(),
+                          /* enumeratorImprovementsEnabled= */ true))
                   .add(
                       CiviFormError.of(
                           messages.at(
@@ -200,19 +228,42 @@ public class AdminProgramBlockQuestionsController extends Controller {
                                   .getKeyName())))
                   .build());
     } else {
-      QuestionDefinition originalInitialQuestion =
-          questionService
-              .getReadOnlyQuestionServiceSync()
-              .getQuestionDefinition(initialQuestionIdFromForm.getAsLong());
-      if (originalInitialQuestion instanceof NullQuestionDefinition) {
-        return notFound(
-            String.format("Question not found for ID: %d", initialQuestionIdFromForm.getAsLong()));
+      Optional<QuestionModel> optionalOriginalInitialQuestionModel =
+          versionRepository.getLatestVersionOfQuestion(initialQuestionIdFromForm.getAsLong());
+      Optional<String> errorMsg = Optional.empty();
+      if (optionalOriginalInitialQuestionModel.isEmpty()) {
+        logger.warn(
+            "An initial question ID was specified by the UI that is not valid: {}",
+            initialQuestionIdFromForm.getAsLong());
+        errorMsg =
+            Optional.of(
+                messages.at(MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_NOT_FOUND.getKeyName()));
+      } else {
+        QuestionDefinition originalInitialQuestion =
+            optionalOriginalInitialQuestionModel.get().getQuestionDefinition();
+        VersionModel draft = versionRepository.getDraftVersionOrCreate();
+        if (draft.getTombstonedQuestionNames().contains(originalInitialQuestion.getName())) {
+          errorMsg =
+              Optional.of(
+                  messages.at(
+                      MessageKey.ALERT_REPEATED_SET_INITIAL_QUESTION_ARCHIVED.getKeyName()));
+        } else {
+          optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
+        }
       }
-      optionalOriginalInitialQuestion = Optional.of(originalInitialQuestion);
-      result =
-          questionService.create(
-              pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
+      if (errorMsg.isEmpty()) {
+        result =
+            questionService.create(
+                pendingEnumeratorQuestion, /* enumeratorImprovementsEnabled= */ true);
+      } else {
+        result =
+            ErrorAnd.error(
+                ImmutableSet.<CiviFormError>builder()
+                    .add(CiviFormError.of(errorMsg.get()))
+                    .build());
+      }
     }
+
     // If there are validation errors in the repeated set form
     if (result.isError()) {
       return ok(
@@ -296,7 +347,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         persistedEnumeratorQuestion,
                         programQuestionDefinition,
                         /* questionIndex= */ 0,
-                        blockDefinition.getQuestionCount(),
+                        // The enumerator is the only card shown; its initial question is not.
+                        /* questionsCount= */ 1,
                         request,
                         messages)),
                 /* blockHasEnumeratorQuestion= */ true,

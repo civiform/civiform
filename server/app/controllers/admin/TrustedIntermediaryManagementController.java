@@ -11,6 +11,7 @@ import forms.RemoveTrustedIntermediaryForm;
 import java.util.Map;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.ti.EditTrustedIntermediaryGroupPageMapper;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
 import org.slf4j.LoggerFactory;
@@ -24,6 +25,8 @@ import services.settings.SettingsManifest;
 import services.ti.NoSuchTrustedIntermediaryError;
 import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
+import views.admin.ti.EditTrustedIntermediaryGroupPageView;
+import views.admin.ti.EditTrustedIntermediaryGroupPageViewModel;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListPageViewModel;
@@ -36,6 +39,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   private final AccountRepository accountRepository;
   private final FormFactory formFactory;
   private final EditTrustedIntermediaryGroupView editView;
+  private final EditTrustedIntermediaryGroupPageView editPageView;
   private final SettingsManifest settingsManifest;
   private final TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView;
 
@@ -43,6 +47,7 @@ public class TrustedIntermediaryManagementController extends Controller {
   public TrustedIntermediaryManagementController(
       TrustedIntermediaryGroupListView listView,
       EditTrustedIntermediaryGroupView editView,
+      EditTrustedIntermediaryGroupPageView editPageView,
       AccountRepository accountRepository,
       FormFactory formFactory,
       SettingsManifest settingsManifest,
@@ -51,6 +56,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
     this.editView = Preconditions.checkNotNull(editView);
+    this.editPageView = Preconditions.checkNotNull(editPageView);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.trustedIntermediaryGroupListPageView =
         Preconditions.checkNotNull(trustedIntermediaryGroupListPageView);
@@ -208,6 +214,17 @@ public class TrustedIntermediaryManagementController extends Controller {
     if (tiGroup.isEmpty()) {
       return notFound("no such group.");
     }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      EditTrustedIntermediaryGroupPageViewModel model =
+          new EditTrustedIntermediaryGroupPageMapper()
+              .map(
+                  tiGroup.get(),
+                  request.flash().get(FlashKey.PROVIDED_EMAIL_ADDRESS),
+                  request.flash().get(FlashKey.ERROR));
+      return ok(editPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(editView.render(tiGroup.get(), request));
   }
 

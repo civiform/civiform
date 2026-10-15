@@ -12,6 +12,7 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import models.AccountModel;
 import models.StoredFileModel;
+import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,7 +50,7 @@ public class FileController extends CiviFormController {
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
-  @Secure
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> show(Request request, long applicantId, String fileKey) {
     return checkApplicantAuthorization(request, applicantId)
         .thenApplyAsync(
