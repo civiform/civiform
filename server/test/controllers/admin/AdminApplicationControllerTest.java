@@ -757,6 +757,19 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void download_draftApplication_badRequest() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel draft = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
+
+    Result result = controller.download(fakeRequest(), program.id, draft.id);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
   public void updateNote_draftApplication_notFoundAndNothingRecorded() throws Exception {
     AccountModel adminAccount = resourceCreator.insertAccount();
     controller = makeNoOpProfileController(Optional.of(adminAccount));
