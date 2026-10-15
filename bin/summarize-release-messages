@@ -61,6 +61,7 @@ class GitHub:
                 for x in response_json["commits"]
                 if x["commit"]["author"]["name"] != "renovate[bot]"
                 and x["commit"]["author"]["name"] != "transifex-integration[bot]"
+                and x["commit"]["author"]["name"] != "Civibot"
             ]
             return results
         except Exception as error:

@@ -25,182 +25,37 @@
       th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
     ></div>
 
+    <!--/* Hidden template cloned by TS to submit a delete marker when a saved entity is removed. */-->
+    <div th:replace="~{this :: deleteInputTemplate}"></div>
+
     <div id="enumerator-fields">
       <th:block
         th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions}"
-        th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
-                 rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
-                 rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
-                 rowNumber=${iterator.count},
-                 rowAriaLabelledby=${iterator.first ? questionId + '-title ' + rowLabelId : null},
-                 rowAriaDescribedby=${iterator.first ? questionId + '-description' : null}"
       >
-        <!--/* Multi-input types */-->
-        <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowMultipleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              rowNumber=${rowNumber},
-              isFirstEntity=${iterator.first},
-              inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Date')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowMultipleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              rowNumber=${rowNumber},
-              isFirstEntity=${iterator.first},
-              inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Address')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowMultipleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              rowNumber=${rowNumber},
-              isFirstEntity=${iterator.first},
-              inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${stateAbbreviations})})}"
-          ></div>
-        </th:block>
-        <th:block
-          th:if="${initialQuestionType.getLabel().equals('Radio Button')}"
-        >
-          <div
-            th:replace="~{this :: initialQuestionEntityRowMultipleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              rowNumber=${rowNumber},
-              isFirstEntity=${iterator.first},
-              inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams})})}"
-          ></div>
-        </th:block>
-        <!--/* Single-input types */-->
-        <th:block th:if="${initialQuestionType.getLabel().equals('Text')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Email')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('ID')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Number')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block
-          th:if="${initialQuestionType.getLabel().equals('Phone Number')}"
-        >
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Currency')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
-        <th:block th:if="${initialQuestionType.getLabel().equals('Dropdown')}">
-          <div
-            th:replace="~{this :: initialQuestionEntityRowSingleInput(
-              fieldId=${rowFieldId},
-              labelId=${rowLabelId},
-              inputId=${rowInputId},
-              rowNumber=${rowNumber},
-              inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
-                ${initialQForEntity},
-                ${initialQuestionRendererParams},
-                ${rowInputId},
-                ${rowAriaLabelledby},
-                ${rowAriaDescribedby})})}"
-          ></div>
-        </th:block>
+        <div
+          th:replace="~{this :: initialQuestionEntityRow(
+            initialQForEntity=${initialQForEntity},
+            questionId=${questionId},
+            isFirstEntity=${iterator.first},
+            rowNumber=${iterator.count},
+            isSaved=${iterator.index < enumeratorQuestion.getEntityNames().size()},
+            entityIndex=${iterator.index})}"
+        ></div>
       </th:block>
     </div>
-    <!--/* TODO(#13397): Wire up the add-entity button. It is inert for now. */-->
+
+    <!--/* Add entity button: HTMX posts to the server, which returns a new entity row appended to
+         #enumerator-fields. enumerator.ts supplies the current entityCount via hx-vals and gates
+         its legacy click handler on the absence of hx-post. */-->
     <button
       th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
+      id="enumerator-field-add-button"
       type="button"
+      hx-target="#enumerator-fields"
+      hx-swap="beforeend"
+      th:attr="hx-post=${hxAddEnumeratorEntityUrl},
+              data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
+              data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
       class="usa-button usa-button--outline margin-top-105"
     ></button>
   </th:block>
@@ -270,59 +125,269 @@
   </th:block>
 </div>
 
+<!--/* Renders one initial-question entity row (entity label + the initial question's inputs + a
+     delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
+     are grouped with role="group"; single-input types carry a plain label on the control. */-->
+<th:block
+  th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex)"
+  th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
+           rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
+           rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
+           rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
+           rowAriaDescribedby=${isFirstEntity ? questionId + '-description' : null}"
+>
+  <!--/* Multi-input types */-->
+  <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowMultipleInput(
+        questionId=${questionId},
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        rowNumber=${rowNumber},
+        isFirstEntity=${isFirstEntity},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Date')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowMultipleInput(
+        questionId=${questionId},
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        rowNumber=${rowNumber},
+        isFirstEntity=${isFirstEntity},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Address')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowMultipleInput(
+        questionId=${questionId},
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        rowNumber=${rowNumber},
+        isFirstEntity=${isFirstEntity},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${stateAbbreviations})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Radio Button')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowMultipleInput(
+        questionId=${questionId},
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        rowNumber=${rowNumber},
+        isFirstEntity=${isFirstEntity},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams})})}"
+    ></div>
+  </th:block>
+  <!--/* Single-input types */-->
+  <th:block th:if="${initialQuestionType.getLabel().equals('Text')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Email')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('ID')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Number')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Phone Number')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Currency')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+  <th:block th:if="${initialQuestionType.getLabel().equals('Dropdown')}">
+    <div
+      th:replace="~{this :: initialQuestionEntityRowSingleInput(
+        fieldId=${rowFieldId},
+        labelId=${rowLabelId},
+        inputId=${rowInputId},
+        rowNumber=${rowNumber},
+        isSaved=${isSaved},
+        deleteButtonId=${entityIndex},
+        inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
+          ${initialQForEntity},
+          ${initialQuestionRendererParams},
+          ${rowInputId},
+          ${rowAriaLabelledby},
+          ${rowAriaDescribedby})})}"
+    ></div>
+  </th:block>
+</th:block>
+
 <!--/* Wrapper for a multi-input initial-question entity row, grouped with role="group" rather than a
      fieldset (see titleAndHelpTextGroupLabel). The first entity's group is labeled by the enumerator
      question title plus the entity label and described by the enumerator help text; subsequent
-     entities are labeled by just the entity label. The inputContent parameter receives a fragment
-     expression (e.g. ~{NameQuestionFragment :: nameForInitialQuestion(...)}) that renders the
-     question-type-specific inputs. */-->
+     entities are labeled by just the entity label. On removal, enumerator.ts re-points these
+     references so the (new) first row carries the enumerator title/help. The inputContent parameter
+     receives a fragment expression (e.g. ~{NameQuestionFragment :: nameForInitialQuestion(...)})
+     that renders the question-type-specific inputs. */-->
 <div
-  th:fragment="initialQuestionEntityRowMultipleInput(fieldId, labelId, rowNumber, isFirstEntity, inputContent)"
+  th:fragment="initialQuestionEntityRowMultipleInput(questionId, fieldId, labelId, rowNumber, isFirstEntity, isSaved, deleteButtonId, inputContent)"
   role="group"
-  class="maxw-mobile-lg"
+  class="cf-enumerator-field maxw-mobile-lg"
   th:id="${fieldId}"
+  th:attr="data-entity-saved=${isSaved ? 'true' : null}"
   th:aria-labelledby="${isFirstEntity ? questionId + '-title ' + labelId : labelId}"
   th:aria-describedby="${isFirstEntity ? questionId + '-description' : null}"
 >
   <div
     th:id="${labelId}"
-    class="usa-legend"
+    class="usa-legend cf-entity-index-label"
     th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
-  <!--/* TODO(#13397): Wire up the delete button. It is inert for now. */-->
-  <div class="display-flex flex-justify-end">
-    <button
-      type="button"
-      class="usa-button--unstyled"
-      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
-    ></button>
-  </div>
+  <div
+    th:replace="~{this :: enumeratorEntityDeleteButton(
+      isSaved=${isSaved},
+      deleteButtonId=${deleteButtonId},
+      rowNumber=${rowNumber})}"
+  ></div>
 </div>
 
 <!--/* Wrapper for a single-input initial-question entity row (e.g. text).  The input carries
      its own "<entity type> #N" label, and the first entity's input references the
      enumerator title/help via aria-labelledby/aria-describedby. */-->
 <div
-  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, inputContent)"
-  class="cf-applicant-question-field maxw-mobile-lg"
+  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, isSaved, deleteButtonId, inputContent)"
+  class="cf-enumerator-field cf-applicant-question-field maxw-mobile-lg"
   th:id="${fieldId}"
+  th:attr="data-entity-saved=${isSaved ? 'true' : null}"
 >
   <label
     th:id="${labelId}"
-    class="usa-label"
+    class="usa-label cf-entity-index-label"
     th:for="${inputId}"
     th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
-  <!--/* TODO(#13397): Wire up the delete button. It is inert for now. */-->
-  <div class="display-flex flex-justify-end">
-    <button
-      type="button"
-      class="usa-button--unstyled"
-      th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
-    ></button>
-  </div>
+  <div
+    th:replace="~{this :: enumeratorEntityDeleteButton(
+      isSaved=${isSaved},
+      deleteButtonId=${deleteButtonId},
+      rowNumber=${rowNumber})}"
+  ></div>
+</div>
+
+<!--/* Delete button shared by both initial-question entity row wrappers. A saved entity gets its
+     entity index as the button id so TS can submit a delete marker (see deleteInputTemplate); an
+     unsaved (HTMX-added) row has no id and is just removed from the DOM. */-->
+<div
+  th:fragment="enumeratorEntityDeleteButton(isSaved, deleteButtonId, rowNumber)"
+  class="display-flex flex-justify-end"
+>
+  <button
+    type="button"
+    class="cf-enumerator-delete-button usa-button--unstyled"
+    th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
+    th:id="${isSaved ? deleteButtonId : null}"
+    th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
+  ></button>
 </div>
 
 <!--/* Renders a single legacy enumerator field (label, free-text input, and remove button). Only
@@ -333,6 +398,7 @@
   class="cf-enumerator-field maxw-mobile-lg"
   th:classappend="${hidden ? 'display-none' : ''}"
   th:id="${fieldId}"
+  th:attr="data-entity-saved=${hidden ? null : 'true'}"
   th:with="indexString=${visibleIndex == -1 ? '' : ' #' + visibleIndex}"
 >
   <div class="cf-entity-name-input">
