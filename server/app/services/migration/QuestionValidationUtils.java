@@ -169,6 +169,21 @@ final class QuestionValidationUtils {
                                 + " number.",
                             option.adminName(), question.getName()))));
 
+    scoredOptions.stream()
+        .filter(option -> Double.isFinite(option.score().get()))
+        .filter(option -> Math.abs(option.score().get()) > QuestionOption.MAX_SCORE_ABSOLUTE_VALUE)
+        .forEach(
+            option ->
+                errors.add(
+                    CiviFormError.of(
+                        String.format(
+                            "Option score on option '%s' of question '%s' must be between -%s and"
+                                + " %s.",
+                            option.adminName(),
+                            question.getName(),
+                            QuestionOption.formatScore(QuestionOption.MAX_SCORE_ABSOLUTE_VALUE),
+                            QuestionOption.formatScore(QuestionOption.MAX_SCORE_ABSOLUTE_VALUE)))));
+
     return errors.build();
   }
 

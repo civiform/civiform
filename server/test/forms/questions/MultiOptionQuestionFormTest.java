@@ -438,6 +438,36 @@ public class MultiOptionQuestionFormTest {
   }
 
   @Test
+  public void getOptionScoreErrors_tooManyDigitsOrTooLarge_returnsError() {
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
+    form.setOptions(ImmutableList.of("one", "two", "three", "four"));
+    form.setOptionAdminNames(
+        ImmutableList.of("one admin", "two admin", "three admin", "four admin"));
+    form.setOptionIds(ImmutableList.of(1L, 2L, 3L, 4L));
+    // 16 digits, 16 digits with a decimal point, a finite exponent far beyond the limit, and a
+    // negative one.
+    form.setOptionScores(
+        ImmutableList.of("1234567890123456", "0.1234567890123456", "1e308", "-1e15"));
+
+    assertThat(form.getOptionScoreErrors())
+        .hasSize(4)
+        .allSatisfy(error -> assertThat(error.message()).contains("is too long"));
+  }
+
+  @Test
+  public void getOptionScoreErrors_scoresAtTheLimits_noErrors() {
+    MultiOptionQuestionForm form = new CheckboxQuestionForm();
+    form.setOptions(ImmutableList.of("one", "two", "three"));
+    form.setOptionAdminNames(ImmutableList.of("one admin", "two admin", "three admin"));
+    form.setOptionIds(ImmutableList.of(1L, 2L, 3L));
+    // The largest and smallest allowed values, and the most digits with a decimal point.
+    form.setOptionScores(
+        ImmutableList.of("999999999999999", "-999999999999999", "1.23456789012345"));
+
+    assertThat(form.getOptionScoreErrors()).isEmpty();
+  }
+
+  @Test
   public void getOptionScoreErrors_cardinalityMismatch_returnsError() {
     MultiOptionQuestionForm form = new CheckboxQuestionForm();
     form.setOptions(ImmutableList.of("one", "two"));

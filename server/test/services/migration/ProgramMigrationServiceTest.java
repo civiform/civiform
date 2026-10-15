@@ -538,6 +538,48 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void validateQuestions_scoreBeyondLimit_returnsError() {
+    // A finite but enormous score would overflow totals, so it is rejected.
+    ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
+    QuestionDefinitionConfig config =
+        QuestionDefinitionConfig.builder()
+            .setName("huge score")
+            .setDescription("huge score")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "question?"))
+            .setQuestionHelpText(LocalizedStrings.empty())
+            .setId(19L)
+            .build();
+    QuestionDefinition hugeScoreDropdown =
+        new MultiOptionQuestionDefinition(
+            config,
+            ImmutableList.of(
+                QuestionOption.create(
+                    /* id= */ 1L,
+                    /* displayOrder= */ 0L,
+                    /* adminName= */ "opt1",
+                    /* optionText= */ LocalizedStrings.of(Locale.US, "first"),
+                    /* displayInAnswerOptions= */ Optional.of(true),
+                    /* score= */ Optional.of(1e308))),
+            MultiOptionQuestionType.DROPDOWN);
+
+    ImmutableSet<CiviFormError> errors =
+        service.validateQuestions(
+            program,
+            ImmutableList.of(hugeScoreDropdown),
+            ImmutableList.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    assertThat(errors)
+        .anyMatch(
+            error ->
+                error
+                    .message()
+                    .contains(
+                        "Option score on option 'opt1' of question 'huge score' must be between"
+                            + " -999999999999999 and 999999999999999."));
+  }
+
+  @Test
   public void validateQuestions_fullyScoredDropdownQuestion_noScoreError() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram().buildDefinition();
     QuestionDefinition scoredDropdown =
