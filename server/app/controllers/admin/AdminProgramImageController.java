@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import actions.FileUploadImprovementsEnabledAction;
 import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
@@ -24,6 +25,7 @@ import play.i18n.MessagesApi;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.VersionRepository;
 import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
@@ -136,13 +138,13 @@ public final class AdminProgramImageController extends CiviFormController {
   }
 
   /** Uploads a program summary image and saves its alt text. */
+  // The route defers body parsing (see conf/routes), so the checks before the body parser run
+  // before it writes the file to cloud storage. @Secure must stay first.
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @With(FileUploadImprovementsEnabledAction.class)
   @BodyParser.Of(ProgramImageStreamingMultipartBodyParser.class)
   public Result uploadProgramImage(Http.Request request, long programId, String editStatus) {
     requestChecker.throwIfProgramNotDraft(programId);
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return notFound();
-    }
 
     Http.MultipartFormData<String> body = request.body().asMultipartFormData();
     if (body == null) {

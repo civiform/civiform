@@ -4,6 +4,8 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static java.util.concurrent.CompletableFuture.completedFuture;
 import static java.util.concurrent.CompletableFuture.failedFuture;
 
+import actions.ApplicantAccessAction;
+import actions.FileUploadImprovementsEnabledAction;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -26,6 +28,7 @@ import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
 import services.applicant.ApplicantService;
@@ -78,14 +81,14 @@ public final class FileUploadController extends CiviFormController {
     this.fileUploadQuestionPartialView = checkNotNull(fileUploadQuestionPartialView);
   }
 
+  // The route defers body parsing (see conf/routes), so these checks run before the body parser
+  // writes the file to cloud storage. @Secure must stay first: the actions after it need the
+  // signed in user.
   @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
+  @With(FileUploadImprovementsEnabledAction.class)
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUpload(
       Request request, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
       return CompletableFuture.completedFuture(badRequest());
@@ -94,14 +97,12 @@ public final class FileUploadController extends CiviFormController {
     return hxSelectFileForUploadInternal(request, optionalApplicantId.get(), programId, blockId);
   }
 
+  // The route defers body parsing (see conf/routes). See hxSelectFileForUpload.
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
+  @With({FileUploadImprovementsEnabledAction.class, ApplicantAccessAction.class})
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
   public CompletionStage<Result> hxSelectFileForUploadWithApplicantId(
       Request request, long applicantId, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
-      return CompletableFuture.completedFuture(notFound());
-    }
-
     return hxSelectFileForUploadInternal(request, applicantId, programId, blockId);
   }
 
@@ -134,10 +135,8 @@ public final class FileUploadController extends CiviFormController {
     String originalFileName = filePart.getFilename();
     String fileKey = filePart.getRef();
 
-    return checkApplicantAuthorization(request, applicantId)
-        .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
-            classLoaderExecutionContext.current())
+    return applicantService
+        .getReadOnlyApplicantProgramService(applicantId, programId)
         .thenComposeAsync(
             roApplicantProgramService -> {
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);

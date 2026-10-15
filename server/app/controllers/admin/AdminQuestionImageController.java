@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.input;
 
+import actions.QuestionImagesEnabledAction;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +22,7 @@ import play.i18n.MessagesApi;
 import play.mvc.BodyParser;
 import play.mvc.Http;
 import play.mvc.Result;
+import play.mvc.With;
 import repository.VersionRepository;
 import services.ImageDescriptionNotRemovableException;
 import services.LocalizedStrings;
@@ -50,13 +52,12 @@ public class AdminQuestionImageController extends CiviFormController {
   }
 
   /** Uploads a question image and saves its alt text. */
+  // The route defers body parsing (see conf/routes), so the checks before the body parser run
+  // before it writes the file to cloud storage. @Secure must stay first.
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
+  @With(QuestionImagesEnabledAction.class)
   @BodyParser.Of(QuestionImageStreamingMultipartBodyParser.class)
   public Result hxUploadQuestionImage(Http.Request request, long questionId) {
-    if (!settingsManifest.getImagesInQuestionFeatureEnabled(request)) {
-      return notFound();
-    }
-
     Http.MultipartFormData<String> body = request.body().asMultipartFormData();
     if (body == null) {
       return renderError("Bad request: no upload body received.");
