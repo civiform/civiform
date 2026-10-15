@@ -51,6 +51,7 @@ import services.applicant.ReadOnlyApplicantProgramService;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.applicant.exception.ProgramBlockNotFoundException;
 import services.applicant.question.AddressQuestion;
+import services.applicant.question.ApplicantQuestion;
 import services.applicant.question.FileUploadQuestion;
 import services.cloud.ApplicantFileNameFormatter;
 import services.cloud.ApplicantStorageClient;
@@ -789,6 +790,118 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             },
             classLoaderExecutionContext.current())
         .exceptionally(this::handleUpdateExceptions);
+  }
+
+  /**
+   * Renders the HTML for a new enumerator entity row and returns it for HTMX to append to the
+   * enumerator block. Used when an applicant clicks "Add &lt;entity&gt;" on an enumerator block
+   * that has an initial question. Resolves the applicant id from the session.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param programId ID of the program
+   * @param blockId the unique identifier of the enumerator block
+   * @return a CompletionStage that resolves to a Result handled by
+   *     hxAddEnumeratorEntityWithApplicantId()
+   */
+  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
+  public CompletionStage<Result> hxAddEnumeratorEntity(
+      Request request, Long programId, String blockId) {
+    Optional<Long> optionalApplicantId = getApplicantId(request);
+    if (optionalApplicantId.isEmpty()) {
+      // This route should not have been computed for the user in this case, but they may have
+      // gotten the URL from another source.
+      return CompletableFuture.completedFuture(redirectToHome());
+    }
+
+    return hxAddEnumeratorEntityWithApplicantId(
+        request, optionalApplicantId.get(), programId, blockId);
+  }
+
+  /**
+   * Renders the HTML for a new enumerator entity row and returns it for HTMX to append to the
+   * enumerator block.
+   *
+   * @param request the HTTP request containing context and session information
+   * @param applicantId ID of the applicant the entity is being added for
+   * @param programId ID of the program
+   * @param blockId the unique identifier of the enumerator block
+   * @return a CompletionStage resolving to the rendered entity row HTML, or notFound() when the
+   *     flag is off or the block is not an enumerator with an initial question
+   */
+  @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
+  public CompletionStage<Result> hxAddEnumeratorEntityWithApplicantId(
+      Request request, long applicantId, Long programId, String blockId) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      return CompletableFuture.completedFuture(notFound());
+    }
+
+    return checkApplicantAuthorization(request, applicantId)
+        .thenComposeAsync(
+            v -> checkProgramAuthorization(request, programId),
+            classLoaderExecutionContext.current())
+        .thenComposeAsync(
+            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            classLoaderExecutionContext.current())
+        .thenApplyAsync(
+            roApplicantProgramService -> {
+              Optional<Block> maybeBlock = roApplicantProgramService.getActiveBlock(blockId);
+              if (maybeBlock.isEmpty() || !maybeBlock.get().isEnumerator()) {
+                return notFound();
+              }
+
+              Block block = maybeBlock.get();
+              int entityIndex = nextEntityIndex(request, block);
+
+              Optional<ApplicantQuestion> maybeInitialQuestion =
+                  block.createContextualizedInitialQuestion(entityIndex);
+              if (maybeInitialQuestion.isEmpty()) {
+                return notFound();
+              }
+
+              String entityRowHtml =
+                  applicantProgramBlockEditView.hxRenderNewEnumeratorEntityRow(
+                      request,
+                      maybeInitialQuestion.get(),
+                      block.getEnumeratorQuestion(),
+                      entityIndex,
+                      messagesApi.preferred(request));
+              return ok(entityRowHtml).as(Http.MimeTypes.HTML);
+            },
+            classLoaderExecutionContext.current())
+        .exceptionally(
+            ex -> {
+              if (ex instanceof CompletionException) {
+                Throwable cause = ex.getCause();
+                if (cause instanceof SecurityException) {
+                  return unauthorized();
+                }
+                if (cause instanceof ProgramNotFoundException) {
+                  return notFound();
+                }
+                throw new RuntimeException(cause);
+              }
+              throw new RuntimeException(ex);
+            });
+  }
+
+  /**
+   * Returns the index to assign to the next entity row. Defaults to the number of saved entities,
+   * but honors a larger {@code entityCount} sent by the client (via HTMX hx-vals) so rows added
+   * before the form is submitted still get contiguous indices.
+   */
+  private int nextEntityIndex(Request request, Block block) {
+    int entityIndex = block.getEnumeratorEntityCount();
+
+    DynamicForm form = formFactory.form().bindFromRequest(request);
+    String entityCountParam = form.get("entityCount");
+    if (entityCountParam != null && !entityCountParam.isBlank()) {
+      try {
+        entityIndex = Math.max(entityIndex, Integer.parseInt(entityCountParam));
+      } catch (NumberFormatException e) {
+        // Fall back to the server-side count.
+      }
+    }
+    return entityIndex;
   }
 
   /**

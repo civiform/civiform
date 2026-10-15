@@ -477,6 +477,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
     context.setVariable(
         "contextualizedInitialQuestions", params.block().getContextualizedInitialQuestions());
+    context.setVariable(
+        "enumeratorQuestion", params.block().getEnumeratorQuestion().createEnumeratorQuestion());
+    context.setVariable(
+        "hxAddEnumeratorEntityUrl",
+        applicantRoutes
+            .hxAddEnumeratorEntity(
+                params.profile(), params.applicantId(), params.programId(), params.block().getId())
+            .url());
     // TODO (#13398): Show validation errors and set the autofocus target
     context.setVariable(
         "initialQuestionRendererParams",
@@ -485,6 +493,39 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
             .build());
+  }
+
+  /**
+   * Renders a single new enumerator repeated entity row for the HTMX add-entity flow. The row is
+   * always a subsequent (non-first) entity, so the aria-labelledBy does not reference the
+   * enumerator title/help.
+   */
+  public String hxRenderNewEnumeratorEntityRow(
+      Request request,
+      ApplicantQuestion contextualizedInitialQuestion,
+      ApplicantQuestion enumeratorApplicantQuestion,
+      int entityIndex,
+      play.i18n.Messages messages) {
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    context.setVariable("contextualizedInitialQuestion", contextualizedInitialQuestion);
+    context.setVariable("initialQuestionType", contextualizedInitialQuestion.getType());
+    context.setVariable(
+        "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
+    context.setVariable("entityIndex", entityIndex);
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("nameSuffixOptions", Suffix.values());
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    // A brand new entity row has no answers yet, so never shows errors.
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
+
+    return templateEngine.process("questiontypes/EnumeratorNewEntityRowPartial", context);
   }
 
   private void addFileUploadParameters(
