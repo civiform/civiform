@@ -3,6 +3,7 @@ package controllers.admin;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static play.mvc.Http.Status.BAD_REQUEST;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
@@ -729,6 +730,52 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void show_draftApplication_notFound() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel draft = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
+
+    Result result = showApplication(program, draft);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void show_submittedApplication_ok() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel application =
+        ApplicationModel.create(applicant, program, LifecycleStage.ACTIVE).setSubmitTimeToNow();
+
+    Result result = showApplication(program, application);
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void updateNote_draftApplication_notFoundAndNothingRecorded() throws Exception {
+    AccountModel adminAccount = resourceCreator.insertAccount();
+    controller = makeNoOpProfileController(Optional.of(adminAccount));
+    ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel draft = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
+
+    Request request =
+        fakeRequestBuilder().bodyForm(Map.of("redirectUri", "/", "note", "A note.")).build();
+
+    Result result = controller.updateNote(request, program.id, draft.id);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+    draft.refresh();
+    assertThat(draft.getApplicationEvents()).isEmpty();
+    assertThat(draft.getLatestNote()).isEmpty();
+  }
+
+  @Test
   public void updateNote_programNotFound() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name", "test description").build();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
@@ -825,6 +872,19 @@ public class AdminApplicationControllerTest extends ResetPostgres {
     assertThat(gotEvent.getDetails().noteEvent()).isPresent();
     assertThat(gotEvent.getDetails().noteEvent().get().note()).isEqualTo(noteText);
     assertThat(application.getLatestNote().get()).isEqualTo(noteText);
+  }
+
+  private Result showApplication(ProgramModel program, ApplicationModel application)
+      throws Exception {
+    return controller.show(
+        fakeRequest(),
+        program.id,
+        application.id,
+        /* search= */ Optional.empty(),
+        /* fromDate= */ Optional.empty(),
+        /* toDate= */ Optional.empty(),
+        /* page= */ Optional.empty(),
+        /* selectedApplicationStatus= */ Optional.empty());
   }
 
   // Returns a controller with a faked ProfileUtils to bypass acl checks.
