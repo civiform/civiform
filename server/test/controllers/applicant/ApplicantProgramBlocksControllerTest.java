@@ -320,6 +320,55 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(contentAsString(result)).contains("#3");
   }
 
+  @Test
+  public void hxAddEnumeratorEntityWithApplicantId_forFirstEntity_referencesEnumeratorTitle() {
+    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
+
+    // The client adds the first entity (no saved entities, entityCount 0) and sends the enumerator
+    // question's root id, so the row's aria references the enumerator title (<id>-title).
+    Result result =
+        subject
+            .hxAddEnumeratorEntityWithApplicantId(
+                fakeRequestBuilder()
+                    .bodyForm(
+                        ImmutableMap.of("entityCount", "0", "enumeratorQuestionId", "id-abcd1234"))
+                    .build(),
+                applicant.id,
+                enumeratorProgram.id,
+                /* blockId= */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("id-abcd1234-title");
+  }
+
+  @Test
+  public void hxAddEnumeratorEntityWithApplicantId_withMalformedQuestionId_omitsTitleReference() {
+    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
+
+    // A malformed enumerator question id is dropped, so even the first entity row falls back to no
+    // enumerator-title aria reference rather than echoing an invalid id into the HTML.
+    Result result =
+        subject
+            .hxAddEnumeratorEntityWithApplicantId(
+                fakeRequestBuilder()
+                    .bodyForm(
+                        ImmutableMap.of(
+                            "entityCount", "0", "enumeratorQuestionId", "not-a-valid-id"))
+                    .build(),
+                applicant.id,
+                enumeratorProgram.id,
+                /* blockId= */ "1")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("-title");
+  }
+
   /**
    * Builds an active program whose first block is an enumerator with an initial question. Both the
    * enumerator question and its linked initial question live on the same block, so {@link

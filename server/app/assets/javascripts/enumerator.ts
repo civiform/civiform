@@ -225,9 +225,16 @@ function refreshAddButtonStatus() {
     (maxEntities > 0 && entityCount >= maxEntities)
 
   // For the initial-question (HTMX) button, pass the current entityCount so the server assigns the
-  // next entity the correct index.
+  // next entity the correct index, plus the enumerator question's root id so the server can render
+  // the first entity row (entityIndex 0) with aria references to the enumerator title/help, whose
+  // element ids are derived from this id.
   if (isInitialQuestion) {
-    addButton.setAttribute('hx-vals', JSON.stringify({entityCount}))
+    const enumeratorQuestionId =
+      addButton.closest('.cf-question-enumerator')?.id ?? ''
+    addButton.setAttribute(
+      'hx-vals',
+      JSON.stringify({entityCount, enumeratorQuestionId}),
+    )
   }
 }
 

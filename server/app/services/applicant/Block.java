@@ -196,12 +196,9 @@ public final class Block {
 
   /**
    * Returns a list of {@link ApplicantQuestion}s for the initial question, one per existing entity,
-   * each contextualized to the entity's index. When there are no entities yet, returns a single
-   * empty question at index 0 so the applicant always sees the initial-question fields for the
-   * first entity. Used to render the initial-question inputs per entity row on the enumerator
-   * screen.
-   *
-   * <p>Returns an empty list when there is no initial question.
+   * each contextualized to the entity's index. Returns an empty list when there are no entities yet
+   * or when there is no initial question. Used to render the initial-question inputs per entity row
+   * on the enumerator screen.
    */
   public ImmutableList<ApplicantQuestion> getContextualizedInitialQuestions() {
     Optional<ApplicantQuestion> maybeInitialQuestion = getInitialQuestion();
@@ -215,15 +212,6 @@ public final class Block {
         (EnumeratorQuestionDefinition) enumeratorApplicantQuestion.getQuestionDefinition();
     ImmutableList<String> entityNames =
         enumeratorApplicantQuestion.createEnumeratorQuestion().getEntityNames();
-
-    if (entityNames.isEmpty()) {
-      return ImmutableList.of(
-          createContextualizedInitialQuestionAtIndex(
-              initialQuestion,
-              enumeratorQuestionDefinition,
-              /* entityName= */ "",
-              /* entityIndex= */ 0));
-    }
 
     return IntStream.range(0, entityNames.size())
         .mapToObj(
