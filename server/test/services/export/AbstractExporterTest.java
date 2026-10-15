@@ -15,6 +15,7 @@ import models.LifecycleStage;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
+import repository.ApplicationEventRepository;
 import repository.ApplicationStatusesRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
@@ -235,12 +236,19 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     application.save();
 
     if (status != null && admin != null) {
-      programAdminApplicationService.setStatus(
-          application.id,
-          program.getProgramDefinition(),
-          Optional.empty(),
-          StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build(),
-          admin);
+      StatusEvent statusEvent =
+          StatusEvent.builder().setEmailSent(false).setStatusText(STATUS_VALUE).build();
+      if (lifecycleStage == LifecycleStage.DRAFT) {
+        // The admin service does not accept drafts, which have not been submitted, so record the
+        // event directly to keep this fixture's draft application as it was.
+        instanceOf(ApplicationEventRepository.class)
+            .insertStatusEvent(application, Optional.of(admin), statusEvent)
+            .toCompletableFuture()
+            .join();
+      } else {
+        programAdminApplicationService.setStatus(
+            application.id, program.getProgramDefinition(), Optional.empty(), statusEvent, admin);
+      }
     }
     if (note != null && admin != null) {
       programAdminApplicationService.setNote(

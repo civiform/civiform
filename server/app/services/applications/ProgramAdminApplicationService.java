@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 import models.AccountModel;
 import models.ApplicantModel;
 import models.ApplicationModel;
+import models.LifecycleStage;
 import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
@@ -269,6 +270,10 @@ public final class ProgramAdminApplicationService {
       throws ProgramNotFoundException {
     List<Long> applicationIdFromRepo =
         applications.stream()
+            // A draft has not been submitted, so it is not part of what a program admin reviews.
+            // Leaving it out here makes it read as not found, like an id that does not exist.
+            .filter(
+                applicationModel -> applicationModel.getLifecycleStage() != LifecycleStage.DRAFT)
             .map(applicationModel -> applicationModel.id)
             .collect(Collectors.toList());
 
@@ -296,6 +301,10 @@ public final class ProgramAdminApplicationService {
   private Optional<ApplicationModel> validateProgram(
       Optional<ApplicationModel> application, ProgramDefinition program)
       throws ProgramNotFoundException {
+    // A draft has not been submitted, so it is not part of what a program admin reviews.
+    if (application.isPresent() && application.get().getLifecycleStage() == LifecycleStage.DRAFT) {
+      throw new ProgramNotFoundException("Application has not been submitted");
+    }
     if (application.isEmpty()
         || programRepository
             .getShallowProgramDefinition(application.get().getProgram())

@@ -193,6 +193,91 @@ public class ProgramAdminApplicationServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getApplication_draftApplication_returnsEmpty() {
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel draft =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.DRAFT);
+
+    assertThat(service.getApplication(draft.id, program)).isEmpty();
+  }
+
+  @Test
+  public void getApplications_draftApplicationAmongSubmitted_throwsNotFound() {
+    ProgramModel program = ProgramBuilder.newActiveProgram("some-program").build();
+    ImmutableList<Long> submittedIds = createApplicationList(2, program);
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    ApplicationModel draft = ApplicationModel.create(applicant, program, LifecycleStage.DRAFT);
+
+    ImmutableList<Long> allIds =
+        ImmutableList.<Long>builder().addAll(submittedIds).add(draft.id).build();
+
+    assertThatThrownBy(() -> service.getApplications(allIds, program.getProgramDefinition()))
+        .isInstanceOf(ApplicationNotFoundException.class)
+        .hasMessageContaining(String.valueOf(draft.id));
+  }
+
+  @Test
+  public void setStatus_draftApplication_throwsAndSendsNoEmail() throws Exception {
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    service = createServiceWithMockEmailSendClient(emailSendClient);
+
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel draft =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.DRAFT);
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    assertThatThrownBy(
+            () ->
+                service.setStatus(
+                    draft.id, program, /* currentStatus= */ Optional.empty(), event, account))
+        .isInstanceOf(ApplicationNotFoundException.class);
+
+    verify(emailSendClient, never()).send(anyString(), anyString(), anyString());
+    draft.refresh();
+    assertThat(draft.getApplicationEvents()).isEmpty();
+  }
+
+  @Test
+  public void setStatuses_draftApplication_throwsAndSendsNoEmail() throws Exception {
+    EmailSendClient emailSendClient = Mockito.mock(EmailSendClient.class);
+    service = createServiceWithMockEmailSendClient(emailSendClient);
+
+    ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
+    repo.createOrUpdateStatusDefinitions(
+        program.adminName(), new StatusDefinitions(ORIGINAL_STATUSES));
+    AccountModel account = resourceCreator.insertAccount();
+    ApplicantModel applicant =
+        resourceCreator.insertApplicantWithAccount(Optional.of("user@example.com"));
+    ApplicationModel draft =
+        ApplicationModel.create(applicant, program.toProgram(), LifecycleStage.DRAFT);
+
+    StatusEvent event =
+        StatusEvent.builder()
+            .setEmailSent(true)
+            .setStatusText(STATUS_WITH_ONLY_ENGLISH_EMAIL.statusText())
+            .build();
+
+    assertThatThrownBy(
+            () -> service.setStatuses(ImmutableList.of(draft.id), program, event, account))
+        .isInstanceOf(ApplicationNotFoundException.class);
+
+    verify(emailSendClient, never()).send(anyString(), anyString(), anyString());
+    draft.refresh();
+    assertThat(draft.getApplicationEvents()).isEmpty();
+  }
+
+  @Test
   public void getNote_noNotes_empty() {
     ProgramDefinition program = ProgramBuilder.newActiveProgram("some-program").buildDefinition();
 
