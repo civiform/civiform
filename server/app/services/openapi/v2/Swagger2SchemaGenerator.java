@@ -190,7 +190,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
             .property("submitter_type", new StringProperty())
             .property("ti_email", new StringProperty().vendorExtension("x-nullable", true))
             .property("ti_organization", new StringProperty().vendorExtension("x-nullable", true));
-    if (includeScores(programDefinition)) {
+    if (includeScores()) {
       // Null when the application predates scoring or scoring wasn't applied; double precision.
       resultItem.property("total_score", new DoubleProperty().vendorExtension("x-nullable", true));
     }
@@ -203,7 +203,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
   private Property buildApplicationDefinitions(ProgramDefinition programDefinition)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     QuestionDefinitionNode rootNode = getQuestionDefinitionRootNode(programDefinition);
-    var results = buildApplicationDefinitions(rootNode, includeScores(programDefinition));
+    var results = buildApplicationDefinitions(rootNode, includeScores());
     var objectProperty = new ObjectProperty();
 
     results.entrySet().stream()

@@ -66,6 +66,11 @@ public final class ApiDocsService {
     }
   }
 
+  /** Whether any version of the program has used scoring, which controls if scores are shown. */
+  public boolean anyVersionUsesScoring(ProgramDefinition programDefinition) {
+    return programService.anyVersionUsesScoring(programDefinition);
+  }
+
   /** Returns a pretty-printed JSON sample of the program's API response. */
   public String getSampleJsonPreview(ProgramDefinition programDefinition, boolean scoringEnabled) {
     return asPrettyJsonString(programJsonSampler.getSampleJson(programDefinition, scoringEnabled));

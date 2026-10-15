@@ -338,6 +338,14 @@ public final class ProgramService {
   }
 
   /**
+   * Returns true if any version of the given program has scoring enabled, so exports can keep
+   * showing scores on applications that were scored even after scoring is turned off.
+   */
+  public boolean anyVersionUsesScoring(ProgramDefinition programDefinition) {
+    return programRepository.anyVersionUsesScoring(programDefinition.adminName());
+  }
+
+  /**
    * Get the program matching programId as well as all other versions of the program (i.e. all
    * programs with the same name).
    */

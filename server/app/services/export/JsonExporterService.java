@@ -97,8 +97,11 @@ public final class JsonExporterService {
       ProgramDefinition programDefinition,
       PaginationResult<ApplicationModel> paginationResult,
       boolean scoringEnabled) {
-    // Score properties require both the feature flag and the program opting into scoring.
-    boolean includeScores = scoringEnabled && programDefinition.usesScoring();
+    // Score properties require the feature flag and that some version of the program used
+    // scoring, so scores on applications submitted while scoring was on stay visible if scoring is
+    // later turned off.
+    boolean includeScores =
+        scoringEnabled && programService.anyVersionUsesScoring(programDefinition);
     ImmutableList<ApplicationModel> applications = paginationResult.getPageContents();
 
     ImmutableMap<Long, ProgramDefinition> programDefinitionsForAllVersions =

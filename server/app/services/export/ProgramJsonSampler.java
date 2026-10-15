@@ -21,6 +21,7 @@ import services.export.QuestionJsonSampler.SampleDataContext;
 import services.export.enums.RevisionState;
 import services.export.enums.SubmitterType;
 import services.program.ProgramDefinition;
+import services.program.ProgramService;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.statuses.StatusDefinitions.Status;
@@ -34,6 +35,7 @@ public final class ProgramJsonSampler {
   private final DeploymentType deploymentType;
   private static final String EMPTY_VALUE = "";
   private final ApplicationStatusesRepository applicationStatusesRepository;
+  private final ProgramService programService;
 
   @Inject
   ProgramJsonSampler(
@@ -41,7 +43,9 @@ public final class ProgramJsonSampler {
       ApiPayloadWrapper apiPayloadWrapper,
       JsonExporterService jsonExporterService,
       DeploymentType deploymentType,
-      ApplicationStatusesRepository applicationStatusesRepository) {
+      ApplicationStatusesRepository applicationStatusesRepository,
+      ProgramService programService) {
+    this.programService = programService;
     this.questionJsonSamplerFactory = questionJsonSamplerFactory;
     this.apiPayloadWrapper = apiPayloadWrapper;
     this.jsonExporterService = jsonExporterService;
@@ -54,8 +58,10 @@ public final class ProgramJsonSampler {
    * the API response looks like.
    */
   public String getSampleJson(ProgramDefinition programDefinition, boolean scoringEnabled) {
-    // Score properties require both the feature flag and the program opting into scoring.
-    boolean includeScores = scoringEnabled && programDefinition.usesScoring();
+    // Matches the export: scores need the feature flag and some version of the program using
+    // scoring.
+    boolean includeScores =
+        scoringEnabled && programService.anyVersionUsesScoring(programDefinition);
     ApplicationExportData.Builder jsonExportData =
         ApplicationExportData.builder()
             // Customizable program-specific API fields
