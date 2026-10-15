@@ -28,8 +28,7 @@ import support.ResourceCreator;
 public class MetricsRouteTest extends ResetPostgres {
   private static final String FEATURE_FLAG = "ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS";
   private static final Pattern FEATURE_FLAG_SERIES =
-      Pattern.compile(
-          "civiform_feature_flag_enabled\\{flag=\"" + FEATURE_FLAG + "\",?\\} (\\S+)");
+      Pattern.compile("civiform_feature_flag_enabled\\{flag=\"" + FEATURE_FLAG + "\",?\\} (\\S+)");
 
   // Metrics are off by default, so start the application with them turned on.
   @BeforeClass
