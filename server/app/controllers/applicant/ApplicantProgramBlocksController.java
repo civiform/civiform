@@ -901,7 +901,6 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private int nextEntityIndex(DynamicForm form, Block block) {
     int entityIndex = block.getEnumeratorEntityCount();
 
-
     String entityCountParam = form.get("entityCount");
     if (entityCountParam != null && !entityCountParam.isBlank()) {
       try {
