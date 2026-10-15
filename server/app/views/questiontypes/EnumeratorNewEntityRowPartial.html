@@ -1,13 +1,14 @@
 <!--/* Partial rendered by the HTMX add-entity endpoint
      (ApplicantProgramBlocksController.hxAddEnumeratorEntity). Returns a single, unsaved
-     enumerator repeated entity row that HTMX appends to #enumerator-fields. The row is never the
-     first entity, so it does not have an aria reference to the enumerator title/help;
-     enumerator.ts re-points that reference if the row is later promoted to first via a removal. */-->
+     enumerator repeated entity row that HTMX appends to #enumerator-fields. When the row is the
+     first entity, it references the enumerator title/help via aria; questionId is the enumerator
+     question's root id from which those element ids are derived. A blank questionId falls back
+     to a non-first row. */-->
 <th:block
   th:replace="~{questiontypes/EnumeratorQuestionFragment :: initialQuestionEntityRow(
     initialQForEntity=${contextualizedInitialQuestion},
-    questionId='',
-    isFirstEntity=false,
+    questionId=${questionId},
+    isFirstEntity=${entityIndex == 0 and !#strings.isEmpty(questionId)},
     rowNumber=${entityIndex + 1},
     isSaved=false,
     entityIndex=${entityIndex})}"

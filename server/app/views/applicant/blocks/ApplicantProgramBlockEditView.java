@@ -496,15 +496,16 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   }
 
   /**
-   * Renders a single new enumerator repeated entity row for the HTMX add-entity flow. The row is
-   * always a subsequent (non-first) entity, so the aria-labelledBy does not reference the
-   * enumerator title/help.
+   * Renders a single new enumerator repeated entity row for the HTMX add-entity flow. When the row
+   * is the first entity, its aria references the enumerator title/help, whose element ids are
+   * derived from {@code enumeratorQuestionId}. For subsequent rows the enumerator id is unused.
    */
   public String hxRenderNewEnumeratorEntityRow(
       Request request,
       ApplicantQuestion contextualizedInitialQuestion,
       ApplicantQuestion enumeratorApplicantQuestion,
       int entityIndex,
+      String enumeratorQuestionId,
       play.i18n.Messages messages) {
     ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
     context.setVariable("contextualizedInitialQuestion", contextualizedInitialQuestion);
@@ -512,6 +513,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable(
         "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
     context.setVariable("entityIndex", entityIndex);
+    context.setVariable("questionId", enumeratorQuestionId);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("nameSuffixOptions", Suffix.values());
     context.setVariable(

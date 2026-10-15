@@ -1536,9 +1536,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
 
       await test.step("Verify the initial question's own question text is not shown", async () => {
         await expect(page.getByText('What is your name?')).toBeHidden()
+      })
+
+      await test.step('Verify no entity rows are shown to start, then add the first', async () => {
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveCount(0)
+        await addButton.click()
+        await waitForHtmxReady(page)
       })
 
       // A multi-input initial question renders each entity row as a role="group".
@@ -1574,7 +1583,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Fill the first entity and add a second entity', async () => {
         await firstEntity.getByRole('textbox', {name: 'First name'}).fill('Rex')
         await firstEntity.getByRole('textbox', {name: 'Last name'}).fill('Woof')
-        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await addButton.click()
         await waitForHtmxReady(page)
         // The added entity is not first, so its group is labeled only by its own entity label.
         await expect(
@@ -1645,10 +1654,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'List the names of your pets. Pets name #1',
       })
 
-      await test.step('Verify only one entity input is shown to start', async () => {
-        await expect(
-          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
-        ).toBeHidden()
+      await test.step('Verify no entity rows are shown to start', async () => {
+        await expect(blockForm.getByRole('spinbutton')).toHaveCount(0)
+        // With no rows yet, the add button is enabled so the applicant can add the first entity.
+        await expect(addButton).toBeEnabled()
+      })
+
+      await test.step('Add the first entity', async () => {
+        await addButton.click()
+        await waitForHtmxReady(page)
+        // The HTMX-added first row is labeled by the enumerator question text plus the entity
+        // label, confirming it takes over the enumerator title/help as the first entity.
+        await expect(firstEntityInput).toBeVisible()
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(1)
       })
 
