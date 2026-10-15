@@ -353,7 +353,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
                         messages)),
                 /* blockHasEnumeratorQuestion= */ true,
                 blockDefinition,
-                programDefinition)
+                programDefinition,
+                // The enumerator was just set up together with its initial question.
+                /* showBackfillInitialQuestionButton= */ false)
             .render());
   }
 

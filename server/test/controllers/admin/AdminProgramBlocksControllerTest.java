@@ -669,6 +669,53 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_enumeratorWithoutInitialQuestion_flagOn_showsBackfillInitialQuestionCard() {
+    String html =
+        editEnumeratorBlockHtml(testQuestionBank.enumeratorApplicantHouseholdMembers(), true);
+
+    assertThat(html).contains("id=\"backfill-initial-question-card\"");
+    assertThat(html).contains("id=\"backfill-initial-question-button\"");
+    assertThat(html).contains("Add an initial question that accompanies the enumerator");
+  }
+
+  @Test
+  public void edit_enumeratorWithInitialQuestion_flagOn_hidesBackfillInitialQuestionCard() {
+    String html =
+        editEnumeratorBlockHtml(
+            testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames(), true);
+
+    assertThat(html).doesNotContain("backfill-initial-question");
+  }
+
+  @Test
+  public void edit_enumeratorWithoutInitialQuestion_flagOff_hidesBackfillInitialQuestionCard() {
+    String html =
+        editEnumeratorBlockHtml(testQuestionBank.enumeratorApplicantHouseholdMembers(), false);
+
+    assertThat(html).doesNotContain("backfill-initial-question");
+  }
+
+  private String editEnumeratorBlockHtml(QuestionModel enumeratorQuestion, boolean flagOn) {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.edit(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
+                .build(),
+            program.id,
+            blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    return Helpers.contentAsString(result);
+  }
+
+  @Test
   public void update_withInvalidProgram_notFound() {
     Request request =
         fakeRequestBuilder()
