@@ -56,13 +56,17 @@ public class QuestionPreview extends ApplicantBaseView {
             Optional.of(params.profile()),
             params.applicantPersonalInfo(),
             params.messages());
-    QuestionDefinition questionDefinition;
-    try {
-      questionDefinition = QuestionDefinition.questionDefinitionSample(params.type());
-    } catch (UnsupportedQuestionTypeException e) {
-      e.printStackTrace();
-      throw new RuntimeException(e);
-    }
+    QuestionDefinition questionDefinition =
+        params
+            .questionDefinition()
+            .orElseGet(
+                () -> {
+                  try {
+                    return QuestionDefinition.questionDefinitionSample(params.type());
+                  } catch (UnsupportedQuestionTypeException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
     ProgramQuestionDefinition pqd =
         ProgramQuestionDefinition.create(
             questionDefinition,
@@ -87,6 +91,14 @@ public class QuestionPreview extends ApplicantBaseView {
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
+    context.setVariable(
+        "imagesInQuestionFeatureEnabled",
+        settingsManifest.getImagesInQuestionFeatureEnabled(params.request()));
+    // For static question image preview: set the resolved public URL and alt text so the
+    // StaticTextQuestionFragment can render an inline 16:9 image block when one is present.
+    context.setVariable("questionImageUrl", params.imageUrl().orElse(""));
+    context.setVariable("questionImageAltText", params.imageAltText());
+    context.setVariable("previewUrl", params.request().uri());
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
   }
 
@@ -96,6 +108,10 @@ public class QuestionPreview extends ApplicantBaseView {
             .setMessages(params.messages())
             .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
             .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE);
+    params.imageUrl().ifPresent(paramsBuilder::setQuestionImageUrl);
+    if (!params.imageAltText().isEmpty()) {
+      paramsBuilder.setQuestionImageAltText(params.imageAltText());
+    }
     return paramsBuilder.build();
   }
 
@@ -124,6 +140,14 @@ public class QuestionPreview extends ApplicantBaseView {
 
     abstract Messages messages();
 
+    /** Resolved public URL for the question image, empty when no image is set. */
+    abstract Optional<String> imageUrl();
+
+    /** Alt text for the question image, empty string when no image is set. */
+    abstract String imageAltText();
+
+    abstract Optional<QuestionDefinition> questionDefinition();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -138,6 +162,13 @@ public class QuestionPreview extends ApplicantBaseView {
       public abstract Builder setType(QuestionType type);
 
       public abstract Builder setMessages(Messages messages);
+
+      public abstract Builder setImageUrl(Optional<String> imageUrl);
+
+      public abstract Builder setImageAltText(String imageAltText);
+
+      public abstract Builder setQuestionDefinition(
+          Optional<QuestionDefinition> questionDefinition);
 
       public abstract Params build();
     }

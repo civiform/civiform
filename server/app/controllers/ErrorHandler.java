@@ -112,8 +112,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
         return CompletableFuture.completedFuture(
             Results.badRequest(
                     div(errorMessage)
-                        .withClasses("text-red-500", "text-base", "py-2")
+                        .withClasses("text-red-600", "text-base", "py-2")
                         .withId("question-image-file-input-errors")
+                        .attr("role", "alert")
+                        .attr("aria-label", "Image upload error")
                         .render())
                 .as(play.mvc.Http.MimeTypes.HTML));
       }
@@ -153,8 +155,10 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
           Results.status(
                   statusCode,
                   div(message)
-                      .withClasses("text-red-500", "text-base", "py-2")
+                      .withClasses("text-red-600", "text-base", "py-2")
                       .withId("question-image-file-input-errors")
+                      .attr("role", "alert")
+                      .attr("aria-label", "Image upload error")
                       .render())
               .as(play.mvc.Http.MimeTypes.HTML));
     }
