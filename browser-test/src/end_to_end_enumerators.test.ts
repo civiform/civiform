@@ -220,6 +220,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         // Scoped to the card: the rest of this page has existing violations.
         await validateAccessibility(page, '#backfill-initial-question-card')
       })
+
+      await test.step('Turn the feature flag off and validate that the card is hidden', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+        await expect(
+          blockPanel.locator('#backfill-initial-question-card'),
+        ).toBeHidden()
+      })
     })
 
     test.describe('Initial question', () => {
