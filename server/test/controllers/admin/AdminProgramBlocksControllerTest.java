@@ -564,6 +564,47 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
   @Test
   public void
+      edit_withNewlyCreatedQuestionId_whenBackfillingLegacyEnumerator_redirectsWithInitialQuestionIdAndDoesNotAddToBlock() {
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+    QuestionModel question = testQuestionBank.nameApplicantName();
+    question.save();
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .uri(
+                routes.AdminProgramBlocksController.edit(program.id, blockId).url()
+                    + "?"
+                    + views.components.ProgramQuestionBank.NEWLY_CREATED_QUESTION_ID_PARAM
+                    + "="
+                    + question.id)
+            .build();
+
+    Result result = controller.edit(request, program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation())
+        .hasValue(
+            routes.AdminProgramBlocksController.edit(program.id, blockId).url()
+                + "?"
+                + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                + "="
+                + question.id);
+
+    // The new question is only staged: the block still holds just the enumerator question.
+    program.refresh();
+    assertThat(
+            program.getProgramDefinition().blockDefinitions().get(0).programQuestionDefinitions())
+        .hasSize(1);
+  }
+
+  @Test
+  public void
       edit_withNewlyCreatedQuestionId_whenEnumeratorSetup_redirectsWithInitialQuestionIdAndDoesNotAddToBlock() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
     QuestionModel question = testQuestionBank.nameApplicantName();

@@ -355,7 +355,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 blockDefinition,
                 programDefinition,
                 // The enumerator was just set up together with its initial question.
-                /* showBackfillInitialQuestionButton= */ false)
+                /* showBackfillInitialQuestionButton= */ false,
+                /* optionalStagedInitialQuestion= */ Optional.empty())
             .render());
   }
 
