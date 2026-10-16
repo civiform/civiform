@@ -243,7 +243,17 @@ public final class AdminProgramBlocksController extends CiviFormController {
             settingsManifest.getEnumeratorImprovementsEnabled(request)
                 && blockForEnumeratorCheck.getIsEnumerator()
                 && !blockForEnumeratorCheck.hasEnumeratorQuestion();
-        if (isEnumeratorSetup) {
+        // A legacy enumerator that has no initial question yet is being backfilled. The new
+        // question is staged on the card, the same as during setup, and attached when saved.
+        boolean isBackfillingInitialQuestion =
+            settingsManifest.getEnumeratorImprovementsEnabled(request)
+                && blockForEnumeratorCheck.getIsEnumerator()
+                && blockForEnumeratorCheck.hasEnumeratorQuestion()
+                && blockForEnumeratorCheck
+                    .getEnumeratorQuestionDefinition()
+                    .getEnumeratorInitialQuestionId()
+                    .isEmpty();
+        if (isEnumeratorSetup || isBackfillingInitialQuestion) {
           // Redirect with the new question as the initial question selection. The edit page
           // reads initialQuestionId from the query string to render the initial question card.
           // We omit sqb so the question bank doesn't re-open on landing.
