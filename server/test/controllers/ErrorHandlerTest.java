@@ -4,7 +4,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static play.mvc.Http.Status.BAD_REQUEST;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.INTERNAL_SERVER_ERROR;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
@@ -17,6 +19,7 @@ import play.Mode;
 import play.api.OptionalSourceMapper;
 import play.api.routing.Router;
 import play.i18n.MessagesApi;
+import play.mvc.Http;
 import play.mvc.Result;
 import repository.ResetPostgres;
 import services.apikey.ApiKeyNotFoundException;
@@ -150,5 +153,26 @@ public class ErrorHandlerTest extends ResetPostgres {
             .join();
 
     assertThat(result.status()).isEqualTo(play.mvc.Http.Status.SEE_OTHER);
+  }
+
+  @Test
+  public void onClientError_questionImageUpload_returnsErrorAlertSnippet() {
+    Http.RequestHeader request =
+        fakeRequestBuilder()
+            .path("/admin/questions/1/hx/image/upload")
+            .header("HX-Target", "question-image-file-input-errors")
+            .build();
+
+    Result result =
+        handler
+            .onClientError(request, 413, "Request entity too large")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(413);
+    String html = contentAsString(result);
+    assertThat(html).contains("id=\"question-image-file-input-errors\"");
+    assertThat(html).contains("role=\"alert\"");
+    assertThat(html).contains("Request entity too large");
   }
 }

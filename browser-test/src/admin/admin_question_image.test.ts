@@ -397,4 +397,35 @@ test.describe('Admin can manage question image', () => {
       await validateAccessibility(page)
     })
   })
+
+  test('uploading image file larger than 1MB displays too large error alert', async ({
+    page,
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'too-large-image-question'
+    const altText = 'Sample alt text for too large image'
+
+    await test.step('Create question and go to edit page', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+    })
+
+    await test.step('Upload 1.5MB image and verify error alert is displayed', async () => {
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFileWithMbSize(1.5)
+      await adminQuestionImage.expectUploadError('Request entity too large')
+      await adminQuestionImage.expectDeleteButtonHidden()
+      await adminQuestionImage.expectNoPreviewImage()
+    })
+
+    await test.step('Validate screenshot showing the file too large error', async () => {
+      await validateScreenshot(
+        page.getByRole('main'),
+        'question-image-file-too-large-error',
+        {fullPage: false},
+      )
+      await validateAccessibility(page)
+    })
+  })
 })
