@@ -1,6 +1,8 @@
 package services.cloud.aws;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -8,10 +10,14 @@ import play.Environment;
 import play.inject.ApplicationLifecycle;
 import services.cloud.StorageServiceName;
 import services.cloud.generic_s3.AbstractS3ApplicantStorage;
+import software.amazon.awssdk.services.s3.model.Delete;
+import software.amazon.awssdk.services.s3.model.DeleteObjectsRequest;
+import software.amazon.awssdk.services.s3.model.ObjectIdentifier;
 
 /** An AWS Simple Storage Service (S3) extension of {@link AbstractS3ApplicantStorage}. */
 @Singleton
 public final class AwsApplicantStorage extends AbstractS3ApplicantStorage {
+
 
   private static final String AWS_S3_BUCKET_CONF_PATH = "aws.s3.bucket";
 
@@ -28,6 +34,7 @@ public final class AwsApplicantStorage extends AbstractS3ApplicantStorage {
     super(awsStorageUtils, region, credentials, config, environment, appLifecycle);
   }
 
+
   /** The bucket path defined in the conf file */
   @Override
   protected String getBucketConfigPath() {
@@ -39,6 +46,7 @@ public final class AwsApplicantStorage extends AbstractS3ApplicantStorage {
   protected String getFileLimitMbPath() {
     return AWS_S3_FILE_LIMIT_CONF_PATH;
   }
+
 
   /** Gets the {@link StorageServiceName} for the current storage client. */
   @Override
