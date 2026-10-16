@@ -142,6 +142,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('can add an existing enumerator question without an initial question to an enumerator block', async ({
       page,
+      adminQuestions,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const questionBankSidebar = page.getByRole('form', {
@@ -260,6 +261,44 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await page.reload()
+        await waitForPageJsLoad(page)
+        await expect(
+          blockPanel
+            .locator('#backfill-initial-question-card')
+            .getByRole('button', {name: 'Add initial question'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Create a new question from the bank and see it staged on the card', async () => {
+        await blockPanel
+          .locator('#backfill-initial-question-card')
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await questionBankSidebar
+          .getByRole('button', {name: 'Create new question'})
+          .click()
+        await page.getByRole('link', {name: 'Name', exact: true}).click()
+        await adminQuestions.fillInQuestionBasics({
+          questionName: 'backfill-new-initial-name',
+          description: 'description',
+          questionText: 'What is the household member name?',
+          helpText: '',
+        })
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        await waitForPageJsLoad(page)
+
+        await expect(
+          blockPanel
+            .locator('#backfill-initial-question-card')
+            .getByTestId('question-admin-name-backfill-new-initial-name'),
+        ).toBeVisible()
+        await expect(questionBankSidebar).toBeHidden()
+      })
+
+      await test.step('Open the screen again without the staged question and see that it was not attached', async () => {
+        // The staged question is carried in the URL, so drop the query string.
+        await page.goto(page.url().split('?')[0])
         await waitForPageJsLoad(page)
         await expect(
           blockPanel
