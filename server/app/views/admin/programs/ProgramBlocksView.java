@@ -957,7 +957,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             renderInitialQuestionDebugLine(blockDefinition),
-            iff(showBackfillInitialQuestionButton, renderBackfillInitialQuestionCard(messages)),
+            iff(
+                showBackfillInitialQuestionButton,
+                renderBackfillInitialQuestionCard(messages, program.id(), blockDefinition.id())),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -970,10 +972,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   /**
    * Renders the card shown under the enumerator question card when the repeated set has no initial
-   * question yet, explaining what one is and offering a button to add it. The button is not wired
-   * up to anything yet.
+   * question yet, explaining what one is and offering a button to add it. The button and the picked
+   * question share the {@code #initial-question-slot} with the enumerator setup form, so choosing a
+   * question only stages it: nothing is attached to the block yet.
    */
-  private DivTag renderBackfillInitialQuestionCard(Messages messages) {
+  private DivTag renderBackfillInitialQuestionCard(
+      Messages messages, long programId, long blockId) {
     return div()
         .withId("backfill-initial-question-card")
         .withClasses("display-flex", "flex-align-start", "margin-top-2")
@@ -999,24 +1003,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     p(messages.at(
                             MessageKey.DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION
                                 .getKeyName()))
-                        .withId("backfill-initial-question-description")
+                        .withId("initial-question-description")
                         .withClasses(
                             "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
-                    renderBackfillInitialQuestionButton(messages)));
-  }
-
-  private ButtonTag renderBackfillInitialQuestionButton(Messages messages) {
-    return button("")
-        .withType("button")
-        .withId("backfill-initial-question-button")
-        .withClasses(
-            "usa-button",
-            "usa-button--outline",
-            "margin-top-105",
-            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
-        .attr("aria-describedby", "backfill-initial-question-description")
-        .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-        .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD.getKeyName()));
+                    // The slot's button has a small top margin of its own; this brings the gap
+                    // below the
+                    // description to the 12px in the design. The wrapper stays in place when the
+                    // slot
+                    // is swapped for the picked question.
+                    div(renderEmptyInitialQuestionSlot(messages, programId, blockId))
+                        .withClass("margin-top-1")));
   }
 
   /**

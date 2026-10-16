@@ -221,6 +221,53 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await validateAccessibility(page, '#backfill-initial-question-card')
       })
 
+      await test.step('Open the question bank from the card and see only valid initial question types', async () => {
+        await blockPanel
+          .locator('#backfill-initial-question-card')
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await expect(questionBankSidebar).toBeVisible()
+        await expect(
+          questionBankSidebar
+            .locator('.cf-question-bank-element')
+            .filter({hasText: 'income-non-repeated-question'}),
+        ).toBeVisible()
+        await expect(
+          questionBankSidebar
+            .locator('.cf-question-bank-element')
+            .filter({hasText: SAMPLE_QUESTIONS.checkbox}),
+        ).toBeHidden()
+      })
+
+      await test.step('Pick a question and see it staged on the card', async () => {
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(questionBankSidebar).toBeHidden()
+        await expect(
+          blockPanel
+            .locator('#backfill-initial-question-card')
+            .getByTestId('question-admin-name-income-non-repeated-question'),
+        ).toBeVisible()
+      })
+
+      await test.step('Remove the staged question and see the empty card again', async () => {
+        await removeInitialQuestion(page, 'income-non-repeated-question')
+        await expectAddQuestionButton(page, 'income-non-repeated-question')
+      })
+
+      await test.step('Pick again and reload to confirm nothing was saved', async () => {
+        await blockPanel
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await page.reload()
+        await waitForPageJsLoad(page)
+        await expect(
+          blockPanel
+            .locator('#backfill-initial-question-card')
+            .getByRole('button', {name: 'Add initial question'}),
+        ).toBeVisible()
+      })
+
       await test.step('Turn the feature flag off and validate that the card is hidden', async () => {
         await disableFeatureFlag(page, 'enumerator_improvements_enabled')
         await page.reload()
