@@ -129,6 +129,9 @@ public class SettingsCacheMaintainerTest {
       stopHookCaptor.getValue().call().get();
     }
     mocks.close();
+
+    // This unregisters Ebean Database
+    Helpers.stop(application);
   }
 
   @Test
