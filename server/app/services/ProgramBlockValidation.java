@@ -152,7 +152,8 @@ public final class ProgramBlockValidation {
    * its associated initial question. An empty enumerator block accepts the enumerator or an
    * initial-question candidate (the question bank filter path marks candidates with {@code
    * isInitialQuestion=true}); a populated enumerator block accepts only the specific question the
-   * enumerator points to via {@code enumeratorInitialQuestionId}.
+   * enumerator points to via {@code enumeratorInitialQuestionId}, or, when the enumerator has no
+   * initial question yet (a legacy enumerator being backfilled), any initial-question candidate.
    */
   private boolean isAllowedOnEnumeratorBlock(
       BlockDefinition block, QuestionDefinition question, boolean isInitialQuestion) {
@@ -162,12 +163,17 @@ public final class ProgramBlockValidation {
     if (!block.hasEnumeratorQuestion()) {
       return question.isEnumerator() || isInitialQuestion;
     }
-    return isInitialQuestion
-        && block
-            .getEnumeratorQuestionDefinition()
-            .getEnumeratorInitialQuestionId()
-            .map(id -> id.equals(question.getId()))
-            .orElse(false);
+    if (!isInitialQuestion) {
+      return false;
+    }
+    // A legacy enumerator that has no initial question yet is being backfilled, so any candidate is
+    // allowed here (its type is checked by the caller). Once the enumerator has one, only that
+    // question is.
+    return block
+        .getEnumeratorQuestionDefinition()
+        .getEnumeratorInitialQuestionId()
+        .map(id -> id.equals(question.getId()))
+        .orElse(true);
   }
 
   /**
