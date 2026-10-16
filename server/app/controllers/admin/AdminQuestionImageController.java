@@ -133,6 +133,8 @@ public class AdminQuestionImageController extends CiviFormController {
       return notFound();
     } catch (UnsupportedQuestionTypeException e) {
       return renderError("Unsupported question type");
+    } catch (ConcurrentUpdateException e) {
+      return renderError("Please try your edits again");
     }
 
     String newConcurrencyToken =

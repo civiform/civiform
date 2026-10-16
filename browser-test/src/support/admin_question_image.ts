@@ -33,6 +33,33 @@ export class AdminQuestionImage {
     return this.page.getByRole('button', {name: 'Update'})
   }
 
+  getImageUploadError() {
+    return this.page.locator('#question-image-file-input-errors')
+  }
+
+  async expectNoUploadError() {
+    await expect(this.getImageUploadError()).toBeHidden()
+  }
+
+  async expectUploadError(errorMessage: string) {
+    await expect(this.getImageUploadError()).toBeVisible()
+    await expect(this.getImageUploadError()).toContainText(errorMessage)
+  }
+
+  getChangeFileLocator() {
+    return this.page.locator('.usa-file-input__choose', {
+      hasText: 'Change file',
+    })
+  }
+
+  async expectChangeFileVisible() {
+    await expect(this.getChangeFileLocator()).toBeVisible()
+    await expect(this.getImageUploadInput()).toHaveAttribute(
+      'aria-label',
+      'Change file',
+    )
+  }
+
   async setImageDescription(description: string) {
     await this.getAltTextInput().fill(description)
   }
@@ -112,11 +139,34 @@ export class AdminQuestionImage {
     await expect(previewContainer).toContainText(descriptionText)
   }
 
-  async expectPreviewHasImageAndAltText(altText: string) {
-    await this.expectPreviewImageWithAltText(altText)
-  }
-
   async expectNoPreviewImage() {
     await expect(this.getPreviewImageContainer()).toBeHidden()
+  }
+
+  getPreviewImageFrameLink(altText?: string) {
+    const previewContainer = this.getPreviewImageContainer()
+    return altText
+      ? previewContainer.getByRole('link', {name: altText})
+      : previewContainer.locator('.cf-question-image-frame')
+  }
+
+  async expectPreviewImageAccessibleToScreenReader(altText: string) {
+    const previewContainer = this.getPreviewImageContainer()
+    const frameLink = previewContainer.locator('.cf-question-image-frame')
+
+    // The image link must NOT have an aria-label, so the image alt text is used as the accessible name
+    await expect(frameLink).not.toHaveAttribute('aria-label')
+
+    // Link's accessible name should be the image's alt text
+    const linkWithAltText = previewContainer.getByRole('link', {name: altText})
+    await expect(linkWithAltText).toBeVisible()
+
+    // The image inside has the alt text
+    await expect(this.getPreviewImage(altText)).toBeVisible()
+
+    // The follow-up enlarge link is also present
+    const enlargeLink = previewContainer.locator('.cf-question-image-link')
+    await expect(enlargeLink).toBeVisible()
+    await expect(enlargeLink).toContainText('Click to enlarge')
   }
 }

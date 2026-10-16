@@ -363,4 +363,38 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(updated.getImageFileKey()).isEmpty();
     assertThat(updated.getLocalizedImageDescription()).isEmpty();
   }
+
+  @Test
+  public void
+      hxUploadAndChangeAndThenDelete_activeQuestion_succeedsWithoutConcurrentUpdateException() {
+    // Active question with no draft
+    QuestionModel activeQuestion = testQuestionBank.staticContent();
+    long activeId = activeQuestion.id;
+    String fileKey1 =
+        PublicFileNameFormatter.formatPublicQuestionImageFileKey(activeId, "firstImage.png");
+    String fileKey2 =
+        PublicFileNameFormatter.formatPublicQuestionImageFileKey(activeId, "secondImage.png");
+
+    // 1. Initial upload using active question ID (creates draft)
+    Result uploadResult1 =
+        controller.hxUploadQuestionImage(
+            createUploadRequest(fileKey1, "First description"), activeId);
+    assertThat(uploadResult1.status()).isEqualTo(OK);
+
+    // 2. "Change file": second upload using the active question ID (updates existing draft)
+    Result uploadResult2 =
+        controller.hxUploadQuestionImage(
+            createUploadRequest(fileKey2, "Second description"), activeId);
+    assertThat(uploadResult2.status()).isEqualTo(OK);
+
+    // 3. "Delete image" using the active question ID (clears image on existing draft)
+    Result deleteResult =
+        controller.hxDeleteQuestionImage(
+            fakeRequestBuilder()
+                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+                .method("POST")
+                .build(),
+            activeId);
+    assertThat(deleteResult.status()).isEqualTo(OK);
+  }
 }

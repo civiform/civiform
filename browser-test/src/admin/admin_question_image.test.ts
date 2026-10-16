@@ -1,5 +1,10 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  validateAccessibility,
+  validateScreenshot,
+} from '../support'
 
 test.describe('Admin can manage question image', () => {
   test.beforeEach(async ({page}) => {
@@ -214,8 +219,15 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.expectPreviewImageWithAltText(initialAltText)
     })
 
-    await test.step('Upload replacement image with updated alt text', async () => {
+    await test.step('Update alt text and verify both visual text and actual img alt update in real time', async () => {
       await adminQuestionImage.setImageDescription(updatedAltText)
+      await adminQuestionImage.expectPreviewImageWithAltText(updatedAltText)
+      await expect(
+        adminQuestionImage.getPreviewImage(updatedAltText),
+      ).toHaveAttribute('alt', updatedAltText)
+    })
+
+    await test.step('Upload replacement image', async () => {
       await adminQuestionImage.uploadImageFile(
         'src/assets/program-summary-image-tall.png',
       )
@@ -260,6 +272,74 @@ test.describe('Admin can manage question image', () => {
     })
   })
 
+  test('first edit of active question allows changing image and deleting image without error', async ({
+    adminPrograms,
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'active-q-change-and-delete'
+    const programName = 'Active Question Change and Delete Program'
+    const initialAltText = 'First image alt text'
+    const replacementAltText = 'Replacement image alt text'
+
+    await test.step('Create static question, add to program, and publish so it is ACTIVE', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminPrograms.addAndPublishProgramWithQuestions(
+        [questionName],
+        programName,
+      )
+    })
+
+    await test.step('Navigate to edit page of the active question', async () => {
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.expectNoPreviewImage()
+      await adminQuestionImage.expectDeleteButtonHidden()
+    })
+
+    await test.step('Enter alt text and upload initial image', async () => {
+      await adminQuestionImage.setImageDescription(initialAltText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestionImage.expectPreviewImageWithAltText(initialAltText)
+      await adminQuestionImage.expectDeleteButtonVisible()
+      await adminQuestionImage.expectNoUploadError()
+      await adminQuestionImage.expectChangeFileVisible()
+    })
+
+    await test.step('Change file: upload different image and verify preview updates without error', async () => {
+      await adminQuestionImage.expectChangeFileVisible()
+      await adminQuestionImage.setImageDescription(replacementAltText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-tall.png',
+      )
+      await adminQuestionImage.expectNoUploadError()
+      await adminQuestionImage.expectPreviewImageWithAltText(replacementAltText)
+    })
+
+    await test.step('Delete image and verify UI resets immediately', async () => {
+      await adminQuestionImage.clickDeleteImageButton()
+      await adminQuestionImage.expectDescription('')
+      await adminQuestionImage.expectNoExistingImageAlert()
+      await adminQuestionImage.expectDeleteButtonHidden()
+      await adminQuestionImage.expectDropzoneDisabled()
+      await adminQuestionImage.expectNoPreviewImage()
+      await adminQuestionImage.expectNoUploadError()
+    })
+
+    await test.step('Save question edits and verify deletion persists across reloads', async () => {
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.expectDescription('')
+      await adminQuestionImage.expectNoExistingImageAlert()
+      await adminQuestionImage.expectDeleteButtonHidden()
+      await adminQuestionImage.expectDropzoneDisabled()
+      await adminQuestionImage.expectNoPreviewImage()
+    })
+  })
+
   test('question preview with image snapshot', async ({
     page,
     adminQuestions,
@@ -287,6 +367,34 @@ test.describe('Admin can manage question image', () => {
         'question-preview-with-image',
         {fullPage: false},
       )
+    })
+  })
+
+  test('question preview image link accessible name is the alt text for screen readers', async ({
+    page,
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'preview-a11y-name-question'
+    const altText = 'Accessible chart description'
+
+    await test.step('Create question and go to edit page', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+    })
+
+    await test.step('Upload image with alt text', async () => {
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+    })
+
+    await test.step('Verify image link in preview has accessible name from alt text and no overriding aria-label', async () => {
+      await adminQuestionImage.expectPreviewImageAccessibleToScreenReader(
+        altText,
+      )
+      await validateAccessibility(page)
     })
   })
 })

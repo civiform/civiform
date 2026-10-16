@@ -39,12 +39,8 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     String fileKey1 =
         PublicFileNameFormatter.formatPublicQuestionImageFileKey(
             questionModel.id, "first-image.png");
-    QuestionDefinition draftQd =
-        questionService.setImageFileKeyAndDescription(
-            questionModel.id,
-            Optional.of(fileKey1),
-            LocalizedStrings.DEFAULT_LOCALE,
-            "first alt text");
+    questionService.setImageFileKeyAndDescription(
+        questionModel.id, Optional.of(fileKey1), LocalizedStrings.DEFAULT_LOCALE, "first alt text");
 
     Request request =
         fakeRequestBuilder()
@@ -63,12 +59,13 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     assertThat(initialHtml).contains("first-image.png");
     assertThat(initialHtml).contains("alt=\"first alt text\"");
 
-    // Update image and alt text using the draft question ID
+    // Update image and alt text using questionModel.id (automatically resolves to the existing
+    // draft)
     String fileKey2 =
         PublicFileNameFormatter.formatPublicQuestionImageFileKey(
-            draftQd.getId(), "second-image.png");
+            questionModel.id, "second-image.png");
     questionService.setImageFileKeyAndDescription(
-        draftQd.getId(),
+        questionModel.id,
         Optional.of(fileKey2),
         LocalizedStrings.DEFAULT_LOCALE,
         "updated alt text");
