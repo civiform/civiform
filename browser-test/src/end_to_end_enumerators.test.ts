@@ -202,6 +202,39 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
         await expect(blockPanel.getByText('List set question')).toBeFocused()
       })
+
+      await test.step('Validate that the card offering to add an initial question is shown', async () => {
+        const backfillCard = blockPanel.locator(
+          '#backfill-initial-question-card',
+        )
+        await expect(backfillCard).toBeVisible()
+        await expect(
+          backfillCard.locator('#backfill-initial-question-label'),
+        ).toContainText('Initial question')
+        await expect(
+          backfillCard.getByRole('button', {name: 'Add initial question'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Validate accessibility of the card', async () => {
+        // Scoped to the card: the rest of this page has existing violations.
+        await validateAccessibility(page, '#backfill-initial-question-card')
+      })
+
+      await test.step('Turn the feature flag off and validate that the card is hidden', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await page.reload()
+        await waitForPageJsLoad(page)
+
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+        await expect(
+          blockPanel.locator('#backfill-initial-question-card'),
+        ).toBeHidden()
+      })
     })
 
     test.describe('Initial question', () => {
@@ -686,6 +719,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'Initial question: income-non-repeated-question -_- a',
           ),
         ).toBeVisible()
+      })
+
+      await test.step('Verify the card offering to add an initial question is not shown', async () => {
+        await expect(
+          blockPanel.locator('#backfill-initial-question-card'),
+        ).toBeHidden()
       })
     })
 

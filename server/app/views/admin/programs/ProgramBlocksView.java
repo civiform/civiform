@@ -780,6 +780,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           }
                         })
                 : Optional.empty();
+        // Repeated sets created before initial questions existed have an enumerator question but no
+        // initial question, so offer a way to add one.
+        boolean showBackfillInitialQuestionButton =
+            blockHasEnumeratorQuestion
+                && blockDefinition
+                    .getEnumeratorQuestionDefinition()
+                    .getEnumeratorInitialQuestionId()
+                    .isEmpty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -788,7 +796,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 program,
                 blockDefinition,
                 questionCards.isEmpty() ? Optional.empty() : Optional.of(questionCards.get(0)),
-                optionalNewInitialQuestion));
+                optionalNewInitialQuestion,
+                showBackfillInitialQuestionButton));
       }
 
       // For repeated blocks, check if parent enumerator is at first level (not nested)
@@ -911,7 +920,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       ProgramDefinition program,
       BlockDefinition blockDefinition,
       Optional<DivTag> optionalEnumeratorQuestionCard,
-      Optional<QuestionDefinition> optionalNewInitialQuestion) {
+      Optional<QuestionDefinition> optionalNewInitialQuestion,
+      boolean showBackfillInitialQuestionButton) {
     // If it's an empty enumerator block
     if (!blockHasEnumeratorQuestion || optionalEnumeratorQuestionCard.isEmpty()) {
       return renderEnumeratorSetupSection(
@@ -930,7 +940,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           optionalEnumeratorQuestionCard,
           blockHasEnumeratorQuestion,
           blockDefinition,
-          program);
+          program,
+          showBackfillInitialQuestionButton);
     }
   }
 
@@ -939,12 +950,14 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
-      ProgramDefinition program) {
+      ProgramDefinition program,
+      boolean showBackfillInitialQuestionButton) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             renderInitialQuestionDebugLine(blockDefinition),
+            iff(showBackfillInitialQuestionButton, renderBackfillInitialQuestionCard(messages)),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -953,6 +966,57 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 shouldShowNestedButton))
         .withId("repeated-set-question-section")
         .attr("data-clear-enumerator-form-storage", program.id() + ":" + blockDefinition.id());
+  }
+
+  /**
+   * Renders the card shown under the enumerator question card when the repeated set has no initial
+   * question yet, explaining what one is and offering a button to add it. The button is not wired
+   * up to anything yet.
+   */
+  private DivTag renderBackfillInitialQuestionCard(Messages messages) {
+    return div()
+        .withId("backfill-initial-question-card")
+        .withClasses("display-flex", "flex-align-start", "margin-top-2")
+        .with(
+            // A gutter the width of the indent in the design, holding the arrow level with the
+            // label
+            // (the box has 24px of padding above its label).
+            div(Icons.svg(Icons.SUBDIRECTORY_ARROW_RIGHT).withClasses("height-3", "width-3"))
+                .withClasses(
+                    "display-flex",
+                    "flex-justify-end",
+                    "flex-shrink-0",
+                    "width-5",
+                    "padding-top-3"),
+            div()
+                .withClasses("border", "border-base-lighter", "radius-md", "padding-3", "flex-1")
+                .with(
+                    div(span(messages.at(
+                                MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                            .with(ViewUtils.requiredQuestionIndicator()))
+                        .withId("backfill-initial-question-label")
+                        .withClasses("usa-label", "margin-top-0"),
+                    p(messages.at(
+                            MessageKey.DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION
+                                .getKeyName()))
+                        .withId("backfill-initial-question-description")
+                        .withClasses(
+                            "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
+                    renderBackfillInitialQuestionButton(messages)));
+  }
+
+  private ButtonTag renderBackfillInitialQuestionButton(Messages messages) {
+    return button("")
+        .withType("button")
+        .withId("backfill-initial-question-button")
+        .withClasses(
+            "usa-button",
+            "usa-button--outline",
+            "margin-top-105",
+            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
+        .attr("aria-describedby", "backfill-initial-question-description")
+        .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+        .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD.getKeyName()));
   }
 
   /**

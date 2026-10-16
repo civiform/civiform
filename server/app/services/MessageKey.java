@@ -131,6 +131,8 @@ public enum MessageKey {
   DESCRIPTION_REPEATED_SET_ADMIN_ID("description.repeatedSet.adminId"),
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
+  DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION(
+      "description.repeatedSet.backfillInitialQuestion"),
   DESCRIPTION_REPEATED_SET_INITIAL_QUESTION("description.repeatedSet.initialQuestion"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
   DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
