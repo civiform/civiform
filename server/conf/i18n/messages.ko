@@ -1251,6 +1251,8 @@ input.repeatedSet.maxEntities=
 label.repeatedSet.initialQuestion=
 # Description explaining what the initial question is and what the "Add initial question" button does
 description.repeatedSet.initialQuestion=
+# Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
+description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
