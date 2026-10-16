@@ -1257,6 +1257,154 @@ public class VersionRepositoryTest extends ResetPostgres {
   }
 
   @Test
+  public void getQuestionForVersion_found() {
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+
+    Optional<QuestionModel> result = versionRepository.getQuestionForVersion(questionName, version);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(question.id);
+  }
+
+  @Test
+  public void getQuestionForVersion_notFound() {
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    String questionName = "question";
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(version).save();
+
+    Optional<QuestionModel> result =
+        versionRepository.getQuestionForVersion(questionName + "other", version);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getQuestionForVersion_questionOnlyInOtherVersion_notFound() {
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    String questionName = "question";
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+
+    Optional<QuestionModel> result =
+        versionRepository.getQuestionForVersion(questionName, activeVersion);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void getQuestionForVersion_selectsRevisionForVersion() {
+    String questionName = "question";
+    QuestionModel activeQuestion = resourceCreator.insertQuestion(questionName);
+    activeQuestion.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    versionRepository.publishNewSynchronizedVersion();
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+
+    VersionModel draftVersion = versionRepository.getDraftVersionOrCreate();
+    QuestionModel draftQuestion = resourceCreator.insertQuestion(questionName);
+    draftQuestion.addVersion(draftVersion).save();
+
+    assertThat(versionRepository.getQuestionForVersion(questionName, activeVersion).get().id)
+        .isEqualTo(activeQuestion.id);
+    assertThat(versionRepository.getQuestionForVersion(questionName, draftVersion).get().id)
+        .isEqualTo(draftQuestion.id);
+  }
+
+  /**
+   * The cache is seeded with a different revision of the question than the one associated with the
+   * version in the database. The cached revision is returned only when the cache is enabled and the
+   * version is active or obsolete; otherwise the database revision is returned.
+   */
+  @Test
+  @Parameters({
+    "true, ACTIVE, true",
+    "true, OBSOLETE, true",
+    "true, DRAFT, false",
+    "false, ACTIVE, false",
+    "false, OBSOLETE, false",
+    "false, DRAFT, false"
+  })
+  public void getQuestionForVersion_readsCacheOnlyWhenEnabledForNonDraftVersion(
+      Boolean cacheEnabled, LifecycleStage stage, Boolean expectCachedRevision) {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(cacheEnabled);
+    String questionName = "question";
+    QuestionModel dbRevision = resourceCreator.insertQuestion(questionName);
+    // Insert both revisions before associating either with a version, since the database rejects
+    // inserting a question whose name already has a draft.
+    QuestionModel cachedRevision = resourceCreator.insertQuestion(questionName);
+    VersionModel version = versionRepository.getDraftVersionOrCreate();
+    dbRevision.addVersion(version).save();
+
+    if (stage != LifecycleStage.DRAFT) {
+      versionRepository.publishNewSynchronizedVersion();
+    }
+    if (stage == LifecycleStage.OBSOLETE) {
+      resourceCreator
+          .insertQuestion("other-question")
+          .addVersion(versionRepository.getDraftVersionOrCreate())
+          .save();
+      versionRepository.publishNewSynchronizedVersion();
+    }
+    version.refresh();
+    assertThat(version.getLifecycleStage()).isEqualTo(stage);
+
+    questionsByVersionCache.set(String.valueOf(version.id), ImmutableList.of(cachedRevision));
+
+    Optional<QuestionModel> result = versionRepository.getQuestionForVersion(questionName, version);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(expectCachedRevision ? cachedRevision.id : dbRevision.id);
+  }
+
+  @Test
+  public void getQuestionForVersion_cacheEnabledButEmpty_fillsCache() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+    String questionName = "question";
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    versionRepository.publishNewSynchronizedVersion();
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    String versionKey = String.valueOf(activeVersion.id);
+
+    assertThat(questionsByVersionCache.get(versionKey)).isEmpty();
+
+    Optional<QuestionModel> result =
+        versionRepository.getQuestionForVersion(questionName, activeVersion);
+
+    assertThat(result).isPresent();
+    assertThat(result.get().id).isEqualTo(question.id);
+    ImmutableList<QuestionModel> cached =
+        questionsByVersionCache.<ImmutableList<QuestionModel>>get(versionKey).get();
+    assertThat(cached.stream().map(q -> q.id)).containsExactly(question.id);
+  }
+
+  @Test
+  public void getQuestionForVersion_cacheEnabledQuestionNotInCache_returnsEmpty() {
+    Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
+    String questionName = "question";
+    QuestionModel question = resourceCreator.insertQuestion(questionName);
+    question.addVersion(versionRepository.getDraftVersionOrCreate()).save();
+    versionRepository.publishNewSynchronizedVersion();
+    VersionModel activeVersion = versionRepository.getActiveVersion();
+    String versionKey = String.valueOf(activeVersion.id);
+
+    // A warm cache is trusted, so a question missing from it is not looked up in the database.
+    QuestionModel otherQuestion = resourceCreator.insertQuestion("other-question");
+    questionsByVersionCache.set(versionKey, ImmutableList.of(otherQuestion));
+
+    Optional<QuestionModel> result =
+        versionRepository.getQuestionForVersion(questionName, activeVersion);
+
+    assertThat(result).isEmpty();
+    ImmutableList<QuestionModel> cached =
+        questionsByVersionCache.<ImmutableList<QuestionModel>>get(versionKey).get();
+    assertThat(cached.stream().map(q -> q.id)).containsExactly(otherQuestion.id);
+  }
+
+  @Test
   public void getQuestions_usesCacheIfEnabledForObsoleteVersion() {
     Mockito.when(mockSettingsManifest.getVersionCacheEnabled()).thenReturn(true);
 
