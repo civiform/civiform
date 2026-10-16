@@ -121,4 +121,5 @@ services:
       - FAVICON_URL
       - DISABLE_ERRORPRONE=${DISABLE_ERRORPRONE:-false}
       - USE_BUNDLER_DEV_SERVER=${USE_BUNDLER_DEV_SERVER:-true}
+      - CIVIFORM_SERVER_METRICS_ENABLED
     entrypoint: /bin/bash
