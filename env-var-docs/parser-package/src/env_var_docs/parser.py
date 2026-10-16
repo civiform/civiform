@@ -56,6 +56,7 @@ class Variable:
     values: Union[List[str], None]
     regex: Union[str, None]
     regex_tests: Union[List[RegexTest], None]
+    enum_class: Union[str, None]
     mode: Mode
 
 
@@ -358,12 +359,21 @@ def _try_parse_variable(
         extract_fn=convert_regex_tests)
     errors.extend(errs)
 
+    # Parse the 'enum_class' field.
+    enum_class, errs = _parse_field(
+        parent_path=parent_path,
+        key="enum_class",
+        json_type=str,
+        required=False,
+        obj=obj)
+    errors.extend(errs)
+
     # Check that no other fields are defined.
     errors.extend(
         _ensure_no_extra_fields(
             parent_path, obj, [
                 "description", "type", "required", "values", "regex",
-                "regex_tests", "mode"
+                "regex_tests", "enum_class", "mode"
             ]))
 
     if len(errors) != 0:
@@ -375,7 +385,8 @@ def _try_parse_variable(
         assert required is not None
         assert mode is not None
         return Variable(
-            description, type, required, values, regex, regex_tests, mode), []
+            description, type, required, values, regex, regex_tests, enum_class,
+            mode), []
 
 
 CheckFn = typing.Callable[[str, UnparsedJSON], ParseErrors]
