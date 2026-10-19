@@ -1,3 +1,4 @@
+<!-- We aren't accepting pull requests from outside the CiviForm team right now. See CONTRIBUTING.md. -->
 ### Description
 
 Please explain the changes you made here.

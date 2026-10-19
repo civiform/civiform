@@ -22,7 +22,9 @@ Key features:
 
 ## Contributing
 
-To get started please first read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide).
+**We aren't accepting code contributions from outside the CiviForm team right now.** That covers pull requests and requests to be assigned an issue. This may change down the road.
+
+Team members: please read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide) to get started.
 
 If you're interested in just digging around and interacting with the code, see
 [Getting started](https://github.com/civiform/civiform/wiki/Getting-started) for guidance on
