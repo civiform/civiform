@@ -1006,11 +1006,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withId("initial-question-description")
                         .withClasses(
                             "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
-                    // The slot's button has a small top margin of its own; this brings the gap
-                    // below the
-                    // description to the 12px in the design. The wrapper stays in place when the
-                    // slot
-                    // is swapped for the picked question.
+                    // Wrapper keeps the 12px gap to the description when the slot is swapped.
                     div(renderEmptyInitialQuestionSlot(messages, programId, blockId))
                         .withClass("margin-top-1")));
   }

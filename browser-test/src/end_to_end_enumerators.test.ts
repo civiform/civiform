@@ -148,6 +148,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         name: 'Add a question',
       })
 
+      const backfillCard = blockPanel.locator('#backfill-initial-question-card')
+      const addInitialQuestionButton = backfillCard.getByRole('button', {
+        name: 'Add initial question',
+      })
+
       await test.step('Add a new repeated set', async () => {
         await addRepeatedSetBlocks(page)
       })
@@ -204,16 +209,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that the card offering to add an initial question is shown', async () => {
-        const backfillCard = blockPanel.locator(
-          '#backfill-initial-question-card',
-        )
         await expect(backfillCard).toBeVisible()
         await expect(
           backfillCard.locator('#backfill-initial-question-label'),
         ).toContainText('Initial question')
-        await expect(
-          backfillCard.getByRole('button', {name: 'Add initial question'}),
-        ).toBeVisible()
+        await expect(addInitialQuestionButton).toBeVisible()
       })
 
       await test.step('Validate accessibility of the card', async () => {
@@ -222,10 +222,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Open the question bank from the card and see only valid initial question types', async () => {
-        await blockPanel
-          .locator('#backfill-initial-question-card')
-          .getByRole('button', {name: 'Add initial question'})
-          .click()
+        await addInitialQuestionButton.click()
         await expect(questionBankSidebar).toBeVisible()
         await expect(
           questionBankSidebar
@@ -243,9 +240,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await expect(questionBankSidebar).toBeHidden()
         await expect(
-          blockPanel
-            .locator('#backfill-initial-question-card')
-            .getByTestId('question-admin-name-income-non-repeated-question'),
+          backfillCard.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
         ).toBeVisible()
       })
 
@@ -255,17 +252,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Pick again and reload to confirm nothing was saved', async () => {
-        await blockPanel
-          .getByRole('button', {name: 'Add initial question'})
-          .click()
+        await addInitialQuestionButton.click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await page.reload()
         await waitForPageJsLoad(page)
-        await expect(
-          blockPanel
-            .locator('#backfill-initial-question-card')
-            .getByRole('button', {name: 'Add initial question'}),
-        ).toBeVisible()
+        await expect(addInitialQuestionButton).toBeVisible()
       })
 
       await test.step('Turn the feature flag off and validate that the card is hidden', async () => {
@@ -278,9 +269,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'question-admin-name-Sample Enumerator Question',
           ),
         ).toBeVisible()
-        await expect(
-          blockPanel.locator('#backfill-initial-question-card'),
-        ).toBeHidden()
+        await expect(backfillCard).toBeHidden()
       })
     })
 
