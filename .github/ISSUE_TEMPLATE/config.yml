@@ -1,4 +1,4 @@
 contact_links:
   - name: Want to contribute? Read this first
     url: https://github.com/civiform/civiform/blob/main/CONTRIBUTING.md
-    about: We aren't accepting code contributions from outside the CiviForm team right now.
+    about: We aren't accepting code contributions from outside the CiviForm team.

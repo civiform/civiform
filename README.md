@@ -22,7 +22,7 @@ Key features:
 
 ## Contributing
 
-**We aren't accepting code contributions from outside the CiviForm team right now.** That covers pull requests and requests to be assigned an issue. This may change down the road.
+**We aren't accepting code contributions from outside the CiviForm team.** That covers pull requests and requests to be assigned an issue.
 
 Team members: please read our [Technical contribution guide](https://github.com/civiform/civiform/wiki/Technical-contribution-guide) to get started.
 
