@@ -1,6 +1,5 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   disableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
@@ -77,7 +76,6 @@ test.describe('Yes/no translations', () => {
     adminQuestions,
   }) => {
     await test.step('setup', async () => {
-      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
       await loginAsAdmin(page)
     })
 

@@ -1442,8 +1442,6 @@ test.describe('program creation', () => {
     adminPrograms,
     adminProgramImage,
   }) => {
-    await enableFeatureFlag(page, 'answer_option_scoring_enabled')
-
     await test.step('create program', async () => {
       await loginAsAdmin(page)
       await adminPrograms.addProgram('new program', {submitNewProgram: false})
