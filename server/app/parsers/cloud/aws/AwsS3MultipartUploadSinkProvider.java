@@ -1,9 +1,14 @@
 package parsers.cloud.aws;
 
 import com.typesafe.config.Config;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import org.apache.pekko.http.javadsl.model.ContentType;
+import org.apache.pekko.http.javadsl.model.ContentTypes;
+import org.apache.pekko.http.javadsl.model.MediaTypes;
 import org.apache.pekko.stream.connectors.s3.MultipartUploadResult;
+import org.apache.pekko.stream.connectors.s3.S3Headers;
 import org.apache.pekko.stream.connectors.s3.javadsl.S3;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
@@ -29,12 +34,53 @@ public final class AwsS3MultipartUploadSinkProvider
     return S3.multipartUpload(getBucketName(bucketType), fileKey);
   }
 
+  @Override
+  protected Sink<ByteString, CompletionStage<MultipartUploadResult>> getBaseSink(
+      BucketType bucketType,
+      String fileKey,
+      Optional<String> contentType,
+      Optional<String> contentDisposition,
+      int chunkSize) {
+    if (contentType.isEmpty() && contentDisposition.isEmpty()) {
+      return getBaseSink(bucketType, fileKey, chunkSize);
+    }
+
+    ContentType pekkoContentType =
+        contentType
+            .flatMap(
+                ct -> {
+                  if ("image/png".equalsIgnoreCase(ct)) {
+                    return Optional.of(ContentTypes.create(MediaTypes.IMAGE_PNG));
+                  } else if ("image/jpeg".equalsIgnoreCase(ct)
+                      || "image/jpg".equalsIgnoreCase(ct)) {
+                    return Optional.of(ContentTypes.create(MediaTypes.IMAGE_JPEG));
+                  }
+                  return Optional.empty();
+                })
+            .orElse(ContentTypes.APPLICATION_OCTET_STREAM);
+
+    S3Headers s3Headers = S3Headers.create();
+    if (contentDisposition.isPresent()) {
+      s3Headers =
+          s3Headers.withCustomHeaders(
+              scala.collection.immutable.Map$.MODULE$.from(
+                  scala.jdk.javaapi.CollectionConverters.asScala(
+                      Map.of("Content-Disposition", contentDisposition.get()))));
+    }
+
+    return S3.multipartUpload(getBucketName(bucketType), fileKey, pekkoContentType, s3Headers);
+  }
+
   // Get the composed sink for AWS S3 multipart upload, which maps the MultipartUploadResult to the
   // custom result class.
   @Override
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getUploadSink(
-      BucketType bucketType, String fileKey, int chunkSize) {
-    return getBaseSink(bucketType, fileKey, chunkSize)
+      BucketType bucketType,
+      String fileKey,
+      Optional<String> contentType,
+      Optional<String> contentDisposition,
+      int chunkSize) {
+    return getBaseSink(bucketType, fileKey, contentType, contentDisposition, chunkSize)
         .mapMaterializedValue(
             completionStage ->
                 completionStage
