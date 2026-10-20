@@ -903,6 +903,122 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      stageAndUpdateIfValid_enumeratorWithTextInitialQuestion_savesPerEntityAnswerAndDerivesEntityName() {
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank
+            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
+    createProgram(enumeratorDefinition, initialQuestionDefinition);
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // Concrete paths for this program:
+    //   enumeratorPath     = applicant.applicant_household_members[]
+    //   firstEntityAnswer  =
+    // applicant.applicant_household_members[0].applicants_household_members_name
+    //   secondEntityAnswer =
+    // applicant.applicant_household_members[1].applicants_household_members_name
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+    Path firstEntityAnswer =
+        enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    Path secondEntityAnswer =
+        enumeratorPath.atIndex(1).join(initialQuestionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            firstEntityAnswer.join(Scalar.TEXT).toString(), "Fern",
+            secondEntityAnswer.join(Scalar.TEXT).toString(), "Cactus");
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    // The initial question field values are saved at their per-entity paths.
+    assertThat(applicantDataAfter.readString(firstEntityAnswer.join(Scalar.TEXT))).hasValue("Fern");
+    assertThat(applicantDataAfter.readString(secondEntityAnswer.join(Scalar.TEXT)))
+        .hasValue("Cactus");
+    // Each entity name is derived from that entity's initial question answer, so the listed
+    // entities read back as the answers.
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .hasValue("Fern");
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(1).join(Scalar.ENTITY_NAME)))
+        .hasValue("Cactus");
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath))
+        .containsExactly("Fern", "Cactus");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_enumeratorWithNameInitialQuestion_derivesEntityNameFromJoinedScalars() {
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank
+            .enumeratorWithNameInitialQuestionHouseholdMembers()
+            .getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
+    createProgram(enumeratorDefinition, initialQuestionDefinition);
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // Concrete paths for this program:
+    //   enumeratorPath = applicant.household_members_with_name[]
+    //   nameAnswer     = applicant.household_members_with_name[0].household_members_full_name
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+    Path nameAnswer =
+        enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    // The applicant leaves the middle name blank, as the form would submit for an empty field.
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            nameAnswer.join(Scalar.FIRST_NAME).toString(), "Sarah",
+            nameAnswer.join(Scalar.MIDDLE_NAME).toString(), "",
+            nameAnswer.join(Scalar.LAST_NAME).toString(), "Brown");
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.readString(nameAnswer.join(Scalar.FIRST_NAME))).hasValue("Sarah");
+    assertThat(applicantDataAfter.readString(nameAnswer.join(Scalar.LAST_NAME))).hasValue("Brown");
+    // The entity name joins the non-blank scalars with spaces, skipping the blank middle name.
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .hasValue("Sarah Brown");
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath))
+        .containsExactly("Sarah Brown");
+  }
+
+  /** Looks up the definition of the initial question linked to the given enumerator question. */
+  private QuestionDefinition initialQuestionDefinition(QuestionDefinition enumeratorDefinition) {
+    long initialQuestionId = enumeratorDefinition.getEnumeratorInitialQuestionId().orElseThrow();
+    return questionService
+        .getReadOnlyQuestionServiceSync()
+        .getQuestionDefinition(initialQuestionId);
+  }
+
+  @Test
   public void stageAndUpdateIfValid_enumeratorNotAnswered_stillWritesPathToApplicantData() {
     QuestionDefinition enumeratorQuestionDefinition =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();

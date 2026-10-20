@@ -92,7 +92,10 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.statuses.StatusDefinitions;
@@ -1677,12 +1680,27 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
             .collect(ImmutableSet.toImmutableSet());
 
-    // If there are more updates than there are adds/changes and deletes, throw
-    Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
+    // When the enumerator has an initial question, the form submits the initial question's field
+    // values (nested paths under each entity slot, e.g.
+    // household_members[0].member_name.first_name) rather than the legacy entity-name text input.
+    // These are only present when the enumerator improvements flow is active, so a legacy
+    // enumerator yields an empty set and the legacy entity-name handling below runs unchanged.
+    ImmutableSet<Update> initialQuestionUpdates = ImmutableSet.of();
+    if (block.getInitialQuestion().isPresent()) {
+      initialQuestionUpdates =
+          updates.stream()
+              .filter(update -> isInitialQuestionUpdate(update.path(), enumeratorPath))
+              .collect(ImmutableSet.toImmutableSet());
+    }
+
+    // If there are updates that aren't adds/changes, deletes, or initial question updates, throw.
+    Set<Update> knownUpdates =
+        Sets.union(Sets.union(addsAndChanges, deletes), initialQuestionUpdates);
+    Set<Update> unknownUpdates = Sets.difference(updates, knownUpdates);
     if (!unknownUpdates.isEmpty()) {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
@@ -1694,11 +1712,18 @@ public final class ApplicantService {
       applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
     }
 
-    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
-    // entity names may not match the intended entities.
-    for (Update update : addsAndChanges) {
-      applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
-      writeMetadataForPath(update.path(), applicantData, updateMetadata);
+    // Add and change entities BEFORE deleting, because if deletes happened first, then changed
+    // entity names may not match the intended entities. When the enumerator has an initial
+    // question, the entity names are derived from the initial question answers rather than a
+    // free-text entity-name input.
+    if (!initialQuestionUpdates.isEmpty()) {
+      stageInitialQuestionUpdates(
+          applicantData, block, updateMetadata, initialQuestionUpdates, enumeratorPath);
+    } else {
+      for (Update update : addsAndChanges) {
+        applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
+        writeMetadataForPath(update.path(), applicantData, updateMetadata);
+      }
     }
 
     ImmutableList<Integer> deleteIndices =
@@ -1717,6 +1742,78 @@ public final class ApplicantService {
   }
 
   /**
+   * Returns true if the update path is an initial question field nested under an entity slot of the
+   * enumerator — i.e., it starts with the enumerator path but has additional path segments beyond
+   * the entity index (e.g. {@code household_members[0].member_name.first_name}).
+   */
+  private boolean isInitialQuestionUpdate(Path updatePath, Path enumeratorPath) {
+    return updatePath.startsWith(enumeratorPath)
+        && updatePath.segments().size() > enumeratorPath.segments().size();
+  }
+
+  /**
+   * Writes the initial question's field values to {@link ApplicantData} per entity, then derives
+   * each entity's {@link Scalar#ENTITY_NAME} by joining that entity's non-blank initial-question
+   * scalar values with spaces. So, a name initial question answered "Sarah" "Brown" names the
+   * listed entity "Sarah Brown".
+   */
+  private void stageInitialQuestionUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> initialQuestionUpdates,
+      Path enumeratorPath) {
+    QuestionDefinition initialQuestionDef =
+        block.getInitialQuestion().get().getQuestionDefinition();
+
+    // Write each field value to its nested path inside the entity slot.
+    for (Update update : initialQuestionUpdates) {
+      applicantData.putString(update.path(), update.value());
+    }
+
+    // Derive entity_name for each entity that had updates from the values just written.
+    ImmutableSet<Integer> entityIndices =
+        initialQuestionUpdates.stream()
+            .map(update -> getEntityIndexFromPath(update.path(), enumeratorPath.segments().size()))
+            .collect(ImmutableSet.toImmutableSet());
+
+    try {
+      ImmutableSet<Scalar> scalars = Scalar.getScalars(initialQuestionDef.getQuestionType());
+      for (int entityIndex : entityIndices) {
+        Path initialQuestionBase =
+            enumeratorPath.atIndex(entityIndex).join(initialQuestionDef.getQuestionPathSegment());
+        String entityName =
+            scalars.stream()
+                .map(scalar -> applicantData.readString(initialQuestionBase.join(scalar)))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .filter(value -> !value.isBlank())
+                .collect(Collectors.joining(" "));
+        applicantData.putString(
+            enumeratorPath.atIndex(entityIndex).join(Scalar.ENTITY_NAME), entityName);
+        writeMetadataForPath(enumeratorPath.atIndex(entityIndex), applicantData, updateMetadata);
+        writeMetadataForPath(initialQuestionBase, applicantData, updateMetadata);
+      }
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(
+          "Unsupported initial question type: " + initialQuestionDef.getQuestionType(), e);
+    }
+  }
+
+  /**
+   * Extracts the entity index from an initial question update path (e.g. {@code
+   * applicant.household_members[0].member_name.first_name}) by walking up to the depth of the
+   * enumerator path and reading the array index at that level.
+   */
+  private int getEntityIndexFromPath(Path updatePath, int enumeratorDepth) {
+    Path current = updatePath;
+    while (current.segments().size() > enumeratorDepth) {
+      current = current.parentPath();
+    }
+    return current.arrayIndex();
+  }
+
+  /**
    * Validate that the updates to add or change enumerated entity names have the correct paths with
    * the right indices.
    */
@@ -1728,12 +1825,12 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(
                             block
                                 .getEnumeratorQuestion()
                                 .getContextualizedPath()
-                                .withoutArrayReference()))
+                                .safeWithoutArrayReference()))
             .collect(ImmutableSet.toImmutableSet());
 
     // Early return if it is empty.

@@ -1509,12 +1509,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   })
 
   test.describe('Applicant', () => {
-    test('renders, adds, and removes repeated entities on the enumerator screen with a name initial question', async ({
+    test('renders, adds, and removes repeated entities on the enumerator screen with a name initial question, and renders a child question that omits $this', async ({
       page,
       adminPrograms,
+      adminQuestions,
       applicantQuestions,
     }) => {
       const nameProgramName = 'Enumerator name initial question program'
+      const repeatedQuestionName = 'enumerator-ete-pets-age-no-this'
 
       await test.step('Publish a program whose enumerator has a name initial question', async () => {
         await loginAsAdmin(page)
@@ -1526,6 +1528,17 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           hintText: 'List all of your pets by name.',
           initialQuestion: SAMPLE_QUESTIONS.name,
         })
+        // A repeated child question whose text omits "$this".
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestionName,
+          description: 'desc',
+          questionText: 'Age',
+          helpText: 'Age',
+          enumeratorName: 'pets enumerator',
+        })
+        await adminPrograms.gotoEditDraftProgramPage(nameProgramName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
         await adminPrograms.publishProgram(nameProgramName)
         await logout(page)
       })
@@ -1621,6 +1634,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           promotedEntity.getByRole('textbox', {name: 'Last name'}),
         ).toHaveValue('')
       })
+
+      await test.step('Continue to the child screen and verify the question that omits $this renders', async () => {
+        // firstEntity now resolves to the promoted (remaining) entity.
+        await firstEntity
+          .getByRole('textbox', {name: 'First name'})
+          .fill('Sarah')
+        await firstEntity
+          .getByRole('textbox', {name: 'Last name'})
+          .fill('Brown')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Age')
+      })
     })
 
     test('adds and removes entities on a single-input initial question', async ({
@@ -1697,6 +1722,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByRole('spinbutton', {name: 'Pets name #3'})
           .fill('3')
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
+        // Multiple entity rows must not introduce accessibility violations (e.g. duplicate ids).
+        await validateAccessibility(page)
       })
 
       await test.step('Remove the middle entity', async () => {
@@ -1707,6 +1734,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
         ).toHaveValue('3')
+        // Re-indexing the remaining rows after removal must stay accessible.
+        await validateAccessibility(page)
       })
 
       await test.step('Add another entity and verify no entity index is reused', async () => {
@@ -1729,6 +1758,64 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           })
           .sort((a, b) => a - b)
         expect(entityIndices).toEqual([0, 1, 2])
+      })
+    })
+
+    test('derives the listed entity name from the name initial question and uses it in $this text, the repeated screen name, and the review summary', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator derived entity name program'
+      const repeatedQuestionName = 'enumerator-ete-pets-age'
+
+      await test.step('Publish a program whose enumerator has a name initial question and a repeated question that uses $this', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestionName,
+          description: 'desc',
+          questionText: 'Age for $this',
+          helpText: 'Age of $this',
+          enumeratorName: 'pets enumerator',
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Answer the name initial question for one entity and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        const blockForm = page.locator('#cf-block-form')
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('textbox', {name: 'First name'}).fill('Sarah')
+        await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Brown')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('The repeated question substitutes $this with the derived entity name', async () => {
+        await applicantQuestions.validateQuestionIsOnPage('Age for Sarah Brown')
+      })
+
+      await test.step('The review page names the repeated screen and lists the entity by the derived name', async () => {
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
+        await expect(page.getByText('Sarah Brown - Screen 3')).toBeVisible()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          'List the names of your pets.',
+          'Sarah Brown',
+        )
       })
     })
 
@@ -1834,82 +1921,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('button', {name: 'Review and submit'}).click()
         })
 
-        await test.step('Go to review screen and check repeated entity names in the screen names', async () => {
-          await expect(page.getByText(`Bugs - Screen 3`)).toBeVisible()
+        await test.step('Go to review screen and check the nested repeated entity name in the screen name', async () => {
+          // The non-nested "<entity> - Screen 3" case is covered by the unskipped new-flow test;
+          // this skipped test still uniquely covers the nested "<entity> - <nested> - Screen 5".
           await expect(
             page.getByText(`Bugs - Mechanic - Screen 5`),
           ).toBeVisible()
-        })
-      })
-
-      test('still supports $this placeholder in repeated question text', async ({
-        applicantQuestions,
-        page,
-      }) => {
-        await test.step('Apply to the program and add a repeated entity', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-        })
-
-        await test.step('Continue to repeated question and verify $this is replaced', async () => {
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.validateQuestionIsOnPage('Name for Bugs')
-        })
-      })
-
-      test('does not throw errors when repeated question text omits $this', async ({
-        adminPrograms,
-        adminQuestions,
-        applicantQuestions,
-        page,
-      }) => {
-        await test.step('Update repeated question text to omit $this and publish', async () => {
-          await loginAsAdmin(page)
-          await adminQuestions.gotoQuestionEditPage(repeatedQuestionName)
-          await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
-          await adminQuestions.clickSubmitButtonAndNavigate('Update')
-          await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-
-          await adminPrograms.gotoEditDraftProgramPage(programName)
-          await adminPrograms.publishProgram(programName)
-          await logout(page)
-        })
-
-        await test.step('Apply and verify repeated question renders without $this', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.validateQuestionIsOnPage('Name')
-        })
-      })
-
-      test('applicant enumerator add/remove flow re-indexes correctly and has no accessibility violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await test.step('Adding three pets keeps clone IDs unique (no a11y violations)', async () => {
-          // Each add clones a hidden DOM element; the clones should have unique
-          // IDs to avoid accessibility violations.
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-          await addRepeatedEntity(page, 'Pets', 'Daffy')
-          await addRepeatedEntity(page, 'Pets', 'Goofy')
-          await validateAccessibility(page)
-        })
-
-        await test.step('Each entry retains its filled value', async () => {
-          await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
-          await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Daffy')
-          await expect(entityNameInput(page, 'Pets', 3)).toHaveValue('Goofy')
-        })
-
-        await test.step('Removing the middle entry re-indexes the remaining entries and stays accessible', async () => {
-          await applicantQuestions.deleteEnumeratorEntityByIndex(1)
-          await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
-          await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Goofy')
-          await validateAccessibility(page)
         })
       })
 
