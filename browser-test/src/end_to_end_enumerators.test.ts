@@ -488,14 +488,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await expectRepeatedSetReorderButtonsHidden(page)
 
-        await test.step('Verify the initial question line shows the newly-created copy (" -_- a" suffix)', async () => {
-          await expect(
-            blockPanel.getByText(
-              'Initial question: income-non-repeated-question -_- a',
-            ),
-          ).toBeVisible()
-        })
-
         await test.step('Take a screenshot of the list set section', async () => {
           // Clear the heading's focus outline so this matches the general screenshot.
           await blockPanel.getByText('List set question').blur()
@@ -505,6 +497,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             {fullPage: false},
           )
         })
+
+        // The initial question is the newly-created copy (" -_- a" suffix).
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          'income-non-repeated-question -_- a',
+        )
 
         await test.step('Click "Continue to child screen" and verify we landed on the child screen', async () => {
           await blockPanel
@@ -664,13 +663,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
-        await test.step('Verify the initial question line shows the newly-created question with no copy suffix', async () => {
-          await expect(
-            blockPanel.getByText(`Initial question: ${newQuestionAdminId}`, {
-              exact: true,
-            }),
-          ).toBeVisible()
-        })
+        // The initial question is the newly-created question with no copy suffix.
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          newQuestionAdminId,
+        )
 
         await test.step('Verify the newly-created initial question appears on the Questions List page (updated in place, no copy)', async () => {
           await page.getByRole('link', {name: 'Questions'}).click()
@@ -749,13 +747,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
       })
 
-      await test.step('Verify the initial question is added along with the enumerator and is visible again', async () => {
-        await expect(
-          blockPanel.getByText(
-            'Initial question: income-non-repeated-question -_- a',
-          ),
-        ).toBeVisible()
-      })
+      // The initial question is added back along with the enumerator.
+      await expectInitialQuestionInEditForm(
+        page,
+        'pets enumerator',
+        'income-non-repeated-question -_- a',
+      )
 
       await test.step('Verify the card offering to add an initial question is not shown', async () => {
         await expect(
@@ -784,12 +781,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await fillAndSubmitEnumeratorQuestionForm(page)
-        // In contrast to the feature being off (below), when on there isn't a test-id currently so
-        // we have to match the visible text.
-        await expect(
-          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
-        ).toBeVisible()
       })
+
+      await expectInitialQuestionInEditForm(
+        page,
+        'pets enumerator',
+        initialQuestionAdminId,
+      )
 
       await test.step('Turn the feature flag off and verify only the enumerator card is shown', async () => {
         await disableFeatureFlag(page, 'enumerator_improvements_enabled')
@@ -810,9 +808,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
 
         await expect(enumeratorQuestionCard).toBeVisible()
-        await expect(
-          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
-        ).toBeVisible()
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          initialQuestionAdminId,
+        )
       })
 
       await test.step('Turn the feature flag off again and publish the program', async () => {
@@ -2364,6 +2364,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         .getByRole('button', {name: 'Add'})
         .click()
       await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Clicks "Edit" on the `enumeratorAdminId` enumerator question card, verifies the question edit
+   * form shows the "Listed entity" field with its description and the initial question's admin id,
+   * then returns to the program block edit page.
+   */
+  async function expectInitialQuestionInEditForm(
+    page: Page,
+    enumeratorAdminId: string,
+    initialQuestionAdminId: string,
+  ) {
+    await test.step(`Click "Edit" on the "${enumeratorAdminId}" enumerator question card`, async () => {
+      await page
+        .getByTestId('block-panel-edit')
+        .getByTestId(`question-admin-name-${enumeratorAdminId}`)
+        .getByRole('link', {name: 'Edit'})
+        .click()
+      await waitForPageJsLoad(page)
+    })
+
+    await test.step('Verify the "Listed entity" field and its description', async () => {
+      const listedEntityInput = page.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      await expect(listedEntityInput).toBeVisible()
+      await expect(listedEntityInput).toHaveAccessibleDescription(
+        'Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."',
+      )
+    })
+
+    await test.step(`Verify the initial question admin id is "${initialQuestionAdminId}"`, async () => {
+      await expect(
+        page.getByRole('heading', {name: 'Initial question', level: 3}),
+      ).toBeVisible()
+      await expect(
+        page.getByText(`Admin id: ${initialQuestionAdminId}`, {exact: true}),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'This is the question that the applicant will use to list out an entity.',
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step('Go back to the program block edit page', async () => {
+      await page.goBack()
+      await waitForPageJsLoad(page)
     })
   }
 

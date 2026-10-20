@@ -47,6 +47,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
+import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
@@ -378,6 +379,8 @@ public final class AdminQuestionController extends CiviFormController {
 
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
+              Optional<String> initialQuestionAdminName =
+                  getInitialQuestionAdminName(request, readOnlyService, questionDefinition);
 
               if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
                 try {
@@ -395,7 +398,8 @@ public final class AdminQuestionController extends CiviFormController {
                           readOnlyService,
                           request,
                           errorMessage,
-                          existingImageFileKey);
+                          existingImageFileKey,
+                          initialQuestionAdminName);
                   return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
                 } catch (InvalidQuestionTypeException e) {
                   return badRequest(
@@ -417,7 +421,8 @@ public final class AdminQuestionController extends CiviFormController {
                         questionDefinition,
                         maybeEnumerationQuestion,
                         message,
-                        optionalRedirectUrl));
+                        optionalRedirectUrl,
+                        initialQuestionAdminName));
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -587,9 +592,12 @@ public final class AdminQuestionController extends CiviFormController {
       Optional<QuestionDefinition> maybeEnumerationQuestion,
       ReadOnlyQuestionService roService,
       String errorText) {
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
+    QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
+    // The submitted form doesn't carry the initial question, so read it from the stored question.
+    Optional<String> initialQuestionAdminName =
+        getInitialQuestionAdminName(request, roService, questionDefinition);
 
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
 
       QuestionFormPageViewModel model =
@@ -600,14 +608,20 @@ public final class AdminQuestionController extends CiviFormController {
               roService,
               request,
               Optional.of(errorText),
-              existingImageFileKey);
+              existingImageFileKey,
+              initialQuestionAdminName);
       return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
     ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
     return ok(
         editView.renderEditQuestionForm(
-            request, id, questionForm, maybeEnumerationQuestion, errorMessage));
+            request,
+            id,
+            questionForm,
+            maybeEnumerationQuestion,
+            errorMessage,
+            initialQuestionAdminName));
   }
 
   /**
@@ -912,7 +926,8 @@ public final class AdminQuestionController extends CiviFormController {
       ReadOnlyQuestionService readOnlyQuestionService,
       Request request,
       Optional<String> errorMessage,
-      Optional<String> existingImageFileKey) {
+      Optional<String> existingImageFileKey,
+      Optional<String> initialQuestionAdminName) {
     MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
     return new QuestionFormPageMapper()
         .mapEdit(
@@ -926,7 +941,8 @@ public final class AdminQuestionController extends CiviFormController {
             settingsManifest.getImagesInQuestionFeatureEnabled(request),
             readOnlyQuestionService,
             errorMessage,
-            existingImageFileKey);
+            existingImageFileKey,
+            initialQuestionAdminName);
   }
 
   /**
@@ -964,6 +980,25 @@ public final class AdminQuestionController extends CiviFormController {
     return String.format(
         "unrecognized question type: '%s', accepted values include: %s",
         questionType.toUpperCase(Locale.ROOT), Arrays.toString(QuestionType.values()));
+  }
+
+  /**
+   * Returns the admin name of the enumerator question's initial question. Empty when the
+   * enumerator-improvements flag is off, the question is not an enumerator, or the enumerator has
+   * no initial question (e.g. one created before initial questions existed).
+   */
+  private Optional<String> getInitialQuestionAdminName(
+      Request request,
+      ReadOnlyQuestionService readOnlyQuestionService,
+      QuestionDefinition questionDefinition) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      return Optional.empty();
+    }
+    return questionDefinition
+        .getEnumeratorInitialQuestionId()
+        .map(readOnlyQuestionService::getQuestionDefinition)
+        .filter(initialQuestion -> !(initialQuestion instanceof NullQuestionDefinition))
+        .map(QuestionDefinition::getName);
   }
 
   /**

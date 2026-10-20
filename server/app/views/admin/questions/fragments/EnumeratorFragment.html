@@ -1,21 +1,37 @@
 <!--/*@thymesVar id="questionForm" type="forms.questions.EnumeratorQuestionForm"*/-->
 <!--/* Type-specific question config for ENUMERATOR questions: required
-     entity type input plus min/max entity count fields. */-->
+     entity type input plus min/max entity count fields. When the
+     enumerator-improvements flag is on, the fields use the "Listed entity"
+     terminology and the entity type input has a description. */-->
 <th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
   <div class="mb-2">
     <label
       for="enumerator-question-entity-type-input"
       class="pointer-events-none text-gray-600 text-base px-1 py-2"
-      >Repeated entity type (What are we enumerating?)<span
+      ><th:block
+        th:if="${model.enumeratorImprovementsEnabled}"
+        th:text="#{input.repeatedSet.listedEntity}"
+      ></th:block
+      ><th:block th:unless="${model.enumeratorImprovementsEnabled}"
+        >Repeated entity type (What are we enumerating?)</th:block
+      ><span
         th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
       ></span
     ></label>
+    <p
+      th:if="${model.enumeratorImprovementsEnabled}"
+      id="enumerator-question-entity-type-input-description"
+      class="font-ui-sm text-base"
+    >
+      <span th:text="#{description.repeatedSet.listedEntity}"></span>
+    </p>
     <div class="flex flex-col">
       <input
         type="text"
         th:value="${questionForm.getEntityType()}"
         maxlength="10000"
         aria-required="true"
+        th:attr="aria-describedby=${model.enumeratorImprovementsEnabled} ? 'enumerator-question-entity-type-input-description' : null"
         id="enumerator-question-entity-type-input"
         name="entityType"
         class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
@@ -27,9 +43,9 @@
     </div>
   </div>
   <div
-    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'minEntities', 'Minimum entity count', ${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : null}, '0')}"
+    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'minEntities', #{input.repeatedSet.minEntities}, ${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : null}, '0')}"
   ></div>
   <div
-    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'maxEntities', 'Maximum entity count', ${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : null}, '1')}"
+    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'maxEntities', #{input.repeatedSet.maxEntities}, ${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : null}, '1')}"
   ></div>
 </th:block>

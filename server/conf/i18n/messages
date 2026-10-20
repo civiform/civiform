@@ -1251,6 +1251,10 @@ input.repeatedSet.maxEntities=Maximum entity count
 label.repeatedSet.initialQuestion=Initial question
 # Description explaining what the initial question is and what the "Add initial question" button does
 description.repeatedSet.initialQuestion=Add the question that the applicant will use to list out an entity. The response provided by the applicant will serve as the label for that entity. The added question will be duplicated for this list set in the question bank. Note that the question and hint text for this question will not display to the applicant.
+# Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
+label.repeatedSet.initialQuestionAdminId=Admin id:
+# Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
+description.repeatedSet.initialQuestionAdminId=This is the question that the applicant will use to list out an entity.
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
 description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
