@@ -535,6 +535,110 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxBackfillInitialQuestion_attachesInitialQuestionToEnumeratorAndBlock()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(nameQuestion.getId(), /* flagOn= */ true), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    // The bank is already closed when Save can be clicked, so there is nothing to close.
+    assertThat(result.header("HX-Trigger")).isEmpty();
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
+    // The enumerator and its new initial question are both on the block.
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(2);
+    QuestionDefinition enumeratorAfter = blockAfter.getEnumeratorQuestionDefinition();
+    long initialQuestionId = enumeratorAfter.getEnumeratorInitialQuestionId().orElseThrow();
+    QuestionDefinition initialQuestion =
+        blockAfter.getQuestionDefinitions().stream()
+            .filter(q -> q.getId() == initialQuestionId)
+            .findFirst()
+            .orElseThrow();
+    // The initial question is a copy that repeats under the enumerator.
+    assertThat(initialQuestion.getEnumeratorId()).hasValue(enumeratorAfter.getId());
+    assertThat(initialQuestion.getName()).isNotEqualTo(nameQuestion.getName());
+  }
+
+  @Test
+  public void hxBackfillInitialQuestion_whenEnumeratorAlreadyHasInitialQuestion_isBadRequest() {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(nameQuestion.getId(), /* flagOn= */ true), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  @Test
+  public void hxBackfillInitialQuestion_withInvalidQuestionType_isBadRequestAndSavesNothing()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition checkboxQuestion =
+        testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(checkboxQuestion.getId(), /* flagOn= */ true), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(1);
+    assertThat(blockAfter.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
+        .isEmpty();
+  }
+
+  @Test
+  public void hxBackfillInitialQuestion_withFlagOff_isBadRequest() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(nameQuestion.getId(), /* flagOn= */ false), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+  }
+
+  private Request backfillRequest(long initialQuestionId, boolean flagOn) {
+    return fakeRequestBuilder()
+        .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
+        .bodyForm(ImmutableMap.of("initialQuestionId", String.valueOf(initialQuestionId)))
+        .build();
+  }
+
+  @Test
   public void hxSelectInitialQuestion_withNoQuestionInForm_returnsBadRequest() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 

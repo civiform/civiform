@@ -140,7 +140,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can add an existing enumerator question without an initial question to an enumerator block', async ({
+    test('can add an existing enumerator question without an initial question to an enumerator block and backfill its initial question', async ({
       page,
       adminQuestions,
     }) => {
@@ -284,9 +284,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(questionBankSidebar).toBeHidden()
       })
 
-      await test.step('Open the screen again without the staged question and see that it was not attached', async () => {
-        // The staged question is carried in the URL, so drop the query string.
-        await page.goto(page.url().split('?')[0])
+      await test.step('Leave the screen and come back, and see that the staged question was not attached', async () => {
+        // The staged question is carried in the URL, so going to another screen drops it.
+        await page.getByRole('link', {name: 'Screen 3'}).click()
+        await waitForPageJsLoad(page)
+        await page.getByRole('link', {name: 'Screen 2'}).click()
         await waitForPageJsLoad(page)
         await expect(addInitialQuestionButton).toBeVisible()
       })
@@ -303,6 +305,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
         await expect(backfillCard).toBeHidden()
       })
+    })
+
+    test('can save an initial question picked for an existing enumerator question', async ({
+      page,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const backfillCard = blockPanel.locator('#backfill-initial-question-card')
+
+      await test.step('Add an existing enumerator question that has no initial question', async () => {
+        await addRepeatedSetBlocks(page)
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Pick an initial question and see the warning and the Save button', async () => {
+        await backfillCard
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          backfillCard.getByText(
+            'You will not be able to change the initial question after you save it.',
+          ),
+        ).toBeVisible()
+        await expect(
+          backfillCard.getByRole('button', {name: 'Save initial question'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Save and see the initial question attached to the screen', async () => {
+        await backfillCard
+          .getByRole('button', {name: 'Save initial question'})
+          .click()
+        await waitForPageJsLoad(page)
+        await expect(backfillCard).toBeHidden()
+      })
+
+      // The initial question is the copy of the question that was picked.
+      await expectInitialQuestionInEditForm(
+        page,
+        'Sample Enumerator Question',
+        'income-non-repeated-question -_- a',
+      )
     })
 
     test.describe('Initial question', () => {
