@@ -10,6 +10,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
@@ -61,7 +62,8 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
 
     sinks = mock(MultipartUploadSinks.class);
-    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), anyInt()))
+    when(sinks.getSinkForCloudProvider(
+            any(BucketType.class), anyString(), any(), any(), anyInt()))
         .thenAnswer(
             invocation ->
                 Sink.<ByteString, ByteString>fold(ByteString.emptyByteString(), ByteString::concat)
@@ -110,7 +112,13 @@ public class ProgramImageStreamingMultipartBodyParserTest extends ResetPostgres 
         .isEqualTo(
             PublicFileNameFormatter.formatPublicProgramImageFileKey(PROGRAM_ID, "hello.png"));
 
-    verify(sinks).getSinkForCloudProvider(eq(BucketType.PUBLIC_BUCKET), eq(fileKey), anyInt());
+    verify(sinks)
+        .getSinkForCloudProvider(
+            eq(BucketType.PUBLIC_BUCKET),
+            eq(fileKey),
+            eq(Optional.of("image/png")),
+            eq(Optional.empty()),
+            anyInt());
   }
 
   private Source<ByteString, ?> createMultipartRequestBody(String filename, byte[] content) {

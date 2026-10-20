@@ -109,7 +109,7 @@ public abstract class StreamingMultipartBodyParser
 
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
       BucketType bucketType, String fileKey) {
-    return createUploadSink(bucketType, fileKey, Optional.empty(), Optional.empty());
+    return uploadSinks.getSinkForCloudProvider(bucketType, fileKey, CHUNK_SIZE);
   }
 
   /**
