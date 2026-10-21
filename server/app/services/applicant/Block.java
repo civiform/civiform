@@ -217,7 +217,11 @@ public final class Block {
         .mapToObj(
             index ->
                 createContextualizedInitialQuestionAtIndex(
-                    initialQuestion, enumeratorQuestionDefinition, entityNames.get(index), index))
+                    initialQuestion,
+                    enumeratorQuestionDefinition,
+                    entityNames.get(index),
+                    index,
+                    applicantData))
         .collect(toImmutableList());
   }
 
@@ -228,6 +232,17 @@ public final class Block {
    * row.
    */
   public Optional<ApplicantQuestion> createContextualizedInitialQuestion(int entityIndex) {
+    return createContextualizedInitialQuestion(entityIndex, applicantData);
+  }
+
+  /**
+   * Like {@link #createContextualizedInitialQuestion(int)} but reads answers from the provided
+   * {@link ApplicantData} rather than the block's. The block's data is a locked snapshot taken at
+   * construction, so staging must pass the live applicant data here to read back values it just
+   * wrote (e.g. when deriving the entity name from the initial question answer).
+   */
+  public Optional<ApplicantQuestion> createContextualizedInitialQuestion(
+      int entityIndex, ApplicantData applicantData) {
     if (!isEnumerator()) {
       return Optional.empty();
     }
@@ -241,19 +256,25 @@ public final class Block {
         (EnumeratorQuestionDefinition) getEnumeratorQuestion().getQuestionDefinition();
     return Optional.of(
         createContextualizedInitialQuestionAtIndex(
-            initialQuestion, enumeratorQuestionDefinition, /* entityName= */ "", entityIndex));
+            initialQuestion,
+            enumeratorQuestionDefinition,
+            /* entityName= */ "",
+            entityIndex,
+            applicantData));
   }
 
   /**
    * Creates an {@link ApplicantQuestion} for an enumerator initial question, contextualized to the
    * entity at the given index so its scalar paths resolve to that entity (e.g. {@code
-   * applicant.household_members[0].member_name.first_name}).
+   * applicant.household_members[0].member_name.first_name}). Reads answers from the provided {@link
+   * ApplicantData}.
    */
   private ApplicantQuestion createContextualizedInitialQuestionAtIndex(
       ApplicantQuestion initialQuestion,
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
       String entityName,
-      int entityIndex) {
+      int entityIndex,
+      ApplicantData applicantData) {
     RepeatedEntity entity =
         RepeatedEntity.create(
             enumeratorQuestionDefinition,

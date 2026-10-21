@@ -1819,6 +1819,52 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('saves a date initial question and names the entity', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator date initial question program'
+
+      await test.step('Publish a program whose enumerator has a date initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Appointment',
+          questionText: 'List the dates of your appointments.',
+          adminId: 'appointments enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.date,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Answer the date initial question for one entity via month/day/year', async () => {
+        await applicantQuestions.applyProgram(programName)
+        const blockForm = page.locator('#cf-block-form')
+        await blockForm.getByRole('button', {name: 'Add Appointment'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2020',
+          '01 - January',
+          '15',
+        )
+      })
+
+      await test.step('The entity is named by the formatted date on the review page', async () => {
+        // Regression for the memorable-date fields being dropped for an initial question (which
+        // left the entity unnamed and failed enumerator validation).
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          'List the dates of your appointments.',
+          '01/15/2020',
+        )
+      })
+    })
+
     // TODO(#13412): The legacy applicant flow below drives the enumerator via the
     // entity-name input and submits the block, which fails path validation now that
     // the enumerator has an initial question. Re-enable this block once the
