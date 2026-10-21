@@ -16,9 +16,7 @@ import play.mvc.Result;
  * {@code applicantId} parameter (the applicant themselves, or a trusted intermediary who manages
  * them).
  *
- * <p>Apply this after {@code @Secure} on routes that take an {@code applicantId} and use a
- * streaming upload body parser, together with {@code deferBodyParsing} in {@code conf/routes}. See
- * {@link FileUploadImprovementsEnabledAction}.
+ * <p>See {@link FileUploadImprovementsEnabledAction} for why this runs as an action.
  */
 public class ApplicantAccessAction extends Action.Simple {
   private final ProfileUtils profileUtils;

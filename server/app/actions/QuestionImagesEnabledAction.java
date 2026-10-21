@@ -13,8 +13,7 @@ import services.settings.SettingsManifest;
 /**
  * Action that returns a 404 unless the images in questions feature is enabled.
  *
- * <p>Apply this to routes that use a streaming upload body parser, together with {@code
- * deferBodyParsing} in {@code conf/routes}. See {@link FileUploadImprovementsEnabledAction}.
+ * <p>See {@link FileUploadImprovementsEnabledAction} for why this runs as an action.
  */
 public class QuestionImagesEnabledAction extends Action.Simple {
   private final SettingsManifest settingsManifest;

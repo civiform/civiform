@@ -52,8 +52,7 @@ public class AdminQuestionImageController extends CiviFormController {
   }
 
   /** Uploads a question image and saves its alt text. */
-  // The route defers body parsing (see conf/routes), so the checks before the body parser run
-  // before it writes the file to cloud storage. @Secure must stay first.
+  // Body parsing is deferred in conf/routes. @Secure must stay first.
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @With(QuestionImagesEnabledAction.class)
   @BodyParser.Of(QuestionImageStreamingMultipartBodyParser.class)

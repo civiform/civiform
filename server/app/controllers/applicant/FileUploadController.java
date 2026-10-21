@@ -97,7 +97,7 @@ public final class FileUploadController extends CiviFormController {
     return hxSelectFileForUploadInternal(request, optionalApplicantId.get(), programId, blockId);
   }
 
-  // The route defers body parsing (see conf/routes). See hxSelectFileForUpload.
+  // Body parsing is deferred in conf/routes. @Secure must stay first.
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   @With({FileUploadImprovementsEnabledAction.class, ApplicantAccessAction.class})
   @BodyParser.Of(ApplicantStreamingMultipartBodyParser.class)
