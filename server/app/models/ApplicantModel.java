@@ -114,7 +114,7 @@ public class ApplicantModel extends BaseModel {
     // had relied on to mark the json fields as dirty. We now need to manually
     // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
     // get triggered.
-    io.ebean.DB.markAsDirty(this);
+    markAsDirty();
 
     if (this.applicantData == null && (object != null && !object.isEmpty())) {
       if (preferredLocale == null || preferredLocale.isEmpty()) {

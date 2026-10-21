@@ -1462,16 +1462,13 @@ public class BlockTest {
   }
 
   @Test
-  public void getContextualizedInitialQuestions_withNoEntities_returnsSingleEmptyQuestion() {
+  public void getContextualizedInitialQuestions_withNoEntities_returnsEmpty() {
     Block block =
         makeUnrepeatedBlock(
             "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
 
-    ImmutableList<ApplicantQuestion> contextualizedQuestions =
-        block.getContextualizedInitialQuestions();
-
-    assertThat(contextualizedQuestions).hasSize(1);
-    assertThat(contextualizedQuestions.get(0).getContextualizedPath().toString()).contains("[0]");
+    // No entities yet means no rows; the applicant adds the first entity row with the "Add" button.
+    assertThat(block.getContextualizedInitialQuestions()).isEmpty();
   }
 
   @Test

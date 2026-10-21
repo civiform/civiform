@@ -280,11 +280,31 @@ public abstract class MultiOptionQuestionForm extends QuestionForm {
 
   private static void addParseErrorIfInvalid(
       ImmutableSet.Builder<CiviFormError> errors, String scoreAsString) {
-    if (!isBlank(scoreAsString) && parseScore(scoreAsString).isEmpty()) {
+    if (isBlank(scoreAsString)) {
+      return;
+    }
+    if (parseScore(scoreAsString).isEmpty()) {
       errors.add(
           CiviFormError.of(
               String.format("Option score '%s' must be a number", scoreAsString.trim())));
+    } else if (isTooLarge(scoreAsString)) {
+      errors.add(
+          CiviFormError.of(
+              String.format(
+                  "Option score '%s' is too long. Scores can have at most %d digits and must be"
+                      + " between -%s and %s",
+                  scoreAsString.trim(),
+                  QuestionOption.MAX_SCORE_DIGITS,
+                  QuestionOption.formatScore(QuestionOption.MAX_SCORE_ABSOLUTE_VALUE),
+                  QuestionOption.formatScore(QuestionOption.MAX_SCORE_ABSOLUTE_VALUE))));
     }
+  }
+
+  /** Whether a parseable score has too many digits or is too large in magnitude. */
+  private static boolean isTooLarge(String scoreAsString) {
+    BigDecimal score = new BigDecimal(scoreAsString.trim());
+    return score.precision() > QuestionOption.MAX_SCORE_DIGITS
+        || score.abs().compareTo(BigDecimal.valueOf(QuestionOption.MAX_SCORE_ABSOLUTE_VALUE)) > 0;
   }
 
   private static boolean isBlank(String scoreAsString) {

@@ -6,6 +6,7 @@ import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import java.util.Optional;
 import models.LifecycleStage;
@@ -46,6 +47,43 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
                 Optional.of(OpenApiVersion.SWAGGER_V2.toString()));
 
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void getSchemaByProgramSlug_scoringTurnedOffInLaterVersion_includesScores() {
+    // An older version of the program used scoring, but the current one does not.
+    ProgramBuilder.newObsoleteProgram("Scored Then Off").withUsesScoring(true).buildDefinition();
+    ProgramBuilder.newActiveProgram("Scored Then Off").buildDefinition();
+
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true").build();
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaByProgramSlug(
+                request,
+                "scored-then-off",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.OPENAPI_V3_0.toString()));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("total_score");
+  }
+
+  @Test
+  public void getSchemaByProgramSlug_scoringFlagOff_omitsScores() {
+    ProgramBuilder.newObsoleteProgram("Scored Then Off").withUsesScoring(true).buildDefinition();
+    ProgramBuilder.newActiveProgram("Scored Then Off").buildDefinition();
+
+    Result result =
+        instanceOf(OpenApiSchemaController.class)
+            .getSchemaByProgramSlug(
+                fakeRequest(),
+                "scored-then-off",
+                Optional.of(LifecycleStage.ACTIVE.getValue()),
+                Optional.of(OpenApiVersion.OPENAPI_V3_0.toString()));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("total_score");
   }
 
   @Test

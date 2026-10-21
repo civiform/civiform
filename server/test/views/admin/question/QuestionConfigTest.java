@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableSet;
 import com.google.inject.TypeLiteral;
 import forms.questions.CheckboxQuestionForm;
 import forms.questions.DateQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import forms.questions.MapQuestionForm;
 import forms.questions.QuestionForm;
 import forms.questions.QuestionFormBuilder;
@@ -29,6 +30,7 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import repository.ResetPostgres;
+import services.MessageKey;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -349,5 +351,21 @@ public class QuestionConfigTest extends ResetPostgres {
     String result = maybeConfig.get().renderFormatted();
 
     assertThat(result).contains("Error: Key not found. Please select a different key.");
+  }
+
+  @Test
+  public void enumeratorForm_withEnumeratorImprovementsDisabled_rendersLegacyLabels() {
+    when(settingsManifest.getEnumeratorImprovementsEnabled(request)).thenReturn(false);
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+
+    Optional<DivTag> maybeConfig =
+        QuestionConfig.buildQuestionConfig(form, messages, settingsManifest, request);
+    assertThat(maybeConfig).isPresent();
+    String result = maybeConfig.get().renderFormatted();
+
+    assertThat(result).contains("Repeated entity type (What are we enumerating?)");
+    assertThat(result).contains(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName());
+    assertThat(result).contains(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName());
+    assertThat(result).doesNotContain(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName());
   }
 }

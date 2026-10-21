@@ -1,4 +1,10 @@
-<div id="sample-question" class="margin-y-4 flex-5">
+<div
+  id="sample-question"
+  class="margin-y-4 flex-5"
+  hx-swap="outerHTML"
+  th:hx-get="${previewUrl}"
+  hx-trigger="question-image-changed from:body"
+>
   <th:block
     th:if="${question.getType().getLabel() == 'File Upload' && !featureFlags.isFileUploadQuestionImprovementsEnabled()}"
   >

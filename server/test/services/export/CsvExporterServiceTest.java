@@ -2369,6 +2369,50 @@ public class CsvExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void getProgramAllVersionsCsv_scoringTurnedOffInLaterVersion_stillShowsScores()
+      throws Exception {
+    QuestionModel dropdown =
+        createScoredMultiOptionQuestion(
+            "csv scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    ProgramModel scoredVersion =
+        FakeProgramBuilder.newActiveProgram("scored-then-off-csv-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    FakeApplicationFiller filler =
+        FakeApplicationFiller.newFillerFor(scoredVersion)
+            .answerDropdownQuestion(dropdown, 1L)
+            .submit();
+    ApplicationModel application = filler.getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putScore(
+        dropdown
+            .getQuestionDefinition()
+            .getContextualizedPath(
+                /* repeatedEntity= */ Optional.empty(), ApplicantData.APPLICANT_PATH),
+        10.5);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, 10.5);
+    application.setApplicantData(data);
+    application.save();
+
+    // The next version of the program turns scoring off.
+    FakeProgramBuilder draft = FakeProgramBuilder.newDraftOf(scoredVersion);
+    draft.fakeProgramBuilder.withUsesScoring(false);
+    ProgramModel currentVersion = draft.build();
+    assertThat(currentVersion.getProgramDefinition().usesScoring()).isFalse();
+
+    CSVParser parser =
+        CSVParser.parse(
+            exporterService.getProgramAllVersionsCsv(
+                currentVersion.id, SubmittedApplicationFilter.EMPTY, /* scoringEnabled= */ true),
+            DEFAULT_FORMAT);
+    ImmutableList<CSVRecord> records = ImmutableList.copyOf(parser.getRecords());
+
+    assertThat(records.get(0).get("csv scored dropdown (score)")).isEqualTo("10.5");
+    assertThat(records.get(0).get("Total Score")).isEqualTo("10.5");
+  }
+
+  @Test
   public void getProgramAllVersionsCsv_programNotUsingScoring_noScoreColumns() throws Exception {
     QuestionModel dropdown =
         createScoredMultiOptionQuestion(

@@ -164,6 +164,15 @@ public abstract class QuestionOption {
   }
 
   /**
+   * Scores can have at most this many digits. A double holds about 15 significant digits exactly,
+   * so longer numbers get silently rounded.
+   */
+  public static final int MAX_SCORE_DIGITS = 15;
+
+  /** Largest absolute value of a score: fifteen nines. Keeps totals far from overflow. */
+  public static final double MAX_SCORE_ABSOLUTE_VALUE = 999_999_999_999_999.0;
+
+  /**
    * Canonical admin-facing rendering of a score value: plain decimal notation with trailing zeros
    * stripped, so {@code 2.0} renders as {@code 2} and {@code 1.50} as {@code 1.5}. Used everywhere
    * a score is displayed (question form inputs, PDFs, CSV cells); JSON output emits raw numbers

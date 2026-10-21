@@ -393,6 +393,48 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenInitialOnLegacyEnumeratorWithoutInitial_eligible()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(), // text question type
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenCheckboxInitialOnLegacyEnumeratorWithoutInitial_invalid()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
+        .isEqualTo(AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE);
+  }
+
+  @Test
+  public void
       canAddQuestion_whenEnumeratorImprovementsEnabled_whenMismatchedInitialOnEnumeratorBlock_invalid()
           throws Exception {
     QuestionModel intendedInitial = resourceCreator.insertQuestion("intended-initial");

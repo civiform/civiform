@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.55.14",
-      "software.amazon.awssdk" % "ses" % "2.55.14",
+      "software.amazon.awssdk" % "s3" % "2.56.0",
+      "software.amazon.awssdk" % "ses" % "2.56.0",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.14",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.0",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.1",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus. See filters.PrometheusRequestMetricsFilter

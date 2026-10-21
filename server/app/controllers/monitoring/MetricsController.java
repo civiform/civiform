@@ -81,10 +81,14 @@ public final class MetricsController extends CiviFormController {
                 String className = metric.type().toString().substring(CLASS_SUBSTRING_INDEX);
                 String location = metric.location() != null ? metric.location() : "";
                 // When we use JPA in the model to get the data, we often see incorrect information
-                // after the underscore. In these cases, we set the model class for the name and
-                // location.
+                // in the name. In these cases, we set the model class for the name and location.
+                // Ebean names these secondary (lazy or query join) loads
+                // "<parent name>.<path>.lazy" or "<parent name>.<path>.query", and names element
+                // collections "<type>_<label>". Queries labeled with their model's class name,
+                // such as VersionRepository.getProgramsForVersionWithoutCache, replaced lazy loads
+                // and are reported the same way.
                 // TODO(#5934) remove reliance on JPA for database queries
-                if (name.contains("_")) {
+                if (isSecondaryLoad(name) || name.contains("_") || name.endsWith("." + className)) {
                   name = className;
                   location = className;
                 }
@@ -156,5 +160,10 @@ public final class MetricsController extends CiviFormController {
             settingsManifest.getCiviformImageTag().orElse("UNKNOWN"),
             settingsManifest.getCiviformVersion().orElse(""))
         .set(1);
+  }
+
+  /** Returns true if the metric name is for an Ebean lazy load or query join load. */
+  private static boolean isSecondaryLoad(String name) {
+    return name.endsWith(".lazy") || name.endsWith(".query");
   }
 }

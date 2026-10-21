@@ -497,6 +497,44 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void hxSelectInitialQuestion_onLegacyEnumeratorBlock_onlyStagesTheSelection()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains(
+            """
+            <input type="hidden" name="initialQuestionId" value="%s">\
+            """
+                .formatted(nameQuestion.getId()));
+    assertThat(result.header("HX-Trigger-After-Swap")).hasValue("closeQuestionBank");
+    // Nothing is saved: the block still holds only the enumerator question, and the enumerator
+    // still has no initial question.
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(1);
+    assertThat(blockAfter.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
+        .isEmpty();
+  }
+
+  @Test
   public void hxSelectInitialQuestion_withNoQuestionInForm_returnsBadRequest() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 

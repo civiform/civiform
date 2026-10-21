@@ -2,11 +2,8 @@ import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
 import {hideError, showError} from '@/file_upload_util'
 
 const FILE_INPUT_ID = 'question-image-input'
-const ALT_INPUT_IDS = ['questionImageDescription', 'question-image-description']
-const ALT_ERROR_IDS = [
-  'error-message-questionImageDescription',
-  'error-message-question-image-description',
-]
+const ALT_INPUT_ID = 'questionImageDescription'
+const ALT_ERROR_ID = 'error-message-questionImageDescription'
 const DELETE_BUTTON_ID = 'delete-question-image-button'
 const EXISTING_ALERT_ID = 'existing-image-alert'
 
@@ -14,33 +11,20 @@ export function init() {
   const fileInput = document.getElementById(
     FILE_INPUT_ID,
   ) as HTMLInputElement | null
-
-  let altInput: HTMLInputElement | null = null
-  for (const id of ALT_INPUT_IDS) {
-    const el = document.getElementById(id)
-    if (el instanceof HTMLInputElement) {
-      altInput = el
-      break
-    }
-  }
+  const altInput = document.getElementById(
+    ALT_INPUT_ID,
+  ) as HTMLInputElement | null
 
   if (!fileInput || !altInput) return
 
-  let errorSpan: HTMLElement | null = null
-  for (const id of ALT_ERROR_IDS) {
-    const el = document.getElementById(id)
-    if (el) {
-      errorSpan = el
-      break
-    }
-  }
+  const errorSpan = document.getElementById(ALT_ERROR_ID)
 
   const deleteButton = document.getElementById(DELETE_BUTTON_ID)
   const existingAlert = document.getElementById(EXISTING_ALERT_ID)
   const formGroup = altInput.closest('.usa-form-group')
   const form = altInput.closest('form')
 
-  // Combines dropzone lock/unlock, required state, and visual USWDS error toggle
+  // Combines dropzone lock/unlock, required state, visual USWDS error toggle, and preview sync
   const syncAndValidate = (): boolean => {
     const hasAltText = altInput.value.trim().length > 0
     const hasImage =
@@ -65,7 +49,6 @@ export function init() {
       showError(errorSpan, altInput)
       formGroup?.classList.add('usa-form-group--error')
     }
-
     return isValid
   }
 

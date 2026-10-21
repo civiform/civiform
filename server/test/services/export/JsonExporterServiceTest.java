@@ -2927,6 +2927,47 @@ public class JsonExporterServiceTest extends AbstractExporterTest {
   }
 
   @Test
+  public void export_scoringEnabled_scoringTurnedOffInLaterVersion_stillEmitsScores()
+      throws ProgramNotFoundException {
+    QuestionModel dropdown =
+        createScoredQuestion(
+            "json scored dropdown", MultiOptionQuestionDefinition.MultiOptionQuestionType.DROPDOWN);
+    var scoredVersion =
+        FakeProgramBuilder.newActiveProgram("json-scored-then-off-program")
+            .withUsesScoring()
+            .withQuestion(dropdown)
+            .build();
+    ApplicationModel application =
+        FakeApplicationFiller.newFillerFor(scoredVersion)
+            .answerDropdownQuestion(dropdown, 1L)
+            .submit()
+            .getApplication();
+    ApplicantData data = application.getApplicantData();
+    data.putScore(questionContextualizedPath(dropdown), 10.5);
+    data.putDouble(ApplicationScores.TOTAL_SCORE_PATH, 10.5);
+    application.setApplicantData(data);
+    application.save();
+
+    // The next version of the program turns scoring off.
+    FakeProgramBuilder draft = FakeProgramBuilder.newDraftOf(scoredVersion);
+    draft.fakeProgramBuilder.withUsesScoring(false);
+    var currentVersion = draft.build();
+    assertThat(currentVersion.getProgramDefinition().usesScoring()).isFalse();
+
+    JsonExporterService exporter = instanceOf(JsonExporterService.class);
+    String resultJsonString =
+        exporter.export(
+            currentVersion.getProgramDefinition(),
+            SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
+            SubmittedApplicationFilter.EMPTY,
+            /* scoringEnabled= */ true);
+    ResultAsserter resultAsserter = new ResultAsserter(resultJsonString);
+
+    resultAsserter.assertValueAtPath("application.json_scored_dropdown.score", 10.5);
+    resultAsserter.assertValueAtPath("total_score", 10.5);
+  }
+
+  @Test
   public void export_scoringEnabled_programDoesNotUseScoring_scorePropertiesAreAbsent() {
     QuestionModel dropdown =
         createScoredQuestion(

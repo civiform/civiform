@@ -15,6 +15,8 @@ test.describe('create dropdown question with options', () => {
   })
 
   test('add remove buttons work correctly', async ({page, adminQuestions}) => {
+    await disableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
+
     await loginAsAdmin(page)
 
     await page.click('text=Questions')

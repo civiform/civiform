@@ -2,6 +2,7 @@ package views.admin.questions;
 
 import static j2html.TagCreator.button;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.h3;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
@@ -60,6 +61,9 @@ public final class QuestionConfig {
   private static final String INNER_DIV_CLASSES =
       StyleUtils.joinStyles("border", "bg-gray-100", "p-4", "m-4", "border-gray-200");
 
+  private static final String ENUMERATOR_ENTITY_TYPE_INPUT_ID =
+      "enumerator-question-entity-type-input";
+
   private static final String OUTER_DIV_CLASSES = StyleUtils.joinStyles("w-full", "pt-0", "-mt-4");
 
   private final DivTag content = div();
@@ -91,7 +95,10 @@ public final class QuestionConfig {
       case ENUMERATOR:
         return Optional.of(
             config
-                .addEnumeratorQuestionConfig((EnumeratorQuestionForm) questionForm)
+                .addEnumeratorQuestionConfig(
+                    (EnumeratorQuestionForm) questionForm,
+                    messages,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request))
                 .getContainer());
       case ID:
         return Optional.of(
@@ -207,30 +214,71 @@ public final class QuestionConfig {
   }
 
   private QuestionConfig addEnumeratorQuestionConfig(
-      EnumeratorQuestionForm enumeratorQuestionForm) {
-    content.with(
+      EnumeratorQuestionForm enumeratorQuestionForm,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
+    FieldWithLabel entityTypeField =
         FieldWithLabel.input()
-            .setId("enumerator-question-entity-type-input")
+            .setId(ENUMERATOR_ENTITY_TYPE_INPUT_ID)
             .setFieldName("entityType")
-            .setLabelText("Repeated entity type (What are we enumerating?)")
             .setRequired(true)
-            .setValue(enumeratorQuestionForm.getEntityType())
-            .getInputTag(),
+            .setValue(enumeratorQuestionForm.getEntityType());
+    if (enumeratorImprovementsEnabled) {
+      entityTypeField
+          .setLabelText(messages.at(MessageKey.INPUT_LISTED_ENTITY.getKeyName()))
+          .setDescription(messages.at(MessageKey.DESCRIPTION_LISTED_ENTITY.getKeyName()))
+          .setAriaDescribedByIds(
+              ImmutableList.of(ENUMERATOR_ENTITY_TYPE_INPUT_ID + "-description"));
+    } else {
+      entityTypeField.setLabelText("Repeated entity type (What are we enumerating?)");
+    }
+
+    content.with(
+        entityTypeField.getInputTag(),
         FieldWithLabel.number()
             .setFieldName("minEntities")
-            .setLabelText("Minimum entity count")
+            .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
             .setRequired(false)
             .setValue(enumeratorQuestionForm.getMinEntities())
             .setMin(OptionalLong.of(0))
             .getNumberTag(),
         FieldWithLabel.number()
             .setFieldName("maxEntities")
-            .setLabelText("Maximum entity count")
+            .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
             .setRequired(false)
             .setValue(enumeratorQuestionForm.getMaxEntities())
             .setMin(OptionalLong.of(1))
             .getNumberTag());
     return this;
+  }
+
+  /**
+   * Builds the read-only "Initial question" section shown on the enumerator question edit form,
+   * displaying the admin ID of the question applicants use to list out each entity.
+   */
+  public static DivTag buildInitialQuestionSection(
+      String initialQuestionAdminName, Messages messages) {
+    return div()
+        .withId("initial-question-section")
+        .with(
+            h3(messages.at(MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                .withClasses("px-1", "py-2", "mt-6", "font-semibold"),
+            div()
+                .withClasses(OUTER_DIV_CLASSES)
+                .with(
+                    div()
+                        .withClasses(INNER_DIV_CLASSES)
+                        .with(
+                            p().with(
+                                    strong(
+                                        messages.at(
+                                            MessageKey.LABEL_REPEATED_SET_INITIAL_QUESTION_ADMIN_ID
+                                                .getKeyName())),
+                                    text(" " + initialQuestionAdminName)),
+                            p(messages.at(
+                                    MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_ADMIN_ID
+                                        .getKeyName()))
+                                .withClasses("mt-2", "text-gray-600"))));
   }
 
   private QuestionConfig addDateQuestionConfig(

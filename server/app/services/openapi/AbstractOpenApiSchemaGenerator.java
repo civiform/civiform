@@ -37,11 +37,11 @@ public abstract class AbstractOpenApiSchemaGenerator {
   }
 
   /**
-   * Whether answer-option score properties belong in the schema for this program: the feature flag
-   * must be on for the request and the program must apply scoring.
+   * Whether answer-option score properties belong in the schema: the feature flag must be on for
+   * the request and some version of the program must have used scoring.
    */
-  protected boolean includeScores(ProgramDefinition programDefinition) {
-    return openApiSchemaSettings.scoringEnabled() && programDefinition.usesScoring();
+  protected boolean includeScores() {
+    return openApiSchemaSettings.includeScores();
   }
 
   /** Gets the baseurl without scheme */

@@ -161,7 +161,7 @@ public class QuestionModel extends BaseModel {
     // had relied on to mark the json fields as dirty. We now need to manually
     // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
     // get triggered.
-    io.ebean.DB.markAsDirty(this);
+    markAsDirty();
     setFieldsFromQuestionDefinition(questionDefinition);
     // If this is a new model and the concurrency token isn't set, create one.
     if (this.concurrencyToken == null) {
@@ -176,7 +176,7 @@ public class QuestionModel extends BaseModel {
     // had relied on to mark the json fields as dirty. We now need to manually
     // trigger the dirty flag or the @PrePersist/@PreUpdate annotations don't
     // get triggered.
-    io.ebean.DB.markAsDirty(this);
+    markAsDirty();
     setFieldsFromQuestionDefinition(questionDefinition);
 
     // Verify the concurrency token is still valid before persisting

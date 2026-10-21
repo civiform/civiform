@@ -165,7 +165,6 @@
       matchManagers: ["github-actions"],
       pinDigests: true,
       commitMessageExtra: "to latest commit",
-      rebaseWhen: "always",
       description: "Ensures GitHub Actions use commit hashes for security and include a version comment.",
     },
     {
@@ -174,7 +173,6 @@
       matchManagers: ["docker-compose", "dockerfile"],
       pinDigests: true,
       commitMessageExtra: "to latest commit",
-      rebaseWhen: "always",
       description: "Ensures Docker images use SHA256 digests for security and reproducibility.",
     },
 

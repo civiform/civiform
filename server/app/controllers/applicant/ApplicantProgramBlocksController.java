@@ -27,6 +27,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.regex.Pattern;
 import javax.inject.Inject;
 import models.StoredFileModel;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +80,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   // not by the form submission.
   private static final ImmutableSet<String> STRIPPED_FORM_FIELDS =
       ImmutableSet.of("csrfToken", "file");
+
+  // The enumerator question's HTML element id ("id-" + 8 alphanumerics), sent by the client on the
+  // add-entity request so the server can render the first entity row's aria references. Validated
+  // before being echoed back into the rendered HTML.
+  private static final Pattern ENUMERATOR_QUESTION_ID_PATTERN =
+      Pattern.compile("id-[A-Za-z0-9]{8}");
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;
@@ -850,7 +857,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
               }
 
               Block block = maybeBlock.get();
-              int entityIndex = nextEntityIndex(request, block);
+              DynamicForm form = formFactory.form().bindFromRequest(request);
+              int entityIndex = nextEntityIndex(form, block);
 
               Optional<ApplicantQuestion> maybeInitialQuestion =
                   block.createContextualizedInitialQuestion(entityIndex);
@@ -864,6 +872,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       maybeInitialQuestion.get(),
                       block.getEnumeratorQuestion(),
                       entityIndex,
+                      enumeratorQuestionId(form),
                       messagesApi.preferred(request));
               return ok(entityRowHtml).as(Http.MimeTypes.HTML);
             },
@@ -889,10 +898,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * but honors a larger {@code entityCount} sent by the client (via HTMX hx-vals) so rows added
    * before the form is submitted still get contiguous indices.
    */
-  private int nextEntityIndex(Request request, Block block) {
+  private int nextEntityIndex(DynamicForm form, Block block) {
     int entityIndex = block.getEnumeratorEntityCount();
 
-    DynamicForm form = formFactory.form().bindFromRequest(request);
     String entityCountParam = form.get("entityCount");
     if (entityCountParam != null && !entityCountParam.isBlank()) {
       try {
@@ -902,6 +910,21 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       }
     }
     return entityIndex;
+  }
+
+  /**
+   * Returns the enumerator question's HTML element id sent by the client (via HTMX hx-vals), used
+   * to render the first entity row's aria references. Returns an empty string when it is absent or
+   * does not match the expected "id-" + 8-alphanumeric shape, since the value is echoed into the
+   * rendered HTML.
+   */
+  private String enumeratorQuestionId(DynamicForm form) {
+    String enumeratorQuestionId = form.get("enumeratorQuestionId");
+    if (enumeratorQuestionId == null
+        || !ENUMERATOR_QUESTION_ID_PATTERN.matcher(enumeratorQuestionId).matches()) {
+      return "";
+    }
+    return enumeratorQuestionId;
   }
 
   /**

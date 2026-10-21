@@ -92,7 +92,9 @@ public final class CsvExporterService {
             applications,
             programDefinitionsForAllVersions,
             currentProgram.hasEligibilityEnabled(),
-            /* includeScores= */ scoringEnabled && currentProgram.usesScoring());
+            /* includeScores= */ scoringEnabled
+                && programDefinitionsForAllVersions.values().stream()
+                    .anyMatch(ProgramDefinition::usesScoring));
 
     return exportCsv(
         exportConfig,
