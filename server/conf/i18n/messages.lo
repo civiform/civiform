@@ -1252,9 +1252,9 @@ label.repeatedSet.initialQuestion=
 # Description explaining what the initial question is and what the "Add initial question" button does
 description.repeatedSet.initialQuestion=
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=This is the question that the applicant will use to list out an entity.
+description.repeatedSet.initialQuestionAdminId=
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
 description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
