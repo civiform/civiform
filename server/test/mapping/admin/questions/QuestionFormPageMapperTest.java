@@ -6,6 +6,7 @@ import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import forms.questions.DropdownQuestionForm;
+import forms.questions.EnumeratorQuestionForm;
 import forms.questions.StaticContentQuestionForm;
 import forms.questions.TextQuestionForm;
 import forms.questions.YesNoQuestionForm;
@@ -55,7 +56,8 @@ public final class QuestionFormPageMapperTest {
         /* imagesInQuestionFeatureEnabled= */ false,
         readOnlyQuestionService,
         Optional.empty(),
-        /* existingImageFileKey= */ Optional.empty());
+        /* existingImageFileKey= */ Optional.empty(),
+        /* initialQuestionAdminName= */ Optional.empty());
   }
 
   @Test
@@ -438,7 +440,8 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty(),
-            /* existingImageFileKey= */ Optional.empty());
+            /* existingImageFileKey= */ Optional.empty(),
+            /* initialQuestionAdminName= */ Optional.empty());
 
     assertThat(result.getQuestionId()).isEqualTo(42L);
   }
@@ -479,7 +482,8 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.empty(),
-            /* existingImageFileKey= */ Optional.empty());
+            /* existingImageFileKey= */ Optional.empty(),
+            /* initialQuestionAdminName= */ Optional.empty());
 
     assertThat(result.getEnumeratorDisplayName()).isEqualTo("household-members");
   }
@@ -500,7 +504,8 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             readOnlyQuestionService,
             Optional.of("Error occurred"),
-            /* existingImageFileKey= */ Optional.empty());
+            /* existingImageFileKey= */ Optional.empty(),
+            /* initialQuestionAdminName= */ Optional.empty());
 
     assertThat(result.getErrorMessage()).contains("Error: Error occurred");
     assertThat(result.getErrorToastId()).isNotEmpty();
@@ -523,9 +528,39 @@ public final class QuestionFormPageMapperTest {
             /* imagesInQuestionFeatureEnabled= */ false,
             /* readOnlyQuestionService= */ readOnlyQuestionService,
             /* errorMessage= */ Optional.of("Error occurred"),
-            /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"));
+            /* existingImageFileKey= */ Optional.of("question-image/question-1/test.png"),
+            /* initialQuestionAdminName= */ Optional.empty());
 
     assertThat(result.hasExistingImage()).isTrue();
     assertThat(result.getQuestionImageDescription()).isEqualTo("Alt text for image");
+  }
+
+  @Test
+  public void mapEdit_withoutInitialQuestionAdminName_hidesInitialQuestion() {
+    EnumeratorQuestionForm form = new EnumeratorQuestionForm();
+
+    QuestionFormPageViewModel result =
+        mapper.mapEdit(
+            1L,
+            form,
+            Optional.empty(),
+            null,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ true,
+            /* answerOptionScoringEnabled= */ false,
+            /* imagesInQuestionFeatureEnabled= */ false,
+            readOnlyQuestionService,
+            Optional.empty(),
+            /* existingImageFileKey= */ Optional.empty(),
+            /* initialQuestionAdminName= */ Optional.empty());
+
+    assertThat(result.hasInitialQuestion()).isFalse();
+  }
+
+  @Test
+  public void mapNew_hidesInitialQuestion() {
+    QuestionFormPageViewModel result = mapNewTextForm(new TextQuestionForm());
+
+    assertThat(result.hasInitialQuestion()).isFalse();
   }
 }

@@ -75,7 +75,8 @@ public final class QuestionFormPageMapper {
       boolean imagesInQuestionFeatureEnabled,
       ReadOnlyQuestionService readOnlyQuestionService,
       Optional<String> errorMessage,
-      Optional<String> existingImageFileKey) {
+      Optional<String> existingImageFileKey,
+      Optional<String> initialQuestionAdminName) {
     String enumeratorDisplayName =
         maybeEnumerationQuestion.map(QuestionDefinition::getName).orElse("does not repeat");
 
@@ -93,6 +94,7 @@ public final class QuestionFormPageMapper {
         .enumeratorOptions(ImmutableList.of())
         .enumeratorDisplayName(enumeratorDisplayName)
         .existingImageFileKey(existingImageFileKey)
+        .initialQuestionAdminName(initialQuestionAdminName)
         .build();
   }
 

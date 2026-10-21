@@ -87,6 +87,11 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
   // alert omits the "$this" usage paragraphs.
   private final boolean enumeratorImprovementsEnabled;
 
+  // ENUMERATOR (edit mode): admin name of the enumerator's initial question, shown read-only in the
+  // "Initial question" section. Empty when the enumerator-improvements flag is off or the
+  // enumerator has no initial question.
+  @Builder.Default private final Optional<String> initialQuestionAdminName = Optional.empty();
+
   // --- Primary applicant info ---
   private final boolean showPrimaryApplicantInfo;
   private final List<PaiTagInfo> paiTags;
@@ -109,6 +114,15 @@ public final class QuestionFormPageViewModel implements BaseViewModel {
 
   private final Optional<String> existingImageFileKey;
   private final String questionImageDescription;
+
+  /**
+   * Whether to show the read-only "Initial question" section for an enumerator question. True only
+   * when the controller supplied an initial question admin name, which it does only when the
+   * enumerator-improvements flag is on and the enumerator has an initial question.
+   */
+  public boolean hasInitialQuestion() {
+    return initialQuestionAdminName.isPresent();
+  }
 
   public boolean hasExistingImage() {
     return existingImageFileKey != null && existingImageFileKey.isPresent();

@@ -696,6 +696,98 @@ public class AdminQuestionControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void edit_enumerator_withImprovementsDisabled_hidesInitialQuestion() {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    Request request = fakeRequestBuilder().addCSRFToken().build();
+
+    Result result =
+        controller
+            .edit(request, enumeratorQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).doesNotContain("initial-question-section");
+    assertThat(content).doesNotContain("Admin id:");
+  }
+
+  @Test
+  public void edit_enumerator_withoutInitialQuestion_hidesInitialQuestion() {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .build();
+
+    Result result =
+        controller
+            .edit(request, enumeratorQuestion.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains("Listed entity");
+    assertThat(content).doesNotContain("initial-question-section");
+    assertThat(content).doesNotContain("Admin id:");
+  }
+
+  @Test
+  public void update_enumerator_withError_showsInitialQuestion() {
+    QuestionModel enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    // An empty entity type fails validation and re-renders the edit form.
+    ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
+    formData
+        .put("questionName", enumeratorQuestion.getQuestionDefinition().getName())
+        .put("questionDescription", "desc")
+        .put("questionType", QuestionType.ENUMERATOR.name())
+        .put("questionText", "Who are your household members?")
+        .put("questionHelpText", "help text")
+        .put("entityType", "")
+        .put("concurrencyToken", enumeratorQuestion.getConcurrencyToken().toString());
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .bodyForm(formData.build())
+            .build();
+
+    Result result =
+        controller.update(
+            request,
+            enumeratorQuestion.getQuestionDefinition().getId(),
+            QuestionType.ENUMERATOR.toString());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("Enumerator question must have specified entity type");
+    assertListedEntityAndInitialQuestionShown(contentAsString(result));
+  }
+
+  private static void assertListedEntityAndInitialQuestionShown(String content) {
+    String unescaped = StringEscapeUtils.unescapeHtml4(content);
+    assertThat(unescaped).contains("Listed entity");
+    assertThat(unescaped)
+        .contains(
+            "Specify the type of individuals or objects an applicant will need to list out."
+                + " Please add these in the singular form, e.g. \"household member\" or"
+                + " \"income source.\"");
+    assertThat(unescaped)
+        .contains("aria-describedby=\"enumerator-question-entity-type-input-description\"");
+    assertThat(unescaped).doesNotContain("What are we enumerating");
+    assertThat(unescaped).contains("id=\"initial-question-section\"");
+    assertThat(unescaped).containsPattern("<h3[^>]*>\\s*Initial question\\s*</h3>");
+    assertThat(unescaped)
+        .containsPattern("Admin id:</strong>\\s*applicant's household member's name");
+    assertThat(unescaped)
+        .contains("This is the question that the applicant will use to list out an entity.");
+  }
+
+  @Test
   public void update_redirectsToRedirectUrlAfterUpdateIfOneIsSet() {
     // We can only update draft questions, so save this in the DRAFT version.
     QuestionModel originalNameQuestion =
