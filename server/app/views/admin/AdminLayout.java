@@ -176,7 +176,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     NavTag navBar =
         nav()
             .condWith(
-                !settingsManifest.getShowNotProductionBannerEnabled(request),
+                !BaseHtmlLayout.isNotProductionBannerEnabled(settingsManifest, request),
                 getGovBanner(Optional.empty()))
             .withClasses("position-fixed", "top-0", "width-full", "z-10");
 

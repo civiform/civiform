@@ -57,6 +57,7 @@ public enum MessageKey {
   ARIA_LABEL_INDENTED_PAGE("ariaLabel.indentedPage"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
+  BANNER_DEMO_BANNER_DAYS_REMAINING("banner.demoBanner.daysRemaining"),
   BANNER_NEW_CLIENT_CREATED("banner.newClientCreated"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),
   BANNER_GOV_WEBSITE_SECTION_CONTENT("banner.govWebsiteSectionContent"),
@@ -189,6 +190,8 @@ public enum MessageKey {
   INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION(
       "input.repeatedSet.questionTextAutofillSuggestion"),
   INVALID_INPUT("validation.invalidInput"),
+  LABEL_DEMO_BANNER_HEADING("label.demoBanner.heading"),
+  LABEL_DEMO_BANNER_LABEL("label.demoBanner.label"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
   LABEL_REPEATED_SET_INITIAL_QUESTION("label.repeatedSet.initialQuestion"),
   LANGUAGE_LABEL_SR("label.languageSr"),
