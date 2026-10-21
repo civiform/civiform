@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
@@ -52,9 +53,7 @@ public final class DateQuestion extends AbstractQuestion {
     // convert to a date and been noted as a failed update. We check for that here.
     if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
-          getDatePath(),
-          ImmutableSet.of(
-              ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
+          getDatePath(), ImmutableSet.of(ValidationErrorMessage.create(failedDateMessageKey())));
     }
 
     return ImmutableMap.of(getDatePath(), validateDate());
@@ -194,11 +193,7 @@ public final class DateQuestion extends AbstractQuestion {
     if (monthValue != null) {
       return monthValue;
     }
-    if (getDateValue().isPresent()) {
-      monthValue = Optional.of(getDateValue().get().getMonthValue());
-    } else {
-      monthValue = getDatePartFromFailedUpdates(1);
-    }
+    monthValue = displayedDatePart(1, getDateValue().map(LocalDate::getMonthValue));
     return monthValue;
   }
 
@@ -206,11 +201,7 @@ public final class DateQuestion extends AbstractQuestion {
     if (yearValue != null) {
       return yearValue;
     }
-    if (getDateValue().isPresent()) {
-      yearValue = Optional.of(getDateValue().get().getYear());
-    } else {
-      yearValue = getDatePartFromFailedUpdates(0);
-    }
+    yearValue = displayedDatePart(0, getDateValue().map(LocalDate::getYear));
     return yearValue;
   }
 
@@ -218,12 +209,19 @@ public final class DateQuestion extends AbstractQuestion {
     if (dayValue != null) {
       return dayValue;
     }
-    if (getDateValue().isPresent()) {
-      dayValue = Optional.of(getDateValue().get().getDayOfMonth());
-    } else {
-      dayValue = getDatePartFromFailedUpdates(2);
-    }
+    dayValue = displayedDatePart(2, getDateValue().map(LocalDate::getDayOfMonth));
     return dayValue;
+  }
+
+  /**
+   * After a failed submit, show the date the user just entered. Otherwise show the saved answer.
+   * The saved answer is left in place when parsing fails, so preferring it hides the mistake.
+   */
+  private Optional<Integer> displayedDatePart(int failedUpdateIndex, Optional<Integer> savedPart) {
+    if (applicantData.updateDidFailAt(getDatePath())) {
+      return getDatePartFromFailedUpdates(failedUpdateIndex);
+    }
+    return savedPart;
   }
 
   public boolean isYearEmpty() {
@@ -240,6 +238,40 @@ public final class DateQuestion extends AbstractQuestion {
 
   public boolean allFieldsPresent() {
     return getYearValue().isPresent() && getMonthValue().isPresent() && getDayValue().isPresent();
+  }
+
+  /**
+   * A memorable date is stored as {@code YYYY-MM-DD}. Name the field that kept it from parsing,
+   * instead of the generic date-format error.
+   */
+  private MessageKey failedDateMessageKey() {
+    String failedDate = applicantData.getFailedUpdates().get(getDatePath());
+    if (failedDate == null) {
+      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+    }
+    String[] parts = failedDate.split("-", -1);
+    if (parts.length != 3) {
+      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+    }
+    if (!parts[0].matches("\\d{4}")) {
+      return MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS;
+    }
+    if (!parts[1].matches("0[1-9]|1[0-2]")) {
+      return MessageKey.DATE_VALIDATION_MONTH_REQUIRED;
+    }
+    if (!parts[2].matches("0[1-9]|[12]\\d|3[01]") || !isParsableDate(failedDate)) {
+      return MessageKey.DATE_VALIDATION_DAY_INVALID;
+    }
+    return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+  }
+
+  private static boolean isParsableDate(String failedDate) {
+    try {
+      LocalDate.parse(failedDate, DateTimeFormatter.ofPattern("uuuu-MM-dd"));
+      return true;
+    } catch (DateTimeParseException e) {
+      return false;
+    }
   }
 
   /**
