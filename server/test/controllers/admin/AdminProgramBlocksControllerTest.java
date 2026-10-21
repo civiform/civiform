@@ -803,6 +803,33 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      hxQuestionBankPartial_withInitialQuestionMode_onLegacyEnumeratorBlock_offersOnlyValidTypes() {
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    QuestionModel fileUploadQuestion = testQuestionBank.fileUploadApplicantFile();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxQuestionBankPartial(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+                .build(),
+            program.id,
+            blockId,
+            ProgramQuestionBank.Mode.INITIAL_QUESTION.name());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content).contains(nameQuestion.getQuestionDefinition().getName());
+    assertThat(content).doesNotContain(fileUploadQuestion.getQuestionDefinition().getName());
+  }
+
+  @Test
   public void hxQuestionBankPartial_withExistingEnumeratorOnlyMode_filtersToEnumeratorsOnly() {
     QuestionDefinition enumeratorQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();

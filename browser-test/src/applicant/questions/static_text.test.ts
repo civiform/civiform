@@ -113,10 +113,10 @@ test.describe('Static text question for applicant flow', () => {
         await expect(img).toBeVisible()
 
         const frameLink = imageContainer.getByRole('link', {
-          name: 'Click to enlarge image',
-          exact: true,
+          name: imageDescription,
         })
         await expect(frameLink).toBeVisible()
+        await expect(frameLink).not.toHaveAttribute('aria-label')
 
         const desc = imageContainer.getByText(`${imageDescription}.`)
         await expect(desc).toBeVisible()
