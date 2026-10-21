@@ -625,3 +625,11 @@ hr.code-separator {
   text-underline-offset: auto;
   text-underline-position: from-font;
 }
+
+// Demo banner custom background color
+.usa-site-alert.cf-demo-banner {
+  .usa-alert,
+  .usa-alert .usa-alert__body {
+    background-color: #e7f0f9;
+  }
+}

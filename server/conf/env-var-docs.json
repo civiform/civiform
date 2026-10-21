@@ -686,6 +686,11 @@
         "mode": "ADMIN_WRITEABLE",
         "description": "The HREF for providing more information for the immigration status informational banner.",
         "type": "string"
+      },
+      "DEMO_BANNER_EXPIRATION_DATE": {
+        "mode": "ADMIN_READABLE",
+        "description": "The expiration date for the demo instance formatted as yyyy-mm-dd.",
+        "type": "string"
       }
     }
   },
@@ -909,8 +914,15 @@
       },
       "SHOW_NOT_PRODUCTION_BANNER_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
-        "description": "Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
+        "description": "[Deprecated: Switch to `BANNER_TYPE`] Enabling this will add a banner to the site to tell applicants this is not Production and that they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.",
         "type": "bool"
+      },
+      "BANNER_TYPE": {
+        "mode": "ADMIN_WRITEABLE",
+        "description": "Specifies the type of banner to display at the top of the site ('none', 'not_production', or 'demo').",
+        "type": "string",
+        "values": ["none", "not_production", "demo"],
+        "required": false
       },
       "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
