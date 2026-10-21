@@ -2,6 +2,7 @@ package controllers.admin;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
@@ -9,7 +10,6 @@ import controllers.CiviFormController;
 import java.util.Optional;
 import javax.inject.Inject;
 import models.QuestionModel;
-import org.pac4j.core.authorization.authorizer.DefaultAuthorizers;
 import org.pac4j.play.java.Secure;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -51,7 +51,7 @@ public final class QuestionPreviewController extends CiviFormController {
     this.questionRepository = checkNotNull(questionRepository);
   }
 
-  @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
+  @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result sampleQuestion(Request request, String questionType, Optional<Long> questionId) {
     Representation representation = Representation.builder().build();
     ApplicantPersonalInfo api = ApplicantPersonalInfo.ofGuestUser(representation);

@@ -1,8 +1,11 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static play.api.test.Helpers.testServerPort;
 import static play.mvc.Http.Status.OK;
+import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
+import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
 import controllers.WithMockedProfiles;
@@ -10,6 +13,7 @@ import java.util.Optional;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
+import play.mvc.Http;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
@@ -141,5 +145,23 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
         controller.sampleQuestion(request, "Static Text", Optional.of(questionModel.id));
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("data-testid=\"question-image-container\"");
+  }
+
+  @Test
+  public void sampleQuestion_applicantProfileWithQuestionId_rejected() {
+    createApplicantWithMockedProfile();
+    QuestionModel questionModel = testQuestionBank().staticContent();
+
+    Http.RequestBuilder request =
+        fakeRequestBuilder()
+            .call(
+                routes.QuestionPreviewController.sampleQuestion(
+                    "Static Text", Optional.of(questionModel.id)))
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+
+    Result result = route(app, request);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(controllers.routes.HomeController.index().url());
   }
 }
