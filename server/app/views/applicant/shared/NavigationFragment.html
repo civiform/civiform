@@ -230,6 +230,28 @@
     </div>
   </div>
 </section>
+<div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
+  <section
+    class="usa-site-alert usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
+    role="region"
+    th:aria-label="#{label.demoBanner.label}"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <p
+          class="usa-alert__text"
+          th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+        ></p>
+        <div th:if="${demoBannerDaysRemaining != ''}">
+          <span
+            th:class="|usa-tag ${demoBannerTagColorClass}|"
+            th:text="${demoBannerDaysRemaining}"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
 <div
   th:fragment="immigrationStatusInfoBanner"
   th:if="${immigrationStatusInfoBannerEnabled}"
