@@ -107,8 +107,7 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
 
     sinks = mock(MultipartUploadSinks.class);
-    when(sinks.getSinkForCloudProvider(
-            any(BucketType.class), anyString(), any(), any(), anyInt()))
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
         .thenAnswer(
             invocation ->
                 Sink.<ByteString, ByteString>fold(ByteString.emptyByteString(), ByteString::concat)
@@ -133,8 +132,9 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
   }
 
   @Test
-  public void streamingUpload_pngImage_streamsToPublicBucketWithQuestionImageFileKeyAndInlineDisposition()
-      throws Exception {
+  public void
+      streamingUpload_pngImage_streamsToPublicBucketWithQuestionImageFileKeyAndInlineDisposition()
+          throws Exception {
     Http.RequestHeader request =
         fakeRequest()
             .method("POST")
@@ -142,8 +142,7 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 
-    Source<ByteString, ?> source =
-        createMultipartRequestBody("hello.png", "image/png", PNG_HEADER);
+    Source<ByteString, ?> source = createMultipartRequestBody("hello.png", "image/png", PNG_HEADER);
 
     CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
         parser.apply(request).run(source, materializer);
@@ -170,8 +169,9 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
   }
 
   @Test
-  public void streamingUpload_jpegImage_streamsToPublicBucketWithQuestionImageFileKeyAndInlineDisposition()
-      throws Exception {
+  public void
+      streamingUpload_jpegImage_streamsToPublicBucketWithQuestionImageFileKeyAndInlineDisposition()
+          throws Exception {
     Http.RequestHeader request =
         fakeRequest()
             .method("POST")
@@ -217,8 +217,7 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
             .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
             .build();
 
-    Source<ByteString, ?> source =
-        createMultipartRequestBody("test.png", "image/png", PNG_HEADER);
+    Source<ByteString, ?> source = createMultipartRequestBody("test.png", "image/png", PNG_HEADER);
 
     CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
         parser.apply(request).run(source, materializer);

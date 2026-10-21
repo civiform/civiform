@@ -67,8 +67,7 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
     DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
 
     MultipartUploadSinks sinks = mock(MultipartUploadSinks.class);
-    when(sinks.getSinkForCloudProvider(
-            any(BucketType.class), anyString(), any(), any(), anyInt()))
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
         .thenAnswer(
             invocation ->
                 Sink.<ByteString, ByteString>fold(ByteString.emptyByteString(), ByteString::concat)
