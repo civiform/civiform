@@ -208,8 +208,8 @@ public final class ProgramBlockValidation {
    *   <li>Its enumeratorId equals the block's parent enumerator id — i.e. both are empty (top-level
    *       question on a top-level block) or both point to the same enumerator (repeated question on
    *       its matching repeated block).
-   *   <li>It is a non-repeated question being added to a repeated block, and enumerator
-   *       improvements are enabled.
+   *   <li>It is a non-repeated, non-enumerator question being added to a repeated block, and
+   *       enumerator improvements are enabled.
    *   <li>Its enumeratorId points to the enumerator question on this block itself, and enumerator
    *       improvements are enabled (initial question case).
    * </ul>
@@ -231,8 +231,10 @@ public final class ProgramBlockValidation {
     // enumerator
     if (enumeratorImprovementsEnabled) {
       // Non-repeating question being considered for a repeated block, shown as an option
-      // in the question bank sidebar before the question is copied
-      if (questionEnumeratorId.isEmpty()) {
+      // in the question bank sidebar before the question is copied. Enumerators are never
+      // copied, so a top-level enumerator can't go on a nested screen: it would be added
+      // without a parent enumerator id.
+      if (questionEnumeratorId.isEmpty() && !question.isEnumerator()) {
         return true;
       }
       // Initial question: its enumeratorId points to the enumerator on THIS block.
