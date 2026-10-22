@@ -637,12 +637,25 @@ hr.code-separator {
     display: flex;
     flex-direction: column;
     gap: units(1);
-    max-width: 100%;
+    max-width: units('desktop');
+    margin-left: auto;
+    margin-right: auto;
 
     @include at-media('tablet') {
       flex-direction: row;
       align-items: center;
       justify-content: space-between;
+    }
+  }
+
+  .cf-demo-banner__info {
+    .usa-alert__text {
+      font-weight: font-weight('bold');
+      white-space: nowrap;
+    }
+
+    .usa-tag {
+      white-space: nowrap;
     }
   }
 
@@ -659,12 +672,69 @@ hr.code-separator {
       justify-content: flex-end;
     }
 
-    .usa-button {
+    .usa-button-group--segmented {
+      .usa-button-group__item {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      @include at-media-max('desktop') {
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: units(1);
+
+        @include at-media('tablet') {
+          flex-direction: row;
+          justify-content: flex-end;
+        }
+
+        .usa-button-group__item {
+          margin: 0;
+          width: 100%;
+
+          @include at-media('tablet') {
+            width: auto;
+          }
+
+          > .usa-button,
+          &:first-child > .usa-button,
+          &:last-child > .usa-button,
+          &:where(:not(:first-child):not(:last-child)) > .usa-button {
+            border-radius: radius($theme-button-border-radius);
+            margin-left: 0;
+            margin-right: 0;
+            width: 100%;
+
+            @include at-media('tablet') {
+              width: auto;
+            }
+          }
+
+          &:where(:not(:last-child)) .usa-button::before {
+            display: none;
+          }
+        }
+      }
+    }
+
+    > .usa-button {
       margin: 0;
       width: 100%;
 
       @include at-media('tablet') {
         width: auto;
+      }
+    }
+
+    .cf-demo-banner__icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: units(1);
+
+      .usa-icon {
+        width: 1.25rem;
+        height: 1.25rem;
       }
     }
   }

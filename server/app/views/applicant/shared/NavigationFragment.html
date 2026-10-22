@@ -230,63 +230,6 @@
     </div>
   </div>
 </section>
-<div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
-  <section
-    class="usa-site-alert usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
-    role="region"
-    th:aria-label="#{label.demoBanner.label}"
-  >
-    <div class="usa-alert">
-      <div class="usa-alert__body">
-        <div class="cf-demo-banner__info">
-          <p
-            class="usa-alert__text"
-            th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
-          ></p>
-          <div th:if="${demoBannerDaysRemaining != ''}">
-            <span
-              th:class="|usa-tag ${demoBannerTagColorClass}|"
-              th:text="${demoBannerDaysRemaining}"
-            ></span>
-          </div>
-        </div>
-        <div class="cf-demo-banner__actions" th:if="${showDebugTools}">
-          <span class="cf-demo-banner__login-label">Log in as:</span>
-          <a
-            th:href="${fakeCiviformAdminUrl}"
-            class="usa-button usa-button--outline"
-            id="admin"
-            >Civiform Admin</a
-          >
-          <a
-            th:href="${fakeProgramAdminUrl}"
-            class="usa-button usa-button--outline"
-            id="program-admin"
-            >Program Admin</a
-          >
-          <a
-            th:href="${fakeDualAdminUrl}"
-            class="usa-button usa-button--outline"
-            id="dual-admin"
-            >Program and Civiform Admin</a
-          >
-          <a
-            th:href="${fakeTrustedIntermediaryUrl}"
-            class="usa-button usa-button--outline"
-            id="trusted-intermediary"
-            >Trusted Intermediary</a
-          >
-          <a
-            th:href="${additionalToolsUrl}"
-            class="usa-button usa-button--outline"
-            id="additional-tools"
-            >Additional tools</a
-          >
-        </div>
-      </div>
-    </div>
-  </section>
-</div>
 <div
   th:fragment="immigrationStatusInfoBanner"
   th:if="${immigrationStatusInfoBannerEnabled}"
