@@ -92,7 +92,10 @@ import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
+import services.question.exceptions.InvalidQuestionTypeException;
+import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.exceptions.UnsupportedScalarTypeException;
+import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import services.statuses.StatusDefinitions;
@@ -1667,8 +1670,9 @@ public final class ApplicantService {
       Block block,
       UpdateMetadata updateMetadata,
       ImmutableSet<Update> updates)
-      throws PathNotInBlockException {
+      throws PathNotInBlockException, UnsupportedScalarTypeException {
     Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
+    ImmutableMap.Builder<Path, String> failedUpdatesBuilder = ImmutableMap.builder();
 
     ImmutableSet<Update> addsAndChanges = validateEnumeratorAddsAndChanges(block, updates);
     ImmutableSet<Update> deletes =
@@ -1677,12 +1681,27 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(Path.empty().join(Scalar.DELETE_ENTITY)))
             .collect(ImmutableSet.toImmutableSet());
 
-    // If there are more updates than there are adds/changes and deletes, throw
-    Set<Update> unknownUpdates = Sets.difference(updates, Sets.union(addsAndChanges, deletes));
+    // When the enumerator has an initial question, the form submits the initial question's field
+    // values (nested paths under each entity slot, e.g.
+    // household_members[0].member_name.first_name) rather than the legacy entity-name text input.
+    // These are only present when the enumerator improvements flow is active, so a legacy
+    // enumerator yields an empty set and the legacy entity-name handling below runs unchanged.
+    ImmutableSet<Update> initialQuestionUpdates = ImmutableSet.of();
+    if (block.getInitialQuestion().isPresent()) {
+      initialQuestionUpdates =
+          updates.stream()
+              .filter(update -> isInitialQuestionUpdate(update.path(), enumeratorPath))
+              .collect(ImmutableSet.toImmutableSet());
+    }
+
+    // If there are updates that aren't adds/changes, deletes, or initial question updates, throw.
+    Set<Update> knownUpdates =
+        Sets.union(Sets.union(addsAndChanges, deletes), initialQuestionUpdates);
+    Set<Update> unknownUpdates = Sets.difference(updates, knownUpdates);
     if (!unknownUpdates.isEmpty()) {
       throw new PathNotInBlockException(block.getId(), unknownUpdates.iterator().next().path());
     }
@@ -1694,11 +1713,23 @@ public final class ApplicantService {
       applicantData.maybeDelete(enumeratorPath.withoutArrayReference());
     }
 
-    // Add and change entity names BEFORE deleting, because if deletes happened first, then changed
-    // entity names may not match the intended entities.
-    for (Update update : addsAndChanges) {
-      applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
-      writeMetadataForPath(update.path(), applicantData, updateMetadata);
+    // Add and change entities BEFORE deleting, because if deletes happened first, then changed
+    // entity names may not match the intended entities. When the enumerator has an initial
+    // question, the entity names are derived from the initial question answers rather than a
+    // free-text entity-name input.
+    if (!initialQuestionUpdates.isEmpty()) {
+      stageInitialQuestionUpdates(
+          applicantData,
+          block,
+          updateMetadata,
+          initialQuestionUpdates,
+          enumeratorPath,
+          failedUpdatesBuilder);
+    } else {
+      for (Update update : addsAndChanges) {
+        applicantData.putString(update.path().join(Scalar.ENTITY_NAME), update.value());
+        writeMetadataForPath(update.path(), applicantData, updateMetadata);
+      }
     }
 
     ImmutableList<Integer> deleteIndices =
@@ -1713,7 +1744,104 @@ public final class ApplicantService {
     if (applicantData.maybeClearRepeatedEntities(enumeratorPath)) {
       writeMetadataForPath(enumeratorPath.withoutArrayReference(), applicantData, updateMetadata);
     }
-    return ImmutableMap.of();
+    return failedUpdatesBuilder.build();
+  }
+
+  /**
+   * Returns true if the update path is an initial question field nested under an entity slot of the
+   * enumerator — i.e., it starts with the enumerator path but has additional path segments beyond
+   * the entity index (e.g. {@code household_members[0].member_name.first_name}).
+   */
+  private boolean isInitialQuestionUpdate(Path updatePath, Path enumeratorPath) {
+    return updatePath.startsWith(enumeratorPath)
+        && updatePath.segments().size() > enumeratorPath.segments().size();
+  }
+
+  /**
+   * Writes the initial question's field values to {@link ApplicantData} per entity using each
+   * scalar's typed setter (so dates, currency, phone and numbers round-trip through the typed
+   * readers), then derives each entity's {@link Scalar#ENTITY_NAME} from the initial question's
+   * answer string. So a name initial question answered "Sarah" "Brown" names the listed entity
+   * "Sarah Brown", and a date initial question names it by the formatted date. Values that fail to
+   * parse for their scalar type are recorded in {@code failedUpdatesBuilder}.
+   */
+  private void stageInitialQuestionUpdates(
+      ApplicantData applicantData,
+      Block block,
+      UpdateMetadata updateMetadata,
+      ImmutableSet<Update> initialQuestionUpdates,
+      Path enumeratorPath,
+      ImmutableMap.Builder<Path, String> failedUpdatesBuilder)
+      throws UnsupportedScalarTypeException {
+    QuestionDefinition initialQuestionDef =
+        block.getInitialQuestion().get().getQuestionDefinition();
+
+    // A field's scalar type is the same for every entity, so resolve the field-name -> type map
+    // once. The initial question is excluded from Block#getScalarType, so build it from the
+    // question definition's scalars (keyed by each scalar's path segment).
+    ImmutableMap<String, ScalarType> scalarTypesByFieldName;
+    try {
+      scalarTypesByFieldName =
+          Scalar.getScalars(initialQuestionDef.getQuestionType()).stream()
+              .collect(
+                  ImmutableMap.toImmutableMap(
+                      scalar -> scalar.name().toLowerCase(Locale.ROOT), Scalar::toScalarType));
+    } catch (InvalidQuestionTypeException | UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(
+          "Unsupported initial question type: " + initialQuestionDef.getQuestionType(), e);
+    }
+
+    // Write each field value using the setter for its scalar type.
+    for (Update update : initialQuestionUpdates) {
+      ScalarType type = scalarTypesByFieldName.get(update.path().keyName());
+      if (type == null) {
+        // The update was classified as an initial-question field, so its final segment should match
+        // one of the question's scalars; record anything unexpected as a failed update.
+        failedUpdatesBuilder.put(update.path(), update.value());
+        continue;
+      }
+      writeTypedScalarUpdate(
+          applicantData, type, update.path(), update.value(), failedUpdatesBuilder);
+    }
+
+    // Derive entity_name for each entity that had updates. getAnswerString reads the just-written
+    // typed values and formats them for every question type (a name as "Sarah Brown", a date as
+    // "01/15/2020"), keeping the listed entity name consistent with how the answer renders
+    // elsewhere.
+    ImmutableSet<Integer> entityIndices =
+        initialQuestionUpdates.stream()
+            .map(update -> getEntityIndexFromPath(update.path(), enumeratorPath.segments().size()))
+            .collect(ImmutableSet.toImmutableSet());
+    for (int entityIndex : entityIndices) {
+      Path entitySlot = enumeratorPath.atIndex(entityIndex);
+      // Read back from the live applicantData we just wrote to; the block's own data is a locked
+      // snapshot from before staging and would not reflect these writes.
+      String entityName =
+          block
+              .createContextualizedInitialQuestion(entityIndex, applicantData)
+              .filter(ApplicantQuestion::isAnswered)
+              .map(question -> question.getQuestion().getAnswerString())
+              .orElse("");
+      applicantData.putString(entitySlot.join(Scalar.ENTITY_NAME), entityName);
+      writeMetadataForPath(entitySlot, applicantData, updateMetadata);
+      writeMetadataForPath(
+          entitySlot.join(initialQuestionDef.getQuestionPathSegment()),
+          applicantData,
+          updateMetadata);
+    }
+  }
+
+  /**
+   * Extracts the entity index from an initial question update path (e.g. {@code
+   * applicant.household_members[0].member_name.first_name}) by walking up to the depth of the
+   * enumerator path and reading the array index at that level.
+   */
+  private int getEntityIndexFromPath(Path updatePath, int enumeratorDepth) {
+    Path current = updatePath;
+    while (current.segments().size() > enumeratorDepth) {
+      current = current.parentPath();
+    }
+    return current.arrayIndex();
   }
 
   /**
@@ -1728,12 +1856,12 @@ public final class ApplicantService {
                 update ->
                     update
                         .path()
-                        .withoutArrayReference()
+                        .safeWithoutArrayReference()
                         .equals(
                             block
                                 .getEnumeratorQuestion()
                                 .getContextualizedPath()
-                                .withoutArrayReference()))
+                                .safeWithoutArrayReference()))
             .collect(ImmutableSet.toImmutableSet());
 
     // Early return if it is empty.
@@ -1797,54 +1925,8 @@ public final class ApplicantService {
           block
               .getScalarType(currentPath)
               .orElseThrow(() -> new PathNotInBlockException(block.getId(), currentPath));
-      // An empty update means the applicant doesn't want to store anything. We already cleared the
-      // multi-select array above in preparation for updates, so do not remove the path.
-      if (!update.path().isArrayElement() && update.value().isBlank()) {
-        applicantData.maybeDelete(update.path());
-      } else {
-        switch (type) {
-          case PHONE_NUMBER -> {
-            try {
-              applicantData.putPhoneNumber(currentPath, update.value());
-            } catch (IllegalArgumentException e) {
-              failedUpdatesBuilder.put(currentPath, update.value());
-            }
-          }
-          case CURRENCY_CENTS -> {
-            try {
-              applicantData.putCurrencyDollars(currentPath, update.value());
-            } catch (IllegalArgumentException e) {
-              failedUpdatesBuilder.put(currentPath, update.value());
-            }
-          }
-          case DATE -> {
-            try {
-              applicantData.putDate(currentPath, update.value());
-            } catch (DateTimeException e) {
-              failedUpdatesBuilder.put(currentPath, update.value());
-            }
-          }
-          case LIST_OF_STRINGS, STRING -> applicantData.putString(currentPath, update.value());
-          case LONG -> {
-            try {
-              applicantData.putLong(currentPath, update.value());
-            } catch (NumberFormatException e) {
-              failedUpdatesBuilder.put(currentPath, update.value());
-            }
-          }
-          case DOUBLE -> {
-            try {
-              applicantData.putDouble(currentPath, update.value());
-            } catch (NumberFormatException e) {
-              failedUpdatesBuilder.put(currentPath, update.value());
-            }
-          }
-          case SERVICE_AREA -> {
-            // service areas get updated below
-          }
-          default -> throw new UnsupportedScalarTypeException(type);
-        }
-      }
+      writeTypedScalarUpdate(
+          applicantData, type, currentPath, update.value(), failedUpdatesBuilder);
     }
 
     serviceAreaUpdate.ifPresent(
@@ -1858,6 +1940,70 @@ public final class ApplicantService {
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> writeMetadataForPath(path, applicantData, updateMetadata));
     return failedUpdatesBuilder.build();
+  }
+
+  /**
+   * Writes a single scalar value to {@link ApplicantData} using the setter for its {@link
+   * ScalarType} (phone stripped to digits, currency dollars converted to cents, date to epoch
+   * millis, numbers to long/double), falling back to a plain string write for string scalars. A
+   * blank non-array value deletes the path rather than writing it. A value that cannot be parsed
+   * for its type is recorded in {@code failedUpdatesBuilder} and not written.
+   */
+  private void writeTypedScalarUpdate(
+      ApplicantData applicantData,
+      ScalarType type,
+      Path path,
+      String value,
+      ImmutableMap.Builder<Path, String> failedUpdatesBuilder)
+      throws UnsupportedScalarTypeException {
+    // An empty update means the applicant doesn't want to store anything. Any multi-select array is
+    // cleared by the caller before this, so a blank value deletes the path rather than writing it.
+    if (!path.isArrayElement() && value.isBlank()) {
+      applicantData.maybeDelete(path);
+      return;
+    }
+    switch (type) {
+      case PHONE_NUMBER -> {
+        try {
+          applicantData.putPhoneNumber(path, value);
+        } catch (IllegalArgumentException e) {
+          failedUpdatesBuilder.put(path, value);
+        }
+      }
+      case CURRENCY_CENTS -> {
+        try {
+          applicantData.putCurrencyDollars(path, value);
+        } catch (IllegalArgumentException e) {
+          failedUpdatesBuilder.put(path, value);
+        }
+      }
+      case DATE -> {
+        try {
+          applicantData.putDate(path, value);
+        } catch (DateTimeException e) {
+          failedUpdatesBuilder.put(path, value);
+        }
+      }
+      case LIST_OF_STRINGS, STRING -> applicantData.putString(path, value);
+      case LONG -> {
+        try {
+          applicantData.putLong(path, value);
+        } catch (NumberFormatException e) {
+          failedUpdatesBuilder.put(path, value);
+        }
+      }
+      case DOUBLE -> {
+        try {
+          applicantData.putDouble(path, value);
+        } catch (NumberFormatException e) {
+          failedUpdatesBuilder.put(path, value);
+        }
+      }
+      case SERVICE_AREA -> {
+        // Service areas are written separately by the caller, not via a typed scalar write.
+      }
+      default -> throw new UnsupportedScalarTypeException(type);
+    }
   }
 
   private void writeMetadataForPath(Path path, ApplicantData data, UpdateMetadata updateMetadata) {
@@ -2144,11 +2290,8 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
-      if (applicantQuestion.getType() != QuestionType.PHONE) {
-        continue;
-      }
-
+    for (ApplicantQuestion applicantQuestion :
+        questionsToCleanForType(blockMaybe.get(), formData, QuestionType.PHONE)) {
       PhoneQuestion phoneQuestion = applicantQuestion.createPhoneQuestion();
 
       Optional<String> phoneNumber =
@@ -2183,11 +2326,8 @@ public final class ApplicantService {
     // Get a writeable map so the existing paths can be replaced
     Map<String, String> newFormData = new java.util.HashMap<>(formData);
 
-    for (ApplicantQuestion applicantQuestion : blockMaybe.get().getVisibleQuestions()) {
-      if (applicantQuestion.getType() != QuestionType.DATE) {
-        continue;
-      }
-
+    for (ApplicantQuestion applicantQuestion :
+        questionsToCleanForType(blockMaybe.get(), formData, QuestionType.DATE)) {
       DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
 
       String singleDateValue = formData.get(dateQuestion.getDatePath().toString());
@@ -2221,6 +2361,46 @@ public final class ApplicantService {
     }
 
     return CompletableFuture.completedFuture(ImmutableMap.copyOf(newFormData));
+  }
+
+  /**
+   * Returns the questions in the block whose raw form data should be cleaned up before staging: the
+   * visible questions of the given type, plus — when the block is an enumerator whose initial
+   * question is of that type — the initial question contextualized to each entity present in the
+   * form data. The initial question is excluded from {@link Block#getVisibleQuestions()}, so it
+   * must be added here, or memorable-date and phone form data would never be consolidated for it.
+   */
+  private ImmutableList<ApplicantQuestion> questionsToCleanForType(
+      Block block, ImmutableMap<String, String> formData, QuestionType type) {
+    ImmutableList.Builder<ApplicantQuestion> builder = ImmutableList.builder();
+    block.getVisibleQuestions().stream()
+        .filter(question -> question.getType() == type)
+        .forEach(builder::add);
+    if (block.getInitialQuestion().map(question -> question.getType() == type).orElse(false)) {
+      builder.addAll(initialQuestionsInFormData(block, formData));
+    }
+    return builder.build();
+  }
+
+  /**
+   * Returns the enumerator's initial question contextualized to each entity index present in the
+   * submitted form data. New entities aren't saved yet, so the indices are read from the form keys
+   * rather than {@link Block#getContextualizedInitialQuestions()} (which reflects saved entities).
+   */
+  private ImmutableList<ApplicantQuestion> initialQuestionsInFormData(
+      Block block, ImmutableMap<String, String> formData) {
+    if (block.getInitialQuestion().isEmpty() || !block.isEnumerator()) {
+      return ImmutableList.of();
+    }
+    Path enumeratorPath = block.getEnumeratorQuestion().getContextualizedPath();
+    return formData.keySet().stream()
+        .map(Path::create)
+        .filter(path -> isInitialQuestionUpdate(path, enumeratorPath))
+        .map(path -> getEntityIndexFromPath(path, enumeratorPath.segments().size()))
+        .distinct()
+        .map(block::createContextualizedInitialQuestion)
+        .flatMap(Optional::stream)
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**

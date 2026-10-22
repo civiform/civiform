@@ -759,11 +759,19 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
-        // When returning to this page after creating a new initial question during
-        // enumerator setup, the controller redirects with ?initialQuestionId=<id>
-        // so the view can render the new question as the initial question selection.
+        // Repeated sets created before initial questions existed have an enumerator question but no
+        // initial question, so offer a way to add one.
+        boolean showBackfillInitialQuestionButton =
+            blockHasEnumeratorQuestion
+                && blockDefinition
+                    .getEnumeratorQuestionDefinition()
+                    .getEnumeratorInitialQuestionId()
+                    .isEmpty();
+        // When returning to this page after creating a new initial question (during enumerator
+        // setup or when backfilling), the controller redirects with ?initialQuestionId=<id> so the
+        // view can render the new question as the initial question selection.
         Optional<QuestionDefinition> optionalNewInitialQuestion =
-            !blockHasEnumeratorQuestion
+            (!blockHasEnumeratorQuestion || showBackfillInitialQuestionButton)
                 ? request
                     .queryString(INITIAL_QUESTION_ID_PARAM)
                     .flatMap(
@@ -780,14 +788,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           }
                         })
                 : Optional.empty();
-        // Repeated sets created before initial questions existed have an enumerator question but no
-        // initial question, so offer a way to add one.
-        boolean showBackfillInitialQuestionButton =
-            blockHasEnumeratorQuestion
-                && blockDefinition
-                    .getEnumeratorQuestionDefinition()
-                    .getEnumeratorInitialQuestionId()
-                    .isEmpty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -941,7 +941,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           blockHasEnumeratorQuestion,
           blockDefinition,
           program,
-          showBackfillInitialQuestionButton);
+          showBackfillInitialQuestionButton,
+          optionalNewInitialQuestion);
     }
   }
 
@@ -951,14 +952,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
       ProgramDefinition program,
-      boolean showBackfillInitialQuestionButton) {
+      boolean showBackfillInitialQuestionButton,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             iff(
                 showBackfillInitialQuestionButton,
-                renderBackfillInitialQuestionCard(messages, program.id(), blockDefinition.id())),
+                renderBackfillInitialQuestionCard(
+                    messages, program.id(), blockDefinition.id(), optionalStagedInitialQuestion)),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -976,7 +979,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * question only stages it: nothing is attached to the block yet.
    */
   private DivTag renderBackfillInitialQuestionCard(
-      Messages messages, long programId, long blockId) {
+      Messages messages,
+      long programId,
+      long blockId,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     return div()
         .withId("backfill-initial-question-card")
         .withClasses("display-flex", "flex-align-start", "margin-top-2")
@@ -1006,7 +1012,18 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withClasses(
                             "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
                     // Wrapper keeps the 12px gap to the description when the slot is swapped.
-                    div(renderEmptyInitialQuestionSlot(messages, programId, blockId))
+                    div(optionalStagedInitialQuestion
+                            .map(
+                                question ->
+                                    renderSelectedInitialQuestion(
+                                        messages,
+                                        question,
+                                        programId,
+                                        blockId,
+                                        // It comes from the create-new-question redirect.
+                                        /* initialQuestionWasNewlyCreated= */ true))
+                            .orElseGet(
+                                () -> renderEmptyInitialQuestionSlot(messages, programId, blockId)))
                         .withClass("margin-top-1")));
   }
 
