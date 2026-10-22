@@ -54,6 +54,7 @@
       hx-target="#enumerator-fields"
       hx-swap="beforeend"
       th:attr="hx-post=${hxAddEnumeratorEntityUrl},
+              hx-include=${isPreview != null && isPreview} ? '[name=csrfToken]' : null,
               data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
               data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
       class="usa-button usa-button--outline margin-top-105"

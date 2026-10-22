@@ -2,12 +2,14 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static play.api.test.Helpers.testServerPort;
+import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.route;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import com.google.common.collect.ImmutableMap;
 import controllers.WithMockedProfiles;
 import java.util.Optional;
 import models.QuestionModel;
@@ -123,6 +125,130 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     assertThat(html).contains("data-testid=\"question-image-container\"");
     assertThat(html).contains("draft-image.png");
     assertThat(html).contains("alt=\"Draft image on active question\"");
+  }
+
+  @Test
+  public void sampleQuestion_enumeratorWithInitialQuestion_rendersTheInitialQuestionAndAddButton()
+      throws Exception {
+    QuestionModel enumerator =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .call(
+                routes.QuestionPreviewController.sampleQuestion(
+                    "Enumerator", Optional.of(enumerator.id)))
+            .build();
+
+    Result result = controller.sampleQuestion(request, "Enumerator", Optional.of(enumerator.id));
+
+    assertThat(result.status()).isEqualTo(OK);
+    String html = contentAsString(result);
+    // The Add button posts to the server for a new row, as it does for an applicant, instead of
+    // cloning the legacy free-text template.
+    assertThat(html).contains("hx-post");
+    assertThat(html).doesNotContain("enumerator-field-template");
+    // The first row has the initial question's input for the first entity.
+    assertThat(html).contains("[0]");
+  }
+
+  @Test
+  public void sampleQuestion_enumeratorWithoutInitialQuestion_keepsTheLegacyTextInput()
+      throws Exception {
+    QuestionModel enumerator = testQuestionBank().enumeratorApplicantHouseholdMembers();
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+            .call(
+                routes.QuestionPreviewController.sampleQuestion(
+                    "Enumerator", Optional.of(enumerator.id)))
+            .build();
+
+    Result result = controller.sampleQuestion(request, "Enumerator", Optional.of(enumerator.id));
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("enumerator-field-template");
+  }
+
+  @Test
+  public void hxAddEnumeratorEntity_returnsARowForTheNextEntity() throws Exception {
+    QuestionModel enumerator =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+
+    Result result =
+        controller.hxAddEnumeratorEntity(
+            addEntityRequest(ImmutableMap.of("entityCount", "2"), /* flagOn= */ true),
+            enumerator.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("[2]");
+  }
+
+  @Test
+  public void hxAddEnumeratorEntity_withFlagOff_isNotFound() throws Exception {
+    QuestionModel enumerator =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+
+    Result result =
+        controller.hxAddEnumeratorEntity(
+            addEntityRequest(ImmutableMap.of("entityCount", "1"), /* flagOn= */ false),
+            enumerator.id);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxAddEnumeratorEntity_withoutInitialQuestion_isNotFound() throws Exception {
+    QuestionModel enumerator = testQuestionBank().enumeratorApplicantHouseholdMembers();
+
+    Result result =
+        controller.hxAddEnumeratorEntity(
+            addEntityRequest(ImmutableMap.of("entityCount", "1"), /* flagOn= */ true),
+            enumerator.id);
+
+    assertThat(result.status()).isEqualTo(NOT_FOUND);
+  }
+
+  @Test
+  public void hxAddEnumeratorEntity_withUnexpectedEnumeratorQuestionId_doesNotEchoIt()
+      throws Exception {
+    QuestionModel enumerator =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+
+    Result result =
+        controller.hxAddEnumeratorEntity(
+            addEntityRequest(
+                ImmutableMap.of(
+                    "entityCount", "1", "enumeratorQuestionId", "\"><script>alert(1)</script>"),
+                /* flagOn= */ true),
+            enumerator.id);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("<script>alert(1)");
+  }
+
+  @Test
+  public void hxAddEnumeratorEntity_applicantProfile_rejected() {
+    createApplicantWithMockedProfile();
+    QuestionModel enumerator =
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+
+    Http.RequestBuilder request =
+        fakeRequestBuilder()
+            .call(routes.QuestionPreviewController.hxAddEnumeratorEntity(enumerator.id))
+            .header(Http.HeaderNames.HOST, "localhost:" + testServerPort());
+
+    Result result = route(app, request);
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation()).hasValue(controllers.routes.HomeController.index().url());
+  }
+
+  private Request addEntityRequest(ImmutableMap<String, String> form, boolean flagOn) {
+    return fakeRequestBuilder()
+        .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
+        .bodyForm(form)
+        .build();
   }
 
   @Test

@@ -175,7 +175,12 @@ public final class QuestionEditView extends BaseHtmlView {
         .ifPresent(formContent::with);
 
     return renderWithPreview(
-        request, formContent, questionType, title, /* modal= */ Optional.empty());
+        request,
+        formContent,
+        questionType,
+        title,
+        /* modal= */ Optional.empty(),
+        /* previewQuestionId= */ Optional.empty());
   }
 
   /** Render a fresh Edit Question Form with errors. */
@@ -248,12 +253,27 @@ public final class QuestionEditView extends BaseHtmlView {
         .map(ToastMessage::getContainerTag)
         .ifPresent(formContent::with);
 
+    // The preview of an enumerator question shows its initial question, so it needs the saved
+    // question. The previews of other types are generic samples that the form updates as it is
+    // edited.
+    Optional<Long> previewQuestionId =
+        questionType == QuestionType.ENUMERATOR ? Optional.of(id) : Optional.empty();
     return renderWithPreview(
-        request, formContent, questionType, title, Optional.of(unsetUniversalModal));
+        request,
+        formContent,
+        questionType,
+        title,
+        Optional.of(unsetUniversalModal),
+        previewQuestionId);
   }
 
   private Content renderWithPreview(
-      Request request, DivTag formContent, QuestionType type, String title, Optional<Modal> modal) {
+      Request request,
+      DivTag formContent,
+      QuestionType type,
+      String title,
+      Optional<Modal> modal,
+      Optional<Long> previewQuestionId) {
     DivTag previewContent;
 
     // TODO(#7266): If the admin UI uses Thymeleaf, we can directly embed Thymeleaf
@@ -264,7 +284,7 @@ public final class QuestionEditView extends BaseHtmlView {
             .attr(
                 "hx-get",
                 controllers.admin.routes.QuestionPreviewController.sampleQuestion(
-                    type.getLabel(), Optional.empty()))
+                    type.getLabel(), previewQuestionId))
             .attr("hx-trigger", "load");
 
     HtmlBundle htmlBundle =

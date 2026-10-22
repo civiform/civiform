@@ -61,6 +61,59 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('the question edit page preview shows the initial question and adds a row', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await adminQuestions.gotoAdminQuestionsPage()
+      await adminQuestions.gotoQuestionEditPage(
+        'enumerator-ete-householdmembers',
+      )
+      const preview = page.locator('#sample-question')
+      // The initial question in this test is a number question.
+      const initialQuestionInputs = preview.getByRole('spinbutton')
+
+      await test.step('The preview starts with one row of the initial question', async () => {
+        await expect(initialQuestionInputs).toHaveCount(1)
+        await expect(
+          preview.getByText('household member name #1'),
+        ).toBeVisible()
+        await validateAccessibility(page, '#sample-question')
+      })
+
+      await test.step('Clicking Add adds another row, like it does for an applicant', async () => {
+        await initialQuestionInputs.first().fill('3')
+        await preview
+          .getByRole('button', {name: 'Add household member'})
+          .click()
+        await expect(initialQuestionInputs).toHaveCount(2)
+        await expect(
+          preview.getByText('household member name #2'),
+        ).toBeVisible()
+        await validateAccessibility(page, '#sample-question')
+      })
+    })
+
+    test('the question edit page preview keeps the legacy input when the feature flag is off', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+      await adminQuestions.gotoAdminQuestionsPage()
+      await adminQuestions.gotoQuestionEditPage(
+        'enumerator-ete-householdmembers',
+      )
+      const preview = page.locator('#sample-question')
+      await expect(preview).toBeVisible()
+
+      // The initial question's input isn't shown, and Add is the legacy script button, not an
+      // HTMX request to the server.
+      await expect(preview.getByRole('spinbutton')).toHaveCount(0)
+      await expect(
+        preview.locator('#enumerator-field-add-button'),
+      ).not.toHaveAttribute('hx-post', /.*/)
+    })
+
     test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
       page,
       adminPrograms,
