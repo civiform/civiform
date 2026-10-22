@@ -19,14 +19,8 @@ import play.mvc.BodyParser;
 import play.mvc.With;
 
 /**
- * Guards the setup that keeps file uploads from being written to storage before the request is
- * authorized.
- *
- * <p>A streaming upload body parser writes the file to cloud storage as it reads the body. Play
- * runs a route's body parser before action composition (the {@code @Secure} authorizer and any
- * {@code @With} actions) unless the route has the {@code deferBodyParsing} modifier. {@link
- * FileUploadRouteAuthorizationTest} proves the setup works. This test makes sure no streaming
- * upload route is added or changed without it.
+ * Fails if a route that uses a streaming upload body parser lacks the {@code deferBodyParsing}
+ * modifier. See {@link FileUploadRouteAuthorizationTest}.
  */
 public class StreamingUploadRoutesTest {
 

@@ -138,7 +138,6 @@ public final class AdminProgramImageController extends CiviFormController {
   }
 
   /** Uploads a program summary image and saves its alt text. */
-  // Body parsing is deferred in conf/routes. @Secure must stay first.
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   @With(FileUploadImprovementsEnabledAction.class)
   @BodyParser.Of(ProgramImageStreamingMultipartBodyParser.class)

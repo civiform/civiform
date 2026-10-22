@@ -32,14 +32,9 @@ import play.test.TestServer;
 import services.cloud.StorageServiceName;
 
 /**
- * The streaming upload body parsers write a file to cloud storage as the request body is read. Play
- * runs the body parser before action composition unless the route defers body parsing, so by
- * default an {@code @Secure} authorizer only runs after the file is stored.
- *
- * <p>These tests send real HTTP requests with no session to a running test server, because body
- * parsing deferral is applied by the HTTP server and is skipped when a request is routed directly
- * with {@code Helpers.route}. Each test checks that the request is turned away and that the upload
- * sink is never created, which means the checks ran before any bytes were read.
+ * Sends real HTTP requests with no session to a running test server, since body parsing deferral is
+ * applied by the server and skipped by {@code Helpers.route}. Each request must be turned away
+ * without the upload sink ever being created.
  */
 public class FileUploadRouteAuthorizationTest {
 
@@ -56,8 +51,7 @@ public class FileUploadRouteAuthorizationTest {
   @Before
   public void setUp() {
     uploadSinks = mock(MultipartUploadSinks.class);
-    // If a parser ever asks for a sink, hand back one that works so the request completes and the
-    // assertion below, not a stream error, is what fails.
+    // Return a working sink so a missed check fails the assertion, not the stream.
     when(uploadSinks.getSinkForCloudProvider(any(), anyString(), anyInt()))
         .thenAnswer(
             _ ->
@@ -124,15 +118,12 @@ public class FileUploadRouteAuthorizationTest {
                     multipartBody(boundary, fileName, contentType, content)))
             .build();
 
-    // Do not follow redirects, so a login redirect shows up as a 303.
     HttpResponse<String> response =
         HttpClient.newBuilder()
             .followRedirects(HttpClient.Redirect.NEVER)
             .build()
             .send(request, HttpResponse.BodyHandlers.ofString());
 
-    // An unauthenticated request gets the login redirect, the same as it did before deferral, and
-    // must not have started writing the file anywhere.
     assertThat(response.statusCode()).isEqualTo(Http.Status.SEE_OTHER);
     verifyNoInteractions(uploadSinks);
   }
