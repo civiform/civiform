@@ -135,6 +135,8 @@ public enum MessageKey {
   DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION(
       "description.repeatedSet.backfillInitialQuestion"),
   DESCRIPTION_REPEATED_SET_INITIAL_QUESTION("description.repeatedSet.initialQuestion"),
+  DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_ADMIN_ID(
+      "description.repeatedSet.initialQuestionAdminId"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
   DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
   DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
@@ -194,6 +196,7 @@ public enum MessageKey {
   LABEL_DEMO_BANNER_LABEL("label.demoBanner.label"),
   LABEL_NEW_REPEATED_SET_FORM("label.repeatedSet.newSetForm"),
   LABEL_REPEATED_SET_INITIAL_QUESTION("label.repeatedSet.initialQuestion"),
+  LABEL_REPEATED_SET_INITIAL_QUESTION_ADMIN_ID("label.repeatedSet.initialQuestionAdminId"),
   LANGUAGE_LABEL_SR("label.languageSr"),
   LINK_ADMIN_LOGIN("link.adminLogin"),
   LINK_EDIT("link.edit"),

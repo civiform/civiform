@@ -644,6 +644,57 @@ public class TestQuestionBank {
     return enumeratorQuestionModel;
   }
 
+  /**
+   * Returns a new-flow enumerator whose initial question is of the given {@link QuestionType}, used
+   * to exercise saving and entity-name derivation across the typed initial-question types (date,
+   * currency, phone, number, etc.). Builds fresh on each call, so call it once per test.
+   */
+  public QuestionModel enumeratorWithInitialQuestion(QuestionType initialQuestionType) {
+    String typeName = initialQuestionType.name().toLowerCase(Locale.ROOT);
+    try {
+      QuestionDefinitionBuilder initialQuestionBuilder =
+          new QuestionDefinitionBuilder()
+              .setQuestionType(initialQuestionType)
+              .setName("household member " + typeName)
+              .setDescription("The household member's " + typeName)
+              .setQuestionText(LocalizedStrings.of(Locale.US, "Initial " + typeName + " question?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."));
+      if (initialQuestionType.isMultiOptionType()) {
+        initialQuestionBuilder.setQuestionOptions(
+            ImmutableList.of(
+                QuestionOption.create(
+                    1L, "option-one", LocalizedStrings.of(Locale.US, "Option One")),
+                QuestionOption.create(
+                    2L, "option-two", LocalizedStrings.of(Locale.US, "Option Two"))));
+      }
+      QuestionDefinition initialQuestion = initialQuestionBuilder.build();
+      var initialQuestionModel = maybeSave(initialQuestion);
+
+      QuestionDefinition enumeratorQuestion =
+          new EnumeratorQuestionDefinition(
+              QuestionDefinitionConfig.builder()
+                  .setName("household members by " + typeName)
+                  .setDescription("The applicant's household members")
+                  .setQuestionText(
+                      LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                  .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                  .setEnumeratorInitialQuestionId(initialQuestionModel.id)
+                  .build(),
+              LocalizedStrings.empty());
+      var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
+
+      QuestionModel updatedInitial =
+          new QuestionModel(
+              new QuestionDefinitionBuilder(initialQuestionModel.getQuestionDefinition())
+                  .setEnumeratorId(Optional.of(enumeratorQuestionModel.id))
+                  .build());
+      updatedInitial.update();
+      return enumeratorQuestionModel;
+    } catch (UnsupportedQuestionTypeException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   // File upload
   private QuestionModel fileUploadApplicantFile(QuestionEnum ignore) {
     QuestionDefinition definition =

@@ -34,18 +34,15 @@ See the radio-option below as an example.
  * :where() keeps specificity at (0,0,1), so USWDS component rules (e.g.
  * .usa-alert__text, .usa-prose > * + *) win exactly as they did before.
  */
-:where(
-    .cf-applicant-question-text,
-    .cf-applicant-question-help-text,
-    .cf-applicant-summary-row,
-    .usa-alert__body,
-    .usa-checkbox__label,
-    .usa-radio__label,
-    .usa-label,
-    .usa-intro,
-    .usa-process-list__item
-  )
-  p {
+:where(.cf-applicant-question-text,
+  .cf-applicant-question-help-text,
+  .cf-applicant-summary-row,
+  .usa-alert__body,
+  .usa-checkbox__label,
+  .usa-radio__label,
+  .usa-label,
+  .usa-intro,
+  .usa-process-list__item) p {
   margin: 0;
 }
 
@@ -81,10 +78,12 @@ svg {
   &.w-auto {
     width: auto;
   }
+
   &.h-5 {
     height: 1.25rem;
   }
 }
+
 // -- end
 
 /* Override margin values to support RTL languages. */
@@ -99,15 +98,15 @@ svg {
 
 /* Rather than having a focus outline around the checkbox or radio button,
 it is around the label */
-.usa-checkbox__input:focus + [class*='__label']::before,
-.usa-radio__input:focus + [class*='__label']::before {
+.usa-checkbox__input:focus+[class*='__label']::before,
+.usa-radio__input:focus+[class*='__label']::before {
   outline: 2px solid rgba(0, 0, 0, 0);
   outline-offset: 2px;
 }
 
 .cf-radio-option:focus-within,
-.usa-checkbox__input:focus + [class*='__label'],
-.usa-radio__input:focus + [class*='__label'] {
+.usa-checkbox__input:focus+[class*='__label'],
+.usa-radio__input:focus+[class*='__label'] {
   @include u-border('blue-40v');
   @include u-border('05');
 }
@@ -138,7 +137,7 @@ it is around the label */
 }
 
 /* Style aria-disabled checkboxes to appear disabled */
-.cf-location-checkbox-input[aria-disabled='true'] + label {
+.cf-location-checkbox-input[aria-disabled='true']+label {
   opacity: 0.5;
   cursor: not-allowed;
 }
@@ -181,7 +180,7 @@ it is around the label */
  *Ensure the focus outline is offset from the red error border
  * of the input group, for greater accessibility.
  */
-.usa-input-group--error > .usa-input:focus {
+.usa-input-group--error>.usa-input:focus {
   outline-offset: units(1);
 }
 
@@ -223,13 +222,13 @@ it is around the label */
 
 // When a section follows breadcrumbs it'll add a larger top margin than what
 // we want
-.usa-breadcrumb + section {
+.usa-breadcrumb+section {
   @include u-margin-top('105');
 }
 
 // Remove top margin from h2 headings in .usa-prose on the home page because we
 // usually get enough spacing from the margin below section cards and add spacing below.
-.usa-prose > h2.cf-below-cards {
+.usa-prose>h2.cf-below-cards {
   @include u-margin-top(0);
   @include u-margin-bottom(3);
 }
@@ -370,6 +369,7 @@ ol.usa-list {
 
 // Styles for desktop
 @media (min-width: 64em) {
+
   // The USWDS header doesn't give enough space for the logo and title, so we add some.
   .usa-header--basic .usa-navbar {
     width: 50%;
@@ -388,6 +388,7 @@ ol.usa-list {
 
 // Styles common to tablet and mobile
 @media (max-width: 63.9em) {
+
   // Hide the logo on mobile and tablet
   .cf-header-logo {
     display: none;
@@ -405,6 +406,7 @@ ol.usa-list {
 
 // Styles for mobile
 @media (max-width: 47.9em) {
+
   // Use a single column on mobile
   .grid-container {
     grid-template-columns: 1fr;
@@ -630,7 +632,7 @@ main {
     margin-inline-end: 0.5rem;
   }
 
-  .usa-input-prefix + input {
+  .usa-input-prefix+input {
     padding-inline-start: 2.5rem;
   }
 
@@ -698,6 +700,7 @@ main {
   .usa-process-list {
     padding-right: 20px;
   }
+
   // -- end
 
   .usa-radio__label::before {
@@ -705,8 +708,8 @@ main {
     right: 1rem;
   }
 
-  .usa-radio__label > div,
-  .usa-radio__label > p {
+  .usa-radio__label>div,
+  .usa-radio__label>p {
     margin-inline-start: 2.5rem;
   }
 
@@ -854,14 +857,14 @@ main {
     width: 1rem;
     height: 1rem;
     margin-right: 0.25rem;
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E")
-      no-repeat center;
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' fill='white' viewBox='0 0 24 24'%3E%3Cpath d='M9 16.17 4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z'/%3E%3C/svg%3E") no-repeat center;
     background-size: contain;
   }
 }
 
 /* Legacy: When a file is being uploaded... */
 .cf-file-uploading {
+
   /* Legacy: Show the file uploading tag */
   .cf-file-uploading-tag {
     display: inline-block;
@@ -987,6 +990,7 @@ main#main-content {
 
 // Demo banner custom background color and responsive layout
 .usa-site-alert.cf-demo-banner {
+
   .usa-alert,
   .usa-alert .usa-alert__body {
     background-color: #e7f0f9;

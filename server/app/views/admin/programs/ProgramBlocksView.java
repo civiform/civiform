@@ -759,11 +759,19 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
-        // When returning to this page after creating a new initial question during
-        // enumerator setup, the controller redirects with ?initialQuestionId=<id>
-        // so the view can render the new question as the initial question selection.
+        // Repeated sets created before initial questions existed have an enumerator question but no
+        // initial question, so offer a way to add one.
+        boolean showBackfillInitialQuestionButton =
+            blockHasEnumeratorQuestion
+                && blockDefinition
+                    .getEnumeratorQuestionDefinition()
+                    .getEnumeratorInitialQuestionId()
+                    .isEmpty();
+        // When returning to this page after creating a new initial question (during enumerator
+        // setup or when backfilling), the controller redirects with ?initialQuestionId=<id> so the
+        // view can render the new question as the initial question selection.
         Optional<QuestionDefinition> optionalNewInitialQuestion =
-            !blockHasEnumeratorQuestion
+            (!blockHasEnumeratorQuestion || showBackfillInitialQuestionButton)
                 ? request
                     .queryString(INITIAL_QUESTION_ID_PARAM)
                     .flatMap(
@@ -780,14 +788,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           }
                         })
                 : Optional.empty();
-        // Repeated sets created before initial questions existed have an enumerator question but no
-        // initial question, so offer a way to add one.
-        boolean showBackfillInitialQuestionButton =
-            blockHasEnumeratorQuestion
-                && blockDefinition
-                    .getEnumeratorQuestionDefinition()
-                    .getEnumeratorInitialQuestionId()
-                    .isEmpty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -941,7 +941,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
           blockHasEnumeratorQuestion,
           blockDefinition,
           program,
-          showBackfillInitialQuestionButton);
+          showBackfillInitialQuestionButton,
+          optionalNewInitialQuestion);
     }
   }
 
@@ -951,13 +952,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
       ProgramDefinition program,
-      boolean showBackfillInitialQuestionButton) {
+      boolean showBackfillInitialQuestionButton,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
-            renderInitialQuestionDebugLine(blockDefinition),
-            iff(showBackfillInitialQuestionButton, renderBackfillInitialQuestionCard(messages)),
+            iff(
+                showBackfillInitialQuestionButton,
+                renderBackfillInitialQuestionCard(
+                    messages, program.id(), blockDefinition.id(), optionalStagedInitialQuestion)),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -970,10 +974,15 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   /**
    * Renders the card shown under the enumerator question card when the repeated set has no initial
-   * question yet, explaining what one is and offering a button to add it. The button is not wired
-   * up to anything yet.
+   * question yet, explaining what one is and offering a button to add it. The button and the picked
+   * question share the {@code #initial-question-slot} with the enumerator setup form, so choosing a
+   * question only stages it: nothing is attached to the block yet.
    */
-  private DivTag renderBackfillInitialQuestionCard(Messages messages) {
+  private DivTag renderBackfillInitialQuestionCard(
+      Messages messages,
+      long programId,
+      long blockId,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     return div()
         .withId("backfill-initial-question-card")
         .withClasses("display-flex", "flex-align-start", "margin-top-2")
@@ -999,24 +1008,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     p(messages.at(
                             MessageKey.DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION
                                 .getKeyName()))
-                        .withId("backfill-initial-question-description")
+                        .withId("initial-question-description")
                         .withClasses(
                             "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
-                    renderBackfillInitialQuestionButton(messages)));
-  }
-
-  private ButtonTag renderBackfillInitialQuestionButton(Messages messages) {
-    return button("")
-        .withType("button")
-        .withId("backfill-initial-question-button")
-        .withClasses(
-            "usa-button",
-            "usa-button--outline",
-            "margin-top-105",
-            ReferenceClasses.OPEN_QUESTION_BANK_BUTTON)
-        .attr("aria-describedby", "backfill-initial-question-description")
-        .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-        .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD.getKeyName()));
+                    // Wrapper keeps the 12px gap to the description when the slot is swapped.
+                    div(optionalStagedInitialQuestion
+                            .map(
+                                question ->
+                                    renderSelectedInitialQuestion(
+                                        messages,
+                                        question,
+                                        programId,
+                                        blockId,
+                                        // It comes from the create-new-question redirect.
+                                        /* initialQuestionWasNewlyCreated= */ true))
+                            .orElseGet(
+                                () -> renderEmptyInitialQuestionSlot(messages, programId, blockId)))
+                        .withClass("margin-top-1")));
   }
 
   /**
@@ -1038,28 +1046,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withClasses("usa-button", "margin-top-2")
         .withText(messages.at(MessageKey.BUTTON_CONTINUE_TO_CHILD_SCREEN.getKeyName()))
         .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
-  }
-
-  // TODO(#13393): Remove this debug line entirely once the UX migration of the
-  // question edit form is complete and we can show the initial question id on the
-  // enumerator question edit form.
-  // Temporary: unstyled line showing the linked initial question's admin id. Placeholder for the
-  // real UI treatment coming in a follow-up ticket.
-  private DivTag renderInitialQuestionDebugLine(BlockDefinition blockDefinition) {
-    if (!blockDefinition.hasEnumeratorQuestion()) {
-      return div();
-    }
-    Optional<Long> maybeInitialQuestionId =
-        blockDefinition.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId();
-    if (maybeInitialQuestionId.isEmpty()) {
-      return div();
-    }
-    long initialQuestionId = maybeInitialQuestionId.get();
-    return blockDefinition.getQuestionDefinitions().stream()
-        .filter(qd -> qd.getId() == initialQuestionId)
-        .findFirst()
-        .map(qd -> div("Initial question: " + qd.getName()))
-        .orElseGet(() -> div());
   }
 
   private DivTag renderEnumeratorQuestionCardSection(

@@ -631,7 +631,7 @@ public final class QuestionService {
   public QuestionDefinition setImageFileKeyAndDescription(
       long questionId, Optional<String> maybeFileKey, Locale locale, String imageDescription)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
-    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+    QuestionDefinition questionDefinition = resolveLatestQuestionDefinition(questionId);
 
     QuestionDefinitionBuilder builder = new QuestionDefinitionBuilder(questionDefinition);
     if (maybeFileKey.isPresent()) {
@@ -658,7 +658,7 @@ public final class QuestionService {
   public QuestionDefinition deleteImageFromQuestion(long questionId)
       throws QuestionNotFoundException, UnsupportedQuestionTypeException {
 
-    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+    QuestionDefinition questionDefinition = resolveLatestQuestionDefinition(questionId);
     QuestionDefinition updatedQuestionDefinition =
         new QuestionDefinitionBuilder(questionDefinition)
             .setImageFileKey(Optional.empty())
@@ -668,6 +668,28 @@ public final class QuestionService {
     QuestionModel updatedQuestion =
         questionRepository.createOrUpdateDraft(updatedQuestionDefinition);
     return questionRepository.getQuestionDefinition(updatedQuestion);
+  }
+
+  /**
+   * Resolves the latest QuestionDefinition for the given ID. When an active question is edited and
+   * modified via HTMX (e.g. uploading or deleting an image), a draft row is created. Future HTMX
+   * requests from the same un-reloaded page continue targeting the active question ID from the
+   * initial URL. Resolving to the draft definition first ensures that we use the latest draft's
+   * state and concurrency token.
+   */
+  private QuestionDefinition resolveLatestQuestionDefinition(long questionId)
+      throws QuestionNotFoundException {
+    QuestionDefinition questionDefinition = getQuestionDefinition(questionId);
+    return versionRepositoryProvider
+        .get()
+        .getDraftVersion()
+        .flatMap(
+            draft ->
+                versionRepositoryProvider
+                    .get()
+                    .getQuestionByNameForVersion(questionDefinition.getName(), draft))
+        .map(questionRepository::getQuestionDefinition)
+        .orElse(questionDefinition);
   }
 
   public QuestionDefinition getQuestionDefinition(long questionId)

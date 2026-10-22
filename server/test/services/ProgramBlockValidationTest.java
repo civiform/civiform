@@ -2,6 +2,7 @@ package services;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import models.QuestionModel;
 import models.VersionModel;
@@ -10,6 +11,7 @@ import org.junit.Test;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.ProgramBlockValidation.AddQuestionResult;
+import services.program.BlockDefinition;
 import services.program.ProgramDefinition;
 import services.program.ProgramNeedsABlockException;
 import services.question.QuestionService;
@@ -29,6 +31,7 @@ public class ProgramBlockValidationTest extends ResetPostgres {
   private QuestionModel householdMemberQuestion;
   private QuestionModel nestedHouseholdMemberWageQuestion;
   private QuestionModel repeatedHouseholdMemberNameQuestion;
+  private QuestionModel otherTopLevelEnumerator;
 
   @Before
   public void setProgramBlockValidation()
@@ -52,6 +55,8 @@ public class ProgramBlockValidationTest extends ResetPostgres {
     repeatedHouseholdMemberNameQuestion =
         resourceCreator.insertRepeatedTextQuestion("householdMemberName", householdMemberQuestion);
     version.addQuestion(repeatedHouseholdMemberNameQuestion);
+    otherTopLevelEnumerator = resourceCreator.insertEnum("otherTopLevelEnumerator");
+    version.addQuestion(otherTopLevelEnumerator);
     version.save();
     ProgramBlockValidationFactory programBlockValidationFactory =
         new ProgramBlockValidationFactory(versionRepository, questionService);
@@ -259,6 +264,56 @@ public class ProgramBlockValidationTest extends ResetPostgres {
 
   @Test
   public void
+      canAddQuestion_cannotAddTopLevelEnumeratorToNestedEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+          throws Exception {
+    ProgramDefinition program = programWithNestedEnumeratorBlock();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                otherTopLevelEnumerator.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ false))
+        .isEqualTo(AddQuestionResult.ENUMERATOR_MISMATCH);
+  }
+
+  @Test
+  public void
+      canAddQuestion_canAddNestedEnumeratorToNestedEnumeratorBlock_whenEnumeratorImprovementsEnabled()
+          throws Exception {
+    ProgramDefinition program = programWithNestedEnumeratorBlock();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                nestedHouseholdMemberWageQuestion.getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ false))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  /** A program whose last block is an empty enumerator block nested under householdMember. */
+  private ProgramDefinition programWithNestedEnumeratorBlock() throws Exception {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .withRepeatedBlock()
+            .buildDefinition();
+    BlockDefinition nestedEnumeratorBlock =
+        program.getLastBlockDefinition().toBuilder().setIsEnumerator(Optional.of(true)).build();
+    return program.toBuilder()
+        .setBlockDefinitions(
+            ImmutableList.of(program.blockDefinitions().get(0), nestedEnumeratorBlock))
+        .build();
+  }
+
+  @Test
+  public void
       canAddQuestion_canAddNonRepeatedQuestionToRepeatedBlock_whenEnumeratorImprovementsEnabled()
           throws Exception {
     ProgramDefinition program =
@@ -389,6 +444,48 @@ public class ProgramBlockValidationTest extends ResetPostgres {
                 /* fileUploadQuestionImprovementsEnabled= */ false,
                 /* isInitialQuestion= */ false))
         .isEqualTo(AddQuestionResult.NOT_ENUMERATOR_OR_INITIAL_ON_ENUMERATOR_BLOCK);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenInitialOnLegacyEnumeratorWithoutInitial_eligible()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                questionForEligible.getQuestionDefinition(), // text question type
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
+        .isEqualTo(AddQuestionResult.ELIGIBLE);
+  }
+
+  @Test
+  public void
+      canAddQuestion_whenEnumeratorImprovementsEnabled_whenCheckboxInitialOnLegacyEnumeratorWithoutInitial_invalid()
+          throws ProgramNeedsABlockException {
+    ProgramDefinition program =
+        ProgramBuilder.newDraftProgram("program1")
+            .withEnumeratorBlock()
+            .withRequiredQuestionDefinition(householdMemberQuestion.getQuestionDefinition())
+            .buildDefinition();
+
+    assertThat(
+            programBlockValidation.canAddQuestion(
+                program,
+                program.getLastBlockDefinition(),
+                testQuestionBank.checkboxApplicantKitchenTools().getQuestionDefinition(),
+                /* enumeratorImprovementsEnabled= */ true,
+                /* fileUploadQuestionImprovementsEnabled= */ false,
+                /* isInitialQuestion= */ true))
+        .isEqualTo(AddQuestionResult.INVALID_INITIAL_QUESTION_TYPE);
   }
 
   @Test

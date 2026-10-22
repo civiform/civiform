@@ -90,8 +90,9 @@
           <div
             id="existing-image-alert"
             role="alert"
+            aria-live="polite"
             th:classappend="${model.hasExistingImage() ? '' : 'hidden'}"
-            class="usa-alert usa-alert--info usa-alert--slim margin-bottom-2"
+            class="usa-alert usa-alert--info usa-alert--slim mb-2"
           >
             <div class="usa-alert__body">
               <p class="usa-alert__text">
@@ -129,6 +130,8 @@
           />
           <div
             id="question-image-file-input-errors"
+            role="alert"
+            aria-label="Image upload error"
             class="text-red-600 text-xs p-1 hidden"
           ></div>
         </div>
@@ -395,6 +398,30 @@
                 ></th:block>
               </th:block>
             </th:block>
+          </div>
+        </div>
+      </div>
+
+      <!--/* Read-only initial question for an enumerator question. */-->
+      <div th:if="${model.hasInitialQuestion()}" id="initial-question-section">
+        <h3
+          class="px-1 py-2 mt-6 font-semibold"
+          th:text="#{label.repeatedSet.initialQuestion}"
+        ></h3>
+        <div class="w-full pt-0 -mt-4">
+          <div class="border bg-gray-100 p-4 m-4 border-gray-200">
+            <p>
+              <strong
+                th:text="#{label.repeatedSet.initialQuestionAdminId}"
+              ></strong>
+              <th:block
+                th:text="' ' + ${model.initialQuestionAdminName.get()}"
+              ></th:block>
+            </p>
+            <p
+              class="mt-2 text-gray-600"
+              th:text="#{description.repeatedSet.initialQuestionAdminId}"
+            ></p>
           </div>
         </div>
       </div>

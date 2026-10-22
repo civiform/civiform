@@ -31,6 +31,8 @@ import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import javax.inject.Inject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import play.i18n.Messages;
 import play.mvc.Http;
 import play.twirl.api.Content;
@@ -54,6 +56,7 @@ import views.trustedintermediary.ApplicantLayout;
  * #render(HtmlBundle)} method.
  */
 public class BaseHtmlLayout {
+  private static final Logger logger = LoggerFactory.getLogger(BaseHtmlLayout.class);
   private final String civiformImageTag;
 
   private static final String CIVIFORM_TITLE = "CiviForm";
@@ -401,7 +404,15 @@ public class BaseHtmlLayout {
     if (bannerType.isPresent() && !bannerType.get().isBlank() && !bannerType.get().equals("none")) {
       return bannerType.get().equals("not_production");
     }
-    return settingsManifest.getShowNotProductionBannerEnabled(request);
+    if (settingsManifest.getShowNotProductionBannerEnabled(request)) {
+      logger.warn(
+          "The not-production banner is enabled, but configured with the environment value"
+              + " `SHOW_NOT_PRODUCTION_BANNER_ENABLED`. Please migrate to using `BANNER_TYPE`. See"
+              + " the latest server environment variable documentation for details."
+              + " https://docs.civiform.us/it-manual/sre-playbook/upgrading-to-a-new-release/server-environment-variables");
+      return true;
+    }
+    return false;
   }
 
   /** Returns true if the demo banner should be displayed ({@code BANNER_TYPE == "demo"}). */

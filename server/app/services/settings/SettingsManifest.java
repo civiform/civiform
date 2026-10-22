@@ -1100,6 +1100,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getBool("SESSION_TIMEOUT_ENABLED");
   }
 
+  /**
+   * Enables optional scores on multi-option question answer options and sums all scores on pdf
+   * downloads, csv exports, and JSON exports of submitted applications for admins and TIs on
+   * programs that opt in.
+   */
+  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
+    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
+  }
+
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
   public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
     return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
@@ -1147,15 +1156,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    */
   public boolean getNewApplicantGuestMergingStrategyDryRunEnabled() {
     return getBool("NEW_APPLICANT_GUEST_MERGING_STRATEGY_DRY_RUN_ENABLED");
-  }
-
-  /**
-   * (NOT FOR PRODUCTION USE) Enables optional scores on multi-option question answer options and
-   * sums all scores on pdf downloads, csv exports, and JSON exports of submitted applications for
-   * admins and TIs on programs that opt in.
-   */
-  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
-    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
   }
 
   /** (NOT FOR PRODUCTION USE) Enables an image to be shown in a static question. */
@@ -2392,7 +2392,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "Enable session timeout based on inactivity and maximum duration.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
-                          SettingMode.ADMIN_READABLE))))
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "ANSWER_OPTION_SCORING_ENABLED",
+                          "Enables optional scores on multi-option question answer options and sums"
+                              + " all scores on pdf downloads, csv exports, and JSON exports of"
+                              + " submitted applications for admins and TIs on programs that opt"
+                              + " in.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_WRITEABLE))))
           .put(
               "Experimental",
               SettingsSection.create(
@@ -2458,15 +2467,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
-                      SettingDescription.create(
-                          "ANSWER_OPTION_SCORING_ENABLED",
-                          "(NOT FOR PRODUCTION USE) Enables optional scores on multi-option"
-                              + " question answer options and sums all scores on pdf downloads, csv"
-                              + " exports, and JSON exports of submitted applications for admins"
-                              + " and TIs on programs that opt in.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "IMAGES_IN_QUESTION_FEATURE_ENABLED",
                           "(NOT FOR PRODUCTION USE) Enables an image to be shown in a static"

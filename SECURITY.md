@@ -4,7 +4,7 @@
 
 See our [documentation on release versioning](https://docs.civiform.us/it-manual/sre-playbook/upgrading-to-a-new-release).
 
-All production deployments are encouraged to deploy weekly and keep in regular communication with the development team.
+We cut a release about every two weeks. All production deployments are encouraged to upgrade with each release and keep in regular communication with the development team.
 
 ## Reporting a Vulnerability
 

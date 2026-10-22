@@ -142,10 +142,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     test('can add an existing enumerator question without an initial question to an enumerator block', async ({
       page,
+      adminQuestions,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const questionBankSidebar = page.getByRole('form', {
         name: 'Add a question',
+      })
+
+      const backfillCard = blockPanel.locator('#backfill-initial-question-card')
+      const addInitialQuestionButton = backfillCard.getByRole('button', {
+        name: 'Add initial question',
       })
 
       await test.step('Add a new repeated set', async () => {
@@ -204,21 +210,85 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that the card offering to add an initial question is shown', async () => {
-        const backfillCard = blockPanel.locator(
-          '#backfill-initial-question-card',
-        )
         await expect(backfillCard).toBeVisible()
         await expect(
           backfillCard.locator('#backfill-initial-question-label'),
         ).toContainText('Initial question')
-        await expect(
-          backfillCard.getByRole('button', {name: 'Add initial question'}),
-        ).toBeVisible()
+        await expect(addInitialQuestionButton).toBeVisible()
       })
 
       await test.step('Validate accessibility of the card', async () => {
         // Scoped to the card: the rest of this page has existing violations.
         await validateAccessibility(page, '#backfill-initial-question-card')
+      })
+
+      await test.step('Open the question bank from the card and see only valid initial question types', async () => {
+        await addInitialQuestionButton.click()
+        await expect(questionBankSidebar).toBeVisible()
+        await expect(
+          questionBankSidebar
+            .locator('.cf-question-bank-element')
+            .filter({hasText: 'income-non-repeated-question'}),
+        ).toBeVisible()
+        await expect(
+          questionBankSidebar
+            .locator('.cf-question-bank-element')
+            .filter({hasText: SAMPLE_QUESTIONS.checkbox}),
+        ).toBeHidden()
+      })
+
+      await test.step('Pick a question and see it staged on the card', async () => {
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(questionBankSidebar).toBeHidden()
+        await expect(
+          backfillCard.getByTestId(
+            'question-admin-name-income-non-repeated-question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Remove the staged question and see the empty card again', async () => {
+        await removeInitialQuestion(page, 'income-non-repeated-question')
+        await expectAddQuestionButton(page, 'income-non-repeated-question')
+      })
+
+      await test.step('Pick again and reload to confirm nothing was saved', async () => {
+        await addInitialQuestionButton.click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await page.reload()
+        await waitForPageJsLoad(page)
+        await expect(addInitialQuestionButton).toBeVisible()
+      })
+
+      await test.step('Create a new question from the bank and see it staged on the card', async () => {
+        await addInitialQuestionButton.click()
+        await expect(questionBankSidebar).toBeVisible()
+        await questionBankSidebar
+          .getByRole('button', {name: 'Create new question'})
+          .click()
+        await page.getByRole('link', {name: 'Name', exact: true}).click()
+        await adminQuestions.fillInQuestionBasics({
+          questionName: 'backfill-new-initial-name',
+          description: 'description',
+          questionText: 'What is the household member name?',
+          helpText: '',
+        })
+        await adminQuestions.clickSubmitButtonAndNavigate('Create')
+        await waitForPageJsLoad(page)
+
+        await expect(
+          backfillCard.getByTestId(
+            'question-admin-name-backfill-new-initial-name',
+          ),
+        ).toBeVisible()
+        await expect(questionBankSidebar).toBeHidden()
+      })
+
+      await test.step('Open the screen again without the staged question and see that it was not attached', async () => {
+        // The staged question is carried in the URL, so drop the query string.
+        await page.goto(page.url().split('?')[0])
+        await waitForPageJsLoad(page)
+        await expect(addInitialQuestionButton).toBeVisible()
       })
 
       await test.step('Turn the feature flag off and validate that the card is hidden', async () => {
@@ -231,9 +301,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'question-admin-name-Sample Enumerator Question',
           ),
         ).toBeVisible()
-        await expect(
-          blockPanel.locator('#backfill-initial-question-card'),
-        ).toBeHidden()
+        await expect(backfillCard).toBeHidden()
       })
     })
 
@@ -452,14 +520,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await expectRepeatedSetReorderButtonsHidden(page)
 
-        await test.step('Verify the initial question line shows the newly-created copy (" -_- a" suffix)', async () => {
-          await expect(
-            blockPanel.getByText(
-              'Initial question: income-non-repeated-question -_- a',
-            ),
-          ).toBeVisible()
-        })
-
         await test.step('Take a screenshot of the list set section', async () => {
           // Clear the heading's focus outline so this matches the general screenshot.
           await blockPanel.getByText('List set question').blur()
@@ -469,6 +529,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             {fullPage: false},
           )
         })
+
+        // The initial question is the newly-created copy (" -_- a" suffix).
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          'income-non-repeated-question -_- a',
+        )
 
         await test.step('Click "Continue to child screen" and verify we landed on the child screen', async () => {
           await blockPanel
@@ -628,13 +695,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
-        await test.step('Verify the initial question line shows the newly-created question with no copy suffix', async () => {
-          await expect(
-            blockPanel.getByText(`Initial question: ${newQuestionAdminId}`, {
-              exact: true,
-            }),
-          ).toBeVisible()
-        })
+        // The initial question is the newly-created question with no copy suffix.
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          newQuestionAdminId,
+        )
 
         await test.step('Verify the newly-created initial question appears on the Questions List page (updated in place, no copy)', async () => {
           await page.getByRole('link', {name: 'Questions'}).click()
@@ -713,13 +779,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
       })
 
-      await test.step('Verify the initial question is added along with the enumerator and is visible again', async () => {
-        await expect(
-          blockPanel.getByText(
-            'Initial question: income-non-repeated-question -_- a',
-          ),
-        ).toBeVisible()
-      })
+      // The initial question is added back along with the enumerator.
+      await expectInitialQuestionInEditForm(
+        page,
+        'pets enumerator',
+        'income-non-repeated-question -_- a',
+      )
 
       await test.step('Verify the card offering to add an initial question is not shown', async () => {
         await expect(
@@ -748,12 +813,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await fillAndSubmitEnumeratorQuestionForm(page)
-        // In contrast to the feature being off (below), when on there isn't a test-id currently so
-        // we have to match the visible text.
-        await expect(
-          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
-        ).toBeVisible()
       })
+
+      await expectInitialQuestionInEditForm(
+        page,
+        'pets enumerator',
+        initialQuestionAdminId,
+      )
 
       await test.step('Turn the feature flag off and verify only the enumerator card is shown', async () => {
         await disableFeatureFlag(page, 'enumerator_improvements_enabled')
@@ -774,9 +840,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForPageJsLoad(page)
 
         await expect(enumeratorQuestionCard).toBeVisible()
-        await expect(
-          blockPanel.getByText(`Initial question: ${initialQuestionAdminId}`),
-        ).toBeVisible()
+        await expectInitialQuestionInEditForm(
+          page,
+          'pets enumerator',
+          initialQuestionAdminId,
+        )
       })
 
       await test.step('Turn the feature flag off again and publish the program', async () => {
@@ -1548,12 +1616,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   })
 
   test.describe('Applicant', () => {
-    test('renders, adds, and removes repeated entities on the enumerator screen with a name initial question', async ({
+    test('renders, adds, and removes repeated entities on the enumerator screen with a name initial question, and renders a child question that omits $this', async ({
       page,
       adminPrograms,
+      adminQuestions,
       applicantQuestions,
     }) => {
       const nameProgramName = 'Enumerator name initial question program'
+      const repeatedQuestionName = 'enumerator-ete-pets-age-no-this'
 
       await test.step('Publish a program whose enumerator has a name initial question', async () => {
         await loginAsAdmin(page)
@@ -1565,6 +1635,17 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           hintText: 'List all of your pets by name.',
           initialQuestion: SAMPLE_QUESTIONS.name,
         })
+        // A repeated child question whose text omits "$this".
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestionName,
+          description: 'desc',
+          questionText: 'Age',
+          helpText: 'Age',
+          enumeratorName: 'pets enumerator',
+        })
+        await adminPrograms.gotoEditDraftProgramPage(nameProgramName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
         await adminPrograms.publishProgram(nameProgramName)
         await logout(page)
       })
@@ -1660,6 +1741,18 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           promotedEntity.getByRole('textbox', {name: 'Last name'}),
         ).toHaveValue('')
       })
+
+      await test.step('Continue to the child screen and verify the question that omits $this renders', async () => {
+        // firstEntity now resolves to the promoted (remaining) entity.
+        await firstEntity
+          .getByRole('textbox', {name: 'First name'})
+          .fill('Sarah')
+        await firstEntity
+          .getByRole('textbox', {name: 'Last name'})
+          .fill('Brown')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage('Age')
+      })
     })
 
     test('adds and removes entities on a single-input initial question', async ({
@@ -1736,6 +1829,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByRole('spinbutton', {name: 'Pets name #3'})
           .fill('3')
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
+        // Multiple entity rows must not introduce accessibility violations (e.g. duplicate ids).
+        await validateAccessibility(page)
       })
 
       await test.step('Remove the middle entity', async () => {
@@ -1746,6 +1841,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
         ).toHaveValue('3')
+        // Re-indexing the remaining rows after removal must stay accessible.
+        await validateAccessibility(page)
       })
 
       await test.step('Add another entity and verify no entity index is reused', async () => {
@@ -1768,6 +1865,110 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           })
           .sort((a, b) => a - b)
         expect(entityIndices).toEqual([0, 1, 2])
+      })
+    })
+
+    test('derives the listed entity name from the name initial question and uses it in $this text, the repeated screen name, and the review summary', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator derived entity name program'
+      const repeatedQuestionName = 'enumerator-ete-pets-age'
+
+      await test.step('Publish a program whose enumerator has a name initial question and a repeated question that uses $this', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: repeatedQuestionName,
+          description: 'desc',
+          questionText: 'Age for $this',
+          helpText: 'Age of $this',
+          enumeratorName: 'pets enumerator',
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Answer the name initial question for one entity and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        const blockForm = page.locator('#cf-block-form')
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('textbox', {name: 'First name'}).fill('Sarah')
+        await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Brown')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('The repeated question substitutes $this with the derived entity name', async () => {
+        await applicantQuestions.validateQuestionIsOnPage('Age for Sarah Brown')
+      })
+
+      await test.step('The review page names the repeated screen and lists the entity by the derived name', async () => {
+        await applicantQuestions.answerNumberQuestion('5')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
+        await expect(page.getByText('Sarah Brown - Screen 3')).toBeVisible()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          'List the names of your pets.',
+          'Sarah Brown',
+        )
+      })
+    })
+
+    test('saves a date initial question and names the entity', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator date initial question program'
+
+      await test.step('Publish a program whose enumerator has a date initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Appointment',
+          questionText: 'List the dates of your appointments.',
+          adminId: 'appointments enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.date,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Answer the date initial question for one entity via month/day/year', async () => {
+        await applicantQuestions.applyProgram(programName)
+        const blockForm = page.locator('#cf-block-form')
+        await blockForm.getByRole('button', {name: 'Add Appointment'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.answerMemorableDateQuestion(
+          '2020',
+          '01 - January',
+          '15',
+        )
+      })
+
+      await test.step('The entity is named by the formatted date on the review page', async () => {
+        // Regression for the memorable-date fields being dropped for an initial question (which
+        // left the entity unnamed and failed enumerator validation).
+        await applicantQuestions.clickReview()
+        await applicantQuestions.expectReviewPage()
+        await applicantQuestions.expectQuestionAnsweredOnReviewPage(
+          'List the dates of your appointments.',
+          '01/15/2020',
+        )
       })
     })
 
@@ -1873,82 +2074,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('button', {name: 'Review and submit'}).click()
         })
 
-        await test.step('Go to review screen and check repeated entity names in the screen names', async () => {
-          await expect(page.getByText(`Bugs - Screen 3`)).toBeVisible()
+        await test.step('Go to review screen and check the nested repeated entity name in the screen name', async () => {
+          // The non-nested "<entity> - Screen 3" case is covered by the unskipped new-flow test;
+          // this skipped test still uniquely covers the nested "<entity> - <nested> - Screen 5".
           await expect(
             page.getByText(`Bugs - Mechanic - Screen 5`),
           ).toBeVisible()
-        })
-      })
-
-      test('still supports $this placeholder in repeated question text', async ({
-        applicantQuestions,
-        page,
-      }) => {
-        await test.step('Apply to the program and add a repeated entity', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-        })
-
-        await test.step('Continue to repeated question and verify $this is replaced', async () => {
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.validateQuestionIsOnPage('Name for Bugs')
-        })
-      })
-
-      test('does not throw errors when repeated question text omits $this', async ({
-        adminPrograms,
-        adminQuestions,
-        applicantQuestions,
-        page,
-      }) => {
-        await test.step('Update repeated question text to omit $this and publish', async () => {
-          await loginAsAdmin(page)
-          await adminQuestions.gotoQuestionEditPage(repeatedQuestionName)
-          await page.getByRole('textbox', {name: 'Question text'}).fill('Name')
-          await adminQuestions.clickSubmitButtonAndNavigate('Update')
-          await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-
-          await adminPrograms.gotoEditDraftProgramPage(programName)
-          await adminPrograms.publishProgram(programName)
-          await logout(page)
-        })
-
-        await test.step('Apply and verify repeated question renders without $this', async () => {
-          await applicantQuestions.applyProgram(programName)
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-
-          await applicantQuestions.clickContinue()
-          await applicantQuestions.validateQuestionIsOnPage('Name')
-        })
-      })
-
-      test('applicant enumerator add/remove flow re-indexes correctly and has no accessibility violations', async ({
-        page,
-        applicantQuestions,
-      }) => {
-        await applicantQuestions.applyProgram(programName)
-
-        await test.step('Adding three pets keeps clone IDs unique (no a11y violations)', async () => {
-          // Each add clones a hidden DOM element; the clones should have unique
-          // IDs to avoid accessibility violations.
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-          await addRepeatedEntity(page, 'Pets', 'Daffy')
-          await addRepeatedEntity(page, 'Pets', 'Goofy')
-          await validateAccessibility(page)
-        })
-
-        await test.step('Each entry retains its filled value', async () => {
-          await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
-          await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Daffy')
-          await expect(entityNameInput(page, 'Pets', 3)).toHaveValue('Goofy')
-        })
-
-        await test.step('Removing the middle entry re-indexes the remaining entries and stays accessible', async () => {
-          await applicantQuestions.deleteEnumeratorEntityByIndex(1)
-          await expect(entityNameInput(page, 'Pets', 1)).toHaveValue('Bugs')
-          await expect(entityNameInput(page, 'Pets', 2)).toHaveValue('Goofy')
-          await validateAccessibility(page)
         })
       })
 
@@ -2328,6 +2459,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         .getByRole('button', {name: 'Add'})
         .click()
       await waitForHtmxReady(page)
+    })
+  }
+
+  /**
+   * Clicks "Edit" on the `enumeratorAdminId` enumerator question card, verifies the question edit
+   * form shows the "Listed entity" field with its description and the initial question's admin id,
+   * then returns to the program block edit page.
+   */
+  async function expectInitialQuestionInEditForm(
+    page: Page,
+    enumeratorAdminId: string,
+    initialQuestionAdminId: string,
+  ) {
+    await test.step(`Click "Edit" on the "${enumeratorAdminId}" enumerator question card`, async () => {
+      await page
+        .getByTestId('block-panel-edit')
+        .getByTestId(`question-admin-name-${enumeratorAdminId}`)
+        .getByRole('link', {name: 'Edit'})
+        .click()
+      await waitForPageJsLoad(page)
+    })
+
+    await test.step('Verify the "Listed entity" field and its description', async () => {
+      const listedEntityInput = page.getByRole('textbox', {
+        name: 'Listed entity',
+      })
+      await expect(listedEntityInput).toBeVisible()
+      await expect(listedEntityInput).toHaveAccessibleDescription(
+        'Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."',
+      )
+    })
+
+    await test.step(`Verify the initial question admin id is "${initialQuestionAdminId}"`, async () => {
+      await expect(
+        page.getByRole('heading', {name: 'Initial question', level: 3}),
+      ).toBeVisible()
+      await expect(
+        page.getByText(`Admin id: ${initialQuestionAdminId}`, {exact: true}),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'This is the question that the applicant will use to list out an entity.',
+        ),
+      ).toBeVisible()
+    })
+
+    await test.step('Go back to the program block edit page', async () => {
+      await page.goBack()
+      await waitForPageJsLoad(page)
     })
   }
 
