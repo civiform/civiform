@@ -14,7 +14,7 @@ Please include the docker image tag for the version in which you have found the 
 
 ## What happens after you report
 
-We review every report, and reports from governments that run CiviForm get acknowledgement and regular updates. We score the severity with CVSS v3.1 and develop the fix privately until it is ready to ship. Fixes go out in the next scheduled release, or in an out-of-schedule release if the issue is critical and affects all deployments. Once the fix is released we publish a GitHub security advisory and tell adopters through the civiform-announce list, and we credit reporters who are governments that run CiviForm unless they ask us not to.
+We review every report, and reports from governments that run CiviForm get acknowledgement and regular updates. We score the severity with CVSS v3.1 and develop the fix privately until it is ready to ship. Fixes go out in the next scheduled release, or in an out-of-schedule release if the issue is critical and affects all deployments. We note in the release notes when a release includes security fixes, and those notes go to the civiform-announce and civiform-technical lists. We decide case by case whether to publish a GitHub security advisory.
 
 ## Software Bill of Materials
 
