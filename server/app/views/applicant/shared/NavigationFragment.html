@@ -73,7 +73,7 @@
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
-            <div th:if="${showDebugTools}">
+            <div th:if="${showDebugTools and !demoBannerEnabled}">
               <button th:replace="~{this :: showDebugTools}"></button>
             </div>
             <div>
@@ -238,15 +238,50 @@
   >
     <div class="usa-alert">
       <div class="usa-alert__body">
-        <p
-          class="usa-alert__text"
-          th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
-        ></p>
-        <div th:if="${demoBannerDaysRemaining != ''}">
-          <span
-            th:class="|usa-tag ${demoBannerTagColorClass}|"
-            th:text="${demoBannerDaysRemaining}"
-          ></span>
+        <div class="cf-demo-banner__info">
+          <p
+            class="usa-alert__text"
+            th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+          ></p>
+          <div th:if="${demoBannerDaysRemaining != ''}">
+            <span
+              th:class="|usa-tag ${demoBannerTagColorClass}|"
+              th:text="${demoBannerDaysRemaining}"
+            ></span>
+          </div>
+        </div>
+        <div class="cf-demo-banner__actions" th:if="${showDebugTools}">
+          <span class="cf-demo-banner__login-label">Log in as:</span>
+          <a
+            th:href="${fakeCiviformAdminUrl}"
+            class="usa-button usa-button--outline"
+            id="admin"
+            >Civiform Admin</a
+          >
+          <a
+            th:href="${fakeProgramAdminUrl}"
+            class="usa-button usa-button--outline"
+            id="program-admin"
+            >Program Admin</a
+          >
+          <a
+            th:href="${fakeDualAdminUrl}"
+            class="usa-button usa-button--outline"
+            id="dual-admin"
+            >Program and Civiform Admin</a
+          >
+          <a
+            th:href="${fakeTrustedIntermediaryUrl}"
+            class="usa-button usa-button--outline"
+            id="trusted-intermediary"
+            >Trusted Intermediary</a
+          >
+          <a
+            th:href="${additionalToolsUrl}"
+            class="usa-button usa-button--outline"
+            id="additional-tools"
+            >Additional tools</a
+          >
         </div>
       </div>
     </div>

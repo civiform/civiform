@@ -985,10 +985,46 @@ main#main-content {
   text-underline-position: from-font;
 }
 
-// Demo banner custom background color
+// Demo banner custom background color and responsive layout
 .usa-site-alert.cf-demo-banner {
   .usa-alert,
   .usa-alert .usa-alert__body {
     background-color: #e7f0f9;
+  }
+
+  .usa-alert .usa-alert__body {
+    display: flex;
+    flex-direction: column;
+    gap: units(1);
+    max-width: 100%;
+
+    @include at-media('tablet') {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .cf-demo-banner__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: units(1);
+
+    @include at-media('tablet') {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .usa-button {
+      margin: 0;
+      width: 100%;
+
+      @include at-media('tablet') {
+        width: auto;
+      }
+    }
   }
 }
