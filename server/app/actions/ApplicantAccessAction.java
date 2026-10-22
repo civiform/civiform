@@ -12,11 +12,9 @@ import play.mvc.Http.Request;
 import play.mvc.Result;
 
 /**
- * Action that returns a 401 unless the signed in user may act on the applicant in the route's
- * {@code applicantId} parameter (the applicant themselves, or a trusted intermediary who manages
- * them).
- *
- * <p>See {@link FileUploadImprovementsEnabledAction} for why this runs as an action.
+ * Returns a 401 unless the signed in user may act on the applicant in the route's {@code
+ * applicantId}: the applicant, or a trusted intermediary who manages them. See {@link
+ * FileUploadImprovementsEnabledAction}.
  */
 public class ApplicantAccessAction extends Action.Simple {
   private final ProfileUtils profileUtils;

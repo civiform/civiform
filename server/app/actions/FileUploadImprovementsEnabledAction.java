@@ -11,12 +11,8 @@ import play.mvc.Result;
 import services.settings.SettingsManifest;
 
 /**
- * Action that returns a 404 unless the file upload question improvements feature is enabled.
- *
- * <p>Apply this to routes that use a streaming upload body parser, together with {@code
- * deferBodyParsing} in {@code conf/routes}. Play runs a route's body parser before action
- * composition unless the route defers body parsing, and the parser writes the file to cloud storage
- * as it reads it. With deferral, this check runs before any bytes are read.
+ * Returns a 404 unless the file upload question improvements feature is enabled. Apply it with
+ * {@code deferBodyParsing} so the check runs before any of the upload is read.
  */
 public class FileUploadImprovementsEnabledAction extends Action.Simple {
   private final SettingsManifest settingsManifest;

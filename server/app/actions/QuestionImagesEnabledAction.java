@@ -11,9 +11,8 @@ import play.mvc.Result;
 import services.settings.SettingsManifest;
 
 /**
- * Action that returns a 404 unless the images in questions feature is enabled.
- *
- * <p>See {@link FileUploadImprovementsEnabledAction} for why this runs as an action.
+ * Returns a 404 unless the images in questions feature is enabled. See {@link
+ * FileUploadImprovementsEnabledAction}.
  */
 public class QuestionImagesEnabledAction extends Action.Simple {
   private final SettingsManifest settingsManifest;
