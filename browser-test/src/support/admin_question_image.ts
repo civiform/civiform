@@ -1,7 +1,7 @@
 import {Buffer} from 'buffer'
 import {expect} from './civiform_fixtures'
 import {Page} from '@playwright/test'
-import {waitForPageJsLoad} from './wait'
+import {waitForHtmxReady, waitForPageJsLoad} from './wait'
 import {readFileSync, writeFileSync, unlinkSync} from 'fs'
 
 export class AdminQuestionImage {
@@ -75,6 +75,7 @@ export class AdminQuestionImage {
 
   async uploadImageFile(imagePath: string) {
     await this.setImageFile(imagePath)
+    await waitForHtmxReady(this.page)
     await this.expectDeleteButtonVisible()
   }
 
