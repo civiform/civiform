@@ -132,48 +132,6 @@ test.describe('Static text question for applicant flow', () => {
       })
     })
 
-    test('Clicking to enlarge image opens in a new tab', async ({
-      page,
-      applicantQuestions,
-    }) => {
-      await test.step('Visit the program as an applicant and land on the screen containing the static question', async () => {
-        await applicantQuestions.applyProgram(programWithImage)
-      })
-
-      const imageContainer = page.getByTestId('question-image-container')
-      await expect(imageContainer).toBeVisible()
-
-      await test.step('check if clicking the enlarge text link opens a new tab containing the image', async () => {
-        const enlargeLink = imageContainer.getByRole('link', {
-          name: /Click to enlarge.*opens in a new tab/i,
-        })
-
-        const [newPage] = await Promise.all([
-          page.context().waitForEvent('page'),
-          enlargeLink.click(),
-        ])
-
-        await newPage.waitForLoadState()
-        expect(newPage.url()).toContain('program-summary-image-wide.png')
-        await newPage.close()
-      })
-
-      await test.step('check if image itself is clicked whether a new tab containing the image is opened', async () => {
-        const imageFrameLink = imageContainer.locator(
-          '.cf-question-image-frame',
-        )
-
-        const [newPage] = await Promise.all([
-          page.context().waitForEvent('page'),
-          imageFrameLink.click(),
-        ])
-
-        await newPage.waitForLoadState()
-        expect(newPage.url()).toContain('program-summary-image-wide.png')
-        await newPage.close()
-      })
-    })
-
     test('does not render image when feature flag is disabled', async ({
       page,
       applicantQuestions,

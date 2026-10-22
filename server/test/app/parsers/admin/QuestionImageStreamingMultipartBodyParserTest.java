@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static play.test.Helpers.fakeRequest;
 
+import controllers.ErrorHandler;
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.Materializer;
@@ -24,7 +25,6 @@ import parsers.FileTypeValidation;
 import parsers.FileUploadTypeException;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.MultipartUploadSinks;
-import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http;
 import repository.ResetPostgres;
 import services.cloud.BucketType;
@@ -104,7 +104,7 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
   @Before
   public void setUp() {
     materializer = instanceOf(Materializer.class);
-    DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
+    ErrorHandler errorHandler = instanceOf(ErrorHandler.class);
 
     sinks = mock(MultipartUploadSinks.class);
     when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
