@@ -25,6 +25,7 @@ import services.LocalizedStrings;
 import services.program.BlockDefinition;
 import services.program.InvalidQuestionPositionException;
 import services.program.ProgramBlockDefinitionNotFoundException;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
 import services.program.ProgramService;
@@ -570,6 +571,128 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      hxBackfillInitialQuestion_propagatesInitialQuestionToOtherDraftProgramsUsingEnumerator()
+          throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    ProgramModel otherDraft =
+        ProgramBuilder.newDraftProgram("program two")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+    long otherBlockId = otherDraft.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(nameQuestion.getId(), /* flagOn= */ true), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    BlockDefinition savedBlock =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
+    long initialQuestionId =
+        savedBlock.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId().orElseThrow();
+    BlockDefinition otherBlock =
+        programService.getFullProgramDefinition(otherDraft.id).getBlockDefinition(otherBlockId);
+    // The other program uses the same shared initial question, not another copy.
+    assertThat(otherBlock.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionId);
+    assertThat(otherBlock.getQuestionDefinitions().stream().map(QuestionDefinition::getId))
+        .contains(initialQuestionId);
+  }
+
+  @Test
+  public void
+      hxBackfillInitialQuestion_propagatesInitialQuestionToOtherActiveProgramsUsingEnumerator()
+          throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    ProgramBuilder.newActiveProgram("published program")
+        .withBlock()
+        .withRequiredQuestion(enumeratorQuestion)
+        .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            backfillRequest(nameQuestion.getId(), /* flagOn= */ true), program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    long initialQuestionId =
+        programService
+            .getFullProgramDefinition(program.id)
+            .getBlockDefinition(blockId)
+            .getEnumeratorQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .orElseThrow();
+    // Saving made a draft of the published program, and the draft has the initial question.
+    ProgramDefinition draftOfPublished =
+        programService
+            .getActiveAndDraftPrograms()
+            .getDraftProgramDefinition("published program")
+            .orElseThrow();
+    BlockDefinition otherBlock = draftOfPublished.blockDefinitions().get(0);
+    assertThat(otherBlock.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
+        .hasValue(initialQuestionId);
+    assertThat(otherBlock.getQuestionDefinitions().stream().map(QuestionDefinition::getId))
+        .contains(initialQuestionId);
+  }
+
+  @Test
+  public void hxBackfillInitialQuestion_whenPropagationFails_savesNothing() throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    // Another program uses the same enumerator and already has the question that is about to
+    // become the initial question, so adding it to that enumerator screen fails as a duplicate.
+    ProgramBuilder.newDraftProgram("program two")
+        .withBlock()
+        .withRequiredQuestion(enumeratorQuestion)
+        .withBlock()
+        .withRequiredQuestion(nameQuestion)
+        .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Result result =
+        controller.hxBackfillInitialQuestion(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "initialQuestionId",
+                        String.valueOf(nameQuestion.id),
+                        "initialQuestionWasNewlyCreated",
+                        "true"))
+                .build(),
+            program.id,
+            blockId);
+
+    assertThat(result.status()).isNotEqualTo(OK);
+    // The bank stays open so the admin can retry.
+    assertThat(result.header("HX-Trigger")).isEmpty();
+    BlockDefinition blockAfter =
+        programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
+    assertThat(blockAfter.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
+        .isEmpty();
+    assertThat(blockAfter.programQuestionDefinitions()).hasSize(1);
+  }
+
+  @Test
   public void hxBackfillInitialQuestion_whenEnumeratorAlreadyHasInitialQuestion_isBadRequest() {
     QuestionModel enumeratorQuestion =
         testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
@@ -636,6 +759,69 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
         .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
         .bodyForm(ImmutableMap.of("initialQuestionId", String.valueOf(initialQuestionId)))
         .build();
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_onLegacyEnumeratorBlock_warningSaysHowManyOtherProgramsUseIt()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    ProgramBuilder.newDraftProgram("program two")
+        .withBlock()
+        .withRequiredQuestion(enumeratorQuestion)
+        .build();
+    ProgramBuilder.newActiveProgram("program three")
+        .withBlock()
+        .withRequiredQuestion(enumeratorQuestion)
+        .build();
+    // A program that doesn't use the enumerator isn't counted.
+    ProgramBuilder.newDraftProgram("program four")
+        .withBlock()
+        .withRequiredQuestion(testQuestionBank.textApplicantFavoriteColor())
+        .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("also used in 2 other programs");
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_onLegacyEnumeratorBlock_whenNoOtherProgramUsesIt_hasNoCount()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("also used in");
   }
 
   @Test
