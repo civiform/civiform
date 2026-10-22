@@ -101,6 +101,7 @@ public abstract class ApplicantBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
+    context.setVariable("cogIcon", Icons.COG);
     context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"));
     context.setVariable(
@@ -124,9 +125,14 @@ public abstract class ApplicantBaseView {
 
     // Add auth parameters.
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
+    boolean isAdminOrTi =
+        profile
+            .map(p -> p.isCiviFormAdmin() || p.isProgramAdmin() || p.isTrustedIntermediary())
+            .orElse(false);
     boolean isGuest = applicantPersonalInfo.getType() == GUEST && !isTi;
 
     context.setVariable("isTrustedIntermediary", isTi);
+    context.setVariable("isAdminOrTi", isAdminOrTi);
     context.setVariable("isGuest", isGuest);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("applicantDisplayName", applicantPersonalInfo.getDisplayString(messages));

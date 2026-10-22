@@ -66,15 +66,19 @@ test.describe('developer tools', () => {
     await test.step('DevTools button is hidden in header and shown in demo banner', async () => {
       await expect(header.getByText('DevTools')).toHaveCount(0)
       await expect(demoBanner).toBeVisible()
-      await expect(demoBanner.getByText('Log in as:')).toBeVisible()
+      await expect(demoBanner.getByText('View as:')).toBeVisible()
+      await expect(demoBanner.locator('#resident')).toBeDisabled()
       await expect(demoBanner.locator('#admin')).toBeVisible()
       await expect(demoBanner.locator('#program-admin')).toBeVisible()
-      await expect(demoBanner.locator('#dual-admin')).toBeVisible()
+      await expect(demoBanner.locator('#dual-admin')).toHaveCount(0)
       await expect(demoBanner.locator('#trusted-intermediary')).toBeVisible()
       await expect(demoBanner.locator('#additional-tools')).toHaveAttribute(
         'href',
         '/dev/seed',
       )
+      await expect(
+        demoBanner.locator('#additional-tools svg.usa-icon'),
+      ).toBeVisible()
       await validateAccessibility(page)
     })
 
