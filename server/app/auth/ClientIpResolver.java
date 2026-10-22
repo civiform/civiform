@@ -33,7 +33,7 @@ public final class ClientIpResolver {
     if (settingsManifest.getClientIpType().isEmpty()) {
       throw new ConfigurationException("CLIENT_IP_TYPE is not configured");
     }
-    this.clientIpType = ClientIpType.valueOf(settingsManifest.getClientIpType().orElseThrow());
+    this.clientIpType = settingsManifest.getClientIpType().orElseThrow();
   }
 
   /**
