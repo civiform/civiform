@@ -356,6 +356,53 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       )
     })
 
+    test('warns how many other programs will also get the initial question', async ({
+      page,
+      adminPrograms,
+    }) => {
+      const blockPanel = page.getByTestId('block-panel-edit')
+      const backfillCard = blockPanel.locator('#backfill-initial-question-card')
+
+      await test.step('Add an existing enumerator question that has no initial question', async () => {
+        await addRepeatedSetBlocks(page)
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Use the same enumerator question in a second program', async () => {
+        await adminPrograms.addProgram('Other enumerator program')
+        await adminPrograms.gotoEditDraftProgramPage('Other enumerator program')
+        await addRepeatedSetBlocks(page)
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Back in the first program, pick an initial question and see how many other programs it reaches', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await waitForPageJsLoad(page)
+        await backfillCard
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          backfillCard.getByText('also used in 1 other program'),
+        ).toBeVisible()
+      })
+    })
+
     test.describe('Initial question', () => {
       test('can select an existing question as the initial question on a new enumerator and then remove it', async ({
         page,

@@ -60,7 +60,9 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramService;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateUseCase;
@@ -109,6 +111,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final AdminLayout layout;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final ProgramService programService;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String BLOCK_TYPE_FORM_FIELD = "blockType";
@@ -127,10 +130,12 @@ public final class ProgramBlocksView extends ProgramBaseView {
   @Inject
   public ProgramBlocksView(
       ProgramBlockValidationFactory programBlockValidationFactory,
+      ProgramService programService,
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       SettingsManifest settingsManifest) {
     super(settingsManifest);
+    this.programService = checkNotNull(programService);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.programDisplayType = programViewType;
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
@@ -1214,7 +1219,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         hr().withClasses("margin-top-3", "border-base-lighter"),
         AlertComponent.renderSlimAlert(
             AlertType.WARNING,
-            messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName()),
+            backfillSaveWarning(messages, programId, blockId),
             /* hidden= */ false),
         button(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_SAVE.getKeyName()))
             .withId("save-initial-question-button")
@@ -1228,6 +1233,29 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .attr("hx-include", "#initial-question-slot")
             .attr("hx-target", "#repeated-set-question-section")
             .attr("hx-swap", "outerHTML"));
+  }
+
+  /** The save warning, plus how many other programs will also get the initial question. */
+  private String backfillSaveWarning(Messages messages, long programId, long blockId) {
+    String warning = messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName());
+    int otherPrograms;
+    try {
+      otherPrograms = programService.countOtherProgramsUsingEnumeratorOnBlock(programId, blockId);
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      logger.error("Could not count the other programs that use this list set.", e);
+      return warning;
+    }
+    if (otherPrograms == 0) {
+      return warning;
+    }
+    String count =
+        otherPrograms == 1
+            ? messages.at(
+                MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_ONE_PROGRAM.getKeyName())
+            : messages.at(
+                MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_PROGRAMS.getKeyName(),
+                otherPrograms);
+    return warning + " " + count;
   }
 
   /**
