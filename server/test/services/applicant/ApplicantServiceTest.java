@@ -18,6 +18,7 @@ import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import io.ebean.DB;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashSet;
 import java.util.Locale;
@@ -105,6 +106,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import support.SqlStatementCounter.SqlCounts;
@@ -900,6 +902,306 @@ public class ApplicantServiceTest extends ResetPostgres {
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
     assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).containsExactly("second");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_enumeratorWithTextInitialQuestion_savesPerEntityAnswerAndDerivesEntityName() {
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank
+            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
+    createProgram(enumeratorDefinition, initialQuestionDefinition);
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // Concrete paths for this program:
+    //   enumeratorPath     = applicant.applicant_household_members[]
+    //   firstEntityAnswer  =
+    // applicant.applicant_household_members[0].applicants_household_members_name
+    //   secondEntityAnswer =
+    // applicant.applicant_household_members[1].applicants_household_members_name
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+    Path firstEntityAnswer =
+        enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    Path secondEntityAnswer =
+        enumeratorPath.atIndex(1).join(initialQuestionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            firstEntityAnswer.join(Scalar.TEXT).toString(), "Fern",
+            secondEntityAnswer.join(Scalar.TEXT).toString(), "Cactus");
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    // The initial question field values are saved at their per-entity paths.
+    assertThat(applicantDataAfter.readString(firstEntityAnswer.join(Scalar.TEXT))).hasValue("Fern");
+    assertThat(applicantDataAfter.readString(secondEntityAnswer.join(Scalar.TEXT)))
+        .hasValue("Cactus");
+    // Each entity name is derived from that entity's initial question answer, so the listed
+    // entities read back as the answers.
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .hasValue("Fern");
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(1).join(Scalar.ENTITY_NAME)))
+        .hasValue("Cactus");
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath))
+        .containsExactly("Fern", "Cactus");
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_enumeratorWithNameInitialQuestion_derivesEntityNameFromJoinedScalars() {
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.NAME).getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
+    createProgram(enumeratorDefinition, initialQuestionDefinition);
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    // Concrete paths for this program:
+    //   enumeratorPath = applicant.household_members_by_name[]
+    //   nameAnswer     = applicant.household_members_by_name[0].household_member_name
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+    Path nameAnswer =
+        enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    // The applicant leaves the middle name blank, as the form would submit for an empty field.
+    ImmutableMap<String, String> updates =
+        ImmutableMap.of(
+            nameAnswer.join(Scalar.FIRST_NAME).toString(), "Sarah",
+            nameAnswer.join(Scalar.MIDDLE_NAME).toString(), "",
+            nameAnswer.join(Scalar.LAST_NAME).toString(), "Brown");
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            updates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+
+    assertThat(applicantDataAfter.readString(nameAnswer.join(Scalar.FIRST_NAME))).hasValue("Sarah");
+    assertThat(applicantDataAfter.readString(nameAnswer.join(Scalar.LAST_NAME))).hasValue("Brown");
+    // The entity name joins the non-blank scalars with spaces, skipping the blank middle name.
+    assertThat(applicantDataAfter.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME)))
+        .hasValue("Sarah Brown");
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath))
+        .containsExactly("Sarah Brown");
+  }
+
+  /** Looks up the definition of the initial question linked to the given enumerator question. */
+  private QuestionDefinition initialQuestionDefinition(QuestionDefinition enumeratorDefinition) {
+    long initialQuestionId = enumeratorDefinition.getEnumeratorInitialQuestionId().orElseThrow();
+    return questionService
+        .getReadOnlyQuestionServiceSync()
+        .getQuestionDefinition(initialQuestionId);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_dateInitialQuestion_storesTypedDateAndDerivesName() {
+    // The memorable-date UI submits separate year/month/day fields, which the controller
+    // consolidates
+    // into the single date scalar before staging.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.DATE,
+            ImmutableMap.of(Scalar.YEAR, "2020", Scalar.MONTH, "1", Scalar.DAY, "15"));
+
+    // Stored as a typed date (readable by readDate), not the raw "2020-01-15" string.
+    assertThat(staged.applicantData().readDate(staged.answerBase().join(Scalar.DATE)))
+        .hasValue(LocalDate.of(2020, 1, 15));
+    // The entity name is the formatted answer, not blank.
+    assertThat(staged.entityName()).hasValue("01/15/2020");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_numberInitialQuestion_storesTypedLongAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(QuestionType.NUMBER, ImmutableMap.of(Scalar.NUMBER, "5"));
+
+    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.NUMBER)))
+        .hasValue(5L);
+    assertThat(staged.entityName()).hasValue("5");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_currencyInitialQuestion_storesCentsAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.CURRENCY, ImmutableMap.of(Scalar.CURRENCY_CENTS, "100.50"));
+
+    // Stored as cents (10050), not the raw "100.50" dollar string.
+    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.CURRENCY_CENTS)))
+        .hasValue(10050L);
+    assertThat(staged.entityName()).hasValue("100.50");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_phoneInitialQuestion_storesDigitsAndDerivesName() {
+    // Only the phone number is submitted; the controller derives the country code before staging.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.PHONE, ImmutableMap.of(Scalar.PHONE_NUMBER, "(253) 867-5309"));
+
+    // Stored stripped to digits, not the raw "(253) 867-5309" string.
+    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.PHONE_NUMBER)))
+        .hasValue("2538675309");
+    // The country code is derived and stored.
+    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.COUNTRY_CODE)))
+        .hasValue("US");
+    // The entity name is the phone number formatted for display.
+    assertThat(staged.entityName()).hasValue("+1 253-867-5309");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_idInitialQuestion_storesValueAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(QuestionType.ID, ImmutableMap.of(Scalar.ID, "A12345"));
+
+    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.ID)))
+        .hasValue("A12345");
+    assertThat(staged.entityName()).hasValue("A12345");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_emailInitialQuestion_storesValueAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.EMAIL, ImmutableMap.of(Scalar.EMAIL, "resident@example.com"));
+
+    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.EMAIL)))
+        .hasValue("resident@example.com");
+    assertThat(staged.entityName()).hasValue("resident@example.com");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_addressInitialQuestion_storesFieldsAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.ADDRESS,
+            ImmutableMap.of(
+                Scalar.STREET, "123 Main St",
+                Scalar.CITY, "Seattle",
+                Scalar.STATE, "WA",
+                Scalar.ZIP, "98101"));
+
+    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.STREET)))
+        .hasValue("123 Main St");
+    // The entity name is the address formatted for display across lines.
+    assertThat(staged.entityName()).hasValue("123 Main St\nSeattle, WA 98101");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_dropdownInitialQuestion_storesSelectionAndDerivesName() {
+    // The submitted selection is the option id; the entity name is the selected option's text.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(QuestionType.DROPDOWN, ImmutableMap.of(Scalar.SELECTION, "1"));
+
+    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.SELECTION)))
+        .hasValue(1L);
+    assertThat(staged.entityName()).hasValue("Option One");
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_radioButtonInitialQuestion_storesSelectionAndDerivesName() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.RADIO_BUTTON, ImmutableMap.of(Scalar.SELECTION, "2"));
+
+    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.SELECTION)))
+        .hasValue(2L);
+    assertThat(staged.entityName()).hasValue("Option Two");
+  }
+
+  /** The saved applicant data and key paths after staging a one-entity initial-question answer. */
+  private record StagedInitialQuestion(
+      ApplicantData applicantData, Path enumeratorPath, Path answerBase) {
+    Optional<String> entityName() {
+      return applicantData.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME));
+    }
+  }
+
+  /**
+   * Builds a program whose enumerator has an initial question of the given type, submits the given
+   * field values for a single entity (index 0) through the same form-data preprocessing the
+   * controller runs (date and phone cleanup) and then staging, and returns the saved data plus the
+   * entity's paths.
+   */
+  private StagedInitialQuestion stageInitialQuestionAnswer(
+      QuestionType initialQuestionType, ImmutableMap<Scalar, String> fieldValues) {
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank.enumeratorWithInitialQuestion(initialQuestionType).getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
+    createProgram(enumeratorDefinition, initialQuestionDefinition);
+
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+    Path answerBase =
+        enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    ImmutableMap<String, String> formData =
+        fieldValues.entrySet().stream()
+            .collect(
+                ImmutableMap.toImmutableMap(
+                    entry -> answerBase.join(entry.getKey()).toString(),
+                    entry -> entry.getValue()));
+
+    // Run the controller's form-data preprocessing (memorable-date consolidation, phone country
+    // code) so these are exercised for the initial question before staging.
+    Block block =
+        subject
+            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .toCompletableFuture()
+            .join()
+            .getActiveBlock("1")
+            .orElseThrow();
+    ImmutableMap<String, String> cleanedUpdates =
+        subject
+            .cleanDateQuestions(programDefinition.id(), Optional.of(block), "1", formData)
+            .thenCompose(
+                dateCleaned ->
+                    subject.setPhoneCountryCode(
+                        programDefinition.id(), Optional.of(block), "1", dateCleaned))
+            .toCompletableFuture()
+            .join();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            cleanedUpdates,
+            false,
+            false,
+            /* apiBridgeEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+
+    ApplicantData applicantData =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    return new StagedInitialQuestion(applicantData, enumeratorPath, answerBase);
   }
 
   @Test
