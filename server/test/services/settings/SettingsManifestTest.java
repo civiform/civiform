@@ -72,6 +72,20 @@ public class SettingsManifestTest {
           true,
           SettingType.BOOLEAN,
           SettingMode.ADMIN_WRITEABLE);
+  private static SettingDescription EXPERIMENTAL_FLAG_VARIABLE =
+      SettingDescription.create(
+          "EXPERIMENTAL_FLAG_VARIABLE",
+          "Fake experimental flag for testing",
+          true,
+          SettingType.BOOLEAN,
+          SettingMode.ADMIN_WRITEABLE);
+  private static SettingDescription EXPERIMENTAL_STRING_VARIABLE =
+      SettingDescription.create(
+          "EXPERIMENTAL_STRING_VARIABLE",
+          "Fake non-boolean experimental setting for testing",
+          true,
+          SettingType.STRING,
+          SettingMode.ADMIN_WRITEABLE);
 
   private static Config CONFIG =
       ConfigFactory.parseMap(
@@ -83,6 +97,8 @@ public class SettingsManifestTest {
               .put("enum_variable", "foo")
               .put("admin_writeable_variable", "admin-val")
               .put("feature_flag_variable", true)
+              .put("experimental_flag_variable", false)
+              .put("experimental_string_variable", "experimental-val")
               .build());
 
   private static Http.Request REQUEST =
@@ -128,7 +144,13 @@ public class SettingsManifestTest {
               "Feature Flags",
               "Fake feature flags section for testing.",
               ImmutableList.of(),
-              ImmutableList.of(FEATURE_FLAG_VARIABLE)));
+              ImmutableList.of(FEATURE_FLAG_VARIABLE)),
+          AbstractSettingsManifest.EXPERIMENTAL_SETTING_SECTION_NAME,
+          SettingsSection.create(
+              "Experimental",
+              "Fake experimental section for testing.",
+              ImmutableList.of(),
+              ImmutableList.of(EXPERIMENTAL_FLAG_VARIABLE, EXPERIMENTAL_STRING_VARIABLE)));
   private SettingsManifest testManifest = new SettingsManifest(SECTIONS, CONFIG);
 
   @Test
@@ -246,12 +268,32 @@ public class SettingsManifestTest {
   }
 
   @Test
-  public void getAllFeatureFlagsSorted_returnsFeatureFlagsOnly() {
+  public void getAllFeatureFlagsSorted_returnsFeatureFlagsAndExperimentalFlagsOnly() {
     var flags = testManifest.getAllFeatureFlagsSorted(REQUEST);
     assertThat(flags).containsKey("FEATURE_FLAG_VARIABLE");
     assertThat(flags.get("FEATURE_FLAG_VARIABLE")).isTrue();
+    assertThat(flags).containsKey("EXPERIMENTAL_FLAG_VARIABLE");
+    assertThat(flags.get("EXPERIMENTAL_FLAG_VARIABLE")).isFalse();
+    // Only boolean settings in the flag sections are reported.
+    assertThat(flags).doesNotContainKey("EXPERIMENTAL_STRING_VARIABLE");
+    // Settings outside the flag sections are not reported.
     assertThat(flags).doesNotContainKey("BOOL_VARIABLE");
     assertThat(flags).doesNotContainKey("STRING_VARIABLE");
+  }
+
+  @Test
+  public void getAllFeatureFlagsSorted_usesWritableSettingsOverride() {
+    Http.Request request =
+        fakeRequest()
+            .withAttrs(
+                TypedMap.empty()
+                    .put(
+                        CIVIFORM_SETTINGS_ATTRIBUTE_KEY,
+                        ImmutableMap.of("EXPERIMENTAL_FLAG_VARIABLE", "true")));
+
+    var flags = testManifest.getAllFeatureFlagsSorted(request);
+
+    assertThat(flags.get("EXPERIMENTAL_FLAG_VARIABLE")).isTrue();
   }
 
   @Test
