@@ -38,7 +38,10 @@ export const logout = async (page: Page, closeToast = true) => {
 
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
+    const debugModalButton = page.locator('#debug-content-modal-button')
+    if (await debugModalButton.isVisible()) {
+      await debugModalButton.click()
+    }
     await page.locator('#admin').click()
     await waitForPageJsLoad(page)
   })
@@ -46,7 +49,10 @@ export const loginAsAdmin = async (page: Page) => {
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
+    const debugModalButton = page.locator('#debug-content-modal-button')
+    if (await debugModalButton.isVisible()) {
+      await debugModalButton.click()
+    }
     await page.locator('#program-admin').click()
     await waitForPageJsLoad(page)
   })
@@ -54,7 +60,10 @@ export const loginAsProgramAdmin = async (page: Page) => {
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
   await test.step('Login as Civiform and Program Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
+    const debugModalButton = page.locator('#debug-content-modal-button')
+    if (await debugModalButton.isVisible()) {
+      await debugModalButton.click()
+    }
     await page.locator('#dual-admin').click()
     await waitForPageJsLoad(page)
   })
@@ -62,7 +71,10 @@ export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await test.step('Login as Trusted Intermediary', async () => {
-    await page.locator('#debug-content-modal-button').click()
+    const debugModalButton = page.locator('#debug-content-modal-button')
+    if (await debugModalButton.isVisible()) {
+      await debugModalButton.click()
+    }
     await page.locator('#trusted-intermediary').click()
     await waitForPageJsLoad(page)
   })
