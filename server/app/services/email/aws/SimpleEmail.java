@@ -2,6 +2,7 @@ package services.email.aws;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableList;
 import com.typesafe.config.Config;
 import io.prometheus.client.Histogram;
@@ -100,7 +101,8 @@ public final class SimpleEmail implements EmailSendClient {
               ***************************************************
 
 
-              %s""",
+              %s\
+              """,
               bodyText);
     }
 
@@ -116,17 +118,26 @@ public final class SimpleEmail implements EmailSendClient {
       SendEmailRequest emailRequest =
           SendEmailRequest.builder().destination(destination).message(msg).source(sender).build();
       client.get().sendEmail(emailRequest);
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
     } catch (SesException e) {
       logger.error(e.toString());
       e.printStackTrace();
       emailSendMetrics.getEmailFailCount().inc();
       emailSendMetrics.getEmailSendCount().labels(String.valueOf(e.statusCode())).inc();
+    } catch (RuntimeException e) {
+      // The SDK can throw without a response (SdkClientException). Count it and rethrow.
+      emailSendMetrics.getEmailFailCount().inc();
+      emailSendMetrics.getEmailSendCount().labels("unknown").inc();
+      throw e;
     } finally {
-      // Increase the count of emails sent.
-      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }
+  }
+
+  @VisibleForTesting
+  Client getClient() {
+    return client;
   }
 
   interface Client {
