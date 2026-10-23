@@ -1,0 +1,22 @@
+<div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
+  <section
+    class="usa-site-alert usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
+    role="region"
+    th:aria-label="#{label.demoBanner.label}"
+  >
+    <div class="usa-alert">
+      <div class="usa-alert__body">
+        <p
+          class="usa-alert__text text-bold"
+          th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+        ></p>
+        <div th:if="${demoBannerDaysRemainingCount != null}">
+          <span
+            th:class="|usa-tag ${demoBannerDaysRemainingCount > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
+            th:text="#{banner.demoBanner.daysRemaining(${demoBannerDaysRemainingCount})}"
+          ></span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

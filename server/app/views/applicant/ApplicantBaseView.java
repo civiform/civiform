@@ -28,6 +28,7 @@ import services.settings.SettingsManifest;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.BannerUtils;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -173,6 +174,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    maybeSetUpDemoBanner(context, request);
     maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
@@ -344,14 +346,28 @@ public abstract class ApplicantBaseView {
     return request.uri();
   }
 
-  private void maybeSetUpNotProductionBanner(
-      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
-    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+  private void maybeSetUpDemoBanner(ThymeleafModule.PlayThymeleafContext context, Request request) {
+    boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (!demoBannerEnabled) {
       return;
     }
+    String civicEntityShortName =
+        settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+    context.setVariable("civicEntityShortName", civicEntityShortName);
     context.setVariable(
-        "showNotProductionBannerEnabled",
-        settingsManifest.getShowNotProductionBannerEnabled(request));
+        "demoBannerDaysRemainingCount",
+        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest).orElse(null));
+  }
+
+  private void maybeSetUpNotProductionBanner(
+      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+    boolean showNotProductionBannerEnabled =
+        BannerUtils.isNotProductionBannerEnabled(settingsManifest, request);
+    if (!showNotProductionBannerEnabled) {
+      return;
+    }
+    context.setVariable("showNotProductionBannerEnabled", true);
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
