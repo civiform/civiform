@@ -1091,6 +1091,15 @@ main#main-content {
       justify-content: center;
       padding: units(1);
 
+      @include at-media-max('desktop') {
+        margin-top: units(1);
+
+        @include at-media('tablet') {
+          margin-top: 0;
+          margin-left: units(1);
+        }
+      }
+
       .usa-icon {
         width: 1.25rem;
         height: 1.25rem;
