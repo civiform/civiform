@@ -1,10 +1,13 @@
 package views.admin;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import services.DeploymentType;
+import views.BaseHtmlLayout;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
@@ -20,10 +23,14 @@ import views.shared.ScriptElementSettings;
  */
 public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
   private final BundledAssetsFinder bundledAssetsFinder;
+  private final ProfileUtils profileUtils;
+  private final DeploymentType deploymentType;
 
   public DevLayoutBaseView(LayoutDeps layoutDeps) {
     super(layoutDeps.baseViewDeps());
     this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
+    this.profileUtils = layoutDeps.profileUtils();
+    this.deploymentType = layoutDeps.deploymentType();
   }
 
   /** Override to set the active page for top header navigation. */
@@ -34,6 +41,13 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+    BaseHtmlLayout.setUpBannerContext(
+        context,
+        settingsManifest,
+        request,
+        messagesApi.preferred(request),
+        profileUtils.optionalCurrentUserProfile(request),
+        deploymentType.isDevOrStaging());
 
     context.setVariable(
         "adminCommonHeader",

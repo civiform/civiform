@@ -9,6 +9,8 @@ import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import services.DeploymentType;
+import views.BaseHtmlLayout;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
@@ -26,12 +28,14 @@ import views.shared.ScriptElementSettings;
 public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
   protected final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
+  protected final DeploymentType deploymentType;
 
   public AdminLayoutBaseView(LayoutDeps layoutDeps) {
     checkNotNull(layoutDeps);
     super(layoutDeps.baseViewDeps());
     this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
     this.profileUtils = layoutDeps.profileUtils();
+    this.deploymentType = layoutDeps.deploymentType();
   }
 
   /** Override to set the active page for top header navigation. */
@@ -39,10 +43,25 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
     return AdminLayout.NavPage.NULL_PAGE;
   }
 
+  protected void setUpBannerContext(
+      Http.Request request,
+      ThymeleafModule.PlayThymeleafContext context,
+      Optional<CiviFormProfile> profile) {
+    BaseHtmlLayout.setUpBannerContext(
+        context,
+        settingsManifest,
+        request,
+        messagesApi.preferred(request),
+        profile,
+        deploymentType.isDevOrStaging());
+  }
+
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    setUpBannerContext(request, context, Optional.of(profile));
 
     context.setVariable(
         "adminCommonHeader",

@@ -38,7 +38,7 @@ See the radio-option below as an example.
 }
 
 // Display a check mark icon on the program filter when it is selected
-[id^='check-category-']:checked~label::before {
+[id^='check-category-']:checked ~ label::before {
   content: '\2713 \fe0e';
   color: inherit;
   @include u-margin-right('05');
@@ -241,13 +241,15 @@ button.usa-button.usa-button--unstyled.htmx-request {
 }
 
 // Removing padding around the admin header nav items
-.usa-nav__primary>.usa-nav__primary-item>a.cf-admin-heading-nav-item,
-.usa-nav__primary>.usa-nav__primary-item>button.cf-admin-heading-nav-item {
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
   padding: 0 1rem;
 }
 
 // Removing padding around the admin header nav items settings icon
-.usa-nav__primary>.usa-nav__primary-item>a.cf-admin-heading-nav-item-settings-icon {
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
   padding: 0;
 }
 
@@ -490,8 +492,14 @@ fieldset .usa-error-message {
 .usa-label:has(~ input.usa-input[required]:enabled)::after,
 .usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,
 .usa-label:has(~ select.usa-select[required]:enabled)::after,
-.usa-legend:has(~ .checkbox-group .usa-checkbox input.usa-checkbox__input[type='checkbox'][required]:enabled)::after,
-.usa-legend:has(~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled)::after {
+.usa-legend:has(
+    ~ .checkbox-group
+      .usa-checkbox
+      input.usa-checkbox__input[type='checkbox'][required]:enabled
+  )::after,
+.usa-legend:has(
+    ~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled
+  )::after {
   @extend .usa-hint;
   @extend .usa-hint--required;
   content: ' *';
@@ -623,6 +631,10 @@ hr.code-separator {
   text-decoration-thickness: auto;
   text-underline-offset: auto;
   text-underline-position: from-font;
+}
+
+.cf-alert {
+  margin: 0 auto;
 }
 
 // Demo banner custom background color and responsive layout
