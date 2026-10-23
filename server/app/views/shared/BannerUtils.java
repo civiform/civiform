@@ -90,16 +90,6 @@ public final class BannerUtils {
   }
 
   /**
-   * Returns the CSS color classes for the demo banner expiration tag.
-   *
-   * @param daysRemaining the count of remaining days
-   * @return "bg-green" if > 5 days remain, "bg-yellow text-ink" if 5 or less days remain
-   */
-  public static String getDemoBannerTagColorClass(long daysRemaining) {
-    return daysRemaining > 5 ? "bg-green" : "bg-yellow text-ink";
-  }
-
-  /**
    * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
    * and role login buttons on Applicant and Admin Thymeleaf layouts.
    */
@@ -131,17 +121,9 @@ public final class BannerUtils {
       String civicEntityShortName =
           settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
       context.setVariable("civicEntityShortName", civicEntityShortName);
-      Optional<Long> maybeDaysRemaining = getDemoBannerDaysRemainingCount(settingsManifest);
       context.setVariable(
-          "demoBannerDaysRemaining",
-          maybeDaysRemaining
-              .map(
-                  days ->
-                      messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
-              .orElse(""));
-      context.setVariable(
-          "demoBannerTagColorClass",
-          maybeDaysRemaining.map(BannerUtils::getDemoBannerTagColorClass).orElse(""));
+          "demoBannerDaysRemainingCount",
+          getDemoBannerDaysRemainingCount(settingsManifest).orElse(null));
     }
 
     boolean showNotProductionBannerEnabled =
