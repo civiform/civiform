@@ -991,4 +991,8 @@ main#main-content {
   .usa-alert .usa-alert__body {
     background-color: #e7f0f9;
   }
+
+  .usa-alert__text {
+    font-weight: font-weight('bold');
+  }
 }
