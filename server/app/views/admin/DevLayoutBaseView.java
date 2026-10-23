@@ -7,11 +7,11 @@ import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
-import views.BaseHtmlLayout;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.BannerUtils;
 import views.shared.LayoutDeps;
 import views.shared.ScriptElementSettings;
 
@@ -41,7 +41,7 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
-    BaseHtmlLayout.setUpBannerContext(
+    BannerUtils.setUpBannerContext(
         context,
         settingsManifest,
         request,

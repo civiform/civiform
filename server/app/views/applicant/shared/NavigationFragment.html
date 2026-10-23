@@ -13,7 +13,7 @@
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
   <th:block th:if="${demoBannerEnabled}">
-    <div th:replace="~{components/DemoBannerFragment :: demoBanner}"></div>
+    <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
   </th:block>
   <!--/* The immigration status info banner is only shown on the program index page,
   so all immigration status info banner variables are only set in ProgramIndexView and are unset otherwise. */-->

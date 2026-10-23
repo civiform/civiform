@@ -21,10 +21,10 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.BaseHtmlLayout;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.BannerUtils;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -176,7 +176,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    BaseHtmlLayout.setUpBannerContext(
+    BannerUtils.setUpBannerContext(
         context, settingsManifest, request, messages, profile, isDevOrStaging);
 
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
