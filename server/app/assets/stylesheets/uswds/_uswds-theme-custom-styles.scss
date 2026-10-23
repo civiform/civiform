@@ -38,7 +38,7 @@ See the radio-option below as an example.
 }
 
 // Display a check mark icon on the program filter when it is selected
-[id^='check-category-']:checked~label::before {
+[id^='check-category-']:checked ~ label::before {
   content: '\2713 \fe0e';
   color: inherit;
   @include u-margin-right('05');
@@ -114,7 +114,6 @@ ol.usa-list {
 }
 
 @media (max-width: 63.9em) {
-
   .usa-nav .usa-button,
   .usa-nav span {
     margin-top: 8px;
@@ -242,13 +241,15 @@ button.usa-button.usa-button--unstyled.htmx-request {
 }
 
 // Removing padding around the admin header nav items
-.usa-nav__primary>.usa-nav__primary-item>a.cf-admin-heading-nav-item,
-.usa-nav__primary>.usa-nav__primary-item>button.cf-admin-heading-nav-item {
+.usa-nav__primary > .usa-nav__primary-item > a.cf-admin-heading-nav-item,
+.usa-nav__primary > .usa-nav__primary-item > button.cf-admin-heading-nav-item {
   padding: 0 1rem;
 }
 
 // Removing padding around the admin header nav items settings icon
-.usa-nav__primary>.usa-nav__primary-item>a.cf-admin-heading-nav-item-settings-icon {
+.usa-nav__primary
+  > .usa-nav__primary-item
+  > a.cf-admin-heading-nav-item-settings-icon {
   padding: 0;
 }
 
@@ -353,7 +354,6 @@ body {
 }
 
 .cf-legacy-program-header {
-
   // Set background and text colors to match
   // tailwind colors for admin program status
   // pills in non-tailwind pages
@@ -492,8 +492,14 @@ fieldset .usa-error-message {
 .usa-label:has(~ input.usa-input[required]:enabled)::after,
 .usa-label:has(~ textarea.usa-textarea[required]:enabled)::after,
 .usa-label:has(~ select.usa-select[required]:enabled)::after,
-.usa-legend:has(~ .checkbox-group .usa-checkbox input.usa-checkbox__input[type='checkbox'][required]:enabled)::after,
-.usa-legend:has(~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled)::after {
+.usa-legend:has(
+    ~ .checkbox-group
+      .usa-checkbox
+      input.usa-checkbox__input[type='checkbox'][required]:enabled
+  )::after,
+.usa-legend:has(
+    ~ .usa-radio input.usa-radio__input[type='radio'][required]:enabled
+  )::after {
   @extend .usa-hint;
   @extend .usa-hint--required;
   content: ' *';
@@ -629,7 +635,6 @@ hr.code-separator {
 
 // Demo banner custom background color and responsive layout
 .usa-site-alert.cf-demo-banner {
-
   .usa-alert,
   .usa-alert .usa-alert__body {
     background-color: #e7f0f9;
@@ -698,10 +703,10 @@ hr.code-separator {
             width: auto;
           }
 
-          >.usa-button,
-          &:first-child>.usa-button,
-          &:last-child>.usa-button,
-          &:where(:not(:first-child):not(:last-child))>.usa-button {
+          > .usa-button,
+          &:first-child > .usa-button,
+          &:last-child > .usa-button,
+          &:where(:not(:first-child):not(:last-child)) > .usa-button {
             border-radius: radius($theme-button-border-radius);
             margin-left: 0;
             margin-right: 0;
@@ -719,7 +724,7 @@ hr.code-separator {
       }
     }
 
-    >.usa-button {
+    > .usa-button {
       margin: 0;
       width: 100%;
 

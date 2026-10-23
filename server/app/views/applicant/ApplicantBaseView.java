@@ -25,7 +25,6 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.BaseHtmlLayout;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
