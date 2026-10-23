@@ -64,13 +64,6 @@ public class BannerUtilsTest extends ResetPostgres {
   }
 
   @Test
-  public void getDemoBannerTagColorClass_returnsExpectedColor() {
-    assertThat(BannerUtils.getDemoBannerTagColorClass(6)).isEqualTo("bg-green");
-    assertThat(BannerUtils.getDemoBannerTagColorClass(5)).isEqualTo("bg-yellow text-ink");
-    assertThat(BannerUtils.getDemoBannerTagColorClass(0)).isEqualTo("bg-yellow text-ink");
-  }
-
-  @Test
   public void getDemoBannerDaysRemainingCount_returnsExpectedValues() {
     LocalDate fixedToday = LocalDate.of(2026, 9, 1);
 

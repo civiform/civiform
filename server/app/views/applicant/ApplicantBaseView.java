@@ -174,7 +174,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    maybeSetUpDemoBanner(context, request, messages);
+    maybeSetUpDemoBanner(context, request);
     maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
@@ -347,7 +347,7 @@ public abstract class ApplicantBaseView {
   }
 
   private void maybeSetUpDemoBanner(
-      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+      ThymeleafModule.PlayThymeleafContext context, Request request) {
     boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
     context.setVariable("demoBannerEnabled", demoBannerEnabled);
     if (!demoBannerEnabled) {
@@ -356,18 +356,9 @@ public abstract class ApplicantBaseView {
     String civicEntityShortName =
         settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
     context.setVariable("civicEntityShortName", civicEntityShortName);
-    Optional<Long> maybeDaysRemaining =
-        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest);
     context.setVariable(
-        "demoBannerDaysRemaining",
-        maybeDaysRemaining
-            .map(
-                days ->
-                    messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
-            .orElse(""));
-    context.setVariable(
-        "demoBannerTagColorClass",
-        maybeDaysRemaining.map(BannerUtils::getDemoBannerTagColorClass).orElse(""));
+        "demoBannerDaysRemainingCount",
+        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest).orElse(null));
   }
 
   private void maybeSetUpNotProductionBanner(
