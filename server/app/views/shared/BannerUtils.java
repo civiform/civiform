@@ -78,14 +78,4 @@ public final class BannerUtils {
   public static Optional<Long> getDemoBannerDaysRemainingCount(SettingsManifest settingsManifest) {
     return getDemoBannerDaysRemainingCount(settingsManifest, LocalDate.now(ZoneId.systemDefault()));
   }
-
-  /**
-   * Returns the CSS color classes for the demo banner expiration tag.
-   *
-   * @param daysRemaining the count of remaining days
-   * @return "bg-green" if > 5 days remain, "bg-yellow text-ink" if 5 or less days remain
-   */
-  public static String getDemoBannerTagColorClass(long daysRemaining) {
-    return daysRemaining > 5 ? "bg-green" : "bg-yellow text-ink";
-  }
 }
