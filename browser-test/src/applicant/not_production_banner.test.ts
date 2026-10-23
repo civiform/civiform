@@ -1,12 +1,15 @@
 import {expect, test} from '../support/civiform_fixtures'
-import {enableFeatureFlag, validateAccessibility} from '../support'
+import {
+  enableFeatureFlag,
+  loginAsAdmin,
+  logout,
+  validateAccessibility,
+  validateScreenshot,
+} from '../support'
 
 test.describe('Ineligible Page Tests', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(page, 'show_not_production_banner_enabled')
-  })
-
   test('View "Not Production" banner', async ({page}) => {
+    await enableFeatureFlag(page, 'show_not_production_banner_enabled')
     await page.goto('/programs')
 
     await test.step('Verify banner', async () => {
@@ -18,5 +21,30 @@ test.describe('Ineligible Page Tests', () => {
 
       await validateAccessibility(page)
     })
+  })
+
+  test('View "Demo" banner', async ({page, adminSettings}) => {
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+    await adminSettings.setEnumSetting('BANNER_TYPE', 'demo')
+    await adminSettings.saveChanges()
+    await logout(page)
+
+    await page.goto('/programs')
+
+    await test.step('Verify demo banner', async () => {
+      const demoBanner = page.getByRole('region', {
+        name: 'Demo mode informational alert',
+      })
+      await expect(demoBanner).toBeVisible()
+      await validateScreenshot(demoBanner, 'demo-banner')
+      await validateAccessibility(page)
+    })
+
+    await loginAsAdmin(page)
+    await adminSettings.gotoAdminSettings()
+    await adminSettings.setEnumSetting('BANNER_TYPE', 'none')
+    await adminSettings.saveChanges()
+    await logout(page)
   })
 })
