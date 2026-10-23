@@ -525,4 +525,114 @@ public class BaseHtmlLayout {
       SettingsManifest settingsManifest, Http.RequestHeader request, Messages messages) {
     return getDemoBannerDaysRemaining(settingsManifest, messages);
   }
+
+  /**
+   * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
+   * and role login buttons on Applicant and Admin Thymeleaf layouts.
+   */
+  public static void setUpBannerContext(
+      modules.ThymeleafModule.PlayThymeleafContext context,
+      SettingsManifest settingsManifest,
+      Http.Request request,
+      Messages messages,
+      Optional<auth.CiviFormProfile> profile,
+      boolean isDevOrStaging) {
+    boolean isTi = profile.map(auth.CiviFormProfile::isTrustedIntermediary).orElse(false);
+    boolean isCiviFormAdmin = profile.map(auth.CiviFormProfile::isCiviFormAdmin).orElse(false);
+    boolean isOnlyProgramAdmin =
+        profile.map(auth.CiviFormProfile::isOnlyProgramAdmin).orElse(false);
+    boolean isAdminOrTi =
+        profile
+            .map(p -> p.isCiviFormAdmin() || p.isProgramAdmin() || p.isTrustedIntermediary())
+            .orElse(false);
+
+    context.setVariable("isTrustedIntermediary", isTi);
+    context.setVariable("isCiviFormAdmin", isCiviFormAdmin);
+    context.setVariable("isOnlyProgramAdmin", isOnlyProgramAdmin);
+    context.setVariable("isAdminOrTi", isAdminOrTi);
+    context.setVariable("logoutLink", org.pac4j.play.routes.LogoutController.logout().url());
+    context.setVariable("cogIcon", Icons.COG);
+
+    boolean demoBannerEnabled = isDemoBannerEnabled(settingsManifest, request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (demoBannerEnabled) {
+      String civicEntityShortName =
+          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+      context.setVariable("civicEntityShortName", civicEntityShortName);
+      Optional<Long> maybeDaysRemaining =
+          getDemoBannerDaysRemainingCount(settingsManifest, request);
+      context.setVariable(
+          "demoBannerDaysRemaining",
+          maybeDaysRemaining
+              .map(
+                  days ->
+                      messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
+              .orElse(""));
+      context.setVariable(
+          "demoBannerTagColorClass",
+          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
+    }
+
+    boolean showNotProductionBannerEnabled =
+        isNotProductionBannerEnabled(settingsManifest, request);
+    if (showNotProductionBannerEnabled) {
+      context.setVariable("showNotProductionBannerEnabled", true);
+
+      // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
+      // difficult to add HTML within a message. So we have to manually build the html for a link
+      // that will be embedded in the banner.
+      Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
+      Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
+      Optional<String> unescapedDescription = Optional.empty();
+      if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
+        String linkHtml =
+            "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
+        String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
+        unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
+      }
+      String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
+      services.AlertSettings notProductionAlertSettings =
+          new services.AlertSettings(
+              true,
+              Optional.of(alertTitle),
+              unescapedDescription.orElse(""),
+              unescapedDescription.isPresent(),
+              services.AlertType.EMERGENCY,
+              ImmutableList.of(),
+              /* customText= */ Optional.empty(),
+              Optional.of(
+                  services.AlertSettings.getTitleAriaLabel(
+                      messages, services.AlertType.EMERGENCY, alertTitle)),
+              /* isSlim= */ false);
+      context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
+    }
+
+    boolean showDebugTools =
+        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
+    context.setVariable("showDebugTools", showDebugTools);
+    if (showDebugTools) {
+      context.setVariable(
+          "fakeCiviformAdminUrl",
+          controllers.routes.CallbackController.fakeAdmin(
+                  auth.FakeAdminClient.CLIENT_NAME, auth.FakeAdminClient.GLOBAL_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeProgramAdminUrl",
+          controllers.routes.CallbackController.fakeAdmin(
+                  auth.FakeAdminClient.CLIENT_NAME, auth.FakeAdminClient.PROGRAM_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeDualAdminUrl",
+          controllers.routes.CallbackController.fakeAdmin(
+                  auth.FakeAdminClient.CLIENT_NAME, auth.FakeAdminClient.DUAL_ADMIN)
+              .url());
+      context.setVariable(
+          "fakeTrustedIntermediaryUrl",
+          controllers.routes.CallbackController.fakeAdmin(
+                  auth.FakeAdminClient.CLIENT_NAME, auth.FakeAdminClient.TRUSTED_INTERMEDIARY)
+              .url());
+      context.setVariable(
+          "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
+    }
+  }
 }

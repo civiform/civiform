@@ -1,6 +1,15 @@
 <!--/*@thymesVar id="adminCommonHeader" type="views.admin.shared.AdminCommonHeader"*/-->
 <th:block xmlns:cf="https://civiform.us/2024/html/icon">
+  <div
+    class="position-sticky top-0 z-top"
+    th:if="${showNotProductionBannerEnabled}"
+  >
+    <div
+      th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
+    ></div>
+  </div>
   <section
+    th:unless="${showNotProductionBannerEnabled}"
     class="usa-banner"
     aria-label="This is an official government website."
   >
@@ -60,7 +69,7 @@
                     stroke-width="1%"
                     aria-hidden="true"
                     viewBox="0 0 52 64"
-                    class="inline align-baseline usa-banner__lock-image"
+                    class="display-inline text-baseline usa-banner__lock-image"
                     role="img"
                     aria-label="Locked padlock icon"
                     focusable="false"
@@ -80,4 +89,7 @@
       </div>
     </div>
   </section>
+  <th:block th:if="${demoBannerEnabled}">
+    <div th:replace="~{components/DemoBannerFragment :: demoBanner}"></div>
+  </th:block>
 </th:block>

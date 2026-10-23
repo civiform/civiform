@@ -5,8 +5,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import actions.RouteExtractor;
 import auth.CiviFormProfile;
-import auth.FakeAdminClient;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -18,8 +16,6 @@ import play.i18n.Lang;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import play.routing.Router;
-import services.AlertSettings;
-import services.AlertType;
 import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.MessageKey;
@@ -180,27 +176,9 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    boolean demoBannerEnabled = BaseHtmlLayout.isDemoBannerEnabled(settingsManifest, request);
-    context.setVariable("demoBannerEnabled", demoBannerEnabled);
-    if (demoBannerEnabled) {
-      String civicEntityShortName =
-          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
-      context.setVariable("civicEntityShortName", civicEntityShortName);
-      Optional<Long> maybeDaysRemaining =
-          BaseHtmlLayout.getDemoBannerDaysRemainingCount(settingsManifest, request);
-      context.setVariable(
-          "demoBannerDaysRemaining",
-          maybeDaysRemaining
-              .map(
-                  days ->
-                      messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
-              .orElse(""));
-      context.setVariable(
-          "demoBannerTagColorClass",
-          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
-    }
+    BaseHtmlLayout.setUpBannerContext(
+        context, settingsManifest, request, messages, profile, isDevOrStaging);
 
-    maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
     if (sessionTimeoutEnabled) {
@@ -216,34 +194,6 @@ public abstract class ApplicantBaseView {
 
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
-
-    boolean showDebugTools =
-        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
-    context.setVariable("showDebugTools", showDebugTools);
-    if (showDebugTools) {
-      context.setVariable(
-          "fakeCiviformAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeProgramAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeDualAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeTrustedIntermediaryUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-              .url());
-      context.setVariable(
-          "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
-    }
 
     return context;
   }
@@ -369,42 +319,6 @@ public abstract class ApplicantBaseView {
           .url();
     }
     return request.uri();
-  }
-
-  private void maybeSetUpNotProductionBanner(
-      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
-    boolean showNotProductionBannerEnabled =
-        BaseHtmlLayout.isNotProductionBannerEnabled(settingsManifest, request);
-    if (!showNotProductionBannerEnabled) {
-      return;
-    }
-    context.setVariable("showNotProductionBannerEnabled", true);
-
-    // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
-    // difficult to add HTML within a message. So we have to manually build the html for a link
-    // that will be embedded in the banner.
-    Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
-    Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
-    Optional<String> unescapedDescription = Optional.empty();
-    if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
-      String linkHtml =
-          "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
-      String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
-      unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
-    }
-    String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
-    AlertSettings notProductionAlertSettings =
-        new AlertSettings(
-            true,
-            Optional.of(alertTitle),
-            unescapedDescription.orElse(""),
-            unescapedDescription.isPresent(),
-            AlertType.EMERGENCY,
-            ImmutableList.of(),
-            /* customText= */ Optional.empty(),
-            Optional.of(AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
-            /* isSlim= */ false);
-    context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
   }
 
   /** Create a page title for a step in the application process. */

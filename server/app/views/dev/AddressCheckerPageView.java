@@ -29,6 +29,7 @@ public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressChe
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
     // Avoid requiring a user profile for dev tools page.
+    setUpBannerContext(request, context, profileUtils.optionalCurrentUserProfile(request));
     context.setVariable(
         "adminCommonHeader",
         AdminCommonHeader.builder()

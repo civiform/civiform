@@ -82,6 +82,29 @@ test.describe('developer tools', () => {
       await validateAccessibility(page)
     })
 
+    await test.step('demo banner and active role buttons appear on post-migration Thymeleaf admin page', async () => {
+      await enableFeatureFlag(
+        page,
+        'admin_ui_migration_ux_redesign_sc_enabled',
+      )
+      await demoBanner.locator('#admin').click()
+      await page.goto('/admin/tiDash')
+      await expect(demoBanner).toBeVisible()
+      await expect(demoBanner.locator('#resident')).toHaveAttribute(
+        'href',
+        '/logout',
+      )
+      await expect(demoBanner.locator('#admin')).toBeDisabled()
+      await expect(demoBanner.locator('#program-admin')).toBeEnabled()
+      await expect(demoBanner.locator('#trusted-intermediary')).toBeEnabled()
+      await demoBanner.locator('#resident').click()
+      await expect(demoBanner.locator('#resident')).toBeDisabled()
+      await disableFeatureFlag(
+        page,
+        'admin_ui_migration_ux_redesign_sc_enabled',
+      )
+    })
+
     await test.step('buttons hide when staging_disable_demo_mode_logins is enabled', async () => {
       await enableFeatureFlag(page, 'staging_disable_demo_mode_logins')
       await page.goto('/programs')
