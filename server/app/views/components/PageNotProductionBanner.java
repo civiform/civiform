@@ -15,7 +15,7 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
 import services.settings.SettingsManifest;
-import views.BaseHtmlLayout;
+import views.shared.BannerUtils;
 
 /**
  * This will build a sticky banner that follows the user as they scroll. Enable the
@@ -37,7 +37,7 @@ public final class PageNotProductionBanner {
   }
 
   public Optional<DivTag> render(Http.RequestHeader request, Messages messages) {
-    if (!BaseHtmlLayout.isNotProductionBannerEnabled(settingsManifest, request)) {
+    if (!BannerUtils.isNotProductionBannerEnabled(settingsManifest, request)) {
       return Optional.empty();
     }
 

@@ -25,10 +25,10 @@ import services.DeploymentType;
 import services.MessageKey;
 import services.applicant.ApplicantPersonalInfo;
 import services.settings.SettingsManifest;
-import views.BaseHtmlLayout;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.BannerUtils;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -180,26 +180,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    boolean demoBannerEnabled = BaseHtmlLayout.isDemoBannerEnabled(settingsManifest, request);
-    context.setVariable("demoBannerEnabled", demoBannerEnabled);
-    if (demoBannerEnabled) {
-      String civicEntityShortName =
-          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
-      context.setVariable("civicEntityShortName", civicEntityShortName);
-      Optional<Long> maybeDaysRemaining =
-          BaseHtmlLayout.getDemoBannerDaysRemainingCount(settingsManifest, request);
-      context.setVariable(
-          "demoBannerDaysRemaining",
-          maybeDaysRemaining
-              .map(
-                  days ->
-                      messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
-              .orElse(""));
-      context.setVariable(
-          "demoBannerTagColorClass",
-          maybeDaysRemaining.map(BaseHtmlLayout::getDemoBannerTagColorClass).orElse(""));
-    }
-
+    maybeSetUpDemoBanner(context, request, messages);
     maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
@@ -371,10 +352,34 @@ public abstract class ApplicantBaseView {
     return request.uri();
   }
 
+  private void maybeSetUpDemoBanner(
+      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+    boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (!demoBannerEnabled) {
+      return;
+    }
+    String civicEntityShortName =
+        settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+    context.setVariable("civicEntityShortName", civicEntityShortName);
+    Optional<Long> maybeDaysRemaining =
+        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest);
+    context.setVariable(
+        "demoBannerDaysRemaining",
+        maybeDaysRemaining
+            .map(
+                days ->
+                    messages.at(MessageKey.BANNER_DEMO_BANNER_DAYS_REMAINING.getKeyName(), days))
+            .orElse(""));
+    context.setVariable(
+        "demoBannerTagColorClass",
+        maybeDaysRemaining.map(BannerUtils::getDemoBannerTagColorClass).orElse(""));
+  }
+
   private void maybeSetUpNotProductionBanner(
       ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
     boolean showNotProductionBannerEnabled =
-        BaseHtmlLayout.isNotProductionBannerEnabled(settingsManifest, request);
+        BannerUtils.isNotProductionBannerEnabled(settingsManifest, request);
     if (!showNotProductionBannerEnabled) {
       return;
     }
