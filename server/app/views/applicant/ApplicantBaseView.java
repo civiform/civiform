@@ -346,8 +346,7 @@ public abstract class ApplicantBaseView {
     return request.uri();
   }
 
-  private void maybeSetUpDemoBanner(
-      ThymeleafModule.PlayThymeleafContext context, Request request) {
+  private void maybeSetUpDemoBanner(ThymeleafModule.PlayThymeleafContext context, Request request) {
     boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
     context.setVariable("demoBannerEnabled", demoBannerEnabled);
     if (!demoBannerEnabled) {
