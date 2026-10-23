@@ -67,7 +67,7 @@ test.describe('developer tools', () => {
       await expect(header.getByText('DevTools')).toHaveCount(0)
       await expect(demoBanner).toBeVisible()
       await expect(demoBanner.getByText('View as:')).toBeVisible()
-      await expect(demoBanner.locator('#resident')).toBeDisabled()
+      await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
       await expect(demoBanner.locator('#admin')).toBeVisible()
       await expect(demoBanner.locator('#program-admin')).toBeVisible()
       await expect(demoBanner.locator('#dual-admin')).toHaveCount(0)
@@ -83,10 +83,7 @@ test.describe('developer tools', () => {
     })
 
     await test.step('demo banner and active role buttons appear on post-migration Thymeleaf admin page', async () => {
-      await enableFeatureFlag(
-        page,
-        'admin_ui_migration_ux_redesign_sc_enabled',
-      )
+      await enableFeatureFlag(page, 'admin_ui_migration_ux_redesign_sc_enabled')
       await demoBanner.locator('#admin').click()
       await page.goto('/admin/tiDash')
       await expect(demoBanner).toBeVisible()
@@ -94,11 +91,15 @@ test.describe('developer tools', () => {
         'href',
         '/logout',
       )
-      await expect(demoBanner.locator('#admin')).toBeDisabled()
-      await expect(demoBanner.locator('#program-admin')).toBeEnabled()
-      await expect(demoBanner.locator('#trusted-intermediary')).toBeEnabled()
+      await expect(demoBanner.locator('div#admin')).toHaveClass('usa-button')
+      await expect(demoBanner.locator('a#program-admin')).toHaveClass(
+        'usa-button usa-button--outline',
+      )
+      await expect(demoBanner.locator('a#trusted-intermediary')).toHaveClass(
+        'usa-button usa-button--outline',
+      )
       await demoBanner.locator('#resident').click()
-      await expect(demoBanner.locator('#resident')).toBeDisabled()
+      await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
       await disableFeatureFlag(
         page,
         'admin_ui_migration_ux_redesign_sc_enabled',

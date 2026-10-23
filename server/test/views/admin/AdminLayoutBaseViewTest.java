@@ -114,9 +114,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
         .contains(
             "<a href=\"/logout\" class=\"usa-button usa-button--outline\""
                 + " id=\"resident\">Resident</a>");
-    assertThat(result)
-        .containsPattern(
-            "<button\\s+type=\"button\"\\s+class=\"usa-button\"\\s+id=\"admin\"\\s+disabled>");
+    assertThat(result).containsPattern("<div\\s+class=\"usa-button\"\\s+id=\"admin\">");
     assertThat(result)
         .contains(
             "class=\"usa-button usa-button--outline\" id=\"program-admin\">Program Admin</a>");
@@ -161,9 +159,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
                 + " id=\"resident\">Resident</a>");
     assertThat(result)
         .contains("class=\"usa-button usa-button--outline\" id=\"admin\">Civiform Admin</a>");
-    assertThat(result)
-        .containsPattern(
-            "<button\\s+type=\"button\"\\s+class=\"usa-button\"\\s+id=\"program-admin\"\\s+disabled>");
+    assertThat(result).containsPattern("<div\\s+class=\"usa-button\"\\s+id=\"program-admin\">");
   }
 
   @Test

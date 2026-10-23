@@ -29,24 +29,14 @@
                 id="resident"
                 >Resident</a
               >
-              <div
-                th:unless="${isAdminOrTi}"
-                class="usa-button"
-                id="resident"
-              >
+              <div th:unless="${isAdminOrTi}" class="usa-button" id="resident">
                 Resident
               </div>
             </li>
             <li class="usa-button-group__item">
-              <button
-                th:if="${isCiviFormAdmin}"
-                type="button"
-                class="usa-button"
-                id="admin"
-                disabled
-              >
+              <div th:if="${isCiviFormAdmin}" class="usa-button" id="admin">
                 Civiform Admin
-              </button>
+              </div>
               <a
                 th:unless="${isCiviFormAdmin}"
                 th:href="${fakeCiviformAdminUrl}"
@@ -56,15 +46,13 @@
               >
             </li>
             <li class="usa-button-group__item">
-              <button
+              <div
                 th:if="${isOnlyProgramAdmin}"
-                type="button"
                 class="usa-button"
                 id="program-admin"
-                disabled
               >
                 Program Admin
-              </button>
+              </div>
               <a
                 th:unless="${isOnlyProgramAdmin}"
                 th:href="${fakeProgramAdminUrl}"
@@ -74,15 +62,13 @@
               >
             </li>
             <li class="usa-button-group__item">
-              <button
+              <div
                 th:if="${isTrustedIntermediary}"
-                type="button"
                 class="usa-button"
                 id="trusted-intermediary"
-                disabled
               >
                 Trusted Intermediary
-              </button>
+              </div>
               <a
                 th:unless="${isTrustedIntermediary}"
                 th:href="${fakeTrustedIntermediaryUrl}"
