@@ -6,15 +6,68 @@
   >
     <div class="usa-alert">
       <div class="usa-alert__body">
-        <p
-          class="usa-alert__text text-bold"
-          th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
-        ></p>
-        <div th:if="${demoBannerDaysRemainingCount != null}">
-          <span
-            th:class="|usa-tag ${demoBannerDaysRemainingCount > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
-            th:text="#{banner.demoBanner.daysRemaining(${demoBannerDaysRemainingCount})}"
-          ></span>
+        <div class="cf-demo-banner__info">
+          <p
+            class="usa-alert__text text-bold"
+            th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+          ></p>
+          <div th:if="${demoBannerDaysRemainingCount != null}">
+            <span
+              th:class="|usa-tag ${demoBannerDaysRemainingCount > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
+              th:text="#{banner.demoBanner.daysRemaining(${demoBannerDaysRemainingCount})}"
+            ></span>
+          </div>
+        </div>
+        <div class="cf-demo-banner__actions" th:if="${showDebugTools}">
+          <span class="cf-demo-banner__login-label">View as:</span>
+          <ul class="usa-button-group usa-button-group--segmented">
+            <li class="usa-button-group__item">
+              <a
+                th:if="${isAdminOrTi}"
+                th:href="${logoutLink}"
+                class="usa-button usa-button--outline"
+                id="resident"
+                >Resident</a
+              >
+              <div th:unless="${isAdminOrTi}" class="usa-button" id="resident">
+                Resident
+              </div>
+            </li>
+            <li class="usa-button-group__item">
+              <a
+                th:href="${fakeCiviformAdminUrl}"
+                class="usa-button usa-button--outline"
+                id="admin"
+                >Civiform Admin</a
+              >
+            </li>
+            <li class="usa-button-group__item">
+              <a
+                th:href="${fakeProgramAdminUrl}"
+                class="usa-button usa-button--outline"
+                id="program-admin"
+                >Program Admin</a
+              >
+            </li>
+            <li class="usa-button-group__item">
+              <a
+                th:href="${fakeTrustedIntermediaryUrl}"
+                class="usa-button usa-button--outline"
+                id="trusted-intermediary"
+                >Trusted Intermediary</a
+              >
+            </li>
+          </ul>
+          <a
+            th:href="${additionalToolsUrl}"
+            class="usa-button usa-button--outline cf-demo-banner__icon-button"
+            id="additional-tools"
+            aria-label="Additional tools"
+          >
+            <svg
+              th:replace="~{applicant/ApplicantBaseFragment :: icon(${cogIcon})}"
+            ></svg>
+          </a>
         </div>
       </div>
     </div>

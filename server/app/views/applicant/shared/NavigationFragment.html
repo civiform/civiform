@@ -73,7 +73,7 @@
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
-            <div th:if="${showDebugTools}">
+            <div th:if="${showDebugTools and !demoBannerEnabled}">
               <button th:replace="~{this :: showDebugTools}"></button>
             </div>
             <div>
