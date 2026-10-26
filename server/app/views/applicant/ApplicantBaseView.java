@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -39,6 +40,7 @@ public abstract class ApplicantBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected final Clock clock;
   protected static final String THEME_PRIMARY_HEX = "#005ea2";
   protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
@@ -49,7 +51,8 @@ public abstract class ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
@@ -57,6 +60,7 @@ public abstract class ApplicantBaseView {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
+    this.clock = checkNotNull(clock);
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
@@ -357,7 +361,7 @@ public abstract class ApplicantBaseView {
     context.setVariable("civicEntityShortName", civicEntityShortName);
     context.setVariable(
         "demoBannerDaysRemainingCount",
-        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest).orElse(null));
+        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
   }
 
   private void maybeSetUpNotProductionBanner(

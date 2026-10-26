@@ -57,6 +57,7 @@ public enum MessageKey {
   ARIA_LABEL_INDENTED_PAGE("ariaLabel.indentedPage"),
   BANNER_ERROR_SAVING_APPLICATION("banner.errorSavingApplication"),
   BANNER_CLIENT_INFO_UPDATED("banner.clientInfoUpdated"),
+  BANNER_DEMO_BANNER_DAY_REMAINING("banner.demoBanner.dayRemaining"),
   BANNER_DEMO_BANNER_DAYS_REMAINING("banner.demoBanner.daysRemaining"),
   BANNER_NEW_CLIENT_CREATED("banner.newClientCreated"),
   BANNER_GOV_WEBSITE_SECTION_HEADER("banner.govWebsiteSectionHeader"),

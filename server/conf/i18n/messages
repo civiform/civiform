@@ -1146,7 +1146,9 @@ banner.immigrationStatusInfoBanner.linkText=here
 label.demoBanner.heading=Demo: {0}
 # Aria-label for demo banner alert
 label.demoBanner.label=Demo mode informational alert
-# Count of remaining days for the demo environment
+# Count of remaining days for the demo environment (singular)
+banner.demoBanner.dayRemaining=1 day remaining
+# Count of remaining days for the demo environment (plural)
 banner.demoBanner.daysRemaining={0} days remaining
 
 #------------------------------------------------------------------------------#

@@ -6,6 +6,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import forms.questions.EnumeratorQuestionForm;
+import java.time.Clock;
 import java.util.Optional;
 import models.ApplicantModel;
 import modules.ThymeleafModule;
@@ -37,7 +38,8 @@ public class QuestionPreview extends ApplicantBaseView {
       BundledAssetsFinder bundledAssetsFinder,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -45,7 +47,8 @@ public class QuestionPreview extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
   }
 
   public String render(Params params) {

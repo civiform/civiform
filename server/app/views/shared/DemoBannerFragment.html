@@ -1,6 +1,6 @@
 <div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
   <section
-    class="usa-site-alert usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
+    class="usa-site-alert usa-site-alert--info usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
     role="region"
     th:aria-label="#{label.demoBanner.label}"
   >
@@ -13,7 +13,7 @@
         <div th:if="${demoBannerDaysRemainingCount != null}">
           <span
             th:class="|usa-tag ${demoBannerDaysRemainingCount > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
-            th:text="#{banner.demoBanner.daysRemaining(${demoBannerDaysRemainingCount})}"
+            th:text="${demoBannerDaysRemainingCount == 1 ? #messages.msg('banner.demoBanner.dayRemaining') : #messages.msg('banner.demoBanner.daysRemaining', demoBannerDaysRemainingCount)}"
           ></span>
         </div>
       </div>
