@@ -1,0 +1,358 @@
+<!--/*
+  Admin list of the applications submitted to one program, migrated 1:1 from
+  the j2html ProgramApplicationTableView. Rendered in the transitional
+  LegacyTailwindLayout; slated for replacement in the admin redesign.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramApplicationListPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The legacy page placed a CSRF input directly in <main>, before the list. */-->
+  <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+  <div data-testid="application-list">
+    <h1
+      class="sm:text-5xl font-semibold mt-10 px-6 bg-opacity-75 sm:mb-6"
+      th:text="${model.programName}"
+    ></h1>
+    <br />
+
+    <!--/* Search / filter form */-->
+    <form
+      class="mt-6"
+      data-override-disable-submit-on-enter
+      method="GET"
+      th:action="${model.indexUrl}"
+    >
+      <fieldset class="pt-1">
+        <legend class="ml-1 text-gray-600">Applications submitted</legend>
+        <div class="flex space-x-3">
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/DateField :: dateField(${model.randomFieldId()}, 'fromDate', 'from:', ${model.fromDate}, 'flex')}"
+          ></div>
+          <div
+            th:replace="~{admin/shared/LegacyFieldWithLabel/DateField :: dateField(${model.randomFieldId()}, 'untilDate', 'until:', ${model.untilDate}, 'flex')}"
+          ></div>
+        </div>
+      </fieldset>
+      <div
+        th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField(${model.randomFieldId()}, 'search', 'Search by name, email, phone number, or application ID', ${model.search}, false, false, '10000', 'w-full mt-4')}"
+      ></div>
+      <!--/*
+        Status filter (legacy SelectWithLabel). The hidden placeholder option
+        and the "Any application status" option share the empty value, so
+        both carry the selected attribute when no status is selected, as the
+        legacy renderer did.
+      */-->
+      <div
+        th:if="${model.hasApplicationStatuses()}"
+        th:with="selectId=${model.randomFieldId()}"
+        class="mb-2"
+      >
+        <label
+          th:for="${selectId}"
+          class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >Application status<span
+            th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+          ></span
+        ></label>
+        <div class="flex flex-col">
+          <select
+            maxlength="10000"
+            th:id="${selectId}"
+            name="applicationStatus"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
+          >
+            <option
+              value=""
+              hidden
+              th:selected="${model.selectedApplicationStatus == ''}"
+            ></option>
+            <optgroup label="General">
+              <option
+                class="cf-multi-option-question-option cf-multi-option-value"
+                value=""
+                th:selected="${model.selectedApplicationStatus == ''}"
+              >
+                Any application status
+              </option>
+              <option
+                class="cf-multi-option-question-option cf-multi-option-value"
+                th:value="${model.noStatusFilterOptionValue}"
+                th:selected="${model.selectedApplicationStatus == model.noStatusFilterOptionValue}"
+              >
+                Only applications without a status
+              </option>
+            </optgroup>
+            <optgroup label="Application statuses">
+              <option
+                th:each="status : ${model.applicationStatusOptions}"
+                class="cf-multi-option-question-option cf-multi-option-value"
+                th:value="${status}"
+                th:selected="${model.selectedApplicationStatus == status}"
+                th:text="${status}"
+              ></option>
+            </optgroup>
+          </select>
+          <div
+            th:id="|${selectId}-errors|"
+            class="text-red-600 text-xs p-1 hidden"
+          ></div>
+        </div>
+      </div>
+      <div class="mt-6 mb-8 flex space-x-2">
+        <div class="flex-grow"></div>
+        <button
+          th:if="${model.showDownloadButton}"
+          class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+          name="showDownloadModal"
+          value="true"
+          type="submit"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconDownload('inline-block h-4.5 w-4.5')}"
+          ></svg>
+          <span class="text-left">Download</span>
+        </button>
+        <button
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+          type="submit"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconFilterAlt('inline-block h-4.5 w-4.5')}"
+          ></svg>
+          <span class="text-left">Filter</span>
+        </button>
+        <a
+          th:href="${model.indexUrl}"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+          >Clear</a
+        >
+      </div>
+    </form>
+    <div></div>
+
+    <!--/*
+      Applications table. With statuses it sits inside the bulk status update
+      form; without, in a plain wrapper. The pagination (if any) is the last
+      child of the wrapper in both cases.
+    */-->
+    <div th:if="${model.hasApplicationStatuses()}">
+      <form
+        id="bulk-status-update"
+        method="POST"
+        th:action="${model.updateStatusesUrl}"
+      >
+        <div class="space-x-2">
+          <select
+            name="statusText"
+            id="bulk-status-selector"
+            class="outline-none px-3 py-2 ml-3 border border-gray-500 rounded-lg bg-white text-lg focus:border-civiform-blue"
+          >
+            <option th:text="${model.bulkStatusPlaceholder}"></option>
+            <option
+              th:each="status : ${model.bulkStatusOptions}"
+              th:value="${status}"
+              th:text="${status}"
+            ></option>
+          </select>
+          <input
+            hidden
+            th:value="${templateGlobals.csrfToken()}"
+            name="csrfToken"
+          />
+          <label>Send notification</label>
+          <input
+            type="checkbox"
+            name="shouldSendEmail"
+            id="bulk-status-notification"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none"
+          />
+          <button type="submit" class="usa-button">Status change</button>
+          <div th:if="${model.statusUpdateMessage != null}" class="my-5">
+            <div
+              class="usa-alert usa-alert--info"
+              aria-live="polite"
+              role="alert"
+            >
+              <div class="usa-alert__body">
+                <h4 class="usa-alert__heading">Status Update</h4>
+                <p
+                  class="usa-alert__text"
+                  th:text="${model.statusUpdateMessage}"
+                ></p>
+              </div>
+            </div>
+          </div>
+          <div th:if="${model.statusUpdateMessage == null}"></div>
+          <table th:replace="~{:: applicationTable}"></table>
+        </div>
+      </form>
+      <th:block th:if="${model.pagination != null}">
+        <nav
+          th:replace="~{admin/shared/LegacyPagination :: pagination(${model.pagination})}"
+        ></nav>
+      </th:block>
+    </div>
+    <div
+      th:unless="${model.hasApplicationStatuses()}"
+      data-testid="application-table"
+    >
+      <table th:replace="~{:: applicationTable}"></table>
+      <th:block th:if="${model.pagination != null}">
+        <nav
+          th:replace="~{admin/shared/LegacyPagination :: pagination(${model.pagination})}"
+        ></nav>
+      </th:block>
+    </div>
+  </div>
+</th:block>
+
+<table
+  th:fragment="applicationTable"
+  class="usa-table usa-table--borderless w-full"
+>
+  <thead>
+    <tr>
+      <th th:if="${model.hasApplicationStatuses()}" scope="col">
+        <input
+          name="selectall"
+          type="checkbox"
+          id="selectAll"
+          class="h-4 w-4 mr-4 align-middle self-center flex-none"
+        />
+      </th>
+      <th scope="col">Name</th>
+      <th th:if="${model.eligibilityEnabled}" scope="col">Eligibility</th>
+      <th th:if="${model.hasApplicationStatuses()}" scope="col">Status</th>
+      <th scope="col">Submission date</th>
+      <th scope="col">Submitted by</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr
+      th:each="row : ${model.applicationRows}"
+      class="has:checked:text-red-500 cf-admin-application-row"
+    >
+      <td th:if="${model.hasApplicationStatuses()}">
+        <input
+          type="checkbox"
+          name="applicationsIds[]"
+          th:id="|current-application-selection-${row.id}|"
+          th:value="${row.id}"
+          class="h-4 w-4 mr-4 align-middle self-center flex-none"
+        />
+      </td>
+      <td>
+        <a
+          th:id="|application-view-link-${row.id}|"
+          th:href="${row.viewUrl}"
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center mr-2 cf-view-application-button underline cf-application-id"
+          th:text="${row.applicantNameWithApplicationId}"
+        ></a>
+      </td>
+      <td
+        th:if="${model.eligibilityEnabled}"
+        th:text="${row.meetsEligibility} ? 'Meets eligibility' : 'Doesn\'t meet eligibility'"
+      ></td>
+      <td
+        th:if="${model.hasApplicationStatuses()}"
+        th:text="${row.statusText}"
+      ></td>
+      <td class="cf-bt-date"><span th:text="${row.submitTime}"></span></td>
+      <td class="cf-submitted-by" th:text="${row.submitterEmail}"></td>
+    </tr>
+  </tbody>
+</table>
+
+<!--/* Download modal, inserted by the layout into #modal-container. */-->
+<th:block th:fragment="modals">
+  <div
+    th:if="${model.showDownloadButton}"
+    id="download-program-applications-modal"
+    aria-labelledby="download-program-applications-modal-title"
+    tabindex="0"
+    class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-auto top-1/2"
+    th:classappend="${model.showDownloadModal} ? 'cf-modal-display-on-load'"
+  >
+    <div
+      id="download-program-applications-modal-title"
+      class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+    >
+      <div class="text-2xl text-gray-600 my-5 mx-4">
+        Download application data
+      </div>
+      <!--/* Spacer so the close button and title don't overlap. */-->
+      <div class="w-12"></div>
+    </div>
+    <div class="my-5 mx-6">
+      <div class="px-8">
+        <form method="GET">
+          <!--/*
+            Radio options are inlined rather than using the shared
+            RadioOption fragment: the legacy fields here were not marked
+            required, so they carry no aria-required attribute.
+          */-->
+          <label
+            th:with="radioId=${model.randomFieldId()}"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+            th:for="${radioId}"
+            ><input
+              type="radio"
+              value=""
+              maxlength="10000"
+              th:id="${radioId}"
+              name="ignoreFilters"
+              class="h-4 w-4 mr-4 align-middle self-center flex-none"
+              checked
+            />Current results</label
+          >
+          <label
+            th:with="radioId=${model.randomFieldId()}"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
+            th:for="${radioId}"
+            ><input
+              type="radio"
+              value="1"
+              maxlength="10000"
+              th:id="${radioId}"
+              name="ignoreFilters"
+              class="h-4 w-4 mr-4 align-middle self-center flex-none"
+            />All data</label
+          >
+          <input name="fromDate" hidden th:value="${model.fromDate}" />
+          <input name="untilDate" hidden th:value="${model.untilDate}" />
+          <input name="search" hidden th:value="${model.search}" />
+          <input
+            name="applicationStatus"
+            hidden
+            th:value="${model.selectedApplicationStatus}"
+          />
+          <div class="flex mt-6 space-x-2">
+            <button
+              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+              th:formaction="${model.downloadAllCsvUrl}"
+              type="submit"
+            >
+              Download CSV
+            </button>
+            <button
+              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+              th:formaction="${model.downloadAllJsonUrl}"
+              type="submit"
+            >
+              Download JSON
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+    <button
+      type="button"
+      aria-label="Close"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+      ></svg>
+    </button>
+  </div>
+</th:block>

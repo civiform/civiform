@@ -602,3 +602,70 @@
     d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16z"
   ></path>
 </svg>
+
+<!--/*
+  Icons below are used by the program applications list (search form
+  buttons and the legacy BaseHtmlView.renderPagination arrows).
+*/-->
+
+<svg
+  th:fragment="iconDownload(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  th:class="${classes}"
+>
+  <path
+    d="M10 13.271 5.708 8.979 6.958 7.729 9.125 9.896V3.333H10.875V9.896L13.042 7.729L14.292 8.979ZM5.083 16.667Q4.354 16.667 3.844 16.156Q3.333 15.646 3.333 14.917V12.5H5.083V14.917Q5.083 14.917 5.083 14.917Q5.083 14.917 5.083 14.917H14.917Q14.917 14.917 14.917 14.917Q14.917 14.917 14.917 14.917V12.5H16.667V14.917Q16.667 15.646 16.156 16.156Q15.646 16.667 14.917 16.667Z"
+  ></path>
+</svg>
+
+<svg
+  th:fragment="iconFilterAlt(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  th:class="${classes}"
+>
+  <path
+    d="M11.667 10.833v5q0 .355-.24.594-.239.24-.594.24H9.167q-.355 0-.594-.24-.24-.239-.24-.594v-5L3.5 4.667q-.312-.417-.094-.875.219-.459.761-.459h11.666q.542 0 .761.459.218.458-.094.875ZM10 10.125l3.958-5.042H6.042Zm0 0Z"
+  ></path>
+</svg>
+
+<!--/*
+  The pagination arrows are the only legacy users of these two icons, and
+  the legacy renderer always added role="img" to them, so it is baked in.
+*/-->
+<svg
+  th:fragment="iconNavigateBefore(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  th:class="${classes}"
+  role="img"
+>
+  <path d="M15.41 7.41 14 6l-6 6 6 6 1.41-1.41L10.83 12z"></path>
+</svg>
+
+<svg
+  th:fragment="iconNavigateNext(classes)"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 24 24"
+  th:class="${classes}"
+  role="img"
+>
+  <path d="M10 6 8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"></path>
+</svg>

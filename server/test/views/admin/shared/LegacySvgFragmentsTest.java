@@ -268,4 +268,28 @@ public class LegacySvgFragmentsTest {
   public void iconLabel_programTypeIndicator() {
     ThymeleafFragmentTester.run(DIR + "iconLabelProgramTypeIndicator.thtest");
   }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Download" on the applications list). */
+  @Test
+  public void iconDownload_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconDownloadSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Filter" on the applications list). */
+  @Test
+  public void iconFilterAlt_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconFilterAltSvgTextButton.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderPreviousPageButton (pagination). */
+  @Test
+  public void iconNavigateBefore_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateBefore.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderNextPageButton (pagination). */
+  @Test
+  public void iconNavigateNext_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateNext.thtest");
+  }
 }
