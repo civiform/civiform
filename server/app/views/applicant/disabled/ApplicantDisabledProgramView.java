@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
 import controllers.LanguageUtils;
+import java.time.Clock;
 import java.util.Optional;
 import javax.inject.Inject;
 import modules.ThymeleafModule;
@@ -30,6 +31,7 @@ public final class ApplicantDisabledProgramView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
+      Clock clock,
       ProfileUtils profileUtils) {
     super(
         templateEngine,
@@ -38,7 +40,8 @@ public final class ApplicantDisabledProgramView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
     this.profileUtils = checkNotNull(profileUtils);
   }
 

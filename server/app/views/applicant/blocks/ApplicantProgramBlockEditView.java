@@ -9,6 +9,7 @@ import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import forms.questions.EnumeratorQuestionForm;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -67,6 +68,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
+      Clock clock,
       GeoJsonDataRepository mapDataRepository,
       PublicStorageClient publicStorageClient) {
     super(
@@ -76,7 +78,8 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
     this.fileUploadViewStrategy = fileUploadViewStrategy;
     this.mapDataRepository = mapDataRepository;
     this.publicStorageClient = checkNotNull(publicStorageClient);

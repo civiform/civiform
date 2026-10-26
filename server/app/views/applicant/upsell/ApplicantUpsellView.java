@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -33,6 +34,7 @@ public class ApplicantUpsellView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
+      Clock clock,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory) {
     super(
         templateEngine,
@@ -41,7 +43,8 @@ public class ApplicantUpsellView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 

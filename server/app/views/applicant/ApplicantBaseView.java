@@ -11,6 +11,7 @@ import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.routes;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -28,6 +29,7 @@ import services.settings.SettingsManifest;
 import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
+import views.shared.BannerUtils;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -38,6 +40,7 @@ public abstract class ApplicantBaseView {
   protected final SettingsManifest settingsManifest;
   protected final LanguageUtils languageUtils;
   protected final boolean isDevOrStaging;
+  protected final Clock clock;
   protected static final String THEME_PRIMARY_HEX = "#005ea2";
   protected static final String THEME_PRIMARY_DARKER_HEX = "#162e51";
 
@@ -48,7 +51,8 @@ public abstract class ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     this.templateEngine = checkNotNull(templateEngine);
     this.playThymeleafContextFactory = checkNotNull(playThymeleafContextFactory);
     this.bundledAssetsFinder = checkNotNull(bundledAssetsFinder);
@@ -56,6 +60,7 @@ public abstract class ApplicantBaseView {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.languageUtils = checkNotNull(languageUtils);
     this.isDevOrStaging = checkNotNull(deploymentType).isDevOrStaging();
+    this.clock = checkNotNull(clock);
   }
 
   protected ThymeleafModule.PlayThymeleafContext createThymeleafContext(
@@ -173,6 +178,7 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
+    maybeSetUpDemoBanner(context, request);
     maybeSetUpNotProductionBanner(context, request, messages);
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
@@ -344,14 +350,28 @@ public abstract class ApplicantBaseView {
     return request.uri();
   }
 
-  private void maybeSetUpNotProductionBanner(
-      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
-    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+  private void maybeSetUpDemoBanner(ThymeleafModule.PlayThymeleafContext context, Request request) {
+    boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
+    context.setVariable("demoBannerEnabled", demoBannerEnabled);
+    if (!demoBannerEnabled) {
       return;
     }
+    String civicEntityShortName =
+        settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
+    context.setVariable("civicEntityShortName", civicEntityShortName);
     context.setVariable(
-        "showNotProductionBannerEnabled",
-        settingsManifest.getShowNotProductionBannerEnabled(request));
+        "demoBannerDaysRemainingCount",
+        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
+  }
+
+  private void maybeSetUpNotProductionBanner(
+      ThymeleafModule.PlayThymeleafContext context, Request request, Messages messages) {
+    boolean showNotProductionBannerEnabled =
+        BannerUtils.isNotProductionBannerEnabled(settingsManifest, request);
+    if (!showNotProductionBannerEnabled) {
+      return;
+    }
+    context.setVariable("showNotProductionBannerEnabled", true);
 
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
