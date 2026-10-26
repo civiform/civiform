@@ -398,6 +398,60 @@ test.describe('Admin can manage question image', () => {
     })
   })
 
+  test('clicking to enlarge image in preview opens in a new tab', async ({
+    page,
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'enlarge-preview-image-question'
+    const altText = 'Sample alt text for enlarge preview image'
+
+    await test.step('Create question and go to edit page', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+    })
+
+    await test.step('Upload image with alt text', async () => {
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+    })
+
+    const previewContainer = adminQuestionImage.getPreviewImageContainer()
+    await expect(previewContainer).toBeVisible()
+
+    await test.step('check if clicking the enlarge text link opens a new tab containing the image', async () => {
+      const enlargeLink = previewContainer.getByRole('link', {
+        name: /Click to enlarge.*opens in a new tab/i,
+      })
+
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        enlargeLink.click(),
+      ])
+
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toContain('program-summary-image-wide.png')
+      await newPage.close()
+    })
+
+    await test.step('check if image itself is clicked whether a new tab containing the image is opened', async () => {
+      const imageFrameLink = previewContainer.locator(
+        '.cf-question-image-frame',
+      )
+
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        imageFrameLink.click(),
+      ])
+
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toContain('program-summary-image-wide.png')
+      await newPage.close()
+    })
+  })
+
   test('uploading image file larger than 1MB displays too large error alert', async ({
     page,
     adminQuestions,

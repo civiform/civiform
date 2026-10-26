@@ -4,6 +4,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigException.BadValue;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.pekko.stream.javadsl.Sink;
@@ -36,8 +37,19 @@ public final class MultipartUploadSinks {
   // For available Pekko connectors, see:
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
   public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getSinkForCloudProvider(
+      BucketType bucketType,
+      String fileKey,
+      Optional<String> contentType,
+      Optional<String> contentDisposition,
+      int chunkSize) {
+    return uploadSinkProvider.getUploadSink(
+        bucketType, fileKey, contentType, contentDisposition, chunkSize);
+  }
+
+  public Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> getSinkForCloudProvider(
       BucketType bucketType, String fileKey, int chunkSize) {
-    return uploadSinkProvider.getUploadSink(bucketType, fileKey, chunkSize);
+    return getSinkForCloudProvider(
+        bucketType, fileKey, Optional.empty(), Optional.empty(), chunkSize);
   }
 
   // Return the StorageServiceName for the currently selected cloud storage provider
