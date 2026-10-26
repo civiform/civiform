@@ -22,6 +22,11 @@ export class AdminPredicateEdit {
 
   static INITIAL_PREDICATE_FORM_STATE: string
 
+  // Focus is applied after a short delay so it lands after htmx finishes
+  // swapping. Only one delayed focus may be pending, otherwise a stale one can
+  // fire after a newer focus and steal it.
+  private static pendingFocusTimeout: number | undefined
+
   static onHtmxAfterSwap(event: HtmxAfterSwapEvent): void {
     const targetId: string = event.detail.target.id
     // Update for changes to 'subcondition-container', and also refreshes of condition lists.
@@ -313,6 +318,20 @@ export class AdminPredicateEdit {
     }
   }
 
+  /** Focus the element after a short delay, replacing any pending delayed focus. */
+  private static focusAfterDelay(element: HTMLElement): void {
+    AdminPredicateEdit.cancelPendingFocus()
+    AdminPredicateEdit.pendingFocusTimeout = window.setTimeout(
+      () => element.focus(),
+      100,
+    )
+  }
+
+  private static cancelPendingFocus(): void {
+    window.clearTimeout(AdminPredicateEdit.pendingFocusTimeout)
+    AdminPredicateEdit.pendingFocusTimeout = undefined
+  }
+
   /** Focus the root node operator select dropdown. Used on page load and on adding the first condition. */
   private static focusRootNodeOperatorSelect(): void {
     const nodeOperatorSelect = document.getElementById(
@@ -337,9 +356,9 @@ export class AdminPredicateEdit {
       nodeOperatorSelect.querySelector('#root-node-type')
 
     if (visibilityBehaviorDropdown) {
-      setTimeout(() => visibilityBehaviorDropdown.focus(), 100)
+      AdminPredicateEdit.focusAfterDelay(visibilityBehaviorDropdown)
     } else if (logicDropdown) {
-      setTimeout(() => logicDropdown.focus(), 100)
+      AdminPredicateEdit.focusAfterDelay(logicDropdown)
     }
   }
 
@@ -370,7 +389,7 @@ export class AdminPredicateEdit {
       // Focus the "Add condition" button in the null state.
       const addConditionButton = document.getElementById('add-condition-button')
       if (addConditionButton) {
-        setTimeout(() => addConditionButton.focus(), 100)
+        AdminPredicateEdit.focusAfterDelay(addConditionButton)
       }
       return
     }
@@ -436,7 +455,7 @@ export class AdminPredicateEdit {
     const invalidSubconditionInputs: NodeListOf<HTMLElement> =
       document.querySelectorAll('[aria-invalid="true"]')
     if (invalidSubconditionInputs.length > 0) {
-      setTimeout(() => invalidSubconditionInputs[0].focus(), 100)
+      AdminPredicateEdit.focusAfterDelay(invalidSubconditionInputs[0])
       return
     }
 
@@ -452,14 +471,16 @@ export class AdminPredicateEdit {
     // If no subcondition is focused, focus the nearest operator select by default
     if (focusedSubconditionQuestion === null) {
       if (focusedLogicDropdown !== null) {
-        setTimeout(() => focusedLogicDropdown.focus(), 100)
+        AdminPredicateEdit.focusAfterDelay(focusedLogicDropdown)
       } else {
         AdminPredicateEdit.focusRootNodeOperatorSelect()
       }
       return
     }
 
-    // Focus the question dropdown of the desired subcondition
+    // Focus the question dropdown of the desired subcondition. Drop any pending
+    // delayed focus so it can't move focus away afterwards.
+    AdminPredicateEdit.cancelPendingFocus()
     focusedSubconditionQuestion.focus()
   }
 
