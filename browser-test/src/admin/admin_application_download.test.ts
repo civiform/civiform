@@ -12,6 +12,13 @@ import {
 } from '../support'
 
 test.describe('Program admin download button visibility and endpoint access', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'download-visibility-program'
   const downloadFlag = 'remove_download_for_program_admins_enabled'
   const adminFlag = 'allow_civiform_admin_access_programs'
@@ -122,6 +129,13 @@ test.describe('Program admin download button visibility and endpoint access', ()
 })
 
 test.describe('csv export for multioption question', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test.beforeEach(async ({page, seeding}) => {
     await seeding.seedQuestions()
     await page.goto('/')
@@ -257,6 +271,13 @@ test.describe('csv export for multioption question', () => {
 })
 
 test.describe('csv json pdf download test- two applications', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test.beforeEach(async ({page, seeding}) => {
     await seeding.seedQuestions()
     await page.goto('/')

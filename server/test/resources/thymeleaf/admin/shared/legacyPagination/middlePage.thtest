@@ -1,0 +1,60 @@
+%NAME pagination - page 5 of 10: both arrows, ellipses on both sides of the current page
+%TEMPLATE_MODE HTML
+%CONTEXT
+pagination = @views.admin.shared.LegacyPagination@builder() \
+    .previousPageUrl("/list?page=4").nextPageUrl("/list?page=6") \
+    .items(@com.google.common.collect.ImmutableList@of( \
+        @views.admin.shared.LegacyPagination$Item@page(1, "/list?page=1", false), \
+        @views.admin.shared.LegacyPagination$Item@ellipsis(), \
+        @views.admin.shared.LegacyPagination$Item@page(4, "/list?page=4", false), \
+        @views.admin.shared.LegacyPagination$Item@page(5, "/list?page=5", true), \
+        @views.admin.shared.LegacyPagination$Item@page(6, "/list?page=6", false), \
+        @views.admin.shared.LegacyPagination$Item@ellipsis(), \
+        @views.admin.shared.LegacyPagination$Item@page(10, "/list?page=10", false))) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<nav th:replace="~{admin/shared/LegacyPagination :: pagination(${pagination})}"></nav>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconNavigateBefore(classes)" th:text="|iconNavigateBefore(${classes})|"></svg>
+<svg th:fragment="iconNavigateNext(classes)" th:text="|iconNavigateNext(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<nav class="usa-pagination" aria-label="Pagination">
+  <ul class="usa-pagination__list">
+    <li class="usa-pagination__item usa-pagination__arrow">
+      <a class="usa-pagination__link usa-pagination__previous-page" aria-label="Previous page" href="/list?page=4">
+        <svg>iconNavigateBefore(usa-icon h-4 w-4)</svg>
+        <span class="usa-pagination__link-text">Previous</span>
+      </a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=1" aria-label="Page1">1</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__overflow" aria-label="ellipsis indicating non-visible pages">
+      <span>...</span>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=4" aria-label="Page4">4</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button usa-current" href="/list?page=5" aria-label="Page5" aria-current="page">5</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=6" aria-label="Page6">6</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__overflow" aria-label="ellipsis indicating non-visible pages">
+      <span>...</span>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=10" aria-label="Page10">10</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__arrow">
+      <a class="usa-pagination__link usa-pagination__next-page" aria-label="Next page" href="/list?page=6">
+        <span class="usa-pagination__link-text">Next</span>
+        <svg>iconNavigateNext(usa-icon h-4 w-4)</svg>
+      </a>
+    </li>
+  </ul>
+</nav>

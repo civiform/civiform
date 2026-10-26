@@ -3,6 +3,7 @@ import {
   AdminQuestions,
   AdminPrograms,
   ApplicantQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -21,6 +22,13 @@ import {Browser, Locator, Page} from '@playwright/test'
 test.describe('Application Version Fast-Forward Flow', () => {
   test.beforeEach(async ({seeding}) => {
     await seeding.clearDatabase()
+  })
+
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
   })
 
   test('all major steps', async ({browser}) => {
