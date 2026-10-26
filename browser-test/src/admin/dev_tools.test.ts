@@ -67,7 +67,7 @@ test.describe('developer tools', () => {
       await expect(header.getByText('DevTools')).toHaveCount(0)
       await expect(demoBanner).toBeVisible()
       await expect(demoBanner.getByText('View as:')).toBeVisible()
-      await expect(demoBanner.locator('#resident')).toBeDisabled()
+      await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
       await expect(demoBanner.locator('#admin')).toBeVisible()
       await expect(demoBanner.locator('#program-admin')).toBeVisible()
       await expect(demoBanner.locator('#dual-admin')).toHaveCount(0)
