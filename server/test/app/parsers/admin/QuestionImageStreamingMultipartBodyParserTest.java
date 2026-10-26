@@ -266,9 +266,8 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
   }
 
   @Test
-  public void
-      streamingUpload_userProvidedContentTypeIgnored_determinedByFileTypeValidation()
-          throws Exception {
+  public void streamingUpload_userProvidedContentTypeIgnored_determinedByFileTypeValidation()
+      throws Exception {
     Http.RequestHeader request =
         fakeRequest()
             .method("POST")
@@ -277,7 +276,8 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
             .build();
 
     // The user passes a generic or mismatched content-type "text/plain" in the multipart body
-    Source<ByteString, ?> source = createMultipartRequestBody("photo.png", "text/plain", PNG_HEADER);
+    Source<ByteString, ?> source =
+        createMultipartRequestBody("photo.png", "text/plain", PNG_HEADER);
 
     CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
         parser.apply(request).run(source, materializer);
