@@ -1139,6 +1139,19 @@ banner.immigrationStatusInfoBanner.bodyWithLink=Nous ne vous poserons aucune que
 banner.immigrationStatusInfoBanner.linkText=ici
 
 #------------------------------------------------------------------------------#
+# DEMO BANNER - alert explaining that this is a demo environment               #
+#------------------------------------------------------------------------------#
+
+# Header for demo banner alert
+label.demoBanner.heading=Demo: {0}
+# Aria-label for demo banner alert
+label.demoBanner.label=Demo mode informational alert
+# Count of remaining days for the demo environment (singular)
+banner.demoBanner.dayRemaining=1 day remaining
+# Count of remaining days for the demo environment (plural)
+banner.demoBanner.daysRemaining={0} days remaining
+
+#------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
 # Note for developers: these messages aren't used in static text, but instead they #
 #  are seeded into the database, since these will be admin defined in the future #
