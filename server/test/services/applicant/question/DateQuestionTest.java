@@ -252,6 +252,9 @@ public class DateQuestionTest extends ResetPostgres {
             ImmutableMap.of(
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(ValidationErrorMessage.create(expectedMessage, messageArgs))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isTrue();
   }
 
   @Test
@@ -295,6 +298,9 @@ public class DateQuestionTest extends ResetPostgres {
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
                         MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isFalse();
   }
 
   @Test
@@ -316,7 +322,8 @@ public class DateQuestionTest extends ResetPostgres {
 
   @Test
   public void withMissingMonth_usesMonthMessage() {
-    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996--20");
+    // cleanDateQuestions zero-pads an unselected month to "00".
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996-00-20");
 
     assertThat(dateQuestion.getValidationErrors())
         .isEqualTo(
@@ -324,6 +331,9 @@ public class DateQuestionTest extends ResetPostgres {
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isFalse();
   }
 
   @Test
@@ -336,6 +346,25 @@ public class DateQuestionTest extends ResetPostgres {
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_INVALID))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void withBlankDay_usesDayRequiredMessage() {
+    // cleanDateQuestions zero-pads a blank day to "00".
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996-01-00");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
   }
 
   @Test
