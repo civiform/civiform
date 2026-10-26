@@ -107,3 +107,10 @@ console.error(
     `(heaviest shard ~${(Math.max(...load) / 60).toFixed(1)} min, ` +
     `${unknown} tests without a recorded duration)`,
 )
+if (unknown > weighted.length * 0.05) {
+  console.error(
+    `::warning::${unknown} of ${weighted.length} browser tests have no recorded duration, so shards ` +
+      'may be unbalanced. Refresh browser-test/shard-durations.json with ' +
+      'bin/update_shard_durations.mjs --from-github',
+  )
+}
