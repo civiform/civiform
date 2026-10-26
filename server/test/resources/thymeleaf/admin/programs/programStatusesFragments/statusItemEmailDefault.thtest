@@ -1,0 +1,51 @@
+%NAME statusItem - status with a notification email that is also the default
+%TEMPLATE_MODE HTML
+%CONTEXT
+item = @views.admin.programs.ProgramStatusesPageViewModel$StatusItem@builder() \
+    .statusText("Approved").hasEmail(true).defaultStatus(true) \
+    .deleteModalId("uuid-delete") \
+    .editModal(@views.admin.programs.ProgramStatusesPageViewModel$StatusFormModal@builder() \
+        .id("uuid-edit").build()) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: statusItem(${item})}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconEmail(classes, linkId)" th:text="|iconEmail(${classes})|"></svg>
+<svg th:fragment="iconCheck(classes)" th:text="|iconCheck(${classes})|"></svg>
+<svg th:fragment="iconDelete(classes)" th:text="|iconDelete(${classes})|"></svg>
+<svg th:fragment="iconEdit(classes)" th:text="|iconEdit(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-admin-program-status-item pl-7 pr-6 py-9 font-normal space-x-2 flex items-center">
+  <div class="w-1/4">
+    <span class="ml-2 break-words">Approved</span>
+  </div>
+  <div>
+    <p class="mt-1 text-xs flex items-center">
+      <svg>iconEmail(mr-2 inline-block h-4.5 w-4.5)</svg>
+      <span>Applicant notification email added</span>
+    </p>
+  </div>
+  <div class="flex-grow"></div>
+  <div>
+    <p class="mt-1 text-xs flex items-center">
+      <svg>iconCheck(mr-2 inline-block h-4.5 w-4.5)</svg>
+      <span>Default status</span>
+    </p>
+  </div>
+  <div class="flex-grow"></div>
+  <button
+    id="uuid-delete-button"
+    class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+  >
+    <svg>iconDelete(inline-block h-4.5 w-4.5)</svg><span class="text-left">Delete</span>
+  </button>
+  <button
+    id="uuid-edit-button"
+    class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+  >
+    <svg>iconEdit(inline-block h-4.5 w-4.5)</svg><span class="text-left">Edit</span>
+  </button>
+</div>

@@ -1,0 +1,296 @@
+<!--/*
+  Fragments for the admin "Manage application statuses" page, each mirroring
+  a private helper of the legacy j2html ProgramStatusesView.
+
+  The legacy Modal component rendered every modal as a cf-modal div with a
+  sticky title bar, the content, and a trailing close button (last, so screen
+  readers do not land on it first). Both modals here inline that shell.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+
+<!--/*@thymesVar id="item" type="views.admin.programs.ProgramStatusesPageViewModel.StatusItem"*/-->
+<!--/* One status row (legacy renderStatusItem). The trigger button ids are
+     derived from the modal ids, as Modal.getTriggerButtonId did. */-->
+<div
+  th:fragment="statusItem(item)"
+  class="cf-admin-program-status-item pl-7 pr-6 py-9 font-normal space-x-2 flex items-center"
+>
+  <div class="w-1/4">
+    <span class="ml-2 break-words" th:text="${item.statusText}"></span>
+  </div>
+  <div>
+    <p th:if="${item.hasEmail}" class="mt-1 text-xs flex items-center">
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconEmail('mr-2 inline-block h-4.5 w-4.5', null)}"
+      ></svg>
+      <span>Applicant notification email added</span>
+    </p>
+  </div>
+  <div class="flex-grow"></div>
+  <div>
+    <p th:if="${item.defaultStatus}" class="mt-1 text-xs flex items-center">
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('mr-2 inline-block h-4.5 w-4.5')}"
+      ></svg>
+      <span>Default status</span>
+    </p>
+  </div>
+  <div class="flex-grow"></div>
+  <button
+    th:id="|${item.deleteModalId}-button|"
+    class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
+    ></svg
+    ><span class="text-left">Delete</span>
+  </button>
+  <button
+    th:id="|${item.editModal.id}-button|"
+    class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconEdit('inline-block h-4.5 w-4.5')}"
+    ></svg
+    ><span class="text-left">Edit</span>
+  </button>
+</div>
+
+<!--/*@thymesVar id="modal" type="views.admin.programs.ProgramStatusesPageViewModel.StatusFormModal"*/-->
+<!--/*
+  Create / edit status modal (legacy makeStatusUpdateModal).
+
+  Parameters:
+    modal                    - the StatusFormModal to render.
+    actionUrl                - the create-or-update form action.
+    currentDefaultStatusText - the current default status, or null; the admin
+                               JS reads it from data-messagepart when
+                               confirming a default-status change.
+    statusTextFieldId        - random field id for the status name input.
+    emailBodyFieldId         - random field id for the email body textarea.
+*/-->
+<div
+  th:fragment="statusFormModal(modal, actionUrl, currentDefaultStatusText, statusTextFieldId, emailBodyFieldId)"
+  th:id="${modal.id}"
+  th:attr="aria-labelledby=|${modal.id}-title|"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-1/2 top-1/2"
+  th:classappend="${modal.displayOnLoad} ? 'cf-modal-display-on-load'"
+>
+  <div
+    th:id="|${modal.id}-title|"
+    class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+  >
+    <div
+      class="text-2xl text-gray-600 my-5 mx-4"
+      th:text="${modal.creation} ? 'Create a new status' : 'Edit this status'"
+    ></div>
+    <!--/* Spacer so the close button and title don't overlap. */-->
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <form
+      method="POST"
+      th:action="${actionUrl}"
+      class="cf-status-change-form py-2"
+      th:attr="data-dontshow=${modal.defaultStatus} ? 'true' : 'false', data-messagepart=${currentDefaultStatusText != null} ? |from ${currentDefaultStatusText} to | : 'to '"
+    >
+      <input
+        type="hidden"
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+      <input
+        type="hidden"
+        name="configuredStatusText"
+        th:value="${modal.configuredStatusText}"
+      />
+      <!--/* Global errors: the legacy view rendered a bare empty div when
+           there were none. */-->
+      <div th:if="${modal.globalErrors.isEmpty()}"></div>
+      <div th:unless="${modal.globalErrors.isEmpty()}" class="pb-4">
+        <p
+          th:each="error : ${modal.globalErrors}"
+          class="text-sm text-red-600"
+          th:text="${error}"
+        ></p>
+      </div>
+      <div
+        th:replace="~{:: statusTextField(${statusTextFieldId}, ${modal.statusText}, ${modal.statusTextErrors})}"
+      ></div>
+      <div class="pt-8">
+        <div
+          th:replace="~{:: emailBodyField(${emailBodyFieldId}, ${modal.emailBody}, ${modal.emailBodyErrors})}"
+        ></div>
+      </div>
+      <p
+        th:if="${modal.showEmailDeletionWarning}"
+        class="m-2 p-2 text-sm border rounded-lg border-amber-400 bg-amber-200"
+        th:text="'Please be aware that clearing the email body will also clear any associated translations'"
+      ></p>
+      <div class="flex mt-5 space-x-2">
+        <label
+          ><input
+            type="checkbox"
+            name="defaultStatusCheckbox"
+            th:checked="${modal.defaultStatus}"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none cf-set-default-status-checkbox"
+          /><span>Set as default status</span></label
+        >
+        <div class="flex-grow"></div>
+        <button
+          type="submit"
+          class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+        >
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+    ></svg>
+  </button>
+</div>
+
+<!--/*
+  Delete status confirmation modal (legacy makeStatusDeleteModal).
+
+  Parameters:
+    modalId    - random "uuid-..." modal id.
+    statusText - the status to delete, posted as deleteStatusText.
+    actionUrl  - the delete form action.
+*/-->
+<div
+  th:fragment="deleteStatusModal(modalId, statusText, actionUrl)"
+  th:id="${modalId}"
+  th:attr="aria-labelledby=|${modalId}-title|"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-auto top-1/2"
+>
+  <div
+    th:id="|${modalId}-title|"
+    class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+  >
+    <div class="text-2xl text-gray-600 my-5 mx-4">Delete this status</div>
+    <!--/* Spacer so the close button and title don't overlap. */-->
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <div class="py-2">
+      <p
+        th:text="'Warning: This will also remove any translated content for the status and email body.'"
+      ></p>
+      <form method="POST" th:action="${actionUrl}">
+        <input
+          type="hidden"
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <input type="hidden" name="deleteStatusText" th:value="${statusText}" />
+        <div class="flex mt-5 space-x-2">
+          <div class="flex-grow"></div>
+          <button
+            type="submit"
+            class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+          >
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+    ></svg>
+  </button>
+</div>
+
+<!--/*
+  "Status name (required)" input (legacy FieldWithLabel.input()). Unlike the
+  shared LegacyFieldWithLabel fragments this renders the field errors a
+  rejected form carries, with the a11y attributes and red border
+  FieldWithLabel added alongside them.
+
+  Parameters:
+    id     - random field id, also the base of the errors div id.
+    value  - current value.
+    errors - formatted errors, already wrapped in the "Error: " outline.
+*/-->
+<div
+  th:fragment="statusTextField(id, value, errors)"
+  class="mb-2"
+  th:with="hasError=${!errors.isEmpty()}"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Status name (required)<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <input
+      type="text"
+      th:value="${value}"
+      th:attr="aria-describedby=${hasError} ? |${id}-errors|, aria-invalid=${hasError} ? 'true'"
+      maxlength="10000"
+      th:id="${id}"
+      name="statusText"
+      th:class="${hasError} ? 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600' : 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500'"
+    />
+    <div
+      th:id="|${id}-errors|"
+      class="text-red-600 text-xs p-1"
+      th:classappend="${hasError} ? '' : 'hidden'"
+    >
+      <div th:each="error : ${errors}" th:text="${error}"></div>
+    </div>
+  </div>
+</div>
+
+<!--/*
+  "Email the applicant about the status change" textarea (legacy
+  FieldWithLabel.textArea() with 5 rows). Same parameters as statusTextField.
+*/-->
+<div
+  th:fragment="emailBodyField(id, value, errors)"
+  class="mb-2"
+  th:with="hasError=${!errors.isEmpty()}"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >Email the applicant about the status change<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <textarea
+      rows="5"
+      th:attr="aria-describedby=${hasError} ? |${id}-errors|, aria-invalid=${hasError} ? 'true'"
+      maxlength="10000"
+      th:id="${id}"
+      name="emailBody"
+      th:class="${hasError} ? 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600' : 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500'"
+      th:text="${value}"
+    ></textarea>
+    <div
+      th:id="|${id}-errors|"
+      class="text-red-600 text-xs p-1"
+      th:classappend="${hasError} ? '' : 'hidden'"
+    >
+      <div th:each="error : ${errors}" th:text="${error}"></div>
+    </div>
+  </div>
+</div>
