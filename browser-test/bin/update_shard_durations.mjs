@@ -3,24 +3,72 @@
 // Regenerates shard-durations.json from the Playwright JSON results that each
 // browser test shard uploads ("test results json (aws) - shard-N-run-1").
 //
-// Usage:
-//   gh run download <run id> --repo civiform/civiform \
-//     --pattern 'test results json (aws)*' --dir /tmp/shard-results/<run id>
-//   (repeat for a handful of recent green runs; artifacts are kept for 3 days)
-//   node bin/update_shard_durations.mjs /tmp/shard-results
+// Usage (needs the gh CLI, logged in):
+//   node bin/update_shard_durations.mjs --from-github [number of runs, default 6]
+//     Downloads the results of the most recent green "Server - On PR to Main"
+//     runs (artifacts are only kept for 3 days) and regenerates the file.
+//   node bin/update_shard_durations.mjs <dir>
+//     Uses results.json files you already downloaded under <dir>.
+//
+// Then commit shard-durations.json. Refresh it every month or two, or when
+// the "tests without a recorded duration" warning shows up in the CI logs.
 //
 // Each test's duration is the median of its passing attempts across all the
-// results.json files found under the given directory.
+// results.json files found.
 
-import {readdirSync, readFileSync, statSync, writeFileSync} from 'node:fs'
+import {execFileSync} from 'node:child_process'
+import {
+  mkdtempSync,
+  readdirSync,
+  readFileSync,
+  statSync,
+  writeFileSync,
+} from 'node:fs'
+import os from 'node:os'
 import path from 'node:path'
 import {fileURLToPath} from 'node:url'
 
-const root = process.argv[2]
-if (!root) {
-  console.error('Usage: update_shard_durations.mjs <dir with results.json files>')
+const REPO = 'civiform/civiform'
+
+const downloadRecentResults = (count) => {
+  const dir = mkdtempSync(path.join(os.tmpdir(), 'shard-results-'))
+  const runIds = JSON.parse(
+    execFileSync(
+      'gh',
+      [
+        'run', 'list', '--repo', REPO,
+        '--workflow', 'Server - On PR to Main',
+        '--status', 'success', '--limit', String(count),
+        '--json', 'databaseId',
+      ],
+      {encoding: 'utf8'},
+    ),
+  ).map((run) => run.databaseId)
+  for (const id of runIds) {
+    execFileSync(
+      'gh',
+      [
+        'run', 'download', String(id), '--repo', REPO,
+        '--pattern', 'test results json (aws)*',
+        '--dir', path.join(dir, String(id)),
+      ],
+      {stdio: 'inherit'},
+    )
+  }
+  return dir
+}
+
+const [firstArg, secondArg] = process.argv.slice(2)
+if (!firstArg) {
+  console.error(
+    'Usage: update_shard_durations.mjs --from-github [runs] | <dir with results.json files>',
+  )
   process.exit(2)
 }
+const root =
+  firstArg === '--from-github'
+    ? downloadRecentResults(Number(secondArg ?? 6))
+    : firstArg
 
 const findResults = (dir) =>
   readdirSync(dir).flatMap((name) => {
