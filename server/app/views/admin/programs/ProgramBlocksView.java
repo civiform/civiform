@@ -8,6 +8,7 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.hr;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
@@ -936,6 +937,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
           /* initialQuestionWasNewlyCreated= */ optionalNewInitialQuestion.isPresent());
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
+          request,
           messages,
           optionalEnumeratorQuestionCard,
           blockHasEnumeratorQuestion,
@@ -947,6 +949,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   public DivTag renderEnumeratorSectionWithSelectedQuestion(
+      Request request,
       Messages messages,
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
@@ -961,7 +964,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
             iff(
                 showBackfillInitialQuestionButton,
                 renderBackfillInitialQuestionCard(
-                    messages, program.id(), blockDefinition.id(), optionalStagedInitialQuestion)),
+                    request,
+                    messages,
+                    program.id(),
+                    blockDefinition.id(),
+                    optionalStagedInitialQuestion)),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -979,6 +986,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * question only stages it: nothing is attached to the block yet.
    */
   private DivTag renderBackfillInitialQuestionCard(
+      Request request,
       Messages messages,
       long programId,
       long blockId,
@@ -1015,7 +1023,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
                     div(optionalStagedInitialQuestion
                             .map(
                                 question ->
-                                    renderSelectedInitialQuestion(
+                                    renderSelectedBackfillInitialQuestion(
+                                        request,
                                         messages,
                                         question,
                                         programId,
@@ -1168,6 +1177,57 @@ public final class ProgramBlocksView extends ProgramBaseView {
           input().withType("hidden").withName("initialQuestionWasNewlyCreated").withValue("true"));
     }
     return slot;
+  }
+
+  /**
+   * Renders the {@code #initial-question-slot} for backfilling an initial question onto an existing
+   * list set. Besides the picked question's card it has a warning and a "Save initial question"
+   * button, which posts the question to {@code hxBackfillInitialQuestion}. Nothing is attached
+   * until then.
+   */
+  public DivTag renderSelectedBackfillInitialQuestion(
+      Request request,
+      Messages messages,
+      QuestionDefinition selectedQuestion,
+      long programId,
+      long blockId,
+      boolean initialQuestionWasNewlyCreated) {
+    DivTag slot =
+        div(
+                QuestionCard.renderForInitialQuestion(
+                    selectedQuestion,
+                    Optional.of(
+                        renderInitialQuestionRemoveButton(
+                            messages, programId, blockId, selectedQuestion.getName()))),
+                input()
+                    .withType("hidden")
+                    .withName(INITIAL_QUESTION_ID_PARAM)
+                    .withValue(String.valueOf(selectedQuestion.getId())),
+                // Posted with the rest of the slot when the admin saves.
+                makeCsrfTokenInputTag(request))
+            .withId("initial-question-slot");
+    if (initialQuestionWasNewlyCreated) {
+      slot.with(
+          input().withType("hidden").withName("initialQuestionWasNewlyCreated").withValue("true"));
+    }
+    return slot.with(
+        hr().withClasses("margin-top-3", "border-base-lighter"),
+        AlertComponent.renderSlimAlert(
+            AlertType.WARNING,
+            messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName()),
+            /* hidden= */ false),
+        button(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_SAVE.getKeyName()))
+            .withId("save-initial-question-button")
+            .withType("button")
+            .withClasses("usa-button", "margin-top-2")
+            .attr(
+                "hx-post",
+                controllers.admin.routes.AdminProgramBlockQuestionsController
+                    .hxBackfillInitialQuestion(programId, blockId)
+                    .url())
+            .attr("hx-include", "#initial-question-slot")
+            .attr("hx-target", "#repeated-set-question-section")
+            .attr("hx-swap", "outerHTML"));
   }
 
   /**
