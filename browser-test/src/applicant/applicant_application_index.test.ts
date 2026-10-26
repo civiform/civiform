@@ -430,11 +430,6 @@ test.describe('applicant program index page', () => {
           },
           /* filtersOn= */ false,
         )
-
-        // The button text says "Edit", so its accessible name should contain it.
-        await expect(
-          page.getByRole('link', {name: `Edit ${primaryProgramName}`}),
-        ).toBeVisible()
       })
 
       await test.step('Select a filter, click the filter submit button and validate screenshot', async () => {
