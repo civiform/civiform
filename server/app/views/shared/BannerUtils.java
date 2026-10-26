@@ -34,8 +34,8 @@ public final class BannerUtils {
       if (hasLoggedDeprecationWarning.compareAndSet(false, true)) {
         logger.warn(
             "The not-production banner is enabled, but configured with the environment value"
-                + " `SHOW_NOT_PRODUCTION_BANNER_ENABLED`. Please migrate to using `BANNER_TYPE`. See"
-                + " the latest server environment variable documentation for details."
+                + " `SHOW_NOT_PRODUCTION_BANNER_ENABLED`. Please migrate to using `BANNER_TYPE`."
+                + " See the latest server environment variable documentation for details."
                 + " https://docs.civiform.us/it-manual/sre-playbook/upgrading-to-a-new-release/server-environment-variables");
       }
       return true;
