@@ -5,11 +5,11 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.http.javadsl.model.ContentType;
 import org.apache.pekko.http.javadsl.model.ContentTypes;
-import org.apache.pekko.http.javadsl.model.MediaTypes;
 import org.apache.pekko.stream.connectors.googlecloud.storage.StorageObject;
 import org.apache.pekko.stream.connectors.googlecloud.storage.javadsl.GCStorage;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
+import parsers.FileTypeValidation;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.GenericMultipartUploadSinkProvider;
 import services.cloud.BucketType;
@@ -46,16 +46,8 @@ public class GcpMultipartUploadSinkProvider
 
     ContentType pekkoContentType =
         contentType
-            .flatMap(
-                ct -> {
-                  if ("image/png".equalsIgnoreCase(ct)) {
-                    return Optional.of(ContentTypes.create(MediaTypes.IMAGE_PNG));
-                  } else if ("image/jpeg".equalsIgnoreCase(ct)
-                      || "image/jpg".equalsIgnoreCase(ct)) {
-                    return Optional.of(ContentTypes.create(MediaTypes.IMAGE_JPEG));
-                  }
-                  return Optional.empty();
-                })
+            .or(() -> FileTypeValidation.determineMimeType(fileKey))
+            .map(ContentTypes::parse)
             .orElse(ContentTypes.APPLICATION_OCTET_STREAM);
 
     return GCStorage.resumableUpload(

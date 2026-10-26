@@ -181,4 +181,22 @@ public final class FileTypeValidation {
     }
     return detectedMimeType;
   }
+
+  /**
+   * Determines the MIME type for a given file name or path using Apache Tika, falling back to
+   * {@link FileTypeSpecifier#MIME_BY_EXTENSION_MAP} if Tika returns octet-stream.
+   */
+  public static Optional<String> determineMimeType(String fileName) {
+    if (fileName == null || fileName.isBlank()) {
+      return Optional.empty();
+    }
+    String detectedMime = TIKA.detect(fileName);
+    if (detectedMime != null
+        && !detectedMime.isEmpty()
+        && !"application/octet-stream".equals(detectedMime)) {
+      return Optional.of(detectedMime);
+    }
+    String extension = FilenameUtils.getExtension(fileName);
+    return FileTypeSpecifier.getMimeTypeForExtension(extension);
+  }
 }

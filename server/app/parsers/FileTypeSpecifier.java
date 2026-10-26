@@ -95,4 +95,18 @@ public enum FileTypeSpecifier {
   String normalizedAllowEntry() {
     return getMimeType();
   }
+
+  /**
+   * Returns the MIME type corresponding to the given file extension (e.g. ".png" -> "image/png").
+   */
+  public static java.util.Optional<String> getMimeTypeForExtension(String extension) {
+    if (extension == null || extension.isBlank()) {
+      return java.util.Optional.empty();
+    }
+    String normalizedExtension =
+        extension.startsWith(".")
+            ? extension.toLowerCase(Locale.ROOT)
+            : "." + extension.toLowerCase(Locale.ROOT);
+    return java.util.Optional.ofNullable(MIME_BY_EXTENSION_MAP.get(normalizedExtension));
+  }
 }

@@ -57,10 +57,7 @@ public abstract class StreamingMultipartBodyParser
         throw new FileUploadTypeException("Uploaded file has no filename.");
       }
 
-      Optional<String> contentType =
-          fileInfo.contentType().isDefined()
-              ? Optional.of(fileInfo.contentType().get())
-              : Optional.empty();
+      Optional<String> contentType = FileTypeValidation.determineMimeType(fileName);
 
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
           createUploadSink(getBucketType(), fileKey, contentType, getContentDisposition());

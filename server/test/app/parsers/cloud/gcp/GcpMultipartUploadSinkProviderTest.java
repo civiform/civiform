@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.ActorSystem;
@@ -85,6 +86,29 @@ public class GcpMultipartUploadSinkProviderTest {
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.GCP_S3);
     assertThat(result.getErrorMessage().get()).contains(gcpException.getMessage());
     assertThat(result.getStoredFilePath()).isEmpty();
+  }
+
+  @Test
+  public void getUploadSink_withContentTypeAndContentDisposition_successfulUpload()
+      throws Exception {
+    doReturn(fakeGcpSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), any(), any(), anyInt());
+
+    Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
+        checkNotNull(
+            uploadSinkProvider.getUploadSink(
+                BucketType.PUBLIC_BUCKET,
+                FILE_KEY,
+                Optional.of("image/png"),
+                Optional.of("inline"),
+                CHUNK_SIZE));
+    CompletionStage<StreamingMultipartUploadResult> completionStage =
+        Source.single(ByteString.fromString("test")).runWith(sink, system);
+
+    StreamingMultipartUploadResult result = completionStage.toCompletableFuture().get();
+    assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.SUCCESS);
+    assertThat(result.getStoredFilePath().get()).isEqualTo(FILE_KEY);
   }
 
   private StreamingMultipartUploadResult runSink() throws Exception {

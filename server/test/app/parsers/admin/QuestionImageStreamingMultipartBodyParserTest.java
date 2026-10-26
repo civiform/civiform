@@ -265,6 +265,39 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
         .hasMessageContaining("not an allowed upload type");
   }
 
+  @Test
+  public void
+      streamingUpload_userProvidedContentTypeIgnored_determinedByFileTypeValidation()
+          throws Exception {
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(String.format("/admin/questions/%d/hx/image/upload", QUESTION_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    // The user passes a generic or mismatched content-type "text/plain" in the multipart body
+    Source<ByteString, ?> source = createMultipartRequestBody("photo.png", "text/plain", PNG_HEADER);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+    Http.MultipartFormData<String> body = stage.toCompletableFuture().join().right.get();
+
+    Http.MultipartFormData.FilePart<String> filePart = body.getFile("questionImage");
+    assertThat(filePart).isNotNull();
+    assertThat(filePart.getFilename()).isEqualTo("photo.png");
+    assertThat(filePart.getContentType()).isEqualTo("image/png");
+
+    String fileKey = filePart.getRef();
+    verify(sinks)
+        .getSinkForCloudProvider(
+            eq(BucketType.PUBLIC_BUCKET),
+            eq(fileKey),
+            eq(Optional.of("image/png")),
+            eq(Optional.of("inline")),
+            anyInt());
+  }
+
   private Source<ByteString, ?> createMultipartRequestBody(
       String filename, String contentType, byte[] content) {
     ByteString header =
