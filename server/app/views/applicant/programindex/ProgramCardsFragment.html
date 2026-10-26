@@ -232,7 +232,7 @@
       class="usa-button usa-button--outline cf-apply-button"
       th:href="${'#external-program-modal-' + card.programId()}"
       th:aria-controls="${'external-program-modal-' + card.programId()}"
-      th:aria-label="#{button.viewInNewTabSr(${card.title()})}"
+      th:aria-label="|#{button.viewInNewTab}: ${card.title()}|"
       role="button"
       data-open-modal
     >
@@ -252,7 +252,7 @@
       th:href="${card.actionUrl()}"
       class="usa-button usa-button--outline cf-apply-button"
       th:text="#{${sectionType == 'MY_APPLICATIONS' ? 'button.edit' : 'button.viewAndApply'}}"
-      th:aria-label="#{button.viewAndApplySr(${card.title()})}"
+      th:aria-label="${sectionType == 'MY_APPLICATIONS'} ? |#{button.edit} ${card.title()}| : #{button.viewAndApplySr(${card.title()})}"
     ></a>
   </th:block>
 </div>

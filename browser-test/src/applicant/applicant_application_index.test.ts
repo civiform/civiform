@@ -1153,7 +1153,7 @@ test.describe('applicant program index page with images', () => {
       })
       await expect(
         externalProgramCard.getByRole('button', {
-          name: 'View External Program A in new tab',
+          name: 'View in new tab: External Program A',
         }),
       ).toBeVisible()
 
