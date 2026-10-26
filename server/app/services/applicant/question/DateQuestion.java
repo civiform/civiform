@@ -47,6 +47,13 @@ public final class DateQuestion extends AbstractQuestion {
 
   @VisibleForTesting public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
 
+  private static final ImmutableSet<MessageKey> FIELD_SPECIFIC_DATE_ERRORS =
+      ImmutableSet.of(
+          MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS,
+          MessageKey.DATE_VALIDATION_MONTH_REQUIRED,
+          MessageKey.DATE_VALIDATION_DAY_REQUIRED,
+          MessageKey.DATE_VALIDATION_DAY_INVALID);
+
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // When staging updates, the attempt to update ApplicantData would have failed to
@@ -240,6 +247,47 @@ public final class DateQuestion extends AbstractQuestion {
     return getYearValue().isPresent() && getMonthValue().isPresent() && getDayValue().isPresent();
   }
 
+  /** True when the year input should be marked invalid. */
+  public boolean hasYearError() {
+    return showsErrorOnField(
+        ImmutableSet.of(MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS), isYearEmpty());
+  }
+
+  /** True when the month input should be marked invalid. */
+  public boolean hasMonthError() {
+    return showsErrorOnField(
+        ImmutableSet.of(MessageKey.DATE_VALIDATION_MONTH_REQUIRED), isMonthEmpty());
+  }
+
+  /** True when the day input should be marked invalid. */
+  public boolean hasDayError() {
+    return showsErrorOnField(
+        ImmutableSet.of(
+            MessageKey.DATE_VALIDATION_DAY_REQUIRED, MessageKey.DATE_VALIDATION_DAY_INVALID),
+        isDayEmpty());
+  }
+
+  /**
+   * Field-specific parse errors mark only that part of the date. Other date errors, such as a date
+   * outside the allowed range, still mark every part that is empty or every part when the date is
+   * complete.
+   */
+  private boolean showsErrorOnField(ImmutableSet<MessageKey> fieldKeys, boolean fieldEmpty) {
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors = getValidationErrors();
+    if (errors.isEmpty()) {
+      return false;
+    }
+    ImmutableSet<ValidationErrorMessage> dateErrors =
+        errors.getOrDefault(getDatePath(), ImmutableSet.of());
+    if (dateErrors.stream().anyMatch(error -> fieldKeys.contains(error.key()))) {
+      return true;
+    }
+    if (dateErrors.stream().anyMatch(error -> FIELD_SPECIFIC_DATE_ERRORS.contains(error.key()))) {
+      return false;
+    }
+    return fieldEmpty || allFieldsPresent();
+  }
+
   /**
    * A memorable date is stored as {@code YYYY-MM-DD}. Name the field that kept it from parsing,
    * instead of the generic date-format error.
@@ -259,6 +307,10 @@ public final class DateQuestion extends AbstractQuestion {
     if (!parts[1].matches("0[1-9]|1[0-2]")) {
       return MessageKey.DATE_VALIDATION_MONTH_REQUIRED;
     }
+    // cleanDateQuestions zero-pads a blank day to "00".
+    if (parts[2].isEmpty() || parts[2].matches("0+")) {
+      return MessageKey.DATE_VALIDATION_DAY_REQUIRED;
+    }
     if (!parts[2].matches("0[1-9]|[12]\\d|3[01]") || !isParsableDate(failedDate)) {
       return MessageKey.DATE_VALIDATION_DAY_INVALID;
     }
@@ -267,7 +319,7 @@ public final class DateQuestion extends AbstractQuestion {
 
   private static boolean isParsableDate(String failedDate) {
     try {
-      LocalDate.parse(failedDate, DateTimeFormatter.ofPattern("uuuu-MM-dd"));
+      LocalDate.parse(failedDate, DateTimeFormatter.ISO_LOCAL_DATE);
       return true;
     } catch (DateTimeParseException e) {
       return false;

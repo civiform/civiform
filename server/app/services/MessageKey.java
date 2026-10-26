@@ -119,6 +119,7 @@ public enum MessageKey {
   DATE_VALIDATION_INVALID_DATE_FORMAT("validation.invalidDateFormat"),
   DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS("validation.yearMustBeFourDigits"),
   DATE_VALIDATION_MONTH_REQUIRED("validation.monthRequired"),
+  DATE_VALIDATION_DAY_REQUIRED("validation.dayRequired"),
   DATE_VALIDATION_DAY_INVALID("validation.dayInvalid"),
   DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST("validation.dateBeyondAllowablePast"),
   DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE("validation.dateBeyondAllowableFuture"),

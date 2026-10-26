@@ -68,7 +68,8 @@ export class MultiOptionQuestion {
     if (template == null) return
 
     const newField = template.content.firstElementChild?.cloneNode(true) as
-      HTMLDivElement | undefined
+      | HTMLDivElement
+      | undefined
     if (newField == null) return
 
     document.getElementById(this.containerId)?.appendChild(newField)
