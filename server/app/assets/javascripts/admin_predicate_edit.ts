@@ -341,6 +341,12 @@ export class AdminPredicateEdit {
       return
     }
 
+    // With no conditions the root select is hidden and the "Add condition"
+    // button is focused instead, so leave that focus alone.
+    if (!document.querySelector('#condition-1')) {
+      return
+    }
+
     // Don't steal focus from other elements that are marked for autofocus.
     const focusedElement: HTMLElement | null = document.querySelector(
       '[data-should-autofocus="true"]',
