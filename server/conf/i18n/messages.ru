@@ -1257,6 +1257,10 @@ label.repeatedSet.initialQuestionAdminId=
 description.repeatedSet.initialQuestionAdminId=
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
 description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
+# Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
+alert.repeatedSet.backfillSaveWarning=The initial question will be applied to any uses of this repeated set across programs. You will not be able to change the initial question after you save it.
+# Button that saves the picked initial question onto an existing list set
+button.repeatedSet.initialQuestion.save=Save initial question
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
