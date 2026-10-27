@@ -1,6 +1,7 @@
 import {test} from '../support/civiform_fixtures'
 import {
   ApplicantQuestions,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -9,6 +10,13 @@ import {
 } from '../support'
 
 test.describe('view an application in an older version', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('create an application, and create a new version of the program, and view the application in the old version of the program', async ({
     page,
     adminQuestions,

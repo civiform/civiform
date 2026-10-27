@@ -1,0 +1,123 @@
+<!--/*
+  Body of the "Change the status of this application?" confirmation modal, one
+  per program status.
+
+  Legacy counterpart: ProgramApplicationView#renderStatusUpdateConfirmationModal.
+  The form has no action: admin_application_view.ts intercepts the submit,
+  reads the inputs and posts them to the main frame, which builds the real
+  update-status request.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="modal" type="views.admin.programs.ProgramApplicationPageViewModel.StatusModal"*/-->
+<form
+  th:fragment="statusUpdateForm(programId, applicationId, programName, applicantNameWithApplicationId, modal)"
+  class="cf-program-admin-status-update-form"
+>
+  <input name="programId" th:value="${programId}" hidden />
+  <input name="applicationId" th:value="${applicationId}" hidden />
+  <!--/* Leading/trailing spaces inside the literals keep the legacy span
+         texts, which were written to run together into one sentence. */-->
+  <p>
+    <span th:text="'Status Change: '"></span
+    ><span class="font-semibold" th:text="${modal.previousStatusDisplay}"></span
+    ><span class="font-semibold" th:text="' -> '"></span
+    ><span class="font-semibold" th:text="${modal.statusText}"></span
+    ><span th:text="' (visible to applicant)'"></span>
+  </p>
+  <p>
+    <span th:text="'Applicant: '"></span
+    ><span
+      class="font-semibold cf-application-id"
+      th:text="${applicantNameWithApplicationId}"
+    ></span>
+  </p>
+  <p>
+    <span th:text="'Program: '"></span
+    ><span class="font-semibold" th:text="${programName}"></span>
+  </p>
+  <div class="mt-4">
+    <!--/* The new status, and the status this UI was generated for so the
+           server can detect a concurrent change. */-->
+    <input hidden type="text" name="newStatus" th:value="${modal.statusText}" />
+    <input
+      hidden
+      type="text"
+      name="currentStatus"
+      th:value="${modal.previousStatusData}"
+    />
+    <th:block th:switch="${modal.emailMode.name()}">
+      <th:block th:case="'NO_EMAIL_CONTENT'">
+        <div>
+          <input
+            type="checkbox"
+            name="sendEmail"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none"
+            hidden
+          />
+          <p>
+            <span
+              class="font-semibold cf-application-id"
+              th:text="${applicantNameWithApplicationId}"
+            ></span
+            ><span
+              th:text="' will not receive an email because there is no email content set for this status. Connect with your CiviForm Admin to add an email to this status.'"
+            ></span>
+          </p>
+        </div>
+      </th:block>
+      <th:block th:case="'NO_APPLICANT_EMAIL'">
+        <div>
+          <input
+            type="checkbox"
+            name="sendEmail"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none"
+            hidden
+          />
+          <p>
+            <span
+              class="font-semibold"
+              th:text="${applicantNameWithApplicationId}"
+            ></span
+            ><span
+              th:text="' will not receive an email for this change since they have not provided an email address.'"
+            ></span>
+          </p>
+        </div>
+      </th:block>
+      <th:block th:case="'NOTIFY'">
+        <!--/* Checked by default when visible. */-->
+        <label>
+          <input
+            type="checkbox"
+            name="sendEmail"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none"
+            checked
+          />
+          <span th:text="'Notify '"></span
+          ><span
+            class="font-semibold cf-application-id"
+            th:text="${applicantNameWithApplicationId}"
+          ></span
+          ><span th:text="' of this change at '"></span
+          ><span class="font-semibold" th:text="${modal.emailAddresses}"></span>
+        </label>
+      </th:block>
+    </th:block>
+  </div>
+  <div class="flex mt-5 space-x-2">
+    <div class="flex-grow"></div>
+    <button
+      type="button"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Confirm
+    </button>
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+  </div>
+</form>

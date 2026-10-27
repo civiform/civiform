@@ -18,6 +18,13 @@ import {MOCK_WEB_SERVICES_URL} from '../support/config'
 import {ProgramBridgeConfigurationPage} from '../page/admin/programs/program_bridge_configuration_page'
 
 test.describe('hidden questions end to end', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'ProgramA'
 
   test.beforeEach(
