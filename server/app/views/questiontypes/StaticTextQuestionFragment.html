@@ -22,26 +22,20 @@
         th:href="${questionImageUrl}"
         target="_blank"
         rel="noopener noreferrer"
-        class="cf-question-image-frame"
+        class="cf-question-image-link"
       >
-        <img
-          th:src="${questionImageUrl}"
-          th:alt="${questionImageAltText}"
-          class="cf-question-image"
-        />
-      </a>
-      <p class="cf-question-image-caption margin-0">
-        <span
-          class="cf-question-image-description"
-          th:text="${#strings.isEmpty(questionImageAltText) ? '' : (#strings.endsWith(questionImageAltText, '.') ? questionImageAltText : questionImageAltText + '.')}"
-        ></span>
-        <a
-          th:href="${questionImageUrl}"
-          target="_blank"
-          rel="noopener noreferrer"
-          class="usa-link margin-left-05 cf-question-image-link"
-        >
-          <span th:text="#{staticQuestion.imageEnlargeAltText}"></span>
+        <div class="cf-question-image-frame">
+          <img
+            th:src="${questionImageUrl}"
+            th:alt="${questionImageAltText}"
+            class="cf-question-image"
+          />
+        </div>
+        <div class="cf-question-image-caption">
+          <span
+            class="cf-question-image-action-text"
+            th:text="#{staticQuestion.imageEnlargeText}"
+          ></span>
           <span class="usa-sr-only" th:text="#{link.opensNewTabSr}"></span>
           <svg
             aria-hidden="true"
@@ -52,9 +46,10 @@
             <use
               href="/assets/Images/uswds/sprite.svg#launch"
               xlink:href="/assets/Images/uswds/sprite.svg#launch"
-            ></use></svg
-        ></a>
-      </p>
+            ></use>
+          </svg>
+        </div>
+      </a>
     </div>
   </div>
 </div>

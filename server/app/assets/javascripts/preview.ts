@@ -35,8 +35,6 @@ export default class PreviewController {
     '.cf-applicant-question-help-text'
   private static readonly QUESTION_IMAGE_DESCRIPTION_INPUT_ID =
     'questionImageDescription'
-  private static readonly QUESTION_IMAGE_DESCRIPTION_SELECTOR =
-    '.cf-question-image-description'
   private static readonly QUESTION_IMAGE_SELECTOR = '.cf-question-image'
   private static readonly QUESTION_ENTITY_NAME_INPUT_SELECTOR =
     '.cf-entity-name-input'
@@ -135,13 +133,6 @@ export default class PreviewController {
     if (imageDescriptionInput) {
       imageDescriptionInput.addEventListener('input', () => {
         const text = imageDescriptionInput.value.trim()
-        const descriptionElement = document.querySelector<HTMLElement>(
-          PreviewController.QUESTION_IMAGE_DESCRIPTION_SELECTOR,
-        )
-        if (descriptionElement) {
-          descriptionElement.textContent =
-            text.length > 0 && !text.endsWith('.') ? `${text}.` : text
-        }
         const imageElement = document.querySelector<HTMLImageElement>(
           PreviewController.QUESTION_IMAGE_SELECTOR,
         )
