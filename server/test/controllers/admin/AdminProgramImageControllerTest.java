@@ -75,19 +75,6 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void uploadProgramImage_featureFlagDisabled_returnsNotFound() {
-    ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
-
-    Result result =
-        controller.uploadProgramImage(
-            fakeRequestBuilder().method("POST").build(),
-            program.id,
-            ProgramEditStatus.CREATION.name());
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void uploadProgramImage_withFileAndDescription_setsKeyAndRedirects()
       throws ProgramNotFoundException {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();

@@ -34,10 +34,10 @@ lazy val root = (project in file("."))
 
       // JSON libraries
       "com.jayway.jsonpath" % "json-path" % "3.0.0",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.3",
-      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.3",
-      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.3.1",
-      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.3",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-guava" % "2.22.4",
+      "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.22.4",
+      "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.22.4",
+      "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.22.4",
       "com.google.inject.extensions" % "guice-assistedinject" % "6.0.0",
 
       // Templating
@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.56.0",
-      "software.amazon.awssdk" % "ses" % "2.56.0",
+      "software.amazon.awssdk" % "s3" % "2.57.3",
+      "software.amazon.awssdk" % "ses" % "2.57.3",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -95,13 +95,13 @@ lazy val root = (project in file("."))
       // Security libraries
       // pac4j core (https://github.com/pac4j/play-pac4j)
       "org.pac4j" %% "play-pac4j" % "13.0.3-PLAY3.0",
-      "org.pac4j" % "pac4j-core" % "6.5.9",
+      "org.pac4j" % "pac4j-core" % "6.6.0",
       // basic http authentication (for the anonymous client)
-      "org.pac4j" % "pac4j-http" % "6.5.9",
+      "org.pac4j" % "pac4j-http" % "6.6.0",
       // OIDC authentication
-      "org.pac4j" % "pac4j-oidc" % "6.5.9",
+      "org.pac4j" % "pac4j-oidc" % "6.6.0",
       // SAML authentication
-      "org.pac4j" % "pac4j-saml" % "6.5.9",
+      "org.pac4j" % "pac4j-saml" % "6.6.0",
 
       // Autovalue
       "com.google.auto.value" % "auto-value-annotations" % "1.11.1",
@@ -341,8 +341,8 @@ JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
 dependencyOverrides ++= Seq(
-  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.3",
-  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.3",
+  "com.fasterxml.jackson.core" % "jackson-databind" % "2.22.4",
+  "com.fasterxml.jackson.core" % "jackson-core" % "2.22.4",
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 

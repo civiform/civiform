@@ -5,7 +5,9 @@ import static support.FakeRequestBuilder.fakeRequest;
 
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.ConfigFactory;
-import java.time.LocalDate;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
 import org.junit.Test;
 import repository.ResetPostgres;
 import services.settings.SettingsManifest;
@@ -65,37 +67,44 @@ public class BannerUtilsTest extends ResetPostgres {
 
   @Test
   public void getDemoBannerDaysRemainingCount_returnsExpectedValues() {
-    LocalDate fixedToday = LocalDate.of(2026, 9, 1);
+    Clock fixedClock = Clock.fixed(Instant.parse("2026-09-01T12:00:00Z"), ZoneId.of("UTC"));
 
-    // Future date
+    // Future date (5 days)
     SettingsManifest futureManifest =
         new SettingsManifest(
             ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "2026-09-06")));
-    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(futureManifest, fixedToday))
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(futureManifest, fixedClock))
         .contains(5L);
 
-    // Same day (0 days)
+    // Future date (1 day)
+    SettingsManifest tomorrowManifest =
+        new SettingsManifest(
+            ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "2026-09-02")));
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(tomorrowManifest, fixedClock))
+        .contains(1L);
+
+    // Same day (0 days) -> not in the future, should be empty
     SettingsManifest todayManifest =
         new SettingsManifest(
             ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "2026-09-01")));
-    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(todayManifest, fixedToday)).contains(0L);
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(todayManifest, fixedClock)).isEmpty();
 
     // Past date (negative)
     SettingsManifest pastManifest =
         new SettingsManifest(
             ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "2026-08-31")));
-    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(pastManifest, fixedToday)).isEmpty();
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(pastManifest, fixedClock)).isEmpty();
 
     // Invalid date format
     SettingsManifest invalidManifest =
         new SettingsManifest(
             ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "2026/09/06")));
-    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(invalidManifest, fixedToday)).isEmpty();
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(invalidManifest, fixedClock)).isEmpty();
 
     // Blank date
     SettingsManifest blankManifest =
         new SettingsManifest(
             ConfigFactory.parseMap(ImmutableMap.of("demo_banner_expiration_date", "  ")));
-    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(blankManifest, fixedToday)).isEmpty();
+    assertThat(BannerUtils.getDemoBannerDaysRemainingCount(blankManifest, fixedClock)).isEmpty();
   }
 }

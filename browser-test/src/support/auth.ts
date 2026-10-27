@@ -1,12 +1,12 @@
-import {test, Page} from '@playwright/test'
-import {waitForPageJsLoad} from './wait'
+import { test, Page } from '@playwright/test'
+import { waitForPageJsLoad } from './wait'
 import {
   TEST_USER_AUTH_STRATEGY,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
 } from './config'
-import {dismissToast, validateToastMessage} from './helpers'
+import { dismissToast, validateToastMessage } from './helpers'
 
 /**
  * Different auth strategies that are being exercised in this test. Each strategy
@@ -36,47 +36,40 @@ export const logout = async (page: Page, closeToast = true) => {
   })
 }
 
+const clickRoleButton = async (page: Page, roleSelector: string) => {
+  const debugModalButton = page.locator('#debug-content-modal-button')
+  await page
+    .locator(`#debug-content-modal-button:visible, ${roleSelector}:visible`)
+    .first()
+    .waitFor()
+  if (await debugModalButton.isVisible()) {
+    await debugModalButton.click()
+  }
+  await page.locator(roleSelector).click()
+  await waitForPageJsLoad(page)
+}
+
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    const debugModalButton = page.locator('#debug-content-modal-button')
-    if (await debugModalButton.isVisible()) {
-      await debugModalButton.click()
-    }
-    await page.locator('#admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#admin')
   })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    const debugModalButton = page.locator('#debug-content-modal-button')
-    if (await debugModalButton.isVisible()) {
-      await debugModalButton.click()
-    }
-    await page.locator('#program-admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#program-admin')
   })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
   await test.step('Login as Civiform and Program Admin', async () => {
-    const debugModalButton = page.locator('#debug-content-modal-button')
-    if (await debugModalButton.isVisible()) {
-      await debugModalButton.click()
-    }
-    await page.locator('#dual-admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#dual-admin')
   })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await test.step('Login as Trusted Intermediary', async () => {
-    const debugModalButton = page.locator('#debug-content-modal-button')
-    if (await debugModalButton.isVisible()) {
-      await debugModalButton.click()
-    }
-    await page.locator('#trusted-intermediary').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#trusted-intermediary')
   })
 }
 
@@ -130,7 +123,7 @@ async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
   await page.locator('button:has-text("Login"):not([disabled])').click()
   // eslint-disable-next-line playwright/no-wait-for-navigation
-  await page.waitForNavigation({waitUntil: 'networkidle'})
+  await page.waitForNavigation({ waitUntil: 'networkidle' })
 }
 
 async function loginAsTestUserAwsStaging(
@@ -141,7 +134,7 @@ async function loginAsTestUserAwsStaging(
 ) {
   await Promise.all([
     // eslint-disable-next-line playwright/no-networkidle
-    page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
+    page.waitForURL('**/u/login*', { waitUntil: 'networkidle' }),
     page.locator(loginButton).click(),
   ])
 
@@ -155,7 +148,7 @@ async function loginAsTestUserAwsStaging(
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
     // getByRole selects items by their accessible name, so it only selects the visible button
-    page.getByRole('button', {name: 'Continue', exact: true}).click(),
+    page.getByRole('button', { name: 'Continue', exact: true }).click(),
   ])
 }
 

@@ -7,6 +7,7 @@ import com.google.auto.value.AutoValue;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -34,6 +35,7 @@ public class ProgramCardPreview extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
+      Clock clock,
       ProgramCardsSectionParamsFactory programCardsSectionParamsFactory) {
     super(
         templateEngine,
@@ -42,7 +44,8 @@ public class ProgramCardPreview extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
     this.programCardsSectionParamsFactory = checkNotNull(programCardsSectionParamsFactory);
   }
 

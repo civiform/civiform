@@ -1620,6 +1620,21 @@ public final class ProgramService {
   }
 
   /**
+   * Whether the question is the initial question of the enumerator that is already on the block,
+   * which is how an initial question is added to a block when it is backfilled onto an existing
+   * enumerator.
+   */
+  private static boolean isInitialQuestionOfBlockEnumerator(
+      BlockDefinition blockDefinition, QuestionDefinition questionDefinition) {
+    return blockDefinition.hasEnumeratorQuestion()
+        && blockDefinition
+            .getEnumeratorQuestionDefinition()
+            .getEnumeratorInitialQuestionId()
+            .map(id -> id == questionDefinition.getId())
+            .orElse(false);
+  }
+
+  /**
    * Update a {@link BlockDefinition} to include additional questions.
    *
    * <p>Questions in {@code questionIds} are added in the specified order.
@@ -1678,7 +1693,8 @@ public final class ProgramService {
       ProgramQuestionDefinition question =
           ProgramQuestionDefinition.create(questionDefinition, Optional.of(programId));
       boolean isInitialQuestion =
-          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false);
+          questionDefinition.getEnumeratorId().map(newFlowEnumIds::contains).orElse(false)
+              || isInitialQuestionOfBlockEnumerator(blockDefinition, questionDefinition);
       AddQuestionResult canAddQuestion =
           programBlockValidationFactory
               .create()

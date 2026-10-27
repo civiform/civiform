@@ -633,10 +633,6 @@ hr.code-separator {
   text-underline-position: from-font;
 }
 
-.cf-alert {
-  margin: 0 auto;
-}
-
 // Demo banner custom background color and responsive layout
 .usa-site-alert.cf-demo-banner {
   .usa-alert,
@@ -661,6 +657,7 @@ hr.code-separator {
 
   .cf-demo-banner__info {
     .usa-alert__text {
+      font-weight: font-weight('bold');
       white-space: nowrap;
     }
 

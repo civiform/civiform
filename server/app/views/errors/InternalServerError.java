@@ -2,6 +2,7 @@ package views.errors;
 
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -27,7 +28,8 @@ public final class InternalServerError extends ApplicantBaseView {
       controllers.applicant.ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -35,7 +37,8 @@ public final class InternalServerError extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
   }
 
   public String render(Http.Request request, Messages messages, String exceptionId) {

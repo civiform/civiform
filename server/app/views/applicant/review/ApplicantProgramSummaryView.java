@@ -9,6 +9,7 @@ import com.google.inject.Inject;
 import controllers.FlashKey;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -37,7 +38,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -45,7 +47,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
   }
 
   public String render(Request request, Params params) {
