@@ -181,7 +181,7 @@ public abstract class ApplicantBaseView {
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
     BannerUtils.setUpBannerContext(
-        context, settingsManifest, request, messages, profile, isDevOrStaging);
+        context, settingsManifest, request, messages, profile, isDevOrStaging, clock);
 
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);

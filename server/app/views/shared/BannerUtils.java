@@ -1,16 +1,27 @@
 package views.shared;
 
+import auth.CiviFormProfile;
+import auth.FakeAdminClient;
+import com.google.common.collect.ImmutableList;
+import controllers.routes;
 import java.time.Clock;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
+import modules.ThymeleafModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import play.i18n.Messages;
 import play.mvc.Http;
+import services.AlertSettings;
+import services.AlertType;
+import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.components.Icons;
 
 /** Utility methods for configuring and rendering site banners (not-production and demo banners). */
 public final class BannerUtils {
@@ -77,6 +88,14 @@ public final class BannerUtils {
   }
 
   /**
+   * Returns the demo banner days remaining count against the current system date if an expiration
+   * date is set, valid, and in the future.
+   */
+  public static Optional<Long> getDemoBannerDaysRemainingCount(SettingsManifest settingsManifest) {
+    return getDemoBannerDaysRemainingCount(settingsManifest, Clock.system(ZoneId.systemDefault()));
+  }
+
+  /**
    * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
    * and role login buttons on Applicant and Admin Thymeleaf layouts.
    */
@@ -87,6 +106,28 @@ public final class BannerUtils {
       Messages messages,
       Optional<CiviFormProfile> profile,
       boolean isDevOrStaging) {
+    setUpBannerContext(
+        context,
+        settingsManifest,
+        request,
+        messages,
+        profile,
+        isDevOrStaging,
+        Clock.system(ZoneId.systemDefault()));
+  }
+
+  /**
+   * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
+   * and role login buttons on Applicant and Admin Thymeleaf layouts.
+   */
+  public static void setUpBannerContext(
+      ThymeleafModule.PlayThymeleafContext context,
+      SettingsManifest settingsManifest,
+      Http.Request request,
+      Messages messages,
+      Optional<CiviFormProfile> profile,
+      boolean isDevOrStaging,
+      Clock clock) {
     boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
     boolean isCiviFormAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     boolean isOnlyProgramAdmin = profile.map(CiviFormProfile::isOnlyProgramAdmin).orElse(false);
@@ -110,7 +151,7 @@ public final class BannerUtils {
       context.setVariable("civicEntityShortName", civicEntityShortName);
       context.setVariable(
           "demoBannerDaysRemainingCount",
-          getDemoBannerDaysRemainingCount(settingsManifest).orElse(null));
+          getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
     }
 
     boolean showNotProductionBannerEnabled =

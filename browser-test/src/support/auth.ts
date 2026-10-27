@@ -1,12 +1,12 @@
-import { test, Page } from '@playwright/test'
-import { waitForPageJsLoad } from './wait'
+import {test, Page} from '@playwright/test'
+import {waitForPageJsLoad} from './wait'
 import {
   TEST_USER_AUTH_STRATEGY,
   TEST_USER_LOGIN,
   TEST_USER_PASSWORD,
   TEST_USER_DISPLAY_NAME,
 } from './config'
-import { dismissToast, validateToastMessage } from './helpers'
+import {dismissToast, validateToastMessage} from './helpers'
 
 /**
  * Different auth strategies that are being exercised in this test. Each strategy
@@ -123,7 +123,7 @@ async function loginAsTestUserSeattleStaging(page: Page, loginButton: string) {
   await page.locator('input[name=password]').fill(TEST_USER_PASSWORD)
   await page.locator('button:has-text("Login"):not([disabled])').click()
   // eslint-disable-next-line playwright/no-wait-for-navigation
-  await page.waitForNavigation({ waitUntil: 'networkidle' })
+  await page.waitForNavigation({waitUntil: 'networkidle'})
 }
 
 async function loginAsTestUserAwsStaging(
@@ -134,7 +134,7 @@ async function loginAsTestUserAwsStaging(
 ) {
   await Promise.all([
     // eslint-disable-next-line playwright/no-networkidle
-    page.waitForURL('**/u/login*', { waitUntil: 'networkidle' }),
+    page.waitForURL('**/u/login*', {waitUntil: 'networkidle'}),
     page.locator(loginButton).click(),
   ])
 
@@ -148,7 +148,7 @@ async function loginAsTestUserAwsStaging(
     }),
     // Auth0 has an additional hidden "Continue" button that does nothing for some reason
     // getByRole selects items by their accessible name, so it only selects the visible button
-    page.getByRole('button', { name: 'Continue', exact: true }).click(),
+    page.getByRole('button', {name: 'Continue', exact: true}).click(),
   ])
 }
 
