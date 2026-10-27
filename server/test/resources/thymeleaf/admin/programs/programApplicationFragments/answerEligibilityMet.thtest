@@ -1,0 +1,28 @@
+%NAME answer - eligibility text shown for an eligible answer
+%TEMPLATE_MODE HTML
+%CONTEXT
+answer = @views.admin.programs.ProgramApplicationPageViewModel$Answer@builder() \
+    .questionName("income-q") \
+    .contentType(@views.admin.programs.ProgramApplicationPageViewModel$Answer$ContentType@TEXT) \
+    .files(@com.google.common.collect.ImmutableList@of()) \
+    .answerText("1000") \
+    .answeredOn("2024/01/01") \
+    .showEligibilityText(true).eligible(true) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ApplicationBlockCard :: answer(${answer})}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="flex">
+  <div class="mb-8">
+    <div class="text-gray-400 text-base line-clamp-3">income-q</div>
+  </div>
+  <p class="w-8"></p>
+  <div class="text-gray-700 text-base">1000</div>
+  <p class="flex-grow"></p>
+  <div class="flex-auto text-right font-light text-xs">
+    <div class="cf-bt-date">Answered on 2024/01/01</div>
+    <div>Meets eligibility</div>
+  </div>
+</div>

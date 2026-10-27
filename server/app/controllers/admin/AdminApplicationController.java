@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramApplicationPageMapper;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
@@ -62,6 +63,8 @@ import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
+import views.admin.programs.ProgramApplicationPageView;
+import views.admin.programs.ProgramApplicationPageViewModel;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationTableView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
@@ -76,6 +79,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationView applicationView;
+  private final ProgramApplicationPageView applicationPageView;
   private final ProgramService programService;
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
@@ -104,6 +108,7 @@ public final class AdminApplicationController extends CiviFormController {
       JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
       ProgramApplicationView applicationView,
+      ProgramApplicationPageView applicationPageView,
       ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
@@ -117,6 +122,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationView = checkNotNull(applicationView);
+    this.applicationPageView = checkNotNull(applicationPageView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(csvExporterService);
@@ -355,6 +361,32 @@ public final class AdminApplicationController extends CiviFormController {
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      CiviFormProfile profile = profileUtils.currentUserProfile(request);
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+
+      ProgramApplicationPageViewModel model =
+          new ProgramApplicationPageMapper()
+              .map(
+                  programId,
+                  programName,
+                  application,
+                  applicantNameWithApplicationId,
+                  blocks,
+                  answers,
+                  statusService.lookupActiveStatusDefinitions(programName),
+                  noteMaybe,
+                  program.hasEligibilityEnabled(),
+                  showDownloadButton,
+                  new ProgramApplicationPageMapper.ListFilters(
+                      search, fromDate, toDate, page, selectedApplicationStatus),
+                  request.flash().get(FlashKey.SUCCESS),
+                  dateConverter);
+      return ok(applicationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
 
     return ok(
         applicationView.render(

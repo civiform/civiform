@@ -4,6 +4,7 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   dismissModal,
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -19,6 +20,13 @@ import {
 } from '../support'
 
 test.describe('view program statuses', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programWithStatusesName = 'Test program with statuses'
   const noEmailStatusName = 'No email status'
   const emailStatusName = 'Email status'

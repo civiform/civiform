@@ -1,0 +1,72 @@
+%NAME blockCard - multiple-file answer renders comma separated links, single-file answer links its text
+%TEMPLATE_MODE HTML
+%CONTEXT
+block = @views.admin.programs.ProgramApplicationPageViewModel$BlockCard@builder() \
+    .name("Documents").description("") \
+    .answers(@com.google.common.collect.ImmutableList@of( \
+        @views.admin.programs.ProgramApplicationPageViewModel$Answer@builder() \
+            .questionName("files-q") \
+            .contentType(@views.admin.programs.ProgramApplicationPageViewModel$Answer$ContentType@FILE_LIST) \
+            .files(@com.google.common.collect.ImmutableList@of( \
+                @views.admin.programs.ProgramApplicationPageViewModel$FileLink@builder().name("a.pdf").href("/admin/applicant-files/key-1").build(), \
+                @views.admin.programs.ProgramApplicationPageViewModel$FileLink@builder().name("b.pdf").href("/admin/applicant-files/key-2").build())) \
+            .answeredOn("2024/01/01") \
+            .showEligibilityText(false).eligible(false) \
+            .build(), \
+        @views.admin.programs.ProgramApplicationPageViewModel$Answer@builder() \
+            .questionName("file-q") \
+            .contentType(@views.admin.programs.ProgramApplicationPageViewModel$Answer$ContentType@FILE_LINK) \
+            .files(@com.google.common.collect.ImmutableList@of()) \
+            .fileHref("/admin/applicant-files/key-3") \
+            .answerText("resume.pdf") \
+            .answeredOn("2024/01/02") \
+            .showEligibilityText(false).eligible(false) \
+            .build())) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ApplicationBlockCard :: blockCard(${block})}"></div>
+# ----------------------------------------------------------------------
+# The legacy view styled links in the multi-file list but not the single-file
+# link.
+%OUTPUT
+<div class="cf-admin-application-block-card w-full shadow-lg mb-4">
+  <div class="border border-gray-300 bg-white rounded p-4">
+    <div class="flex">
+      <div>
+        <div class="text-black font-bold text-xl mb-2">Documents</div>
+      </div>
+      <p class="flex-grow"></p>
+      <p class="text-gray-700 italic"></p>
+    </div>
+    <div class="w-full">
+      <div class="flex">
+        <div class="mb-8">
+          <div class="text-gray-400 text-base line-clamp-3">files-q</div>
+        </div>
+        <p class="w-8"></p>
+        <div class="text-gray-700 text-base">
+          <a href="/admin/applicant-files/key-1" class="text-blue-600">a.pdf</a><span>, </span>
+          <a href="/admin/applicant-files/key-2" class="text-blue-600">b.pdf</a>
+        </div>
+        <p class="flex-grow"></p>
+        <div class="flex-auto text-right font-light text-xs">
+          <div class="cf-bt-date">Answered on 2024/01/01</div>
+        </div>
+      </div>
+      <div class="flex">
+        <div class="mb-8">
+          <div class="text-gray-400 text-base line-clamp-3">file-q</div>
+        </div>
+        <p class="w-8"></p>
+        <div class="text-gray-700 text-base">
+          <a href="/admin/applicant-files/key-3">resume.pdf</a>
+        </div>
+        <p class="flex-grow"></p>
+        <div class="flex-auto text-right font-light text-xs">
+          <div class="cf-bt-date">Answered on 2024/01/02</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
