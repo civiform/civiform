@@ -116,7 +116,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // HTMX request to the server.
       await expect(preview.getByRole('spinbutton')).toHaveCount(0)
       await expect(
-        preview.locator('#enumerator-field-add-button'),
+        preview.getByRole('button', {name: 'Add household member'}),
       ).not.toHaveAttribute('hx-post', /.*/)
     })
 
