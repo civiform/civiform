@@ -384,7 +384,7 @@
 >
   <button
     type="button"
-    class="cf-enumerator-delete-button usa-button usa-button--unstyled"
+    class="cf-enumerator-delete-button usa-button usa-button--unstyled zero-top-margin"
     th:data-confirmation-message="#{dialog.confirmDeleteAllButtonsSave(${enumeratorQuestion.getEntityType()})}"
     th:id="${isSaved ? deleteButtonId : null}"
     th:text="#{button.removeEntity(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
