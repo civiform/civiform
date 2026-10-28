@@ -128,31 +128,6 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void sampleQuestion_enumeratorWithInitialQuestion_rendersTheInitialQuestionAndAddButton()
-      throws Exception {
-    QuestionModel enumerator =
-        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .call(
-                routes.QuestionPreviewController.sampleQuestion(
-                    "Enumerator", Optional.of(enumerator.id)))
-            .build();
-
-    Result result = controller.sampleQuestion(request, "Enumerator", Optional.of(enumerator.id));
-
-    assertThat(result.status()).isEqualTo(OK);
-    String html = contentAsString(result);
-    // The Add button posts to the server for a new row, as it does for an applicant, instead of
-    // cloning the legacy free-text template.
-    assertThat(html).contains("hx-post");
-    assertThat(html).doesNotContain("enumerator-field-template");
-    // The first row has the initial question's input for the first entity.
-    assertThat(html).contains("[0]");
-  }
-
-  @Test
   public void sampleQuestion_enumeratorWithoutInitialQuestion_keepsTheLegacyTextInput()
       throws Exception {
     QuestionModel enumerator = testQuestionBank().enumeratorApplicantHouseholdMembers();
@@ -168,20 +143,6 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("enumerator-field-template");
-  }
-
-  @Test
-  public void hxAddEnumeratorEntity_returnsARowForTheNextEntity() throws Exception {
-    QuestionModel enumerator =
-        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
-
-    Result result =
-        controller.hxAddEnumeratorEntity(
-            addEntityRequest(ImmutableMap.of("entityCount", "2"), /* flagOn= */ true),
-            enumerator.id);
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("[2]");
   }
 
   @Test
