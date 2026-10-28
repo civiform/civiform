@@ -110,8 +110,9 @@ public class QuestionPreview extends ApplicantBaseView {
   }
 
   /**
-   * Adds the variables the enumerator fragment needs to show the initial question: its type, one
-   * empty row for the first entity, and the URL the Add button posts to for another row.
+   * Adds the variables the enumerator fragment needs to show the initial question: its type and the
+   * URL the Add button posts to for a new row. Like a new application, the preview starts with no
+   * rows until Add is clicked.
    */
   private void setInitialQuestionContext(
       ThymeleafModule.PlayThymeleafContext context,
@@ -120,11 +121,7 @@ public class QuestionPreview extends ApplicantBaseView {
       QuestionDefinition initialQuestionDefinition,
       ApplicantQuestionRendererParams rendererParams) {
     context.setVariable("initialQuestionType", initialQuestionDefinition.getQuestionType());
-    context.setVariable(
-        "contextualizedInitialQuestions",
-        ImmutableList.of(
-            contextualizedInitialQuestion(
-                enumeratorDefinition, initialQuestionDefinition, /* entityIndex= */ 0)));
+    context.setVariable("contextualizedInitialQuestions", ImmutableList.of());
     context.setVariable(
         "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
     context.setVariable(

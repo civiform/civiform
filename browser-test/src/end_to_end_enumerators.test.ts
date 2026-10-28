@@ -73,7 +73,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // The initial question in this test is a number question.
       const initialQuestionInputs = preview.getByRole('spinbutton')
 
-      await test.step('The preview starts with one row of the initial question', async () => {
+      const addButton = preview.getByRole('button', {
+        name: 'Add household member',
+      })
+
+      await test.step('The preview starts with no rows, like a new application', async () => {
+        await expect(initialQuestionInputs).toHaveCount(0)
+      })
+
+      await test.step('Clicking Add adds the first row', async () => {
+        await addButton.click()
         await expect(initialQuestionInputs).toHaveCount(1)
         await expect(
           preview.getByText('household member name #1'),
@@ -81,11 +90,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await validateAccessibility(page, '#sample-question')
       })
 
-      await test.step('Clicking Add adds another row, like it does for an applicant', async () => {
+      await test.step('Clicking Add again adds another row', async () => {
         await initialQuestionInputs.first().fill('3')
-        await preview
-          .getByRole('button', {name: 'Add household member'})
-          .click()
+        await addButton.click()
         await expect(initialQuestionInputs).toHaveCount(2)
         await expect(
           preview.getByText('household member name #2'),
