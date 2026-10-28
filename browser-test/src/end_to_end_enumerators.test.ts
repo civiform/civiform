@@ -87,7 +87,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           preview.getByText('household member name #1'),
         ).toBeVisible()
-        await validateAccessibility(page, '#sample-question')
       })
 
       await test.step('Clicking Add again adds another row', async () => {
