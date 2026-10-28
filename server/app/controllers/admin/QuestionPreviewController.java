@@ -106,8 +106,11 @@ public final class QuestionPreviewController extends CiviFormController {
             .setImageUrl(imageUrl)
             .setImageAltText(imageAltText)
             .setQuestionDefinition(maybeQuestionDefinition)
+            // The lookup is a blocking query, so skip it when the preview won't use it.
             .setInitialQuestionDefinition(
-                maybeQuestionDefinition.flatMap(this::initialQuestionDefinition))
+                settingsManifest.getEnumeratorImprovementsEnabled(request)
+                    ? maybeQuestionDefinition.flatMap(this::initialQuestionDefinition)
+                    : Optional.empty())
             .build();
     String content = questionPreview.render(params);
     return ok(content).as(Http.MimeTypes.HTML);
