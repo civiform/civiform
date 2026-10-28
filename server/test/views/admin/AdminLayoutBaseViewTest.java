@@ -1,13 +1,29 @@
 package views.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.when;
 import static support.FakeRequestBuilder.fakeRequest;
 
+import auth.CiviFormProfile;
+import auth.ProfileFactory;
+import auth.ProfileUtils;
 import controllers.WithMockedProfiles;
+import java.util.Optional;
+import modules.ThymeleafModule;
 import org.junit.Before;
 import org.junit.Test;
+import org.thymeleaf.TemplateEngine;
+import play.Environment;
 import play.i18n.Messages;
+import play.i18n.MessagesApi;
+import services.BundledAssetsFinder;
+import services.DeploymentType;
+import services.settings.SettingsManifest;
 import views.BaseViewModel;
+import views.shared.BaseViewDeps;
 import views.shared.LayoutDeps;
 
 public class AdminLayoutBaseViewTest extends WithMockedProfiles {
@@ -80,73 +96,73 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
   @Test
   public void render_demo_banner_highlights_active_civiform_admin_role() {
-    services.settings.SettingsManifest mockSettingsManifest =
-        org.mockito.Mockito.spy(instanceOf(services.settings.SettingsManifest.class));
-    org.mockito.Mockito.when(mockSettingsManifest.getBannerType(org.mockito.ArgumentMatchers.any()))
-        .thenReturn(java.util.Optional.of("demo"));
-    org.mockito.Mockito.when(
-            mockSettingsManifest.getWhitelabelCivicEntityShortName(
-                org.mockito.ArgumentMatchers.any()))
-        .thenReturn(java.util.Optional.of("TestCity"));
+    SettingsManifest mockSettingsManifest = spy(instanceOf(SettingsManifest.class));
+    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType(any());
+    doReturn(Optional.of("TestCity"))
+        .when(mockSettingsManifest)
+        .getWhitelabelCivicEntityShortName(any());
 
-    views.shared.BaseViewDeps baseViewDeps =
-        new views.shared.BaseViewDeps(
-            instanceOf(org.thymeleaf.TemplateEngine.class),
-            instanceOf(modules.ThymeleafModule.PlayThymeleafContextFactory.class),
+    BaseViewDeps baseViewDeps =
+        new BaseViewDeps(
+            instanceOf(TemplateEngine.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
             mockSettingsManifest,
-            instanceOf(play.i18n.MessagesApi.class),
-            instanceOf(play.Environment.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(Environment.class));
     LayoutDeps layoutDeps =
         new LayoutDeps(
             baseViewDeps,
-            instanceOf(services.BundledAssetsFinder.class),
-            instanceOf(auth.ProfileUtils.class),
-            new services.DeploymentType(/* isDev= */ true, /* isStaging= */ false));
+            instanceOf(BundledAssetsFinder.class),
+            instanceOf(ProfileUtils.class),
+            new DeploymentType(/* isDev= */ true, /* isStaging= */ false));
 
     CustomView customView =
         new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
     assertThat(result).contains("cf-demo-banner");
-    assertThat(result).contains("DEMO: TestCity");
+    assertThat(result).contains("Demo: TestCity");
     assertThat(result).contains("View as:");
     assertThat(result)
-        .contains(
-            "<a href=\"/logout\" class=\"usa-button usa-button--outline\""
-                + " id=\"resident\">Resident</a>");
+        .containsPattern(
+            "<a\\s+href=\"/logout\"\\s+class=\"usa-button"
+                + " usa-button--outline\"\\s+id=\"resident\"\\s*>Resident</a");
     assertThat(result).containsPattern("<div\\s+class=\"usa-button\"\\s+id=\"admin\">");
     assertThat(result)
-        .contains(
-            "class=\"usa-button usa-button--outline\" id=\"program-admin\">Program Admin</a>");
+        .containsPattern(
+            "class=\"usa-button usa-button--outline\"\\s+id=\"program-admin\"\\s*>Program"
+                + " Admin</a");
     assertThat(result)
-        .contains(
-            "class=\"usa-button usa-button--outline\" id=\"trusted-intermediary\">Trusted"
-                + " Intermediary</a>");
+        .containsPattern(
+            "class=\"usa-button"
+                + " usa-button--outline\"\\s+id=\"trusted-intermediary\"\\s*>Trusted"
+                + " Intermediary</a");
   }
 
   @Test
   public void render_demo_banner_highlights_active_program_admin_role() {
-    models.ProgramModel program = resourceCreator().insertActiveProgram("test-program");
-    createProgramAdminWithMockedProfile(program);
+    ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
+    CiviFormProfile programAdminProfile =
+        profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
+    ProfileUtils mockProfileUtils = instanceOf(ProfileUtils.class);
+    when(mockProfileUtils.currentUserProfile(any())).thenReturn(programAdminProfile);
 
-    services.settings.SettingsManifest mockSettingsManifest =
-        org.mockito.Mockito.spy(instanceOf(services.settings.SettingsManifest.class));
-    org.mockito.Mockito.when(mockSettingsManifest.getBannerType(org.mockito.ArgumentMatchers.any()))
-        .thenReturn(java.util.Optional.of("demo"));
+    SettingsManifest mockSettingsManifest = spy(instanceOf(SettingsManifest.class));
+    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType(any());
 
-    views.shared.BaseViewDeps baseViewDeps =
-        new views.shared.BaseViewDeps(
-            instanceOf(org.thymeleaf.TemplateEngine.class),
-            instanceOf(modules.ThymeleafModule.PlayThymeleafContextFactory.class),
+    BaseViewDeps baseViewDeps =
+        new BaseViewDeps(
+            instanceOf(TemplateEngine.class),
+            instanceOf(ThymeleafModule.PlayThymeleafContextFactory.class),
             mockSettingsManifest,
-            instanceOf(play.i18n.MessagesApi.class),
-            instanceOf(play.Environment.class));
+            instanceOf(MessagesApi.class),
+            instanceOf(Environment.class));
     LayoutDeps layoutDeps =
         new LayoutDeps(
             baseViewDeps,
-            instanceOf(services.BundledAssetsFinder.class),
-            instanceOf(auth.ProfileUtils.class),
-            new services.DeploymentType(/* isDev= */ true, /* isStaging= */ false));
+            instanceOf(BundledAssetsFinder.class),
+            mockProfileUtils,
+            new DeploymentType(/* isDev= */ true, /* isStaging= */ false));
 
     CustomView customView =
         new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
@@ -154,40 +170,12 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
     assertThat(result).contains("cf-demo-banner");
     assertThat(result)
-        .contains(
-            "<a href=\"/logout\" class=\"usa-button usa-button--outline\""
-                + " id=\"resident\">Resident</a>");
+        .containsPattern(
+            "<a\\s+href=\"/logout\"\\s+class=\"usa-button"
+                + " usa-button--outline\"\\s+id=\"resident\"\\s*>Resident</a");
     assertThat(result)
-        .contains("class=\"usa-button usa-button--outline\" id=\"admin\">Civiform Admin</a>");
-    assertThat(result).containsPattern("<div\\s+class=\"usa-button\"\\s+id=\"program-admin\">");
-  }
-
-  @Test
-  public void render_not_production_banner() {
-    services.settings.SettingsManifest mockSettingsManifest =
-        org.mockito.Mockito.spy(instanceOf(services.settings.SettingsManifest.class));
-    org.mockito.Mockito.when(mockSettingsManifest.getBannerType(org.mockito.ArgumentMatchers.any()))
-        .thenReturn(java.util.Optional.of("not_production"));
-
-    views.shared.BaseViewDeps baseViewDeps =
-        new views.shared.BaseViewDeps(
-            instanceOf(org.thymeleaf.TemplateEngine.class),
-            instanceOf(modules.ThymeleafModule.PlayThymeleafContextFactory.class),
-            mockSettingsManifest,
-            instanceOf(play.i18n.MessagesApi.class),
-            instanceOf(play.Environment.class));
-    LayoutDeps layoutDeps =
-        new LayoutDeps(
-            baseViewDeps,
-            instanceOf(services.BundledAssetsFinder.class),
-            instanceOf(auth.ProfileUtils.class),
-            new services.DeploymentType(/* isDev= */ true, /* isStaging= */ false));
-
-    CustomView customView =
-        new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
-    String result = customView.render(fakeRequest(), new CustomViewModel());
-
-    assertThat(result).contains("usa-alert--emergency");
-    assertThat(result).contains("This site is for testing purposes only.");
+        .containsPattern(
+            "class=\"usa-button usa-button--outline\"\\s+id=\"admin\"\\s*>Civiform Admin</a");
+    assertThat(result).containsPattern("<div\\s+class=\"usa-button\"\\s+id=\"program-admin\"\\s*>");
   }
 }

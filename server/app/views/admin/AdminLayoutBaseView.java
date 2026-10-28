@@ -48,12 +48,7 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
       ThymeleafModule.PlayThymeleafContext context,
       Optional<CiviFormProfile> profile) {
     BannerUtils.setUpBannerContext(
-        context,
-        settingsManifest,
-        request,
-        messagesApi.preferred(request),
-        profile,
-        deploymentType.isDevOrStaging());
+        context, settingsManifest, request, profile, deploymentType.isDevOrStaging());
   }
 
   @Override

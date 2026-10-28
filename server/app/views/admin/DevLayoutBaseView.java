@@ -45,7 +45,6 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
         context,
         settingsManifest,
         request,
-        messagesApi.preferred(request),
         profileUtils.optionalCurrentUserProfile(request),
         deploymentType.isDevOrStaging());
 

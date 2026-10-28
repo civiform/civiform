@@ -1,15 +1,6 @@
 <!--/*@thymesVar id="adminCommonHeader" type="views.admin.shared.AdminCommonHeader"*/-->
 <th:block xmlns:cf="https://civiform.us/2024/html/icon">
-  <div
-    class="position-sticky top-0 z-top"
-    th:if="${showNotProductionBannerEnabled}"
-  >
-    <div
-      th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
-    ></div>
-  </div>
   <section
-    th:unless="${showNotProductionBannerEnabled}"
     class="usa-banner"
     aria-label="This is an official government website."
   >

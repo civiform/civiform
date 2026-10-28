@@ -2,7 +2,6 @@ package views.shared;
 
 import auth.CiviFormProfile;
 import auth.FakeAdminClient;
-import com.google.common.collect.ImmutableList;
 import controllers.routes;
 import java.time.Clock;
 import java.time.LocalDate;
@@ -15,11 +14,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import modules.ThymeleafModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import play.i18n.Messages;
 import play.mvc.Http;
-import services.AlertSettings;
-import services.AlertType;
-import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.components.Icons;
 
@@ -96,35 +91,32 @@ public final class BannerUtils {
   }
 
   /**
-   * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
-   * and role login buttons on Applicant and Admin Thymeleaf layouts.
+   * Populates the shared Thymeleaf context variables for the demo banner and role login buttons on
+   * Applicant and Admin Thymeleaf layouts.
    */
   public static void setUpBannerContext(
       ThymeleafModule.PlayThymeleafContext context,
       SettingsManifest settingsManifest,
       Http.Request request,
-      Messages messages,
       Optional<CiviFormProfile> profile,
       boolean isDevOrStaging) {
     setUpBannerContext(
         context,
         settingsManifest,
         request,
-        messages,
         profile,
         isDevOrStaging,
         Clock.system(ZoneId.systemDefault()));
   }
 
   /**
-   * Populates the shared Thymeleaf context variables for the not-production banner, demo banner,
-   * and role login buttons on Applicant and Admin Thymeleaf layouts.
+   * Populates the shared Thymeleaf context variables for the demo banner and role login buttons on
+   * Applicant and Admin Thymeleaf layouts.
    */
   public static void setUpBannerContext(
       ThymeleafModule.PlayThymeleafContext context,
       SettingsManifest settingsManifest,
       Http.Request request,
-      Messages messages,
       Optional<CiviFormProfile> profile,
       boolean isDevOrStaging,
       Clock clock) {
@@ -152,39 +144,6 @@ public final class BannerUtils {
       context.setVariable(
           "demoBannerDaysRemainingCount",
           getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
-    }
-
-    boolean showNotProductionBannerEnabled =
-        isNotProductionBannerEnabled(settingsManifest, request);
-    if (showNotProductionBannerEnabled) {
-      context.setVariable("showNotProductionBannerEnabled", true);
-
-      // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
-      // difficult to add HTML within a message. So we have to manually build the html for a link
-      // that will be embedded in the banner.
-      Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
-      Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
-      Optional<String> unescapedDescription = Optional.empty();
-      if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
-        String linkHtml =
-            "<a href=\"" + linkHref.get() + "\" class=\"usa-link\">" + linkText.get() + "</a>";
-        String rawString = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_2.getKeyName());
-        unescapedDescription = Optional.of(rawString.replace("{0}", linkHtml));
-      }
-      String alertTitle = messages.at(MessageKey.NOT_FOR_PRODUCTION_BANNER_LINE_1.getKeyName());
-      AlertSettings notProductionAlertSettings =
-          new AlertSettings(
-              true,
-              Optional.of(alertTitle),
-              unescapedDescription.orElse(""),
-              unescapedDescription.isPresent(),
-              AlertType.EMERGENCY,
-              ImmutableList.of(),
-              /* customText= */ Optional.empty(),
-              Optional.of(
-                  AlertSettings.getTitleAriaLabel(messages, AlertType.EMERGENCY, alertTitle)),
-              /* isSlim= */ false);
-      context.setVariable("notProductionAlertSettings", notProductionAlertSettings);
     }
 
     boolean showDebugTools =

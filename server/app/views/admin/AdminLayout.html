@@ -92,18 +92,8 @@
         th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
       ></th:block>
       <div class="padding-top-8">
-        <div
-          class="position-sticky top-0 z-top"
-          th:if="${showNotProductionBannerEnabled}"
-        >
-          <div
-            th:replace="~{components/AlertFragment :: alert(alertSettings=${notProductionAlertSettings}, headingLevel='H2')}"
-          ></div>
-        </div>
         <th:block th:if="${demoBannerEnabled}">
-          <div
-            th:replace="~{components/DemoBannerFragment :: demoBanner}"
-          ></div>
+          <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
         </th:block>
       </div>
     </th:block>
