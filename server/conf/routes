@@ -103,7 +103,7 @@ POST    /admin/questions/:questionId/hx/image/delete                           c
 GET     /admin/preview/:questionType                                           controllers.admin.QuestionPreviewController.sampleQuestion(request: Request, questionType: String, questionId: java.util.Optional[java.lang.Long])
 
 # Renders a new row for the initial question in an enumerator question's preview
-POST    /admin/preview/enumerator/:questionId/addEntity                         controllers.admin.QuestionPreviewController.hxAddEnumeratorEntity(request: Request, questionId: Long)
+POST    /admin/preview/enumerator/:questionId/hx/addEntity                      controllers.admin.QuestionPreviewController.hxAddEnumeratorEntity(request: Request, questionId: Long)
 
 # Routes for editing question localizations
 GET     /admin/questions/:questionName/translations/edit                       controllers.admin.AdminQuestionTranslationsController.redirectToFirstLocale(request: Request, questionName: String)
