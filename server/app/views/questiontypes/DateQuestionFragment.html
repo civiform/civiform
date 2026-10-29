@@ -61,9 +61,12 @@
            monthHasError=${hasErrors && dateQuestion.hasMonthError()},
            dayHasError=${hasErrors && dateQuestion.hasDayError()},
            yearHasError=${hasErrors && dateQuestion.hasYearError()},
-           monthDescribedBy=${isInitialQuestion ? (monthHasError ? questionId + '-error' : null) : (questionId + '-description' + (monthHasError ? ' ' + questionId + '-error' : ''))},
-           dayDescribedBy=${isInitialQuestion ? (dayHasError ? questionId + '-error' : null) : (questionId + '-description' + (dayHasError ? ' ' + questionId + '-error' : ''))},
-           yearDescribedBy=${isInitialQuestion ? (yearHasError ? questionId + '-error' : null) : (questionId + '-description' + (yearHasError ? ' ' + questionId + '-error' : ''))}"
+           errorId=${questionId + '-error'},
+           descriptionId=${isInitialQuestion ? null : questionId + '-description'},
+           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
+           monthDescribedBy=${monthHasError ? describedByPrefix + errorId : descriptionId},
+           dayDescribedBy=${dayHasError ? describedByPrefix + errorId : descriptionId},
+           yearDescribedBy=${yearHasError ? describedByPrefix + errorId : descriptionId}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">

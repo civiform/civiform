@@ -772,7 +772,7 @@ validation.dateTooFarInFuture=Date must be before {0}
 validation.dateNotInRange=Date must be between {0} and {1}
 validation.currentDateRequired=Please enter today''s date
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Enter a 4 digit year, for example 1996
+validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
 # Validation error shown when the month was not selected.
 validation.monthRequired=Select a month
 # Validation error shown when the day field was left blank.
