@@ -148,8 +148,6 @@ export class AdminQuestionImage {
     const previewContainer = this.getPreviewImageContainer()
     await expect(previewContainer).toBeVisible()
     await expect(this.getPreviewImage(altText)).toBeVisible()
-    const descriptionText = altText.endsWith('.') ? altText : `${altText}.`
-    await expect(previewContainer).toContainText(descriptionText)
   }
 
   async expectNoPreviewImage() {
@@ -159,28 +157,27 @@ export class AdminQuestionImage {
   getPreviewImageFrameLink(altText?: string) {
     const previewContainer = this.getPreviewImageContainer()
     return altText
-      ? previewContainer.getByRole('link', {name: altText})
+      ? previewContainer.getByRole('link', {name: new RegExp(altText, 'i')})
       : previewContainer.getByRole('link').first()
   }
 
   async expectPreviewImageAccessibleToScreenReader(altText: string) {
     const previewContainer = this.getPreviewImageContainer()
-    const frameLink = this.getPreviewImageFrameLink(altText)
+    const link = this.getPreviewImageFrameLink(altText)
 
     // The image link must NOT have an aria-label, so the image alt text is used as the accessible name
-    await expect(frameLink).not.toHaveAttribute('aria-label')
+    await expect(link).not.toHaveAttribute('aria-label')
 
-    // Link's accessible name should be the image's alt text
-    await expect(frameLink).toBeVisible()
+    // Link's accessible name should be visible and contain the image's alt text
+    await expect(link).toBeVisible()
 
     // The image inside has the alt text
     await expect(this.getPreviewImage(altText)).toBeVisible()
 
-    // The follow-up enlarge link is also present
-    const enlargeLink = previewContainer.getByRole('link', {
-      name: 'Click to enlarge',
-    })
-    await expect(enlargeLink).toBeVisible()
-    await expect(enlargeLink).toContainText('Click to enlarge')
+    // The combined link contains the enlarge action text
+    await expect(link).toContainText('Enlarge image')
+
+    // Single unified link is rendered
+    await expect(previewContainer.getByRole('link')).toHaveCount(1)
   }
 }

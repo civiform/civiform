@@ -112,21 +112,14 @@ test.describe('Static text question for applicant flow', () => {
         const img = imageContainer.getByRole('img', {name: imageDescription})
         await expect(img).toBeVisible()
 
-        const frameLink = imageContainer.getByRole('link', {
-          name: imageDescription,
+        const imageLink = imageContainer.getByRole('link', {
+          name: new RegExp(`${imageDescription}.*Enlarge image`, 'i'),
         })
-        await expect(frameLink).toBeVisible()
-        await expect(frameLink).not.toHaveAttribute('aria-label')
-
-        const desc = imageContainer.getByText(`${imageDescription}.`)
-        await expect(desc).toBeVisible()
-
-        const enlargeLink = imageContainer.getByRole('link', {
-          name: /Click to enlarge.*opens in a new tab/i,
-        })
-        await expect(enlargeLink).toBeVisible()
-        await expect(enlargeLink).toContainText('Click to enlarge')
-        await expect(enlargeLink).toHaveAttribute('target', '_blank')
+        await expect(imageLink).toBeVisible()
+        await expect(imageLink).not.toHaveAttribute('aria-label')
+        await expect(imageLink).toContainText('Enlarge image')
+        await expect(imageLink).toHaveAttribute('target', '_blank')
+        await expect(imageContainer.getByRole('link')).toHaveCount(1)
 
         await validateAccessibility(page)
       })

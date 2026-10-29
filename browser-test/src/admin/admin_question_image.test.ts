@@ -219,7 +219,7 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.expectPreviewImageWithAltText(initialAltText)
     })
 
-    await test.step('Update alt text and verify both visual text and actual img alt update in real time', async () => {
+    await test.step('Update alt text and verify actual img alt updates in real time', async () => {
       await adminQuestionImage.setImageDescription(updatedAltText)
       await adminQuestionImage.expectPreviewImageWithAltText(updatedAltText)
       await expect(
@@ -423,7 +423,7 @@ test.describe('Admin can manage question image', () => {
 
     await test.step('check if clicking the enlarge text link opens a new tab containing the image', async () => {
       const enlargeLink = previewContainer.getByRole('link', {
-        name: /Click to enlarge.*opens in a new tab/i,
+        name: /Enlarge image/i,
       })
 
       const [newPage] = await Promise.all([
@@ -437,13 +437,11 @@ test.describe('Admin can manage question image', () => {
     })
 
     await test.step('check if image itself is clicked whether a new tab containing the image is opened', async () => {
-      const imageFrameLink = previewContainer.locator(
-        '.cf-question-image-frame',
-      )
+      const image = previewContainer.getByRole('img', {name: altText})
 
       const [newPage] = await Promise.all([
         page.context().waitForEvent('page'),
-        imageFrameLink.click(),
+        image.click(),
       ])
 
       await newPage.waitForLoadState()
