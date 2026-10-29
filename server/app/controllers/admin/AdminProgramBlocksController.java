@@ -221,6 +221,18 @@ public final class AdminProgramBlocksController extends CiviFormController {
   }
 
   /**
+   * Whether the block is an enumerator block whose enumerator question has no initial question yet,
+   * so an initial question can be backfilled onto it. Only applies with the enumerator improvements
+   * flag on.
+   */
+  private boolean isBackfillingInitialQuestionState(Request request, BlockDefinition block) {
+    return settingsManifest.getEnumeratorImprovementsEnabled(request)
+        && block.getIsEnumerator()
+        && block.hasEnumeratorQuestion()
+        && block.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId().isEmpty();
+  }
+
+  /**
    * Returns an HTML page displaying all configurations of the specified program screen (block) and
    * forms to update them.
    */
@@ -243,16 +255,22 @@ public final class AdminProgramBlocksController extends CiviFormController {
             settingsManifest.getEnumeratorImprovementsEnabled(request)
                 && blockForEnumeratorCheck.getIsEnumerator()
                 && !blockForEnumeratorCheck.hasEnumeratorQuestion();
+        String stagedInitialQuestionUrl =
+            routes.AdminProgramBlocksController.edit(programId, blockId).url()
+                + "?"
+                + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
+                + "="
+                + newQuestionIdParam.get();
         if (isEnumeratorSetup) {
           // Redirect with the new question as the initial question selection. The edit page
           // reads initialQuestionId from the query string to render the initial question card.
           // We omit sqb so the question bank doesn't re-open on landing.
-          return redirect(
-              routes.AdminProgramBlocksController.edit(programId, blockId).url()
-                  + "?"
-                  + ProgramBlocksView.INITIAL_QUESTION_ID_PARAM
-                  + "="
-                  + newQuestionIdParam.get());
+          return redirect(stagedInitialQuestionUrl);
+        }
+        if (isBackfillingInitialQuestionState(request, blockForEnumeratorCheck)) {
+          // Backfilling an initial question onto an existing enumerator. As in setup, the new
+          // question is only staged on the card here and is attached when the admin saves it.
+          return redirect(stagedInitialQuestionUrl);
         }
         try {
           long newQuestionId = Long.parseLong(newQuestionIdParam.get());

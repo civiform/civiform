@@ -9,6 +9,9 @@
   <div th:unless="${showNotProductionBannerEnabled}">
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
+  <th:block th:if="${demoBannerEnabled}">
+    <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
+  </th:block>
   <!--/* The immigration status info banner is only shown on the program index page,
   so all immigration status info banner variables are only set in ProgramIndexView and are unset otherwise. */-->
   <th:block
@@ -70,7 +73,7 @@
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
-            <div th:if="${showDebugTools}">
+            <div th:if="${showDebugTools and !demoBannerEnabled}">
               <button th:replace="~{this :: showDebugTools}"></button>
             </div>
             <div>

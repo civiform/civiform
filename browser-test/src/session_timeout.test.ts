@@ -38,6 +38,13 @@ test.describe('Session timeout for admins', () => {
       const extendSessionButton = page.getByRole('button', {
         name: 'Extend Session',
       })
+
+      // The client only re-shows the inactivity warning when the cookie's
+      // warning timestamp (whole seconds) differs from the last one shown.
+      // Without this wait, login and extend can land in the same second, the
+      // timestamp doesn't change, and the modal never reappears. Use a real
+      // timer because the page clock is faked.
+      await new Promise((resolve) => setTimeout(resolve, 1100))
       await extendSessionButton.click()
 
       const inactivityModal = page.locator('#session-inactivity-warning-modal')

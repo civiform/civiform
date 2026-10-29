@@ -8,6 +8,7 @@ import static j2html.TagCreator.fieldset;
 import static j2html.TagCreator.form;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.hr;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.input;
 import static j2html.TagCreator.join;
@@ -759,11 +760,19 @@ public final class ProgramBlocksView extends ProgramBaseView {
       maybeEligibilityPredicateDisplay.ifPresent(div::with);
 
       if (isEnumeratorBlock) {
-        // When returning to this page after creating a new initial question during
-        // enumerator setup, the controller redirects with ?initialQuestionId=<id>
-        // so the view can render the new question as the initial question selection.
+        // Repeated sets created before initial questions existed have an enumerator question but no
+        // initial question, so offer a way to add one.
+        boolean showBackfillInitialQuestionButton =
+            blockHasEnumeratorQuestion
+                && blockDefinition
+                    .getEnumeratorQuestionDefinition()
+                    .getEnumeratorInitialQuestionId()
+                    .isEmpty();
+        // When returning to this page after creating a new initial question (during enumerator
+        // setup or when backfilling), the controller redirects with ?initialQuestionId=<id> so the
+        // view can render the new question as the initial question selection.
         Optional<QuestionDefinition> optionalNewInitialQuestion =
-            !blockHasEnumeratorQuestion
+            (!blockHasEnumeratorQuestion || showBackfillInitialQuestionButton)
                 ? request
                     .queryString(INITIAL_QUESTION_ID_PARAM)
                     .flatMap(
@@ -780,14 +789,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                           }
                         })
                 : Optional.empty();
-        // Repeated sets created before initial questions existed have an enumerator question but no
-        // initial question, so offer a way to add one.
-        boolean showBackfillInitialQuestionButton =
-            blockHasEnumeratorQuestion
-                && blockDefinition
-                    .getEnumeratorQuestionDefinition()
-                    .getEnumeratorInitialQuestionId()
-                    .isEmpty();
         return div.with(
             renderEnumeratorScreenContent(
                 blockHasEnumeratorQuestion,
@@ -936,29 +937,38 @@ public final class ProgramBlocksView extends ProgramBaseView {
           /* initialQuestionWasNewlyCreated= */ optionalNewInitialQuestion.isPresent());
     } else {
       return renderEnumeratorSectionWithSelectedQuestion(
+          request,
           messages,
           optionalEnumeratorQuestionCard,
           blockHasEnumeratorQuestion,
           blockDefinition,
           program,
-          showBackfillInitialQuestionButton);
+          showBackfillInitialQuestionButton,
+          optionalNewInitialQuestion);
     }
   }
 
   public DivTag renderEnumeratorSectionWithSelectedQuestion(
+      Request request,
       Messages messages,
       Optional<DivTag> optionalEnumeratorQuestionCard,
       boolean blockHasEnumeratorQuestion,
       BlockDefinition blockDefinition,
       ProgramDefinition program,
-      boolean showBackfillInitialQuestionButton) {
+      boolean showBackfillInitialQuestionButton,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     // For enumerators, only show nested button if enumerator is at first level (not nested itself)
     boolean shouldShowNestedButton = blockDefinition.enumeratorId().isEmpty();
     return div(
             renderEnumeratorQuestionCardSection(messages, optionalEnumeratorQuestionCard),
             iff(
                 showBackfillInitialQuestionButton,
-                renderBackfillInitialQuestionCard(messages, program.id(), blockDefinition.id())),
+                renderBackfillInitialQuestionCard(
+                    request,
+                    messages,
+                    program.id(),
+                    blockDefinition.id(),
+                    optionalStagedInitialQuestion)),
             renderContinueToChildScreenButton(messages, program, blockDefinition),
             renderAddRepeatedScreenButtons(
                 messages,
@@ -976,7 +986,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * question only stages it: nothing is attached to the block yet.
    */
   private DivTag renderBackfillInitialQuestionCard(
-      Messages messages, long programId, long blockId) {
+      Request request,
+      Messages messages,
+      long programId,
+      long blockId,
+      Optional<QuestionDefinition> optionalStagedInitialQuestion) {
     return div()
         .withId("backfill-initial-question-card")
         .withClasses("display-flex", "flex-align-start", "margin-top-2")
@@ -1006,7 +1020,19 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .withClasses(
                             "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
                     // Wrapper keeps the 12px gap to the description when the slot is swapped.
-                    div(renderEmptyInitialQuestionSlot(messages, programId, blockId))
+                    div(optionalStagedInitialQuestion
+                            .map(
+                                question ->
+                                    renderSelectedBackfillInitialQuestion(
+                                        request,
+                                        messages,
+                                        question,
+                                        programId,
+                                        blockId,
+                                        // It comes from the create-new-question redirect.
+                                        /* initialQuestionWasNewlyCreated= */ true))
+                            .orElseGet(
+                                () -> renderEmptyInitialQuestionSlot(messages, programId, blockId)))
                         .withClass("margin-top-1")));
   }
 
@@ -1151,6 +1177,57 @@ public final class ProgramBlocksView extends ProgramBaseView {
           input().withType("hidden").withName("initialQuestionWasNewlyCreated").withValue("true"));
     }
     return slot;
+  }
+
+  /**
+   * Renders the {@code #initial-question-slot} for backfilling an initial question onto an existing
+   * list set. Besides the picked question's card it has a warning and a "Save initial question"
+   * button, which posts the question to {@code hxBackfillInitialQuestion}. Nothing is attached
+   * until then.
+   */
+  public DivTag renderSelectedBackfillInitialQuestion(
+      Request request,
+      Messages messages,
+      QuestionDefinition selectedQuestion,
+      long programId,
+      long blockId,
+      boolean initialQuestionWasNewlyCreated) {
+    DivTag slot =
+        div(
+                QuestionCard.renderForInitialQuestion(
+                    selectedQuestion,
+                    Optional.of(
+                        renderInitialQuestionRemoveButton(
+                            messages, programId, blockId, selectedQuestion.getName()))),
+                input()
+                    .withType("hidden")
+                    .withName(INITIAL_QUESTION_ID_PARAM)
+                    .withValue(String.valueOf(selectedQuestion.getId())),
+                // Posted with the rest of the slot when the admin saves.
+                makeCsrfTokenInputTag(request))
+            .withId("initial-question-slot");
+    if (initialQuestionWasNewlyCreated) {
+      slot.with(
+          input().withType("hidden").withName("initialQuestionWasNewlyCreated").withValue("true"));
+    }
+    return slot.with(
+        hr().withClasses("margin-top-3", "border-base-lighter"),
+        AlertComponent.renderSlimAlert(
+            AlertType.WARNING,
+            messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName()),
+            /* hidden= */ false),
+        button(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_SAVE.getKeyName()))
+            .withId("save-initial-question-button")
+            .withType("button")
+            .withClasses("usa-button", "margin-top-2")
+            .attr(
+                "hx-post",
+                controllers.admin.routes.AdminProgramBlockQuestionsController
+                    .hxBackfillInitialQuestion(programId, blockId)
+                    .url())
+            .attr("hx-include", "#initial-question-slot")
+            .attr("hx-target", "#repeated-set-question-section")
+            .attr("hx-swap", "outerHTML"));
   }
 
   /**

@@ -11,6 +11,7 @@ import controllers.FlashKey;
 import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.questions.EnumeratorQuestionForm;
 import forms.questions.QuestionFormBuilder;
+import j2html.tags.specialized.DivTag;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -32,6 +33,8 @@ import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.MessageKey;
+import services.ProgramBlockValidation.AddQuestionResult;
+import services.ProgramBlockValidationFactory;
 import services.program.BlockDefinition;
 import services.program.CantAddQuestionToBlockException;
 import services.program.IllegalApiBridgeStateException;
@@ -70,6 +73,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   private final SettingsManifest settingsManifest;
   private final MessagesApi messagesApi;
   private final ProgramBlocksView blockEditView;
+  private final ProgramBlockValidationFactory programBlockValidationFactory;
 
   @Inject
   public AdminProgramBlockQuestionsController(
@@ -80,7 +84,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
       RequestChecker requestChecker,
       SettingsManifest settingsManifest,
       MessagesApi messagesApi,
-      ProgramBlocksView.Factory programBlockViewFactory) {
+      ProgramBlocksView.Factory programBlockViewFactory,
+      ProgramBlockValidationFactory programBlockValidationFactory) {
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
     this.versionRepository = checkNotNull(versionRepository);
@@ -89,6 +94,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     this.settingsManifest = checkNotNull(settingsManifest);
     this.messagesApi = checkNotNull(messagesApi);
     this.blockEditView = checkNotNull(programBlockViewFactory.create(DRAFT));
+    this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
   }
 
   /** POST endpoint for adding one or more questions to a screen. */
@@ -338,6 +344,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     return ok(
         blockEditView
             .renderEnumeratorSectionWithSelectedQuestion(
+                request,
                 messages,
                 /* optionalEnumeratorQuestionCard= */ Optional.of(
                     blockEditView.renderQuestion(
@@ -355,7 +362,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
                 blockDefinition,
                 programDefinition,
                 // The enumerator was just set up together with its initial question.
-                /* showBackfillInitialQuestionButton= */ false)
+                /* showBackfillInitialQuestionButton= */ false,
+                /* optionalStagedInitialQuestion= */ Optional.empty())
             .render());
   }
 
@@ -391,15 +399,153 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(String.format("Question ID %d not found", questionId.get()));
     }
 
-    return ok(blockEditView
-            .renderSelectedInitialQuestion(
-                messagesApi.preferred(request),
+    Messages messages = messagesApi.preferred(request);
+    // On an enumerator that already exists, the pick is for a backfill: show the warning and the
+    // Save button along with the card.
+    boolean isBackfilling;
+    try {
+      isBackfilling =
+          programService
+              .getFullProgramDefinition(programId)
+              .getBlockDefinition(blockId)
+              .hasEnumeratorQuestion();
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.getMessage());
+    }
+    DivTag slot =
+        isBackfilling
+            ? blockEditView.renderSelectedBackfillInitialQuestion(
+                request,
+                messages,
                 selected,
                 programId,
                 blockId,
                 /* initialQuestionWasNewlyCreated= */ false)
-            .render())
-        .withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
+            : blockEditView.renderSelectedInitialQuestion(
+                messages,
+                selected,
+                programId,
+                blockId,
+                /* initialQuestionWasNewlyCreated= */ false);
+    return ok(slot.render()).withHeader("HX-Trigger-After-Swap", "closeQuestionBank");
+  }
+
+  /**
+   * HTMX POST endpoint that saves the initial question the admin picked for an enumerator that has
+   * none yet (a backfill). It links the initial question to the enumerator, which updates the
+   * enumerator's draft or creates one if the enumerator has only a published version, and adds the
+   * initial question to this block. It does not touch blocks in other programs.
+   *
+   * <p>The picked question's id comes from the {@code initialQuestionId} field of the staged card.
+   * Returns the re-rendered enumerator section to swap into {@code #repeated-set-question-section}.
+   */
+  @Secure(authorizers = Labels.CIVIFORM_ADMIN)
+  public Result hxBackfillInitialQuestion(Request request, long programId, long blockId) {
+    requestChecker.throwIfProgramNotDraft(programId);
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean fileUploadQuestionImprovementsEnabled =
+        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+    Messages messages = messagesApi.preferred(request);
+
+    DynamicForm requestData = formFactory.form().bindFromRequest(request);
+    Optional<Long> initialQuestionId =
+        Optional.ofNullable(requestData.get(ProgramBlocksView.INITIAL_QUESTION_ID_PARAM))
+            .flatMap(
+                idStr -> {
+                  try {
+                    return Optional.of(Long.parseLong(idStr));
+                  } catch (NumberFormatException e) {
+                    return Optional.empty();
+                  }
+                });
+    if (initialQuestionId.isEmpty()) {
+      return badRequest("No initial question selected");
+    }
+    boolean initialQuestionWasNewlyCreated =
+        "true".equals(requestData.get("initialQuestionWasNewlyCreated"));
+
+    try {
+      ProgramDefinition program = programService.getFullProgramDefinition(programId);
+      BlockDefinition block = program.getBlockDefinition(blockId);
+      if (!enumeratorImprovementsEnabled
+          || !block.getIsEnumerator()
+          || !block.hasEnumeratorQuestion()
+          || block.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId().isPresent()) {
+        return badRequest("This screen does not need an initial question.");
+      }
+
+      QuestionDefinition selected =
+          questionService
+              .getReadOnlyQuestionServiceSync()
+              .getQuestionDefinition(initialQuestionId.get());
+      if (selected instanceof NullQuestionDefinition) {
+        return notFound(String.format("Question ID %d not found", initialQuestionId.get()));
+      }
+      AddQuestionResult eligibility =
+          programBlockValidationFactory
+              .create()
+              .canAddQuestion(
+                  program,
+                  block,
+                  selected,
+                  enumeratorImprovementsEnabled,
+                  fileUploadQuestionImprovementsEnabled,
+                  /* isInitialQuestion= */ true);
+      if (eligibility != AddQuestionResult.ELIGIBLE) {
+        return badRequest(
+            String.format(
+                "Question %s cannot be an initial question: %s", selected.getName(), eligibility));
+      }
+
+      EnumAndInitialQuestion saved =
+          questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
+              block.getEnumeratorQuestionDefinition(), selected, initialQuestionWasNewlyCreated);
+      ProgramDefinition refreshedProgram =
+          programService.addQuestionsToBlock(
+              programId,
+              blockId,
+              ImmutableList.of(saved.initialQuestion().getId()),
+              enumeratorImprovementsEnabled,
+              fileUploadQuestionImprovementsEnabled);
+
+      BlockDefinition refreshedBlock = refreshedProgram.getBlockDefinition(blockId);
+      ProgramQuestionDefinition enumeratorProgramQuestion =
+          refreshedBlock.programQuestionDefinitions().stream()
+              .filter(pqd -> pqd.getQuestionDefinition().isEnumerator())
+              .findFirst()
+              .orElseThrow(() -> new IllegalStateException("Enumerator question missing"));
+      return ok(
+          blockEditView
+              .renderEnumeratorSectionWithSelectedQuestion(
+                  request,
+                  messages,
+                  /* optionalEnumeratorQuestionCard= */ Optional.of(
+                      blockEditView.renderQuestion(
+                          /* optionalCsrfTag= */ Optional.empty(),
+                          refreshedProgram,
+                          refreshedBlock,
+                          enumeratorProgramQuestion.getQuestionDefinition(),
+                          enumeratorProgramQuestion,
+                          /* questionIndex= */ 0,
+                          // The enumerator is the only card shown; its initial question is not.
+                          /* questionsCount= */ 1,
+                          request,
+                          messages)),
+                  /* blockHasEnumeratorQuestion= */ true,
+                  refreshedBlock,
+                  refreshedProgram,
+                  // The enumerator now has its initial question.
+                  /* showBackfillInitialQuestionButton= */ false,
+                  /* optionalStagedInitialQuestion= */ Optional.empty())
+              .render());
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      return notFound(e.getMessage());
+    } catch (CantAddQuestionToBlockException e) {
+      return notFound(e.externalMessage());
+    } catch (InvalidUpdateException | UnsupportedQuestionTypeException e) {
+      return internalServerError(e.getMessage());
+    }
   }
 
   /**
