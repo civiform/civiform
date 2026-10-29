@@ -774,11 +774,11 @@ validation.currentDateRequired=Please enter today''s date
 # Validation hint shown when the year field does not contain exactly 4 digits.
 validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Select a month
+validation.monthRequired=Please select a month.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Enter a day
+validation.dayRequired=Please enter a day.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Enter a valid day from 1 to 31
+validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
