@@ -47,13 +47,6 @@ public final class DateQuestion extends AbstractQuestion {
 
   @VisibleForTesting public static int ALLOWABLE_YEAR_FOR_DATE_VALIDATION = 150;
 
-  private static final ImmutableSet<MessageKey> FIELD_SPECIFIC_DATE_ERRORS =
-      ImmutableSet.of(
-          MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS,
-          MessageKey.DATE_VALIDATION_MONTH_REQUIRED,
-          MessageKey.DATE_VALIDATION_DAY_REQUIRED,
-          MessageKey.DATE_VALIDATION_DAY_INVALID);
-
   @Override
   protected ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> getValidationErrorsInternal() {
     // When staging updates, the attempt to update ApplicantData would have failed to
@@ -268,7 +261,7 @@ public final class DateQuestion extends AbstractQuestion {
   }
 
   /**
-   * Field-specific parse errors mark only that part of the date. Other date errors, such as a date
+   * Field-specific parse errors mark every part that failed. Other date errors, such as a date
    * outside the allowed range, still mark every part that is empty or every part when the date is
    * complete.
    */
@@ -277,44 +270,56 @@ public final class DateQuestion extends AbstractQuestion {
     if (errors.isEmpty()) {
       return false;
     }
-    ImmutableSet<ValidationErrorMessage> dateErrors =
-        errors.getOrDefault(getDatePath(), ImmutableSet.of());
-    if (dateErrors.stream().anyMatch(error -> fieldKeys.contains(error.key()))) {
-      return true;
-    }
-    if (dateErrors.stream().anyMatch(error -> FIELD_SPECIFIC_DATE_ERRORS.contains(error.key()))) {
-      return false;
+    ImmutableList<MessageKey> parseErrors = failedDateFieldErrors();
+    if (!parseErrors.isEmpty()) {
+      return parseErrors.stream().anyMatch(fieldKeys::contains);
     }
     return fieldEmpty || allFieldsPresent();
   }
 
   /**
-   * A memorable date is stored as {@code YYYY-MM-DD}. Name the field that kept it from parsing,
-   * instead of the generic date-format error.
+   * A memorable date is stored as {@code YYYY-MM-DD}. Name the first field that kept it from
+   * parsing, instead of the generic date-format error. Field order matches display order (month →
+   * day → year) so autofocus lands on the leftmost problem.
    */
   private MessageKey failedDateMessageKey() {
+    ImmutableList<MessageKey> fieldErrors = failedDateFieldErrors();
+    if (fieldErrors.isEmpty()) {
+      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+    }
+    return fieldErrors.get(0);
+  }
+
+  /**
+   * Collects every field-level problem with a failed memorable-date parse, in display order (month
+   * → day → year). Empty when the failed value is not a three-part date or every part is valid.
+   */
+  private ImmutableList<MessageKey> failedDateFieldErrors() {
     String failedDate = applicantData.getFailedUpdates().get(getDatePath());
     if (failedDate == null) {
-      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+      return ImmutableList.of();
     }
     String[] parts = failedDate.split("-", -1);
     if (parts.length != 3) {
-      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+      return ImmutableList.of();
     }
-    if (!parts[0].matches("\\d{4}")) {
-      return MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS;
-    }
-    if (!parts[1].matches("0[1-9]|1[0-2]")) {
-      return MessageKey.DATE_VALIDATION_MONTH_REQUIRED;
+    boolean monthValid = parts[1].matches("0[1-9]|1[0-2]");
+    boolean yearValid = parts[0].matches("\\d{4}");
+    ImmutableList.Builder<MessageKey> errors = ImmutableList.builder();
+    if (!monthValid) {
+      errors.add(MessageKey.DATE_VALIDATION_MONTH_REQUIRED);
     }
     // cleanDateQuestions zero-pads a blank day to "00".
     if (parts[2].isEmpty() || parts[2].matches("0+")) {
-      return MessageKey.DATE_VALIDATION_DAY_REQUIRED;
+      errors.add(MessageKey.DATE_VALIDATION_DAY_REQUIRED);
+    } else if (!parts[2].matches("0[1-9]|[12]\\d|3[01]")
+        || (monthValid && yearValid && !isParsableDate(failedDate))) {
+      errors.add(MessageKey.DATE_VALIDATION_DAY_INVALID);
     }
-    if (!parts[2].matches("0[1-9]|[12]\\d|3[01]") || !isParsableDate(failedDate)) {
-      return MessageKey.DATE_VALIDATION_DAY_INVALID;
+    if (!yearValid) {
+      errors.add(MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS);
     }
-    return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+    return errors.build();
   }
 
   private static boolean isParsableDate(String failedDate) {

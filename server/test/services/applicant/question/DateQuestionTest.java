@@ -368,6 +368,38 @@ public class DateQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void withBlankDayAndShortYear_flagsDayAndYear() {
+    // Message follows display order (month → day → year), so day wins over year.
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("202-01-00");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void withMissingMonthAndShortYear_flagsMonthAndYear() {
+    // Message follows display order (month → day → year), so month wins over year.
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("202-00-20");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isFalse();
+  }
+
+  @Test
   public void withMisformattedDate_retainsValuesOnFailedUpdate() {
     Path datePath =
         ApplicantData.APPLICANT_PATH
