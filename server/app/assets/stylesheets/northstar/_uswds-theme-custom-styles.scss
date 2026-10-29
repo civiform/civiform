@@ -947,6 +947,12 @@ main#main-content {
 
   &:hover {
     .cf-question-image-caption {
+      color: color('primary-dark');
+    }
+  }
+
+  &:active {
+    .cf-question-image-caption {
       color: color('primary-darker');
     }
   }
