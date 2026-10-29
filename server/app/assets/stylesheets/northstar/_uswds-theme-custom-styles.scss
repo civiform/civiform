@@ -934,30 +934,21 @@ main#main-content {
 .cf-question-image-container {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  width: 100%;
 }
 
 .cf-question-image-link {
   display: inline-flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: var(--item-spacing-8, 8px);
+  gap: units(1);
   width: 100%;
   text-decoration: none;
   border-radius: 8px;
-  cursor: pointer;
 
   &:hover {
     .cf-question-image-caption {
-      color: var(--text-text-link-hover, #1a4480);
-      text-decoration: underline;
+      color: color('primary-darker');
     }
-  }
-
-  &:focus {
-    @include focus-outline;
-    outline-offset: 4px;
   }
 }
 
@@ -982,9 +973,7 @@ main#main-content {
 .cf-question-image-caption {
   display: inline-flex;
   align-items: center;
-  color: var(--component-link-color, #005ea2);
-  font-family: var(--usa-font-family-body, 'Source Sans Pro');
-  font-size: var(--usa-font-size-alt-1, 12.7px);
+  color: color('primary');
   font-style: normal;
   font-weight: 400;
   line-height: 24px;
@@ -994,11 +983,9 @@ main#main-content {
   text-decoration-thickness: auto;
   text-underline-offset: auto;
   text-underline-position: from-font;
-  margin: 0;
 
   .usa-icon {
     width: 1rem;
     height: 1rem;
-    fill: currentColor;
   }
 }
