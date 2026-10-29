@@ -480,4 +480,40 @@ test.describe('Admin can manage question image', () => {
       await validateAccessibility(page)
     })
   })
+
+  test('adds translation for question image alt text', async ({
+    adminQuestions,
+    adminQuestionImage,
+    adminTranslations,
+  }) => {
+    const questionName = 'translate-alt-text-question'
+    const defaultAltText = 'English alt text'
+    const spanishAltText = 'Spanish alt text'
+
+    await test.step('Create question, upload image with alt text, and save', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.setImageDescription(defaultAltText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
+
+    await test.step('Go to the question translation page and add a translation for Spanish', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectQuestionImageDescriptionTranslation('')
+      await adminTranslations.editQuestionImageDescription(spanishAltText)
+    })
+
+    await test.step('Verify that the translated alt text was saved', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectQuestionImageDescriptionTranslation(
+        spanishAltText,
+      )
+    })
+  })
 })

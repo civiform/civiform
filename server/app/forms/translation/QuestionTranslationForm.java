@@ -64,11 +64,13 @@ public class QuestionTranslationForm {
       builder.updateQuestionHelpText(updatedLocale, questionHelpText);
     }
     if (toUpdate.getLocalizedImageDescription().isPresent() && imageDescription != null) {
+      Optional<String> maybeDescription =
+          imageDescription.isBlank() ? Optional.empty() : Optional.of(imageDescription);
       LocalizedStrings updatedImageDescription =
           toUpdate
               .getLocalizedImageDescription()
               .get()
-              .updateTranslation(updatedLocale, imageDescription);
+              .updateTranslation(updatedLocale, maybeDescription);
       builder.setLocalizedImageDescription(Optional.of(updatedImageDescription));
     }
     return builder;

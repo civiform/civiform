@@ -7,6 +7,7 @@ import {
   enableFeatureFlag,
   loginAsAdmin,
   logout,
+  selectApplicantLanguage,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
@@ -122,6 +123,46 @@ test.describe('Static text question for applicant flow', () => {
         await expect(imageContainer.getByRole('link')).toHaveCount(1)
 
         await validateAccessibility(page)
+      })
+    })
+
+    test('renders translated alt text for applicant in another language', async ({
+      page,
+      adminQuestions,
+      adminTranslations,
+      applicantQuestions,
+    }) => {
+      const spanishAltText = 'Ejemplo de formulario de impuestos'
+
+      await test.step('Log in as admin and add Spanish translation for the question image alt text', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.goToQuestionTranslationPage(imageQuestionName)
+        await adminTranslations.selectLanguage('Spanish')
+        await adminTranslations.editQuestionImageDescription(spanishAltText)
+        await logout(page)
+      })
+
+      await test.step('Visit the program as an applicant in Spanish', async () => {
+        await applicantQuestions.applyProgram(programWithImage)
+        await selectApplicantLanguage(page, 'es-US')
+      })
+
+      await test.step('Verify the image HTML contains the translated alt text', async () => {
+        const imageContainer = page.getByTestId('question-image-container')
+        await expect(imageContainer).toBeVisible()
+
+        const img = imageContainer.getByRole('img', {name: spanishAltText})
+        await expect(img).toBeVisible()
+        await expect(img).toHaveAttribute('alt', spanishAltText)
+
+        expect(await imageContainer.innerHTML()).toContain(
+          `alt="${spanishAltText}"`,
+        )
+
+        const imageLink = imageContainer.getByRole('link', {
+          name: new RegExp(`${spanishAltText}.*`, 'i'),
+        })
+        await expect(imageLink).toBeVisible()
       })
     })
 

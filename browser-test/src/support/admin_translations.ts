@@ -255,6 +255,22 @@ export class AdminTranslations {
     await expect(imageDescriptionValue).toHaveValue(expectImageDescription)
   }
 
+  async editQuestionImageDescription(imageDescription: string) {
+    await this.page
+      .getByRole('textbox', {name: 'Question image description'})
+      .fill(imageDescription)
+    await this.page.click('#update-localizations-button')
+    await waitForPageJsLoad(this.page)
+  }
+
+  async expectQuestionImageDescriptionTranslation(
+    expectImageDescription: string,
+  ) {
+    await expect(
+      this.page.getByRole('textbox', {name: 'Question image description'}),
+    ).toHaveValue(expectImageDescription)
+  }
+
   async expectBlockTranslations(
     blockName: string,
     blockDescription: string,
