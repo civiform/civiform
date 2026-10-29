@@ -3,7 +3,9 @@ package controllers.monitoring;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableSortedMap;
 import com.typesafe.config.Config;
+import com.typesafe.config.ConfigException;
 import controllers.CiviFormController;
 import io.ebean.DB;
 import io.ebean.Database;
@@ -143,13 +145,22 @@ public final class MetricsController extends CiviFormController {
    * Sets the feature flag gauge to the effective value of each flag. Admin-writeable flags stored
    * in the database take precedence over the values in the server config, matching what the admin
    * settings page displays.
+   *
+   * <p>A flag with a value that isn't a boolean skips the flag series for this scrape instead of
+   * failing the whole response.
    */
   private void recordFeatureFlagMetrics(Http.Request request) {
-    settingsManifest
-        .getAllFeatureFlagsSorted(request)
-        .forEach(
-            (flag, enabled) ->
-                monitoringMetricCounters.getFeatureFlagEnabled().labels(flag).set(enabled ? 1 : 0));
+    ImmutableSortedMap<String, Boolean> flags;
+    try {
+      flags = settingsManifest.getAllFeatureFlagsSorted(request);
+    } catch (ConfigException e) {
+      logger.error("Could not read feature flags for metrics: {}", e.getMessage());
+      return;
+    }
+
+    flags.forEach(
+        (flag, enabled) ->
+            monitoringMetricCounters.getFeatureFlagEnabled().labels(flag).set(enabled ? 1 : 0));
   }
 
   /** Reports the image tag and version of the running server as labels on a constant gauge. */
@@ -158,7 +169,7 @@ public final class MetricsController extends CiviFormController {
         .getBuildInfo()
         .labels(
             settingsManifest.getCiviformImageTag().orElse("UNKNOWN"),
-            settingsManifest.getCiviformVersion().orElse(""))
+            settingsManifest.getCiviformVersion().orElse("UNKNOWN"))
         .set(1);
   }
 

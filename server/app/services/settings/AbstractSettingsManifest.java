@@ -40,11 +40,22 @@ public abstract class AbstractSettingsManifest {
    * in the database by an admin takes precedence over the value in the HOCON config.
    */
   public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.RequestHeader request) {
-    ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
+    // Looked up once here rather than through getBool(name, request), which would log a warning
+    // for every flag when the settings are missing.
+    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
+    if (optionalWritableSettings.isEmpty()) {
+      logger.warn("Settings not found on request when looking up feature flags");
+    }
 
+    ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
     for (SettingDescription settingDescription : getAllFeatureFlagsSettingDescriptions()) {
       String name = settingDescription.variableName();
-      map.put(name, getBool(name, request));
+      map.put(
+          name,
+          optionalWritableSettings
+              .map(s -> s.get(name))
+              .map(s -> s.equals("true"))
+              .orElseGet(() -> getBool(name)));
     }
 
     return map.build();

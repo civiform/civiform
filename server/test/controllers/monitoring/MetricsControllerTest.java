@@ -81,9 +81,9 @@ public class MetricsControllerTest extends WithMockedProfiles {
 
     String metricsContent = contentAsString(controller.getMetrics(fakeRequest()));
 
-    assertThat(metricsContent).contains(getFeatureFlagSeriesName(FEATURE_FLAG));
+    assertThat(getFeatureFlagValue(metricsContent, FEATURE_FLAG)).isNotNull();
     // Flags in the "Experimental" section are reported alongside the "Feature Flags" section.
-    assertThat(metricsContent).contains(getFeatureFlagSeriesName(EXPERIMENTAL_FLAG));
+    assertThat(getFeatureFlagValue(metricsContent, EXPERIMENTAL_FLAG)).isNotNull();
     assertThat(metricsContent).contains("civiform_build_info{image_tag=\"");
   }
 
@@ -93,11 +93,11 @@ public class MetricsControllerTest extends WithMockedProfiles {
 
     String enabledContent =
         contentAsString(controller.getMetrics(requestWithSetting(FEATURE_FLAG, "true")));
-    assertThat(enabledContent).contains(getFeatureFlagSeriesName(FEATURE_FLAG) + " 1.0");
+    assertThat(getFeatureFlagValue(enabledContent, FEATURE_FLAG)).isEqualTo("1.0");
 
     String disabledContent =
         contentAsString(controller.getMetrics(requestWithSetting(FEATURE_FLAG, "false")));
-    assertThat(disabledContent).contains(getFeatureFlagSeriesName(FEATURE_FLAG) + " 0.0");
+    assertThat(getFeatureFlagValue(disabledContent, FEATURE_FLAG)).isEqualTo("0.0");
   }
 
   @Test
@@ -154,7 +154,27 @@ public class MetricsControllerTest extends WithMockedProfiles {
     assertThat(controllerWithoutMetricsEnabled.getMetrics(fakeRequest()).status()).isEqualTo(404);
   }
 
+  @Test
+  public void getMetrics_invalidFlagValueDoesNotFailScrape() {
+    // With no stored settings on the request, the flag is read from config, where it isn't a
+    // boolean.
+    SettingsManifest settingsManifest =
+        new SettingsManifest(
+            ConfigFactory.parseMap(ImmutableMap.of(FEATURE_FLAG.toLowerCase(Locale.ROOT), "1")));
+    MetricsController controller = createController(/* metricsEnabled= */ true, settingsManifest);
+
+    Result result = controller.getMetrics(fakeRequest());
+
+    assertThat(result.status()).isEqualTo(200);
+    assertThat(contentAsString(result)).contains("civiform_build_info{image_tag=\"");
+  }
+
   private MetricsController createController(boolean metricsEnabled) {
+    return createController(metricsEnabled, instanceOf(SettingsManifest.class));
+  }
+
+  private MetricsController createController(
+      boolean metricsEnabled, SettingsManifest settingsManifest) {
     Config config =
         ConfigFactory.parseMap(
             ImmutableMap.<String, String>builder()
@@ -165,7 +185,7 @@ public class MetricsControllerTest extends WithMockedProfiles {
         instanceOf(ProfileUtils.class),
         instanceOf(VersionRepository.class),
         instanceOf(MonitoringMetricCounters.class),
-        instanceOf(SettingsManifest.class));
+        settingsManifest);
   }
 
   private static Http.Request requestWithSetting(String settingName, String value) {
@@ -176,11 +196,18 @@ public class MetricsControllerTest extends WithMockedProfiles {
   }
 
   /**
-   * The Prometheus text format writes a trailing comma after the last label, for example {@code
-   * civiform_feature_flag_enabled{flag="X",} 1.0}.
+   * Returns the value of the flag's series, or null if it's missing. The current Prometheus client
+   * writes a trailing comma after the last label, for example {@code
+   * civiform_feature_flag_enabled{flag="X",} 1.0}, so the comma is optional here.
    */
-  private static String getFeatureFlagSeriesName(String flagName) {
-    return String.format("civiform_feature_flag_enabled{flag=\"%s\",}", flagName);
+  private static String getFeatureFlagValue(String metricsContent, String flagName) {
+    Matcher matcher =
+        Pattern.compile(
+                "civiform_feature_flag_enabled\\{flag=\""
+                    + Pattern.quote(flagName)
+                    + "\",?\\} (\\S+)")
+            .matcher(metricsContent);
+    return matcher.find() ? matcher.group(1) : null;
   }
 
   private static final Pattern TYPE_LINE =
