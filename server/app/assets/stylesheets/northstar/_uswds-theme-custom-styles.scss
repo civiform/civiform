@@ -81,10 +81,12 @@ svg {
   &.w-auto {
     width: auto;
   }
+
   &.h-5 {
     height: 1.25rem;
   }
 }
+
 // -- end
 
 /* Override margin values to support RTL languages. */
@@ -698,6 +700,7 @@ main {
   .usa-process-list {
     padding-right: 20px;
   }
+
   // -- end
 
   .usa-radio__label::before {
@@ -947,6 +950,12 @@ main#main-content {
 
   &:hover {
     .cf-question-image-caption {
+      color: color('primary-dark');
+    }
+  }
+
+  &:active {
+    .cf-question-image-caption {
       color: color('primary-darker');
     }
   }
@@ -987,5 +996,128 @@ main#main-content {
   .usa-icon {
     width: 1rem;
     height: 1rem;
+  }
+}
+
+// Demo banner custom background color and responsive layout
+.usa-site-alert.cf-demo-banner {
+  .usa-alert,
+  .usa-alert .usa-alert__body {
+    background-color: #e7f0f9;
+  }
+
+  .usa-alert .usa-alert__body {
+    display: flex;
+    flex-direction: column;
+    gap: units(1);
+    max-width: units('desktop');
+    margin-left: auto;
+    margin-right: auto;
+
+    @include at-media('tablet') {
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  .cf-demo-banner__info {
+    .usa-alert__text {
+      font-weight: font-weight('bold');
+      white-space: nowrap;
+    }
+
+    .usa-tag {
+      white-space: nowrap;
+    }
+  }
+
+  .cf-demo-banner__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: units(1);
+
+    @include at-media('tablet') {
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
+    }
+
+    .usa-button-group--segmented {
+      .usa-button-group__item {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+
+      @include at-media-max('desktop') {
+        flex-direction: column;
+        flex-wrap: wrap;
+        gap: units(1);
+
+        @include at-media('tablet') {
+          flex-direction: row;
+          justify-content: flex-end;
+        }
+
+        .usa-button-group__item {
+          margin: 0;
+          width: 100%;
+
+          @include at-media('tablet') {
+            width: auto;
+          }
+
+          > .usa-button,
+          &:first-child > .usa-button,
+          &:last-child > .usa-button,
+          &:where(:not(:first-child):not(:last-child)) > .usa-button {
+            border-radius: radius($theme-button-border-radius);
+            margin-left: 0;
+            margin-right: 0;
+            width: 100%;
+
+            @include at-media('tablet') {
+              width: auto;
+            }
+          }
+
+          &:where(:not(:last-child)) .usa-button::before {
+            display: none;
+          }
+        }
+      }
+    }
+
+    > .usa-button {
+      margin: 0;
+      width: 100%;
+
+      @include at-media('tablet') {
+        width: auto;
+      }
+    }
+
+    .cf-demo-banner__icon-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: units(1);
+
+      @include at-media-max('desktop') {
+        margin-top: units(1);
+
+        @include at-media('tablet') {
+          margin-top: 0;
+          margin-left: units(1);
+        }
+      }
+
+      .usa-icon {
+        width: 1.25rem;
+        height: 1.25rem;
+      }
+    }
   }
 }
