@@ -1085,12 +1085,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_idInitialQuestion_storesValueAndDerivesName() {
+    // ID questions only accept digits, so the derived entity name is the numeric id.
     StagedInitialQuestion staged =
-        stageInitialQuestionAnswer(QuestionType.ID, ImmutableMap.of(Scalar.ID, "A12345"));
+        stageInitialQuestionAnswer(QuestionType.ID, ImmutableMap.of(Scalar.ID, "12345"));
 
     assertThat(staged.applicantData().readString(staged.initialQuestionPath().join(Scalar.ID)))
-        .hasValue("A12345");
-    assertThat(staged.entityName()).hasValue("A12345");
+        .hasValue("12345");
+    assertThat(staged.entityName()).hasValue("12345");
   }
 
   @Test
