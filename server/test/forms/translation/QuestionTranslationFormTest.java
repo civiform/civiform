@@ -92,4 +92,30 @@ public class QuestionTranslationFormTest {
 
     assertThat(updated.getConcurrencyToken()).isNotEmpty();
   }
+
+  @Test
+  public void builder_withImageDescription_updatesImageDescription() throws Exception {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setImageFileKey("test-key")
+                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue("default alt text"))
+                .build());
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+    form.setQuestionText("question?");
+    form.setImageDescription("spanish alt text");
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, Locale.forLanguageTag("es-US")).build();
+
+    assertThat(updated.getLocalizedImageDescription().get().get(Locale.forLanguageTag("es-US")))
+        .isEqualTo("spanish alt text");
+    assertThat(updated.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo("default alt text");
+  }
 }

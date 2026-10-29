@@ -326,4 +326,62 @@ public final class QuestionTranslationPageMapperTest {
     assertThat(result.getErrorMessage()).isEmpty();
     assertThat(result.getErrorToastId()).isNull();
   }
+
+  @Test
+  public void map_withoutImage_hidesImageDescription() {
+    QuestionTranslationPageViewModel result = map(textQuestion());
+
+    assertThat(result.isShowImageDescription()).isFalse();
+    assertThat(result.getImageDescriptionField()).isNull();
+  }
+
+  @Test
+  public void map_withImage_featureDisabled_hidesImageDescription() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder()
+                .setImageFileKey("test-image-key")
+                .setLocalizedImageDescription(
+                    LocalizedStrings.of(Locale.US, "English alt text", SPANISH, "Spanish alt text"))
+                .build());
+
+    QuestionTranslationPageViewModel result =
+        mapper.map(
+            question,
+            SPANISH,
+            TRANSLATABLE_LOCALES,
+            /* errorMessage= */ Optional.empty(),
+            /* imagesInQuestionFeatureEnabled= */ false);
+
+    assertThat(result.isShowImageDescription()).isFalse();
+    assertThat(result.getImageDescriptionField()).isNull();
+  }
+
+  @Test
+  public void map_withImage_featureEnabled_populatesImageDescriptionField() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder()
+                .setImageFileKey("test-image-key")
+                .setLocalizedImageDescription(
+                    LocalizedStrings.of(Locale.US, "English alt text", SPANISH, "Spanish alt text"))
+                .build());
+
+    QuestionTranslationPageViewModel result =
+        mapper.map(
+            question,
+            SPANISH,
+            TRANSLATABLE_LOCALES,
+            /* errorMessage= */ Optional.empty(),
+            /* imagesInQuestionFeatureEnabled= */ true);
+
+    assertThat(result.isShowImageDescription()).isTrue();
+    TranslationField field = result.getImageDescriptionField();
+    assertThat(field).isNotNull();
+    assertThat(field.getName()).isEqualTo("imageDescription");
+    assertThat(field.getLabel()).isEqualTo("Question image description");
+    assertThat(field.getValue()).isEqualTo("Spanish alt text");
+    assertThat(field.getDefaultTextHtml()).contains("English alt text");
+    assertThat(field.isTextarea()).isFalse();
+  }
 }

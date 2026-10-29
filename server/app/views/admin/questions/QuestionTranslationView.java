@@ -24,6 +24,7 @@ import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.MapQuestionDefinition;
 import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.settings.SettingsManifest;
 import views.HtmlBundle;
 import views.admin.AdminLayout;
 import views.admin.AdminLayout.NavPage;
@@ -37,12 +38,16 @@ import views.components.ToastMessage;
 public final class QuestionTranslationView extends TranslationFormView {
 
   private final AdminLayout layout;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public QuestionTranslationView(
-      AdminLayoutFactory layoutFactory, TranslationLocales translationLocales) {
+      AdminLayoutFactory layoutFactory,
+      TranslationLocales translationLocales,
+      SettingsManifest settingsManifest) {
     super(translationLocales);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   public Content render(Http.Request request, Locale locale, QuestionDefinition question) {
@@ -72,7 +77,11 @@ public final class QuestionTranslationView extends TranslationFormView {
         ImmutableList.<DomContent>builder()
             .add(
                 questionTextFields(
-                    question, locale, question.getQuestionText(), question.getQuestionHelpText()))
+                    request,
+                    question,
+                    locale,
+                    question.getQuestionText(),
+                    question.getQuestionHelpText()))
             .add(
                 input()
                     .isHidden()
@@ -136,6 +145,7 @@ public final class QuestionTranslationView extends TranslationFormView {
   }
 
   private DomContent questionTextFields(
+      Http.Request request,
       QuestionDefinition questionDefinition,
       Locale locale,
       LocalizedStrings questionText,
@@ -166,6 +176,21 @@ public final class QuestionTranslationView extends TranslationFormView {
                   .setMarkdownLinkText("see how it works")
                   .getTextareaTag(),
               helpText));
+    }
+
+    // Image description is optional - only show if an image is present.
+    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
+        && questionDefinition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && questionDefinition.getLocalizedImageDescription().filter(d -> !d.isEmpty()).isPresent()) {
+      LocalizedStrings imageDescription = questionDefinition.getLocalizedImageDescription().get();
+      fields.add(
+          fieldWithDefaultLocaleTextHint(
+              FieldWithLabel.input()
+                  .setFieldName("imageDescription")
+                  .setLabelText("Question image description")
+                  .setValue(imageDescription.maybeGet(locale))
+                  .getInputTag(),
+              imageDescription));
     }
 
     return fieldSetForFields(

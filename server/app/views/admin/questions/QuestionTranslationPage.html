@@ -38,6 +38,12 @@
             th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.questionHelpTextField})}"
           ></div>
         </th:block>
+        <!--/* Image description is optional - only shown when the question has an image. */-->
+        <th:block th:if="${model.showImageDescription}">
+          <div
+            th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.imageDescriptionField})}"
+          ></div>
+        </th:block>
       </div>
     </fieldset>
 

@@ -108,7 +108,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       QuestionTranslationPageViewModel model =
           buildTranslationPageModel(
-              definition, localeToEdit, request.flash().get(FlashKey.CONCURRENT_UPDATE));
+              request, definition, localeToEdit, request.flash().get(FlashKey.CONCURRENT_UPDATE));
       return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
@@ -156,7 +156,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
         if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
           QuestionTranslationPageViewModel model =
               buildTranslationPageModel(
-                  definitionWithUpdates, localeToUpdate, Optional.of(errorText));
+                  request, definitionWithUpdates, localeToUpdate, Optional.of(errorText));
           return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
         }
 
@@ -168,7 +168,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
         QuestionTranslationPageViewModel model =
             buildTranslationPageModel(
-                definitionWithUpdates, localeToUpdate, /* errorMessage= */ Optional.empty());
+                request,
+                definitionWithUpdates,
+                localeToUpdate,
+                /* errorMessage= */ Optional.empty());
         return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
       }
       return ok(translationView.render(request, localeToUpdate, definitionWithUpdates));
@@ -189,9 +192,17 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionTranslationPageViewModel buildTranslationPageModel(
-      QuestionDefinition question, Locale locale, Optional<String> errorMessage) {
+      Http.Request request,
+      QuestionDefinition question,
+      Locale locale,
+      Optional<String> errorMessage) {
     return new QuestionTranslationPageMapper()
-        .map(question, locale, translationLocales.translatableLocales(), errorMessage);
+        .map(
+            question,
+            locale,
+            translationLocales.translatableLocales(),
+            errorMessage,
+            settingsManifest.getImagesInQuestionFeatureEnabled(request));
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {
