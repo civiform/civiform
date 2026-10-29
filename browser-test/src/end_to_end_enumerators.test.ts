@@ -1984,6 +1984,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeHidden()
         await expect(lastName).toHaveClass(/usa-input--error/)
         await expect(firstName).not.toHaveClass(/usa-input--error/)
+        await validateAccessibility(page, '#question-fragment')
       })
 
       await test.step('Fill the last name and continue to leave the block without errors', async () => {

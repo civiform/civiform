@@ -1251,30 +1251,26 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
-    subject
-        .stageAndUpdateIfValid(
-            applicant.id,
-            programDefinition.id(),
-            "1",
-            cleanedUpdates,
-            false,
-            false,
-            /* apiBridgeEnabled= */ false)
-        .toCompletableFuture()
-        .join();
+    // On a validation error, stageAndUpdateIfValid keeps the staged changes in memory and does not
+    // save them to the database. Those changes live in the service it returns, so the post-staging
+    // block must come from that returned service rather than a database re-read.
+    ReadOnlyApplicantProgramService postStagingService =
+        subject
+            .stageAndUpdateIfValid(
+                applicant.id,
+                programDefinition.id(),
+                "1",
+                cleanedUpdates,
+                false,
+                false,
+                /* apiBridgeEnabled= */ false)
+            .toCompletableFuture()
+            .join();
+    Block postStagingBlock = postStagingService.getActiveBlock("1").orElseThrow();
 
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
 
-    // A fresh read-only service after staging snapshots the just-written data, mirroring how the
-    // controller re-reads the block to decide whether to re-render with errors.
-    Block postStagingBlock =
-        subject
-            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
-            .toCompletableFuture()
-            .join()
-            .getActiveBlock("1")
-            .orElseThrow();
     return new StagedInitialQuestion(
         applicantData, enumeratorPath, initialQuestionPath, postStagingBlock);
   }
