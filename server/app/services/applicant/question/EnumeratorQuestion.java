@@ -18,8 +18,15 @@ import services.question.types.EnumeratorQuestionDefinition;
  */
 public final class EnumeratorQuestion extends AbstractQuestion {
 
+  private final boolean initialQuestionFlowIsActive;
+
   EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
+    this(applicantQuestion, /* initialQuestionFlowIsActive= */ false);
+  }
+
+  EnumeratorQuestion(ApplicantQuestion applicantQuestion, boolean initialQuestionFlowIsActive) {
     super(applicantQuestion);
+    this.initialQuestionFlowIsActive = initialQuestionFlowIsActive;
   }
 
   @Override
@@ -45,11 +52,26 @@ public final class EnumeratorQuestion extends AbstractQuestion {
   private ImmutableSet<ValidationErrorMessage> validateEntities() {
     ImmutableSet.Builder<ValidationErrorMessage> errorsBuilder = ImmutableSet.builder();
     ImmutableList<String> entityNames = getEntityNames();
-    if (entityNames.stream().anyMatch(String::isBlank)) {
+
+    // When the initial-question flow produced these entities, the initial question's own per-entity
+    // validation
+    // already reports a missing answer. Skip the enumerator-level blank-name check and ignore blank
+    // (unanswered) names when checking for duplicates so the applicant does not see a redundant
+    // top-level error. This is gated on the runtime flow being active (not just an initial question
+    // being configured) so a legacy free-text submission still validates blank names normally.
+    ImmutableList<String> namesToValidate =
+        initialQuestionFlowIsActive
+            ? entityNames.stream()
+                .filter(name -> !name.isBlank())
+                .collect(ImmutableList.toImmutableList())
+            : entityNames;
+
+    if (namesToValidate.stream().anyMatch(String::isBlank)) {
       errorsBuilder.add(
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED));
     }
-    if (entityNames.stream().collect(ImmutableSet.toImmutableSet()).size() != entityNames.size()) {
+    if (namesToValidate.stream().collect(ImmutableSet.toImmutableSet()).size()
+        != namesToValidate.size()) {
       errorsBuilder.add(
           ValidationErrorMessage.create(MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME));
     }

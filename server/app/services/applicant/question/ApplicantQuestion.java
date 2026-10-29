@@ -134,7 +134,7 @@ public final class ApplicantQuestion {
   }
 
   /** Returns true if this question was most recently updated in this program. */
-  private boolean wasRecentlyUpdatedInThisProgram() {
+  public boolean wasRecentlyUpdatedInThisProgram() {
     return getUpdatedInProgramMetadata().stream()
         .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
   }
@@ -310,7 +310,16 @@ public final class ApplicantQuestion {
   }
 
   public EnumeratorQuestion createEnumeratorQuestion() {
-    return new EnumeratorQuestion(this);
+    return new EnumeratorQuestion(this, /* initialQuestionFlowIsActive= */ false);
+  }
+
+  /**
+   * When {@code initialQuestionFlowIsActive} is true the enumerator skips its blank/duplicate-blank
+   * entity-name validation because the per-entity initial-question fields report those errors
+   * themselves.
+   */
+  public EnumeratorQuestion createEnumeratorQuestion(boolean initialQuestionFlowIsActive) {
+    return new EnumeratorQuestion(this, initialQuestionFlowIsActive);
   }
 
   public SingleSelectQuestion createSingleSelectQuestion() {

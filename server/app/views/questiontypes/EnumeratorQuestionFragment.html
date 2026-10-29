@@ -1,7 +1,7 @@
 <!--/* TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. */-->
 <div
   th:fragment="enumerator(question,enumMaxEntityCount)"
-  th:with="enumeratorQuestion=${question.createEnumeratorQuestion()},
+  th:with="enumeratorQuestion=${question.createEnumeratorQuestion(initialQuestionFlowIsActive != null and initialQuestionFlowIsActive)},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
              hasErrors=${questionRendererParams.shouldShowErrors() && !enumeratorQuestion.getValidationErrors().isEmpty()}"
@@ -39,7 +39,8 @@
             isFirstEntity=${iterator.first},
             rowNumber=${iterator.count},
             isSaved=${iterator.index < enumeratorQuestion.getEntityNames().size()},
-            entityIndex=${iterator.index})}"
+            entityIndex=${iterator.index},
+            rowRendererParams=${initialQuestionRendererParamsList.get(iterator.index)})}"
         ></div>
       </th:block>
     </div>
@@ -129,7 +130,7 @@
      delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
      are grouped with role="group"; single-input types carry a plain label on the control. */-->
 <th:block
-  th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex)"
+  th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex, rowRendererParams)"
   th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
            rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
@@ -149,7 +150,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams})})}"
+          ${rowRendererParams})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Date')}">
@@ -164,7 +165,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams})})}"
+          ${rowRendererParams})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Address')}">
@@ -179,7 +180,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${stateAbbreviations})})}"
     ></div>
   </th:block>
@@ -195,7 +196,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams})})}"
+          ${rowRendererParams})})}"
     ></div>
   </th:block>
   <!--/* Single-input types */-->
@@ -210,7 +211,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -227,7 +228,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -244,7 +245,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -261,7 +262,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -278,7 +279,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -295,7 +296,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
@@ -312,7 +313,7 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
           ${initialQForEntity},
-          ${initialQuestionRendererParams},
+          ${rowRendererParams},
           ${rowInputId},
           ${rowAriaLabelledby},
           ${rowAriaDescribedby})})}"
