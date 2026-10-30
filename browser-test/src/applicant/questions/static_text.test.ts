@@ -128,6 +128,7 @@ test.describe('Static text question for applicant flow', () => {
 
     test('renders translated alt text for applicant in another language', async ({
       page,
+      adminPrograms,
       adminQuestions,
       adminTranslations,
       applicantQuestions,
@@ -142,6 +143,7 @@ test.describe('Static text question for applicant flow', () => {
           .getByRole('textbox', {name: 'Question text'})
           .fill('Spanish question text')
         await adminTranslations.editQuestionImageDescription(spanishAltText)
+        await adminPrograms.publishProgram(programWithImage)
         await logout(page)
       })
 
