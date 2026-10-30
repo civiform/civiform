@@ -8,6 +8,7 @@ import com.google.common.testing.EqualsTester;
 import com.jayway.jsonpath.PathNotFoundException;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.format.DateTimeParseException;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TimeZone;
@@ -876,6 +877,14 @@ public class CfJsonDocumentContextTest {
     Optional<LocalDate> result = data.readDate(Path.create("applicant.date"));
     assertThat(result.isPresent()).isTrue();
     assertThat(result.get().toString()).isEqualTo("2022-01-02");
+  }
+
+  @Test
+  public void putDate_rejectsImpossibleDay() {
+    CfJsonDocumentContext data = new CfJsonDocumentContext();
+
+    assertThatThrownBy(() -> data.putDate(Path.create("applicant.date"), "1996-02-31"))
+        .isInstanceOf(DateTimeParseException.class);
   }
 
   /**

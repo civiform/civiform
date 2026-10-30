@@ -252,6 +252,9 @@ public class DateQuestionTest extends ResetPostgres {
             ImmutableMap.of(
                 dateQuestion.getDatePath(),
                 ImmutableSet.of(ValidationErrorMessage.create(expectedMessage, messageArgs))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isTrue();
   }
 
   @Test
@@ -274,6 +277,126 @@ public class DateQuestionTest extends ResetPostgres {
                     ValidationErrorMessage.create(
                         MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT))));
     assertThat(dateQuestion.getDateValue().isPresent()).isFalse();
+  }
+
+  @Test
+  public void withShortYear_usesFourDigitYearMessage() {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "202-01-20"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isFalse();
+  }
+
+  @Test
+  public void failedUpdate_showsEnteredDateInsteadOfSavedAnswer() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerDateQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "2020-01-15");
+    Path datePath = applicantQuestion.getContextualizedPath().join(Scalar.DATE);
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, "202-06-31"));
+
+    DateQuestion dateQuestion = applicantQuestion.createDateQuestion();
+
+    assertThat(dateQuestion.getDateValue()).hasValue(LocalDate.of(2020, 1, 15));
+    assertThat(dateQuestion.getYearValue()).hasValue(202);
+    assertThat(dateQuestion.getMonthValue()).hasValue(6);
+    assertThat(dateQuestion.getDayValue()).hasValue(31);
+  }
+
+  @Test
+  public void withMissingMonth_usesMonthMessage() {
+    // cleanDateQuestions zero-pads an unselected month to "00".
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996-00-20");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isFalse();
+  }
+
+  @Test
+  public void withInvalidDay_usesDayMessage() {
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996-02-31");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_INVALID))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void withBlankDay_usesDayRequiredMessage() {
+    // cleanDateQuestions zero-pads a blank day to "00".
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("1996-01-00");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isFalse();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void withBlankDayAndShortYear_flagsDayAndYear() {
+    // Message follows display order (month → day → year), so day wins over year.
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("202-01-00");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_DAY_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isFalse();
+    assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void withMissingMonthAndShortYear_flagsMonthAndYear() {
+    // Message follows display order (month → day → year), so month wins over year.
+    DateQuestion dateQuestion = dateQuestionWithFailedUpdate("202-00-20");
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_MONTH_REQUIRED))));
+    assertThat(dateQuestion.hasYearError()).isTrue();
+    assertThat(dateQuestion.hasMonthError()).isTrue();
+    assertThat(dateQuestion.hasDayError()).isFalse();
   }
 
   @Test
@@ -357,6 +480,16 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.isMonthEmpty()).isFalse();
     assertThat(dateQuestion.isDayEmpty()).isFalse();
     assertThat(dateQuestion.allFieldsPresent()).isTrue();
+  }
+
+  private DateQuestion dateQuestionWithFailedUpdate(String failedDate) {
+    Path datePath =
+        ApplicantData.APPLICANT_PATH
+            .join(dateQuestionDefinition.getQuestionPathSegment())
+            .join(Scalar.DATE);
+    applicantData.setFailedUpdates(ImmutableMap.of(datePath, failedDate));
+    return new ApplicantQuestion(dateQuestionDefinition, applicant, applicantData, Optional.empty())
+        .createDateQuestion();
   }
 
   private DateQuestionDefinition createDateQuestionDefinition(
