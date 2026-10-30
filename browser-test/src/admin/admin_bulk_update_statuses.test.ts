@@ -12,9 +12,17 @@ import {
   AdminPrograms,
   ApplicantQuestions,
   AdminProgramStatuses,
+  enableFeatureFlag,
 } from '../support'
 
 test.describe('with program statuses', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
   const rejectedStatusName = 'Rejected'
@@ -103,6 +111,13 @@ test.describe('with program statuses', () => {
 })
 
 test.describe('when email is configured for the status and applicant, a checkbox is shown to notify the applicant', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programWithStatusesName = 'Test program with email statuses'
   const emailStatusName = 'Email status'
   const emailBody = 'Some email content'

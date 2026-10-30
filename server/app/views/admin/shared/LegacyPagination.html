@@ -1,0 +1,67 @@
+<!--/*
+  USWDS pagination control, legacy BaseHtmlView.renderPagination-parity
+  markup for migrated admin pages. Which page buttons and ellipses appear
+  is decided by mapping.admin.shared.LegacyPaginationMapper; this fragment
+  only renders the resulting views.admin.shared.LegacyPagination.
+*/-->
+<!--/*@thymesVar id="pagination" type="views.admin.shared.LegacyPagination"*/-->
+<nav
+  th:fragment="pagination(pagination)"
+  class="usa-pagination"
+  aria-label="Pagination"
+>
+  <ul class="usa-pagination__list">
+    <li
+      th:if="${pagination.previousPageUrl != null}"
+      class="usa-pagination__item usa-pagination__arrow"
+    >
+      <a
+        class="usa-pagination__link usa-pagination__previous-page"
+        aria-label="Previous page"
+        th:href="${pagination.previousPageUrl}"
+      >
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconNavigateBefore('usa-icon h-4 w-4')}"
+        ></svg>
+        <span class="usa-pagination__link-text">Previous</span>
+      </a>
+    </li>
+    <th:block th:each="item : ${pagination.items}">
+      <li
+        th:if="${item.ellipsis}"
+        class="usa-pagination__item usa-pagination__overflow"
+        aria-label="ellipsis indicating non-visible pages"
+      >
+        <span>...</span>
+      </li>
+      <!--/* The legacy aria-label had no space between "Page" and the number. */-->
+      <li
+        th:unless="${item.ellipsis}"
+        class="usa-pagination__item usa-pagination__page-no"
+      >
+        <a
+          th:class="${item.current} ? 'usa-pagination__button usa-current' : 'usa-pagination__button'"
+          th:href="${item.url}"
+          th:aria-label="|Page${item.pageNumber}|"
+          th:attr="aria-current=${item.current} ? 'page'"
+          th:text="${item.pageNumber}"
+        ></a>
+      </li>
+    </th:block>
+    <li
+      th:if="${pagination.nextPageUrl != null}"
+      class="usa-pagination__item usa-pagination__arrow"
+    >
+      <a
+        class="usa-pagination__link usa-pagination__next-page"
+        aria-label="Next page"
+        th:href="${pagination.nextPageUrl}"
+      >
+        <span class="usa-pagination__link-text">Next</span>
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconNavigateNext('usa-icon h-4 w-4')}"
+        ></svg>
+      </a>
+    </li>
+  </ul>
+</nav>
