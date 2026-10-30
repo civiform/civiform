@@ -31,6 +31,9 @@ public final class QuestionTranslationPageViewModel implements BaseViewModel {
   // Null when the question has no help text in the default locale.
   private final TranslationField questionHelpTextField;
   private final boolean showHelpText;
+  // Null when the question has no image or image description.
+  private final TranslationField imageDescriptionField;
+  private final boolean showImageDescription;
 
   // --- Question-type specific fields. At most one of these applies. ---
 

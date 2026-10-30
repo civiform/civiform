@@ -30,12 +30,14 @@ public final class QuestionTranslationPageMapper {
    * @param translatableLocales every locale the deployment supports translations for, used to build
    *     the language picker
    * @param errorMessage a save failure or concurrent-update notice, rendered as an error toast
+   * @param imagesInQuestionFeatureEnabled whether the images in question feature is enabled
    */
   public QuestionTranslationPageViewModel map(
       QuestionDefinition question,
       Locale localeToEdit,
       ImmutableList<Locale> translatableLocales,
-      Optional<String> errorMessage) {
+      Optional<String> errorMessage,
+      boolean imagesInQuestionFeatureEnabled) {
     Optional<String> errorToastMessage = errorMessage.map(message -> "Error: " + message);
 
     QuestionTranslationPageViewModel.QuestionTranslationPageViewModelBuilder builder =
@@ -75,6 +77,20 @@ public final class QuestionTranslationPageMapper {
               helpText,
               localeToEdit,
               /* markdown= */ true));
+    }
+
+    boolean showImageDescription =
+        imagesInQuestionFeatureEnabled
+            && question.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+            && question.getLocalizedImageDescription().filter(d -> !d.isEmpty()).isPresent();
+    builder.showImageDescription(showImageDescription);
+    if (showImageDescription) {
+      builder.imageDescriptionField(
+          buildTextField(
+              "imageDescription",
+              "Question image description",
+              question.getLocalizedImageDescription().get(),
+              localeToEdit));
     }
 
     addQuestionTypeSpecificFields(builder, question, localeToEdit);
