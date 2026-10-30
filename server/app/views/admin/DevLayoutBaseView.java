@@ -1,14 +1,18 @@
 package views.admin;
 
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import services.DeploymentType;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.DemoBanner;
 import views.shared.LayoutDeps;
 import views.shared.ScriptElementSettings;
 
@@ -20,10 +24,16 @@ import views.shared.ScriptElementSettings;
  */
 public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
   private final BundledAssetsFinder bundledAssetsFinder;
+  private final ProfileUtils profileUtils;
+  private final DeploymentType deploymentType;
+  private final Clock clock;
 
   public DevLayoutBaseView(LayoutDeps layoutDeps) {
     super(layoutDeps.baseViewDeps());
     this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
+    this.profileUtils = layoutDeps.profileUtils();
+    this.deploymentType = layoutDeps.deploymentType();
+    this.clock = layoutDeps.clock();
   }
 
   /** Override to set the active page for top header navigation. */
@@ -34,6 +44,14 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+    context.setVariable(
+        "demoBanner",
+        DemoBanner.create(
+            settingsManifest,
+            request,
+            profileUtils.optionalCurrentUserProfile(request),
+            deploymentType.isDevOrStaging(),
+            clock));
 
     context.setVariable(
         "adminCommonHeader",
