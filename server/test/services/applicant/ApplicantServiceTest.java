@@ -1029,7 +1029,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             ImmutableMap.of(Scalar.YEAR, "2020", Scalar.MONTH, "1", Scalar.DAY, "15"));
 
     // Stored as a typed date (readable by readDate), not the raw "2020-01-15" string.
-    assertThat(staged.applicantData().readDate(staged.answerBase().join(Scalar.DATE)))
+    assertThat(staged.applicantData().readDate(staged.initialQuestionPath().join(Scalar.DATE)))
         .hasValue(LocalDate.of(2020, 1, 15));
     // The entity name is the formatted answer, not blank.
     assertThat(staged.entityName()).hasValue("01/15/2020");
@@ -1040,7 +1040,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     StagedInitialQuestion staged =
         stageInitialQuestionAnswer(QuestionType.NUMBER, ImmutableMap.of(Scalar.NUMBER, "5"));
 
-    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.NUMBER)))
+    assertThat(staged.applicantData().readLong(staged.initialQuestionPath().join(Scalar.NUMBER)))
         .hasValue(5L);
     assertThat(staged.entityName()).hasValue("5");
   }
@@ -1052,7 +1052,10 @@ public class ApplicantServiceTest extends ResetPostgres {
             QuestionType.CURRENCY, ImmutableMap.of(Scalar.CURRENCY_CENTS, "100.50"));
 
     // Stored as cents (10050), not the raw "100.50" dollar string.
-    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.CURRENCY_CENTS)))
+    assertThat(
+            staged
+                .applicantData()
+                .readLong(staged.initialQuestionPath().join(Scalar.CURRENCY_CENTS)))
         .hasValue(10050L);
     assertThat(staged.entityName()).hasValue("100.50");
   }
@@ -1065,10 +1068,16 @@ public class ApplicantServiceTest extends ResetPostgres {
             QuestionType.PHONE, ImmutableMap.of(Scalar.PHONE_NUMBER, "(253) 867-5309"));
 
     // Stored stripped to digits, not the raw "(253) 867-5309" string.
-    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.PHONE_NUMBER)))
+    assertThat(
+            staged
+                .applicantData()
+                .readString(staged.initialQuestionPath().join(Scalar.PHONE_NUMBER)))
         .hasValue("2538675309");
     // The country code is derived and stored.
-    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.COUNTRY_CODE)))
+    assertThat(
+            staged
+                .applicantData()
+                .readString(staged.initialQuestionPath().join(Scalar.COUNTRY_CODE)))
         .hasValue("US");
     // The entity name is the phone number formatted for display.
     assertThat(staged.entityName()).hasValue("+1 253-867-5309");
@@ -1076,12 +1085,13 @@ public class ApplicantServiceTest extends ResetPostgres {
 
   @Test
   public void stageAndUpdateIfValid_idInitialQuestion_storesValueAndDerivesName() {
+    // ID questions only accept digits, so the derived entity name is the numeric id.
     StagedInitialQuestion staged =
-        stageInitialQuestionAnswer(QuestionType.ID, ImmutableMap.of(Scalar.ID, "A12345"));
+        stageInitialQuestionAnswer(QuestionType.ID, ImmutableMap.of(Scalar.ID, "12345"));
 
-    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.ID)))
-        .hasValue("A12345");
-    assertThat(staged.entityName()).hasValue("A12345");
+    assertThat(staged.applicantData().readString(staged.initialQuestionPath().join(Scalar.ID)))
+        .hasValue("12345");
+    assertThat(staged.entityName()).hasValue("12345");
   }
 
   @Test
@@ -1090,7 +1100,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         stageInitialQuestionAnswer(
             QuestionType.EMAIL, ImmutableMap.of(Scalar.EMAIL, "resident@example.com"));
 
-    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.EMAIL)))
+    assertThat(staged.applicantData().readString(staged.initialQuestionPath().join(Scalar.EMAIL)))
         .hasValue("resident@example.com");
     assertThat(staged.entityName()).hasValue("resident@example.com");
   }
@@ -1106,7 +1116,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 Scalar.STATE, "WA",
                 Scalar.ZIP, "98101"));
 
-    assertThat(staged.applicantData().readString(staged.answerBase().join(Scalar.STREET)))
+    assertThat(staged.applicantData().readString(staged.initialQuestionPath().join(Scalar.STREET)))
         .hasValue("123 Main St");
     // The entity name is the address formatted for display across lines.
     assertThat(staged.entityName()).hasValue("123 Main St\nSeattle, WA 98101");
@@ -1118,7 +1128,7 @@ public class ApplicantServiceTest extends ResetPostgres {
     StagedInitialQuestion staged =
         stageInitialQuestionAnswer(QuestionType.DROPDOWN, ImmutableMap.of(Scalar.SELECTION, "1"));
 
-    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.SELECTION)))
+    assertThat(staged.applicantData().readLong(staged.initialQuestionPath().join(Scalar.SELECTION)))
         .hasValue(1L);
     assertThat(staged.entityName()).hasValue("Option One");
   }
@@ -1129,16 +1139,68 @@ public class ApplicantServiceTest extends ResetPostgres {
         stageInitialQuestionAnswer(
             QuestionType.RADIO_BUTTON, ImmutableMap.of(Scalar.SELECTION, "2"));
 
-    assertThat(staged.applicantData().readLong(staged.answerBase().join(Scalar.SELECTION)))
+    assertThat(staged.applicantData().readLong(staged.initialQuestionPath().join(Scalar.SELECTION)))
         .hasValue(2L);
     assertThat(staged.entityName()).hasValue("Option Two");
   }
 
+  @Test
+  public void stageAndUpdateIfValid_initialQuestionAllFieldsEmpty_blockHasGroupRequiredError() {
+    // A fully empty required entry behaves like a standalone required name question: a single
+    // top-level
+    // "required" error at the question path.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.NAME, ImmutableMap.of(Scalar.FIRST_NAME, "", Scalar.LAST_NAME, ""));
+
+    assertThat(staged.block().hasErrors()).isTrue();
+    assertThat(
+            staged
+                .initialQuestion()
+                .getQuestion()
+                .getValidationErrors()
+                .get(staged.initialQuestionPath()))
+        .anyMatch(ValidationErrorMessage::isRequiredError);
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_initialQuestionMissingOneRequiredField_blockHasFieldError() {
+    // Only the last name is missing, so (like a standalone name question) a field-specific error
+    // attaches to the last-name path and there is no top-level "required" error.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.NAME, ImmutableMap.of(Scalar.FIRST_NAME, "Sarah", Scalar.LAST_NAME, ""));
+
+    assertThat(staged.block().hasErrors()).isTrue();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors =
+        staged.initialQuestion().getQuestion().getValidationErrors();
+    assertThat(errors.get(staged.initialQuestionPath().join(Scalar.LAST_NAME)))
+        .contains(ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
+    // A partially answered entry has no top-level "required" error.
+    assertThat(errors).doesNotContainKey(staged.initialQuestionPath());
+  }
+
+  @Test
+  public void stageAndUpdateIfValid_initialQuestionFullyAnswered_blockHasNoErrors() {
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.NAME,
+            ImmutableMap.of(Scalar.FIRST_NAME, "Sarah", Scalar.LAST_NAME, "Brown"));
+
+    assertThat(staged.block().hasErrors()).isFalse();
+    assertThat(staged.initialQuestion().getQuestion().getValidationErrors()).isEmpty();
+  }
+
   /** The saved applicant data and key paths after staging a one-entity initial-question answer. */
   private record StagedInitialQuestion(
-      ApplicantData applicantData, Path enumeratorPath, Path answerBase) {
+      ApplicantData applicantData, Path enumeratorPath, Path initialQuestionPath, Block block) {
     Optional<String> entityName() {
       return applicantData.readString(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME));
+    }
+
+    /** The contextualized initial question for the single entity (index 0) after staging. */
+    ApplicantQuestion initialQuestion() {
+      return block.createContextualizedInitialQuestion(0).orElseThrow();
     }
   }
 
@@ -1159,13 +1221,16 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
-    Path answerBase =
+    // Base path of the first entity's initial-question answer; each scalar field is joined onto it.
+    // E.g. for a name initial question on an applicant.household_members[] enumerator, this is
+    // applicant.household_members[0].member_name, and first_name/last_name hang off it.
+    Path initialQuestionPath =
         enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
     ImmutableMap<String, String> formData =
         fieldValues.entrySet().stream()
             .collect(
                 ImmutableMap.toImmutableMap(
-                    entry -> answerBase.join(entry.getKey()).toString(),
+                    entry -> initialQuestionPath.join(entry.getKey()).toString(),
                     entry -> entry.getValue()));
 
     // Run the controller's form-data preprocessing (memorable-date consolidation, phone country
@@ -1187,21 +1252,28 @@ public class ApplicantServiceTest extends ResetPostgres {
             .toCompletableFuture()
             .join();
 
-    subject
-        .stageAndUpdateIfValid(
-            applicant.id,
-            programDefinition.id(),
-            "1",
-            cleanedUpdates,
-            false,
-            false,
-            /* apiBridgeEnabled= */ false)
-        .toCompletableFuture()
-        .join();
+    // On a validation error, stageAndUpdateIfValid keeps the staged changes in memory and does not
+    // save them to the database. Those changes live in the service it returns, so the post-staging
+    // block must come from that returned service rather than a database re-read.
+    ReadOnlyApplicantProgramService postStagingService =
+        subject
+            .stageAndUpdateIfValid(
+                applicant.id,
+                programDefinition.id(),
+                "1",
+                cleanedUpdates,
+                false,
+                false,
+                /* apiBridgeEnabled= */ false)
+            .toCompletableFuture()
+            .join();
+    Block postStagingBlock = postStagingService.getActiveBlock("1").orElseThrow();
 
     ApplicantData applicantData =
         accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
-    return new StagedInitialQuestion(applicantData, enumeratorPath, answerBase);
+
+    return new StagedInitialQuestion(
+        applicantData, enumeratorPath, initialQuestionPath, postStagingBlock);
   }
 
   @Test

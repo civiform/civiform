@@ -144,6 +144,83 @@ public class EnumeratorQuestionTest extends ResetPostgres {
   }
 
   @Test
+  public void whenInitialQuestionFlowIsActive_blankAnswer_suppressesEntityRequiredError() {
+    // When the initial-question flow is active, a blank answer is reported by the
+    // initial question's own per-entity validation, so the enumerator does not add a
+    // redundant top-level "entity required" error.
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Sarah", ""));
+
+    EnumeratorQuestion enumeratorQuestion =
+        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  public void whenInitialQuestionFlowIsActive_duplicateBlankAnswers_suppressesDuplicateError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("", ""));
+
+    EnumeratorQuestion enumeratorQuestion =
+        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+
+    // Two unanswered entries are not a duplicate-answer problem; the initial question reports each.
+    assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
+  }
+
+  @Test
+  public void whenInitialQuestionFlowIsActive_duplicateNonBlankAnswers_hasDuplicateError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        applicantQuestion.getContextualizedPath(),
+        ImmutableList.of("Sarah", "Sarah"));
+
+    EnumeratorQuestion enumeratorQuestion =
+        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+
+    // Real duplicate (non-blank) derived names are still flagged.
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME))));
+  }
+
+  @Test
+  public void whenInitialQuestionFlowIsInactive_blankDerivedName_hasEntityRequiredError() {
+    // A legacy (free-text) submission is not suppressed: a blank name still fails validation even
+    // when an initial question is configured on the enumerator, but the feature flag is off.
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Sarah", ""));
+
+    EnumeratorQuestion enumeratorQuestion =
+        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ false);
+
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_ENTITY_REQUIRED))));
+  }
+
+  @Test
   public void withTooManyEntities_hasValidationError() {
     ApplicantQuestion applicantQuestion =
         new ApplicantQuestion(

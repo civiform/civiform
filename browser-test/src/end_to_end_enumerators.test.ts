@@ -1977,6 +1977,79 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('validates the initial question on continue in the same way as a standalone question', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator name initial question validation program'
+
+      await test.step('Publish a program whose enumerator has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const firstName = blockForm.getByRole('textbox', {name: 'First name'})
+      const lastName = blockForm.getByRole('textbox', {name: 'Last name'})
+
+      await test.step('Add an entity and continue with all fields empty', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the empty entry shows a single top-level required error and outlines both fields', async () => {
+        // Like a standalone required name left blank: one group-level message, both fields outlined,
+        // and no per-field messages.
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeHidden()
+        await expect(firstName).toHaveClass(/usa-input--error/)
+        await expect(lastName).toHaveClass(/usa-input--error/)
+      })
+
+      await test.step('Fill only the first name and continue', async () => {
+        await firstName.fill('Sarah')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify a field-specific error attaches to the missing last name only', async () => {
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(lastName).toHaveClass(/usa-input--error/)
+        await expect(firstName).not.toHaveClass(/usa-input--error/)
+        await validateAccessibility(page, '#question-fragment')
+      })
+
+      await test.step('Fill the last name and continue to leave the block without errors', async () => {
+        await lastName.fill('Brown')
+        await applicantQuestions.clickContinue()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toBeHidden()
+      })
+    })
+
     test('saves a date initial question and names the entity', async ({
       page,
       adminPrograms,
