@@ -18,6 +18,9 @@ import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
 import play.mvc.Http.RequestHeader;
+{% for enum_import in enum_imports %}
+import {{enum_import}};
+{% endfor %}
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -46,12 +49,12 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   {% if method_spec.variable.mode == writeable_mode %}
   /** {{method_spec.doc()}} */
   public {{method_spec.return_type()}} get{{method_spec.method_name()}}(RequestHeader request) {
-    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}", request);
+    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}"{{method_spec.enum_class_arg()}}, request);
   }
   {% else %}
   /** {{method_spec.doc()}} */
   public {{method_spec.return_type()}} get{{method_spec.method_name()}}() {
-    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}");
+    return {{method_spec.internal_getter()}}("{{method_spec.variable_name()}}"{{method_spec.enum_class_arg()}});
   }
   {% endif %}
   {% endfor %}
