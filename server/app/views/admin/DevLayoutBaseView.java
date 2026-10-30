@@ -61,15 +61,6 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
             .isOnlyProgramAdmin(false)
             .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
             .build());
-
-    context.setVariable(
-        "footer",
-        Footer.builder()
-            .technicalSupportEmail(
-                settingsManifest
-                    .getSupportEmailAddress(request)
-                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
-            .build());
   }
 
   @Override
