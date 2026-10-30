@@ -400,6 +400,11 @@ test.describe('applicant program index page', () => {
           },
           /* filtersOn= */ false,
         )
+
+        // The button text says "Edit", so its accessible name should contain it.
+        await expect(
+          page.getByRole('link', {name: `Edit ${primaryProgramName}`}),
+        ).toBeVisible()
       })
 
       await test.step('Finish the application and confirm that the program appears in the "My applications" section', async () => {
@@ -1153,7 +1158,7 @@ test.describe('applicant program index page with images', () => {
       })
       await expect(
         externalProgramCard.getByRole('button', {
-          name: 'View External Program A in new tab',
+          name: 'View in new tab: External Program A',
         }),
       ).toBeVisible()
 
