@@ -29,6 +29,7 @@ import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
 import views.shared.BannerUtils;
+import views.shared.DemoBanner;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -103,7 +104,6 @@ public abstract class ApplicantBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
-    context.setVariable("cogIcon", Icons.COG);
     context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"));
     context.setVariable(
@@ -183,8 +183,8 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    BannerUtils.setUpBannerContext(
-        context, settingsManifest, request, profile, isDevOrStaging, clock);
+    context.setVariable(
+        "demoBanner", DemoBanner.create(settingsManifest, request, profile, isDevOrStaging, clock));
     maybeSetUpNotProductionBanner(context, request, messages);
 
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();

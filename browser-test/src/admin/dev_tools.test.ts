@@ -6,13 +6,14 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  waitForPageJsLoad,
 } from '../support'
 
 test.describe('developer tools', () => {
   test.afterEach(async ({page}) => {
-    // Ensure the 'staging_disable_demo_mode_logins' flag is DISABLED for each test
-    // unless a specific test intends to enable it.
+    // Ensure mutated feature flags are DISABLED after each test even on failure.
     await disableFeatureFlag(page, 'staging_disable_demo_mode_logins')
+    await disableFeatureFlag(page, 'admin_ui_migration_ux_redesign_sc_enabled')
   })
 
   test('dev link exists', async ({page}) => {
@@ -85,7 +86,9 @@ test.describe('developer tools', () => {
     await test.step('demo banner and active role buttons appear on post-migration Thymeleaf admin page', async () => {
       await enableFeatureFlag(page, 'admin_ui_migration_ux_redesign_sc_enabled')
       await demoBanner.locator('#admin').click()
+      await waitForPageJsLoad(page)
       await page.goto('/admin/reporting')
+      await waitForPageJsLoad(page)
       await expect(demoBanner).toBeVisible()
       await expect(demoBanner.locator('#resident')).toHaveAttribute(
         'href',
@@ -98,7 +101,9 @@ test.describe('developer tools', () => {
       await expect(demoBanner.locator('a#trusted-intermediary')).toHaveClass(
         'usa-button usa-button--outline',
       )
+      await validateAccessibility(page)
       await demoBanner.locator('#resident').click()
+      await page.waitForURL('**/programs')
       await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
       await disableFeatureFlag(
         page,

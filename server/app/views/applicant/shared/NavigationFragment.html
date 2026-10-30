@@ -1,5 +1,6 @@
 <!--/*@thymesVar id="immigrationStatusInfoBannerEnabled" type="boolean"*/-->
 <!--/*@thymesVar id="immigrationStatusInfoBannerLearnMoreUrl" type=""*/-->
+<!--/*@thymesVar id="demoBanner" type="views.shared.DemoBanner"*/-->
 <th:block th:fragment="pageHeader">
   <div
     class="position-sticky top-0 z-top"
@@ -12,9 +13,7 @@
   <div th:unless="${showNotProductionBannerEnabled}">
     <div th:replace="~{this :: officialGovermentWebsiteBanner}"></div>
   </div>
-  <th:block th:if="${demoBannerEnabled}">
-    <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
-  </th:block>
+  <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
   <!--/* The immigration status info banner is only shown on the program index page,
   so all immigration status info banner variables are only set in ProgramIndexView and are unset otherwise. */-->
   <th:block
@@ -76,7 +75,9 @@
         <div class="display-flex grid-col-fill flex-column flex-align-end">
           <div th:replace="~{this :: userName}"></div>
           <div class="grid-row grid-gap-1">
-            <div th:if="${showDebugTools and !demoBannerEnabled}">
+            <div
+              th:if="${demoBanner.showDebugTools() and !demoBanner.enabled()}"
+            >
               <button th:replace="~{this :: showDebugTools}"></button>
             </div>
             <div>

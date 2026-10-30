@@ -1,12 +1,11 @@
 package views.dev;
 
+import auth.CiviFormProfile;
+import java.util.Optional;
 import javax.inject.Inject;
-import modules.ThymeleafModule;
 import play.i18n.Messages;
 import play.mvc.Http;
-import views.admin.AdminLayout;
 import views.admin.AdminLayoutBaseView;
-import views.admin.shared.AdminCommonHeader;
 import views.shared.LayoutDeps;
 
 public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressCheckerPageViewModel> {
@@ -26,16 +25,8 @@ public final class AddressCheckerPageView extends AdminLayoutBaseView<AddressChe
   }
 
   @Override
-  protected void customizeContext(
-      Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
+  protected Optional<CiviFormProfile> getProfile(Http.Request request) {
     // Avoid requiring a user profile for dev tools page.
-    setUpBannerContext(request, context, profileUtils.optionalCurrentUserProfile(request));
-    context.setVariable(
-        "adminCommonHeader",
-        AdminCommonHeader.builder()
-            .activeNavPage(AdminLayout.NavPage.NULL_PAGE)
-            .isOnlyProgramAdmin(false)
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
-            .build());
+    return profileUtils.optionalCurrentUserProfile(request);
   }
 }

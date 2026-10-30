@@ -1033,6 +1033,15 @@ main#main-content {
       justify-content: flex-end;
     }
 
+    div.usa-button {
+      cursor: default;
+
+      &:hover,
+      &:active {
+        background-color: var(--primary);
+      }
+    }
+
     .usa-button-group--segmented {
       .usa-button-group__item {
         margin-top: 0;

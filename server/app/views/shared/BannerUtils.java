@@ -1,22 +1,16 @@
 package views.shared;
 
-import auth.CiviFormProfile;
-import auth.FakeAdminClient;
-import controllers.routes;
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
-import modules.ThymeleafModule;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
-import views.components.Icons;
 
 /** Utility methods for configuring and rendering site banners (not-production and demo banners). */
 public final class BannerUtils {
@@ -79,99 +73,6 @@ public final class BannerUtils {
       return Optional.of(daysRemaining);
     } catch (DateTimeParseException e) {
       return Optional.empty();
-    }
-  }
-
-  /**
-   * Returns the demo banner days remaining count against the current system date if an expiration
-   * date is set, valid, and in the future.
-   */
-  public static Optional<Long> getDemoBannerDaysRemainingCount(SettingsManifest settingsManifest) {
-    return getDemoBannerDaysRemainingCount(settingsManifest, Clock.system(ZoneId.systemDefault()));
-  }
-
-  /**
-   * Populates the shared Thymeleaf context variables for the demo banner and role login buttons on
-   * Applicant and Admin Thymeleaf layouts.
-   */
-  public static void setUpBannerContext(
-      ThymeleafModule.PlayThymeleafContext context,
-      SettingsManifest settingsManifest,
-      Http.Request request,
-      Optional<CiviFormProfile> profile,
-      boolean isDevOrStaging) {
-    setUpBannerContext(
-        context,
-        settingsManifest,
-        request,
-        profile,
-        isDevOrStaging,
-        Clock.system(ZoneId.systemDefault()));
-  }
-
-  /**
-   * Populates the shared Thymeleaf context variables for the demo banner and role login buttons on
-   * Applicant and Admin Thymeleaf layouts.
-   */
-  public static void setUpBannerContext(
-      ThymeleafModule.PlayThymeleafContext context,
-      SettingsManifest settingsManifest,
-      Http.Request request,
-      Optional<CiviFormProfile> profile,
-      boolean isDevOrStaging,
-      Clock clock) {
-    boolean isTi = profile.map(CiviFormProfile::isTrustedIntermediary).orElse(false);
-    boolean isCiviFormAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
-    boolean isOnlyProgramAdmin = profile.map(CiviFormProfile::isOnlyProgramAdmin).orElse(false);
-    boolean isAdminOrTi =
-        profile
-            .map(p -> p.isCiviFormAdmin() || p.isProgramAdmin() || p.isTrustedIntermediary())
-            .orElse(false);
-
-    context.setVariable("isTrustedIntermediary", isTi);
-    context.setVariable("isCiviFormAdmin", isCiviFormAdmin);
-    context.setVariable("isOnlyProgramAdmin", isOnlyProgramAdmin);
-    context.setVariable("isAdminOrTi", isAdminOrTi);
-    context.setVariable("logoutLink", org.pac4j.play.routes.LogoutController.logout().url());
-    context.setVariable("cogIcon", Icons.COG);
-
-    boolean demoBannerEnabled = isDemoBannerEnabled(settingsManifest, request);
-    context.setVariable("demoBannerEnabled", demoBannerEnabled);
-    if (demoBannerEnabled) {
-      String civicEntityShortName =
-          settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
-      context.setVariable("civicEntityShortName", civicEntityShortName);
-      context.setVariable(
-          "demoBannerDaysRemainingCount",
-          getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
-    }
-
-    boolean showDebugTools =
-        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
-    context.setVariable("showDebugTools", showDebugTools);
-    if (showDebugTools) {
-      context.setVariable(
-          "fakeCiviformAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeProgramAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeDualAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeTrustedIntermediaryUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-              .url());
-      context.setVariable(
-          "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
     }
   }
 }

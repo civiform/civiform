@@ -1,4 +1,5 @@
-<div th:fragment="demoBanner" th:if="${demoBannerEnabled}">
+<!--/*@thymesVar id="demoBanner" type="views.shared.DemoBanner"*/-->
+<div th:fragment="demoBanner" th:if="${demoBanner.enabled()}">
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim usa-site-alert--no-icon cf-alert cf-demo-banner"
     role="region"
@@ -9,77 +10,37 @@
         <div class="cf-demo-banner__info">
           <p
             class="usa-alert__text text-bold"
-            th:text="#{label.demoBanner.heading(${civicEntityShortName})}"
+            th:text="#{label.demoBanner.heading(${demoBanner.civicEntityShortName()})}"
           ></p>
-          <div th:if="${demoBannerDaysRemainingCount != null}">
+          <div th:if="${demoBanner.daysRemainingCount().isPresent()}">
             <span
-              th:class="|usa-tag ${demoBannerDaysRemainingCount > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
-              th:text="${demoBannerDaysRemainingCount == 1 ? #messages.msg('banner.demoBanner.dayRemaining') : #messages.msg('banner.demoBanner.daysRemaining', demoBannerDaysRemainingCount)}"
+              th:with="days=${demoBanner.daysRemainingCount().get()}"
+              th:class="|usa-tag ${days > 5 ? 'bg-green' : 'bg-yellow text-ink'}|"
+              th:text="${days == 1 ? #messages.msg('banner.demoBanner.dayRemaining') : #messages.msg('banner.demoBanner.daysRemaining', days)}"
             ></span>
           </div>
         </div>
-        <div class="cf-demo-banner__actions" th:if="${showDebugTools}">
+        <div
+          class="cf-demo-banner__actions"
+          th:if="${demoBanner.showDebugTools()}"
+        >
           <span class="cf-demo-banner__login-label">View as:</span>
           <ul class="usa-button-group usa-button-group--segmented">
-            <li class="usa-button-group__item">
-              <a
-                th:if="${isAdminOrTi}"
-                th:href="${logoutLink}"
-                class="usa-button usa-button--outline"
-                id="resident"
-                >Resident</a
-              >
-              <div th:unless="${isAdminOrTi}" class="usa-button" id="resident">
-                Resident
-              </div>
-            </li>
-            <li class="usa-button-group__item">
-              <div th:if="${isCiviFormAdmin}" class="usa-button" id="admin">
-                Civiform Admin
-              </div>
-              <a
-                th:unless="${isCiviFormAdmin}"
-                th:href="${fakeCiviformAdminUrl}"
-                class="usa-button usa-button--outline"
-                id="admin"
-                >Civiform Admin</a
-              >
-            </li>
-            <li class="usa-button-group__item">
-              <div
-                th:if="${isOnlyProgramAdmin}"
-                class="usa-button"
-                id="program-admin"
-              >
-                Program Admin
-              </div>
-              <a
-                th:unless="${isOnlyProgramAdmin}"
-                th:href="${fakeProgramAdminUrl}"
-                class="usa-button usa-button--outline"
-                id="program-admin"
-                >Program Admin</a
-              >
-            </li>
-            <li class="usa-button-group__item">
-              <div
-                th:if="${isTrustedIntermediary}"
-                class="usa-button"
-                id="trusted-intermediary"
-              >
-                Trusted Intermediary
-              </div>
-              <a
-                th:unless="${isTrustedIntermediary}"
-                th:href="${fakeTrustedIntermediaryUrl}"
-                class="usa-button usa-button--outline"
-                id="trusted-intermediary"
-                >Trusted Intermediary</a
-              >
-            </li>
+            <li
+              th:replace="~{this :: roleButton('resident', 'Resident', ${demoBanner.logoutUrl()}, ${demoBanner.isResident()})}"
+            ></li>
+            <li
+              th:replace="~{this :: roleButton('admin', 'Civiform Admin', ${demoBanner.fakeCiviformAdminUrl()}, ${demoBanner.isCiviFormAdmin()})}"
+            ></li>
+            <li
+              th:replace="~{this :: roleButton('program-admin', 'Program Admin', ${demoBanner.fakeProgramAdminUrl()}, ${demoBanner.isOnlyProgramAdmin()})}"
+            ></li>
+            <li
+              th:replace="~{this :: roleButton('trusted-intermediary', 'Trusted Intermediary', ${demoBanner.fakeTrustedIntermediaryUrl()}, ${demoBanner.isTrustedIntermediary()})}"
+            ></li>
           </ul>
           <a
-            th:href="${additionalToolsUrl}"
+            th:href="${demoBanner.additionalToolsUrl()}"
             class="usa-button usa-button--outline cf-demo-banner__icon-button"
             id="additional-tools"
             aria-label="Additional tools"
@@ -88,9 +49,9 @@
               class="usa-icon"
               aria-hidden="true"
               role="img"
-              th:attr="viewBox=${cogIcon.getViewBox()}"
+              th:attr="viewBox=${demoBanner.cogIcon().getViewBox()}"
             >
-              <path th:attr="d=${cogIcon.path}"></path>
+              <path th:attr="d=${demoBanner.cogIcon().path}"></path>
             </svg>
           </a>
         </div>
@@ -98,3 +59,20 @@
     </div>
   </section>
 </div>
+
+<li
+  th:fragment="roleButton(id, label, href, isActive)"
+  class="usa-button-group__item"
+>
+  <div th:if="${isActive}" class="usa-button" th:id="${id}">
+    <span th:text="${label}"></span
+    ><span class="usa-sr-only"> (current role)</span>
+  </div>
+  <a
+    th:unless="${isActive}"
+    th:href="${href}"
+    class="usa-button usa-button--outline"
+    th:id="${id}"
+    th:text="${label}"
+  ></a>
+</li>

@@ -80,7 +80,5 @@
       </div>
     </div>
   </section>
-  <th:block th:if="${demoBannerEnabled}">
-    <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
-  </th:block>
+  <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
 </th:block>
