@@ -49,6 +49,10 @@ public enum MessageKey {
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING("alert.repeatedSet.backfillSaveWarning"),
+  ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_ONE_PROGRAM(
+      "alert.repeatedSet.backfillSaveWarningOneProgram"),
+  ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_PROGRAMS(
+      "alert.repeatedSet.backfillSaveWarningPrograms"),
   ALERT_REPEATED_SET_INITIAL_QUESTION_ARCHIVED("alert.repeatedSet.initialQuestionArchived"),
   ALERT_REPEATED_SET_INITIAL_QUESTION_NOT_FOUND("alert.repeatedSet.initialQuestionNotFound"),
   ALERT_REPEATED_SET_INITIAL_QUESTION_REQUIRED("alert.repeatedSet.initialQuestionRequired"),

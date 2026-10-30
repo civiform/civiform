@@ -12,6 +12,7 @@ import forms.ProgramQuestionDefinitionOptionalityForm;
 import forms.questions.EnumeratorQuestionForm;
 import forms.questions.QuestionFormBuilder;
 import j2html.tags.specialized.DivTag;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.Optional;
@@ -55,6 +56,7 @@ import services.question.exceptions.QuestionNotFoundException;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.programs.ProgramBlocksView;
@@ -434,7 +436,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
    * HTMX POST endpoint that saves the initial question the admin picked for an enumerator that has
    * none yet (a backfill). It links the initial question to the enumerator, which updates the
    * enumerator's draft or creates one if the enumerator has only a published version, and adds the
-   * initial question to this block. It does not touch blocks in other programs.
+   * initial question to this block and to the blocks in other programs' drafts that use the same
+   * enumerator. If anything fails after the link is made, it reverts what it did.
    *
    * <p>The picked question's id comes from the {@code initialQuestionId} field of the staged card.
    * Returns the re-rendered enumerator section to swap into {@code #repeated-set-question-section}.
@@ -501,13 +504,32 @@ public class AdminProgramBlockQuestionsController extends Controller {
       EnumAndInitialQuestion saved =
           questionService.copyOrUpdateInitialQuestionAndAttachToEnumerator(
               block.getEnumeratorQuestionDefinition(), selected, initialQuestionWasNewlyCreated);
-      ProgramDefinition refreshedProgram =
-          programService.addQuestionsToBlock(
-              programId,
-              blockId,
-              ImmutableList.of(saved.initialQuestion().getId()),
-              enumeratorImprovementsEnabled,
-              fileUploadQuestionImprovementsEnabled);
+      // The blocks the initial question has been added to so far, so a failure can undo them.
+      List<BlockRef> addedTo = new ArrayList<>();
+      final ProgramDefinition refreshedProgram;
+      try {
+        refreshedProgram =
+            programService.addQuestionsToBlock(
+                programId,
+                blockId,
+                ImmutableList.of(saved.initialQuestion().getId()),
+                enumeratorImprovementsEnabled,
+                fileUploadQuestionImprovementsEnabled);
+        addedTo.add(new BlockRef(programId, blockId));
+
+        propagateInitialQuestionToOtherBlocks(
+            programId,
+            blockId,
+            saved.enumeratorQuestion(),
+            saved.initialQuestion().getId(),
+            fileUploadQuestionImprovementsEnabled,
+            addedTo);
+      } catch (Exception e) {
+        // Nothing should be left half saved: an enumerator linked to an initial question that some
+        // programs don't have can't be retried, because the backfill card is no longer shown.
+        revertInitialQuestion(request, saved, addedTo);
+        throw e;
+      }
 
       BlockDefinition refreshedBlock = refreshedProgram.getBlockDefinition(blockId);
       ProgramQuestionDefinition enumeratorProgramQuestion =
@@ -545,6 +567,93 @@ public class AdminProgramBlockQuestionsController extends Controller {
       return notFound(e.externalMessage());
     } catch (InvalidUpdateException | UnsupportedQuestionTypeException e) {
       return internalServerError(e.getMessage());
+    }
+  }
+
+  /**
+   * Adds the initial question to every other draft program block that uses the enumerator. Saving
+   * the initial question on the enumerator already made drafts of every program that uses it, so
+   * this looks only at draft programs. The initial question is shared between the blocks, not
+   * copied again.
+   */
+  private void propagateInitialQuestionToOtherBlocks(
+      long currentProgramId,
+      long currentBlockId,
+      QuestionDefinition enumeratorQuestion,
+      long initialQuestionId,
+      boolean fileUploadQuestionImprovementsEnabled,
+      List<BlockRef> addedTo)
+      throws ProgramNotFoundException,
+          ProgramBlockDefinitionNotFoundException,
+          CantAddQuestionToBlockException {
+    for (ProgramDefinition draftProgram :
+        programService.getActiveAndDraftPrograms().getDraftPrograms()) {
+      for (BlockDefinition block : draftProgram.blockDefinitions()) {
+        boolean isCurrentBlock =
+            draftProgram.id() == currentProgramId && block.id() == currentBlockId;
+        if (isCurrentBlock
+            || !block.getIsEnumerator()
+            || !block.hasEnumeratorQuestion()
+            || block.getEnumeratorQuestionDefinition().getId() != enumeratorQuestion.getId()
+            || block.getQuestionDefinitions().stream()
+                .anyMatch(question -> question.getId() == initialQuestionId)) {
+          continue;
+        }
+        programService.addQuestionsToBlock(
+            draftProgram.id(),
+            block.id(),
+            ImmutableList.of(initialQuestionId),
+            /* enumeratorImprovementsEnabled= */ true,
+            fileUploadQuestionImprovementsEnabled);
+        addedTo.add(new BlockRef(draftProgram.id(), block.id()));
+      }
+    }
+  }
+
+  /** A block in a program. */
+  private record BlockRef(long programId, long blockId) {}
+
+  /**
+   * Undoes a backfill save that failed part way: removes the initial question from the blocks it
+   * was added to, then unlinks it from the enumerator question. The initial question itself stays
+   * in the question bank, since a created question can't be undone. Each step is attempted even if
+   * an earlier one fails, and failures are logged.
+   */
+  private void revertInitialQuestion(
+      Request request, EnumAndInitialQuestion saved, List<BlockRef> addedTo) {
+    long initialQuestionId = saved.initialQuestion().getId();
+    for (BlockRef ref : addedTo) {
+      try {
+        programService.removeQuestionsFromBlock(
+            ref.programId(),
+            ref.blockId(),
+            ImmutableList.of(initialQuestionId),
+            settingsManifest,
+            request);
+      } catch (Exception e) {
+        logger.error(
+            "Could not remove initial question {} from program {} block {} while reverting",
+            initialQuestionId,
+            ref.programId(),
+            ref.blockId(),
+            e);
+      }
+    }
+    try {
+      QuestionDefinition unlinked =
+          new QuestionDefinitionBuilder(saved.enumeratorQuestion())
+              .setEnumeratorInitialQuestionId(Optional.empty())
+              .build();
+      questionService.update(
+          Optional.of(saved.enumeratorQuestion()),
+          unlinked,
+          /* enumeratorImprovementsEnabled= */ true);
+    } catch (Exception e) {
+      logger.error(
+          "Could not unlink initial question {} from enumerator {} while reverting",
+          initialQuestionId,
+          saved.enumeratorQuestion().getId(),
+          e);
     }
   }
 
