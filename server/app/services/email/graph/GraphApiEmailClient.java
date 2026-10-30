@@ -83,7 +83,8 @@ public class GraphApiEmailClient implements EmailSendClient {
               ***************************************************
 
 
-              %s""",
+              %s\
+              """,
               bodyText);
     }
 
@@ -128,14 +129,18 @@ public class GraphApiEmailClient implements EmailSendClient {
             .sendMail()
             .post(sendMailPostRequestBody);
       }
+      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
     } catch (ApiException e) {
       logger.error(e.toString());
       e.printStackTrace();
       emailSendMetrics.getEmailFailCount().inc();
       emailSendMetrics.getEmailSendCount().labels(String.valueOf(e.getResponseStatusCode())).inc();
+    } catch (RuntimeException e) {
+      // The Graph SDK wraps transport errors in a plain RuntimeException. Count it and rethrow.
+      emailSendMetrics.getEmailFailCount().inc();
+      emailSendMetrics.getEmailSendCount().labels("unknown").inc();
+      throw e;
     } finally {
-      // Increase the count of emails sent.
-      emailSendMetrics.getEmailSendCount().labels(String.valueOf(HttpStatusCode.OK)).inc();
       // Record the execution time of the email sending process.
       timer.observeDuration();
     }
