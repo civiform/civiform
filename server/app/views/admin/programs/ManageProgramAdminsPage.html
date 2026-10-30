@@ -1,0 +1,83 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ManageProgramAdminsPageViewModel"*/-->
+<!--/*
+  1:1 port of the legacy ManageProgramAdminsView (j2html) on the transitional
+  LegacyTailwindLayout. Slated for replacement by an AdminLayoutBaseView page
+  in the admin redesign.
+*/-->
+<th:block th:fragment="content">
+  <!--/* Error toast of a failed add, consumed by toast.ts. The legacy layout
+         rendered it in the page header; it is a hidden data div, so position
+         does not matter. Error toasts are not dismissible (ToastMessage sets
+         canDismiss=false for ERROR); this one auto-hides after 6s. */-->
+  <div
+    th:if="${model.errorMessage != null}"
+    class="hidden cf-toast-data"
+    th:id="${model.errorToastId}"
+    canDismiss="false"
+    canIgnore="false"
+    toastDuration="6000"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage}"
+  ></div>
+
+  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
+         the direct children of <main> in the legacy j2html DOM. */-->
+  <a
+    th:href="${model.backUrl}"
+    class="text-blue-600 hover:text-blue-500 inline-flex items-center mt-6"
+  >
+    <!--/* No whitespace between the svg and the text, as in the legacy
+           a(svg).withText(...) markup. */-->
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconArrowLeft('mr-2 w-5 h-5')}"
+    ></svg
+    >Back</a
+  >
+  <!--/* Keep the prefix in sync with ManageProgramAdminsPageView.PAGE_TITLE_PREFIX. */-->
+  <h1
+    class="mb-4"
+    th:text="|Manage admins for program: ${model.programAdminName}|"
+  ></h1>
+
+  <h2>Add new admin</h2>
+  <div class="border border-gray-300 shadow-md w-1/2 mt-2 mb-6 p-4">
+    <form method="POST" th:action="${model.addAdminUrl}">
+      <div
+        th:replace="~{admin/shared/LegacyFieldWithLabel/EmailField :: emailField('admin-email-input', 'adminEmail', 'Admin email address (Email address is case-sensitive)', '', false)}"
+      ></div>
+      <input
+        hidden
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+      <button
+        type="submit"
+        id="add-admin-button"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base ml-2"
+      >
+        Add
+      </button>
+    </form>
+  </div>
+
+  <h2>Existing admins</h2>
+  <div>
+    <table class="border border-gray-300 shadow-md w-full mt-2">
+      <thead>
+        <tr class="border-b bg-gray-200 text-left">
+          <th class="px-4 py-2 w-2/3">Admin email</th>
+          <th class="px-4 py-2 text-right pr-8 w-1/3">Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        <th:block th:each="adminEmail : ${model.existingAdminEmails}">
+          <tr
+            th:replace="~{admin/programs/fragments/ProgramAdminRow :: adminRow(${adminEmail}, ${model.deleteAdminUrl})}"
+          ></tr>
+        </th:block>
+      </tbody>
+    </table>
+  </div>
+</th:block>
