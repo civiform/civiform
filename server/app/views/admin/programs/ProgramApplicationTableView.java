@@ -277,21 +277,23 @@ public class ProgramApplicationTableView extends BaseHtmlView {
                             .build()))
                 .getSelectTag())
         .with(
+            // Filter has to be first among submit buttons so Enter in the search field
+            // submits Filter rather than Download.
             div()
                 .withClasses("mt-6", "mb-8", "flex", "space-x-2")
                 .with(div().withClass("flex-grow"))
+                .with(
+                    makeSvgTextButton("Filter", Icons.FILTER_ALT)
+                        .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
+                        .withType("submit"),
+                    a("Clear").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE))
                 .condWith(
                     showDownloadButton,
                     makeSvgTextButton("Download", Icons.DOWNLOAD)
                         .withClass(ButtonStyles.OUTLINED_WHITE_WITH_ICON)
                         .withName(SHOW_DOWNLOAD_MODAL)
                         .withValue("true")
-                        .withType("submit"))
-                .with(
-                    makeSvgTextButton("Filter", Icons.FILTER_ALT)
-                        .withClass(ButtonStyles.SOLID_BLUE_WITH_ICON)
-                        .withType("submit"),
-                    a("Clear").withHref(redirectUrl).withClass(ButtonStyles.SOLID_BLUE)));
+                        .withType("submit")));
   }
 
   private Modal renderDownloadApplicationsModal(
