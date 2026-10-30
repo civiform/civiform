@@ -51,7 +51,11 @@ public final class QuestionTranslationPageMapperTest {
 
   private QuestionTranslationPageViewModel map(QuestionDefinition question) {
     return mapper.map(
-        question, SPANISH, TRANSLATABLE_LOCALES, /* errorMessage= */ Optional.empty());
+        question,
+        SPANISH,
+        TRANSLATABLE_LOCALES,
+        /* errorMessage= */ Optional.empty(),
+        /* imagesInQuestionFeatureEnabled= */ false);
   }
 
   @Test
@@ -135,7 +139,12 @@ public final class QuestionTranslationPageMapperTest {
   @Test
   public void map_untranslatedField_hasEmptyValue() {
     QuestionTranslationPageViewModel result =
-        mapper.map(textQuestion(), KOREAN, TRANSLATABLE_LOCALES, Optional.empty());
+        mapper.map(
+            textQuestion(),
+            KOREAN,
+            TRANSLATABLE_LOCALES,
+            Optional.empty(),
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getQuestionTextField().getValue()).isEmpty();
   }
@@ -313,7 +322,12 @@ public final class QuestionTranslationPageMapperTest {
   @Test
   public void map_withErrorMessage_prefixesErrorAndSetsToastId() {
     QuestionTranslationPageViewModel result =
-        mapper.map(textQuestion(), SPANISH, TRANSLATABLE_LOCALES, Optional.of("something broke"));
+        mapper.map(
+            textQuestion(),
+            SPANISH,
+            TRANSLATABLE_LOCALES,
+            Optional.of("something broke"),
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getErrorMessage()).hasValue("Error: something broke");
     assertThat(result.getErrorToastId()).isNotEmpty();

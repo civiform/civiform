@@ -259,7 +259,7 @@ export class AdminTranslations {
     await this.page
       .getByRole('textbox', {name: 'Question image description'})
       .fill(imageDescription)
-    await this.page.click('#update-localizations-button')
+    await this.page.getByRole('button', {name: 'Save'}).click()
     await waitForPageJsLoad(this.page)
   }
 

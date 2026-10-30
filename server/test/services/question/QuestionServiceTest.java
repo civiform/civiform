@@ -880,9 +880,9 @@ public class QuestionServiceTest extends ResetPostgres {
         new QuestionDefinitionBuilder(questionDefinition)
             .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
-            .setImageFileKey("test-image-key")
+            .setImageFileKey(Optional.of("test-image-key"))
             .setLocalizedImageDescription(
-                LocalizedStrings.of(Locale.US, "alt-en", Locale.FRANCE, "alt-fr"))
+                Optional.of(LocalizedStrings.of(Locale.US, "alt-en", Locale.FRANCE, "alt-fr")))
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();
@@ -899,8 +899,8 @@ public class QuestionServiceTest extends ResetPostgres {
         new QuestionDefinitionBuilder(questionDefinition)
             .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
-            .setImageFileKey("test-image-key")
-            .setLocalizedImageDescription(LocalizedStrings.of(Locale.US, "alt-en"))
+            .setImageFileKey(Optional.of("test-image-key"))
+            .setLocalizedImageDescription(Optional.of(LocalizedStrings.of(Locale.US, "alt-en")))
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
@@ -917,9 +917,9 @@ public class QuestionServiceTest extends ResetPostgres {
         new QuestionDefinitionBuilder(questionDefinition)
             .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
-            .setImageFileKey("test-image-key")
+            .setImageFileKey(Optional.of("test-image-key"))
             .setLocalizedImageDescription(
-                LocalizedStrings.of(Locale.US, "alt-en", Locale.FRANCE, "   "))
+                Optional.of(LocalizedStrings.of(Locale.US, "alt-en", Locale.FRANCE, "   ")))
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isFalse();
@@ -936,7 +936,7 @@ public class QuestionServiceTest extends ResetPostgres {
             .setQuestionText(LocalizedStrings.of(Locale.US, "text", Locale.FRANCE, "texte"))
             .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help", Locale.FRANCE, "aide"))
             .setImageFileKey(Optional.empty())
-            .setLocalizedImageDescription(LocalizedStrings.of(Locale.US, "alt-en"))
+            .setLocalizedImageDescription(Optional.of(LocalizedStrings.of(Locale.US, "alt-en")))
             .build();
 
     assertThat(questionService.isTranslationComplete(translationLocales, question)).isTrue();

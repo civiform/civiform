@@ -108,7 +108,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
     if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       QuestionTranslationPageViewModel model =
           buildTranslationPageModel(
-              request, definition, localeToEdit, request.flash().get(FlashKey.CONCURRENT_UPDATE));
+              definition,
+              localeToEdit,
+              request.flash().get(FlashKey.CONCURRENT_UPDATE),
+              settingsManifest.getImagesInQuestionFeatureEnabled(request));
       return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
@@ -156,7 +159,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
         if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
           QuestionTranslationPageViewModel model =
               buildTranslationPageModel(
-                  request, definitionWithUpdates, localeToUpdate, Optional.of(errorText));
+                  definitionWithUpdates,
+                  localeToUpdate,
+                  Optional.of(errorText),
+                  settingsManifest.getImagesInQuestionFeatureEnabled(request));
           return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
         }
 
@@ -168,10 +174,10 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
         QuestionTranslationPageViewModel model =
             buildTranslationPageModel(
-                request,
                 definitionWithUpdates,
                 localeToUpdate,
-                /* errorMessage= */ Optional.empty());
+                /* errorMessage= */ Optional.empty(),
+                settingsManifest.getImagesInQuestionFeatureEnabled(request));
         return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
       }
       return ok(translationView.render(request, localeToUpdate, definitionWithUpdates));
@@ -192,17 +198,17 @@ public class AdminQuestionTranslationsController extends CiviFormController {
   }
 
   private QuestionTranslationPageViewModel buildTranslationPageModel(
-      Http.Request request,
       QuestionDefinition question,
       Locale locale,
-      Optional<String> errorMessage) {
+      Optional<String> errorMessage,
+      boolean imagesInQuestionFeatureEnabled) {
     return new QuestionTranslationPageMapper()
         .map(
             question,
             locale,
             translationLocales.translatableLocales(),
             errorMessage,
-            settingsManifest.getImagesInQuestionFeatureEnabled(request));
+            imagesInQuestionFeatureEnabled);
   }
 
   private QuestionDefinition getDraftQuestionDefinition(String questionName) {

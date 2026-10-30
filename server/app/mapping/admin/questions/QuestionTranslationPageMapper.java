@@ -30,28 +30,6 @@ public final class QuestionTranslationPageMapper {
    * @param translatableLocales every locale the deployment supports translations for, used to build
    *     the language picker
    * @param errorMessage a save failure or concurrent-update notice, rendered as an error toast
-   */
-  public QuestionTranslationPageViewModel map(
-      QuestionDefinition question,
-      Locale localeToEdit,
-      ImmutableList<Locale> translatableLocales,
-      Optional<String> errorMessage) {
-    return map(
-        question,
-        localeToEdit,
-        translatableLocales,
-        errorMessage,
-        /* imagesInQuestionFeatureEnabled= */ false);
-  }
-
-  /**
-   * Maps a question and the locale being translated to the view model.
-   *
-   * @param question the question being translated
-   * @param localeToEdit the locale whose translations are being edited
-   * @param translatableLocales every locale the deployment supports translations for, used to build
-   *     the language picker
-   * @param errorMessage a save failure or concurrent-update notice, rendered as an error toast
    * @param imagesInQuestionFeatureEnabled whether the images in question feature is enabled
    */
   public QuestionTranslationPageViewModel map(
