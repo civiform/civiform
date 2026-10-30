@@ -268,4 +268,10 @@ public class LegacySvgFragmentsTest {
   public void iconLabel_programTypeIndicator() {
     ThymeleafFragmentTester.run(DIR + "iconLabelProgramTypeIndicator.thtest");
   }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Export to PDF" on the application view). */
+  @Test
+  public void iconDownload_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconDownloadSvgTextButton.thtest");
+  }
 }

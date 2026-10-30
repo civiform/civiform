@@ -1,0 +1,59 @@
+<!--/*
+  Body of the "Edit note" modal on the application view.
+
+  Legacy counterpart: ProgramApplicationView#renderUpdateNoteConfirmationModal.
+  The form has no action: admin_application_view.ts intercepts the submit,
+  reads the inputs and posts them to the main frame, which builds the real
+  update-note request.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="modal" type="views.admin.programs.ProgramApplicationPageViewModel.NoteModal"*/-->
+<form
+  th:fragment="noteForm(programId, applicationId, modal)"
+  th:id="${modal.formId}"
+  class="cf-program-admin-edit-note-form"
+>
+  <input name="programId" th:value="${programId}" hidden />
+  <input name="applicationId" th:value="${applicationId}" hidden />
+  <!--/* FieldWithLabel.textArea() without label text: the label is
+         screen-reader only and empty apart from the hidden required
+         indicator, and the textarea names its form explicitly. */-->
+  <div class="mb-2">
+    <label th:for="${modal.fieldId}" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true"
+        >&nbsp;*</span
+      ></label
+    >
+    <div class="flex flex-col">
+      <textarea
+        rows="8"
+        maxlength="10000"
+        th:id="${modal.fieldId}"
+        name="note"
+        th:form="${modal.formId}"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+        th:text="${modal.note}"
+      ></textarea>
+      <div
+        th:id="|${modal.fieldId}-errors|"
+        class="text-red-600 text-xs p-1 hidden"
+      ></div>
+    </div>
+  </div>
+  <div class="flex mt-5 space-x-2">
+    <div class="flex-grow"></div>
+    <button
+      type="button"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Save
+    </button>
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+  </div>
+</form>

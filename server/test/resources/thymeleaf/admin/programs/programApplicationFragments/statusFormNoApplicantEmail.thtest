@@ -1,0 +1,55 @@
+%NAME statusUpdateForm - applicant without an email address: hidden sendEmail checkbox and explanation
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+modal = @views.admin.programs.ProgramApplicationPageViewModel$StatusModal@builder() \
+    .id("uuid-modal").statusText("Rejected") \
+    .previousStatusDisplay("Approved").previousStatusData("Approved") \
+    .emailMode(@views.admin.programs.ProgramApplicationPageViewModel$StatusModal$EmailMode@NO_APPLICANT_EMAIL) \
+    .emailAddresses(null).build()
+# ----------------------------------------------------------------------
+%INPUT
+<form th:replace="~{admin/programs/fragments/ApplicationStatusModal :: statusUpdateForm(5, 42, 'Utility Discount', 'Doe, Jane (42)', ${modal})}"></form>
+# ----------------------------------------------------------------------
+# The applicant name span in this variant has no cf-application-id class, as
+# in the legacy view.
+%OUTPUT
+<form class="cf-program-admin-status-update-form">
+  <input name="programId" value="5" hidden />
+  <input name="applicationId" value="42" hidden />
+  <p>
+    <span>Status Change: </span><span class="font-semibold">Approved</span><span class="font-semibold"> -&gt; </span><span class="font-semibold">Rejected</span><span> (visible to applicant)</span>
+  </p>
+  <p>
+    <span>Applicant: </span><span class="font-semibold cf-application-id">Doe, Jane (42)</span>
+  </p>
+  <p>
+    <span>Program: </span><span class="font-semibold">Utility Discount</span>
+  </p>
+  <div class="mt-4">
+    <input hidden type="text" name="newStatus" value="Rejected" />
+    <input hidden type="text" name="currentStatus" value="Approved" />
+    <div>
+      <input type="checkbox" name="sendEmail" class="h-4 w-4 mr-4 align-middle self-center flex-none" hidden />
+      <p>
+        <span class="font-semibold">Doe, Jane (42)</span><span> will not receive an email for this change since they have not provided an email address.</span>
+      </p>
+    </div>
+  </div>
+  <div class="flex mt-5 space-x-2">
+    <div class="flex-grow"></div>
+    <button
+      type="button"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Confirm
+    </button>
+    <input hidden value="token" name="csrfToken" />
+  </div>
+</form>

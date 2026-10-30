@@ -1,0 +1,38 @@
+%NAME modal - shell renders the title header, the caller's content fragment, and the close button last
+%TEMPLATE_MODE HTML
+%CONTEXT
+modal = @views.admin.programs.ProgramApplicationPageViewModel$NoteModal@builder() \
+    .id("uuid-modal").formId("uuid-form").fieldId("abcdefgh").note(null).build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/LegacyModal :: modal(${modal.id}, 'Edit note', ~{admin/programs/fragments/ApplicationNoteModal :: noteForm(5, 42, ${modal})})}"></div>
+# ----------------------------------------------------------------------
+# The body fragment and the icon are faked so this test stays about the
+# shell; both have their own thtests.
+%INPUT[admin/programs/fragments/ApplicationNoteModal]
+<form th:fragment="noteForm(programId, applicationId, modal)" th:text="|noteForm(${programId}, ${applicationId}, ${modal.formId})|"></form>
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconClose(classes)" th:text="|iconClose(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div
+  id="uuid-modal"
+  aria-labelledby="uuid-modal-title"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-9/12 top-1/4"
+>
+  <div id="uuid-modal-title" class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center">
+    <div class="text-2xl text-gray-600 my-5 mx-4">Edit note</div>
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <form>noteForm(5, 42, uuid-form)</form>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg>iconClose(w-6 h-6 cursor-pointer)</svg>
+  </button>
+</div>

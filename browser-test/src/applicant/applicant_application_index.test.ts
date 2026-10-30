@@ -853,6 +853,13 @@ test.describe('applicant program index page', () => {
 })
 
 test.describe('applicant program index page with images', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows program with wide image and removes image from card when in My Applications', async ({
     page,
     adminPrograms,

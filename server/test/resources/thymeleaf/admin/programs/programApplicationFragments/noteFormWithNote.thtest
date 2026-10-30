@@ -1,0 +1,47 @@
+%NAME noteForm - existing note is the textarea content
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+modal = @views.admin.programs.ProgramApplicationPageViewModel$NoteModal@builder() \
+    .id("uuid-modal").formId("uuid-form").fieldId("abcdefgh").note("Called the applicant").build()
+# ----------------------------------------------------------------------
+%INPUT
+<form th:replace="~{admin/programs/fragments/ApplicationNoteModal :: noteForm(5, 42, ${modal})}"></form>
+# ----------------------------------------------------------------------
+%OUTPUT
+<form id="uuid-form" class="cf-program-admin-edit-note-form">
+  <input name="programId" value="5" hidden />
+  <input name="applicationId" value="42" hidden />
+  <div class="mb-2">
+    <label for="abcdefgh" class="sr-only"
+      ><span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+    >
+    <div class="flex flex-col">
+      <textarea
+        rows="8"
+        maxlength="10000"
+        id="abcdefgh"
+        name="note"
+        form="uuid-form"
+        class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+      >Called the applicant</textarea>
+      <div id="abcdefgh-errors" class="text-red-600 text-xs p-1 hidden"></div>
+    </div>
+  </div>
+  <div class="flex mt-5 space-x-2">
+    <div class="flex-grow"></div>
+    <button
+      type="button"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Cancel
+    </button>
+    <button
+      type="submit"
+      class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+    >
+      Save
+    </button>
+    <input hidden value="token" name="csrfToken" />
+  </div>
+</form>
