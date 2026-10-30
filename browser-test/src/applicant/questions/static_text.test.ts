@@ -138,6 +138,9 @@ test.describe('Static text question for applicant flow', () => {
         await loginAsAdmin(page)
         await adminQuestions.goToQuestionTranslationPage(imageQuestionName)
         await adminTranslations.selectLanguage('Spanish')
+        await page
+          .getByRole('textbox', {name: 'Question text'})
+          .fill('Spanish question text')
         await adminTranslations.editQuestionImageDescription(spanishAltText)
         await logout(page)
       })

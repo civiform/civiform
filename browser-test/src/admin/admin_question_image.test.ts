@@ -482,6 +482,7 @@ test.describe('Admin can manage question image', () => {
   })
 
   test('adds translation for question image alt text', async ({
+    page,
     adminQuestions,
     adminQuestionImage,
     adminTranslations,
@@ -489,6 +490,7 @@ test.describe('Admin can manage question image', () => {
     const questionName = 'translate-alt-text-question'
     const defaultAltText = 'English alt text'
     const spanishAltText = 'Spanish alt text'
+    const spanishQuestionText = 'Spanish question text'
 
     await test.step('Create question, upload image with alt text, and save', async () => {
       await adminQuestions.addStaticQuestion({questionName})
@@ -505,6 +507,9 @@ test.describe('Admin can manage question image', () => {
       await adminQuestions.goToQuestionTranslationPage(questionName)
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectQuestionImageDescriptionTranslation('')
+      await page
+        .getByRole('textbox', {name: 'Question text'})
+        .fill(spanishQuestionText)
       await adminTranslations.editQuestionImageDescription(spanishAltText)
     })
 
