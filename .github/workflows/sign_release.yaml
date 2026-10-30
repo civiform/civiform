@@ -1,0 +1,84 @@
+# Signs the released docker image and uploads the signature to the release.
+#
+# The release image is retagged from a SNAPSHOT image by bin/create-release,
+# which republishes it with a new digest, so it can only be signed after the
+# release exists. This resolves the digest from the final release tag, writes
+# it to a small file, and signs that file with Sigstore keyless signing (the
+# identity is this workflow, no keys to manage). The file and its
+# *.sigstore.json bundle are attached to the release, which is where the
+# OpenSSF Scorecard Signed-Releases check looks.
+#
+# To verify a release, download both assets and run:
+#   cosign verify-blob \
+#     --bundle civiform-civiform_v3_38_0.digest.txt.sigstore.json \
+#     --certificate-identity-regexp '^https://github.com/civiform/civiform/\.github/workflows/sign_release\.yaml@' \
+#     --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+#     civiform-civiform_v3_38_0.digest.txt
+# then check that the image you run has the digest in the file.
+#
+# Use workflow_dispatch to sign a release that was published before this
+# workflow existed.
+name: Sign Release
+
+on:
+  release:
+    types: ['published']
+
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'The tag name of the release, e.g. v3.38.0'
+        required: true
+
+permissions: read-all
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write # upload the signature to the release
+      id-token: write # keyless signing identity
+
+    env:
+      # Get the tag value from the workflow dispatch or the release event info
+      TAG_NAME: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Check the tag name
+        run: |
+          if ! [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Unexpected tag name: $TAG_NAME" >&2
+            exit 1
+          fi
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@6f9f17788090df1f26f669e9d70d6ae9567deba6 # v4.1.2
+        with:
+          cosign-release: 'v3.1.3'
+
+      - name: Write the release image digest to a file
+        run: |
+          digest=$(docker buildx imagetools inspect "docker.io/civiform/civiform:${TAG_NAME}" --format '{{.Manifest.Digest}}')
+          if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "Unexpected digest: $digest" >&2
+            exit 1
+          fi
+          echo "docker.io/civiform/civiform@${digest}" > "civiform-civiform_${TAG_NAME//./_}.digest.txt"
+          cat "civiform-civiform_${TAG_NAME//./_}.digest.txt"
+
+      - name: Sign the digest file
+        run: |
+          file="civiform-civiform_${TAG_NAME//./_}.digest.txt"
+          cosign sign-blob --yes --bundle "${file}.sigstore.json" "$file"
+          cosign verify-blob \
+            --bundle "${file}.sigstore.json" \
+            --certificate-identity-regexp '^https://github.com/civiform/civiform/\.github/workflows/sign_release\.yaml@' \
+            --certificate-oidc-issuer https://token.actions.githubusercontent.com \
+            "$file"
+
+      - name: Upload the digest file and signature to release ${{ env.TAG_NAME }}
+        run: |
+          file="civiform-civiform_${TAG_NAME//./_}.digest.txt"
+          gh release upload "$TAG_NAME" "$file" "${file}.sigstore.json" --clobber --repo "$GITHUB_REPOSITORY"
