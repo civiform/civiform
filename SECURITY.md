@@ -14,7 +14,7 @@ Please include the docker image tag for the version in which you have found the 
 
 ## What happens after you report
 
-We reply to every report within one business day. Reports from governments that run CiviForm also get regular updates. We score the severity with CVSS v3.1 and develop the fix privately until it is ready to ship. Fixes go out in the next scheduled release, or in an out-of-schedule release if the issue is critical and affects all deployments. We note in the release notes when a release includes security fixes, and those notes go to the civiform-announce and civiform-technical lists.
+We reply to every report within one business day. Reports from governments that run CiviForm also get regular updates. We score the severity with CVSS v3.1 and develop the fix privately until it is ready to ship. Fixes go out in the next scheduled release, or in an out-of-schedule release if the issue is critical and affects all deployments.
 
 We publish a GitHub security advisory once the fix is in a release and the governments we work with have upgraded. We aim to publish within about one release of the release that contains the fix. We request a CVE ID for each advisory we publish. Once we've replied to a report, we remove the reporter as a collaborator on the advisory. We credit reporters on the published advisory by default, unless they ask to stay anonymous.
 
