@@ -771,6 +771,14 @@ validation.dateTooFarInFuture={0} 이전의 날짜여야 합니다.
 # Validation error shown when the user enters a date that is before or after the allowed date range.
 validation.dateNotInRange={0}에서 {1} 사이의 날짜여야 합니다.
 validation.currentDateRequired=오늘 날짜를 입력하세요.
+# Validation hint shown when the year field does not contain exactly 4 digits.
+validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+# Validation error shown when the month was not selected.
+validation.monthRequired=Please select a month.
+# Validation error shown when the day field was left blank.
+validation.dayRequired=Please enter a day.
+# Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
+validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
