@@ -771,6 +771,14 @@ validation.dateTooFarInFuture=必須輸入 {0}以前的日期
 # Validation error shown when the user enters a date that is before or after the allowed date range.
 validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
 validation.currentDateRequired=請輸入今天的日期
+# Validation hint shown when the year field does not contain exactly 4 digits.
+validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+# Validation error shown when the month was not selected.
+validation.monthRequired=Please select a month.
+# Validation error shown when the day field was left blank.
+validation.dayRequired=Please enter a day.
+# Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
+validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
