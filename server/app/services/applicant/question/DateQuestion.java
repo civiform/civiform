@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableSet;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
@@ -52,9 +53,7 @@ public final class DateQuestion extends AbstractQuestion {
     // convert to a date and been noted as a failed update. We check for that here.
     if (applicantData.updateDidFailAt(getDatePath())) {
       return ImmutableMap.of(
-          getDatePath(),
-          ImmutableSet.of(
-              ValidationErrorMessage.create(MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT)));
+          getDatePath(), ImmutableSet.of(ValidationErrorMessage.create(failedDateMessageKey())));
     }
 
     return ImmutableMap.of(getDatePath(), validateDate());
@@ -194,11 +193,7 @@ public final class DateQuestion extends AbstractQuestion {
     if (monthValue != null) {
       return monthValue;
     }
-    if (getDateValue().isPresent()) {
-      monthValue = Optional.of(getDateValue().get().getMonthValue());
-    } else {
-      monthValue = getDatePartFromFailedUpdates(1);
-    }
+    monthValue = displayedDatePart(1, getDateValue().map(LocalDate::getMonthValue));
     return monthValue;
   }
 
@@ -206,11 +201,7 @@ public final class DateQuestion extends AbstractQuestion {
     if (yearValue != null) {
       return yearValue;
     }
-    if (getDateValue().isPresent()) {
-      yearValue = Optional.of(getDateValue().get().getYear());
-    } else {
-      yearValue = getDatePartFromFailedUpdates(0);
-    }
+    yearValue = displayedDatePart(0, getDateValue().map(LocalDate::getYear));
     return yearValue;
   }
 
@@ -218,12 +209,19 @@ public final class DateQuestion extends AbstractQuestion {
     if (dayValue != null) {
       return dayValue;
     }
-    if (getDateValue().isPresent()) {
-      dayValue = Optional.of(getDateValue().get().getDayOfMonth());
-    } else {
-      dayValue = getDatePartFromFailedUpdates(2);
-    }
+    dayValue = displayedDatePart(2, getDateValue().map(LocalDate::getDayOfMonth));
     return dayValue;
+  }
+
+  /**
+   * After a failed submit, show the date the user just entered. Otherwise show the saved answer.
+   * The saved answer is left in place when parsing fails, so preferring it hides the mistake.
+   */
+  private Optional<Integer> displayedDatePart(int failedUpdateIndex, Optional<Integer> savedPart) {
+    if (applicantData.updateDidFailAt(getDatePath())) {
+      return getDatePartFromFailedUpdates(failedUpdateIndex);
+    }
+    return savedPart;
   }
 
   public boolean isYearEmpty() {
@@ -240,6 +238,97 @@ public final class DateQuestion extends AbstractQuestion {
 
   public boolean allFieldsPresent() {
     return getYearValue().isPresent() && getMonthValue().isPresent() && getDayValue().isPresent();
+  }
+
+  /** True when the year input should be marked invalid. */
+  public boolean hasYearError() {
+    return showsErrorOnField(
+        ImmutableSet.of(MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS), isYearEmpty());
+  }
+
+  /** True when the month input should be marked invalid. */
+  public boolean hasMonthError() {
+    return showsErrorOnField(
+        ImmutableSet.of(MessageKey.DATE_VALIDATION_MONTH_REQUIRED), isMonthEmpty());
+  }
+
+  /** True when the day input should be marked invalid. */
+  public boolean hasDayError() {
+    return showsErrorOnField(
+        ImmutableSet.of(
+            MessageKey.DATE_VALIDATION_DAY_REQUIRED, MessageKey.DATE_VALIDATION_DAY_INVALID),
+        isDayEmpty());
+  }
+
+  /**
+   * Field-specific parse errors mark every part that failed. Other date errors, such as a date
+   * outside the allowed range, still mark every part that is empty or every part when the date is
+   * complete.
+   */
+  private boolean showsErrorOnField(ImmutableSet<MessageKey> fieldKeys, boolean fieldEmpty) {
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors = getValidationErrors();
+    if (errors.isEmpty()) {
+      return false;
+    }
+    ImmutableList<MessageKey> parseErrors = failedDateFieldErrors();
+    if (!parseErrors.isEmpty()) {
+      return parseErrors.stream().anyMatch(fieldKeys::contains);
+    }
+    return fieldEmpty || allFieldsPresent();
+  }
+
+  /**
+   * A memorable date is stored as {@code YYYY-MM-DD}. Name the first field that kept it from
+   * parsing, instead of the generic date-format error. Field order matches display order (month →
+   * day → year) so autofocus lands on the leftmost problem.
+   */
+  private MessageKey failedDateMessageKey() {
+    ImmutableList<MessageKey> fieldErrors = failedDateFieldErrors();
+    if (fieldErrors.isEmpty()) {
+      return MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT;
+    }
+    return fieldErrors.get(0);
+  }
+
+  /**
+   * Collects every field-level problem with a failed memorable-date parse, in display order (month
+   * → day → year). Empty when the failed value is not a three-part date or every part is valid.
+   */
+  private ImmutableList<MessageKey> failedDateFieldErrors() {
+    String failedDate = applicantData.getFailedUpdates().get(getDatePath());
+    if (failedDate == null) {
+      return ImmutableList.of();
+    }
+    String[] parts = failedDate.split("-", -1);
+    if (parts.length != 3) {
+      return ImmutableList.of();
+    }
+    boolean monthValid = parts[1].matches("0[1-9]|1[0-2]");
+    boolean yearValid = parts[0].matches("\\d{4}");
+    ImmutableList.Builder<MessageKey> errors = ImmutableList.builder();
+    if (!monthValid) {
+      errors.add(MessageKey.DATE_VALIDATION_MONTH_REQUIRED);
+    }
+    // cleanDateQuestions zero-pads a blank day to "00".
+    if (parts[2].isEmpty() || parts[2].matches("0+")) {
+      errors.add(MessageKey.DATE_VALIDATION_DAY_REQUIRED);
+    } else if (!parts[2].matches("0[1-9]|[12]\\d|3[01]")
+        || (monthValid && yearValid && !isParsableDate(failedDate))) {
+      errors.add(MessageKey.DATE_VALIDATION_DAY_INVALID);
+    }
+    if (!yearValid) {
+      errors.add(MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS);
+    }
+    return errors.build();
+  }
+
+  private static boolean isParsableDate(String failedDate) {
+    try {
+      LocalDate.parse(failedDate, DateTimeFormatter.ISO_LOCAL_DATE);
+      return true;
+    } catch (DateTimeParseException e) {
+      return false;
+    }
   }
 
   /**
