@@ -771,6 +771,14 @@ validation.dateTooFarInFuture=Date must be before {0}
 # Validation error shown when the user enters a date that is before or after the allowed date range.
 validation.dateNotInRange=Date must be between {0} and {1}
 validation.currentDateRequired=Please enter today''s date
+# Validation hint shown when the year field does not contain exactly 4 digits.
+validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+# Validation error shown when the month was not selected.
+validation.monthRequired=Please select a month.
+# Validation error shown when the day field was left blank.
+validation.dayRequired=Please enter a day.
+# Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
+validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - January
 # A month option when selecting a specific date from a dropdown menu.
