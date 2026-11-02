@@ -202,8 +202,9 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
       // Whether the entities on an enumerator block came through the initial-question flow.
       // Used to suppress blank/duplicate-blank entry error validation when the initial-question
-      // fields
-      // report those errors themselves.
+      // fields report those errors themselves.
+      // TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
+      // check in EnumeratorQuestion.
       context.setVariable(
           "initialQuestionFlowIsActive", applicationParams.block().initialQuestionFlowIsActive());
 
@@ -362,7 +363,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
       ApplicationBaseViewParams params) {
-    AtomicInteger ordinalErrorCount = new AtomicInteger(0);
+    AtomicInteger errorCount = new AtomicInteger(0);
 
     return params.block().getVisibleQuestions().stream()
         .collect(
@@ -370,7 +371,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                 question -> question.getQuestionDefinition().getId(),
                 question -> {
                   if (question.hasErrors()) {
-                    ordinalErrorCount.incrementAndGet();
+                    errorCount.incrementAndGet();
                   }
                   ApplicantQuestionRendererParams.Builder paramsBuilder =
                       ApplicantQuestionRendererParams.builder()
@@ -380,7 +381,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                               calculateAutoFocusTarget(
                                   params.errorDisplayMode(),
                                   params.block().hasErrors(),
-                                  ordinalErrorCount.get()));
+                                  errorCount.get()));
                   if (question.getType().equals(QuestionType.MAP)) {
                     paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
                   }
@@ -464,10 +465,10 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
       boolean formHasErrors,
-      int ordinalErrorCount) {
+      int errorCount) {
     if (formHasErrors
         && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)
-        && ordinalErrorCount == 1) {
+        && errorCount == 1) {
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
@@ -497,13 +498,13 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     // entity answer. As with the standalone questions in getApplicantQuestionRendererParams,
     // a running error count lets calculateAutoFocusTarget focus only the first entity row that has
     // an error.
-    AtomicInteger ordinalErrorCount = new AtomicInteger(0);
+    AtomicInteger errorCount = new AtomicInteger(0);
     List<ApplicantQuestionRendererParams> initialQuestionRendererParamsList =
         contextualizedInitialQuestions.stream()
             .map(
                 initialQuestion -> {
                   if (initialQuestion.hasErrors()) {
-                    ordinalErrorCount.incrementAndGet();
+                    errorCount.incrementAndGet();
                   }
                   return ApplicantQuestionRendererParams.builder()
                       .setMessages(params.messages())
@@ -512,7 +513,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                           calculateAutoFocusTarget(
                               params.errorDisplayMode(),
                               params.block().hasErrors(),
-                              ordinalErrorCount.get()))
+                              errorCount.get()))
                       .build();
                 })
             .collect(Collectors.toList());

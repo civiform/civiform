@@ -231,19 +231,21 @@ public final class Block {
    *
    * <p>Detected from the data, not from configuration: an initial question can be configured on the
    * block while the entities were still entered the legacy way (e.g. the enumerator-improvements
-   * flag is off). Each answer is stored with a marker recording which program last wrote it, which
-   * {@link ApplicantQuestion#wasRecentlyUpdatedInThisProgram()} reads at the question's own path.
-   * The legacy free-text input only stores an entity name and never writes to the initial
-   * question's path, so that marker is absent there. The initial-question flow does save the
-   * initial question's answers for every entity, so a present marker is the reliable signal that
-   * these entities came through this flow.
+   * flag is off). Each initial-question answer is stored with a {@code program_updated_in} marker
+   * at the question's own nested path. The legacy free-text input only stores an entity name and
+   * never writes to the initial question's path, so that marker is absent there. The mere presence
+   * of the marker is therefore the signal, independent of which program wrote it: an entity
+   * answered through the new flow in a different program still reads as the new flow here.
+   *
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
+   * check in {@link services.applicant.question.EnumeratorQuestion}.
    */
   public boolean initialQuestionFlowIsActive() {
     if (!isEnumerator()) {
       return false;
     }
     return getContextualizedInitialQuestions().stream()
-        .anyMatch(ApplicantQuestion::wasRecentlyUpdatedInThisProgram);
+        .anyMatch(question -> question.getUpdatedInProgramMetadata().isPresent());
   }
 
   /**

@@ -134,7 +134,7 @@ public final class ApplicantQuestion {
   }
 
   /** Returns true if this question was most recently updated in this program. */
-  public boolean wasRecentlyUpdatedInThisProgram() {
+  private boolean wasRecentlyUpdatedInThisProgram() {
     return getUpdatedInProgramMetadata().stream()
         .anyMatch(pid -> pid.equals(programQuestionDefinition.getProgramDefinitionId()));
   }
@@ -317,6 +317,9 @@ public final class ApplicantQuestion {
    * When {@code initialQuestionFlowIsActive} is true the enumerator skips its blank/duplicate-blank
    * entity-name validation because the per-entity initial-question fields report those errors
    * themselves.
+   *
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove this overload with the
+   * blank-name check in {@link EnumeratorQuestion}.
    */
   public EnumeratorQuestion createEnumeratorQuestion(boolean initialQuestionFlowIsActive) {
     return new EnumeratorQuestion(this, initialQuestionFlowIsActive);

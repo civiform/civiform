@@ -1147,8 +1147,7 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void stageAndUpdateIfValid_initialQuestionAllFieldsEmpty_blockHasGroupRequiredError() {
     // A fully empty required entry behaves like a standalone required name question: a single
-    // top-level
-    // "required" error at the question path.
+    // top-level "required" error at the question path.
     StagedInitialQuestion staged =
         stageInitialQuestionAnswer(
             QuestionType.NAME, ImmutableMap.of(Scalar.FIRST_NAME, "", Scalar.LAST_NAME, ""));
