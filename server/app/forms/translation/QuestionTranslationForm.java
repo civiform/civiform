@@ -21,7 +21,6 @@ public class QuestionTranslationForm {
   public QuestionTranslationForm() {
     this.questionText = "";
     this.questionHelpText = "";
-    this.imageDescription = "";
     // If we don't get a token from the client, generate one so any updates fail.
     this.concurrencyToken = UUID.randomUUID();
   }

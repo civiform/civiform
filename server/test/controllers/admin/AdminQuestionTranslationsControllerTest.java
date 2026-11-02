@@ -210,6 +210,56 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void update_questionWithImage_withoutImageDescription_preservesExistingImageDescription()
+      throws TranslationNotFoundException, UnsupportedQuestionTypeException {
+    QuestionDefinition definition =
+        new NameQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("question with image")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_TEXT))
+                .setQuestionHelpText(LocalizedStrings.withDefaultValue(ENGLISH_QUESTION_HELP_TEXT))
+                .setImageFileKey("test-file-key")
+                .setLocalizedImageDescription(
+                    LocalizedStrings.of(
+                        LocalizedStrings.DEFAULT_LOCALE,
+                        "default alt text",
+                        ES_LOCALE,
+                        "existing spanish alt text"))
+                .build());
+    QuestionModel question = new QuestionModel(definition);
+    question.addVersion(draftVersion);
+    question.save();
+
+    Http.RequestBuilder requestBuilder =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "questionText",
+                    "updated spanish text",
+                    "questionHelpText",
+                    "updated spanish help text",
+                    "concurrencyToken",
+                    question.getConcurrencyToken().toString()));
+
+    Result result =
+        controller.update(
+            requestBuilder.build(), question.getQuestionDefinition().getName(), "es-US");
+
+    assertThat(result.status()).isEqualTo(OK);
+
+    QuestionDefinition updatedQuestion =
+        questionRepository
+            .lookupQuestion(question.id)
+            .toCompletableFuture()
+            .join()
+            .get()
+            .getQuestionDefinition();
+    assertThat(updatedQuestion.getLocalizedImageDescription().get().get(ES_LOCALE))
+        .isEqualTo("existing spanish alt text");
+  }
+
+  @Test
   public void update_questionNotFound_returnsNotFound() {
     assertThatThrownBy(
             () -> controller.update(fakeRequest(), "non-existent question name", "es-US"))
