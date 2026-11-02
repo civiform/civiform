@@ -520,8 +520,10 @@ export default class PreviewController {
 
   private static updateFromNewEntityType(entityType: string) {
     entityType = entityType || PreviewController.DEFAULT_ENTITY_TYPE
+    // Legacy free-text rows label their input inside .cf-entity-name-input; initial-question rows
+    // use .cf-entity-index-label.
     PreviewController.setAllMatchingElements(
-      PreviewController.QUESTION_ENTITY_NAME_INPUT_SELECTOR + ' label',
+      `${PreviewController.QUESTION_ENTITY_NAME_INPUT_SELECTOR} label, .cf-entity-index-label`,
       entityType + ' name',
     )
     PreviewController.setTextContent(

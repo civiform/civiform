@@ -2,6 +2,7 @@ package views.admin.questions;
 
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
+import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
@@ -17,10 +18,12 @@ import services.BundledAssetsFinder;
 import services.DeploymentType;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicantPersonalInfo;
+import services.applicant.RepeatedEntity;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.UnsupportedQuestionTypeException;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
@@ -70,18 +73,22 @@ public class QuestionPreview extends ApplicantBaseView {
                     throw new RuntimeException(e);
                   }
                 });
-    ProgramQuestionDefinition pqd =
-        ProgramQuestionDefinition.create(
-            questionDefinition,
-            /* programDefinitionId= */ Optional.empty(),
-            /* optional= */ true,
-            /* addressCorrectionEnabled= */ false);
     ApplicantQuestion applicantQuestion =
-        new ApplicantQuestion(pqd, new ApplicantModel(), new ApplicantData(), Optional.empty());
+        previewQuestion(questionDefinition, Optional.empty(), /* optional= */ true);
     context.setVariable("question", applicantQuestion);
 
     ApplicantQuestionRendererParams rendererParams = rendererParams(params);
     context.setVariable("questionRendererParams", rendererParams);
+    if (questionDefinition instanceof EnumeratorQuestionDefinition enumeratorDefinition
+        && params.initialQuestionDefinition().isPresent()
+        && settingsManifest.getEnumeratorImprovementsEnabled(params.request())) {
+      setInitialQuestionContext(
+          context,
+          applicantQuestion,
+          enumeratorDefinition,
+          params.initialQuestionDefinition().get(),
+          rendererParams);
+    }
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
@@ -103,6 +110,91 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("questionImageAltText", params.imageAltText());
     context.setVariable("previewUrl", params.request().uri());
     return templateEngine.process("admin/questions/QuestionPreviewFragment", context);
+  }
+
+  /**
+   * Adds the variables the enumerator fragment needs to show the initial question: its type and the
+   * URL the Add button posts to for a new row. Like a new application, the preview starts with no
+   * rows until Add is clicked.
+   */
+  private void setInitialQuestionContext(
+      ThymeleafModule.PlayThymeleafContext context,
+      ApplicantQuestion enumeratorApplicantQuestion,
+      EnumeratorQuestionDefinition enumeratorDefinition,
+      QuestionDefinition initialQuestionDefinition,
+      ApplicantQuestionRendererParams rendererParams) {
+    context.setVariable("initialQuestionType", initialQuestionDefinition.getQuestionType());
+    context.setVariable("contextualizedInitialQuestions", ImmutableList.of());
+    context.setVariable(
+        "enumeratorQuestion", enumeratorApplicantQuestion.createEnumeratorQuestion());
+    context.setVariable(
+        "hxAddEnumeratorEntityUrl",
+        controllers.admin.routes.QuestionPreviewController.hxAddEnumeratorEntity(
+                enumeratorDefinition.getId())
+            .url());
+    context.setVariable("initialQuestionRendererParams", rendererParams);
+  }
+
+  /**
+   * Renders one new row for the initial question, for the Add button in the enumerator preview. The
+   * row has no answers, so it never shows errors.
+   */
+  public String renderNewEnumeratorEntityRow(
+      Request request,
+      Messages messages,
+      EnumeratorQuestionDefinition enumeratorDefinition,
+      QuestionDefinition initialQuestionDefinition,
+      int entityIndex,
+      String enumeratorQuestionId) {
+    ThymeleafModule.PlayThymeleafContext context = playThymeleafContextFactory.create(request);
+    ApplicantQuestion contextualizedInitialQuestion =
+        contextualizedInitialQuestion(enumeratorDefinition, initialQuestionDefinition, entityIndex);
+    context.setVariable("contextualizedInitialQuestion", contextualizedInitialQuestion);
+    context.setVariable("initialQuestionType", contextualizedInitialQuestion.getType());
+    context.setVariable(
+        "enumeratorQuestion",
+        previewQuestion(enumeratorDefinition, Optional.empty(), /* optional= */ true)
+            .createEnumeratorQuestion());
+    context.setVariable("entityIndex", entityIndex);
+    context.setVariable("questionId", enumeratorQuestionId);
+    context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
+    context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
+    context.setVariable(
+        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    context.setVariable(
+        "initialQuestionRendererParams",
+        ApplicantQuestionRendererParams.builder()
+            .setMessages(messages)
+            .setErrorDisplayMode(ErrorDisplayMode.HIDE_ERRORS)
+            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
+            .build());
+    return templateEngine.process("questiontypes/EnumeratorNewEntityRowPartial", context);
+  }
+
+  private static ApplicantQuestion contextualizedInitialQuestion(
+      EnumeratorQuestionDefinition enumeratorDefinition,
+      QuestionDefinition initialQuestionDefinition,
+      int entityIndex) {
+    // The initial question is required, as it is once it is added to a program block. That also
+    // makes the Add button wait for a value in the last row.
+    return previewQuestion(
+        initialQuestionDefinition,
+        Optional.of(RepeatedEntity.createForPreview(enumeratorDefinition, entityIndex)),
+        /* optional= */ false);
+  }
+
+  /** An unanswered question, as it would look to an applicant, for the preview. */
+  private static ApplicantQuestion previewQuestion(
+      QuestionDefinition questionDefinition,
+      Optional<RepeatedEntity> repeatedEntity,
+      boolean optional) {
+    ProgramQuestionDefinition pqd =
+        ProgramQuestionDefinition.create(
+            questionDefinition,
+            /* programDefinitionId= */ Optional.empty(),
+            optional,
+            /* addressCorrectionEnabled= */ false);
+    return new ApplicantQuestion(pqd, new ApplicantModel(), new ApplicantData(), repeatedEntity);
   }
 
   private ApplicantQuestionRendererParams rendererParams(Params params) {
@@ -128,7 +220,8 @@ public class QuestionPreview extends ApplicantBaseView {
   public abstract static class Params {
 
     public static Builder builder() {
-      return new AutoValue_QuestionPreview_Params.Builder();
+      return new AutoValue_QuestionPreview_Params.Builder()
+          .setInitialQuestionDefinition(Optional.empty());
     }
 
     abstract Request request();
@@ -151,6 +244,9 @@ public class QuestionPreview extends ApplicantBaseView {
 
     abstract Optional<QuestionDefinition> questionDefinition();
 
+    /** For an enumerator question, its initial question, when it has one. */
+    abstract Optional<QuestionDefinition> initialQuestionDefinition();
+
     @AutoValue.Builder
     public abstract static class Builder {
 
@@ -172,6 +268,9 @@ public class QuestionPreview extends ApplicantBaseView {
 
       public abstract Builder setQuestionDefinition(
           Optional<QuestionDefinition> questionDefinition);
+
+      public abstract Builder setInitialQuestionDefinition(
+          Optional<QuestionDefinition> initialQuestionDefinition);
 
       public abstract Params build();
     }

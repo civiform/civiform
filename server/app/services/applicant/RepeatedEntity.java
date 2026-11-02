@@ -61,6 +61,20 @@ public abstract class RepeatedEntity {
     return repeatedEntitiesBuilder.build();
   }
 
+  /**
+   * Creates a top-level repeated entity with no name, for rendering the fields of an enumerator's
+   * initial question outside of an application, such as in the admin question preview.
+   */
+  public static RepeatedEntity createForPreview(
+      EnumeratorQuestionDefinition enumeratorQuestionDefinition, int index) {
+    return create(
+        enumeratorQuestionDefinition,
+        /* visibility= */ Optional.empty(),
+        /* parent= */ Optional.empty(),
+        /* entityName= */ "",
+        index);
+  }
+
   /** Creates an instance of RepeatedEntity, using AutoValue. */
   static RepeatedEntity create(
       EnumeratorQuestionDefinition enumeratorQuestionDefinition,
