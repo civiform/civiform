@@ -32,7 +32,7 @@
           id="program-image-form"
           method="post"
           novalidate
-          th:action="${model.submitNavigationUrl}"
+          th:action="${model.submitNavigationUrl + '?csrfToken=' + #uris.escapeQueryParam(templateGlobals.csrfToken())}"
         >
           <input
             hidden

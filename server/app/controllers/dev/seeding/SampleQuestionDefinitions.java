@@ -378,7 +378,8 @@ public final class SampleQuestionDefinitions {
                            * It contains one of every question type.
 
                           _What are_ the eligibility requirements?
-                          Please go [here](https://www.example.com) for more information""",
+                          Please go [here](https://www.example.com) for more information\
+                          """,
                           Lang.forCode("ar").toLocale(),
                           """
                            مرحبًا، أنا كتلة من النص الثابت.
@@ -534,8 +535,8 @@ public final class SampleQuestionDefinitions {
       case STATIC -> STATIC_CONTENT_QUESTION_DEFINITION.withPopulatedTestId();
       case TEXT -> TEXT_QUESTION_DEFINITION.withPopulatedTestId();
       case PHONE -> PHONE_QUESTION_DEFINITION.withPopulatedTestId();
-        // Fall through to Null Question for now since Yes/No is not fully implemented.
-        // TODO(#10800): Create a Yes/No question instead.
+      // Fall through to Null Question for now since Yes/No is not fully implemented.
+      // TODO(#10800): Create a Yes/No question instead.
       case YES_NO, NULL_QUESTION -> new NullQuestionDefinition(1);
     };
   }

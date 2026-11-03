@@ -40,7 +40,7 @@ public class IconElementTagProcessorTest extends ResetPostgres {
     tagProcessor.doProcess(mockContext, mockTag, mockStructureHandler);
 
     String expected =
-        """
+"""
 <img src="/assets/Images/uswds/[a-zA-Z0-9]+-icon-https.svg" aria-hidden="true" role="img" class="aaa bbb ccc" alt="">
 """;
 
@@ -57,7 +57,7 @@ public class IconElementTagProcessorTest extends ResetPostgres {
     tagProcessor.doProcess(mockContext, mockTag, mockStructureHandler);
 
     String expected =
-        """
+"""
 <img src="/assets/Images/uswds/[a-zA-Z0-9]+-icon-https.svg" aria-hidden="true" role="img" alt="">
 """;
 

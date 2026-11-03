@@ -87,4 +87,40 @@ public class PageNotProductionBannerTest {
     assertThat(actualString).doesNotContain("href");
     assertThat(actualString).doesNotContain("line2");
   }
+
+  @Test
+  public void whenBannerTypeNotProduction_returnsComponent() {
+    when(settingsManifest.getBannerType(request)).thenReturn(Optional.of("not_production"));
+    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isNotEqualTo(Optional.empty());
+    assertThat(actual.toString()).contains("line1");
+  }
+
+  @Test
+  public void whenBannerTypeDemo_returnsEmptyEvenIfDeprecatedSettingEnabled() {
+    when(settingsManifest.getBannerType(request)).thenReturn(Optional.of("demo"));
+    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isEqualTo(Optional.empty());
+  }
+
+  @Test
+  public void whenBannerTypeNone_andDeprecatedSettingEnabled_returnsComponent() {
+    when(settingsManifest.getBannerType(request)).thenReturn(Optional.of("none"));
+    when(settingsManifest.getShowNotProductionBannerEnabled(request)).thenReturn(true);
+    when(settingsManifest.getCivicEntityProductionUrl(request)).thenReturn(Optional.empty());
+
+    PageNotProductionBanner component = new PageNotProductionBanner(settingsManifest);
+
+    var actual = component.render(request, messages);
+    assertThat(actual).isNotEqualTo(Optional.empty());
+    assertThat(actual.toString()).contains("line1");
+  }
 }

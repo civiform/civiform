@@ -51,6 +51,13 @@ export class AdminSettings {
     ).toHaveValue(value)
   }
 
+  async setEnumSetting(settingName: string, value: string) {
+    await this.page
+      .getByTestId(`enum-${settingName}`)
+      .locator('select')
+      .selectOption(value)
+  }
+
   async saveChanges(expectUpdated = true, expectError = false) {
     await this.page.click('button:text("Save changes")')
 

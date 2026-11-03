@@ -15,11 +15,12 @@ import play.i18n.Messages;
 import play.mvc.Http;
 import services.MessageKey;
 import services.settings.SettingsManifest;
+import views.shared.BannerUtils;
 
 /**
  * This will build a sticky banner that follows the user as they scroll. Enable the
- * SHOW_NOT_PRODUCTION_BANNER_ENABLED setting to add this banner to the page. It will show on a
- * production site if the SHOW_NOT_PRODUCTION_BANNER_ENABLED setting is enabled. Default is false.
+ * BANNER_TYPE=not_production (or the deprecated SHOW_NOT_PRODUCTION_BANNER_ENABLED) setting to add
+ * this banner to the page. Default is false.
  *
  * <p>Set the CIVIC_ENTITY_PRODUCTION_URL to include an optional link to the production site.
  *
@@ -36,7 +37,7 @@ public final class PageNotProductionBanner {
   }
 
   public Optional<DivTag> render(Http.RequestHeader request, Messages messages) {
-    if (!settingsManifest.getShowNotProductionBannerEnabled(request)) {
+    if (!BannerUtils.isNotProductionBannerEnabled(settingsManifest, request)) {
       return Optional.empty();
     }
 

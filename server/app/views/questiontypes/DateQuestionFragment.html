@@ -58,11 +58,15 @@
            fieldErrors=${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())},
            questionErrors=${dateQuestion.getValidationErrors().get(question.getContextualizedPath())},
            hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()},
-           monthHasError=${hasErrors && (dateQuestion.isMonthEmpty() || dateQuestion.allFieldsPresent())},
-           dayHasError=${hasErrors && (dateQuestion.isDayEmpty() || dateQuestion.allFieldsPresent())},
-           yearHasError=${hasErrors && (dateQuestion.isYearEmpty() || dateQuestion.allFieldsPresent())},
-           initialDescribedBy=${hasErrors ? questionId + '-error' : null},
-           standaloneDescribedBy=${questionId + '-description' + (hasErrors ? ' ' + questionId + '-error' : '')}"
+           monthHasError=${hasErrors && dateQuestion.hasMonthError()},
+           dayHasError=${hasErrors && dateQuestion.hasDayError()},
+           yearHasError=${hasErrors && dateQuestion.hasYearError()},
+           errorId=${questionId + '-error'},
+           descriptionId=${isInitialQuestion ? null : questionId + '-description'},
+           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
+           monthDescribedBy=${monthHasError ? describedByPrefix + errorId : descriptionId},
+           dayDescribedBy=${dayHasError ? describedByPrefix + errorId : descriptionId},
+           yearDescribedBy=${yearHasError ? describedByPrefix + errorId : descriptionId}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -99,8 +103,8 @@
         th:id="${monthId}"
         th:name="${dateQuestion.getMonthPath()}"
         th:with="value=${dateQuestion.getMonthValue().orElse('')}"
-        th:aria-describedby="${isInitialQuestion ? initialDescribedBy : standaloneDescribedBy}"
-        th:autofocus="${questionRendererParams.autofocusFirstError()}"
+        th:aria-describedby="${monthDescribedBy}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && monthHasError}"
         th:aria-required="${!question.isOptional()}"
       >
         <option value th:text="#{placeholder.memorableDate}"></option>
@@ -185,7 +189,8 @@
         class="usa-input"
         th:classappend="${dayHasError ? 'usa-input--error' : ''}"
         th:aria-invalid="${dayHasError}"
-        th:aria-describedby="${isInitialQuestion ? initialDescribedBy : standaloneDescribedBy}"
+        th:aria-describedby="${dayDescribedBy}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && dayHasError && !monthHasError}"
         th:id="${dayId}"
         th:name="${dateQuestion.getDayPath()}"
         maxlength="2"
@@ -214,10 +219,10 @@
         class="usa-input"
         th:classappend="${yearHasError ? 'usa-input--error' : ''}"
         th:aria-invalid="${yearHasError}"
-        th:aria-describedby="${isInitialQuestion ? initialDescribedBy : standaloneDescribedBy}"
+        th:aria-describedby="${yearDescribedBy}"
+        th:autofocus="${questionRendererParams.autofocusFirstError() && yearHasError && !monthHasError && !dayHasError}"
         th:id="${yearId}"
         th:name="${dateQuestion.getYearPath()}"
-        minlength="4"
         maxlength="4"
         pattern="[0-9]*"
         inputmode="numeric"

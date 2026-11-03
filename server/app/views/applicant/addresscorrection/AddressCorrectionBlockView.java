@@ -7,6 +7,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
@@ -40,7 +41,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
       ApplicantRoutes applicantRoutes,
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
-      DeploymentType deploymentType) {
+      DeploymentType deploymentType,
+      Clock clock) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -48,7 +50,8 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
   }
 
   public String render(

@@ -36,35 +36,40 @@ export const logout = async (page: Page, closeToast = true) => {
   })
 }
 
+const clickRoleButton = async (page: Page, roleSelector: string) => {
+  const debugModalButton = page.locator('#debug-content-modal-button')
+  await page
+    .locator(`#debug-content-modal-button:visible, ${roleSelector}:visible`)
+    .first()
+    .waitFor()
+  if (await debugModalButton.isVisible()) {
+    await debugModalButton.click()
+  }
+  await page.locator(roleSelector).click()
+  await waitForPageJsLoad(page)
+}
+
 export const loginAsAdmin = async (page: Page) => {
   await test.step('Login as Civiform Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
-    await page.locator('#admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#admin')
   })
 }
 
 export const loginAsProgramAdmin = async (page: Page) => {
   await test.step('Login as Program Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
-    await page.locator('#program-admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#program-admin')
   })
 }
 
 export const loginAsCiviformAndProgramAdmin = async (page: Page) => {
   await test.step('Login as Civiform and Program Admin', async () => {
-    await page.locator('#debug-content-modal-button').click()
-    await page.locator('#dual-admin').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#dual-admin')
   })
 }
 
 export const loginAsTrustedIntermediary = async (page: Page) => {
   await test.step('Login as Trusted Intermediary', async () => {
-    await page.locator('#debug-content-modal-button').click()
-    await page.locator('#trusted-intermediary').click()
-    await waitForPageJsLoad(page)
+    await clickRoleButton(page, '#trusted-intermediary')
   })
 }
 

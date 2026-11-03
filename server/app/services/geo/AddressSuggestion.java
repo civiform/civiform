@@ -18,6 +18,7 @@ public abstract class AddressSuggestion {
   public static Builder builder() {
     return new AutoValue_AddressSuggestion.Builder();
   }
+
   /** returns an address as a single line */
   @JsonProperty("singleLineAddress")
   public abstract String getSingleLineAddress();

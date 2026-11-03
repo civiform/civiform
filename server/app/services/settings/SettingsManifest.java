@@ -782,6 +782,11 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
   }
 
+  /** The expiration date for the demo instance formatted as yyyy-mm-dd. */
+  public Optional<String> getDemoBannerExpirationDate() {
+    return getString("DEMO_BANNER_EXPIRATION_DATE");
+  }
+
   /**
    * The [secret key](http://www.playframework.com/documentation/latest/ApplicationSecret) is used
    * to sign Play's session cookie. This must be changed for production.
@@ -1049,12 +1054,20 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
-   * Enabling this will add a banner to the site to tell applicants this is not Production and that
-   * they shouldn't submit real applications. Configure the CIVIC_ENTITY_PRODUCTION_URL setting to
-   * also include a link to your production site.
+   * [Deprecated: Switch to `BANNER_TYPE`] Enabling this will add a banner to the site to tell
+   * applicants this is not Production and that they shouldn't submit real applications. Configure
+   * the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.
    */
   public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
     return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  }
+
+  /**
+   * Specifies the type of banner to display at the top of the site ('none', 'not_production', or
+   * 'demo').
+   */
+  public Optional<String> getBannerType(RequestHeader request) {
+    return getString("BANNER_TYPE", request);
   }
 
   /** Enables civiform admins to set up a customized eligibility message per screen. */
@@ -2104,7 +2117,13 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                               + " informational banner.",
                           /* isRequired= */ false,
                           SettingType.STRING,
-                          SettingMode.ADMIN_WRITEABLE))))
+                          SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "DEMO_BANNER_EXPIRATION_DATE",
+                          "The expiration date for the demo instance formatted as yyyy-mm-dd.",
+                          /* isRequired= */ false,
+                          SettingType.STRING,
+                          SettingMode.ADMIN_READABLE))))
           .put(
               "Observability",
               SettingsSection.create(
@@ -2320,13 +2339,22 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "SHOW_NOT_PRODUCTION_BANNER_ENABLED",
-                          "Enabling this will add a banner to the site to tell applicants this is"
-                              + " not Production and that they shouldn't submit real applications."
-                              + " Configure the CIVIC_ENTITY_PRODUCTION_URL setting to also include"
-                              + " a link to your production site.",
+                          "[Deprecated: Switch to `BANNER_TYPE`] Enabling this will add a banner to"
+                              + " the site to tell applicants this is not Production and that they"
+                              + " shouldn't submit real applications. Configure the"
+                              + " CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to"
+                              + " your production site.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_WRITEABLE),
+                      SettingDescription.create(
+                          "BANNER_TYPE",
+                          "Specifies the type of banner to display at the top of the site ('none',"
+                              + " 'not_production', or 'demo').",
+                          /* isRequired= */ false,
+                          SettingType.ENUM,
+                          SettingMode.ADMIN_WRITEABLE,
+                          ImmutableList.of("none", "not_production", "demo")),
                       SettingDescription.create(
                           "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
                           "Enables civiform admins to set up a customized eligibility message per"

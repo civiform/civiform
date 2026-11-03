@@ -219,7 +219,7 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.expectPreviewImageWithAltText(initialAltText)
     })
 
-    await test.step('Update alt text and verify both visual text and actual img alt update in real time', async () => {
+    await test.step('Update alt text and verify actual img alt updates in real time', async () => {
       await adminQuestionImage.setImageDescription(updatedAltText)
       await adminQuestionImage.expectPreviewImageWithAltText(updatedAltText)
       await expect(
@@ -398,6 +398,58 @@ test.describe('Admin can manage question image', () => {
     })
   })
 
+  test('clicking to enlarge image in preview opens in a new tab', async ({
+    page,
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'enlarge-preview-image-question'
+    const altText = 'Sample alt text for enlarge preview image'
+
+    await test.step('Create question and go to edit page', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+    })
+
+    await test.step('Upload image with alt text', async () => {
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+    })
+
+    const previewContainer = adminQuestionImage.getPreviewImageContainer()
+    await expect(previewContainer).toBeVisible()
+
+    await test.step('check if clicking the enlarge text link opens a new tab containing the image', async () => {
+      const enlargeLink = previewContainer.getByRole('link', {
+        name: /Enlarge image/i,
+      })
+
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        enlargeLink.click(),
+      ])
+
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toContain('program-summary-image-wide.png')
+      await newPage.close()
+    })
+
+    await test.step('check if image itself is clicked whether a new tab containing the image is opened', async () => {
+      const image = previewContainer.getByRole('img', {name: altText})
+
+      const [newPage] = await Promise.all([
+        page.context().waitForEvent('page'),
+        image.click(),
+      ])
+
+      await newPage.waitForLoadState()
+      expect(newPage.url()).toContain('program-summary-image-wide.png')
+      await newPage.close()
+    })
+  })
+
   test('uploading image file larger than 1MB displays too large error alert', async ({
     page,
     adminQuestions,
@@ -426,6 +478,47 @@ test.describe('Admin can manage question image', () => {
         {fullPage: false},
       )
       await validateAccessibility(page)
+    })
+  })
+
+  test('adds translation for question image alt text', async ({
+    page,
+    adminQuestions,
+    adminQuestionImage,
+    adminTranslations,
+  }) => {
+    const questionName = 'translate-alt-text-question'
+    const defaultAltText = 'English alt text'
+    const spanishAltText = 'Spanish alt text'
+    const spanishQuestionText = 'Spanish question text'
+
+    await test.step('Create question, upload image with alt text, and save', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.setImageDescription(defaultAltText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
+
+    await test.step('Go to the question translation page and add a translation for Spanish', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectQuestionImageDescriptionTranslation('')
+      await page
+        .getByRole('textbox', {name: 'Question text'})
+        .fill(spanishQuestionText)
+      await adminTranslations.editQuestionImageDescription(spanishAltText)
+    })
+
+    await test.step('Verify that the translated alt text was saved', async () => {
+      await adminQuestions.goToQuestionTranslationPage(questionName)
+      await adminTranslations.selectLanguage('Spanish')
+      await adminTranslations.expectQuestionImageDescriptionTranslation(
+        spanishAltText,
+      )
     })
   })
 })

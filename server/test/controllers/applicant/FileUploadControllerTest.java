@@ -2,7 +2,6 @@ package controllers.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.OK;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -75,7 +74,6 @@ public class FileUploadControllerTest extends WithMockedProfiles {
                     new play.mvc.Http.MultipartFormData.FilePart<>(
                         "file", "my-document.pdf", "application/pdf", "applicant-test-file-key")))
             .build();
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
 
     Result result =
         subject

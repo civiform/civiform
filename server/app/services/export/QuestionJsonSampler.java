@@ -200,9 +200,9 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case DROPDOWN -> singleSelectJsonSampler;
         case RADIO_BUTTON -> singleSelectJsonSampler;
         case EMAIL -> emailJsonSampler;
-          // Answers to enumerator questions are not included. This is because enumerators store an
-          // identifier value for each repeated entity, which with the current export logic
-          // conflicts with the answers stored for repeated entities.
+        // Answers to enumerator questions are not included. This is because enumerators store an
+        // identifier value for each repeated entity, which with the current export logic
+        // conflicts with the answers stored for repeated entities.
         case ENUMERATOR -> enumeratorJsonSampler;
         case FILEUPLOAD -> fileUploadJsonSampler;
         case ID -> idJsonSampler;
@@ -210,8 +210,8 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
         case NAME -> nameJsonSampler;
         case NUMBER -> numberJsonSampler;
         case PHONE -> phoneJsonSampler;
-          // Static content questions are not included in API responses because they
-          // do not include an answer from the user.
+        // Static content questions are not included in API responses because they
+        // do not include an answer from the user.
         case STATIC -> emptyJsonSampler;
         case TEXT -> textJsonSampler;
         case YES_NO -> singleSelectJsonSampler;

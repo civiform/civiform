@@ -61,6 +61,65 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('the question edit page preview shows the initial question and adds a row', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await adminQuestions.gotoAdminQuestionsPage()
+      await adminQuestions.gotoQuestionEditPage(
+        'enumerator-ete-householdmembers',
+      )
+      const preview = page.locator('#sample-question')
+      // The initial question in this test is a number question.
+      const initialQuestionInputs = preview.getByRole('spinbutton')
+
+      const addButton = preview.getByRole('button', {
+        name: 'Add household member',
+      })
+
+      await test.step('The preview starts with no rows, like a new application', async () => {
+        await expect(initialQuestionInputs).toHaveCount(0)
+      })
+
+      await test.step('Clicking Add adds the first row', async () => {
+        await addButton.click()
+        await expect(initialQuestionInputs).toHaveCount(1)
+        await expect(
+          preview.getByText('household member name #1'),
+        ).toBeVisible()
+      })
+
+      await test.step('Clicking Add again adds another row', async () => {
+        await initialQuestionInputs.first().fill('3')
+        await addButton.click()
+        await expect(initialQuestionInputs).toHaveCount(2)
+        await expect(
+          preview.getByText('household member name #2'),
+        ).toBeVisible()
+        await validateAccessibility(page, '#sample-question')
+      })
+    })
+
+    test('the question edit page preview keeps the legacy input when the feature flag is off', async ({
+      page,
+      adminQuestions,
+    }) => {
+      await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+      await adminQuestions.gotoAdminQuestionsPage()
+      await adminQuestions.gotoQuestionEditPage(
+        'enumerator-ete-householdmembers',
+      )
+      const preview = page.locator('#sample-question')
+      await expect(preview).toBeVisible()
+
+      // The initial question's input isn't shown, and Add is the legacy script button, not an
+      // HTMX request to the server.
+      await expect(preview.getByRole('spinbutton')).toHaveCount(0)
+      await expect(
+        preview.getByRole('button', {name: 'Add household member'}),
+      ).not.toHaveAttribute('hx-post', /.*/)
+    })
+
     test('can add an enumerator block and a repeated block to a program at once from the program block edit page', async ({
       page,
       adminPrograms,
@@ -2005,6 +2064,79 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           'List the names of your pets.',
           'Sarah Brown',
         )
+      })
+    })
+
+    test('validates the initial question on continue in the same way as a standalone question', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator name initial question validation program'
+
+      await test.step('Publish a program whose enumerator has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const firstName = blockForm.getByRole('textbox', {name: 'First name'})
+      const lastName = blockForm.getByRole('textbox', {name: 'Last name'})
+
+      await test.step('Add an entity and continue with all fields empty', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the empty entry shows a single top-level required error and outlines both fields', async () => {
+        // Like a standalone required name left blank: one group-level message, both fields outlined,
+        // and no per-field messages.
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeHidden()
+        await expect(firstName).toHaveClass(/usa-input--error/)
+        await expect(lastName).toHaveClass(/usa-input--error/)
+      })
+
+      await test.step('Fill only the first name and continue', async () => {
+        await firstName.fill('Sarah')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify a field-specific error attaches to the missing last name only', async () => {
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(lastName).toHaveClass(/usa-input--error/)
+        await expect(firstName).not.toHaveClass(/usa-input--error/)
+        await validateAccessibility(page, '#question-fragment')
+      })
+
+      await test.step('Fill the last name and continue to leave the block without errors', async () => {
+        await lastName.fill('Brown')
+        await applicantQuestions.clickContinue()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toBeHidden()
       })
     })
 

@@ -58,21 +58,6 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxUploadQuestionImage_featureFlagDisabled_returnsNotFound() {
-    QuestionModel question = testQuestionBank.nameApplicantName();
-
-    Result result =
-        controller.hxUploadQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
-                .method("POST")
-                .build(),
-            question.id);
-
-    assertThat(result.status()).isEqualTo(NOT_FOUND);
-  }
-
-  @Test
   public void hxUploadQuestionImage_withFileAndDescription_setsKeyAndRedirects() throws Exception {
     QuestionModel question = createDraftQuestion();
     long id = question.id;

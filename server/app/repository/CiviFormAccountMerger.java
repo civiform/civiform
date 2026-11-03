@@ -104,22 +104,20 @@ public final class CiviFormAccountMerger {
   }
 
   /// Merge logic:
-  /// 1. For programs only present in the guest user, move their applications
-  ///  to the cfUser
+  /// 1. For programs only present in the guest user, move their applications to the cfUser
   /// 2. For programs present in both users:
   ///    1. Obsolete applications are moved from the guest to CiviForm user.
   ///    2. Active and Draft applications are reconciled based on the versions present:
   ///
-  /// An important note on reasoning about what is kept pertains to the
-  /// impact of Draft applications.
+  /// An important note on reasoning about what is kept pertains to the impact of Draft
+  /// applications.
   /// * A Draft application when there is also an Active application is largely meaningless.
   ///   * The UI shows the Active application state regardless of the Draft application.
-  ///   * There is no data in a Draft application other than created time, which is not
-  ///  particularly useful. Any question answers are stored on the applicant,
-  ///  not in a Draft application.
+  ///   * There is no data in a Draft application other than created time, which is not particularly
+  ///     useful. Any question answers are stored on the applicant, not in a Draft application.
   /// * A Draft-only application, when there is no Active application, does change the UI.
   ///
-  ///  So Draft applications when there is an Active application can largely be ignored when we
+  /// So Draft applications when there is an Active application can largely be ignored when we
   /// consider the user impact and complexity of merging data.
   ///
   /// | CiviForm      | Guest         | Result |
@@ -129,21 +127,19 @@ public final class CiviFormAccountMerger {
   /// |Draft-only     | Active        | Keep Guest |
   /// |Active         | Active        | Keep newer, obsolete older|
   ///
-  /// A Draft application not kept is deleted. An Active application not kept will be
-  ///  obsoleted.
+  /// A Draft application not kept is deleted. An Active application not kept will be obsoleted.
   ///
   /// If there is an Active and Draft application on either user, the Active application will be
   /// reconciled and the associated Draft application will be persisted. As Noted above, the Draft
   /// application is not particularly useful, but we prefer to keep the Draft associated with
   /// whichever Active was maintained as the Active for consistency.
   ///
-  ///  @return a log message indicating what changes occurred.
+  /// Design Doc:
+  /// https://docs.google.com/document/d/1qq5lLXMgAxMvrsZzcyKEmZsQAtnCt6lcpkqQ836IWhE/edit?tab=t.0#heading=h.w8d3omccpuw1
+  ///
+  /// @return a log message indicating what changes occurred.
   private String mergeGuestApplicationsIntoCfUser(
       ApplicantModel cfUser, ApplicantModel guestUser, boolean applyChanges) {
-    // It is a bug of the formatter that this can't be in the markdown above
-    // https://github.com/google/google-java-format/issues/1369
-    // Design Doc:
-    // https://docs.google.com/document/d/1qq5lLXMgAxMvrsZzcyKEmZsQAtnCt6lcpkqQ836IWhE/edit?tab=t.0#heading=h.w8d3omccpuw1
 
     // Collect the user apps into lookup tables keyed on Program IDs.
     // We don't collect into a GuestUserApps immediately here as the List is

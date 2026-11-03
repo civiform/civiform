@@ -1,6 +1,7 @@
 package parsers;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
@@ -50,13 +51,16 @@ public abstract class StreamingMultipartBodyParser
       createFilePartHandler() {
     return fileInfo -> {
       String fileKey = getFileKey(fileInfo);
-      Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
-          createUploadSink(getBucketType(), fileKey);
 
       String fileName = fileInfo.fileName();
       if (fileName == null || fileName.isBlank()) {
         throw new FileUploadTypeException("Uploaded file has no filename.");
       }
+
+      Optional<String> contentType = FileTypeValidation.determineMimeType(fileName);
+
+      Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
+          createUploadSink(getBucketType(), fileKey, contentType, getContentDisposition());
 
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
       ImmutableList<FileTypeSpecifier> allowed = getAllowedFileTypeSpecifiers();
@@ -92,8 +96,25 @@ public abstract class StreamingMultipartBodyParser
   // Chooses between Pekko connector sinks based on the configured storage provider.
   // https://pekko.apache.org/docs/pekko-connectors/1.2/index.html
   protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
+      BucketType bucketType,
+      String fileKey,
+      Optional<String> contentType,
+      Optional<String> contentDisposition) {
+    return uploadSinks.getSinkForCloudProvider(
+        bucketType, fileKey, contentType, contentDisposition, CHUNK_SIZE);
+  }
+
+  protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
       BucketType bucketType, String fileKey) {
     return uploadSinks.getSinkForCloudProvider(bucketType, fileKey, CHUNK_SIZE);
+  }
+
+  /**
+   * Optional Content-Disposition header (e.g. "inline") to apply to the uploaded object in cloud
+   * storage.
+   */
+  protected Optional<String> getContentDisposition() {
+    return Optional.empty();
   }
 
   /** Returns the file path within cloud storage for this upload. */

@@ -117,4 +117,32 @@ public class FileTypeValidationTest extends ResetPostgres {
         .isInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("do not match extension");
   }
+
+  @Test
+  public void fileTypeSpecifier_getMimeTypeForExtension() {
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension(".png")).contains("image/png");
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension("png")).contains("image/png");
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension(".jpg")).contains("image/jpeg");
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension("jpeg")).contains("image/jpeg");
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension(".pdf")).contains("application/pdf");
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension(".xyz")).isEmpty();
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension(null)).isEmpty();
+    assertThat(FileTypeSpecifier.getMimeTypeForExtension("")).isEmpty();
+  }
+
+  @Test
+  public void determineMimeType_knownExtensions_returnsCorrectMimeType() {
+    assertThat(FileTypeValidation.determineMimeType("photo.png")).contains("image/png");
+    assertThat(FileTypeValidation.determineMimeType("photo.jpg")).contains("image/jpeg");
+    assertThat(FileTypeValidation.determineMimeType("photo.jpeg")).contains("image/jpeg");
+    assertThat(FileTypeValidation.determineMimeType("photo.gif")).contains("image/gif");
+    assertThat(FileTypeValidation.determineMimeType("document.pdf")).contains("application/pdf");
+    assertThat(FileTypeValidation.determineMimeType("photo.webp")).contains("image/webp");
+    assertThat(FileTypeValidation.determineMimeType("path/to/nested/photo.png"))
+        .contains("image/png");
+    assertThat(FileTypeValidation.determineMimeType("unknown.unknownextension123")).isEmpty();
+    assertThat(FileTypeValidation.determineMimeType("unknownfile")).isEmpty();
+    assertThat(FileTypeValidation.determineMimeType(null)).isEmpty();
+    assertThat(FileTypeValidation.determineMimeType("")).isEmpty();
+  }
 }

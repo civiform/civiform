@@ -1,6 +1,7 @@
 package parsers;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import org.apache.pekko.stream.Materializer;
@@ -32,6 +33,15 @@ public final class TestStreamingMultipartBodyParser extends StreamingMultipartBo
         materializer, errorHandler, streamingMultipartUploadSinks, fileTypeValidation, maxFileSize);
     this.outputBuffer = outputBuffer;
     this.settingsManifest = settingsManifest;
+  }
+
+  @Override
+  protected Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> createUploadSink(
+      BucketType bucketType,
+      String fileKey,
+      Optional<String> contentType,
+      Optional<String> contentDisposition) {
+    return createUploadSink(bucketType, fileKey);
   }
 
   // "Uploads" the file by consuming the byte string and printing its content, then returns a

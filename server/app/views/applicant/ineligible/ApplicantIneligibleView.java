@@ -8,6 +8,7 @@ import com.google.inject.Inject;
 import controllers.LanguageUtils;
 import controllers.applicant.ApplicantRoutes;
 import controllers.applicant.EligibilityAlertSettingsCalculator;
+import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
@@ -37,6 +38,7 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
+      Clock clock,
       EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator) {
     super(
         templateEngine,
@@ -45,7 +47,8 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
         applicantRoutes,
         settingsManifest,
         languageUtils,
-        deploymentType);
+        deploymentType,
+        clock);
     this.eligibilityAlertSettingsCalculator = checkNotNull(eligibilityAlertSettingsCalculator);
   }
 

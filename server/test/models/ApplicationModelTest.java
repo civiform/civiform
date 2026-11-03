@@ -170,8 +170,9 @@ public class ApplicationModelTest extends ResetPostgres {
   public void create_new_application_updatesLastActivityTime() {
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
     Instant activitytimeBeforeUpdate = applicant.getAccount().getLastActivityTime();
-    // Wait for the next tick to ensure the new application has a newer timestamp
-    while (!Instant.now().isAfter(activitytimeBeforeUpdate)) {}
+    // Ebean's @WhenModified timestamps have millisecond precision, so wait for the next
+    // millisecond to ensure the new application has a newer timestamp
+    while (System.currentTimeMillis() <= activitytimeBeforeUpdate.toEpochMilli()) {}
     ApplicationModel application = resourceCreator.insertActiveApplication(applicant, program);
     application.refresh();
 

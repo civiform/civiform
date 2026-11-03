@@ -310,7 +310,19 @@ public final class ApplicantQuestion {
   }
 
   public EnumeratorQuestion createEnumeratorQuestion() {
-    return new EnumeratorQuestion(this);
+    return new EnumeratorQuestion(this, /* initialQuestionFlowIsActive= */ false);
+  }
+
+  /**
+   * When {@code initialQuestionFlowIsActive} is true the enumerator skips its blank/duplicate-blank
+   * entity-name validation because the per-entity initial-question fields report those errors
+   * themselves.
+   *
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove this overload with the
+   * blank-name check in {@link EnumeratorQuestion}.
+   */
+  public EnumeratorQuestion createEnumeratorQuestion(boolean initialQuestionFlowIsActive) {
+    return new EnumeratorQuestion(this, initialQuestionFlowIsActive);
   }
 
   public SingleSelectQuestion createSingleSelectQuestion() {

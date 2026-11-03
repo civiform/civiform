@@ -228,7 +228,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
 
     return nav()
         .condWith(
-            !settingsManifest.getShowNotProductionBannerEnabled(request),
+            !views.shared.BannerUtils.isNotProductionBannerEnabled(settingsManifest, request),
             getGovBanner(Optional.of(messages)))
         .with(
             div()

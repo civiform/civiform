@@ -2,6 +2,7 @@ package parsers.admin;
 
 import com.google.common.collect.ImmutableList;
 import controllers.ErrorHandler;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
@@ -74,5 +75,10 @@ public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipar
   @Override
   protected ImmutableList<FileTypeSpecifier> getAllowedFileTypeSpecifiers() {
     return ImmutableList.of(FileTypeSpecifier.JPG, FileTypeSpecifier.JPEG, FileTypeSpecifier.PNG);
+  }
+
+  @Override
+  protected Optional<String> getContentDisposition() {
+    return Optional.of("inline");
   }
 }

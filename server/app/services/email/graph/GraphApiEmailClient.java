@@ -83,7 +83,8 @@ public class GraphApiEmailClient implements EmailSendClient {
               ***************************************************
 
 
-              %s""",
+              %s\
+              """,
               bodyText);
     }
 

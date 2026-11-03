@@ -144,13 +144,14 @@ public class CfJsonDocumentContext {
   /**
    * Stores the date string as a millisecond timestamp at the given {@link Path}.
    *
-   * <p>This method requires the input string to be in "yyyy-MM-dd" format.
+   * <p>The input must be a real calendar date in {@code yyyy-MM-dd} form. Impossible dates such as
+   * February 31 are rejected.
    */
   public void putDate(Path path, String dateString) {
     if (dateString.isEmpty()) {
       putNull(path);
     } else {
-      LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+      LocalDate localDate = LocalDate.parse(dateString, DateTimeFormatter.ISO_LOCAL_DATE);
       put(path, localDate.atStartOfDay().toInstant(ZoneOffset.UTC).toEpochMilli());
     }
   }
