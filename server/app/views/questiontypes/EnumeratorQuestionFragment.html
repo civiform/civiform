@@ -344,7 +344,7 @@
   <div
     th:id="${labelId}"
     class="usa-legend cf-entity-index-label"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
+    th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
   <div
@@ -368,7 +368,7 @@
     th:id="${labelId}"
     class="usa-label cf-entity-index-label"
     th:for="${inputId}"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
+    th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
   <div
