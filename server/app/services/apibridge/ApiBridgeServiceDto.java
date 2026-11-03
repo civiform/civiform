@@ -115,12 +115,12 @@ public final class ApiBridgeServiceDto {
     @Override
     public String asErrorMessage() {
       return """
-             type='%s'
-             title='%s'
-             status=%d
-             detail='%s'
-             instance='%s'
-             """
+      type='%s'
+      title='%s'
+      status=%d
+      detail='%s'
+      instance='%s'
+      """
           .formatted(type, title, status, detail, instance);
     }
   }
@@ -156,13 +156,13 @@ public final class ApiBridgeServiceDto {
               .collect(Collectors.joining(", "));
 
       return """
-             type='%s'
-             title='%s'
-             status=%d
-             detail='%s'
-             instance='%s'
-             validationErrors='%s'
-             """
+      type='%s'
+      title='%s'
+      status=%d
+      detail='%s'
+      instance='%s'
+      validationErrors='%s'
+      """
           .formatted(type, title, status, detail, instance, valErrors);
     }
   }

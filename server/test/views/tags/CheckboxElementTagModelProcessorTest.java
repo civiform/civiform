@@ -41,7 +41,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Notifications</legend>
@@ -75,7 +75,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Notifications</legend>
@@ -117,7 +117,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Preferences</legend>
@@ -153,7 +153,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Preferences</legend>
@@ -197,7 +197,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="You must accept the terms">
 <legend class="usa-legend">Terms and Conditions</legend>
@@ -228,7 +228,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="You must accept the terms">
 <legend class="usa-legend">Terms and Conditions</legend>
@@ -270,7 +270,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="Please select at least one skill">
 <legend class="usa-legend">Skills</legend>
@@ -312,7 +312,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Agreement</legend>
@@ -342,7 +342,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Agreement</legend>
@@ -375,7 +375,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Favorite Colors</legend>
@@ -416,7 +416,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Features</legend>
@@ -446,7 +446,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         // model
         Model.builder().id("plans").name("plans").label("Select Plans").build(),
         // template
-        """
+"""
 <cf:checkbox
   th:id="${model.id()}"
   th:name="${model.name()}"
@@ -456,7 +456,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
 </cf:checkbox>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Select Plans</legend>
@@ -493,7 +493,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Options</legend>
@@ -532,7 +532,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Interests</legend>
@@ -575,7 +575,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Items</legend>
@@ -597,7 +597,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         // model
         Model.builder().id("tracking").name("tracking").label("Tracking").build(),
         // template
-        """
+"""
 <cf:checkbox
   th:id="${model.id()}"
   th:name="${model.name()}"
@@ -606,7 +606,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
 </cf:checkbox>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Tracking</legend>
@@ -637,7 +637,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         </cf:checkbox>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Accessible</legend>
@@ -667,7 +667,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
             .columns("2")
             .build(),
         // template
-        """
+"""
 <cf:checkbox
     th:id="${model.id()}"
     th:name="${model.name()}"
@@ -682,7 +682,7 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
 </cf:checkbox>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Complete Example</legend>

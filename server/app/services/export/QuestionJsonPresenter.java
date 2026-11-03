@@ -162,8 +162,8 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
         case NAME -> nameJsonPresenter;
         case NUMBER -> numberJsonPresenter;
         case PHONE -> phoneJsonPresenter;
-          // Static content questions are not included in API responses because they
-          // do not include an answer from the user.
+        // Static content questions are not included in API responses because they
+        // do not include an answer from the user.
         case STATIC -> emptyJsonPresenter;
         case TEXT -> textJsonPresenter;
         default ->

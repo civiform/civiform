@@ -41,9 +41,9 @@ public abstract class ApplicantPersonalInfo {
           return representation.email().get().iterator().next();
         }
 
-        // Fall through
+      // Fall through
       case GUEST:
-        // Fall through
+      // Fall through
       default:
         // This case happens with our fake admin account used for debugging.
         return messages.at(MessageKey.GUEST.getKeyName());

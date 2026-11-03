@@ -100,7 +100,8 @@ public final class SimpleEmail implements EmailSendClient {
               ***************************************************
 
 
-              %s""",
+              %s\
+              """,
               bodyText);
     }
 

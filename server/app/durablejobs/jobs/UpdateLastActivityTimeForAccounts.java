@@ -32,7 +32,7 @@ public class UpdateLastActivityTimeForAccounts extends DurableJob {
     logger.debug("Starting job to calculate last activity time for accounts");
     Transaction jobTransaction = database.beginTransaction(TxIsolation.SERIALIZABLE);
     String sqlUpdate =
-        """
+"""
 UPDATE accounts
 SET last_activity_time = subquery.last_activity_time
 FROM (
