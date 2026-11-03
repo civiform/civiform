@@ -60,7 +60,9 @@ import services.program.EligibilityDefinition;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.program.ProgramDefinition.Direction;
+import services.program.ProgramNotFoundException;
 import services.program.ProgramQuestionDefinition;
+import services.program.ProgramService;
 import services.program.ProgramType;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateUseCase;
@@ -109,6 +111,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   private final AdminLayout layout;
   private final ProgramDisplayType programDisplayType;
   private final ProgramBlockValidationFactory programBlockValidationFactory;
+  private final ProgramService programService;
 
   public static final String ENUMERATOR_ID_FORM_FIELD = "enumeratorId";
   public static final String BLOCK_TYPE_FORM_FIELD = "blockType";
@@ -121,16 +124,22 @@ public final class ProgramBlocksView extends ProgramBaseView {
       "nested-repeated-set-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
+
+  /** Stands in for the program count in the message, so the count can be rendered in bold. */
+  private static final String PROGRAM_COUNT_PLACEHOLDER = "@@programCount@@";
+
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
   private static final String QUESTIONS_SECTION_ID = "questions-section";
 
   @Inject
   public ProgramBlocksView(
       ProgramBlockValidationFactory programBlockValidationFactory,
+      ProgramService programService,
       @Assisted ProgramDisplayType programViewType,
       AdminLayoutFactory layoutFactory,
       SettingsManifest settingsManifest) {
     super(settingsManifest);
+    this.programService = checkNotNull(programService);
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.PROGRAMS);
     this.programDisplayType = programViewType;
     this.programBlockValidationFactory = checkNotNull(programBlockValidationFactory);
@@ -1214,7 +1223,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         hr().withClasses("margin-top-3", "border-base-lighter"),
         AlertComponent.renderSlimAlert(
             AlertType.WARNING,
-            messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName()),
+            backfillSaveWarning(messages, programId, blockId),
             /* hidden= */ false),
         button(messages.at(MessageKey.BUTTON_REPEATED_SET_INITIAL_QUESTION_SAVE.getKeyName()))
             .withId("save-initial-question-button")
@@ -1228,6 +1237,48 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .attr("hx-include", "#initial-question-slot")
             .attr("hx-target", "#repeated-set-question-section")
             .attr("hx-swap", "outerHTML"));
+  }
+
+  /**
+   * The save warning, led by how many other programs will also get the initial question when there
+   * are any.
+   */
+  private DomContent backfillSaveWarning(Messages messages, long programId, long blockId) {
+    String warning = messages.at(MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING.getKeyName());
+    int otherPrograms;
+    try {
+      otherPrograms = programService.countOtherProgramsUsingEnumeratorOnBlock(programId, blockId);
+    } catch (ProgramNotFoundException | ProgramBlockDefinitionNotFoundException e) {
+      logger.error("Could not count the other programs that use this list set.", e);
+      return text(warning);
+    }
+    if (otherPrograms == 0) {
+      return text(warning);
+    }
+    String count =
+        otherPrograms == 1
+            ? messages.at(MessageKey.TEXT_REPEATED_SET_BACKFILL_PROGRAM_COUNT_ONE.getKeyName())
+            : messages.at(
+                MessageKey.TEXT_REPEATED_SET_BACKFILL_PROGRAM_COUNT_MANY.getKeyName(),
+                otherPrograms);
+    String sentence =
+        messages.at(
+            otherPrograms == 1
+                ? MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_ONE_PROGRAM.getKeyName()
+                : MessageKey.ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING_PROGRAMS.getKeyName(),
+            PROGRAM_COUNT_PLACEHOLDER);
+    int placeholderAt = sentence.indexOf(PROGRAM_COUNT_PLACEHOLDER);
+    if (placeholderAt < 0) {
+      // A translation dropped the count. Show the text as it is rather than lose the warning.
+      return text(sentence + " " + warning);
+    }
+    return join(
+        text(sentence.substring(0, placeholderAt)),
+        b(count),
+        text(
+            sentence.substring(placeholderAt + PROGRAM_COUNT_PLACEHOLDER.length())
+                + " "
+                + warning));
   }
 
   /**

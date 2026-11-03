@@ -366,8 +366,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can save an initial question picked for an existing enumerator question', async ({
+    test('can save an initial question picked for an existing enumerator question and warns how many other programs also get it', async ({
       page,
+      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const backfillCard = blockPanel.locator('#backfill-initial-question-card')
@@ -391,11 +392,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await expect(
           backfillCard.getByText(
-            'You will not be able to change the initial question after you save it.',
+            'You will not be able to remove the initial question after you save it.',
           ),
         ).toBeVisible()
         await expect(
+          backfillCard.getByText('This will also update'),
+        ).toBeHidden()
+        await expect(
           backfillCard.getByRole('button', {name: 'Save initial question'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Use the same enumerator question in a second program', async () => {
+        await adminPrograms.addProgram('Other enumerator program')
+        await adminPrograms.gotoEditDraftProgramPage('Other enumerator program')
+        await addRepeatedSetBlocks(page)
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Back in the first program, pick an initial question again and see how many other programs it reaches', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await waitForPageJsLoad(page)
+        await backfillCard
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          backfillCard.getByText(
+            'This will also update 1 program that uses this list set.',
+          ),
         ).toBeVisible()
       })
 

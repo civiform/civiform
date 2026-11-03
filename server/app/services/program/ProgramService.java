@@ -2382,6 +2382,35 @@ public final class ProgramService {
     return updateProgramDefinitionWithBlockDefinitions(programDefinition, updatedBlockDefinitions);
   }
 
+  /**
+   * Counts the other programs (by admin name, using each one's draft if it has one) that use the
+   * enumerator question on the given block. Used to tell an admin how many programs a backfilled
+   * initial question will reach.
+   */
+  public int countOtherProgramsUsingEnumeratorOnBlock(long programId, long blockDefinitionId)
+      throws ProgramNotFoundException, ProgramBlockDefinitionNotFoundException {
+    ProgramDefinition program = getFullProgramDefinition(programId);
+    BlockDefinition block = program.getBlockDefinition(blockDefinitionId);
+    if (!block.hasEnumeratorQuestion()) {
+      return 0;
+    }
+    String enumeratorName = block.getEnumeratorQuestionDefinition().getName();
+    return (int)
+        getActiveAndDraftPrograms().getMostRecentProgramDefinitions().stream()
+            .filter(other -> !other.adminName().equals(program.adminName()))
+            .filter(
+                other ->
+                    other.blockDefinitions().stream()
+                        .anyMatch(
+                            otherBlock ->
+                                otherBlock.hasEnumeratorQuestion()
+                                    && otherBlock
+                                        .getEnumeratorQuestionDefinition()
+                                        .getName()
+                                        .equals(enumeratorName)))
+            .count();
+  }
+
   private QuestionDefinition createQuestionCopy(
       QuestionDefinition questionDefinition,
       ProgramDefinition programDefinition,
