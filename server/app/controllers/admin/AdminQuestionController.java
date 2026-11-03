@@ -56,20 +56,17 @@ import views.PartialView;
 import views.admin.questions.MapQuestionSettingsFiltersListPartialViewModel;
 import views.admin.questions.MapQuestionSettingsFiltersPartialViewModel;
 import views.admin.questions.MapQuestionSettingsPartialViewModel;
-import views.admin.questions.QuestionEditView;
 import views.admin.questions.QuestionFormPageView;
 import views.admin.questions.QuestionFormPageViewModel;
 import views.admin.questions.QuestionsListPageView;
 import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListView;
 import views.components.TextFormatter;
-import views.components.ToastMessage;
 
 /** Controller for handling methods for admins managing questions. */
 public final class AdminQuestionController extends CiviFormController {
   private final QuestionService service;
   private final QuestionsListView listView;
-  private final QuestionEditView editView;
   private final FormFactory formFactory;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
@@ -90,7 +87,6 @@ public final class AdminQuestionController extends CiviFormController {
       VersionRepository versionRepository,
       QuestionService service,
       QuestionsListView listView,
-      QuestionEditView editView,
       SettingsManifest settingsManifest,
       FormFactory formFactory,
       PartialView<MapQuestionSettingsFiltersPartialViewModel> mapQuestionSettingsFiltersPartialView,
@@ -105,7 +101,6 @@ public final class AdminQuestionController extends CiviFormController {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
-    this.editView = checkNotNull(editView);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.formFactory = checkNotNull(formFactory);
     this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
@@ -211,54 +206,38 @@ public final class AdminQuestionController extends CiviFormController {
             .join()
             .getUpToDateEnumeratorQuestions();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      try {
-        QuestionForm questionForm = QuestionFormBuilder.create(questionType);
-        questionForm.setRedirectUrl(redirectUrl);
-        // Outside a repeating block the enumerator is locked to "does not
-        // repeat"; inside one, a provided enumerator is preselected and
-        // locked.
-        boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
-        if (!isRepeatingBlock) {
-          questionForm.setEnumeratorSelectEnabled(false);
-        } else {
-          enumeratorQuestionOptional.ifPresent(
-              enumeratorId -> {
-                questionForm.setEnumeratorId(enumeratorId);
-                questionForm.setEnumeratorSelectEnabled(false);
-              });
-        }
-        ReadOnlyQuestionService roService =
-            service.getReadOnlyQuestionService().toCompletableFuture().join();
-        MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
-        QuestionFormPageViewModel model =
-            new QuestionFormPageMapper()
-                .mapNew(
-                    questionForm,
-                    enumeratorQuestionDefinitions,
-                    mapSettings,
-                    settingsManifest.getApiBridgeEnabled(request),
-                    settingsManifest.getEnumeratorImprovementsEnabled(request),
-                    settingsManifest.getAnswerOptionScoringEnabled(request),
-                    settingsManifest.getImagesInQuestionFeatureEnabled(request),
-                    roService,
-                    Optional.empty());
-        return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      } catch (UnsupportedQuestionTypeException e) {
-        return badRequest(e.getMessage());
-      }
-    }
-
     try {
+      QuestionForm questionForm = QuestionFormBuilder.create(questionType);
+      questionForm.setRedirectUrl(redirectUrl);
+      // Outside a repeating block the enumerator is locked to "does not
+      // repeat"; inside one, a provided enumerator is preselected and
+      // locked.
       boolean isRepeatingBlock = isRepeatingBlockOptional.map(Boolean::parseBoolean).orElse(true);
-      return ok(
-          editView.renderNewQuestionForm(
-              request,
-              questionType,
-              enumeratorQuestionDefinitions,
-              enumeratorQuestionOptional,
-              redirectUrl,
-              isRepeatingBlock));
+      if (!isRepeatingBlock) {
+        questionForm.setEnumeratorSelectEnabled(false);
+      } else {
+        enumeratorQuestionOptional.ifPresent(
+            enumeratorId -> {
+              questionForm.setEnumeratorId(enumeratorId);
+              questionForm.setEnumeratorSelectEnabled(false);
+            });
+      }
+      ReadOnlyQuestionService roService =
+          service.getReadOnlyQuestionService().toCompletableFuture().join();
+      MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+      QuestionFormPageViewModel model =
+          new QuestionFormPageMapper()
+              .mapNew(
+                  questionForm,
+                  enumeratorQuestionDefinitions,
+                  mapSettings,
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request),
+                  settingsManifest.getAnswerOptionScoringEnabled(request),
+                  settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                  roService,
+                  Optional.empty());
+      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());
     }
@@ -382,47 +361,24 @@ public final class AdminQuestionController extends CiviFormController {
               Optional<String> initialQuestionAdminName =
                   getInitialQuestionAdminName(request, readOnlyService, questionDefinition);
 
-              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-                try {
-                  QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
-                  if (!redirectUrl.isBlank()) {
-                    questionForm.setRedirectUrl(redirectUrl);
-                  }
-                  Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
-                  Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
-                  QuestionFormPageViewModel model =
-                      buildEditQuestionPageModel(
-                          id,
-                          questionForm,
-                          maybeEnumerationQuestion,
-                          readOnlyService,
-                          request,
-                          errorMessage,
-                          existingImageFileKey,
-                          initialQuestionAdminName);
-                  return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-                } catch (InvalidQuestionTypeException e) {
-                  return badRequest(
-                      invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
-                }
-              }
-
               try {
-                Optional<ToastMessage> message =
-                    request
-                        .flash()
-                        .get(FlashKey.CONCURRENT_UPDATE)
-                        .map(m -> ToastMessage.errorNonLocalized(m));
-                Optional<String> optionalRedirectUrl =
-                    redirectUrl.isBlank() ? Optional.empty() : Optional.of(redirectUrl);
-                return ok(
-                    editView.renderEditQuestionForm(
-                        request,
-                        questionDefinition,
+                QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
+                if (!redirectUrl.isBlank()) {
+                  questionForm.setRedirectUrl(redirectUrl);
+                }
+                Optional<String> errorMessage = request.flash().get(FlashKey.CONCURRENT_UPDATE);
+                Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
+                QuestionFormPageViewModel model =
+                    buildEditQuestionPageModel(
+                        id,
+                        questionForm,
                         maybeEnumerationQuestion,
-                        message,
-                        optionalRedirectUrl,
-                        initialQuestionAdminName));
+                        readOnlyService,
+                        request,
+                        errorMessage,
+                        existingImageFileKey,
+                        initialQuestionAdminName);
+                return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
               } catch (InvalidQuestionTypeException e) {
                 return badRequest(
                     invalidQuestionTypeMessage(questionDefinition.getQuestionType().toString()));
@@ -547,10 +503,7 @@ public final class AdminQuestionController extends CiviFormController {
     return questionForm.getBuilder();
   }
 
-  /**
-   * Re-renders the new-question form with a form-level error, honoring the j2html-to-Thymeleaf
-   * migration flag.
-   */
+  /** Re-renders the new-question form with a form-level error. */
   private Result renderNewQuestionFormWithError(
       Request request, QuestionForm questionForm, String errorText) {
     ReadOnlyQuestionService roService =
@@ -558,33 +511,23 @@ public final class AdminQuestionController extends CiviFormController {
     ImmutableList<EnumeratorQuestionDefinition> enumeratorQuestionDefinitions =
         roService.getUpToDateEnumeratorQuestions();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
-      QuestionFormPageViewModel model =
-          new QuestionFormPageMapper()
-              .mapNew(
-                  questionForm,
-                  enumeratorQuestionDefinitions,
-                  mapSettings,
-                  settingsManifest.getApiBridgeEnabled(request),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request),
-                  settingsManifest.getAnswerOptionScoringEnabled(request),
-                  settingsManifest.getImagesInQuestionFeatureEnabled(request),
-                  roService,
-                  Optional.of(errorText));
-      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
-    return ok(
-        editView.renderNewQuestionForm(
-            request, questionForm, enumeratorQuestionDefinitions, errorMessage));
+    MapQuestionSettingsPartialViewModel mapSettings = buildMapSettingsViewModel(questionForm);
+    QuestionFormPageViewModel model =
+        new QuestionFormPageMapper()
+            .mapNew(
+                questionForm,
+                enumeratorQuestionDefinitions,
+                mapSettings,
+                settingsManifest.getApiBridgeEnabled(request),
+                settingsManifest.getEnumeratorImprovementsEnabled(request),
+                settingsManifest.getAnswerOptionScoringEnabled(request),
+                settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                roService,
+                Optional.of(errorText));
+    return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
-  /**
-   * Re-renders the edit-question form with a form-level error, honoring the j2html-to-Thymeleaf
-   * migration flag.
-   */
+  /** Re-renders the edit-question form with a form-level error. */
   private Result renderEditQuestionFormWithError(
       Request request,
       Long id,
@@ -597,31 +540,19 @@ public final class AdminQuestionController extends CiviFormController {
     Optional<String> initialQuestionAdminName =
         getInitialQuestionAdminName(request, roService, questionDefinition);
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
+    Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
 
-      QuestionFormPageViewModel model =
-          buildEditQuestionPageModel(
-              id,
-              questionForm,
-              maybeEnumerationQuestion,
-              roService,
-              request,
-              Optional.of(errorText),
-              existingImageFileKey,
-              initialQuestionAdminName);
-      return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    ToastMessage errorMessage = ToastMessage.errorNonLocalized(errorText);
-    return ok(
-        editView.renderEditQuestionForm(
-            request,
+    QuestionFormPageViewModel model =
+        buildEditQuestionPageModel(
             id,
             questionForm,
             maybeEnumerationQuestion,
-            errorMessage,
-            initialQuestionAdminName));
+            roService,
+            request,
+            Optional.of(errorText),
+            existingImageFileKey,
+            initialQuestionAdminName);
+    return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /**

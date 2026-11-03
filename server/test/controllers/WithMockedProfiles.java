@@ -34,7 +34,7 @@ public class WithMockedProfiles {
 
   private static final ProfileUtils MOCK_UTILS = Mockito.mock(ProfileUtils.class);
 
-  private static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
+  protected static final TestQuestionBank testQuestionBank = new TestQuestionBank(true);
 
   protected static final String skipUserProfile = "skipUserProfile";
 

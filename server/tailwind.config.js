@@ -34,6 +34,28 @@ module.exports = {
       },
     },
   },
+  // Until we fully drop Thymeleaf we need to keep some classes being generated. The files list above
+  // scans java (j2html) and typescript files to automatically include them. As files are deleted
+  // though we sometimes end up losing classes. Adding html files to the scanner end up missing things
+  // or putting them in different order in the css and when there are clashes with USWDS you'll end
+  // up with the wrong css getting applied sometimes.
+  safelist: [
+    '-mt-4',
+    'border-4',
+    'col-span-5',
+    'col-start-1',
+    'col-start-8',
+    'grid-cols-8',
+    'grid-rows-4',
+    'grid-rows-6',
+    'pt-0',
+    'row-span-2',
+    'row-start-1',
+    'row-start-2',
+    'row-start-3',
+    'row-start-5',
+    'usa-alert-remove-top-margin',
+  ],
   theme: {
     extend: {
       colors: {
