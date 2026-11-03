@@ -124,8 +124,7 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
             .withRequiredQuestion(testQuestionBank().nameApplicantName())
             .buildDefinition()
             .toBuilder()
-            .setLocalizedShortDescription(
-                LocalizedStrings.withDefaultValue("<b>Food</b>"))
+            .setLocalizedShortDescription(LocalizedStrings.withDefaultValue("<b>Food</b>"))
             .build()
             .toProgram();
     programWithMarkup.update();
