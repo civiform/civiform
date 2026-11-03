@@ -31,7 +31,7 @@
     <!--/* Hidden template cloned by TS to submit a delete marker when a saved entity is removed. */-->
     <div th:replace="~{this :: deleteInputTemplate}"></div>
 
-    <div id="enumerator-fields">
+    <div id="enumerator-fields" class="cf-initial-question-entities">
       <th:block
         th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions}"
       >
@@ -344,7 +344,7 @@
   <div
     th:id="${labelId}"
     class="usa-legend cf-entity-index-label"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
+    th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
   <div
@@ -368,7 +368,7 @@
     th:id="${labelId}"
     class="usa-label cf-entity-index-label"
     th:for="${inputId}"
-    th:text="#{placeholder.entityName(${enumeratorQuestion.getEntityType()})} + ' #' + ${rowNumber}"
+    th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
   <div
@@ -384,7 +384,7 @@
      unsaved (HTMX-added) row has no id and is just removed from the DOM. */-->
 <div
   th:fragment="enumeratorEntityDeleteButton(isSaved, deleteButtonId, rowNumber)"
-  class="display-flex flex-justify-end"
+  class="display-flex flex-justify-end margin-top-105"
 >
   <button
     type="button"

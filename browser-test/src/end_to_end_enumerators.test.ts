@@ -1816,7 +1816,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // The first entity's group is labeled by the enumerator question text plus the
       // entity label, and described by the enumerator help text.
       const firstEntity = blockForm.getByRole('group', {
-        name: 'List the names of your pets. Pets name #1',
+        name: 'List the names of your pets. Pets #1',
         exact: true,
       })
 
@@ -1849,7 +1849,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForHtmxReady(page)
         // The added entity is not first, so its group is labeled only by its own entity label.
         await expect(
-          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+          blockForm.getByRole('group', {name: 'Pets #2', exact: true}),
         ).toBeVisible()
       })
 
@@ -1865,10 +1865,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Verify the promoted entity takes over the enumerator title and help text', async () => {
         // The remaining entity is re-indexed back to #1.
         await expect(
-          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+          blockForm.getByRole('group', {name: 'Pets #2', exact: true}),
         ).toBeHidden()
         const promotedEntity = blockForm.getByRole('group', {
-          name: 'List the names of your pets. Pets name #1',
+          name: 'List the names of your pets. Pets #1',
           exact: true,
         })
         await expect(promotedEntity).toBeVisible()
@@ -1925,7 +1925,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
       // The first entity's input is labeled by the enumerator question text plus the entity label.
       const firstEntityInput = blockForm.getByRole('spinbutton', {
-        name: 'List the names of your pets. Pets name #1',
+        name: 'List the names of your pets. Pets #1',
       })
 
       await test.step('Verify no entity rows are shown to start', async () => {
@@ -1957,20 +1957,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Verify a second entity row is shown', async () => {
         // The added entity is not first, so its input is labeled only by its own entity label.
         await expect(
-          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+          blockForm.getByRole('spinbutton', {name: 'Pets #2'}),
         ).toBeVisible()
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
       })
 
       await test.step('Fill the second entity and add a third', async () => {
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets name #2'})
-          .fill('2')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #2'}).fill('2')
         await addButton.click()
         await waitForHtmxReady(page)
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets name #3'})
-          .fill('3')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #3'}).fill('3')
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
         // Multiple entity rows must not introduce accessibility violations (e.g. duplicate ids).
         await validateAccessibility(page)
@@ -1982,7 +1978,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
         // The surviving third entity is relabeled to #2.
         await expect(
-          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+          blockForm.getByRole('spinbutton', {name: 'Pets #2'}),
         ).toHaveValue('3')
         // Re-indexing the remaining rows after removal must stay accessible.
         await validateAccessibility(page)
