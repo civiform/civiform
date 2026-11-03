@@ -574,6 +574,18 @@ public final class QuestionService {
           && !questionDefinition.getQuestionHelpText().hasTranslationFor(locale)) {
         return false;
       }
+      if (questionDefinition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()) {
+        if (questionDefinition.getLocalizedImageDescription().isEmpty()
+            || !questionDefinition.getLocalizedImageDescription().get().hasTranslationFor(locale)
+            || questionDefinition
+                .getLocalizedImageDescription()
+                .get()
+                .maybeGet(locale)
+                .filter(s -> !s.isBlank())
+                .isEmpty()) {
+          return false;
+        }
+      }
       if (questionDefinition.getQuestionType().isMultiOptionType()) {
         MultiOptionQuestionDefinition multiOptionQuestionDefinition =
             (MultiOptionQuestionDefinition) questionDefinition;

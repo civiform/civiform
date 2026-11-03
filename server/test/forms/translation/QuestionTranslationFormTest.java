@@ -92,4 +92,96 @@ public class QuestionTranslationFormTest {
 
     assertThat(updated.getConcurrencyToken()).isNotEmpty();
   }
+
+  @Test
+  public void builder_withImageDescription_updatesImageDescription() throws Exception {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setImageFileKey("test-key")
+                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue("default alt text"))
+                .build());
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+    form.setQuestionText("question?");
+    form.setImageDescription("spanish alt text");
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, Locale.forLanguageTag("es-US")).build();
+
+    assertThat(updated.getLocalizedImageDescription().get().get(Locale.forLanguageTag("es-US")))
+        .isEqualTo("spanish alt text");
+    assertThat(updated.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo("default alt text");
+  }
+
+  @Test
+  public void builder_withBlankImageDescription_clearsTranslationForLocale() throws Exception {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setImageFileKey("test-key")
+                .setLocalizedImageDescription(
+                    LocalizedStrings.of(
+                        LocalizedStrings.DEFAULT_LOCALE,
+                        "default alt text",
+                        Locale.forLanguageTag("es-US"),
+                        "existing spanish alt text"))
+                .build());
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+    form.setQuestionText("question?");
+    form.setImageDescription("  ");
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, Locale.forLanguageTag("es-US")).build();
+
+    assertThat(
+            updated
+                .getLocalizedImageDescription()
+                .get()
+                .hasTranslationFor(Locale.forLanguageTag("es-US")))
+        .isFalse();
+    assertThat(updated.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo("default alt text");
+  }
+
+  @Test
+  public void builder_withoutImageDescription_preservesExistingTranslationForLocale()
+      throws Exception {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("test")
+                .setDescription("test")
+                .setQuestionText(LocalizedStrings.withDefaultValue("question?"))
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .setImageFileKey("test-key")
+                .setLocalizedImageDescription(
+                    LocalizedStrings.of(
+                        LocalizedStrings.DEFAULT_LOCALE,
+                        "default alt text",
+                        Locale.forLanguageTag("es-US"),
+                        "existing spanish alt text"))
+                .build());
+
+    QuestionTranslationForm form = new QuestionTranslationFormImpl();
+    form.setQuestionText("question?");
+
+    QuestionDefinition updated =
+        form.builderWithUpdates(question, Locale.forLanguageTag("es-US")).build();
+
+    assertThat(updated.getLocalizedImageDescription().get().get(Locale.forLanguageTag("es-US")))
+        .isEqualTo("existing spanish alt text");
+    assertThat(updated.getLocalizedImageDescription().get().getDefault())
+        .isEqualTo("default alt text");
+  }
 }

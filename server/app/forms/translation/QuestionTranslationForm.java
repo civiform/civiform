@@ -1,7 +1,9 @@
 package forms.translation;
 
 import java.util.Locale;
+import java.util.Optional;
 import java.util.UUID;
+import services.LocalizedStrings;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionBuilder;
@@ -13,6 +15,7 @@ public class QuestionTranslationForm {
 
   private String questionText;
   private String questionHelpText;
+  private String imageDescription;
   private UUID concurrencyToken;
 
   public QuestionTranslationForm() {
@@ -38,6 +41,14 @@ public class QuestionTranslationForm {
     this.questionHelpText = questionHelpText;
   }
 
+  public final String getImageDescription() {
+    return imageDescription;
+  }
+
+  public final void setImageDescription(String imageDescription) {
+    this.imageDescription = imageDescription;
+  }
+
   public final void setConcurrencyToken(UUID concurrencyToken) {
     this.concurrencyToken = concurrencyToken;
   }
@@ -50,6 +61,16 @@ public class QuestionTranslationForm {
     // Help text is optional
     if (!questionHelpText.isBlank()) {
       builder.updateQuestionHelpText(updatedLocale, questionHelpText);
+    }
+    if (toUpdate.getLocalizedImageDescription().isPresent() && imageDescription != null) {
+      Optional<String> maybeDescription =
+          imageDescription.isBlank() ? Optional.empty() : Optional.of(imageDescription);
+      LocalizedStrings updatedImageDescription =
+          toUpdate
+              .getLocalizedImageDescription()
+              .get()
+              .updateTranslation(updatedLocale, maybeDescription);
+      builder.setLocalizedImageDescription(Optional.of(updatedImageDescription));
     }
     return builder;
   }
