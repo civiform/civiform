@@ -26,6 +26,36 @@ export const SAMPLE_QUESTIONS = {
 } as const
 
 /**
+ * English question text of each of the SAMPLE_QUESTIONS, for asserting what
+ * applicants see. Must stay in sync with
+ * server/app/controllers/dev/seeding/SampleQuestionDefinitions.java.
+ */
+export const SAMPLE_QUESTION_TEXT: Record<
+  keyof typeof SAMPLE_QUESTIONS,
+  string
+> = {
+  address: 'What is your address?',
+  checkbox: 'Which of the following kitchen instruments do you own?',
+  currency: 'How much should a scoop of ice cream cost?',
+  date: 'When is your birthday?',
+  datePredicate: 'When is your birthday?',
+  dropdown: 'Select your favorite ice cream flavor from the following',
+  email: 'What is your email?',
+  enumerator: 'List all members of your household.',
+  fileUpload: 'Upload anything from your computer',
+  id: "What is your driver's license ID?",
+  name: 'What is your name?',
+  number: 'How many pets do you have?',
+  phone: 'what is your phone number',
+  radioButton: 'What is your favorite season?',
+  // The full text is several lines of markdown starting with
+  // "Hi I'm a block of static text." Only a plain fragment is kept so text
+  // matching doesn't depend on how the markdown and apostrophe render.
+  staticContent: 'a block of static text.',
+  text: 'What is your favorite color?',
+}
+
+/**
  * Display names of the canned sample programs created by
  * Seeding.seedProgramsAndCategories(), which also creates all of the
  * SAMPLE_QUESTIONS. Must stay in sync with

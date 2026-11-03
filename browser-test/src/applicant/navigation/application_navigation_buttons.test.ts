@@ -7,17 +7,17 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
-import {SAMPLE_QUESTIONS} from '../../support/seeding'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../../support/seeding'
 
 test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for navigation flows'
-  const dateQuestionText = 'When is your birthday?'
-  const emailQuestionText = 'What is your email?'
-  const staticQuestionText = 'a block of static text.'
-  const addressQuestionText = 'What is your address?'
-  const radioQuestionText = 'What is your favorite season?'
-  const phoneQuestionText = 'what is your phone number'
-  const currencyQuestionText = 'How much should a scoop of ice cream cost?'
+  const dateQuestionText = SAMPLE_QUESTION_TEXT.date
+  const emailQuestionText = SAMPLE_QUESTION_TEXT.email
+  const staticQuestionText = SAMPLE_QUESTION_TEXT.staticContent
+  const addressQuestionText = SAMPLE_QUESTION_TEXT.address
+  const radioQuestionText = SAMPLE_QUESTION_TEXT.radioButton
+  const phoneQuestionText = SAMPLE_QUESTION_TEXT.phone
+  const currencyQuestionText = SAMPLE_QUESTION_TEXT.currency
 
   test.describe('navigation with five blocks', () => {
     test.beforeEach(async ({page, adminPrograms, seeding}) => {
