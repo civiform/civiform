@@ -50,11 +50,11 @@ public final class CustomOidcLogoutRequest extends LogoutRequest {
     super(
         uri,
         idTokenHint,
-        /* logoutHint = */ null,
-        /* clientID = */ clientId.map(ClientID::new).orElse(null),
+        /* logoutHint= */ null,
+        /* clientID= */ clientId.map(ClientID::new).orElse(null),
         postLogoutRedirectURI,
         state,
-        /* uiLocales = */ null);
+        /* uiLocales= */ null);
 
     this.postLogoutRedirectParam = postLogoutRedirectParam;
     this.postLogoutRedirectURI = postLogoutRedirectURI;

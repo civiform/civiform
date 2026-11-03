@@ -32,7 +32,8 @@ public class ApiPayloadWrapperTest extends ResetPostgres {
                   "New York State" : [ "New York City", "Albany" ]
                 }
               }
-            }""");
+            }\
+            """);
   }
 
   @Test
@@ -62,7 +63,8 @@ public class ApiPayloadWrapperTest extends ResetPostgres {
                   "New York State" : [ "New York City", "Albany" ]
                 }
               }
-            }"""
+            }\
+            """
                 .formatted(expectedToken));
   }
 }

@@ -150,7 +150,8 @@ public class PredicateExpressionNodeTest {
                 """
                 <strong>&quot;%s&quot;</strong> number is greater than <strong>45</strong> AND \
                 <strong>&quot;%s&quot;</strong> number is less than or equal to \
-                <strong>72</strong>""",
+                <strong>72</strong>\
+                """,
                 question.getName(), question.getName()));
   }
 
@@ -191,7 +192,8 @@ public class PredicateExpressionNodeTest {
                 """
                 <strong>&quot;%s&quot;</strong> selection is one of <strong>[chocolate, \
                 strawberry]</strong> OR <strong>&quot;%s&quot;</strong> date is earlier \
-                than <strong>2021-01-01</strong>""",
+                than <strong>2021-01-01</strong>\
+                """,
                 multiOption.getName(), date.getName()));
   }
 }

@@ -64,7 +64,7 @@ public class TextFormatterTest extends ResetPostgres {
 
     assertThat(content.get(0).render())
         .isEqualTo(
-            """
+"""
 <p>Enter your full legal name.<span class="usa-hint--required" aria-hidden="true">\u00a0*</span></p>
 """);
   }
@@ -76,14 +76,15 @@ public class TextFormatterTest extends ResetPostgres {
             """
             Here is some text.
             * list item one
-            * list item two""",
+            * list item two\
+            """,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            """
+"""
 <p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
 <ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ul>
 """);
@@ -93,14 +94,15 @@ public class TextFormatterTest extends ResetPostgres {
             """
             Here is some text.
             1. list item one
-            2. list item two""",
+            2. list item two\
+            """,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            """
+"""
 <p>Here is some text.<span class="usa-hint--required" aria-hidden="true"> *</span></p>
 <ol class="usa-list margin-r-4"><li>list item one</li><li>list item two</li></ol>
 """);
@@ -113,14 +115,15 @@ public class TextFormatterTest extends ResetPostgres {
             """
             - list item one
             - list item two
-            - list item three""",
+            - list item three\
+            """,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithUnorderedList = contentWithUnorderedList.get(0).render();
     assertThat(htmlContentWithUnorderedList)
         .isEqualTo(
-            """
+"""
 <ul class="usa-list margin-r-4"><li>list item one</li><li>list item two</li><li>list item\
  three<span class="usa-hint--required" aria-hidden="true">\
  *</span></li></ul>
@@ -131,14 +134,15 @@ public class TextFormatterTest extends ResetPostgres {
             """
             1. list item one
             2. list item two
-            3. list item three""",
+            3. list item three\
+            """,
             /* preserveEmptyLines= */ false,
             /* addRequiredIndicator= */ true,
             /* ariaLabelForNewTabs= */ "");
     String htmlContentWithOrderedList = contentWithOrderedList.get(0).render();
     assertThat(htmlContentWithOrderedList)
         .isEqualTo(
-            """
+"""
 <ol class="usa-list margin-r-4">\
 <li>list item one</li>\
 <li>list item two</li>\
@@ -156,7 +160,8 @@ public class TextFormatterTest extends ResetPostgres {
         * cream cheese
         * eggs
         * sugar
-        * vanilla""";
+        * vanilla\
+        """;
     ImmutableList<DomContent> content = TextFormatter.formatTextForAdmins(withList);
     String htmlContent = content.get(0).render();
 
@@ -192,7 +197,7 @@ public class TextFormatterTest extends ResetPostgres {
 
     assertThat(htmlContent)
         .isEqualTo(
-            """
+"""
 <p>This is my list:</p>
 <ol class="usa-list margin-r-4"><li>cream cheese</li></ol>
 <p><strong>hello</strong></p>
@@ -209,7 +214,8 @@ public class TextFormatterTest extends ResetPostgres {
         This is the second (or third) line of content.
 
 
-        This is the third (or sixth) line of content.""";
+        This is the third (or sixth) line of content.\
+        """;
 
     ImmutableList<DomContent> preservedBlanksContent =
         TextFormatter.formatText(
@@ -338,7 +344,8 @@ public class TextFormatterTest extends ResetPostgres {
     String stringWithMarkdown =
         """
         # Hello!
-        This is a string with *italics* and **bold** and `inline code`""";
+        This is a string with *italics* and **bold** and `inline code`\
+        """;
     String formattedText =
         TextFormatter.formatTextToSanitizedHTML(
             stringWithMarkdown,

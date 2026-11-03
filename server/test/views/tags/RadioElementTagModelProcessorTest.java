@@ -40,7 +40,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Contact Method</legend>
@@ -72,7 +72,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Contact Method</legend>
@@ -112,7 +112,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Shipping Method</legend>
@@ -146,7 +146,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Shipping Method</legend>
@@ -189,7 +189,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="Please select a gender">
 <legend class="usa-legend">Gender</legend>
@@ -223,7 +223,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="Please select a gender">
 <legend class="usa-legend">Gender</legend>
@@ -267,7 +267,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <fieldset class="usa-fieldset" data-required-message="Please select a subscription plan">
 <legend class="usa-legend">Subscription Plan</legend>
@@ -303,7 +303,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Accept Terms</legend>
@@ -336,7 +336,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Accept Terms</legend>
@@ -371,7 +371,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Size</legend>
@@ -410,7 +410,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Payment Method</legend>
@@ -438,7 +438,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         // model
         Model.builder().id("tier").name("tier").label("Membership Tier").build(),
         // template
-        """
+"""
 <cf:radio
   th:id="${model.id()}"
   th:name="${model.name()}"
@@ -449,7 +449,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
 </cf:radio>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Membership Tier</legend>
@@ -488,7 +488,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Choice</legend>
@@ -521,7 +521,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Items</legend>
@@ -541,7 +541,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         // model
         Model.builder().id("tracking").name("tracking").label("Tracking").build(),
         // template
-        """
+"""
 <cf:radio
   th:id="${model.id()}"
   th:name="${model.name()}"
@@ -550,7 +550,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
 </cf:radio>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Tracking</legend>
@@ -579,7 +579,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         </cf:radio>
         """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Accessible</legend>
@@ -606,7 +606,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
             .tiled("true")
             .build(),
         // template
-        """
+"""
 <cf:radio
     th:id="${model.id()}"
     th:name="${model.name()}"
@@ -620,7 +620,7 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
 </cf:radio>
 """,
         // expected
-        """
+"""
 <div class="usa-form-group">
 <fieldset class="usa-fieldset">
 <legend class="usa-legend">Complete Example</legend>

@@ -48,7 +48,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:size="${model.size()}"
             th:inverse="${model.inverse()}" />
         """,
-        """
+"""
 <button type="submit" class="usa-button usa-button--secondary usa-button--big usa-button--inverse" id="actionBtn" name="action" value="submit">Submit Form</button>
 """);
 
@@ -65,7 +65,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             size="big"
             inverse="true" />
         """,
-        """
+"""
 <button type="submit" class="usa-button usa-button--secondary usa-button--big usa-button--inverse" id="actionBtn" name="action" value="submit">Submit Form</button>
 """);
   }
@@ -146,7 +146,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             data-testid="submit-button"
             data-analytics="track-click" />
         """,
-        """
+"""
 <button type="button" class="usa-button" data-testid="submit-button" data-analytics="track-click">Track Me</button>
 """);
 
@@ -160,7 +160,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:data-testid="${model.id()}"
             th:data-target="'#' + ${model.id()}" />
         """,
-        """
+"""
 <button type="button" class="usa-button" id="myButton" data-testid="myButton" data-target="#myButton">Button</button>
 """);
   }
@@ -202,7 +202,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:size="${model.size()}"
             th:text="${model.text()}" />
         """,
-        """
+"""
 <button type="button" class="usa-button usa-button--outline usa-button--big">Large Outline Button</button>
 """);
   }
@@ -239,7 +239,7 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
             th:inverse="${model.inverse()}"
             th:text="${model.text()}" />
         """,
-        """
+"""
 <button type="button" class="usa-button usa-button--outline usa-button--inverse">Inverse Outline</button>
 """);
   }
