@@ -275,6 +275,11 @@ button.usa-button.usa-button--unstyled.htmx-request {
   @include u-maxw('full');
 }
 
+.admin-normal-main.cf-admin-main-with-demo-banner,
+.admin-widescreen-main.cf-admin-main-with-demo-banner {
+  @include u-padding-top('05');
+}
+
 // At widescreen (≥1400px) the admin content column (maxw 1200px)
 // sits inside a gray page chrome per the Figma desktop-lg/widescreen
 // spec (node 3522:2651). Below widescreen the body stays white so
@@ -327,6 +332,31 @@ body {
 // This will be removed as part of the admin migration moving off tailwind
 .z-10 {
   z-index: 10;
+}
+
+:root {
+  --cf-gov-banner-height: 3rem;
+
+  @include at-media('tablet') {
+    --cf-gov-banner-height: 1.5rem;
+  }
+}
+
+.cf-z-gov-banner {
+  z-index: 11;
+
+  .usa-banner__header {
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .usa-banner__inner {
+    min-height: var(--cf-gov-banner-height);
+  }
+}
+
+.cf-transitional-sticky-nav {
+  top: var(--cf-gov-banner-height);
 }
 
 // Set a basic default gap for `display: flex`.

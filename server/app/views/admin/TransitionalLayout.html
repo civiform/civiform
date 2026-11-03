@@ -1,5 +1,6 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="demoBanner" type="views.shared.DemoBanner"*/-->
 <!doctype html>
 <html lang="en-US" xmlns:th="http://www.thymeleaf.org">
   <head>
@@ -54,17 +55,18 @@
   <!--/* Body sets HTMX header so the CSRF token is always there */-->
   <body
     class="display-flex minh-viewport body-background-gradient"
+    th:classappend="${demoBanner.enabled()} ? 'flex-column' : ''"
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
     <th:block
-      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
+      th:insert="~{admin/shared/TransitionalAdminCommonHeader :: header}"
     ></th:block>
 
     <!--/* Main */-->
     <main
       class="bg-white shadow-2 width-full margin-x-auto"
-      th:classappend="${layoutParams.isWidescreen() ? 'admin-widescreen-main': 'admin-normal-main'}"
+      th:classappend="|${layoutParams.isWidescreen() ? 'admin-widescreen-main' : 'admin-normal-main'}${demoBanner.enabled() ? ' flex-fill cf-admin-main-with-demo-banner' : ''}|"
     >
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: content}"

@@ -88,14 +88,8 @@
     ></th:block>
     <th:block
       th:unless="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
-    >
-      <th:block
-        th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
-      ></th:block>
-      <div th:if="${demoBanner.enabled()}" class="padding-top-10">
-        <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
-      </div>
-    </th:block>
+      th:insert="~{admin/shared/TransitionalAdminCommonHeader :: header}"
+    ></th:block>
 
     <div
       class="cf-admin-page-wrapper spacing-0 bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"

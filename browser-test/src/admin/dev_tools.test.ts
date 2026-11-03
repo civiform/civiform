@@ -14,6 +14,10 @@ test.describe('developer tools', () => {
     // Ensure mutated feature flags are DISABLED after each test even on failure.
     await disableFeatureFlag(page, 'staging_disable_demo_mode_logins')
     await disableFeatureFlag(page, 'admin_ui_migration_ux_redesign_sc_enabled')
+    await disableFeatureFlag(
+      page,
+      'admin_ui_migration_j2html_to_thymeleaf_sc_enabled',
+    )
   })
 
   test('dev link exists', async ({page}) => {
@@ -81,6 +85,74 @@ test.describe('developer tools', () => {
         demoBanner.locator('#additional-tools svg.usa-icon'),
       ).toBeVisible()
       await validateAccessibility(page)
+    })
+
+    await test.step('demo banner and active role buttons appear on pre-redesign Thymeleaf admin pages', async () => {
+      await enableFeatureFlag(
+        page,
+        'admin_ui_migration_j2html_to_thymeleaf_sc_enabled',
+      )
+      await demoBanner.locator('#admin').click()
+      await waitForPageJsLoad(page)
+
+      // TransitionalLayout page
+      await page.goto('/admin/tools/urlChecker')
+      await waitForPageJsLoad(page)
+      await expect(demoBanner).toBeVisible()
+      await expect(demoBanner.locator('div#admin')).toHaveClass('usa-button')
+      await validateAccessibility(page)
+
+      // LegacyTailwindLayout page: verify Gov't banner -> Demo banner -> Navigation at top,
+      // and Gov't banner -> Navigation after scrolling
+      await page.goto('/admin/settings')
+      await waitForPageJsLoad(page)
+      const govBanner = page.locator('#cf-transitional-gov-banner')
+      const siteHeader = page.locator('header[aria-label="Site navigation"]')
+      await expect(govBanner).toBeInViewport()
+      await expect(demoBanner).toBeInViewport()
+      await expect(siteHeader).toBeInViewport()
+      await expect(demoBanner.locator('div#admin')).toHaveClass('usa-button')
+      await validateAccessibility(page, '.cf-demo-banner')
+
+      const govBoxTop = await govBanner.boundingBox()
+      const demoBoxTop = await demoBanner.boundingBox()
+      const navBoxTop = await siteHeader.boundingBox()
+      expect(govBoxTop?.y).toBe(0)
+      expect(demoBoxTop!.y).toBeGreaterThanOrEqual(
+        govBoxTop!.y + govBoxTop!.height - 1,
+      )
+      expect(navBoxTop!.y).toBeGreaterThanOrEqual(
+        demoBoxTop!.y + demoBoxTop!.height - 1,
+      )
+
+      await page.evaluate(() => window.scrollTo(0, 600))
+      await expect(govBanner).toBeInViewport()
+      await expect(siteHeader).toBeInViewport()
+      await expect(demoBanner).not.toBeInViewport()
+      const govBoxScrolled = await govBanner.boundingBox()
+      const navBoxScrolled = await siteHeader.boundingBox()
+      expect(govBoxScrolled?.y).toBe(0)
+      expect(
+        Math.abs(navBoxScrolled!.y - govBoxScrolled!.height),
+      ).toBeLessThanOrEqual(1)
+
+      await page.evaluate(() => window.scrollTo(0, 0))
+      await expect(demoBanner).toBeInViewport()
+
+      // AdminLayout page with admin_ui_migration_ux_redesign_sc_enabled=false
+      await page.goto('/dev/component/catalog')
+      await waitForPageJsLoad(page)
+      await expect(demoBanner).toBeVisible()
+      await expect(demoBanner.locator('div#admin')).toHaveClass('usa-button')
+      await validateAccessibility(page, '.cf-demo-banner')
+
+      await demoBanner.locator('#resident').click()
+      await page.waitForURL('**/programs')
+      await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
+      await disableFeatureFlag(
+        page,
+        'admin_ui_migration_j2html_to_thymeleaf_sc_enabled',
+      )
     })
 
     await test.step('demo banner and active role buttons appear on post-migration Thymeleaf admin page', async () => {

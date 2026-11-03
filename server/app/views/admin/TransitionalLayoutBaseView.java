@@ -3,14 +3,17 @@ package views.admin;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import services.DeploymentType;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
+import views.shared.DemoBanner;
 import views.shared.LayoutDeps;
 import views.shared.ScriptElementSettings;
 
@@ -27,11 +30,15 @@ public abstract class TransitionalLayoutBaseView<TModel extends BaseViewModel>
     extends BaseView<TModel> {
   private final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
+  private final DeploymentType deploymentType;
+  private final Clock clock;
 
   public TransitionalLayoutBaseView(LayoutDeps layoutDeps) {
     super(layoutDeps.baseViewDeps());
     this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
     this.profileUtils = layoutDeps.profileUtils();
+    this.deploymentType = layoutDeps.deploymentType();
+    this.clock = layoutDeps.clock();
   }
 
   /** Override to set the active page for top header navigation. */
@@ -43,6 +50,15 @@ public abstract class TransitionalLayoutBaseView<TModel extends BaseViewModel>
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
     CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    context.setVariable(
+        "demoBanner",
+        DemoBanner.create(
+            settingsManifest,
+            request,
+            Optional.of(profile),
+            deploymentType.isDevOrStaging(),
+            clock));
 
     context.setVariable(
         "adminCommonHeader",
