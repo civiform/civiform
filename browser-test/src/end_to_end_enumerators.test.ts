@@ -1930,14 +1930,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Fill the second entity and add a third', async () => {
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets #2'})
-          .fill('2')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #2'}).fill('2')
         await addButton.click()
         await waitForHtmxReady(page)
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets #3'})
-          .fill('3')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #3'}).fill('3')
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
         // Multiple entity rows must not introduce accessibility violations (e.g. duplicate ids).
         await validateAccessibility(page)
