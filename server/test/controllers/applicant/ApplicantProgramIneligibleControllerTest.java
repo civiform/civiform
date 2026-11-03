@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.FORBIDDEN;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
+import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -23,6 +24,7 @@ import play.i18n.MessagesApi;
 import play.mvc.Http.Request;
 import play.mvc.Result;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.monitoring.MonitoringMetricCounters;
 import services.program.ProgramService;
@@ -111,6 +113,35 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
             .toCompletableFuture()
             .join();
     assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
+  public void ineligible_escapesHtmlInShortDescription() {
+    // newActiveProgram already sets a default-locale short description, so replace it here.
+    ProgramModel programWithMarkup =
+        ProgramBuilder.newActiveProgram()
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .buildDefinition()
+            .toBuilder()
+            .setLocalizedShortDescription(
+                LocalizedStrings.withDefaultValue("<b>Food</b>"))
+            .build()
+            .toProgram();
+    programWithMarkup.update();
+
+    Result result =
+        subject
+            .ineligible(
+                fakeRequest(),
+                String.valueOf(programWithMarkup.id),
+                /* blockId= */ Optional.empty())
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("<b>Food</b>");
+    assertThat(contentAsString(result)).contains("&lt;b&gt;Food&lt;/b&gt;");
   }
 
   @Test

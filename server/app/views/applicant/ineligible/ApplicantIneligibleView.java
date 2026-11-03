@@ -13,6 +13,7 @@ import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import org.unbescape.html.HtmlEscape;
 import play.i18n.Messages;
 import play.mvc.Http.Request;
 import services.AlertSettings;
@@ -72,7 +73,8 @@ public class ApplicantIneligibleView extends ApplicantBaseView {
     String localizedProgramName = program.localizedName().getOrDefault(userLocale);
     context.setVariable("programName", localizedProgramName);
     context.setVariable(
-        "programShortDescription", program.localizedShortDescription().getOrDefault(userLocale));
+        "programShortDescription",
+        HtmlEscape.escapeHtml4Xml(program.localizedShortDescription().getOrDefault(userLocale)));
 
     String localizedEligibilityMsg = "";
     if (!block.isEmpty()) {

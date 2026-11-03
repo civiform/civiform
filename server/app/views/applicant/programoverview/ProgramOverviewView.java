@@ -11,6 +11,7 @@ import java.util.Locale;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
+import org.unbescape.html.HtmlEscape;
 import play.i18n.Messages;
 import play.mvc.Http;
 import services.AlertSettings;
@@ -130,7 +131,9 @@ public class ProgramOverviewView extends ApplicantBaseView {
           messages.at(MessageKey.LINK_OPENS_NEW_TAB_SR.getKeyName()));
     }
 
-    return programDefinition.localizedShortDescription().getOrDefault(preferredLocale);
+    // The long description is sanitized above. The short description is plain text, so escape it.
+    return HtmlEscape.escapeHtml4Xml(
+        programDefinition.localizedShortDescription().getOrDefault(preferredLocale));
   }
 
   private AlertSettings createEligibilityAlertSettings(
