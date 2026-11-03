@@ -226,6 +226,29 @@ public final class Block {
   }
 
   /**
+   * Returns true when the entities on this enumerator block were produced through the
+   * initial-question flow, rather than the legacy free-text entity-name input.
+   *
+   * <p>Detected from the data, not from configuration: an initial question can be configured on the
+   * block while the entities were still entered the legacy way (e.g. the enumerator-improvements
+   * flag is off). Each initial-question answer is stored with a {@code program_updated_in} marker
+   * at the question's own nested path. The legacy free-text input only stores an entity name and
+   * never writes to the initial question's path, so that marker is absent there. The mere presence
+   * of the marker is therefore the signal, independent of which program wrote it: an entity
+   * answered through the new flow in a different program still reads as the new flow here.
+   *
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
+   * check in {@link services.applicant.question.EnumeratorQuestion}.
+   */
+  public boolean initialQuestionFlowIsActive() {
+    if (!isEnumerator()) {
+      return false;
+    }
+    return getContextualizedInitialQuestions().stream()
+        .anyMatch(question -> question.getUpdatedInProgramMetadata().isPresent());
+  }
+
+  /**
    * Creates an empty {@link ApplicantQuestion} for an enumerator initial question, contextualized
    * to the entity at the given index, or {@link Optional#empty()} if this block has no initial
    * question. Used by the HTMX add-entity endpoint to render the field(s) for a newly added entity
@@ -459,6 +482,7 @@ public final class Block {
    */
   public boolean hasErrors() {
     return getVisibleQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
+        || getContextualizedInitialQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
