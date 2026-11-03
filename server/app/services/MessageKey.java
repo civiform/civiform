@@ -267,6 +267,8 @@ public enum MessageKey {
   TEXT_REPEATED_QUESTIONS_DESCRIPTION("text.repeatedQuestions.description"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),
+  TEXT_REPEATED_SET_BACKFILL_PROGRAM_COUNT_MANY("text.repeatedSet.backfillProgramCountMany"),
+  TEXT_REPEATED_SET_BACKFILL_PROGRAM_COUNT_ONE("text.repeatedSet.backfillProgramCountOne"),
   TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION("text.repeatedSet.screenNameDescription"),
   TEXT_VALIDATION_TOO_LONG("validation.textTooLong"),
   TEXT_VALIDATION_TOO_SHORT("validation.textTooShort"),

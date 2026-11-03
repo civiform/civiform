@@ -525,6 +525,11 @@ public class AdminProgramBlockQuestionsController extends Controller {
             fileUploadQuestionImprovementsEnabled,
             addedTo);
       } catch (Exception e) {
+        logger.error(
+            "Could not add initial question {} to every block that uses enumerator {}; reverting",
+            saved.initialQuestion().getId(),
+            saved.enumeratorQuestion().getId(),
+            e);
         // Nothing should be left half saved: an enumerator linked to an initial question that some
         // programs don't have can't be retried, because the backfill card is no longer shown.
         revertInitialQuestion(request, saved, addedTo);

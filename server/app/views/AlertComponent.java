@@ -7,8 +7,10 @@ import static j2html.TagCreator.h4;
 import static j2html.TagCreator.h5;
 import static j2html.TagCreator.h6;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.text;
 
 import com.google.common.collect.Lists;
+import j2html.tags.DomContent;
 import j2html.tags.specialized.DivTag;
 import java.util.Optional;
 import services.AlertType;
@@ -52,6 +54,20 @@ public final class AlertComponent {
       boolean hidden,
       HeadingLevel headingLevel,
       String... classes) {
+    return renderFullAlert(alertType, text(text), title, hidden, headingLevel, classes);
+  }
+
+  /**
+   * Like the overload that takes a string, but the body of the alert is rendered content, for text
+   * that needs markup such as bold.
+   */
+  public static DivTag renderFullAlert(
+      AlertType alertType,
+      DomContent content,
+      Optional<String> title,
+      boolean hidden,
+      HeadingLevel headingLevel,
+      String... classes) {
     String alertTypeStyle =
         switch (alertType) {
           case INFO -> BaseStyles.ALERT_INFO;
@@ -82,7 +98,7 @@ public final class AlertComponent {
                 .condWith(
                     title.isPresent(),
                     headingTag.withClass("usa-alert__heading").withText(title.orElse("")))
-                .with(p().withClass("usa-alert__text").withText(text)));
+                .with(p().withClass("usa-alert__text").with(content)));
   }
 
   /**
@@ -130,11 +146,18 @@ public final class AlertComponent {
    */
   public static DivTag renderSlimAlert(
       AlertType alertType, String text, boolean hidden, String... classes) {
+    return renderSlimAlert(alertType, text(text), hidden, classes);
+  }
+
+  /** Like the overload that takes a string, but the body is rendered content such as bold text. */
+  public static DivTag renderSlimAlert(
+      AlertType alertType, DomContent content, boolean hidden, String... classes) {
     return renderFullAlert(
         alertType,
-        text,
+        content,
         /* title= */ Optional.empty(),
         hidden,
+        HeadingLevel.H4,
         Lists.asList(BaseStyles.ALERT_SLIM, classes).toArray(new String[0]));
   }
 

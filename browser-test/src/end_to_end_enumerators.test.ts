@@ -307,8 +307,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can save an initial question picked for an existing enumerator question', async ({
+    test('can save an initial question picked for an existing enumerator question and warns how many other programs also get it', async ({
       page,
+      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const backfillCard = blockPanel.locator('#backfill-initial-question-card')
@@ -332,46 +333,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await expect(
           backfillCard.getByText(
-            'You will not be able to change the initial question after you save it.',
+            'You will not be able to remove the initial question after you save it.',
           ),
         ).toBeVisible()
+        await expect(backfillCard.getByText('This will also update')).toBeHidden()
         await expect(
           backfillCard.getByRole('button', {name: 'Save initial question'}),
-        ).toBeVisible()
-      })
-
-      await test.step('Save and see the initial question attached to the screen', async () => {
-        await backfillCard
-          .getByRole('button', {name: 'Save initial question'})
-          .click()
-        await waitForPageJsLoad(page)
-        await expect(backfillCard).toBeHidden()
-      })
-
-      // The initial question is the copy of the question that was picked.
-      await expectInitialQuestionInEditForm(
-        page,
-        'Sample Enumerator Question',
-        'income-non-repeated-question -_- a',
-      )
-    })
-
-    test('warns how many other programs will also get the initial question', async ({
-      page,
-      adminPrograms,
-    }) => {
-      const blockPanel = page.getByTestId('block-panel-edit')
-      const backfillCard = blockPanel.locator('#backfill-initial-question-card')
-
-      await test.step('Add an existing enumerator question that has no initial question', async () => {
-        await addRepeatedSetBlocks(page)
-        await blockPanel.getByTestId('choose-existing-radio-label').click()
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
-        await pickQuestionFromBank(page, 'Sample Enumerator Question')
-        await expect(
-          blockPanel.getByTestId(
-            'question-admin-name-Sample Enumerator Question',
-          ),
         ).toBeVisible()
       })
 
@@ -389,7 +356,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
       })
 
-      await test.step('Back in the first program, pick an initial question and see how many other programs it reaches', async () => {
+      await test.step('Back in the first program, pick an initial question again and see how many other programs it reaches', async () => {
         await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
         await page.getByRole('link', {name: 'Screen 2'}).click()
         await waitForPageJsLoad(page)
@@ -398,9 +365,26 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .click()
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await expect(
-          backfillCard.getByText('also used in 1 other program'),
+          backfillCard.getByText(
+            'This will also update 1 program that uses this list set.',
+          ),
         ).toBeVisible()
       })
+
+      await test.step('Save and see the initial question attached to the screen', async () => {
+        await backfillCard
+          .getByRole('button', {name: 'Save initial question'})
+          .click()
+        await waitForPageJsLoad(page)
+        await expect(backfillCard).toBeHidden()
+      })
+
+      // The initial question is the copy of the question that was picked.
+      await expectInitialQuestionInEditForm(
+        page,
+        'Sample Enumerator Question',
+        'income-non-repeated-question -_- a',
+      )
     })
 
     test.describe('Initial question', () => {

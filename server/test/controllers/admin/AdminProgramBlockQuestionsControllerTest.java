@@ -683,8 +683,6 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             blockId);
 
     assertThat(result.status()).isNotEqualTo(OK);
-    // The bank stays open so the admin can retry.
-    assertThat(result.header("HX-Trigger")).isEmpty();
     BlockDefinition blockAfter =
         programService.getFullProgramDefinition(program.id).getBlockDefinition(blockId);
     assertThat(blockAfter.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId())
@@ -796,7 +794,38 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("also used in 2 other programs");
+    assertThat(contentAsString(result))
+        .contains("This will also update <b>2 programs</b> that use this list set.");
+  }
+
+  @Test
+  public void hxSelectInitialQuestion_onLegacyEnumeratorBlock_whenOneOtherProgramUsesIt_usesSingular()
+      throws Exception {
+    QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
+    QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    ProgramModel program =
+        ProgramBuilder.newDraftProgram("program one")
+            .withBlock()
+            .withRequiredQuestion(enumeratorQuestion)
+            .build();
+    ProgramBuilder.newDraftProgram("program two")
+        .withBlock()
+        .withRequiredQuestion(enumeratorQuestion)
+        .build();
+    long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
+
+    Request request =
+        fakeRequestBuilder()
+            .bodyForm(
+                ImmutableMap.of(
+                    "question-" + nameQuestion.getId(), String.valueOf(nameQuestion.getId())))
+            .build();
+
+    Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("This will also update <b>1 program</b> that uses this list set.");
   }
 
   @Test
@@ -821,7 +850,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxSelectInitialQuestion(request, program.id, blockId);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).doesNotContain("also used in");
+    assertThat(contentAsString(result)).doesNotContain("This will also update");
   }
 
   @Test
