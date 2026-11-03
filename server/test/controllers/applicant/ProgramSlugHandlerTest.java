@@ -58,8 +58,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
         ProgramBuilder.newActiveProgram("test program", /* description= */ "")
             .buildDefinition()
             .toBuilder()
-            .setLocalizedShortDescription(
-                LocalizedStrings.withDefaultValue("<b>Food</b>"))
+            .setLocalizedShortDescription(LocalizedStrings.withDefaultValue("<b>Food</b>"))
             .build();
     programDefinition.toProgram().update();
     ApplicantModel applicant = createApplicantWithMockedProfile();
