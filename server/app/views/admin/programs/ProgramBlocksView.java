@@ -124,8 +124,10 @@ public final class ProgramBlocksView extends ProgramBaseView {
       "nested-repeated-set-create-form";
   private static final String DELETE_BLOCK_FORM_ID = "block-delete-form";
   private static final int BASE_INDENTATION_SIZE = 4;
+
   /** Stands in for the program count in the message, so the count can be rendered in bold. */
   private static final String PROGRAM_COUNT_PLACEHOLDER = "@@programCount@@";
+
   private static final int INDENTATION_FACTOR_INCREASE_ON_LEVEL = 2;
   private static final String QUESTIONS_SECTION_ID = "questions-section";
 

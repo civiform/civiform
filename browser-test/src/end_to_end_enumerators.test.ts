@@ -395,7 +395,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             'You will not be able to remove the initial question after you save it.',
           ),
         ).toBeVisible()
-        await expect(backfillCard.getByText('This will also update')).toBeHidden()
+        await expect(
+          backfillCard.getByText('This will also update'),
+        ).toBeHidden()
         await expect(
           backfillCard.getByRole('button', {name: 'Save initial question'}),
         ).toBeVisible()

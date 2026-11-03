@@ -799,8 +799,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   @Test
-  public void hxSelectInitialQuestion_onLegacyEnumeratorBlock_whenOneOtherProgramUsesIt_usesSingular()
-      throws Exception {
+  public void
+      hxSelectInitialQuestion_onLegacyEnumeratorBlock_whenOneOtherProgramUsesIt_usesSingular()
+          throws Exception {
     QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramModel program =
