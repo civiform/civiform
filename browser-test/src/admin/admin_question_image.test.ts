@@ -399,6 +399,19 @@ test.describe('Admin can manage question image', () => {
         {fullPage: false},
       )
     })
+
+    await test.step('Save question and validate question card screenshot', async () => {
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+      const questionCard = page.locator(
+        `.cf-question-bank-element[data-adminname="${questionName}"]`,
+      )
+      await expect(
+        questionCard.locator('[data-testid="question-image-container"] img'),
+      ).toBeVisible()
+      await validateScreenshot(questionCard, 'question-card-with-image')
+      await validateAccessibility(page)
+    })
   })
 
   test('question preview image link accessible name is the alt text for screen readers', async ({

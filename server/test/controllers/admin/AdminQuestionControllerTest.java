@@ -503,6 +503,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
     assertThat(contentAsString(result)).contains(fileKey);
     assertThat(contentAsString(result)).contains("alt=\"\"");
+    assertThat(contentAsString(result)).doesNotContain(altText);
   }
 
   @Test
@@ -533,6 +534,7 @@ public class AdminQuestionControllerTest extends ResetPostgres {
     assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
     assertThat(contentAsString(result)).contains(fileKey);
     assertThat(contentAsString(result)).contains("alt=\"\"");
+    assertThat(contentAsString(result)).doesNotContain(altText);
   }
 
   @Test
