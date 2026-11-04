@@ -496,8 +496,11 @@ test.describe('Program admin review of submitted applications', () => {
     })
 
     await test.step('Pressing Enter in search filters without opening download modal', async () => {
-      await page.fill('input[name="search"]', 'SARA')
-      await page.locator('input[name="search"]').press('Enter')
+      const searchInput = page.getByRole('textbox', {
+        name: 'Search by name, email, phone',
+      })
+      await searchInput.fill('SARA')
+      await searchInput.press('Enter')
       await waitForPageJsLoad(page)
 
       await expect(
