@@ -23,7 +23,7 @@ import durablejobs.jobs.MapRefreshJob;
 import durablejobs.jobs.OldJobCleanupJob;
 import durablejobs.jobs.ReportingDashboardMonthlyRefreshJob;
 import durablejobs.jobs.UnusedAccountCleanupJob;
-import durablejobs.jobs.UnusedProgramImagesCleanupJob;
+import durablejobs.jobs.UnusedPublicImagesCleanupJob;
 import durablejobs.jobs.UpdateLastActivityTimeForAccounts;
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -151,7 +151,7 @@ public final class DurableJobModule extends AbstractModule {
         DurableJobName.UNUSED_PROGRAM_IMAGES_CLEANUP,
         JobType.RECURRING,
         persistedDurableJob ->
-            new UnusedProgramImagesCleanupJob(
+            new UnusedPublicImagesCleanupJob(
                 publicStorageClient, versionRepository, persistedDurableJob),
         new RecurringJobExecutionTimeResolvers.ThirdOfMonth2Am());
 
