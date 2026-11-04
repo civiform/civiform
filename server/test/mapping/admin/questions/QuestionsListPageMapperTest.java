@@ -212,7 +212,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ true,
             /* successMessage= */ Optional.empty(),
-            /* errorMessage= */ Optional.empty());
+            /* errorMessage= */ Optional.empty(),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getCreateQuestionOptions())
         .noneMatch(option -> option.getId().equals("create-enumerator-question"));
@@ -229,7 +231,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ false,
             /* successMessage= */ Optional.of("question created"),
-            /* errorMessage= */ Optional.empty());
+            /* errorMessage= */ Optional.empty(),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getToasts()).hasSize(1);
     assertThat(result.getToasts().get(0).getMessage()).isEqualTo("question created");
@@ -248,7 +252,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ false,
             /* successMessage= */ Optional.empty(),
-            /* errorMessage= */ Optional.of("something broke"));
+            /* errorMessage= */ Optional.of("something broke"),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getToasts()).hasSize(1);
     assertThat(result.getToasts().get(0).getMessage()).isEqualTo("Error: something broke");
