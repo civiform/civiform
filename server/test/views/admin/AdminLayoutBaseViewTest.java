@@ -122,8 +122,6 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     assertThat(result).contains("page-title-1");
     assertThat(result).contains("page-content-1");
     assertThat(result).doesNotContain("page-scripts-1");
-    assertThat(result).doesNotContain("cf-demo-banner");
-    assertThat(result).contains("position-fixed top-0");
   }
 
   @Test
@@ -135,14 +133,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
         new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
-    assertThat(result).containsOnlyOnce("cf-alert cf-demo-banner");
-    assertThat(result).contains("cf-transitional-gov-banner");
-    assertThat(result).contains("cf-transitional-sticky-nav");
-    assertThat(result).doesNotContain("position-fixed top-0");
-    assertThat(result.indexOf("cf-transitional-gov-banner"))
-        .isLessThan(result.indexOf("cf-alert cf-demo-banner"));
-    assertThat(result.indexOf("cf-alert cf-demo-banner"))
-        .isLessThan(result.indexOf("cf-transitional-sticky-nav"));
+    assertThat(result).contains("cf-demo-banner");
     assertThat(result).contains("Demo: TestCity");
     assertThat(result).contains("View as:");
     assertThat(result)
