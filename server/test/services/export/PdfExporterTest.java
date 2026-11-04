@@ -911,7 +911,14 @@ public class PdfExporterTest extends AbstractExporterTest {
             getFakeQuestionDefinitions());
   }
 
-  /** Returns the PDF's text, with two leading spaces per level of indentation. */
+  /**
+   * Returns the PDF as a text string.
+   *
+   * <ul>
+   *   <li>Indentation is represented as 2 spaces.
+   *   <li>>Blank lines are represented as a single space.
+   * </ul>
+   */
   private static String getPdfTextWithIndentation(PdfExporter.InMemoryPdf pdf) throws IOException {
     return getPdfText(pdf, IndentationPreservingStrategy::new);
   }
@@ -920,6 +927,14 @@ public class PdfExporterTest extends AbstractExporterTest {
     return Splitter.on('\n').splitToList(getPdfText(pdf));
   }
 
+  /**
+   * Returns the PDF as a text string.
+   *
+   * <ul>
+   *   <li>Indentation is removed.
+   *   <li>>Blank lines are represented as a single space.
+   * </ul>
+   */
   private static String getPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
     return getPdfText(pdf, LocationTextExtractionStrategy::new);
   }
