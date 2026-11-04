@@ -19,9 +19,11 @@ import services.DateConverter;
 import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.cloud.PublicStorageClient;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import support.cloud.FakePublicStorageClient;
 import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListPageViewModel.ExtraAction;
 import views.admin.questions.QuestionsListPageViewModel.ModalModel;
@@ -37,10 +39,12 @@ public final class QuestionsListPageMapperTest {
   private TranslationLocales translationLocales;
   private Set<QuestionDefinition> questionsWithCompleteTranslations;
   private DateConverter dateConverter;
+  private FakePublicStorageClient fakePublicStorageClient;
 
   @Before
   public void setup() {
     mapper = new QuestionsListPageMapper();
+    fakePublicStorageClient = new FakePublicStorageClient();
     questionsWithCompleteTranslations = new HashSet<>();
     activeAndDraftQuestions = mock(ActiveAndDraftQuestions.class);
     translationLocales = mock(TranslationLocales.class);
@@ -63,7 +67,24 @@ public final class QuestionsListPageMapperTest {
         dateConverter,
         /* enumeratorImprovementsEnabled= */ false,
         /* successMessage= */ Optional.empty(),
-        /* errorMessage= */ Optional.empty());
+        /* errorMessage= */ Optional.empty(),
+        fakePublicStorageClient,
+        /* imagesInQuestionFeatureEnabled= */ false);
+  }
+
+  private QuestionsListPageViewModel map(
+      PublicStorageClient publicStorageClient, boolean imagesInQuestionFeatureEnabled) {
+    return mapper.map(
+        activeAndDraftQuestions,
+        /* filter= */ Optional.empty(),
+        translationLocales,
+        questionsWithCompleteTranslations::contains,
+        dateConverter,
+        /* enumeratorImprovementsEnabled= */ false,
+        /* successMessage= */ Optional.empty(),
+        /* errorMessage= */ Optional.empty(),
+        publicStorageClient,
+        imagesInQuestionFeatureEnabled);
   }
 
   private QuestionDefinition mockQuestion(String name, long id) {
@@ -531,5 +552,59 @@ public final class QuestionsListPageMapperTest {
 
     QuestionRow row = result.getOtherRows().get(0);
     assertThat(row.getActiveRow().isTranslationComplete()).isTrue();
+  }
+
+  @Test
+  public void map_withQuestionImage_featureEnabled_populatesImageUrlOnDraftAndActiveRows() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition activeQuestion = mockQuestion("q1", 1L);
+    when(activeQuestion.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/active-image.png"));
+    QuestionDefinition draftQuestion = mockQuestion("q1", 2L);
+    when(draftQuestion.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-2/draft-image.png"));
+    addQuestion("q1", Optional.of(activeQuestion), Optional.of(draftQuestion));
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getActiveRow().getImageUrl())
+        .isEqualTo("fakeUrl.com/question-image/question-1/active-image.png");
+    assertThat(row.getDraftRow().getImageUrl())
+        .isEqualTo("fakeUrl.com/question-image/question-2/draft-image.png");
+  }
+
+  @Test
+  public void map_withQuestionImage_featureDisabled_imageUrlIsNull() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition activeQuestion = mockQuestion("q1", 1L);
+    when(activeQuestion.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/active-image.png"));
+    QuestionDefinition draftQuestion = mockQuestion("q1", 2L);
+    when(draftQuestion.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-2/draft-image.png"));
+    addQuestion("q1", Optional.of(activeQuestion), Optional.of(draftQuestion));
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ false);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getActiveRow().getImageUrl()).isNull();
+    assertThat(row.getDraftRow().getImageUrl()).isNull();
+  }
+
+  @Test
+  public void map_withoutQuestionImage_imageUrlIsNull() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey()).thenReturn(Optional.empty());
+    addQuestion("q1", Optional.of(question), Optional.empty());
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getActiveRow().getImageUrl()).isNull();
   }
 }

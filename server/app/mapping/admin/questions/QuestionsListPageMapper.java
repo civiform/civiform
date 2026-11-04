@@ -21,6 +21,8 @@ import services.DateConverter;
 import services.DeletionStatus;
 import services.RandomStringUtils;
 import services.TranslationLocales;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
@@ -48,7 +50,9 @@ public final class QuestionsListPageMapper {
       DateConverter dateConverter,
       boolean enumeratorImprovementsEnabled,
       Optional<String> successMessage,
-      Optional<String> errorMessage) {
+      Optional<String> errorMessage,
+      PublicStorageClient publicStorageClient,
+      boolean imagesInQuestionFeatureEnabled) {
 
     List<Toast> toasts = new ArrayList<>();
     successMessage.ifPresent(
@@ -84,7 +88,9 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals);
+              modals,
+              publicStorageClient,
+              imagesInQuestionFeatureEnabled);
       if (isPendingDeletion(card.displayQuestion(), activeAndDraftQuestions)) {
         archivedRows.add(row);
       } else if (card.displayQuestion().isUniversal()) {
@@ -204,7 +210,9 @@ public final class QuestionsListPageMapper {
       TranslationLocales translationLocales,
       Predicate<QuestionDefinition> isTranslationComplete,
       DateConverter dateConverter,
-      List<ModalModel> modals) {
+      List<ModalModel> modals,
+      PublicStorageClient publicStorageClient,
+      boolean imagesInQuestionFeatureEnabled) {
     Preconditions.checkArgument(
         card.draftQuestion().isPresent() || card.activeQuestion().isPresent(),
         "Did not receive a valid question.");
@@ -228,7 +236,9 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals);
+              modals,
+              publicStorageClient,
+              imagesInQuestionFeatureEnabled);
     }
 
     VersionRow activeRow = null;
@@ -241,7 +251,9 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals);
+              modals,
+              publicStorageClient,
+              imagesInQuestionFeatureEnabled);
     }
 
     String universalBadgeText = null;
@@ -281,7 +293,9 @@ public final class QuestionsListPageMapper {
       TranslationLocales translationLocales,
       Predicate<QuestionDefinition> isTranslationComplete,
       DateConverter dateConverter,
-      List<ModalModel> modals) {
+      List<ModalModel> modals,
+      PublicStorageClient publicStorageClient,
+      boolean imagesInQuestionFeatureEnabled) {
     QuestionDefinition question =
         isActive ? card.activeQuestion().get() : card.draftQuestion().get();
     boolean isSecondRow =
@@ -347,11 +361,20 @@ public final class QuestionsListPageMapper {
 
     Optional<Instant> lastModified = question.getLastModifiedTime();
 
+    String imageUrl = null;
+    if (imagesInQuestionFeatureEnabled
+        && question.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            question.getImageFileKey().get())) {
+      imageUrl = publicStorageClient.getPublicDisplayUrl(question.getImageFileKey().get());
+    }
+
     return VersionRow.builder()
         .secondRow(isSecondRow)
         .badgeText(badgeText)
         .badgeBgClass(badgeBgClass)
         .badgeTextClass(badgeTextClass)
+        .imageUrl(imageUrl)
         .editedOnTimeText(
             lastModified.map(dateConverter::renderDateTimeHumanReadable).orElse("unknown"))
         .editedOnDateText(lastModified.map(dateConverter::renderDate).orElse("unknown"))

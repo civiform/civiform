@@ -373,6 +373,17 @@
   class="py-7 row-element"
   th:classappend="${v.secondRow} ? 'border-t' : ''"
 >
+  <div
+    th:if="${v.imageUrl != null and !#strings.isEmpty(v.imageUrl)}"
+    class="w-16 h-9 shrink-0"
+    data-testid="question-image-container"
+  >
+    <img
+      th:src="${v.imageUrl}"
+      alt=""
+      class="w-full aspect-video object-cover rounded"
+    />
+  </div>
   <p
     th:class="|${v.badgeBgClass} ${v.badgeTextClass} font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8|"
   >

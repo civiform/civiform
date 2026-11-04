@@ -7,6 +7,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -37,6 +38,8 @@ import play.twirl.api.Content;
 import repository.VersionRepository.PublishProgramPreview;
 import services.DeletionStatus;
 import services.TranslationLocales;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
@@ -71,6 +74,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private final ViewUtils viewUtils;
   private final SettingsManifest settingsManifest;
   private final QuestionService questionService;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   public QuestionsListView(
@@ -78,12 +82,14 @@ public final class QuestionsListView extends BaseHtmlView {
       TranslationLocales translationLocales,
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
-      QuestionService questionService) {
+      QuestionService questionService,
+      PublicStorageClient publicStorageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionService = checkNotNull(questionService);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   /**
@@ -366,17 +372,32 @@ public final class QuestionsListView extends BaseHtmlView {
     PTag badge =
         ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
-    DivTag row =
-        div()
-            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
-            .with(badge)
-            .with(div().withClasses("flex-grow"))
-            .with(
-                div()
-                    .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
-                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
-                    .with(generateTranslationCompleteText(question).orElse(div())))
-            .with(actionsCellAndModal.getLeft());
+    DivTag row = div().withClasses("py-7", "row-element", isSecondRow ? "border-t" : "");
+
+    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
+        && question.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            question.getImageFileKey().get())) {
+      String imageUrl = publicStorageClient.getPublicDisplayUrl(question.getImageFileKey().get());
+      row.with(
+          div()
+              .withClasses("w-16", "h-9", "shrink-0")
+              .attr("data-testid", "question-image-container")
+              .with(
+                  img()
+                      .withSrc(imageUrl)
+                      .withAlt("")
+                      .withClasses("w-full", "aspect-video", "object-cover", "rounded")));
+    }
+
+    row.with(badge)
+        .with(div().withClasses("flex-grow"))
+        .with(
+            div()
+                .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
+                .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
+                .with(generateTranslationCompleteText(question).orElse(div())))
+        .with(actionsCellAndModal.getLeft());
 
     return Pair.of(row, actionsCellAndModal.getRight());
   }

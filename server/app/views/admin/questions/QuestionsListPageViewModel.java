@@ -115,6 +115,8 @@ public final class QuestionsListPageViewModel implements BaseViewModel {
     // "extra-actions-uuid-<uuid>"
     private final String extraActionsButtonId;
     private final List<ExtraAction> extraActions;
+    // URL of the question image for this version, or null when absent.
+    private final String imageUrl;
 
     public boolean getHasExtraActions() {
       return !extraActions.isEmpty();
