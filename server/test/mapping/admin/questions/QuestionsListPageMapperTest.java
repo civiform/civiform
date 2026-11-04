@@ -555,43 +555,33 @@ public final class QuestionsListPageMapperTest {
   }
 
   @Test
-  public void map_withQuestionImage_featureEnabled_populatesImageUrlOnDraftAndActiveRows() {
+  public void map_withQuestionImage_featureEnabled_populatesImageUrl() {
     FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
-    QuestionDefinition activeQuestion = mockQuestion("q1", 1L);
-    when(activeQuestion.getImageFileKey())
-        .thenReturn(Optional.of("question-image/question-1/active-image.png"));
-    QuestionDefinition draftQuestion = mockQuestion("q1", 2L);
-    when(draftQuestion.getImageFileKey())
-        .thenReturn(Optional.of("question-image/question-2/draft-image.png"));
-    addQuestion("q1", Optional.of(activeQuestion), Optional.of(draftQuestion));
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/test-image.png"));
+    addQuestion("q1", Optional.of(question), Optional.empty());
 
     QuestionsListPageViewModel result =
         map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
 
     QuestionRow row = result.getOtherRows().get(0);
-    assertThat(row.getActiveRow().getImageUrl())
-        .isEqualTo("fakeUrl.com/question-image/question-1/active-image.png");
-    assertThat(row.getDraftRow().getImageUrl())
-        .isEqualTo("fakeUrl.com/question-image/question-2/draft-image.png");
+    assertThat(row.getImageUrl()).isEqualTo("fakeUrl.com/question-image/question-1/test-image.png");
   }
 
   @Test
   public void map_withQuestionImage_featureDisabled_imageUrlIsNull() {
     FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
-    QuestionDefinition activeQuestion = mockQuestion("q1", 1L);
-    when(activeQuestion.getImageFileKey())
-        .thenReturn(Optional.of("question-image/question-1/active-image.png"));
-    QuestionDefinition draftQuestion = mockQuestion("q1", 2L);
-    when(draftQuestion.getImageFileKey())
-        .thenReturn(Optional.of("question-image/question-2/draft-image.png"));
-    addQuestion("q1", Optional.of(activeQuestion), Optional.of(draftQuestion));
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/test-image.png"));
+    addQuestion("q1", Optional.of(question), Optional.empty());
 
     QuestionsListPageViewModel result =
         map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ false);
 
     QuestionRow row = result.getOtherRows().get(0);
-    assertThat(row.getActiveRow().getImageUrl()).isNull();
-    assertThat(row.getDraftRow().getImageUrl()).isNull();
+    assertThat(row.getImageUrl()).isNull();
   }
 
   @Test
@@ -605,6 +595,6 @@ public final class QuestionsListPageMapperTest {
         map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
 
     QuestionRow row = result.getOtherRows().get(0);
-    assertThat(row.getActiveRow().getImageUrl()).isNull();
+    assertThat(row.getImageUrl()).isNull();
   }
 }

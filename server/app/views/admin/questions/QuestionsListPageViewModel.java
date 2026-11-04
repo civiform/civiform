@@ -95,6 +95,8 @@ public final class QuestionsListPageViewModel implements BaseViewModel {
     // Null when there is no draft/active version.
     private final VersionRow draftRow;
     private final VersionRow activeRow;
+    // URL of the question image, or null when absent.
+    private final String imageUrl;
   }
 
   /** One "draft" or "active" row within a question card. */
@@ -115,8 +117,6 @@ public final class QuestionsListPageViewModel implements BaseViewModel {
     // "extra-actions-uuid-<uuid>"
     private final String extraActionsButtonId;
     private final List<ExtraAction> extraActions;
-    // URL of the question image for this version, or null when absent.
-    private final String imageUrl;
 
     public boolean getHasExtraActions() {
       return !extraActions.isEmpty();

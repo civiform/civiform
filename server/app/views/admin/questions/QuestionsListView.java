@@ -294,7 +294,7 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag row =
         div()
             .withClasses("flex")
-            .with(renderInfoCell(latestDefinition))
+            .with(renderInfoCell(latestDefinition, request))
             .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses("flex-grow");
@@ -372,37 +372,22 @@ public final class QuestionsListView extends BaseHtmlView {
     PTag badge =
         ViewUtils.makeLifecycleBadge(displayType, "ml-2", StyleUtils.responsiveXLarge("ml-8"));
 
-    DivTag row = div().withClasses("py-7", "row-element", isSecondRow ? "border-t" : "");
-
-    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
-        && question.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
-        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
-            question.getImageFileKey().get())) {
-      String imageUrl = publicStorageClient.getPublicDisplayUrl(question.getImageFileKey().get());
-      row.with(
-          div()
-              .withClasses("w-16", "h-9", "shrink-0")
-              .attr("data-testid", "question-image-container")
-              .with(
-                  img()
-                      .withSrc(imageUrl)
-                      .withAlt("")
-                      .withClasses("w-full", "aspect-video", "object-cover", "rounded")));
-    }
-
-    row.with(badge)
-        .with(div().withClasses("flex-grow"))
-        .with(
-            div()
-                .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
-                .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
-                .with(generateTranslationCompleteText(question).orElse(div())))
-        .with(actionsCellAndModal.getLeft());
+    DivTag row =
+        div()
+            .withClasses("py-7", "row-element", isSecondRow ? "border-t" : "")
+            .with(badge)
+            .with(div().withClasses("flex-grow"))
+            .with(
+                div()
+                    .withClasses("ml-4", StyleUtils.responsiveXLarge("ml-10"))
+                    .with(viewUtils.renderEditOnText("Edited on ", question.getLastModifiedTime()))
+                    .with(generateTranslationCompleteText(question).orElse(div())))
+            .with(actionsCellAndModal.getLeft());
 
     return Pair.of(row, actionsCellAndModal.getRight());
   }
 
-  private DivTag renderInfoCell(QuestionDefinition definition) {
+  private DivTag renderInfoCell(QuestionDefinition definition, Http.Request request) {
     DivTag questionText =
         div()
             .withClasses("question-bank-info-cell")
@@ -429,9 +414,28 @@ public final class QuestionsListView extends BaseHtmlView {
             div()
                 .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
                 .withClasses("pl-10"));
-    return div()
-        .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
-        .with(div().with(questionText).with(questionDescription));
+    DivTag content = div().with(questionText).with(questionDescription);
+
+    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
+        && definition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            definition.getImageFileKey().get())) {
+      String imageUrl = publicStorageClient.getPublicDisplayUrl(definition.getImageFileKey().get());
+      content.with(
+          div()
+              .withClasses("pl-10", "pt-2")
+              .attr("data-testid", "question-image-container")
+              .with(
+                  div()
+                      .withClasses("w-32")
+                      .with(
+                          img()
+                              .withSrc(imageUrl)
+                              .withAlt("")
+                              .withClasses("w-full", "aspect-video", "object-cover", "rounded"))));
+    }
+
+    return div().withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between").with(content);
   }
 
   /**

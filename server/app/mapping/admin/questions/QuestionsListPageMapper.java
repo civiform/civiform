@@ -236,9 +236,7 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals,
-              publicStorageClient,
-              imagesInQuestionFeatureEnabled);
+              modals);
     }
 
     VersionRow activeRow = null;
@@ -251,9 +249,7 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals,
-              publicStorageClient,
-              imagesInQuestionFeatureEnabled);
+              modals);
     }
 
     String universalBadgeText = null;
@@ -269,6 +265,14 @@ public final class QuestionsListPageMapper {
             ? ""
             : latestDefinition.getQuestionHelpText().getDefault();
 
+    String imageUrl = null;
+    if (imagesInQuestionFeatureEnabled
+        && latestDefinition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            latestDefinition.getImageFileKey().get())) {
+      imageUrl = publicStorageClient.getPublicDisplayUrl(latestDefinition.getImageFileKey().get());
+    }
+
     return QuestionRow.builder()
         .universalBadgeText(universalBadgeText)
         .iconFragment(
@@ -283,6 +287,7 @@ public final class QuestionsListPageMapper {
         .seeListTriggerId(referencingModal.map(modal -> modal.getId() + "-button").orElse(null))
         .draftRow(draftRow)
         .activeRow(activeRow)
+        .imageUrl(imageUrl)
         .build();
   }
 
@@ -293,9 +298,7 @@ public final class QuestionsListPageMapper {
       TranslationLocales translationLocales,
       Predicate<QuestionDefinition> isTranslationComplete,
       DateConverter dateConverter,
-      List<ModalModel> modals,
-      PublicStorageClient publicStorageClient,
-      boolean imagesInQuestionFeatureEnabled) {
+      List<ModalModel> modals) {
     QuestionDefinition question =
         isActive ? card.activeQuestion().get() : card.draftQuestion().get();
     boolean isSecondRow =
@@ -361,20 +364,11 @@ public final class QuestionsListPageMapper {
 
     Optional<Instant> lastModified = question.getLastModifiedTime();
 
-    String imageUrl = null;
-    if (imagesInQuestionFeatureEnabled
-        && question.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
-        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
-            question.getImageFileKey().get())) {
-      imageUrl = publicStorageClient.getPublicDisplayUrl(question.getImageFileKey().get());
-    }
-
     return VersionRow.builder()
         .secondRow(isSecondRow)
         .badgeText(badgeText)
         .badgeBgClass(badgeBgClass)
         .badgeTextClass(badgeTextClass)
-        .imageUrl(imageUrl)
         .editedOnTimeText(
             lastModified.map(dateConverter::renderDateTimeHumanReadable).orElse("unknown"))
         .editedOnDateText(lastModified.map(dateConverter::renderDate).orElse("unknown"))
