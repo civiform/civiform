@@ -12,15 +12,16 @@ import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfString;
 import com.itextpdf.text.pdf.parser.ImageRenderInfo;
-import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
+import com.itextpdf.text.pdf.parser.LocationTextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
-import com.itextpdf.text.pdf.parser.RenderListener;
+import com.itextpdf.text.pdf.parser.TextExtractionStrategy;
 import com.itextpdf.text.pdf.parser.TextRenderInfo;
 import com.itextpdf.text.pdf.parser.Vector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 import junitparams.JUnitParamsRunner;
 import models.QuestionModel;
 import org.apache.commons.lang3.StringUtils;
@@ -912,43 +913,7 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   /** Returns the PDF's text, with two leading spaces per level of indentation. */
   private static String getPdfTextWithIndentation(PdfExporter.InMemoryPdf pdf) throws IOException {
-    StringBuilder text = new StringBuilder();
-    PdfReader pdfReader = new PdfReader(pdf.getByteArray());
-    PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
-    for (int pageNum = 1; pageNum <= pdfReader.getNumberOfPages(); pageNum++) {
-      parser.processContent(
-          pageNum,
-          new RenderListener() {
-            // X & Y Coordinate indicators.
-            private static final int X_COORD = Vector.I1;
-            private static final int Y_COORD = Vector.I2;
-            private float lastY = Float.NaN;
-
-            @Override
-            public void renderText(TextRenderInfo renderInfo) {
-              Vector start = renderInfo.getBaseline().getStartPoint();
-              // Pieces of text at the same height are on the same line, like a list symbol and
-              // item.
-              if (start.get(Y_COORD) != lastY) {
-                lastY = start.get(Y_COORD);
-                int level = Math.round((start.get(X_COORD) - PAGE_LEFT_MARGIN) / 25f);
-                text.append('\n').append("  ".repeat(level));
-              }
-              text.append(renderInfo.getText());
-            }
-
-            @Override
-            public void beginTextBlock() {}
-
-            @Override
-            public void endTextBlock() {}
-
-            @Override
-            public void renderImage(ImageRenderInfo renderInfo) {}
-          });
-    }
-    pdfReader.close();
-    return text.toString();
+    return getPdfText(pdf, IndentationPreservingStrategy::new);
   }
 
   public static List<String> getPdfLines(PdfExporter.InMemoryPdf pdf) throws IOException {
@@ -956,14 +921,55 @@ public class PdfExporterTest extends AbstractExporterTest {
   }
 
   private static String getPdfText(PdfExporter.InMemoryPdf pdf) throws IOException {
+    return getPdfText(pdf, LocationTextExtractionStrategy::new);
+  }
+
+  private static String getPdfText(
+      PdfExporter.InMemoryPdf pdf, Supplier<TextExtractionStrategy> strategy) throws IOException {
     PdfReader pdfReader = new PdfReader(pdf.getByteArray());
     StringBuilder textFromPdf = new StringBuilder();
     int pages = pdfReader.getNumberOfPages();
     for (int pageNum = 1; pageNum <= pages; pageNum++) {
-      textFromPdf.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum));
+      textFromPdf.append(PdfTextExtractor.getTextFromPage(pdfReader, pageNum, strategy.get()));
     }
     pdfReader.close();
     return textFromPdf.toString();
+  }
+
+  /** Extracts a page's text, with two leading spaces per level of indentation. */
+  private static final class IndentationPreservingStrategy implements TextExtractionStrategy {
+    // X & Y Coordinate indicators.
+    private static final int X_COORD = Vector.I1;
+    private static final int Y_COORD = Vector.I2;
+
+    private final StringBuilder text = new StringBuilder();
+    private float lastY = Float.NaN;
+
+    @Override
+    public void renderText(TextRenderInfo renderInfo) {
+      Vector start = renderInfo.getBaseline().getStartPoint();
+      // Pieces of text at the same height are on the same line, like a list symbol and item.
+      if (start.get(Y_COORD) != lastY) {
+        lastY = start.get(Y_COORD);
+        int level = Math.round((start.get(X_COORD) - PAGE_LEFT_MARGIN) / 25f);
+        text.append('\n').append("  ".repeat(level));
+      }
+      text.append(renderInfo.getText());
+    }
+
+    @Override
+    public String getResultantText() {
+      return text.toString();
+    }
+
+    @Override
+    public void beginTextBlock() {}
+
+    @Override
+    public void endTextBlock() {}
+
+    @Override
+    public void renderImage(ImageRenderInfo renderInfo) {}
   }
 
   private static void assertFileUploadLink(
