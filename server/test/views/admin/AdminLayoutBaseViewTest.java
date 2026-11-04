@@ -126,8 +126,12 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
   @Test
   public void render_demo_banner_highlights_active_civiform_admin_role() {
+    // AdminLayout only shows the demo banner on post migration pages.
+    SettingsManifest mockSettingsManifest = createDemoSettingsManifest();
+    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled(any());
+
     LayoutDeps layoutDeps =
-        createLayoutDeps(createDemoSettingsManifest(), instanceOf(ProfileUtils.class), true);
+        createLayoutDeps(mockSettingsManifest, instanceOf(ProfileUtils.class), true);
 
     CustomView customView =
         new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
@@ -157,13 +161,17 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
   @Test
   public void render_demo_banner_highlights_active_program_admin_role() {
+    // AdminLayout only shows the demo banner on post migration pages.
+    SettingsManifest mockSettingsManifest = createDemoSettingsManifest();
+    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled(any());
+
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     CiviFormProfile programAdminProfile =
         profileFactory.wrapProfileData(profileFactory.createNewProgramAdmin());
     ProfileUtils mockProfileUtils = instanceOf(ProfileUtils.class);
     when(mockProfileUtils.currentUserProfile(any())).thenReturn(programAdminProfile);
 
-    LayoutDeps layoutDeps = createLayoutDeps(createDemoSettingsManifest(), mockProfileUtils, true);
+    LayoutDeps layoutDeps = createLayoutDeps(mockSettingsManifest, mockProfileUtils, true);
 
     CustomView customView =
         new CustomView(layoutDeps, "../../test/views/admin/testTemplateWithoutScriptBlock.html");
@@ -185,6 +193,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
   @Test
   public void render_demo_banner_post_migration_and_dev_tools_page_unauthenticated() {
+    // AdminLayout only shows the demo banner on post migration pages.
     SettingsManifest mockSettingsManifest = createDemoSettingsManifest();
     doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled(any());
 
