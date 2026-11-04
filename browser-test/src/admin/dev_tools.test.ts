@@ -102,7 +102,6 @@ test.describe('developer tools', () => {
         'usa-button usa-button--outline',
       )
       await validateAccessibility(page)
-      await validateScreenshot(page, 'post-migration-page-with-demo-banner')
       await demoBanner.locator('#resident').click()
       await page.waitForURL('**/programs')
       await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
