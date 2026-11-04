@@ -495,6 +495,22 @@ test.describe('Program admin review of submitted applications', () => {
       await validateScreenshot(page, 'applications-unfiltered')
     })
 
+    await test.step('Pressing Enter in search filters without opening download modal', async () => {
+      const searchInput = page.getByRole('textbox', {
+        name: 'Search by name, email, phone',
+      })
+      await searchInput.fill('SARA')
+      await searchInput.press('Enter')
+      await waitForPageJsLoad(page)
+
+      await expect(
+        page.locator('#download-program-applications-modal'),
+      ).toBeHidden()
+      await expect(page).toHaveURL(/search=SARA/)
+      await adminPrograms.expectApplicationCount(1)
+      await expect(adminPrograms.getRowLocator('smith, sarah')).toBeVisible()
+    })
+
     await test.step('Applies filters to download even when filter is not clicked', async () => {
       await adminPrograms.filterProgramApplications({
         searchFragment: 'SARA',
