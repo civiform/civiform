@@ -12,7 +12,6 @@ import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
-import views.admin.shared.Footer;
 import views.shared.DemoBanner;
 import views.shared.LayoutDeps;
 import views.shared.ScriptElementSettings;
