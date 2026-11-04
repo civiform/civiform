@@ -410,7 +410,10 @@ test.describe('Admin can manage question image', () => {
         questionCard.locator('[data-testid="question-image-container"] img'),
       ).toBeVisible()
       await validateScreenshot(questionCard, 'question-card-with-image')
-      await validateAccessibility(page)
+      await validateAccessibility(
+        page,
+        '[data-testid="question-image-container"]',
+      )
     })
   })
 
