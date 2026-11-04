@@ -2065,6 +2065,84 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('keeps a blank radio button or date row on the screen with its error after continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator blank radio and date rows program'
+
+      await test.step('Publish a program with a radio button list set and a date list set', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Seasons',
+          questionText: 'List your seasons.',
+          adminId: 'seasons list set',
+          initialQuestion: SAMPLE_QUESTIONS.radioButton,
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Dates',
+          questionText: 'List your dates.',
+          adminId: 'dates list set',
+          initialQuestion: SAMPLE_QUESTIONS.date,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const requiredError = blockForm.getByText(
+        'Error: This question is required.',
+      )
+
+      await test.step('Add a season, leave it blank and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await blockForm.getByRole('button', {name: 'Add Seasons'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the blank radio button row stays with its error and focus', async () => {
+        // An unselected radio group submits no value, so without the row's marker the entity
+        // wasn't saved and the row disappeared.
+        await expect(requiredError).toBeVisible()
+        await expect(
+          blockForm.getByRole('radio', {name: 'Winter (will hide next block)'}),
+        ).toBeFocused()
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Pick a season and continue to the dates list set', async () => {
+        await blockForm.getByText('Spring').click()
+        await applicantQuestions.clickContinue()
+        await blockForm.getByRole('button', {name: 'Add Dates'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the blank date row stays with its error and focus', async () => {
+        await expect(requiredError).toBeVisible()
+        await expect(
+          blockForm.getByRole('combobox', {name: /Month/}),
+        ).toBeFocused()
+      })
+
+      await test.step('Fill in the date and continue to the review page', async () => {
+        await blockForm
+          .getByRole('combobox', {name: /Month/})
+          .selectOption({index: 2})
+        await blockForm.getByRole('textbox', {name: /Day/}).fill('12')
+        await blockForm.getByRole('textbox', {name: /Year/}).fill('2000')
+        await applicantQuestions.clickContinue()
+        await expect(page).toHaveURL(/\/review/)
+      })
+    })
+
     test('validates the initial question on continue in the same way as a standalone question', async ({
       page,
       adminPrograms,
