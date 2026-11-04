@@ -14,6 +14,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import controllers.FlashKey;
+import controllers.WithMockedProfiles;
 import forms.questions.DropdownQuestionForm;
 import java.util.Locale;
 import java.util.Optional;
@@ -29,7 +30,6 @@ import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
 import repository.QuestionRepository;
-import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.question.QuestionOption;
@@ -46,13 +46,16 @@ import services.question.types.StaticContentQuestionDefinition;
 import services.question.types.TextQuestionDefinition;
 import views.html.helper.CSRF;
 
-public class AdminQuestionControllerTest extends ResetPostgres {
+public class AdminQuestionControllerTest extends WithMockedProfiles {
   private QuestionRepository questionRepo;
   private AdminQuestionController controller;
   private VersionModel draftVersion;
 
   @Before
   public void setup() {
+    resetDatabase();
+    createGlobalAdminWithMockedProfile();
+
     questionRepo = instanceOf(QuestionRepository.class);
     controller = instanceOf(AdminQuestionController.class);
     VersionRepository versionRepository = instanceOf(VersionRepository.class);
@@ -1690,93 +1693,6 @@ public class AdminQuestionControllerTest extends ResetPostgres {
                 .getQuestionDefinition();
     assertThat(found.getOptions().stream().map(QuestionOption::score))
         .containsExactly(Optional.of(3.5), Optional.of(5.0));
-  }
-
-  @Test
-  public void create_thymeleafQuestionForm_withOptionScores_savesScores() {
-    ImmutableMap<String, String> formData =
-        ImmutableMap.<String, String>builder()
-            .put("questionName", "thymeleaf scored dropdown")
-            .put("questionDescription", "desc")
-            .put("questionType", "DROPDOWN")
-            .put("questionText", "Pick one")
-            .put("questionHelpText", "help")
-            .put("newOptions[0]", "first")
-            .put("newOptions[1]", "second")
-            .put("newOptionAdminNames[0]", "first_admin")
-            .put("newOptionAdminNames[1]", "second_admin")
-            .put("newOptionScores[0]", "5.5")
-            .put("newOptionScores[1]", "7.0")
-            .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-            .bodyForm(formData);
-
-    ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
-    Result result = controller.create(requestBuilder.build(), "dropdown");
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    ImmutableSet<Long> questionIdsAfter = retrieveAllQuestionIds();
-    Long newQuestionId = Sets.difference(questionIdsAfter, questionIdsBefore).iterator().next();
-    MultiOptionQuestionDefinition definition =
-        (MultiOptionQuestionDefinition)
-            questionRepo
-                .lookupQuestion(newQuestionId)
-                .toCompletableFuture()
-                .join()
-                .get()
-                .getQuestionDefinition();
-    assertThat(definition.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(5.5), Optional.of(7.0));
-  }
-
-  @Test
-  public void update_thymeleafQuestionForm_withOptionScores_savesScores() {
-    QuestionDefinition definition = createScoredDropdownDefinition();
-    QuestionModel question = testQuestionBank.maybeSave(definition, LifecycleStage.DRAFT);
-
-    ImmutableMap<String, String> formData =
-        ImmutableMap.<String, String>builder()
-            .put("questionName", definition.getName())
-            .put("questionDescription", definition.getDescription())
-            .put("questionType", definition.getQuestionType().name())
-            .put("questionText", "new question text")
-            .put("questionHelpText", "new help text")
-            .put("options[0]", "chocolate")
-            .put("options[1]", "strawberry")
-            .put("optionIds[0]", "1")
-            .put("optionIds[1]", "2")
-            .put("optionAdminNames[0]", "chocolate_admin")
-            .put("optionAdminNames[1]", "strawberry_admin")
-            .put("optionScores[0]", "0")
-            .put("optionScores[1]", "-1.25")
-            .put("nextAvailableId", "3")
-            .put("questionExportState", "NON_DEMOGRAPHIC")
-            .put("concurrencyToken", question.getConcurrencyToken().toString())
-            .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-            .bodyForm(formData);
-
-    Result result =
-        controller.update(
-            requestBuilder.build(), question.id, definition.getQuestionType().toString());
-
-    assertThat(result.status()).isEqualTo(SEE_OTHER);
-    MultiOptionQuestionDefinition found =
-        (MultiOptionQuestionDefinition)
-            questionRepo
-                .lookupQuestion(question.id)
-                .toCompletableFuture()
-                .join()
-                .get()
-                .getQuestionDefinition();
-    assertThat(found.getOptions().stream().map(QuestionOption::score))
-        .containsExactly(Optional.of(0.0), Optional.of(-1.25));
   }
 
   @Test

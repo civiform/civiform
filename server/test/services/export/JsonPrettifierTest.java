@@ -22,7 +22,8 @@ public class JsonPrettifierTest {
                   "age\" : 12
                 }
               }
-            }""");
+            }\
+            """);
   }
 
   @Test
@@ -50,7 +51,8 @@ public class JsonPrettifierTest {
                   "age" : 12
                 }
               }
-            }""");
+            }\
+            """);
   }
 
   @Test

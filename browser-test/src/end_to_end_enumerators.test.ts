@@ -366,8 +366,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('can save an initial question picked for an existing enumerator question', async ({
+    test('can save an initial question picked for an existing enumerator question and warns how many other programs also get it', async ({
       page,
+      adminPrograms,
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const backfillCard = blockPanel.locator('#backfill-initial-question-card')
@@ -391,11 +392,43 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await pickQuestionFromBank(page, 'income-non-repeated-question')
         await expect(
           backfillCard.getByText(
-            'You will not be able to change the initial question after you save it.',
+            'You will not be able to remove the initial question after you save it.',
           ),
         ).toBeVisible()
         await expect(
+          backfillCard.getByText('This will also update'),
+        ).toBeHidden()
+        await expect(
           backfillCard.getByRole('button', {name: 'Save initial question'}),
+        ).toBeVisible()
+      })
+
+      await test.step('Use the same enumerator question in a second program', async () => {
+        await adminPrograms.addProgram('Other enumerator program')
+        await adminPrograms.gotoEditDraftProgramPage('Other enumerator program')
+        await addRepeatedSetBlocks(page)
+        await blockPanel.getByTestId('choose-existing-radio-label').click()
+        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await pickQuestionFromBank(page, 'Sample Enumerator Question')
+        await expect(
+          blockPanel.getByTestId(
+            'question-admin-name-Sample Enumerator Question',
+          ),
+        ).toBeVisible()
+      })
+
+      await test.step('Back in the first program, pick an initial question again and see how many other programs it reaches', async () => {
+        await adminPrograms.gotoEditDraftProgramPage('Enumerator test program')
+        await page.getByRole('link', {name: 'Screen 2'}).click()
+        await waitForPageJsLoad(page)
+        await backfillCard
+          .getByRole('button', {name: 'Add initial question'})
+          .click()
+        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await expect(
+          backfillCard.getByText(
+            'This will also update 1 program that uses this list set.',
+          ),
         ).toBeVisible()
       })
 
@@ -1783,7 +1816,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // The first entity's group is labeled by the enumerator question text plus the
       // entity label, and described by the enumerator help text.
       const firstEntity = blockForm.getByRole('group', {
-        name: 'List the names of your pets. Pets name #1',
+        name: 'List the names of your pets. Pets #1',
         exact: true,
       })
 
@@ -1816,7 +1849,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await waitForHtmxReady(page)
         // The added entity is not first, so its group is labeled only by its own entity label.
         await expect(
-          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+          blockForm.getByRole('group', {name: 'Pets #2', exact: true}),
         ).toBeVisible()
       })
 
@@ -1832,10 +1865,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Verify the promoted entity takes over the enumerator title and help text', async () => {
         // The remaining entity is re-indexed back to #1.
         await expect(
-          blockForm.getByRole('group', {name: 'Pets name #2', exact: true}),
+          blockForm.getByRole('group', {name: 'Pets #2', exact: true}),
         ).toBeHidden()
         const promotedEntity = blockForm.getByRole('group', {
-          name: 'List the names of your pets. Pets name #1',
+          name: 'List the names of your pets. Pets #1',
           exact: true,
         })
         await expect(promotedEntity).toBeVisible()
@@ -1892,7 +1925,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
       // The first entity's input is labeled by the enumerator question text plus the entity label.
       const firstEntityInput = blockForm.getByRole('spinbutton', {
-        name: 'List the names of your pets. Pets name #1',
+        name: 'List the names of your pets. Pets #1',
       })
 
       await test.step('Verify no entity rows are shown to start', async () => {
@@ -1924,20 +1957,16 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Verify a second entity row is shown', async () => {
         // The added entity is not first, so its input is labeled only by its own entity label.
         await expect(
-          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+          blockForm.getByRole('spinbutton', {name: 'Pets #2'}),
         ).toBeVisible()
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
       })
 
       await test.step('Fill the second entity and add a third', async () => {
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets name #2'})
-          .fill('2')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #2'}).fill('2')
         await addButton.click()
         await waitForHtmxReady(page)
-        await blockForm
-          .getByRole('spinbutton', {name: 'Pets name #3'})
-          .fill('3')
+        await blockForm.getByRole('spinbutton', {name: 'Pets #3'}).fill('3')
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(3)
         // Multiple entity rows must not introduce accessibility violations (e.g. duplicate ids).
         await validateAccessibility(page)
@@ -1949,7 +1978,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(blockForm.getByRole('spinbutton')).toHaveCount(2)
         // The surviving third entity is relabeled to #2.
         await expect(
-          blockForm.getByRole('spinbutton', {name: 'Pets name #2'}),
+          blockForm.getByRole('spinbutton', {name: 'Pets #2'}),
         ).toHaveValue('3')
         // Re-indexing the remaining rows after removal must stay accessible.
         await validateAccessibility(page)
@@ -2033,6 +2062,79 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           'List the names of your pets.',
           'Sarah Brown',
         )
+      })
+    })
+
+    test('validates the initial question on continue in the same way as a standalone question', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator name initial question validation program'
+
+      await test.step('Publish a program whose enumerator has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const firstName = blockForm.getByRole('textbox', {name: 'First name'})
+      const lastName = blockForm.getByRole('textbox', {name: 'Last name'})
+
+      await test.step('Add an entity and continue with all fields empty', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the empty entry shows a single top-level required error and outlines both fields', async () => {
+        // Like a standalone required name left blank: one group-level message, both fields outlined,
+        // and no per-field messages.
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeHidden()
+        await expect(firstName).toHaveClass(/usa-input--error/)
+        await expect(lastName).toHaveClass(/usa-input--error/)
+      })
+
+      await test.step('Fill only the first name and continue', async () => {
+        await firstName.fill('Sarah')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify a field-specific error attaches to the missing last name only', async () => {
+        await expect(
+          page.getByText('Error: Please enter your last name.'),
+        ).toBeVisible()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(lastName).toHaveClass(/usa-input--error/)
+        await expect(firstName).not.toHaveClass(/usa-input--error/)
+        await validateAccessibility(page, '#question-fragment')
+      })
+
+      await test.step('Fill the last name and continue to leave the block without errors', async () => {
+        await lastName.fill('Brown')
+        await applicantQuestions.clickContinue()
+        await expect(
+          page.getByText('Error: This question is required.'),
+        ).toBeHidden()
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toBeHidden()
       })
     })
 

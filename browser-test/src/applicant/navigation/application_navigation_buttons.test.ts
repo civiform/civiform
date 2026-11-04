@@ -7,19 +7,21 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../../support/seeding'
 
 test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for navigation flows'
-  const dateQuestionText = 'date question text'
-  const emailQuestionText = 'email question text'
-  const staticQuestionText = 'static question text'
-  const addressQuestionText = 'address question text'
-  const radioQuestionText = 'radio question text'
-  const phoneQuestionText = 'phone question text'
-  const currencyQuestionText = 'currency question text'
+  const dateQuestionText = SAMPLE_QUESTION_TEXT.date
+  const emailQuestionText = SAMPLE_QUESTION_TEXT.email
+  const staticQuestionText = SAMPLE_QUESTION_TEXT.staticContent
+  const addressQuestionText = SAMPLE_QUESTION_TEXT.address
+  const radioQuestionText = SAMPLE_QUESTION_TEXT.radioButton
+  const phoneQuestionText = SAMPLE_QUESTION_TEXT.phone
+  const currencyQuestionText = SAMPLE_QUESTION_TEXT.currency
 
   test.describe('navigation with five blocks', () => {
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await enableFeatureFlag(
         page,
@@ -27,62 +29,30 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await test.step('Set up program with questions', async () => {
-        await adminQuestions.addDateQuestion({
-          questionName: 'nav-date-q',
-          questionText: dateQuestionText,
-        })
-        await adminQuestions.addEmailQuestion({
-          questionName: 'nav-email-q',
-          questionText: emailQuestionText,
-        })
-        await adminQuestions.addAddressQuestion({
-          questionName: 'nav-address-q',
-          questionText: addressQuestionText,
-        })
-        await adminQuestions.addRadioButtonQuestion({
-          questionName: 'nav-radio-q',
-          questionText: radioQuestionText,
-          options: [
-            {adminName: 'one_admin', text: 'one'},
-            {adminName: 'two_admin', text: 'two'},
-            {adminName: 'three_admin', text: 'three'},
-          ],
-        })
-        await adminQuestions.addStaticQuestion({
-          questionName: 'nav-static-q',
-          questionText: staticQuestionText,
-        })
-        await adminQuestions.addPhoneQuestion({
-          questionName: 'nav-phone-q',
-          questionText: phoneQuestionText,
-        })
-        await adminQuestions.addCurrencyQuestion({
-          questionName: 'nav-currency-q',
-          questionText: currencyQuestionText,
-        })
-
         await adminPrograms.addProgram(programName)
         await adminPrograms.editProgramBlock(programName, 'first description', [
-          'nav-date-q',
-          'nav-email-q',
+          SAMPLE_QUESTIONS.date,
+          SAMPLE_QUESTIONS.email,
         ])
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           description: 'second description',
-          questions: [{name: 'nav-static-q', isOptional: false}],
+          questions: [
+            {name: SAMPLE_QUESTIONS.staticContent, isOptional: false},
+          ],
         })
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           description: 'third description',
-          questions: [{name: 'nav-address-q', isOptional: false}],
+          questions: [{name: SAMPLE_QUESTIONS.address, isOptional: false}],
         })
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           description: 'fourth description',
-          questions: [{name: 'nav-radio-q', isOptional: true}],
+          questions: [{name: SAMPLE_QUESTIONS.radioButton, isOptional: true}],
         })
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           description: 'fifth description',
           questions: [
-            {name: 'nav-phone-q', isOptional: false},
-            {name: 'nav-currency-q', isOptional: true},
+            {name: SAMPLE_QUESTIONS.phone, isOptional: false},
+            {name: SAMPLE_QUESTIONS.currency, isOptional: true},
           ],
         })
 
@@ -142,7 +112,7 @@ test.describe('Applicant navigation flow', () => {
 
         // Click previous and see static question page
         await applicantQuestions.clickBack()
-        await applicantQuestions.seeStaticQuestion('static question text')
+        await applicantQuestions.seeStaticQuestion(staticQuestionText)
 
         // Click previous and see date and name questions
         await applicantQuestions.clickBack()
@@ -504,7 +474,7 @@ test.describe('Applicant navigation flow', () => {
 
         await test.step('screen 4', async () => {
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
-          await applicantQuestions.answerRadioButtonQuestion('two')
+          await applicantQuestions.answerRadioButtonQuestion('Summer')
           await applicantQuestions.clickContinue()
         })
 
@@ -537,7 +507,7 @@ test.describe('Applicant navigation flow', () => {
           )
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             radioQuestionText,
-            'two',
+            'Summer',
           )
           await applicantQuestions.expectQuestionAnsweredOnReviewPage(
             phoneQuestionText,
@@ -624,7 +594,7 @@ test.describe('Applicant navigation flow', () => {
           await applicantQuestions.editBlock('Screen 4')
 
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
-          await applicantQuestions.answerRadioButtonQuestion('one')
+          await applicantQuestions.answerRadioButtonQuestion('Spring')
           await applicantQuestions.clickReview()
         })
 
@@ -644,7 +614,7 @@ test.describe('Applicant navigation flow', () => {
         await test.step('re-answer screen 4', async () => {
           await applicantQuestions.editBlock('Screen 4')
           await applicantQuestions.validateQuestionIsOnPage(radioQuestionText)
-          await applicantQuestions.answerRadioButtonQuestion('two')
+          await applicantQuestions.answerRadioButtonQuestion('Summer')
         })
 
         // In review mode, you're only taken to blocks you haven't yet answered.
@@ -899,7 +869,8 @@ test.describe('Applicant navigation flow', () => {
   })
 
   test.describe('navigation with two blocks', () => {
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await enableFeatureFlag(
         page,
@@ -907,25 +878,16 @@ test.describe('Applicant navigation flow', () => {
       )
 
       await test.step('Set up program with questions', async () => {
-        await adminQuestions.addPhoneQuestion({
-          questionName: 'nav-phone-q',
-          questionText: phoneQuestionText,
-        })
-        await adminQuestions.addCurrencyQuestion({
-          questionName: 'nav-currency-q',
-          questionText: currencyQuestionText,
-        })
-
         await adminPrograms.addProgram(programName)
         await adminPrograms.editProgramBlockUsingSpec(programName, {
           name: 'Page A',
           description: 'Created first',
-          questions: [{name: 'nav-phone-q', isOptional: false}],
+          questions: [{name: SAMPLE_QUESTIONS.phone, isOptional: false}],
         })
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           name: 'Page B',
           description: 'Created second',
-          questions: [{name: 'nav-currency-q', isOptional: false}],
+          questions: [{name: SAMPLE_QUESTIONS.currency, isOptional: false}],
         })
 
         // Move Page B to the first page in the application. Expect its block ID is 2.

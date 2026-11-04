@@ -59,7 +59,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="ca">Canada</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -83,7 +83,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="ca">Canada</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -111,7 +111,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="us">United States</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -134,7 +134,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="us">United States</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -161,7 +161,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="us">United States</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -184,7 +184,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="us">United States</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -217,7 +217,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="ca">California</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="state">State</label>
 <div id="help-text-state" class="usa-hint">Select your state of residence</div>
@@ -243,7 +243,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="ca">California</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="state">State</label>
 <div id="help-text-state" class="usa-hint">Select your state of residence</div>
@@ -280,7 +280,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="health">Health</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="category">Category</label>
 <span id="error-message-category" class="usa-error-message" role="alert">Please select a category</span>
@@ -306,7 +306,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="health">Health</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="category">Category</label>
 <span id="error-message-category" class="usa-error-message" role="alert">Please select a category</span>
@@ -335,7 +335,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="no">No</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="terms">Accept Terms</label>
 <span id="error-message-terms" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -360,7 +360,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="no">No</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="terms">Accept Terms</label>
 <span id="error-message-terms" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -384,7 +384,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="">Select</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="tiny">Tiny</label>
 <span id="error-message-tiny" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -406,7 +406,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="">Select state</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="state">State</label>
 <span id="error-message-state" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -428,7 +428,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="">Select country</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="country">Country</label>
 <span id="error-message-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -465,7 +465,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="fr">French</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="language">Language</label>
 <div id="help-text-language" class="usa-hint">Select your preferred language</div>
@@ -495,7 +495,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="fr">French</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="language">Language</label>
 <div id="help-text-language" class="usa-hint">Select your preferred language</div>
@@ -535,7 +535,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="low">Low</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group usa-form-group--error">
 <label class="usa-label" for="priority">Priority</label>
 <div id="help-text-priority" class="usa-hint">Select the priority level</div>
@@ -566,7 +566,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="option1">Option 1</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="tracking">Tracking</label>
 <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -591,7 +591,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="option1">Option 1</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="tracking">Tracking</label>
 <span id="error-message-tracking" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -619,7 +619,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="user">User</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="role">Role</label>
 <span id="error-message-role" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -645,7 +645,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="user">User</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="role">Role</label>
 <span id="error-message-role" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -678,7 +678,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           </optgroup>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="vehicle">Vehicle Type</label>
 <span id="error-message-vehicle" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -717,7 +717,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="uk">United Kingdom</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="complex">Country</label>
 <span id="error-message-user-profile-country" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -743,7 +743,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="option1">Option 1</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="mixed">Mixed Select</label>
 <span id="error-message-mixedSelect" class="usa-error-message" role="alert" hidden="hidden"></span>
@@ -771,7 +771,7 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
           <option value="inactive">Inactive</option>
         </cf:select>
         """,
-        """
+"""
 <div class="usa-form-group">
 <label class="usa-label" for="status">Status</label>
 <span id="error-message-status" class="usa-error-message" role="alert" hidden="hidden"></span>

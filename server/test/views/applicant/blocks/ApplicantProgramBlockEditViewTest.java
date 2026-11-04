@@ -17,7 +17,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
             ApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ true,
-                /* ordinalErrorCount= */ 1))
+                /* errorCount= */ 1))
         .isEqualTo(FIRST_ERROR);
   }
 
@@ -28,7 +28,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
             ApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ true,
-                /* ordinalErrorCount= */ 2))
+                /* errorCount= */ 2))
         .isEqualTo(NONE);
   }
 
@@ -39,7 +39,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
             ApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS,
                 /* formHasErrors */ true,
-                /* ordinalErrorCount= */ 1))
+                /* errorCount= */ 1))
         .isEqualTo(NONE);
   }
 
@@ -49,7 +49,7 @@ public class ApplicantProgramBlockEditViewTest extends ResetPostgres {
             ApplicantProgramBlockEditView.calculateAutoFocusTarget(
                 ApplicantQuestionRendererParams.ErrorDisplayMode.DISPLAY_ERRORS,
                 /* formHasErrors */ false,
-                /* ordinalErrorCount= */ 1))
+                /* errorCount= */ 1))
         .isEqualTo(NONE);
   }
 }

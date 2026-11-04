@@ -21,6 +21,9 @@ See the radio-option below as an example.
 
 @use 'uswds-core' as *;
 
+// The max width of an input row
+$cf-applicant-input-max-width: 380px;
+
 // Hide usa-modal elements until USWDS wraps them in usa-modal-wrapper.
 // This prevents a flash of the modal content on page load.
 .usa-modal:not(.usa-modal-wrapper .usa-modal) {
@@ -163,6 +166,29 @@ it is around the label */
   @include u-border-left('05', 'secondary-dark');
 }
 
+.cf-initial-question-entities .cf-enumerator-field {
+  @include u-border-bottom(1px, 'gray-cool-20');
+  // Narrow the row to the input width so the divider and the Remove link
+  // line up with the inputs' right edge.
+  max-width: $cf-applicant-input-max-width;
+  // 24px between the Remove link and the divider.
+  @include u-padding-bottom(3);
+}
+
+// Memorable-date fields have fixed widths that exceed the cap for other
+// initial questions, so the width cap would force the year field onto a
+// second line. Size these rows to their own fields so the Remove link
+// aligns to the year input's right edge.
+.cf-initial-question-entities .cf-enumerator-field:has(.usa-memorable-date) {
+  max-width: fit-content;
+}
+
+// Drop the trailing margin after the last memorable-date field so the fit-content row above ends
+// exactly at the year input's right edge.
+.cf-initial-question-entities .usa-form-group--year {
+  @include u-margin-right(0);
+}
+
 /*
  * Add padding to the left of the group question when there is an error
  * to make room for the error border.
@@ -213,6 +239,12 @@ it is around the label */
 
 .cf-enumerator-field:last-child {
   @include u-padding-bottom(0);
+}
+
+// Initial-question rows show a divider after every row (including the last), so keep the 24px gap
+// below the Remove link rather than applying the general last-child padding reset above.
+.cf-initial-question-entities .cf-enumerator-field:last-child {
+  @include u-padding-bottom(3);
 }
 
 .page-spacing {
@@ -457,7 +489,7 @@ h1.usa-step-indicator__heading {
 }
 
 .cf-block-form .cf-input-large {
-  max-width: 380px;
+  max-width: $cf-applicant-input-max-width;
 }
 
 .cf-applicant-question-help-text {

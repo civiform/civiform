@@ -203,6 +203,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
 
+      // Whether the entities on an enumerator block came through the initial-question flow.
+      // Used to suppress blank/duplicate-blank entry error validation when the initial-question
+      // fields report those errors themselves.
+      // TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
+      // check in EnumeratorQuestion.
+      context.setVariable(
+          "initialQuestionFlowIsActive", applicationParams.block().initialQuestionFlowIsActive());
+
       // Initial-question context for enumerator blocks when enumerator improvements are enabled and
       // the enumerator has an initial question configured. When absent, the enumerator fragment
       // falls back to the legacy text input.
@@ -358,7 +366,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
       ApplicationBaseViewParams params) {
-    AtomicInteger ordinalErrorCount = new AtomicInteger(0);
+    AtomicInteger errorCount = new AtomicInteger(0);
 
     return params.block().getVisibleQuestions().stream()
         .collect(
@@ -366,7 +374,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                 question -> question.getQuestionDefinition().getId(),
                 question -> {
                   if (question.hasErrors()) {
-                    ordinalErrorCount.incrementAndGet();
+                    errorCount.incrementAndGet();
                   }
                   ApplicantQuestionRendererParams.Builder paramsBuilder =
                       ApplicantQuestionRendererParams.builder()
@@ -376,7 +384,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                               calculateAutoFocusTarget(
                                   params.errorDisplayMode(),
                                   params.block().hasErrors(),
-                                  ordinalErrorCount.get()));
+                                  errorCount.get()));
                   if (question.getType().equals(QuestionType.MAP)) {
                     paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
                   }
@@ -460,10 +468,10 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   static ApplicantQuestionRendererParams.AutoFocusTarget calculateAutoFocusTarget(
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode,
       boolean formHasErrors,
-      int ordinalErrorCount) {
+      int errorCount) {
     if (formHasErrors
         && ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(errorDisplayMode)
-        && ordinalErrorCount == 1) {
+        && errorCount == 1) {
       return ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR;
     }
     return ApplicantQuestionRendererParams.AutoFocusTarget.NONE;
@@ -477,9 +485,10 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
    */
   private void setInitialQuestionContext(
       ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams params) {
+    List<ApplicantQuestion> contextualizedInitialQuestions =
+        params.block().getContextualizedInitialQuestions();
     context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
-    context.setVariable(
-        "contextualizedInitialQuestions", params.block().getContextualizedInitialQuestions());
+    context.setVariable("contextualizedInitialQuestions", contextualizedInitialQuestions);
     context.setVariable(
         "enumeratorQuestion", params.block().getEnumeratorQuestion().createEnumeratorQuestion());
     context.setVariable(
@@ -488,14 +497,30 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
             .hxAddEnumeratorEntity(
                 params.profile(), params.applicantId(), params.programId(), params.block().getId())
             .url());
-    // TODO (#13398): Show validation errors and set the autofocus target
-    context.setVariable(
-        "initialQuestionRendererParams",
-        ApplicantQuestionRendererParams.builder()
-            .setMessages(params.messages())
-            .setErrorDisplayMode(ApplicantQuestionRendererParams.ErrorDisplayMode.HIDE_ERRORS)
-            .setAutofocus(ApplicantQuestionRendererParams.AutoFocusTarget.NONE)
-            .build());
+    // Build separate renderer params per entity so autofocus is calculated within a single
+    // entity answer. As with the standalone questions in getApplicantQuestionRendererParams,
+    // a running error count lets calculateAutoFocusTarget focus only the first entity row that has
+    // an error.
+    AtomicInteger errorCount = new AtomicInteger(0);
+    List<ApplicantQuestionRendererParams> initialQuestionRendererParamsList =
+        contextualizedInitialQuestions.stream()
+            .map(
+                initialQuestion -> {
+                  if (initialQuestion.hasErrors()) {
+                    errorCount.incrementAndGet();
+                  }
+                  return ApplicantQuestionRendererParams.builder()
+                      .setMessages(params.messages())
+                      .setErrorDisplayMode(params.errorDisplayMode())
+                      .setAutofocus(
+                          calculateAutoFocusTarget(
+                              params.errorDisplayMode(),
+                              params.block().hasErrors(),
+                              errorCount.get()))
+                      .build();
+                })
+            .collect(Collectors.toList());
+    context.setVariable("initialQuestionRendererParamsList", initialQuestionRendererParamsList);
   }
 
   /**
