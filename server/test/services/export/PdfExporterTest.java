@@ -11,7 +11,12 @@ import com.itextpdf.text.pdf.PdfName;
 import com.itextpdf.text.pdf.PdfObject;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfString;
+import com.itextpdf.text.pdf.parser.ImageRenderInfo;
+import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.PdfTextExtractor;
+import com.itextpdf.text.pdf.parser.RenderListener;
+import com.itextpdf.text.pdf.parser.TextRenderInfo;
+import com.itextpdf.text.pdf.parser.Vector;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -31,9 +36,12 @@ import services.program.ProgramDefinition;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
 public class PdfExporterTest extends AbstractExporterTest {
+  /** The horizontal position of unindented text in the PDF. */
+  private static final float PAGE_LEFT_MARGIN = 36f;
 
   @Before
   public void createTestData() throws Exception {
@@ -762,10 +770,9 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void exportProgram_hasEligibilityPredicate() throws IOException {
-    createFakeProgramWithEligibilityPredicateAndThreeApplications();
-
     PdfExporterService service = instanceOf(PdfExporterService.class);
-    ProgramDefinition programDef = fakeProgramWithEligibility.getProgramDefinition();
+    ProgramDefinition programDef =
+        createFakeProgramWithEligibilityPredicateAndThreeApplications().getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
@@ -778,10 +785,9 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void exportProgram_hasVisibilityPredicate() throws IOException {
-    createFakeProgramWithVisibilityPredicate();
-
     PdfExporterService service = instanceOf(PdfExporterService.class);
-    ProgramDefinition programDef = fakeProgramWithVisibility.getProgramDefinition();
+    ProgramDefinition programDef =
+        createFakeProgramWithVisibilityPredicate().getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
@@ -793,10 +799,9 @@ public class PdfExporterTest extends AbstractExporterTest {
 
   @Test
   public void exportProgram_nestedEnumeratorQuestionsShown() throws IOException {
-    createFakeProgramWithEnumeratorAndAnswerQuestions();
-
     PdfExporterService service = instanceOf(PdfExporterService.class);
-    ProgramDefinition programDef = fakeProgramWithEnumerator.getProgramDefinition();
+    ProgramDefinition programDef =
+        createFakeProgramWithEnumeratorAndAnswerQuestions().getProgramDefinition();
 
     PdfExporter.InMemoryPdf result =
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
@@ -808,6 +813,142 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(pdfText).contains("household members jobs");
     assertThat(pdfText).contains("How many days has $this.parent worked at $this?");
     assertThat(pdfText).contains("household members days worked");
+  }
+
+  @Test
+  public void exportProgram_initialQuestion_omitsTextNotShownToResidents() throws IOException {
+    String pdfText = getPdfTextWithIndentation(exportProgramWithInitialQuestion());
+
+    assertThat(pdfText)
+        .contains(
+            """
+            Who are your household members?
+            This is sample enumerator help text.
+            Required Question
+            """);
+    assertThat(pdfText).doesNotContain("What is your name?");
+    assertThat(pdfText).doesNotContain("This is sample initial question help text.");
+  }
+
+  @Test
+  public void exportProgram_initialQuestion_labeledAsInitialQuestion() throws IOException {
+    // The initial question's label replaces its required label, but not the enumerator's.
+    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
+        .contains(
+            """
+            Required Question
+            Admin name: applicant household members
+            Admin description: The applicant's household members
+            Question type: ENUMERATOR
+            \s
+              Initial Question
+              Admin name: applicant's household member's name
+            """);
+  }
+
+  @Test
+  public void exportProgram_initialQuestion_indentedUnderEnumerator() throws IOException {
+    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
+        .contains(
+            """
+            Question type: ENUMERATOR
+            \s
+              Initial Question
+              Admin name: applicant's household member's name
+              Admin description: The household member's name
+              Question type: TEXT
+              [                     ]
+            """);
+  }
+
+  @Test
+  public void exportProgram_enumeratorWithInitialQuestion_hasNoAnswerPlaceholder()
+      throws IOException {
+    // The only entry placeholder "[   ]" is the initial question's not the
+    // enumerator's.
+    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
+        .contains(
+            """
+            Question type: ENUMERATOR
+            \s
+              Initial Question
+              Admin name: applicant's household member's name
+              Admin description: The household member's name
+              Question type: TEXT
+              [                     ]
+            """);
+  }
+
+  @Test
+  public void exportProgram_enumeratorWithoutInitialQuestion_hasAnswerPlaceholder()
+      throws IOException {
+    ProgramDefinition programDef =
+        ProgramBuilder.newActiveProgram()
+            .withName("Fake Program With Legacy Enumerator")
+            .withBlock()
+            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
+            .build()
+            .getProgramDefinition();
+
+    PdfExporter.InMemoryPdf result =
+        instanceOf(PdfExporterService.class)
+            .generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
+
+    assertThat(getPdfTextWithIndentation(result))
+        .contains(
+            """
+            Question type: ENUMERATOR
+            [                     ]
+            """);
+  }
+
+  /** Exports a program with a new-flow enumerator block also containing an initial question. */
+  private PdfExporter.InMemoryPdf exportProgramWithInitialQuestion() throws IOException {
+    return instanceOf(PdfExporterService.class)
+        .generateProgramPreviewPdf(
+            createFakeProgramWithEnumeratorAndInitialQuestion().getProgramDefinition(),
+            getFakeQuestionDefinitions());
+  }
+
+  /** Returns the PDF's text, with two leading spaces per level of indentation. */
+  private static String getPdfTextWithIndentation(PdfExporter.InMemoryPdf pdf) throws IOException {
+    StringBuilder text = new StringBuilder();
+    PdfReader pdfReader = new PdfReader(pdf.getByteArray());
+    PdfReaderContentParser parser = new PdfReaderContentParser(pdfReader);
+    for (int pageNum = 1; pageNum <= pdfReader.getNumberOfPages(); pageNum++) {
+      parser.processContent(
+          pageNum,
+          new RenderListener() {
+            // X & Y Coordinate indicators.
+            private static final int X_COORD = Vector.I1;
+            private static final int Y_COORD = Vector.I2;
+            private float lastY = Float.NaN;
+
+            @Override
+            public void renderText(TextRenderInfo renderInfo) {
+              Vector start = renderInfo.getBaseline().getStartPoint();
+              // Pieces of text at the same height are on the same line, like a list symbol and
+              // item.
+              if (start.get(Y_COORD) != lastY) {
+                lastY = start.get(Y_COORD);
+                int level = Math.round((start.get(X_COORD) - PAGE_LEFT_MARGIN) / 25f);
+                text.append('\n').append("  ".repeat(level));
+              }
+              text.append(renderInfo.getText());
+            }
+
+            @Override
+            public void beginTextBlock() {}
+
+            @Override
+            public void endTextBlock() {}
+
+            @Override
+            public void renderImage(ImageRenderInfo renderInfo) {}
+          });
+    }
+    pdfReader.close();
+    return text.toString();
   }
 
   public static List<String> getPdfLines(PdfExporter.InMemoryPdf pdf) throws IOException {
