@@ -1505,7 +1505,9 @@ public class BlockTest {
     Block block =
         makeUnrepeatedBlock(
             "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
-    // The legacy input (e.g. with the enumerator improvements flag off) only saves entity names.
+    // The legacy input (e.g. with the enumerator improvements flag off) saves entity names on the
+    // enumerator question only. Nothing is written at the initial question's path, not even
+    // metadata.
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         block.getEnumeratorQuestion().getContextualizedPath(),
