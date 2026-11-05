@@ -95,6 +95,34 @@ public class BlockTest {
               .setLastModifiedTime(Optional.empty())
               .build());
 
+  private static final long ENUMERATOR_WITH_NAME_INITIAL_QUESTION_ID = 710L;
+  private static final long NAME_INITIAL_QUESTION_ID = 711L;
+
+  private static final EnumeratorQuestionDefinition ENUMERATOR_WITH_NAME_INITIAL_QUESTION =
+      new EnumeratorQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("household members with name")
+              .setDescription("The applicant's household members")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(ENUMERATOR_WITH_NAME_INITIAL_QUESTION_ID))
+              .setEnumeratorInitialQuestionId(NAME_INITIAL_QUESTION_ID)
+              .setLastModifiedTime(Optional.empty())
+              .build(),
+          LocalizedStrings.empty());
+
+  private static final NameQuestionDefinition NAME_INITIAL_QUESTION =
+      new NameQuestionDefinition(
+          QuestionDefinitionConfig.builder()
+              .setName("household member name")
+              .setDescription("The household member's name")
+              .setQuestionText(LocalizedStrings.of(Locale.US, "What is their name?"))
+              .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+              .setId(OptionalLong.of(NAME_INITIAL_QUESTION_ID))
+              .setEnumeratorId(ENUMERATOR_WITH_NAME_INITIAL_QUESTION_ID)
+              .setLastModifiedTime(Optional.empty())
+              .build());
+
   @Test
   public void createNewBlock() {
     BlockDefinition definition =
@@ -1472,6 +1500,42 @@ public class BlockTest {
   }
 
   @Test
+  public void hasErrors_withEntitiesFromLegacyInput_ignoresInitialQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    // The legacy input (e.g. with the enumerator improvements flag off) saves entity names on the
+    // enumerator question only. Nothing is written at the initial question's path, not even
+    // metadata.
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("Sarah", "Jonathan"));
+
+    assertThat(block.hasErrors()).isFalse();
+  }
+
+  @Test
+  public void hasErrors_withBlankEntityFromInitialQuestionFlow_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, block.getEnumeratorQuestion().getContextualizedPath(), ImmutableList.of(""));
+    // The initial-question flow writes metadata at the initial question's path, even for a blank
+    // row.
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        block.getContextualizedInitialQuestions().get(0).getContextualizedPath(),
+        /* programId= */ 1L,
+        /* timestamp= */ 1L);
+
+    assertThat(block.hasErrors()).isTrue();
+  }
+
+  @Test
   public void getEnumeratorEntityCount_withNoEntities_returnsZero() {
     Block block =
         makeUnrepeatedBlock(
@@ -1542,6 +1606,22 @@ public class BlockTest {
         .addQuestion(
             ProgramQuestionDefinition.create(
                 INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .build();
+  }
+
+  private static BlockDefinition enumeratorBlockWithNameInitialQuestion() {
+    return BlockDefinition.builder()
+        .setId(32L)
+        .setName("household enumerator block")
+        .setDescription("description")
+        .setLocalizedName(LocalizedStrings.withDefaultValue("household enumerator block"))
+        .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                ENUMERATOR_WITH_NAME_INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                NAME_INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
         .build();
   }
 
