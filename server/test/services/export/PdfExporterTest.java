@@ -37,7 +37,6 @@ import services.program.ProgramDefinition;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
-import support.ProgramBuilder;
 
 @RunWith(JUnitParamsRunner.class)
 public class PdfExporterTest extends AbstractExporterTest {
@@ -808,6 +807,13 @@ public class PdfExporterTest extends AbstractExporterTest {
         service.generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
 
     String pdfText = getPdfText(result);
+    // Enumerators without an initial question keep their answer placeholder.
+    assertThat(pdfText)
+        .contains(
+            """
+            Question type: ENUMERATOR
+            [                     ]
+            """);
     assertThat(pdfText).contains("What is the $this's name?");
     assertThat(pdfText).contains("household members name");
     assertThat(pdfText).contains("What are the $this's jobs?");
@@ -816,27 +822,31 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(pdfText).contains("household members days worked");
   }
 
+  /**
+   * Compares the enumerator's block as one continuous section of the document, so text missing from
+   * the expected value is checked as well.
+   *
+   * <ul>
+   *   <li>The enumerator has no "[ ]" answer placeholder.
+   *   <li>The initial question's text and help text ("What is your name?" and "This is sample
+   *       initial question help text.") are omitted.
+   *   <li>The initial question is labeled "Initial Question" rather than "Required Question".
+   *   <li>The initial question is indented one level under the enumerator.
+   * </ul>
+   */
   @Test
-  public void exportProgram_initialQuestion_omitsTextNotShownToResidents() throws IOException {
-    String pdfText = getPdfTextWithIndentation(exportProgramWithInitialQuestion());
+  public void exportProgram_enumeratorWithInitialQuestion() throws IOException {
+    PdfExporter.InMemoryPdf result =
+        instanceOf(PdfExporterService.class)
+            .generateProgramPreviewPdf(
+                createFakeProgramWithEnumeratorAndInitialQuestion().getProgramDefinition(),
+                getFakeQuestionDefinitions());
 
-    assertThat(pdfText)
+    assertThat(getPdfTextWithIndentation(result))
         .contains(
             """
             Who are your household members?
             This is sample enumerator help text.
-            Required Question
-            """);
-    assertThat(pdfText).doesNotContain("What is your name?");
-    assertThat(pdfText).doesNotContain("This is sample initial question help text.");
-  }
-
-  @Test
-  public void exportProgram_initialQuestion_labeledAsInitialQuestion() throws IOException {
-    // The initial question's label replaces its required label, but not the enumerator's.
-    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
-        .contains(
-            """
             Required Question
             Admin name: applicant household members
             Admin description: The applicant's household members
@@ -844,71 +854,10 @@ public class PdfExporterTest extends AbstractExporterTest {
             \s
               Initial Question
               Admin name: applicant's household member's name
-            """);
-  }
-
-  @Test
-  public void exportProgram_initialQuestion_indentedUnderEnumerator() throws IOException {
-    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
-        .contains(
-            """
-            Question type: ENUMERATOR
-            \s
-              Initial Question
-              Admin name: applicant's household member's name
               Admin description: The household member's name
               Question type: TEXT
               [                     ]
             """);
-  }
-
-  @Test
-  public void exportProgram_enumeratorWithInitialQuestion_hasNoAnswerPlaceholder()
-      throws IOException {
-    // The only entry placeholder "[   ]" is the initial question's not the
-    // enumerator's.
-    assertThat(getPdfTextWithIndentation(exportProgramWithInitialQuestion()))
-        .contains(
-            """
-            Question type: ENUMERATOR
-            \s
-              Initial Question
-              Admin name: applicant's household member's name
-              Admin description: The household member's name
-              Question type: TEXT
-              [                     ]
-            """);
-  }
-
-  @Test
-  public void exportProgram_enumeratorWithoutInitialQuestion_hasAnswerPlaceholder()
-      throws IOException {
-    ProgramDefinition programDef =
-        ProgramBuilder.newActiveProgram()
-            .withName("Fake Program With Legacy Enumerator")
-            .withBlock()
-            .withRequiredQuestion(testQuestionBank.enumeratorApplicantHouseholdMembers())
-            .build()
-            .getProgramDefinition();
-
-    PdfExporter.InMemoryPdf result =
-        instanceOf(PdfExporterService.class)
-            .generateProgramPreviewPdf(programDef, getFakeQuestionDefinitions());
-
-    assertThat(getPdfTextWithIndentation(result))
-        .contains(
-            """
-            Question type: ENUMERATOR
-            [                     ]
-            """);
-  }
-
-  /** Exports a program with a new-flow enumerator block also containing an initial question. */
-  private PdfExporter.InMemoryPdf exportProgramWithInitialQuestion() throws IOException {
-    return instanceOf(PdfExporterService.class)
-        .generateProgramPreviewPdf(
-            createFakeProgramWithEnumeratorAndInitialQuestion().getProgramDefinition(),
-            getFakeQuestionDefinitions());
   }
 
   /**
