@@ -946,7 +946,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const enumeratorQuestionCard = blockPanel.getByTestId(
         'question-admin-name-pets enumerator',
       )
-      const initialQuestionAdminId = 'income-non-repeated-question -_- a'
+      // A name question reports a required error for any blank value, unlike a number question, so
+      // the legacy entity added below only gets through if the initial question is ignored.
+      const initialQuestionAdminId = `${SAMPLE_QUESTIONS.name} -_- a`
 
       await addRepeatedSetBlocks(page)
 
@@ -954,7 +956,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await initialQuestionSlot
           .getByRole('button', {name: 'Add initial question'})
           .click()
-        await pickQuestionFromBank(page, 'income-non-repeated-question')
+        await pickQuestionFromBank(page, SAMPLE_QUESTIONS.name)
         await fillAndSubmitEnumeratorQuestionForm(page)
       })
 
