@@ -75,14 +75,14 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-      const questionCard = page.locator(
-        `.cf-question-bank-element[data-adminname="${questionName}"]`,
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
       )
-      const imageContainer = questionCard.locator(
-        '[data-testid="question-image-container"]',
+      const imageContainer = questionCard.getByTestId(
+        'question-image-container',
       )
       await expect(imageContainer).toBeVisible()
-      const img = imageContainer.locator('img')
+      const img = imageContainer.getByRole('presentation')
       await expect(img).toBeVisible()
       await expect(img).toHaveAttribute('alt', '')
       await expect(img).toHaveAttribute(
@@ -122,11 +122,11 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-      const questionCard = page.locator(
-        `.cf-question-bank-element[data-adminname="${questionName}"]`,
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
       )
       await expect(
-        questionCard.locator('[data-testid="question-image-container"]'),
+        questionCard.getByTestId('question-image-container'),
       ).toBeVisible()
     })
 
@@ -151,11 +151,11 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
 
-      const questionCard = page.locator(
-        `.cf-question-bank-element[data-adminname="${questionName}"]`,
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
       )
       await expect(
-        questionCard.locator('[data-testid="question-image-container"]'),
+        questionCard.getByTestId('question-image-container'),
       ).toHaveCount(0)
 
       await adminQuestions.gotoQuestionEditPage(questionName)
@@ -403,11 +403,13 @@ test.describe('Admin can manage question image', () => {
     await test.step('Save question and validate question card screenshot', async () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-      const questionCard = page.locator(
-        `.cf-question-bank-element[data-adminname="${questionName}"]`,
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
       )
       await expect(
-        questionCard.locator('[data-testid="question-image-container"] img'),
+        questionCard
+          .getByTestId('question-image-container')
+          .getByRole('presentation'),
       ).toBeVisible()
       await validateScreenshot(questionCard, 'question-card-with-image')
       await validateAccessibility(

@@ -334,6 +334,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
+            .attr("data-testid", "question-admin-name-" + latestDefinition.getName())
             .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), latestDefinition.getName())
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),

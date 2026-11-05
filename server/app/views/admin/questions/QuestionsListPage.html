@@ -305,7 +305,7 @@
 <div
   th:fragment="questionCard(row)"
   class="cf-question-bank-element question-bank-element cf-admin-question-table-row"
-  th:attr="data-adminname=${row.adminName}, data-lastmodified=${row.lastModified}, data-numprograms=${row.numReferencingPrograms}"
+  th:attr="data-testid=|question-admin-name-${row.adminName}|, data-adminname=${row.adminName}, data-lastmodified=${row.lastModified}, data-numprograms=${row.numReferencingPrograms}"
 >
   <div
     th:if="${row.universalBadgeText != null}"
