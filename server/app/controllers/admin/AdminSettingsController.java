@@ -23,12 +23,10 @@ import services.settings.SettingsService.SettingsGroupUpdateResult.UpdateError;
 import views.CiviFormMarkdown;
 import views.admin.settings.AdminSettingsIndexPageView;
 import views.admin.settings.AdminSettingsIndexPageViewModel;
-import views.admin.settings.AdminSettingsIndexView;
 
 /** Provides access to application settings to the CiviForm Admin role. */
 public class AdminSettingsController extends CiviFormController {
 
-  private final AdminSettingsIndexView indexView;
   private final AdminSettingsIndexPageView indexPageView;
   private final FormFactory formFactory;
   private final SettingsService settingsService;
@@ -37,7 +35,6 @@ public class AdminSettingsController extends CiviFormController {
 
   @Inject
   public AdminSettingsController(
-      AdminSettingsIndexView indexView,
       AdminSettingsIndexPageView indexPageView,
       FormFactory formFactory,
       SettingsService settingsService,
@@ -46,7 +43,6 @@ public class AdminSettingsController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
-    this.indexView = checkNotNull(indexView);
     this.indexPageView = checkNotNull(indexPageView);
     this.formFactory = checkNotNull(formFactory);
     this.settingsService = checkNotNull(settingsService);
@@ -56,12 +52,8 @@ public class AdminSettingsController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      AdminSettingsIndexPageViewModel model = buildIndexPageModel(request, Optional.empty());
-      return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return ok(indexView.render(request));
+    AdminSettingsIndexPageViewModel model = buildIndexPageModel(request, Optional.empty());
+    return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -77,13 +69,8 @@ public class AdminSettingsController extends CiviFormController {
         settingsService.updateSettings(settingUpdates, profile);
 
     if (result.hasErrors()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        AdminSettingsIndexPageViewModel model =
-            buildIndexPageModel(request, result.errorMessages());
-        return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      return ok(indexView.render(request, result.errorMessages()));
+      AdminSettingsIndexPageViewModel model = buildIndexPageModel(request, result.errorMessages());
+      return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
     Result destination = redirect(routes.AdminSettingsController.index());
