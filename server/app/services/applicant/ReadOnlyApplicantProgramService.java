@@ -13,6 +13,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
 import models.ApplicantModel;
+import org.unbescape.html.HtmlEscape;
 import services.LocalizedStrings;
 import services.Path;
 import services.applicant.predicate.JsonPathPredicateGenerator;
@@ -98,11 +99,15 @@ public final class ReadOnlyApplicantProgramService {
     return programDefinition.localizedDescription().getOrDefault(applicantData.preferredLocale());
   }
 
-  /** Returns the program short description, localized to the applicant's preferred locale. */
+  /**
+   * Returns the program short description, localized to the applicant's preferred locale, with HTML
+   * characters escaped. The applicant pages render it as HTML, and admins can enter any text.
+   */
   public String getProgramShortDescription() {
-    return programDefinition
-        .localizedShortDescription()
-        .getOrDefault(applicantData.preferredLocale());
+    return HtmlEscape.escapeHtml4Xml(
+        programDefinition
+            .localizedShortDescription()
+            .getOrDefault(applicantData.preferredLocale()));
   }
 
   /** Returns the ID of the program. */
