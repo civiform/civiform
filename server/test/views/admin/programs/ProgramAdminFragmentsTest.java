@@ -38,4 +38,10 @@ public class ProgramAdminFragmentsTest {
   public void programCard_adminNoteCategoriesAndSingularCounts() {
     ThymeleafFragmentTester.run(DIR + "programCardAdminNote.thtest");
   }
+
+  /** Manage program admins page: existing admin row with its delete form. */
+  @Test
+  public void adminRow_existingAdmin() {
+    ThymeleafFragmentTester.run(DIR + "adminRow.thtest");
+  }
 }

@@ -1,0 +1,61 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*
+  One row of the existing admins table on the manage program admins page,
+  legacy ManageProgramAdminsView.renderExistingAdminRow parity markup.
+
+  adminEmail: the admin's email address
+  deleteUrl:  the delete form target, shared by every row
+*/-->
+<tr
+  th:fragment="adminRow(adminEmail, deleteUrl)"
+  class="border-b border-gray-300 even:bg-gray-100"
+>
+  <td class="px-4 py-2 pr-12">
+    <div class="font-semibold" th:text="${adminEmail}"></div>
+  </td>
+  <td>
+    <div class="flex items-center justify-end gap-3 pr-3">
+      <form method="POST" th:action="${deleteUrl}">
+        <input
+          hidden
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <!--/* The legacy view built this with FieldWithLabel.email() and then
+               replaced the wrapper's classes with "hidden", so the full labeled
+               field markup (empty sr-only label, hidden required indicator,
+               error div) is still in the DOM. The fixed id repeats on every row,
+               as it did in the legacy DOM. */-->
+        <div class="hidden">
+          <label for="admin-email-to-delete" class="sr-only"
+            ><span
+              th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+            ></span
+          ></label>
+          <div class="flex flex-col">
+            <input
+              type="email"
+              th:value="${adminEmail}"
+              maxlength="10000"
+              id="admin-email-to-delete"
+              name="adminEmail"
+              class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+            />
+            <div
+              id="admin-email-to-delete-errors"
+              class="text-red-600 text-xs p-1 hidden"
+            ></div>
+          </div>
+        </div>
+        <button
+          class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
+          ></svg>
+          <span class="text-left">Delete</span>
+        </button>
+      </form>
+    </div>
+  </td>
+</tr>
