@@ -125,6 +125,12 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconTranslateSvgTextButton.thtest");
   }
 
+  /** Legacy source: AdminLayout.createManageTranslationsButton ("Manage translations"). */
+  @Test
+  public void iconLanguage_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconLanguageSvgTextButton.thtest");
+  }
+
   /** Legacy source: ViewUtils.makeSvgTextButton ("Archive"). */
   @Test
   public void iconArchive_svgTextButton() {

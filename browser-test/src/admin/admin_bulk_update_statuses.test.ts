@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {Page} from '@playwright/test'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
   loginAsTestUser,
@@ -22,6 +23,11 @@ test.describe('with program statuses', () => {
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)
@@ -110,6 +116,11 @@ test.describe('when email is configured for the status and applicant, a checkbox
 
   test.beforeEach(
     async ({page, adminPrograms, applicantQuestions, adminProgramStatuses}) => {
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+
       await setupProgramsWithStatuses(
         page,
         adminPrograms,
