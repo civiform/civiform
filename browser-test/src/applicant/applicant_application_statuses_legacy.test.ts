@@ -12,18 +12,16 @@ import {
 } from '../support'
 
 test.describe('with program statuses', () => {
-  test.beforeEach(async ({page}) => {
-    await disableFeatureFlag(
-      page,
-      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
-    )
-  })
-
   const programName = 'Applicant with statuses program'
   const approvedStatusName = 'Approved'
 
   test.beforeEach(
     async ({page, adminPrograms, adminProgramStatuses, applicantQuestions}) => {
+      await disableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+
       await loginAsAdmin(page)
 
       await adminPrograms.addProgram(programName)

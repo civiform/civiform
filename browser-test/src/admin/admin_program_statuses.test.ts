@@ -14,9 +14,7 @@ test.describe('modify program statuses', () => {
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
     )
-  })
 
-  test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
   })
 
