@@ -8,16 +8,17 @@ import durablejobs.DurableJob;
 import java.util.Optional;
 import models.PersistedDurableJobModel;
 import models.ProgramModel;
+import models.QuestionModel;
 import repository.VersionRepository;
 import services.cloud.PublicStorageClient;
 
-/** A job that removes unused program images from cloud storage. */
-public final class UnusedProgramImagesCleanupJob extends DurableJob {
+/** A job that removes unused program and question images from public cloud storage. */
+public final class UnusedPublicImagesCleanupJob extends DurableJob {
   private final PublicStorageClient publicStorageClient;
   private final VersionRepository versionRepository;
   private final PersistedDurableJobModel persistedDurableJob;
 
-  public UnusedProgramImagesCleanupJob(
+  public UnusedPublicImagesCleanupJob(
       PublicStorageClient publicStorageClient,
       VersionRepository versionRepository,
       PersistedDurableJobModel persistedDurableJob) {
@@ -33,23 +34,37 @@ public final class UnusedProgramImagesCleanupJob extends DurableJob {
 
   @Override
   public void run() {
-    // All program images currently used in all active & draft programs are the
+    // All program and question images currently used in all active & draft versions are the
     // files we should keep.
-    ImmutableSet.Builder<String> inUseProgramImageFileKeys = ImmutableSet.builder();
-    addFileKeysToList(
-        inUseProgramImageFileKeys,
+    ImmutableSet.Builder<String> inUseImageFileKeys = ImmutableSet.builder();
+    addProgramFileKeysToList(
+        inUseImageFileKeys,
         versionRepository.getProgramsForVersion(versionRepository.getActiveVersion()));
-    addFileKeysToList(
-        inUseProgramImageFileKeys,
+    addProgramFileKeysToList(
+        inUseImageFileKeys,
         versionRepository.getProgramsForVersion(versionRepository.getDraftVersion()));
+    addQuestionFileKeysToList(
+        inUseImageFileKeys,
+        versionRepository.getQuestionsForVersion(versionRepository.getActiveVersion()));
+    addQuestionFileKeysToList(
+        inUseImageFileKeys,
+        versionRepository.getQuestionsForVersion(versionRepository.getDraftVersion()));
 
-    publicStorageClient.prunePublicFileStorage(inUseProgramImageFileKeys.build());
+    publicStorageClient.prunePublicFileStorage(inUseImageFileKeys.build());
   }
 
-  private void addFileKeysToList(
+  private void addProgramFileKeysToList(
       ImmutableSet.Builder<String> fileKeys, ImmutableList<ProgramModel> programs) {
     for (ProgramModel program : programs) {
       Optional<String> fileKey = program.getProgramDefinition().summaryImageFileKey();
+      fileKey.ifPresent(fileKeys::add);
+    }
+  }
+
+  private void addQuestionFileKeysToList(
+      ImmutableSet.Builder<String> fileKeys, ImmutableList<QuestionModel> questions) {
+    for (QuestionModel question : questions) {
+      Optional<String> fileKey = question.getQuestionDefinition().getImageFileKey();
       fileKey.ifPresent(fileKeys::add);
     }
   }

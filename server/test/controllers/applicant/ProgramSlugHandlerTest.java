@@ -34,6 +34,7 @@ import play.mvc.Result;
 import repository.AccountRepository;
 import repository.ProgramRepository;
 import repository.VersionRepository;
+import services.LocalizedStrings;
 import services.applicant.ApplicantService;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -48,6 +49,33 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
   @Before
   public void setUp() {
     resetDatabase();
+  }
+
+  @Test
+  public void programBySlug_escapesHtmlInShortDescriptionWhenThereIsNoLongDescription() {
+    // newActiveProgram already sets a default-locale short description, so replace it here.
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", /* description= */ "")
+            .buildDefinition()
+            .toBuilder()
+            .setLocalizedShortDescription(LocalizedStrings.withDefaultValue("<b>Food</b>"))
+            .build();
+    programDefinition.toProgram().update();
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getApplicantData().setPreferredLocale(Locale.ENGLISH);
+    applicant.save();
+
+    Result result =
+        instanceOf(ProgramSlugHandler.class)
+            .showProgram(
+                instanceOf(CiviFormController.class), fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(content).doesNotContain("<b>Food</b>");
+    assertThat(content).contains("&lt;b&gt;Food&lt;/b&gt;");
   }
 
   @Test

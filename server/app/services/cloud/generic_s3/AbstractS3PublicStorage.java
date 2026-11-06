@@ -100,7 +100,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
       unusedPublicFileKeys = new ArrayList<>(getCurrentFileKeys());
       unusedPublicFileKeys.removeAll(inUseFileKeys);
     } catch (FileListFailureException e) {
-      // See UnusedProgramImagesCleanupJob for the deletion cadence.
+      // See UnusedPublicImagesCleanupJob for the deletion cadence.
       logger.error(
           "Failed to fetch the current list of public files, so aborting unused file deletion."
               + " Deletion will be re-tried again in a month. Error: {}",
@@ -137,7 +137,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     try {
       s3ClientWrapper.deleteObjects(credentials, region, client.endpoint(), request);
     } catch (FileDeletionFailureException e) {
-      // See UnusedProgramImagesCleanupJob for the deletion cadence.
+      // See UnusedPublicImagesCleanupJob for the deletion cadence.
       logger.error(
           "Some public files failed to be deleted. Deletion will be re-tried again in a month."
               + " Error: {}",

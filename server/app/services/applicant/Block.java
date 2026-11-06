@@ -477,8 +477,12 @@ public final class Block {
    * failures to update the {@link ApplicantData}.
    */
   public boolean hasErrors() {
+    // Only check the initial question when the entities came through the initial-question flow.
+    // Entities entered through the legacy input (e.g. with the enumerator improvements flag off)
+    // have no initial question answers, so checking them would block the applicant.
     return getVisibleQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
-        || getContextualizedInitialQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
+        || (initialQuestionFlowIsActive()
+            && getContextualizedInitialQuestions().stream().anyMatch(ApplicantQuestion::hasErrors))
         || !applicantData.getFailedUpdates().isEmpty();
   }
 

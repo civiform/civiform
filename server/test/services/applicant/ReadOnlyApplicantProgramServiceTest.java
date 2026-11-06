@@ -105,6 +105,20 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getProgramShortDescription_escapesHtml() {
+    ProgramDefinition programWithMarkup =
+        ProgramBuilder.newDraftProgram(
+                "Markup program", "My Program long description", "<b>Food</b> & \"housing\"")
+            .buildDefinition();
+    ReadOnlyApplicantProgramService subject =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithMarkup);
+
+    assertThat(subject.getProgramShortDescription())
+        .isEqualTo("&lt;b&gt;Food&lt;/b&gt; &amp; &quot;housing&quot;");
+  }
+
+  @Test
   public void getStoredFileKeys_worksForMultipleFileUploads() {
     QuestionDefinition fileQuestionDefinition =
         testQuestionBank.fileUploadApplicantFile().getQuestionDefinition();
