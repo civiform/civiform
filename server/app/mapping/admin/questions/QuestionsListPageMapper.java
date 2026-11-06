@@ -21,6 +21,8 @@ import services.DateConverter;
 import services.DeletionStatus;
 import services.RandomStringUtils;
 import services.TranslationLocales;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
@@ -48,7 +50,9 @@ public final class QuestionsListPageMapper {
       DateConverter dateConverter,
       boolean enumeratorImprovementsEnabled,
       Optional<String> successMessage,
-      Optional<String> errorMessage) {
+      Optional<String> errorMessage,
+      PublicStorageClient publicStorageClient,
+      boolean imagesInQuestionFeatureEnabled) {
 
     List<Toast> toasts = new ArrayList<>();
     successMessage.ifPresent(
@@ -84,7 +88,9 @@ public final class QuestionsListPageMapper {
               translationLocales,
               isTranslationComplete,
               dateConverter,
-              modals);
+              modals,
+              publicStorageClient,
+              imagesInQuestionFeatureEnabled);
       if (isPendingDeletion(card.displayQuestion(), activeAndDraftQuestions)) {
         archivedRows.add(row);
       } else if (card.displayQuestion().isUniversal()) {
@@ -204,7 +210,9 @@ public final class QuestionsListPageMapper {
       TranslationLocales translationLocales,
       Predicate<QuestionDefinition> isTranslationComplete,
       DateConverter dateConverter,
-      List<ModalModel> modals) {
+      List<ModalModel> modals,
+      PublicStorageClient publicStorageClient,
+      boolean imagesInQuestionFeatureEnabled) {
     Preconditions.checkArgument(
         card.draftQuestion().isPresent() || card.activeQuestion().isPresent(),
         "Did not receive a valid question.");
@@ -257,6 +265,14 @@ public final class QuestionsListPageMapper {
             ? ""
             : latestDefinition.getQuestionHelpText().getDefault();
 
+    String imageUrl = null;
+    if (imagesInQuestionFeatureEnabled
+        && latestDefinition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            latestDefinition.getImageFileKey().get())) {
+      imageUrl = publicStorageClient.getPublicDisplayUrl(latestDefinition.getImageFileKey().get());
+    }
+
     return QuestionRow.builder()
         .universalBadgeText(universalBadgeText)
         .iconFragment(
@@ -271,6 +287,7 @@ public final class QuestionsListPageMapper {
         .seeListTriggerId(referencingModal.map(modal -> modal.getId() + "-button").orElse(null))
         .draftRow(draftRow)
         .activeRow(activeRow)
+        .imageUrl(imageUrl)
         .build();
   }
 

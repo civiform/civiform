@@ -7,6 +7,7 @@ import static j2html.TagCreator.div;
 import static j2html.TagCreator.each;
 import static j2html.TagCreator.h1;
 import static j2html.TagCreator.h2;
+import static j2html.TagCreator.img;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
 import static j2html.TagCreator.span;
@@ -37,6 +38,8 @@ import play.twirl.api.Content;
 import repository.VersionRepository.PublishProgramPreview;
 import services.DeletionStatus;
 import services.TranslationLocales;
+import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramDefinition;
 import services.question.ActiveAndDraftQuestions;
 import services.question.QuestionService;
@@ -71,6 +74,7 @@ public final class QuestionsListView extends BaseHtmlView {
   private final ViewUtils viewUtils;
   private final SettingsManifest settingsManifest;
   private final QuestionService questionService;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   public QuestionsListView(
@@ -78,12 +82,14 @@ public final class QuestionsListView extends BaseHtmlView {
       TranslationLocales translationLocales,
       ViewUtils viewUtils,
       SettingsManifest settingsManifest,
-      QuestionService questionService) {
+      QuestionService questionService,
+      PublicStorageClient publicStorageClient) {
     this.layout = checkNotNull(layoutFactory).getLayout(NavPage.QUESTIONS);
     this.translationLocales = checkNotNull(translationLocales);
     this.viewUtils = checkNotNull(viewUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.questionService = checkNotNull(questionService);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   /**
@@ -288,7 +294,7 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag row =
         div()
             .withClasses("flex")
-            .with(renderInfoCell(latestDefinition))
+            .with(renderInfoCell(latestDefinition, request))
             .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses("flex-grow");
@@ -328,6 +334,7 @@ public final class QuestionsListView extends BaseHtmlView {
             .with(row)
             .with(adminNote)
             // Add data attributes used for sorting.
+            .attr("data-testid", "question-admin-name-" + latestDefinition.getName())
             .withData(QuestionSortOption.ADMIN_NAME.getDataAttribute(), latestDefinition.getName())
             .withData(
                 QuestionSortOption.LAST_MODIFIED.getDataAttribute(),
@@ -381,7 +388,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return Pair.of(row, actionsCellAndModal.getRight());
   }
 
-  private DivTag renderInfoCell(QuestionDefinition definition) {
+  private DivTag renderInfoCell(QuestionDefinition definition, Http.Request request) {
     DivTag questionText =
         div()
             .withClasses("question-bank-info-cell")
@@ -408,9 +415,28 @@ public final class QuestionsListView extends BaseHtmlView {
             div()
                 .with(TextFormatter.formatTextForAdmins(questionDescriptionString))
                 .withClasses("pl-10"));
-    return div()
-        .withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between")
-        .with(div().with(questionText).with(questionDescription));
+    DivTag content = div().with(questionText).with(questionDescription);
+
+    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
+        && definition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
+        && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
+            definition.getImageFileKey().get())) {
+      String imageUrl = publicStorageClient.getPublicDisplayUrl(definition.getImageFileKey().get());
+      content.with(
+          div()
+              .withClasses("pl-10", "pt-2")
+              .attr("data-testid", "question-image-container")
+              .with(
+                  div()
+                      .withClasses("w-32")
+                      .with(
+                          img()
+                              .withSrc(imageUrl)
+                              .withAlt("")
+                              .withClasses("w-full", "aspect-video", "object-cover", "rounded"))));
+    }
+
+    return div().withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between").with(content);
   }
 
   /**

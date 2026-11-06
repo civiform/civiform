@@ -305,7 +305,7 @@
 <div
   th:fragment="questionCard(row)"
   class="cf-question-bank-element question-bank-element cf-admin-question-table-row"
-  th:attr="data-adminname=${row.adminName}, data-lastmodified=${row.lastModified}, data-numprograms=${row.numReferencingPrograms}"
+  th:attr="data-testid=|question-admin-name-${row.adminName}|, data-adminname=${row.adminName}, data-lastmodified=${row.lastModified}, data-numprograms=${row.numReferencingPrograms}"
 >
   <div
     th:if="${row.universalBadgeText != null}"
@@ -333,6 +333,19 @@
         </div>
         <div>
           <div class="pl-10" th:utext="${row.helpTextHtml}"></div>
+        </div>
+        <div
+          th:if="${row.imageUrl != null and !#strings.isEmpty(row.imageUrl)}"
+          class="pl-10 pt-2"
+          data-testid="question-image-container"
+        >
+          <div class="w-32">
+            <img
+              th:src="${row.imageUrl}"
+              alt=""
+              class="w-full aspect-video object-cover rounded"
+            />
+          </div>
         </div>
       </div>
     </div>
