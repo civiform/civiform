@@ -6,6 +6,7 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -19,6 +20,7 @@ import com.microsoft.graph.users.item.sendmail.SendMailPostRequestBody;
 import com.microsoft.graph.users.item.sendmail.SendMailRequestBuilder;
 import com.microsoft.kiota.ApiException;
 import com.typesafe.config.Config;
+import java.io.IOException;
 import java.util.Optional;
 import org.junit.Before;
 import org.junit.Test;
@@ -186,6 +188,66 @@ public class GraphApiEmailClientTest extends ResetPostgres {
 
     UserItemRequestBuilder userItemRequestBuilder = graphClient.users().byUserId(GRAPH_ACCOUNT_ID);
     assertThrows(ApiException.class, () -> userItemRequestBuilder.sendMail());
+  }
+
+  @Test
+  public void send_success_countsOneSuccessAndNoFailure() {
+    double successBefore = successCount();
+    double failBefore = failCount();
+
+    emailClient.send("recipient@example.com", "Subject", "Body");
+
+    assertEquals(successBefore + 1, successCount(), 0);
+    assertEquals(failBefore, failCount(), 0);
+  }
+
+  @Test
+  public void send_apiException_countsFailureOnly() {
+    ApiException exception =
+        new ApiException() {
+          {
+            setResponseStatusCode(503);
+          }
+        };
+    SendMailRequestBuilder sendMail = graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail();
+    doThrow(exception).when(sendMail).post(any());
+    double successBefore = successCount();
+    double failBefore = failCount();
+    double status503Before = statusCount("503");
+
+    emailClient.send("recipient@example.com", "Subject", "Body");
+
+    assertEquals(successBefore, successCount(), 0);
+    assertEquals(failBefore + 1, failCount(), 0);
+    assertEquals(status503Before + 1, statusCount("503"), 0);
+  }
+
+  @Test
+  public void send_undeclaredFailure_countsFailureAndRethrows() {
+    SendMailRequestBuilder sendMail = graphClient.users().byUserId(GRAPH_ACCOUNT_ID).sendMail();
+    doThrow(new RuntimeException(new IOException("connection reset"))).when(sendMail).post(any());
+    double successBefore = successCount();
+    double failBefore = failCount();
+    double unknownBefore = statusCount("unknown");
+
+    assertThrows(
+        RuntimeException.class, () -> emailClient.send("recipient@example.com", "Subject", "Body"));
+
+    assertEquals(successBefore, successCount(), 0);
+    assertEquals(failBefore + 1, failCount(), 0);
+    assertEquals(unknownBefore + 1, statusCount("unknown"), 0);
+  }
+
+  private double successCount() {
+    return statusCount("200");
+  }
+
+  private double statusCount(String status) {
+    return instanceOf(EmailSendMetrics.class).getEmailSendCount().labels(status).get();
+  }
+
+  private double failCount() {
+    return instanceOf(EmailSendMetrics.class).getEmailFailCount().get();
   }
 
   @Test
