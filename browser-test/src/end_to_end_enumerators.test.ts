@@ -2009,7 +2009,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('derives the listed entity name from the name initial question and uses it in $this text, the repeated screen name, and the review summary', async ({
+    test('derives the listed entity name from the name initial question and uses it in $this text, the repeated and nested-repeated screen names, and the review summary', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -2017,8 +2017,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const programName = 'Enumerator derived entity name program'
       const repeatedQuestionName = 'enumerator-ete-pets-age'
+      const nestedRepeatedQuestionName = 'enumerator-ete-jobs-income'
 
-      await test.step('Publish a program whose enumerator has a name initial question and a repeated question that uses $this', async () => {
+      await test.step('Publish a program whose enumerator has a name initial question and a repeated question that uses $this, and a nested enumerator', async () => {
         await loginAsAdmin(page)
         await adminPrograms.addProgram(programName)
         await adminPrograms.gotoEditDraftProgramPage(programName)
@@ -2037,15 +2038,40 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPrograms.gotoEditDraftProgramPage(programName)
         await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
         await adminPrograms.addQuestionFromQuestionBank(repeatedQuestionName)
+
+        // Add a nested enumerator.
+        await page
+          .getByTestId('block-panel-edit')
+          .getByRole('button', {name: 'Add nested list set'})
+          .click()
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 4)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Jobs',
+          questionText: 'List jobs for $this',
+          adminId: 'jobs enumerator',
+          initialQuestion: SAMPLE_QUESTIONS.text,
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: nestedRepeatedQuestionName,
+          description: 'desc',
+          questionText: "Income for $this.parent's job at $this",
+          helpText: 'Monthly income at $this',
+          enumeratorName: 'jobs enumerator',
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 5)
+        await adminPrograms.addQuestionFromQuestionBank(
+          nestedRepeatedQuestionName,
+        )
         await adminPrograms.publishProgram(programName)
         await logout(page)
       })
 
+      const blockForm = page.locator('#cf-block-form')
+
       await test.step('Answer the name initial question for one entity and continue', async () => {
         await applicantQuestions.applyProgram(programName)
-        const blockForm = page.locator('#cf-block-form')
-        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
-        await waitForHtmxReady(page)
+        await clickAddInitialQuestionEntity(page, 'Pets')
         await blockForm.getByRole('textbox', {name: 'First name'}).fill('Sarah')
         await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Brown')
         await applicantQuestions.clickContinue()
@@ -2053,13 +2079,30 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('The repeated question substitutes $this with the derived entity name', async () => {
         await applicantQuestions.validateQuestionIsOnPage('Age for Sarah Brown')
-      })
-
-      await test.step('The review page names the repeated screen and lists the entity by the derived name', async () => {
         await applicantQuestions.answerNumberQuestion('5')
         await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Answer the text initial question for one nested entity and continue', async () => {
+        await clickAddInitialQuestionEntity(page, 'Jobs')
+        await blockForm.getByRole('textbox', {name: 'Jobs #1'}).fill('Mechanic')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('The nested repeated question substitutes $this and $this.parent with the derived entity names', async () => {
+        await applicantQuestions.validateQuestionIsOnPage(
+          "Income for Sarah Brown's job at Mechanic",
+        )
+        await applicantQuestions.answerNumberQuestion('100')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('The review page names the repeated screens and lists the entity by the derived name', async () => {
         await applicantQuestions.expectReviewPage()
         await expect(page.getByText('Sarah Brown - Screen 3')).toBeVisible()
+        await expect(
+          page.getByText('Sarah Brown - Mechanic - Screen 5'),
+        ).toBeVisible()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
           'List the names of your pets.',
           'Sarah Brown',
@@ -2186,7 +2229,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    // TODO(#13412): The legacy applicant flow below drives the enumerator via the
+    // TODO(#14327): The legacy applicant flow below drives the enumerator via the
     // entity-name input and submits the block, which fails path validation now that
     // the enumerator has an initial question. Re-enable this block once the
     // applicant-side flow supports submitting enumerators with an initial question.
@@ -2261,40 +2304,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         })
 
         await logout(page)
-      })
-
-      test('sees repeated entity and nested repeated entity names in the screen name', async ({
-        applicantQuestions,
-        page,
-      }) => {
-        await test.step('Apply to the program', async () => {
-          await applicantQuestions.applyProgram(programName)
-        })
-
-        await test.step('Enter a repeated entity name on the enumerator screen', async () => {
-          await addRepeatedEntity(page, 'Pets', 'Bugs')
-        })
-
-        await test.step('Answer repeated and nested repeated questions', async () => {
-          await applicantQuestions.clickContinue()
-
-          await applicantQuestions.answerNameQuestion('Bugs', 'Bunny')
-          await applicantQuestions.clickContinue()
-
-          await addRepeatedEntity(page, 'Jobs', 'Mechanic')
-          await applicantQuestions.clickContinue()
-
-          await applicantQuestions.answerNumberQuestion('100')
-          await page.getByRole('button', {name: 'Review and submit'}).click()
-        })
-
-        await test.step('Go to review screen and check the nested repeated entity name in the screen name', async () => {
-          // The non-nested "<entity> - Screen 3" case is covered by the unskipped new-flow test;
-          // this skipped test still uniquely covers the nested "<entity> - <nested> - Screen 5".
-          await expect(
-            page.getByText(`Bugs - Mechanic - Screen 5`),
-          ).toBeVisible()
-        })
       })
 
       test('applicant can fill, validate, and edit nested enumerator entries via the review page', async ({
@@ -2553,6 +2562,17 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     const newIndex = (await visibleInputs.count()) + 1
     await page.getByRole('button', {name: `Add ${entityType}`}).click()
     await entityNameInput(page, entityType, newIndex).fill(entityName)
+  }
+
+  // Clicks the "Add {entityType}" button on an enumerator screen whose
+  // enumerator has an initial question, and waits for the new entity row to be
+  // rendered.
+  async function clickAddInitialQuestionEntity(page: Page, entityType: string) {
+    await page
+      .locator('#cf-block-form')
+      .getByRole('button', {name: `Add ${entityType}`})
+      .click()
+    await waitForHtmxReady(page)
   }
 
   // Adds a new repeated set via the program block edit page. This creates
