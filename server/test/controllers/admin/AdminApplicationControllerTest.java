@@ -64,6 +64,7 @@ import services.statuses.StatusDefinitions.Status;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import support.ProgramBuilder;
+import views.admin.programs.ProgramApplicationPageView;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationView;
 
@@ -847,6 +848,7 @@ public class AdminApplicationControllerTest extends ResetPostgres {
         instanceOf(JsonExporterService.class),
         instanceOf(PdfExporterService.class),
         instanceOf(ProgramApplicationView.class),
+        instanceOf(ProgramApplicationPageView.class),
         instanceOf(ProgramAdminApplicationService.class),
         profileUtilsNoOpTester,
         instanceOf(MessagesApi.class),
