@@ -668,7 +668,6 @@ hr.code-separator {
 
   .cf-demo-banner__info {
     .usa-alert__text {
-      font-weight: font-weight('bold');
       white-space: nowrap;
     }
 
@@ -688,6 +687,15 @@ hr.code-separator {
       flex-wrap: wrap;
       align-items: center;
       justify-content: flex-end;
+    }
+
+    div.usa-button {
+      cursor: default;
+
+      &:hover,
+      &:active {
+        background-color: color('primary');
+      }
     }
 
     .usa-button-group--segmented {

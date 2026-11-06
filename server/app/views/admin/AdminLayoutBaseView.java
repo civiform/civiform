@@ -5,15 +5,18 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.collect.ImmutableList;
+import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
 import play.mvc.Http;
 import services.BundledAssetsFinder;
+import services.DeploymentType;
 import views.BaseView;
 import views.BaseViewModel;
 import views.LayoutTemplate;
 import views.admin.shared.AdminCommonHeader;
 import views.admin.shared.Footer;
+import views.shared.DemoBanner;
 import views.shared.LayoutDeps;
 import views.shared.ScriptElementSettings;
 
@@ -26,12 +29,16 @@ import views.shared.ScriptElementSettings;
 public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends BaseView<TModel> {
   protected final BundledAssetsFinder bundledAssetsFinder;
   protected final ProfileUtils profileUtils;
+  protected final DeploymentType deploymentType;
+  protected final Clock clock;
 
   public AdminLayoutBaseView(LayoutDeps layoutDeps) {
     checkNotNull(layoutDeps);
     super(layoutDeps.baseViewDeps());
     this.bundledAssetsFinder = layoutDeps.bundledAssetsFinder();
     this.profileUtils = layoutDeps.profileUtils();
+    this.deploymentType = layoutDeps.deploymentType();
+    this.clock = layoutDeps.clock();
   }
 
   /** Override to set the active page for top header navigation. */
@@ -39,16 +46,29 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
     return AdminLayout.NavPage.NULL_PAGE;
   }
 
+  /**
+   * Returns the profile for the current request. Subclasses that allow unauthenticated access
+   * (e.g., dev tools pages) may override this to return an optional profile.
+   */
+  protected Optional<CiviFormProfile> getProfile(Http.Request request) {
+    return Optional.of(profileUtils.currentUserProfile(request));
+  }
+
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
-    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+    Optional<CiviFormProfile> profile = getProfile(request);
+
+    context.setVariable(
+        "demoBanner",
+        DemoBanner.create(
+            settingsManifest, request, profile, deploymentType.isDevOrStaging(), clock));
 
     context.setVariable(
         "adminCommonHeader",
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
-            .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
+            .isOnlyProgramAdmin(profile.map(CiviFormProfile::isOnlyProgramAdmin).orElse(false))
             .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
             .build());
 
