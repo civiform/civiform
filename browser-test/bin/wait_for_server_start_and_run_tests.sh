@@ -47,4 +47,20 @@ done
 
 echo "Detected server start"
 
-npm test -- "$@"
+# Balance shards by expected test duration instead of by test count. Replaces
+# --shard=N/M with a --test-list file for that shard. If the list can't be
+# generated, fall back to Playwright's own sharding rather than fail the run.
+args=()
+for arg in "$@"; do
+  if [[ "${arg}" =~ ^--shard=([0-9]+/[0-9]+)$ && -f shard-durations.json ]]; then
+    shard_list_file="$(mktemp)"
+    if node bin/shard_tests.mjs "${BASH_REMATCH[1]}" "${shard_list_file}"; then
+      args+=("--test-list=${shard_list_file}")
+      continue
+    fi
+    echo "Could not balance shard ${BASH_REMATCH[1]} by duration, using Playwright's default sharding"
+  fi
+  args+=("${arg}")
+done
+
+npm test -- ${args[@]+"${args[@]}"}
