@@ -1793,6 +1793,11 @@ public final class ApplicantService {
 
     // Write each field value using the setter for its scalar type.
     for (Update update : initialQuestionUpdates) {
+      if (isEntityNameMarker(update.path(), enumeratorPath)) {
+        // The row's marker only says the entity exists, so it's counted in entityIndices below
+        // but not stored. The entity name is derived from the answer.
+        continue;
+      }
       ScalarType type = scalarTypesByFieldName.get(update.path().keyName());
       if (type == null) {
         // The update was classified as an initial-question field, so its final segment should match
@@ -1829,6 +1834,21 @@ public final class ApplicantService {
           applicantData,
           updateMetadata);
     }
+  }
+
+  /**
+   * Returns true if the update path is the blank entity name marker that each initial question row
+   * submits (e.g. {@code household_members[0].entity_name}). It makes the server create the entity
+   * even when the row's answer submits no value, such as an unselected radio button or an empty
+   * date.
+   */
+  private boolean isEntityNameMarker(Path updatePath, Path enumeratorPath) {
+    int enumeratorDepth = enumeratorPath.segments().size();
+    return updatePath.segments().size() == enumeratorDepth + 1
+        && updatePath.equals(
+            enumeratorPath
+                .atIndex(getEntityIndexFromPath(updatePath, enumeratorDepth))
+                .join(Scalar.ENTITY_NAME));
   }
 
   /**

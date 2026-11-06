@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.stream.Stream;
 import services.Path;
+import services.applicant.question.Scalar;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 
@@ -116,6 +117,14 @@ public abstract class RepeatedEntity {
     return parentPath
         .join(enumeratorQuestionDefinition().getQuestionPathSegment())
         .atIndex(index());
+  }
+
+  /**
+   * The path of this repeated entity's name, e.g. {@code
+   * applicant.household_members[0].entity_name}.
+   */
+  public Path entityNamePath() {
+    return contextualizedPath().join(Scalar.ENTITY_NAME);
   }
 
   /** The depth is how deeply nested this repeated entity is. */
