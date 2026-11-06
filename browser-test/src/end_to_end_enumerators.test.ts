@@ -2009,7 +2009,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('derives listed entity names from initial questions and uses them in $this text, the repeated and nested repeated screen names, and the review summary', async ({
+    test('derives the listed entity name from the name initial question and uses it in $this text, the repeated and nested-repeated screen names, and the review summary', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -2071,7 +2071,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Answer the name initial question for one entity and continue', async () => {
         await applicantQuestions.applyProgram(programName)
-        await addInitialQuestionEntity(page, 'Pets')
+        await clickAddInitialQuestionEntity(page, 'Pets')
         await blockForm.getByRole('textbox', {name: 'First name'}).fill('Sarah')
         await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Brown')
         await applicantQuestions.clickContinue()
@@ -2084,7 +2084,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Answer the text initial question for one nested entity and continue', async () => {
-        await addInitialQuestionEntity(page, 'Jobs')
+        await clickAddInitialQuestionEntity(page, 'Jobs')
         await blockForm.getByRole('textbox', {name: 'Jobs #1'}).fill('Mechanic')
         await applicantQuestions.clickContinue()
       })
@@ -2566,8 +2566,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
   // Clicks the "Add {entityType}" button on an enumerator screen whose
   // enumerator has an initial question, and waits for the new entity row to be
-  // rendered. The caller fills the row's initial question inputs.
-  async function addInitialQuestionEntity(page: Page, entityType: string) {
+  // rendered.
+  async function clickAddInitialQuestionEntity(page: Page, entityType: string) {
     await page
       .locator('#cf-block-form')
       .getByRole('button', {name: `Add ${entityType}`})
