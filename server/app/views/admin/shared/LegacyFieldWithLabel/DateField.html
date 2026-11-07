@@ -1,0 +1,39 @@
+<!--/*
+  Labeled date input field, legacy FieldWithLabel-parity markup for migrated admin pages.
+
+  Mirrors TextField.html, but emits the <input type="date"> that
+  FieldWithLabel.date().getDateTag() produced. The legacy callers never
+  marked these fields required or disabled, so the required indicator is
+  always rendered hidden.
+
+  Parameters:
+    wrapperClasses - the wrapper's full class attribute; 'mb-2' is the
+                     default, callers that chained .withClasses(...) on the
+                     tag replaced it.
+
+  Field ids: callers pass a fixed id, or generate a random 8-character
+  alphabetic id so labels stay associated with inputs.
+*/-->
+<div
+  th:fragment="dateField(id, name, label, value, wrapperClasses)"
+  th:class="${wrapperClasses}"
+>
+  <label
+    th:for="${id}"
+    class="pointer-events-none text-gray-600 text-base px-1 py-2"
+    >[[${label}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <input
+      type="date"
+      th:value="${value}"
+      maxlength="10000"
+      th:id="${id}"
+      th:name="${name}"
+      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+    />
+    <div th:id="|${id}-errors|" class="text-red-600 text-xs p-1 hidden"></div>
+  </div>
+</div>

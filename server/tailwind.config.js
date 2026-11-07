@@ -41,6 +41,7 @@ module.exports = {
   // up with the wrong css getting applied sometimes.
   safelist: [
     '-mt-4',
+    'bg-opacity-75',
     'border-4',
     'col-span-5',
     'col-start-1',
@@ -49,11 +50,14 @@ module.exports = {
     'grid-rows-4',
     'grid-rows-6',
     'pt-0',
+    'px-6',
     'row-span-2',
     'row-start-1',
     'row-start-2',
     'row-start-3',
     'row-start-5',
+    'sm:text-5xl',
+    'space-x-3',
     'usa-alert-remove-top-margin',
   ],
   theme: {
