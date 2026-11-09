@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -928,29 +927,16 @@ public final class ApplicantService {
    */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
-    String applicationViewLink =
-        controllers.admin.routes.AdminApplicationController.show(
-                programId,
-                applicationId,
-                /* search= */ Optional.empty(),
-                /* fromDate= */ Optional.empty(),
-                /* toDate= */ Optional.empty(),
-                /* page= */ Optional.empty(),
-                /* selectedApplicationStatus= */ Optional.empty())
-            .url();
-
     String viewLink =
         baseUrl
-            + routes.AdminApplicationController.index(
+            + controllers.admin.routes.AdminApplicationController.show(
                     programId,
+                    applicationId,
                     /* search= */ Optional.empty(),
-                    /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
-                    /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty(),
-                    Optional.of(applicationViewLink),
-                    /* showDownloadModal= */ Optional.empty(),
-                    /* message= */ Optional.empty())
+                    /* toDate= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* selectedApplicationStatus= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);
