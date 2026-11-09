@@ -703,6 +703,7 @@ main {
   .usa-alert .usa-alert__heading,
   .usa-alert .usa-alert__text,
   .usa-alert .grid-row,
+  .usa-alert .cf-start-application-actions,
   .usa-alert p,
   .usa-alert .usa-list {
     margin-inline-start: 2.5rem;
@@ -1150,6 +1151,35 @@ main#main-content {
         width: 1.25rem;
         height: 1.25rem;
       }
+    }
+  }
+}
+
+// Program overview start application card and responsive actions
+.cf-start-application-card {
+  background-color: #f0f9ff;
+  @include u-border('1px', 'base-lighter');
+  @include u-radius('lg');
+  @include u-padding(3);
+}
+
+.cf-start-application-actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: units(2);
+
+  .usa-button {
+    margin: 0;
+    width: 100%;
+  }
+
+  @include at-media('tablet') {
+    flex-direction: row;
+    align-items: center;
+
+    .usa-button {
+      width: auto;
     }
   }
 }

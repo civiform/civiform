@@ -1269,7 +1269,7 @@ test.describe('for login only program, guest cannot see file upload question', (
       await loginAsTestUser(page)
       await page.goto(`/programs/${programName}`)
       await page
-        .getByRole('link', {name: 'Start an application'})
+        .getByRole('link', {name: 'Start application'})
         .first()
         .click()
       // Logged in user answers the file upload question

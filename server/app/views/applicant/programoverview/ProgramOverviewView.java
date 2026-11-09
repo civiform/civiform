@@ -9,6 +9,7 @@ import controllers.applicant.ApplicantRoutes;
 import java.time.Clock;
 import java.util.Locale;
 import java.util.Optional;
+import models.LifecycleStage;
 import modules.ThymeleafModule;
 import org.thymeleaf.TemplateEngine;
 import org.unbescape.html.HtmlEscape;
@@ -86,11 +87,19 @@ public class ProgramOverviewView extends ApplicantBaseView {
         getStepsMap(programDefinition, preferredLocale, messages);
     context.setVariable("applicationSteps", applicationStepsMap.entrySet());
 
-    // The program data will be empty if the applicant has started or submitted an application
-    // for the program.  We only want to show the eligibility alert for unstarted programs.
+    // We only want to show the eligibility alert for unstarted programs.
     boolean showEligibilityAlert =
         optionalProgramData.isPresent()
             && ProgramCardsSectionParamsFactory.shouldShowEligibilityTag(optionalProgramData.get());
+
+    boolean hasStartedOrSubmittedApplication =
+        optionalProgramData
+            .flatMap(ApplicantService.ApplicantProgramData::latestApplicationLifecycleStage)
+            .map(
+                stage ->
+                    stage.equals(LifecycleStage.DRAFT) || stage.equals(LifecycleStage.ACTIVE))
+            .orElse(false);
+    context.setVariable("hasStartedOrSubmittedApplication", hasStartedOrSubmittedApplication);
 
     if (showEligibilityAlert) {
       boolean isTrustedIntermediary = profile.isTrustedIntermediary();
