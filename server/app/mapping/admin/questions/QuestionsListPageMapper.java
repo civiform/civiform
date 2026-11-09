@@ -19,6 +19,7 @@ import models.DisplayMode;
 import repository.VersionRepository.PublishProgramPreview;
 import services.DateConverter;
 import services.DeletionStatus;
+import services.LocalizedStrings;
 import services.RandomStringUtils;
 import services.TranslationLocales;
 import services.cloud.PublicFileNameFormatter;
@@ -266,11 +267,18 @@ public final class QuestionsListPageMapper {
             : latestDefinition.getQuestionHelpText().getDefault();
 
     String imageUrl = null;
+    String imageAltText = null;
     if (imagesInQuestionFeatureEnabled
         && latestDefinition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
         && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
             latestDefinition.getImageFileKey().get())) {
       imageUrl = publicStorageClient.getPublicDisplayUrl(latestDefinition.getImageFileKey().get());
+      imageAltText =
+          latestDefinition
+              .getLocalizedImageDescription()
+              .filter(d -> !d.isEmpty())
+              .map(LocalizedStrings::getDefault)
+              .orElse("");
     }
 
     return QuestionRow.builder()
@@ -288,6 +296,7 @@ public final class QuestionsListPageMapper {
         .draftRow(draftRow)
         .activeRow(activeRow)
         .imageUrl(imageUrl)
+        .imageAltText(imageAltText)
         .build();
   }
 

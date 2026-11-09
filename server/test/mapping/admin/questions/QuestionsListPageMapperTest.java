@@ -561,11 +561,13 @@ public final class QuestionsListPageMapperTest {
   }
 
   @Test
-  public void map_withQuestionImage_featureEnabled_populatesImageUrl() {
+  public void map_withQuestionImage_featureEnabled_populatesImageUrlAndAltText() {
     FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
     QuestionDefinition question = mockQuestion("q1", 1L);
     when(question.getImageFileKey())
         .thenReturn(Optional.of("question-image/question-1/test-image.png"));
+    when(question.getLocalizedImageDescription())
+        .thenReturn(Optional.of(LocalizedStrings.withDefaultValue("Sample alt text")));
     addQuestion("q1", Optional.of(question), Optional.empty());
 
     QuestionsListPageViewModel result =
@@ -573,6 +575,7 @@ public final class QuestionsListPageMapperTest {
 
     QuestionRow row = result.getOtherRows().get(0);
     assertThat(row.getImageUrl()).isEqualTo("fakeUrl.com/question-image/question-1/test-image.png");
+    assertThat(row.getImageAltText()).isEqualTo("Sample alt text");
   }
 
   @Test
@@ -588,6 +591,7 @@ public final class QuestionsListPageMapperTest {
 
     QuestionRow row = result.getOtherRows().get(0);
     assertThat(row.getImageUrl()).isNull();
+    assertThat(row.getImageAltText()).isNull();
   }
 
   @Test
@@ -602,5 +606,6 @@ public final class QuestionsListPageMapperTest {
 
     QuestionRow row = result.getOtherRows().get(0);
     assertThat(row.getImageUrl()).isNull();
+    assertThat(row.getImageAltText()).isNull();
   }
 }

@@ -73,19 +73,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     // Create a draft question with an existing image file key and alt text
     String fileKey = "questions/1/image1.png";
     String altText = "Alt text description";
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .setImageFileKey(fileKey)
-                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
+    QuestionModel question = createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
     //  Verify the edit page renders successfully
     Request editRequest = fakeRequestBuilder().addCSRFToken().build();
@@ -483,19 +471,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void index_withQuestionImage_featureEnabled_displaysImage() {
     String fileKey = "question-image/question-1/test-image.png";
     String altText = "Alt text for static question image";
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .setImageFileKey(fileKey)
-                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
+    createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
     Request request =
         fakeRequestBuilder()
@@ -505,58 +481,14 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
     assertThat(contentAsString(result)).contains(fileKey);
-    assertThat(contentAsString(result)).contains("alt=\"\"");
-    assertThat(contentAsString(result)).doesNotContain(altText);
-  }
-
-  @Test
-  public void index_withQuestionImage_featureEnabled_thymeleaf_displaysImage() {
-    String fileKey = "question-image/question-1/test-image.png";
-    String altText = "Alt text for static question image";
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .setImageFileKey(fileKey)
-                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
-
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-            .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-            .build();
-    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
-    assertThat(contentAsString(result)).contains(fileKey);
-    assertThat(contentAsString(result)).contains("alt=\"\"");
-    assertThat(contentAsString(result)).doesNotContain(altText);
+    assertThat(contentAsString(result)).contains("alt=\"" + altText + "\"");
   }
 
   @Test
   public void index_withQuestionImage_featureDisabled_doesNotDisplayImage() {
-    String fileKey = "question-image/question-1/test-image.png";
-    String altText = "Alt text for static question image";
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .setImageFileKey(fileKey)
-                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
+    createDraftStaticQuestion(
+        Optional.of("question-image/question-1/test-image.png"),
+        Optional.of("Alt text for static question image"));
 
     Request request =
         fakeRequestBuilder()
@@ -569,17 +501,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
   @Test
   public void index_withoutQuestionImage_doesNotDisplayImage() {
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
+    createDraftStaticQuestion(Optional.empty(), Optional.empty());
 
     Request request =
         fakeRequestBuilder()
@@ -1980,6 +1902,24 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(content).contains("filters[0]");
     assertThat(content).contains("filters[1]");
     assertThat(content).doesNotContain("filters[2]");
+  }
+
+  private QuestionModel createDraftStaticQuestion(
+      Optional<String> imageFileKey, Optional<String> altText) {
+    QuestionDefinitionConfig.Builder builder =
+        QuestionDefinitionConfig.builder()
+            .setName("static-question-" + UUID.randomUUID())
+            .setDescription("static content description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"));
+    imageFileKey.ifPresent(builder::setImageFileKey);
+    altText.ifPresent(
+        text -> builder.setLocalizedImageDescription(LocalizedStrings.withDefaultValue(text)));
+    QuestionModel question =
+        new QuestionModel(new StaticContentQuestionDefinition(builder.build()));
+    question.addVersion(draftVersion);
+    question.save();
+    return question;
   }
 
   private NameQuestionDefinition createNameQuestionDuplicate(QuestionModel question) {

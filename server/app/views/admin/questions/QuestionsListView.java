@@ -37,6 +37,7 @@ import play.mvc.Http;
 import play.twirl.api.Content;
 import repository.VersionRepository.PublishProgramPreview;
 import services.DeletionStatus;
+import services.LocalizedStrings;
 import services.TranslationLocales;
 import services.cloud.PublicFileNameFormatter;
 import services.cloud.PublicStorageClient;
@@ -422,18 +423,21 @@ public final class QuestionsListView extends BaseHtmlView {
         && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
             definition.getImageFileKey().get())) {
       String imageUrl = publicStorageClient.getPublicDisplayUrl(definition.getImageFileKey().get());
+      String imageAltText =
+          definition
+              .getLocalizedImageDescription()
+              .filter(d -> !d.isEmpty())
+              .map(LocalizedStrings::getDefault)
+              .orElse("");
       content.with(
           div()
               .withClasses("pl-10", "pt-2")
               .attr("data-testid", "question-image-container")
               .with(
-                  div()
-                      .withClasses("w-32")
-                      .with(
-                          img()
-                              .withSrc(imageUrl)
-                              .withAlt("")
-                              .withClasses("w-full", "aspect-video", "object-cover", "rounded"))));
+                  img()
+                      .withSrc(imageUrl)
+                      .withAlt(imageAltText)
+                      .withClasses("w-32", "aspect-video", "object-cover", "rounded")));
     }
 
     return div().withClasses("py-7", "w-1/4", "flex", "flex-col", "justify-between").with(content);

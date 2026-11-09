@@ -82,12 +82,17 @@ test.describe('Admin can manage question image', () => {
         'question-image-container',
       )
       await expect(imageContainer).toBeVisible()
-      const img = imageContainer.getByRole('presentation')
+      const img = imageContainer.getByRole('img', {name: altText})
       await expect(img).toBeVisible()
-      await expect(img).toHaveAttribute('alt', '')
+      await expect(img).toHaveAttribute('alt', altText)
       await expect(img).toHaveAttribute(
         'src',
         /.*program-summary-image-wide\.png.*/,
+      )
+      await validateScreenshot(questionCard, 'question-card-with-image')
+      await validateAccessibility(
+        page,
+        '[data-testid="question-image-container"]',
       )
     })
 
@@ -121,13 +126,6 @@ test.describe('Admin can manage question image', () => {
       )
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-
-      const questionCard = page.getByTestId(
-        `question-admin-name-${questionName}`,
-      )
-      await expect(
-        questionCard.getByTestId('question-image-container'),
-      ).toBeVisible()
     })
 
     await test.step('Re-visit edit page and verify image exists', async () => {
@@ -397,24 +395,6 @@ test.describe('Admin can manage question image', () => {
         page.getByRole('main'),
         'question-preview-with-image',
         {fullPage: false},
-      )
-    })
-
-    await test.step('Save question and validate question card screenshot', async () => {
-      await adminQuestionImage.submitUpdate()
-      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
-      const questionCard = page.getByTestId(
-        `question-admin-name-${questionName}`,
-      )
-      await expect(
-        questionCard
-          .getByTestId('question-image-container')
-          .getByRole('presentation'),
-      ).toBeVisible()
-      await validateScreenshot(questionCard, 'question-card-with-image')
-      await validateAccessibility(
-        page,
-        '[data-testid="question-image-container"]',
       )
     })
   })
