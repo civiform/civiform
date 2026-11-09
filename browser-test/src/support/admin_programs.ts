@@ -1715,11 +1715,9 @@ export class AdminPrograms {
       this.page.locator(this.selectApplicationBlock(blockName)),
     ).toContainText(questionName)
 
-    expect(
-      this.page
-        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
-        .getAttribute('href'),
-    ).not.toBeNull()
+    await expect(
+      this.page.locator(this.selectWithinApplicationBlock(blockName, 'a')),
+    ).toHaveAttribute('href')
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {

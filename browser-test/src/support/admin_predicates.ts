@@ -206,7 +206,7 @@ export class AdminPredicates {
       '.cf-predicate-condition-separator span',
     )
 
-    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
+    await expect(conditionLogicSeparatorsText).not.toHaveCount(0)
 
     for (const separatorText of await conditionLogicSeparatorsText.all()) {
       await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
@@ -274,7 +274,7 @@ export class AdminPredicates {
       `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
     )
 
-    expect(subconditionLogicSeparatorsText.count()).not.toEqual(0)
+    await expect(subconditionLogicSeparatorsText).not.toHaveCount(0)
 
     for (const separatorText of await subconditionLogicSeparatorsText.all()) {
       await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
