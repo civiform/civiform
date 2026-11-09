@@ -169,7 +169,8 @@ public final class Block {
 
   /**
    * Returns the initial {@link ApplicantQuestion} for an enumerator block, or {@link
-   * Optional#empty()} if the enumerator has no initial question set.
+   * Optional#empty()} if the enumerator has no initial question set or the initial question isn't
+   * on this block.
    */
   public Optional<ApplicantQuestion> getInitialQuestion() {
     Optional<Long> optionalInitialQuestionId = getEnumeratorInitialQuestionId();
@@ -180,18 +181,13 @@ public final class Block {
     // Search getAllQuestions() rather than getVisibleQuestions() because the initial question is
     // filtered out of getVisibleQuestions() to prevent block-level checks from reading its
     // non-contextualized (wrong) path.
-    Optional<ApplicantQuestion> found =
-        getAllQuestions().stream()
-            .filter(question -> question.getQuestionDefinition().getId() == initialQuestionId)
-            .findFirst();
-    if (found.isEmpty()) {
-      throw new IllegalStateException(
-          String.format(
-              "Enumerator question has enumeratorInitialQuestionId=%d, but no matching question was"
-                  + " found on the block.",
-              initialQuestionId));
-    }
-    return found;
+    //
+    // The initial question isn't on the block when the list set was added to the program with the
+    // enumerator improvements flag off. Treat that as no initial question, so the block uses the
+    // legacy entity-name input.
+    return getAllQuestions().stream()
+        .filter(question -> question.getQuestionDefinition().getId() == initialQuestionId)
+        .findFirst();
   }
 
   /**
