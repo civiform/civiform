@@ -46,6 +46,7 @@ test.describe('Admin can manage question image', () => {
   })
 
   test('upload-then-save preserves the image', async ({
+    page,
     adminQuestions,
     adminQuestionImage,
   }) => {
@@ -73,6 +74,26 @@ test.describe('Admin can manage question image', () => {
     await test.step('Save question edits', async () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
+      )
+      const imageContainer = questionCard.getByTestId(
+        'question-image-container',
+      )
+      await expect(imageContainer).toBeVisible()
+      const img = imageContainer.getByRole('img', {name: altText})
+      await expect(img).toBeVisible()
+      await expect(img).toHaveAttribute('alt', altText)
+      await expect(img).toHaveAttribute(
+        'src',
+        /.*program-summary-image-wide\.png.*/,
+      )
+      await validateScreenshot(questionCard, 'question-card-with-image')
+      await validateAccessibility(
+        page,
+        '[data-testid="question-image-container"]',
+      )
     })
 
     await test.step('Re-visit edit page and verify image and alt text are preserved', async () => {
@@ -89,6 +110,7 @@ test.describe('Admin can manage question image', () => {
   })
 
   test('delete clears the alt text and resets the dropzone', async ({
+    page,
     adminQuestions,
     adminQuestionImage,
   }) => {
@@ -126,6 +148,13 @@ test.describe('Admin can manage question image', () => {
     await test.step('Save update and verify deletion persists across reloads', async () => {
       await adminQuestionImage.submitUpdate()
       await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+
+      const questionCard = page.getByTestId(
+        `question-admin-name-${questionName}`,
+      )
+      await expect(
+        questionCard.getByTestId('question-image-container'),
+      ).toHaveCount(0)
 
       await adminQuestions.gotoQuestionEditPage(questionName)
       await adminQuestionImage.expectDescription('')
