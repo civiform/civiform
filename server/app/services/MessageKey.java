@@ -46,7 +46,6 @@ public enum MessageKey {
   ALERT_LIKELY_INELIGIBLE("alert.likelyIneligible"), // North Star only
   ALERT_CLIENT_LIKELY_ELIGIBLE("alert.clientLikelyEligible"), // North Star only
   ALERT_CLIENT_LIKELY_INELIGIBLE("alert.clientLikelyIneligible"), // North Star only
-  ALERT_CREATE_ACCOUNT_DESCRIPTION_OVERVIEW("alert.createAccountDescriptionOverview"),
   ALERT_NO_PROGRAMS_AVAILABLE("alert.noProgramsAvailable"),
   ALERT_REPEATED_SET_ADD_QUESTION_DISABLED("alert.repeatedSet.addQuestionDisabled"),
   ALERT_REPEATED_SET_BACKFILL_SAVE_WARNING("alert.repeatedSet.backfillSaveWarning"),
@@ -105,10 +104,7 @@ public enum MessageKey {
   BUTTON_REVIEW("button.review"),
   BUTTON_SAVE("button.save"),
   BUTTON_SEARCH("button.search"),
-  BUTTON_CONTINUE_APPLICATION("button.continueApplication"),
-  BUTTON_LOGIN_TO_START_APPLICATION("button.loginToStartApplication"),
   BUTTON_START_APP("button.startApp"),
-  BUTTON_START_APPLICATION("button.startApplication"),
   BUTTON_START_APP_LOGIN_ONLY("button.startAppForLoginOnlyProgram"),
   BUTTON_VIEW_APPLICATIONS("button.viewApplications"),
   BUTTON_VIEW_AND_ADD_CLIENTS("button.viewAndAddClients"),
@@ -124,8 +120,6 @@ public enum MessageKey {
   CONTENT_NUMBER_OF_APP_SUBMITTED("content.numberOfAppSubmitted"),
   CONTENT_ONE_APP_SUBMITTED("content.oneAppSubmitted"),
   CONTENT_OPTIONAL("content.optional"),
-  CONTENT_START_APPLICATION_PROMPT("content.startApplicationPrompt"),
-  HEADING_START_APPLICATION("heading.startApplication"),
   ERROR_EMAIL_IN_USE_CLIENT_CREATE("label.errorEmailInUseForClientCreate"),
   ERROR_EMAIL_IN_USE_CLIENT_EDIT("label.errorEmailInUseForClientEdit"),
   ERROR_FIRST_NAME("label.errorFirstName"),
