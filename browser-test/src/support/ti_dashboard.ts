@@ -225,10 +225,9 @@ export class TIDashboard {
   }
 
   async expectSuccessToast(successToastMessage: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successToastMessage)
+    await expect(
+      this.page.locator('#toast-container .bg-cf-toast-success'),
+    ).toContainText(successToastMessage)
   }
 
   async expectSuccessAlertOnUpdate() {
