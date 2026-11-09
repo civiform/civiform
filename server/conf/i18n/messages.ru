@@ -373,6 +373,18 @@ title.programSummary=Сводные данные о заявке на участ
 title.programOverview={0} – Обзор программы
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Как подать заявку
+# Heading for the section of the program overview page where the applicant can start the application.
+heading.startApplication=Start application
+# Prompt text in the start application card encouraging guests to log in to save their progress.
+content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+# Button text to start an application when the applicant has not started one yet.
+button.startApplication=Start application
+# Button text to continue an application when the applicant has already started or submitted one.
+button.continueApplication=Continue application
+# Button text in the start application section and create account alert that takes users to log in before starting an application.
+button.loginToStartApplication=Log in to start application
+# Description text in the create account alert on the program overview page explaining how an account helps the user.
+alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Как подать заявку на участие в программе "{0}"
 # The text on the button that takes users to the account creation form.
