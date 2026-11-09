@@ -271,25 +271,25 @@ export class TIDashboard {
     await expect(tiBanner).toBeHidden()
   }
 
-  expectRedDateFieldOutline(
+  async expectRedDateFieldOutline(
     missingMonth: boolean,
     missingDay: boolean,
     missingYear: boolean,
   ) {
     if (missingMonth) {
-      expect(
-        this.page.locator('#date-of-birth-month .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-month')).toHaveClass(
+        /usa-input--error/,
+      )
     }
     if (missingDay) {
-      expect(
-        this.page.locator('#date-of-birth-day .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-day')).toHaveClass(
+        /usa-input--error/,
+      )
     }
     if (missingYear) {
-      expect(
-        this.page.locator('#date-of-birth-year .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-year')).toHaveClass(
+        /usa-input--error/,
+      )
     }
   }
 
