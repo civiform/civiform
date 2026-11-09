@@ -19,7 +19,8 @@ import support.RoutesFile;
  *
  * <p>This only checks the nocsrf route modifier. Play's CSRF filter can also be relaxed in
  * application.conf under play.filters.csrf (routeModifiers, header.bypassHeaders, and the method
- * and contentType lists); none is set today.
+ * and contentType lists); none is set today. It also only reads conf/routes, not routes files
+ * pulled in with a sub-router include ({@code ->}); there are none today.
  */
 public class NoCsrfRoutesTest {
 
@@ -90,7 +91,10 @@ public class NoCsrfRoutesTest {
                 "GET /comma controllers.A.g()",
                 "+ deferBodyParsing",
                 "POST /other-modifier controllers.A.h()",
-                // A modifier on a sub-router include applies to every route in it.
+                // A '#' ends the modifier names and starts a comment.
+                "+nocsrf# why",
+                "POST /hash-comment controllers.A.l()",
+                // Play ignores modifiers on a sub-router include, and it is not a route.
                 "+nocsrf",
                 "->  /api  api.Routes",
                 // Play accepts indented lines, tabs between the columns and Windows line endings.
@@ -107,13 +111,13 @@ public class NoCsrfRoutesTest {
             "POST /with-space controllers.A.c",
             "POST /stacked controllers.A.d",
             "PUT /comment-between controllers.A.e",
-            "-> /api api.Routes",
+            "POST /hash-comment controllers.A.l",
             "POST /indented controllers.A.i",
             "GET /tabbed controllers.A.j",
             "GET /crlf controllers.A.k");
   }
 
-  /** Returns each route or sub-router include that has the nocsrf modifier. */
+  /** Returns each route that has the nocsrf modifier. */
   private static ImmutableSet<String> findNoCsrfRoutes(List<String> lines) {
     ImmutableSet.Builder<String> found = ImmutableSet.builder();
 

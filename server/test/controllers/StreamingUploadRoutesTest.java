@@ -66,7 +66,7 @@ public class StreamingUploadRoutesTest {
 
     for (int i = 0; i < lines.size(); i++) {
       Optional<RoutesFile.Route> route = RoutesFile.parseRoute(lines.get(i));
-      if (route.isEmpty() || route.get().isInclude()) {
+      if (route.isEmpty()) {
         continue;
       }
       // The handler is "package.Class.method".
