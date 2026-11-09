@@ -330,8 +330,9 @@ export class AdminPredicates {
   }
 
   async expectPredicateErrorToast(type: string) {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain(`One or more ${type} is missing`)
+    await expect(this.page.locator('#toast-container')).toContainText(
+      `One or more ${type} is missing`,
+    )
   }
 
   // Gets the displayed question text for a given question name if it's present in the subcondition dropdown options.
