@@ -20,7 +20,8 @@ export default defineConfig({
   // sharding). This does NOT run tests concurrently within a shard: workers stays at 1 because
   // the tests share database state that is wiped between tests.
   // In CI, bin/wait_for_server_start_and_run_tests.sh replaces --shard with a duration-balanced
-  // --test-list (see bin/shard_tests.mjs); the count-based split above is the fallback.
+  // --test-list (see bin/shard_tests.mjs). The count-based split above is
+  // used only when shard-durations.json doesn't exist.
   fullyParallel: true,
   workers: 1,
   retries: process.env.CI === 'true' ? 1 : 0,
