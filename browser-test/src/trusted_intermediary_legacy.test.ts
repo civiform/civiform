@@ -803,7 +803,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
 
     await tiDashboard.expectDateSearchError()
-    tiDashboard.expectRedDateFieldOutline(true, true, false)
+    await tiDashboard.expectRedDateFieldOutline(true, true, false)
     await tiDashboard.expectDashboardNotContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
     await expect(page.getByTestId('displaying-clients')).toBeHidden()
