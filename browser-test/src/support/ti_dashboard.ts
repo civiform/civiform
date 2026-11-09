@@ -277,18 +277,18 @@ export class TIDashboard {
     missingYear: boolean,
   ) {
     if (missingMonth) {
-      await expect(this.page.locator('#date-of-birth-month')).toHaveClass(
-        /usa-input--error/,
+      await expect(this.page.locator('#date-of-birth-month')).toContainClass(
+        'usa-input--error',
       )
     }
     if (missingDay) {
-      await expect(this.page.locator('#date-of-birth-day')).toHaveClass(
-        /usa-input--error/,
+      await expect(this.page.locator('#date-of-birth-day')).toContainClass(
+        'usa-input--error',
       )
     }
     if (missingYear) {
-      await expect(this.page.locator('#date-of-birth-year')).toHaveClass(
-        /usa-input--error/,
+      await expect(this.page.locator('#date-of-birth-year')).toContainClass(
+        'usa-input--error',
       )
     }
   }
