@@ -1010,6 +1010,28 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly("Sarah Brown");
   }
 
+  @Test
+  public void stageAndUpdateIfValid_enumeratorWithInitialQuestionNotOnBlock_savesEntityNames() {
+    // With the enumerator improvements flag off, adding a list set to a program doesn't add its
+    // initial question to the block.
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.NAME).getQuestionDefinition();
+    createProgram(enumeratorDefinition);
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+
+    stageEnumeratorUpdates(
+        programDefinition,
+        applicant,
+        "1",
+        ImmutableMap.of(enumeratorPath.atIndex(0).toString(), "Sarah"));
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).containsExactly("Sarah");
+  }
+
   /** Looks up the definition of the initial question linked to the given enumerator question. */
   private QuestionDefinition initialQuestionDefinition(QuestionDefinition enumeratorDefinition) {
     long initialQuestionId = enumeratorDefinition.getEnumeratorInitialQuestionId().orElseThrow();

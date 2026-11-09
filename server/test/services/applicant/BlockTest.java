@@ -1440,6 +1440,32 @@ public class BlockTest {
   }
 
   @Test
+  public void getInitialQuestion_withInitialQuestionNotOnBlock_returnsEmpty() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1",
+            enumeratorBlockMissingInitialQuestion(),
+            new ApplicantModel(),
+            new ApplicantData());
+
+    assertThat(block.getInitialQuestion()).isEmpty();
+  }
+
+  @Test
+  public void hasErrors_withInitialQuestionNotOnBlock_usesLegacyValidation() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockMissingInitialQuestion(), new ApplicantModel(), applicantData);
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("Sarah", "Jonathan"));
+
+    assertThat(block.hasErrors()).isFalse();
+  }
+
+  @Test
   public void getInitialQuestion_withNonEnumeratorBlock_returnsEmpty() {
     Block block =
         makeUnrepeatedBlock(
@@ -1622,6 +1648,24 @@ public class BlockTest {
         .addQuestion(
             ProgramQuestionDefinition.create(
                 NAME_INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
+        .build();
+  }
+
+  /**
+   * An enumerator block whose enumerator has an initial question set, but without the initial
+   * question on the block, as when the list set is added to a program with the enumerator
+   * improvements flag off.
+   */
+  private static BlockDefinition enumeratorBlockMissingInitialQuestion() {
+    return BlockDefinition.builder()
+        .setId(33L)
+        .setName("household enumerator block")
+        .setDescription("description")
+        .setLocalizedName(LocalizedStrings.withDefaultValue("household enumerator block"))
+        .setLocalizedDescription(LocalizedStrings.withDefaultValue("description"))
+        .addQuestion(
+            ProgramQuestionDefinition.create(
+                ENUMERATOR_WITH_INITIAL_QUESTION, /* programDefinitionId= */ Optional.empty()))
         .build();
   }
 
