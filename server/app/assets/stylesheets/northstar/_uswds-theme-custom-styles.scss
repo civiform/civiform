@@ -172,10 +172,19 @@ it is around the label */
 }
 
 /*
- * Less padding when there is a field-level error, since we add a border and
- * still want the inputs to line up.
+ * Question-level errors put both classes on the outer container. Match the
+ * group-question padding above so the border does not sit against the content.
  */
 .cf-applicant-question-field.cf-question-field-with-error {
+  @include u-padding-left('105');
+}
+
+/*
+ * Field-level errors on compound questions (name, address) put the error
+ * border on the inner field, which does not also have
+ * cf-applicant-question-field. Keep that field's content off the border.
+ */
+.cf-applicant-question-field .cf-question-field-with-error {
   @include u-padding-left('105');
 }
 
