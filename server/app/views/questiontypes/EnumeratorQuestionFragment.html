@@ -17,21 +17,41 @@
        once and referenced from each entity row via aria-labelledby/aria-describedby. The initial
        question is always one of the valid types (enforced when the admin sets it up), so each row
        dispatches to the matching question-type fragment below. */-->
-  <th:block th:if="${initialQuestionType != null}">
+  <!--/* When the list question has a question-level error (required, too few or too many items),
+       the page must move focus somewhere and connect the error to it, since there may be no inputs
+       for the usual first-error autofocus. With no rows, the Add button gets focus. With rows, the
+       first row's first input gets focus (in enumerator.ts), unless a row has its own error and
+       already has autofocus. Either way the error is in the focused control's aria-describedby,
+       which is read on page load (role="alert" may not be). */-->
+  <th:block
+    th:if="${initialQuestionType != null}"
+    th:with="hasQuestionLevelErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()},
+             hasEntityRows=${!contextualizedInitialQuestions.isEmpty()},
+             describeFirstEntityWithError=${hasQuestionLevelErrors && hasEntityRows},
+             focusFirstEntity=${hasQuestionLevelErrors && hasEntityRows && !(initialQuestionRowHasAutofocus == true)}"
+  >
     <!--/* Enumerator Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextGroupLabel(${question}, ${questionId})}"
     ></div>
 
-    <!--/* Display question level errors */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
-    ></div>
+    <!--/* Display question level errors. There can be more than one (e.g. required and too few
+         items), and each error div has the same id, so the focused control's aria-describedby
+         points at this wrapper to read all of them. */-->
+    <div th:id="${questionId} + '-errors'">
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
+      ></div>
+    </div>
 
     <!--/* Hidden template cloned by TS to submit a delete marker when a saved entity is removed. */-->
     <div th:replace="~{this :: deleteInputTemplate}"></div>
 
-    <div id="enumerator-fields" class="cf-initial-question-entities">
+    <div
+      id="enumerator-fields"
+      class="cf-initial-question-entities"
+      th:attr="data-autofocus-first-entity=${focusFirstEntity ? 'true' : null}"
+    >
       <th:block
         th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions}"
       >
@@ -62,6 +82,9 @@
               data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
               data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
       class="usa-button usa-button--outline margin-top-105"
+      th:aria-labelledby="|${questionId}-title enumerator-field-add-button|"
+      th:aria-describedby="${(hasQuestionLevelErrors ? questionId + '-errors ' : '') + questionId + '-description'}"
+      th:autofocus="${hasQuestionLevelErrors && !hasEntityRows}"
     ></button>
   </th:block>
 
@@ -139,7 +162,7 @@
            rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
            rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
-           rowAriaDescribedby=${isFirstEntity ? questionId + '-description' : null}"
+           rowAriaDescribedby=${isFirstEntity ? (describeFirstEntityWithError == true ? questionId + '-errors ' : '') + questionId + '-description' : null}"
 >
   <!--/* Multi-input types */-->
   <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
@@ -339,7 +362,7 @@
   th:id="${fieldId}"
   th:attr="data-entity-saved=${isSaved ? 'true' : null}"
   th:aria-labelledby="${isFirstEntity ? questionId + '-title ' + labelId : labelId}"
-  th:aria-describedby="${isFirstEntity ? questionId + '-description' : null}"
+  th:aria-describedby="${rowAriaDescribedby}"
 >
   <div
     th:id="${labelId}"

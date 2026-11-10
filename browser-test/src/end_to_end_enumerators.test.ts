@@ -2182,6 +2182,75 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('moves focus to the Add button or the first row and describes a list-level error on continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator list-level error focus program'
+
+      await test.step('Publish a program whose list set needs at least two items', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          hintText: 'Pets help text',
+          minEntities: 2,
+          initialQuestion: SAMPLE_QUESTIONS.text,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.locator('#enumerator-field-add-button')
+
+      await test.step('Continue without adding any items', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the Add button has focus and its description starts with both errors', async () => {
+        // With no items and a minimum of 2, the list shows two errors. Both are read, before the
+        // help text.
+        await expect(
+          blockForm.getByText('Error: This question is required.'),
+        ).toBeVisible()
+        await expect(
+          blockForm.getByText('Error: Please enter at least 2 values.'),
+        ).toBeVisible()
+        await expect(addButton).toBeFocused()
+        await expect(addButton).toHaveAccessibleName(
+          'List the names of your pets. Add Pets',
+        )
+        await expect(addButton).toHaveAccessibleDescription(
+          /^(?=.*Error: This question is required\.)(?=.*Error: Please enter at least 2 values\.)Error: .*Pets help text$/,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Add one item and continue', async () => {
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('textbox').first().fill('Spot')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the first row has focus and its description starts with the error', async () => {
+        const firstRowInput = blockForm.getByRole('textbox').first()
+        await expect(
+          blockForm.getByText('Error: Please enter at least 2 values.'),
+        ).toBeVisible()
+        await expect(firstRowInput).toBeFocused()
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: Please enter at least 2 values\..*Pets help text/,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+    })
+
     test('saves a date initial question and names the entity', async ({
       page,
       adminPrograms,
@@ -2587,6 +2656,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText?: string
       adminId?: string
       hintText?: string
+      minEntities?: number
       maxEntities?: number
       initialQuestion?: string
     },
@@ -2597,6 +2667,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText = 'List the names of your pets.',
       adminId = 'pets enumerator',
       hintText = 'Hint',
+      minEntities,
       maxEntities,
       initialQuestion,
     } = options ?? {}
@@ -2621,6 +2692,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await adminIdInput.fill(adminId)
 
       await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill(hintText)
+
+      if (minEntities != null) {
+        await blockPanel
+          .getByRole('spinbutton', {name: 'Minimum entity count'})
+          .fill(String(minEntities))
+      }
 
       if (maxEntities != null) {
         await blockPanel
@@ -2666,6 +2743,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText?: string
       adminId?: string
       hintText?: string
+      minEntities?: number
       maxEntities?: number
       initialQuestion?: string
     },

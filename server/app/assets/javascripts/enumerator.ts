@@ -18,6 +18,7 @@ const VISIBLE_ENTITY_FIELDS_SELECTOR =
 
 export function init() {
   updateListeners()
+  focusFirstEntityOnListError()
 
   // After HTMX swaps a new entity row into #enumerator-fields, re-attach listeners to the new
   // controls and move focus into the new row.
@@ -173,6 +174,24 @@ function setFocusAfterEnumeratorRemoval() {
     // Set focus to last remove button
     ;(deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
   }
+}
+
+/**
+ * When the page loads with a list-level error (e.g. too few or too many items) and entity rows on
+ * the page, the server marks #enumerator-fields and puts the error in the first row's
+ * aria-describedby. Focus that row's first input so the error is announced. Done here rather than
+ * with autofocus because the first input lives in each question type's own fragment.
+ */
+function focusFirstEntityOnListError() {
+  const fields = document.querySelector<HTMLElement>(
+    '#enumerator-fields[data-autofocus-first-entity="true"]',
+  )
+  if (fields === null) return
+
+  const firstInput = fields
+    .querySelector('.cf-enumerator-field:not(.display-none)')
+    ?.querySelector<HTMLElement>('input:not([type=hidden]), select, textarea')
+  firstInput?.focus()
 }
 
 /** Focus the first input in the last (newly HTMX-added) entity row. */

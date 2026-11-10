@@ -521,6 +521,12 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                 })
             .collect(Collectors.toList());
     context.setVariable("initialQuestionRendererParamsList", initialQuestionRendererParamsList);
+    // When a row already autofocuses its own error, a list-level error must not move focus to the
+    // first row too (one autofocus per page).
+    context.setVariable(
+        "initialQuestionRowHasAutofocus",
+        initialQuestionRendererParamsList.stream()
+            .anyMatch(ApplicantQuestionRendererParams::autofocusFirstError));
   }
 
   /**
