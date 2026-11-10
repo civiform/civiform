@@ -41,6 +41,7 @@ import {
   filterArgs,
   keyFor,
   listTests,
+  median,
   SEPARATOR,
 } from './list_tests.mjs'
 
@@ -59,11 +60,6 @@ if (current < 1 || current > total) {
   process.exit(2)
 }
 const extraArgs = filterArgs(playwrightArgs)
-
-const median = (values) => {
-  const sorted = [...values].sort((a, b) => a - b)
-  return sorted[Math.floor(sorted.length / 2)]
-}
 
 // A title Playwright's --test-list parser can't match exactly: it splits each
 // line on the separator character and trims every piece.

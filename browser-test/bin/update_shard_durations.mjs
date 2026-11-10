@@ -33,8 +33,7 @@ import {
 } from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
-import {fileURLToPath} from 'node:url'
-import {keyFor, listTests} from './list_tests.mjs'
+import {browserTestDir, keyFor, listTests, median} from './list_tests.mjs'
 
 const REPO = 'civiform/civiform'
 
@@ -67,8 +66,11 @@ const downloadRecentResults = (count) => {
         {stdio: ['ignore', 'inherit', 'pipe']},
       )
       downloaded++
-    } catch {
-      console.error(`Skipping run ${id}: no results to download (expired?)`)
+    } catch (error) {
+      // Show gh's own message: expired artifacts, a logged-out gh and a
+      // rate limit all end up here.
+      const reason = String(error.stderr ?? error.message).trim()
+      console.error(`Skipping run ${id}: ${reason}`)
     }
   }
   if (downloaded === 0) {
@@ -119,16 +121,16 @@ const walk = (suite, titles) => {
 }
 
 const files = findResults(root)
+if (files.length === 0) {
+  console.error(`No results.json files found under ${root}. Nothing written.`)
+  process.exit(1)
+}
 for (const file of files) {
   for (const fileSuite of JSON.parse(readFileSync(file, 'utf8')).suites) {
     walk(fileSuite, [fileSuite.title])
   }
 }
 
-const median = (values) => {
-  const sorted = [...values].sort((a, b) => a - b)
-  return sorted[Math.floor(sorted.length / 2)]
-}
 const current = new Set(listTests().map((t) => keyFor(t.titlePath)))
 const durations = {}
 for (const key of [...samples.keys()].sort()) {
@@ -139,11 +141,7 @@ for (const key of [...samples.keys()].sort()) {
 const dropped = [...samples.keys()].filter((key) => !current.has(key)).length
 const missing = [...current].filter((key) => !(key in durations)).length
 
-const out = path.join(
-  path.dirname(fileURLToPath(import.meta.url)),
-  '..',
-  'shard-durations.json',
-)
+const out = path.join(browserTestDir, 'shard-durations.json')
 writeFileSync(out, JSON.stringify(durations, null, 2) + '\n')
 console.error(
   `Wrote ${Object.keys(durations).length} test durations from ${files.length} results files to ${out}. ` +

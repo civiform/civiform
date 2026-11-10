@@ -16,6 +16,11 @@ export const SEPARATOR = ' \u203A '
 
 export const keyFor = (titlePath) => titlePath.join(SEPARATOR)
 
+export const median = (values) => {
+  const sorted = [...values].sort((a, b) => a - b)
+  return sorted[Math.floor(sorted.length / 2)]
+}
+
 // Returns [{titlePath, listFile, count}], one entry per test, in Playwright's
 // order. titlePath is [file relative to testDir, ...describe titles, test
 // title], the same path the JSON reporter uses, so it is the key into
