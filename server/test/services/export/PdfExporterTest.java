@@ -478,8 +478,7 @@ public class PdfExporterTest extends AbstractExporterTest {
         ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment()),
         ImmutableList.of("Sarah Brown"));
     applicant.save();
-    ApplicationModel application =
-        new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
+    ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
     application.save();
 
