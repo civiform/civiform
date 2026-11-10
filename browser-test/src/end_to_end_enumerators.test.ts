@@ -2251,6 +2251,69 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('moves focus to the first input of a grouped row and reads the list-level error first on continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator grouped row error focus program'
+
+      await test.step('Publish a program whose list set has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Household members',
+          questionText: 'List the people in your household.',
+          hintText: 'Include yourself.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Household members',
+      })
+
+      await test.step('Add the same name twice and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        for (const row of [0, 1]) {
+          await addButton.click()
+          await waitForHtmxReady(page)
+          await blockForm
+            .getByRole('textbox', {name: 'First name'})
+            .nth(row)
+            .fill('Sarah')
+          await blockForm
+            .getByRole('textbox', {name: 'Last name'})
+            .nth(row)
+            .fill('Brown')
+        }
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step("Verify the first row's first name has focus and its description starts with the error", async () => {
+        // The error is on the input, not only on the row's group, because VoiceOver reads a
+        // group's description last.
+        const firstName = blockForm
+          .getByRole('textbox', {name: 'First name'})
+          .first()
+        await expect(
+          blockForm.getByText(
+            'Error: Please enter a unique value for each line.',
+          ),
+        ).toBeVisible()
+        await expect(firstName).toBeFocused()
+        await expect(firstName).toHaveAccessibleDescription(
+          /^Error: Please enter a unique value for each line\./,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+    })
+
     test('saves a date initial question and names the entity', async ({
       page,
       adminPrograms,

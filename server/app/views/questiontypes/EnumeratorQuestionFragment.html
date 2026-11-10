@@ -155,7 +155,11 @@
 
 <!--/* Renders one initial-question entity row (entity label + the initial question's inputs + a
      delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
-     are grouped with role="group"; single-input types carry a plain label on the control. */-->
+     are grouped with role="group"; single-input types carry a plain label on the control.
+     rowAriaDescribedby goes on a single-input row's control, and on the first row it starts with
+     any list-level error. A group row's description is only the help text, because VoiceOver reads
+     a group's description last; enumerator.ts adds the list-level error to the input it focuses
+     instead. */-->
 <th:block
   th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex, rowRendererParams)"
   th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
@@ -362,7 +366,7 @@
   th:id="${fieldId}"
   th:attr="data-entity-saved=${isSaved ? 'true' : null}"
   th:aria-labelledby="${isFirstEntity ? questionId + '-title ' + labelId : labelId}"
-  th:aria-describedby="${rowAriaDescribedby}"
+  th:aria-describedby="${isFirstEntity ? questionId + '-description' : null}"
 >
   <div
     th:id="${labelId}"
