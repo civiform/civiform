@@ -2044,7 +2044,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByTestId('block-panel-edit')
           .getByRole('button', {name: 'Add nested list set'})
           .click()
-        await navigateToRepeatedScreen(page, /* screenNumber= */ 4)
         await fillAndSubmitEnumeratorQuestionForm(page, {
           listedEntity: 'Jobs',
           questionText: 'List jobs for $this',
@@ -2274,7 +2273,6 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
             .getByRole('button', {name: 'Add nested list set'})
             .click()
 
-          await navigateToRepeatedScreen(page, /* screenNumber= */ 4)
           await fillAndSubmitEnumeratorQuestionForm(page, {
             listedEntity: 'Jobs',
             questionText: 'List jobs for $this',
