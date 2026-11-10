@@ -186,7 +186,10 @@ export class ApplicantQuestions {
         // Already removed by an earlier call with the same size.
       }
     })
-    await waitForHtmxReady(this.page)
+    // Uploading a file this large can take longer than the default 5 seconds.
+    // The legacy flow uploads with a form submit, and this wait blocks until
+    // that navigation finishes.
+    await waitForHtmxReady(this.page, 30000)
   }
 
   async answerIdQuestion(id: string, index = 0) {
