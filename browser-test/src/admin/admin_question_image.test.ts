@@ -39,6 +39,14 @@ test.describe('Admin can manage question image', () => {
       await adminQuestionImage.expectDropzoneEnabled()
     })
 
+    await test.step('File input is named by its label and keeps the USWDS instructions', async () => {
+      await expect(
+        adminQuestionImage.getImageUploadInput(),
+      ).toHaveAccessibleName(
+        /^Image upload.*Drag file here or choose from folder$/,
+      )
+    })
+
     await test.step('Clear alt text and verify dropzone becomes disabled', async () => {
       await adminQuestionImage.clearImageDescription()
       await adminQuestionImage.expectDropzoneDisabled()

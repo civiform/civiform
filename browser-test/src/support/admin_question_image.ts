@@ -54,7 +54,10 @@ export class AdminQuestionImage {
 
   async expectChangeFileVisible() {
     await expect(this.getChangeFileText()).toBeVisible()
-    await expect(this.page.getByLabel('Change file')).toBeAttached()
+    // The label stays first in the name after USWDS switches its aria-label to "Change file".
+    await expect(this.getImageUploadInput()).toHaveAccessibleName(
+      /^Image upload.*Change file$/,
+    )
   }
 
   async setImageDescription(description: string) {
