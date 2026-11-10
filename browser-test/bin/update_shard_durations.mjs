@@ -140,7 +140,7 @@ const out = path.join(
   '..',
   'shard-durations.json',
 )
-writeFileSync(out, JSON.stringify(durations, null, 1) + '\n')
+writeFileSync(out, JSON.stringify(durations, null, 2) + '\n')
 console.error(
   `Wrote ${Object.keys(durations).length} test durations from ${files.length} results files to ${out}. ` +
     `Dropped ${dropped} tests that aren't in this checkout; ${missing} tests here have no passing result yet.`,
