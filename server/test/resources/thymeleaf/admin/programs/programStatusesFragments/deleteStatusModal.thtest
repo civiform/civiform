@@ -1,0 +1,49 @@
+%NAME deleteStatusModal - delete confirmation posting the status text
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: deleteStatusModal('uuid-delete', 'Approved', '/admin/programs/7/statuses/delete')}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconClose(classes)" th:text="|iconClose(${classes})|"></svg>
+# ----------------------------------------------------------------------
+# Default modal width, so lg:w-auto.
+%OUTPUT
+<div
+  id="uuid-delete"
+  aria-labelledby="uuid-delete-title"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-auto top-1/2"
+>
+  <div id="uuid-delete-title" class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center">
+    <div class="text-2xl text-gray-600 my-5 mx-4">Delete this status</div>
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <div class="py-2">
+      <p>Warning: This will also remove any translated content for the status and email body.</p>
+      <form method="POST" action="/admin/programs/7/statuses/delete">
+        <input type="hidden" value="token" name="csrfToken" />
+        <input type="hidden" name="deleteStatusText" value="Approved" />
+        <div class="flex mt-5 space-x-2">
+          <div class="flex-grow"></div>
+          <button
+            type="submit"
+            class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+          >
+            Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg>iconClose(w-6 h-6 cursor-pointer)</svg>
+  </button>
+</div>
