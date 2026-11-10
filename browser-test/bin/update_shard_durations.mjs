@@ -11,6 +11,10 @@
 //   node bin/update_shard_durations.mjs <dir>
 //     Uses results.json files you already downloaded under <dir>.
 //
+// Run it on a checkout that is up to date with main (merge main into your
+// branch first). Tests that main has added since your checkout would be
+// dropped, and CI, which tests the merge with main, would still warn.
+//
 // Then commit shard-durations.json. Refresh it every month or two, or when
 // the "tests without a recorded duration" warning shows up in the CI logs.
 //

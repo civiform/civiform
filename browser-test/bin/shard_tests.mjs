@@ -29,7 +29,8 @@
 //   wrong tests.
 //
 // Tests are assigned one by one, so this must not be used with
-// test.describe.configure({mode: 'serial'}) groups (none exist today).
+// test.describe.configure({mode: 'serial'}) groups. A no-restricted-syntax
+// rule in eslint.config.mjs rejects them.
 // See bin/update_shard_durations.mjs for how the durations are produced.
 
 import {createHash} from 'node:crypto'
