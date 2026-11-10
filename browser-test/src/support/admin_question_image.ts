@@ -86,7 +86,16 @@ export class AdminQuestionImage {
     const padding = Buffer.alloc(Math.max(0, targetSize - baseImage.length))
     writeFileSync(filePath, Buffer.concat([baseImage, padding]))
     try {
+      // Selecting the file starts the upload. Wait for the server's response
+      // before deleting the file, because the browser reads it from disk while
+      // sending the request.
+      const uploadResponse = this.page.waitForResponse(
+        (response) =>
+          response.request().method() === 'POST' &&
+          response.url().includes('/image/upload'),
+      )
       await this.setImageFile(filePath)
+      await uploadResponse
     } finally {
       try {
         unlinkSync(filePath)

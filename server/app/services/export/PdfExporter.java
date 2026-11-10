@@ -574,56 +574,78 @@ public final class PdfExporter {
           indentationLevel);
     }
 
+    Optional<Long> initialQuestionId =
+        block.hasEnumeratorQuestion()
+            ? block.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId()
+            : Optional.empty();
+
     for (int i = 0; i < block.getQuestionCount(); i++) {
       // Question-level information
       QuestionDefinition question = block.getQuestionDefinition(i);
-      document.add(text(question.getQuestionText().getDefault(), H3_FONT, indentationLevel));
-      if (!question.getQuestionHelpText().isEmpty()) {
+      boolean isInitialQuestion = initialQuestionId.equals(Optional.of(question.getId()));
+      // Nest an initial question under its enumerator so it's clear they're related
+      int questionIndentationLevel = isInitialQuestion ? indentationLevel + 1 : indentationLevel;
+
+      // Applicants don't see an initial question's question text or help text
+      if (!isInitialQuestion) {
         document.add(
-            text(question.getQuestionHelpText().getDefault(), PARAGRAPH_FONT, indentationLevel));
+            text(question.getQuestionText().getDefault(), H3_FONT, questionIndentationLevel));
+        if (!question.getQuestionHelpText().isEmpty()) {
+          document.add(
+              text(
+                  question.getQuestionHelpText().getDefault(),
+                  PARAGRAPH_FONT,
+                  questionIndentationLevel));
+        }
       }
 
-      // Adds a line describing whether the question is optional or not
+      // Adds a line describing whether the question is initial, optional or
+      // required.
       Optional<ProgramQuestionDefinition> programQuestionDefinition =
           block.programQuestionDefinitions().stream()
               .filter(pqd -> pqd.id() == question.getId())
               .findFirst();
-      if (programQuestionDefinition.isPresent()) {
-        document.add(
-            text(
-                programQuestionDefinition.get().optional()
-                    ? "Optional Question"
-                    : "Required Question",
-                SMALL_GRAY_FONT,
-                indentationLevel));
+      Optional<String> requiredStatus = Optional.empty();
+      if (isInitialQuestion) {
+        requiredStatus = Optional.of("Initial Question");
+      } else if (programQuestionDefinition.isPresent()) {
+        requiredStatus =
+            programQuestionDefinition.get().optional()
+                ? Optional.of("Optional Question")
+                : Optional.of("Required Question");
+      }
+      if (requiredStatus.isPresent()) {
+        document.add(text(requiredStatus.get(), SMALL_GRAY_FONT, questionIndentationLevel));
       }
 
-      document.add(text("Admin name: " + question.getName(), SMALL_GRAY_FONT, indentationLevel));
+      document.add(
+          text("Admin name: " + question.getName(), SMALL_GRAY_FONT, questionIndentationLevel));
       document.add(
           text(
               "Admin description: " + question.getDescription(),
               SMALL_GRAY_FONT,
-              indentationLevel));
+              questionIndentationLevel));
       document.add(
           text(
               "Question type: " + question.getQuestionType().name(),
               SMALL_GRAY_FONT,
-              indentationLevel));
+              questionIndentationLevel));
 
       // If a question offers options, put those options in the PDF
       if (question.getQuestionType().isMultiOptionType()) {
         MultiOptionQuestionDefinition multiOption = (MultiOptionQuestionDefinition) question;
-        List list = createList(indentationLevel);
+        List list = createList(questionIndentationLevel);
         for (QuestionOption option : multiOption.getDisplayableOptions()) {
           list.add(new ListItem(option.optionText().getDefault()));
         }
         document.add(list);
-      } else if (question.getQuestionType() != QuestionType.STATIC) {
+      } else if (question.getQuestionType() != QuestionType.STATIC
+          && question.getEnumeratorInitialQuestionId().isEmpty()) {
         // For questions without options, print an empty box area to indicate
         // that the user will write in a custom answer to the question.
-        // (Static questions don't require answers from users, so don't add the empty box area for
-        // static questions.)
-        document.add(text("[                     ]", PARAGRAPH_FONT, indentationLevel));
+        // (Static questions don't require answers from users, and an enumerator with an initial
+        // question is answered through that question, so don't add the empty box area for them.)
+        document.add(text("[                     ]", PARAGRAPH_FONT, questionIndentationLevel));
       }
       document.add(Chunk.NEWLINE);
     }

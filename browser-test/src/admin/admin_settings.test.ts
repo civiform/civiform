@@ -1,17 +1,8 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {
-  disableFeatureFlag,
-  enableFeatureFlag,
-  loginAsAdmin,
-  validateScreenshot,
-} from '../support'
+import {disableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 
 test.describe('Managing system-wide settings', () => {
   test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
-      page,
-      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
-    )
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'allow_civiform_admin_access_programs')
   })

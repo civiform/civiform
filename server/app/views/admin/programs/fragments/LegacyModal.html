@@ -1,0 +1,40 @@
+<!--/*
+  Shell of a legacy admin modal (views.components.Modal.getContainerTag) with
+  Width.THREE_FOURTHS and Top.QUARTER, the only combination the application
+  view uses: header with the title, the caller's content, and the close button
+  last so screen readers do not land on it first.
+
+  Parameters:
+    id      - the modal's element id; the title is "<id>-title" and the
+              trigger button, rendered by the caller, is "<id>-button"
+    title   - the header text
+    content - a fragment expression rendering the modal body
+*/-->
+<div
+  th:fragment="modal(id, title, content)"
+  th:id="${id}"
+  th:attr="aria-labelledby=|${id}-title|"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-9/12 top-1/4"
+>
+  <div
+    th:id="|${id}-title|"
+    class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+  >
+    <div class="text-2xl text-gray-600 my-5 mx-4" th:text="${title}"></div>
+    <!--/* Spacer so the close button and title don't overlap. */-->
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <th:block th:replace="${content}"></th:block>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+    ></svg>
+  </button>
+</div>

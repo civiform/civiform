@@ -36,6 +36,7 @@ import services.DateConverter;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.cloud.PublicStorageClient;
 import services.question.QuestionOption;
 import services.question.QuestionService;
 import services.question.QuestionSetting;
@@ -80,6 +81,7 @@ public final class AdminQuestionController extends CiviFormController {
   private final QuestionsListPageView questionsListPageView;
   private final TranslationLocales translationLocales;
   private final DateConverter dateConverter;
+  private final PublicStorageClient publicStorageClient;
 
   @Inject
   public AdminQuestionController(
@@ -97,7 +99,8 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionFormPageView questionFormPageView,
       QuestionsListPageView questionsListPageView,
       TranslationLocales translationLocales,
-      DateConverter dateConverter) {
+      DateConverter dateConverter,
+      PublicStorageClient publicStorageClient) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.listView = checkNotNull(listView);
@@ -111,6 +114,7 @@ public final class AdminQuestionController extends CiviFormController {
     this.questionsListPageView = checkNotNull(questionsListPageView);
     this.translationLocales = checkNotNull(translationLocales);
     this.dateConverter = checkNotNull(dateConverter);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
   }
 
   /**
@@ -134,7 +138,9 @@ public final class AdminQuestionController extends CiviFormController {
                             dateConverter,
                             settingsManifest.getEnumeratorImprovementsEnabled(request),
                             request.flash().get(FlashKey.SUCCESS),
-                            request.flash().get(FlashKey.ERROR));
+                            request.flash().get(FlashKey.ERROR),
+                            publicStorageClient,
+                            settingsManifest.getImagesInQuestionFeatureEnabled(request));
                 return ok(questionsListPageView.render(request, model)).as(Http.MimeTypes.HTML);
               }
               return ok(
