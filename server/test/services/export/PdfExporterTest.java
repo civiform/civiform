@@ -23,6 +23,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import models.ApplicantModel;
+import models.ApplicationModel;
+import models.LifecycleStage;
+import models.ProgramModel;
 import models.QuestionModel;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
@@ -456,6 +461,39 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).contains("Hidden Questions");
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void exportApplication_enumeratorWithInitialQuestion_omitsInitialQuestion(boolean isAdmin)
+      throws IOException, DocumentException {
+    ProgramModel program = createFakeProgramWithEnumeratorAndInitialQuestion();
+    QuestionDefinition enumerator =
+        testQuestionBank
+            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .getQuestionDefinition();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicant.getApplicantData(),
+        ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment()),
+        ImmutableList.of("Sarah Brown"));
+    applicant.save();
+    ApplicationModel application =
+        new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
+    application.setApplicantData(applicant.getApplicantData());
+    application.save();
+
+    String pdfText =
+        extractAllPdfText(
+            instanceOf(PdfExporter.class)
+                .exportApplication(application, isAdmin, /* includeScores= */ false));
+
+    // The initial question's answers are shown under the enumerator, so only the enumerator is
+    // listed, with a single "Answered on" date.
+    assertThat(pdfText).contains("applicant household members");
+    assertThat(pdfText).contains("Sarah Brown");
+    assertThat(pdfText).doesNotContain("applicant's household member's name");
+    assertThat(StringUtils.countMatches(pdfText, "Answered on")).isEqualTo(1);
   }
 
   @Test
