@@ -1,12 +1,40 @@
 #! /usr/bin/env bash
 
 # DOC: Open an sbt CLI in the Unit Test environment container.
+#
+# With no arguments, opens an interactive sbt shell. Any arguments are run as
+# sbt commands, then sbt exits. Quote commands that contain spaces.
+# Example usage:
+#   * Run a single test class:
+#     bin/sbt-test "testOnly services.program.ProgramServiceTest"
+#
+#   * Run several commands in one sbt session:
+#     bin/sbt-test compile "testOnly services.*"
+#
+# Commands must be passed as arguments. Without a terminal, stdin isn't
+# forwarded to sbt, so piping commands in does nothing.
+#
+# Only run one sbt at a time per worktree: each one binds the same debugger and
+# JMX ports in the container. If a run is killed without a terminal (e.g. an
+# agent's command times out), sbt can keep running in the container; run
+# bin/remove-test-env to clean it up.
+#
+# The test environment publishes host ports 9100 and 8459 (debugger). If another
+# worktree's test environment already holds them, Docker picks free ports and
+# they're printed at startup. To choose them yourself (0 lets Docker pick):
+#   CIVIFORM_TEST_HTTP_HOST_PORT=9200 CIVIFORM_TEST_DEBUG_HOST_PORT=8559 bin/sbt-test
 
 source bin/lib.sh
 docker::set_project_name_unit_tests
 
 bin/pull-image
 
+docker::set_unit_test_host_ports
 docker::compose_unit_test_dev up -d --wait
+
+if [[ "${CIVIFORM_TEST_HTTP_HOST_PORT:-9100}" != 9100 || "${CIVIFORM_TEST_DEBUG_HOST_PORT:-8459}" != 8459 ]]; then
+  echo "Test environment host ports:"
+  docker port "${COMPOSE_PROJECT_NAME}-civiform-1"
+fi
 
 docker::dev_and_test_server_sbt_command "8459" "$@"
