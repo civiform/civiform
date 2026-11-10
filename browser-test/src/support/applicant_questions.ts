@@ -176,7 +176,16 @@ export class ApplicantQuestions {
       header + 'C'.repeat(mbSize * 1024 * 1024 - header.length),
     )
     await this.page.setInputFiles('input[type=file]', filePath)
-    unlinkSync(filePath)
+    // The browser reads the file from disk when it uploads it, which can be
+    // after this method returns (the upload may still be in flight, or start
+    // on a later form submit). Keep the file until the page closes.
+    this.page.once('close', () => {
+      try {
+        unlinkSync(filePath)
+      } catch {
+        // Already removed by an earlier call with the same size.
+      }
+    })
     await waitForHtmxReady(this.page)
   }
 
