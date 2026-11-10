@@ -492,8 +492,11 @@ public final class ReadOnlyApplicantProgramService {
       boolean showAnswerText,
       boolean includeHiddenQuestions) {
     for (Block block : blocks) {
+      // The initial question is excluded because its answers are shown under the enumerator.
       ImmutableList<ApplicantQuestion> questions =
-          includeHiddenQuestions ? block.getAllQuestions() : block.getVisibleQuestions();
+          includeHiddenQuestions
+              ? block.getAllQuestionsExceptInitialQuestion()
+              : block.getVisibleQuestions();
 
       for (int questionIndex = 0; questionIndex < questions.size(); questionIndex++) {
         ApplicantQuestion applicantQuestion = questions.get(questionIndex);

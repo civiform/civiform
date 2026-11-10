@@ -386,14 +386,24 @@ public final class Block {
 
   /**
    * Returns the list of questions in this block that are VISIBLE to applicants, excluding the
-   * initial question. The initial question's data lives per-entity under the enumerator path, so
-   * its non-contextualized version on the block reads from the wrong path. It is accessed
-   * separately via {@link #getInitialQuestion} and {@link #getContextualizedInitialQuestions}.
+   * initial question. See {@link #getAllQuestionsExceptInitialQuestion}.
    */
   public ImmutableList<ApplicantQuestion> getVisibleQuestions() {
+    return getAllQuestionsExceptInitialQuestion().stream()
+        .filter(x -> x.getQuestionDefinition().getDisplayMode() == QuestionDisplayMode.VISIBLE)
+        .collect(toImmutableList());
+  }
+
+  /**
+   * Returns ALL questions in this block regardless of display mode (including HIDDEN questions),
+   * excluding the initial question. The initial question's data lives per-entity under the
+   * enumerator path, so its non-contextualized version on the block reads from the wrong path. It
+   * is accessed separately via {@link #getInitialQuestion} and {@link
+   * #getContextualizedInitialQuestions}.
+   */
+  public ImmutableList<ApplicantQuestion> getAllQuestionsExceptInitialQuestion() {
     Optional<Long> initialQuestionId = getEnumeratorInitialQuestionId();
     return getAllQuestions().stream()
-        .filter(x -> x.getQuestionDefinition().getDisplayMode() == QuestionDisplayMode.VISIBLE)
         .filter(
             question ->
                 initialQuestionId.isEmpty()
