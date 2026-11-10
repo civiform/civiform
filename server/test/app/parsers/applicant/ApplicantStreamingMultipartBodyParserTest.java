@@ -26,6 +26,7 @@ import parsers.cloud.MultipartUploadSinks;
 import play.http.DefaultHttpErrorHandler;
 import play.mvc.Http;
 import repository.ResetPostgres;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 import services.settings.SettingsManifest;
@@ -59,14 +60,16 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
 
   private ApplicantStreamingMultipartBodyParser parser;
   private Materializer materializer;
+  private DefaultHttpErrorHandler errorHandler;
+  private MultipartUploadSinks sinks;
   private ProfileUtils profileUtils;
 
   @Before
   public void setUp() {
     materializer = instanceOf(Materializer.class);
-    DefaultHttpErrorHandler errorHandler = instanceOf(DefaultHttpErrorHandler.class);
+    errorHandler = instanceOf(DefaultHttpErrorHandler.class);
 
-    MultipartUploadSinks sinks = mock(MultipartUploadSinks.class);
+    sinks = mock(MultipartUploadSinks.class);
     when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
         .thenAnswer(
             invocation ->
@@ -89,14 +92,45 @@ public class ApplicantStreamingMultipartBodyParserTest extends ResetPostgres {
     when(profileUtils.optionalCurrentUserProfile(any(Http.RequestHeader.class)))
         .thenReturn(Optional.of(profile));
 
-    parser =
-        new ApplicantStreamingMultipartBodyParser(
-            materializer,
-            errorHandler,
-            sinks,
-            instanceOf(FileTypeValidation.class),
-            instanceOf(SettingsManifest.class),
-            profileUtils);
+    parser = newParser(/* fileLimitMb= */ 100);
+  }
+
+  private ApplicantStreamingMultipartBodyParser newParser(int fileLimitMb) {
+    ApplicantStorageClient applicantStorageClient = mock(ApplicantStorageClient.class);
+    when(applicantStorageClient.getFileLimitMb()).thenReturn(fileLimitMb);
+    return new ApplicantStreamingMultipartBodyParser(
+        materializer,
+        errorHandler,
+        sinks,
+        instanceOf(FileTypeValidation.class),
+        instanceOf(SettingsManifest.class),
+        profileUtils,
+        applicantStorageClient);
+  }
+
+  @Test
+  public void streamingUpload_fileOverApplicantStorageLimit_isRejected() {
+    ApplicantStreamingMultipartBodyParser parserWithOneMbLimit = newParser(/* fileLimitMb= */ 1);
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(
+                String.format(
+                    "/programs/%d/blocks/%s/hx/selectFileForUpload", PROGRAM_ID, BLOCK_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+    // A PDF header padded to 1.5 MB: over a 1 MB limit, well under the old hardcoded 100 MB.
+    byte[] content = java.util.Arrays.copyOf(PDF_HEADER, 3 * 512 * 1024);
+
+    var result =
+        parserWithOneMbLimit
+            .apply(request)
+            .run(createMultipartRequestBody("big.pdf", content), materializer)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.left.isPresent()).isTrue();
+    assertThat(result.left.get().status()).isEqualTo(Http.Status.REQUEST_ENTITY_TOO_LARGE);
   }
 
   @Test

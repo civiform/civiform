@@ -22,6 +22,7 @@ import play.libs.streams.Accumulator;
 import play.mvc.Http;
 import play.mvc.Result;
 import services.cloud.ApplicantFileNameFormatter;
+import services.cloud.ApplicantStorageClient;
 import services.cloud.BucketType;
 import services.settings.SettingsManifest;
 
@@ -32,8 +33,6 @@ import services.settings.SettingsManifest;
  * is generated server-side using {@link ApplicantFileNameFormatter}.
  */
 public final class ApplicantStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
-
-  public static final long MAX_FILE_SIZE = 100L * 1024L * 1024L; // 100MB
 
   // Matches /programs/{programId}/blocks/{blockId}/* or
   // /applicants/{applicantId}/programs/{programId}/blocks/{blockId}/* in the request path.
@@ -54,13 +53,14 @@ public final class ApplicantStreamingMultipartBodyParser extends StreamingMultip
       MultipartUploadSinks streamingMultipartUploadSinks,
       FileTypeValidation fileTypeValidation,
       SettingsManifest settingsManifest,
-      ProfileUtils profileUtils) {
+      ProfileUtils profileUtils,
+      ApplicantStorageClient applicantStorageClient) {
     super(
         materializer,
         errorHandler,
         streamingMultipartUploadSinks,
         fileTypeValidation,
-        MAX_FILE_SIZE);
+        applicantStorageClient.getFileLimitMb() * 1024L * 1024L);
     this.profileUtils = checkNotNull(profileUtils);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
