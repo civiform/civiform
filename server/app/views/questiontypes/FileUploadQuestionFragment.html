@@ -98,7 +98,8 @@
   <!--/* USWDS sets the input's aria-label to its "Drag file here or choose from folder" instructions
        and updates it after a file is chosen. aria-labelledby lists the question title and then the
        input itself, so the accessible name is the title followed by whatever USWDS's aria-label
-       currently says. See #10438. */-->
+       currently says. See #10438. VoiceOver in Safari ignores file input names whatever the markup
+       and reads only the value and description (#14467), so this is not heard there. */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
