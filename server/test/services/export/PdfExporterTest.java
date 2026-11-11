@@ -33,6 +33,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.QuestionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicationScores;
@@ -472,11 +473,22 @@ public class PdfExporterTest extends AbstractExporterTest {
         testQuestionBank
             .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
             .getQuestionDefinition();
+    QuestionModel initialQuestion =
+      instanceOf(QuestionRepository.class)
+        .lookupQuestionSync(
+          enumerator.getEnumeratorInitialQuestionId().orElseThrow())
+        .orElseThrow();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    Path enumeratorPath =
+      ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
         applicant.getApplicantData(),
-        ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment()),
+        enumeratorPath,
         ImmutableList.of("Sarah Brown"));
+    QuestionAnswerer.answerTextQuestion(
+      applicant.getApplicantData(),
+      enumeratorPath.atIndex(0).join(initialQuestion.getQuestionDefinition().getQuestionPathSegment()),
+      "Sarah Brown ");
     applicant.save();
     ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
