@@ -56,12 +56,8 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_thymeleafEnabled_rendersImportPage() {
-    Result result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .build());
+  public void index_rendersImportPage() {
+    Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
@@ -93,11 +89,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxImportProgram_thymeleafEnabled_malformedJson_rendersErrorPartial() {
+  public void hxImportProgram_malformedJson_rendersErrorPartial() {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", "{\"garbage\": true}"))
                 .build());
@@ -241,11 +236,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxImportProgram_thymeleafEnabled_validJson_rendersProgramDataPartial() {
+  public void hxImportProgram_validJson_rendersProgramDataPartial() {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());
@@ -360,11 +354,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxSaveProgram_thymeleafEnabled_rendersProgramSavedPartial() {
+  public void hxSaveProgram_rendersProgramSavedPartial() {
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());

@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 
 /**
  * Form used to store JSON representing a program that an admin wants to import. See {@link
- * AdminImportView}.
+ * AdminImportPageView}.
  */
 public final class AdminProgramImportForm {
   public static final String PROGRAM_JSON_FIELD = "programJson";
