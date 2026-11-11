@@ -31,9 +31,11 @@ services:
     entrypoint: /bin/bash
     tty: true # keep the container running
     stdin_open: true
-    ports: # For debugging
-      - 9100:9000
-      - 8459:8459
+    # For debugging. Override the host ports to run more than one test
+    # environment at once (e.g. from separate worktrees); 0 picks a free port.
+    ports:
+      - ${CIVIFORM_TEST_HTTP_HOST_PORT:-9100}:9000
+      - ${CIVIFORM_TEST_DEBUG_HOST_PORT:-8459}:8459
     environment:
       - AWS_ACCESS_KEY_ID=testAccessKey
       - AWS_SECRET_ACCESS_KEY=testSecretKey
