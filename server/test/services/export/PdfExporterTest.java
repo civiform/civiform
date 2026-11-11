@@ -474,21 +474,19 @@ public class PdfExporterTest extends AbstractExporterTest {
             .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
             .getQuestionDefinition();
     QuestionModel initialQuestion =
-      instanceOf(QuestionRepository.class)
-        .lookupQuestionSync(
-          enumerator.getEnumeratorInitialQuestionId().orElseThrow())
-        .orElseThrow();
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(enumerator.getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow();
     ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
-    Path enumeratorPath =
-      ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment());
+    Path enumeratorPath = ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
-        applicant.getApplicantData(),
-        enumeratorPath,
-        ImmutableList.of("Sarah Brown"));
+        applicant.getApplicantData(), enumeratorPath, ImmutableList.of("Sarah Brown"));
     QuestionAnswerer.answerTextQuestion(
-      applicant.getApplicantData(),
-      enumeratorPath.atIndex(0).join(initialQuestion.getQuestionDefinition().getQuestionPathSegment()),
-      "Sarah Brown ");
+        applicant.getApplicantData(),
+        enumeratorPath
+            .atIndex(0)
+            .join(initialQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Sarah Brown ");
     applicant.save();
     ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
     application.setApplicantData(applicant.getApplicantData());
@@ -501,10 +499,17 @@ public class PdfExporterTest extends AbstractExporterTest {
 
     // The initial question's answers are shown under the enumerator, so only the enumerator is
     // listed, with a single "Answered on" date.
-    assertThat(pdfText).contains("applicant household members");
-    assertThat(pdfText).contains("Sarah Brown");
-    assertThat(pdfText).doesNotContain("applicant's household member's name");
-    assertThat(StringUtils.countMatches(pdfText, "Answered on")).isEqualTo(1);
+    // We don't care about the Submit time for this test, it just serves to
+    // show we're checking all the questions.
+    assertThat(pdfText)
+        .endsWith(
+            """
+            Submit Time: Application submitted without submission time marked.
+            \s
+            applicant household members
+            Sarah Brown
+            Answered on : 1969-12-31\
+            """);
   }
 
   @Test
