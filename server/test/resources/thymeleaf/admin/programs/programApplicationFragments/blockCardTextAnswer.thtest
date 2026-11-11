@@ -1,0 +1,44 @@
+%NAME blockCard - screen with one plain text answer and no eligibility text
+%TEMPLATE_MODE HTML
+%CONTEXT
+block = @views.admin.programs.ProgramApplicationPageViewModel$BlockCard@builder() \
+    .name("Screen 1").description("Personal information") \
+    .answers(@com.google.common.collect.ImmutableList@of( \
+        @views.admin.programs.ProgramApplicationPageViewModel$Answer@builder() \
+            .questionName("address-q") \
+            .contentType(@views.admin.programs.ProgramApplicationPageViewModel$Answer$ContentType@TEXT) \
+            .files(@com.google.common.collect.ImmutableList@of()) \
+            .answerText("123 Main St; Seattle, WA") \
+            .answeredOn("2024/01/01") \
+            .showEligibilityText(false).eligible(false) \
+            .build())) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ApplicationBlockCard :: blockCard(${block})}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-admin-application-block-card w-full shadow-lg mb-4">
+  <div class="border border-gray-300 bg-white rounded p-4">
+    <div class="flex">
+      <div>
+        <div class="text-black font-bold text-xl mb-2">Screen 1</div>
+      </div>
+      <p class="flex-grow"></p>
+      <p class="text-gray-700 italic">Personal information</p>
+    </div>
+    <div class="w-full">
+      <div class="flex">
+        <div class="mb-8">
+          <div class="text-gray-400 text-base line-clamp-3">address-q</div>
+        </div>
+        <p class="w-8"></p>
+        <div class="text-gray-700 text-base">123 Main St; Seattle, WA</div>
+        <p class="flex-grow"></p>
+        <div class="flex-auto text-right font-light text-xs">
+          <div class="cf-bt-date">Answered on 2024/01/01</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

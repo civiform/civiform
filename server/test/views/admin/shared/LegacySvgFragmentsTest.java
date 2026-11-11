@@ -125,6 +125,12 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconTranslateSvgTextButton.thtest");
   }
 
+  /** Legacy source: AdminLayout.createManageTranslationsButton ("Manage translations"). */
+  @Test
+  public void iconLanguage_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconLanguageSvgTextButton.thtest");
+  }
+
   /** Legacy source: ViewUtils.makeSvgTextButton ("Archive"). */
   @Test
   public void iconArchive_svgTextButton() {
@@ -267,5 +273,29 @@ public class LegacySvgFragmentsTest {
   @Test
   public void iconLabel_programTypeIndicator() {
     ThymeleafFragmentTester.run(DIR + "iconLabelProgramTypeIndicator.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Export to PDF" and "Download" buttons). */
+  @Test
+  public void iconDownload_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconDownloadSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Filter" on the applications list). */
+  @Test
+  public void iconFilterAlt_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconFilterAltSvgTextButton.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderPreviousPageButton (pagination). */
+  @Test
+  public void iconNavigateBefore_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateBefore.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderNextPageButton (pagination). */
+  @Test
+  public void iconNavigateNext_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateNext.thtest");
   }
 }

@@ -25,11 +25,14 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramApplicationListPageMapper;
+import mapping.admin.programs.ProgramApplicationPageMapper;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -62,6 +65,10 @@ import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
+import views.admin.programs.ProgramApplicationListPageView;
+import views.admin.programs.ProgramApplicationListPageViewModel;
+import views.admin.programs.ProgramApplicationPageView;
+import views.admin.programs.ProgramApplicationPageViewModel;
 import views.admin.programs.ProgramApplicationTableView;
 import views.admin.programs.ProgramApplicationTableView.RenderFilterParams;
 import views.admin.programs.ProgramApplicationView;
@@ -76,6 +83,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final PdfExporterService pdfExporterService;
   private final ProgramAdminApplicationService programAdminApplicationService;
   private final ProgramApplicationView applicationView;
+  private final ProgramApplicationPageView applicationPageView;
   private final ProgramService programService;
   private final CsvExporterService exporterService;
   private final FormFactory formFactory;
@@ -85,6 +93,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final ProgramApplicationTableView tableView;
+  private final ProgramApplicationListPageView applicationListPageView;
   private final SettingsManifest settingsManifest;
 
   public enum RelativeTimeOfDay {
@@ -104,6 +113,7 @@ public final class AdminApplicationController extends CiviFormController {
       JsonExporterService jsonExporterService,
       PdfExporterService pdfExporterService,
       ProgramApplicationView applicationView,
+      ProgramApplicationPageView applicationPageView,
       ProgramAdminApplicationService programAdminApplicationService,
       ProfileUtils profileUtils,
       MessagesApi messagesApi,
@@ -112,11 +122,13 @@ public final class AdminApplicationController extends CiviFormController {
       VersionRepository versionRepository,
       StatusService statusService,
       ProgramApplicationTableView tableView,
+      ProgramApplicationListPageView applicationListPageView,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
     this.applicantService = checkNotNull(applicantService);
     this.applicationView = checkNotNull(applicationView);
+    this.applicationPageView = checkNotNull(applicationPageView);
     this.programAdminApplicationService = checkNotNull(programAdminApplicationService);
     this.nowProvider = checkNotNull(nowProvider);
     this.exporterService = checkNotNull(csvExporterService);
@@ -127,6 +139,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.tableView = checkNotNull(tableView);
+    this.applicationListPageView = checkNotNull(applicationListPageView);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -356,6 +369,32 @@ public final class AdminApplicationController extends CiviFormController {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      CiviFormProfile profile = profileUtils.currentUserProfile(request);
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+
+      ProgramApplicationPageViewModel model =
+          new ProgramApplicationPageMapper()
+              .map(
+                  programId,
+                  programName,
+                  application,
+                  applicantNameWithApplicationId,
+                  blocks,
+                  answers,
+                  statusService.lookupActiveStatusDefinitions(programName),
+                  noteMaybe,
+                  program.hasEligibilityEnabled(),
+                  showDownloadButton,
+                  new ProgramApplicationPageMapper.ListFilters(
+                      search, fromDate, toDate, page, selectedApplicationStatus),
+                  request.flash().get(FlashKey.SUCCESS),
+                  dateConverter);
+      return ok(applicationPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         applicationView.render(
             programId,
@@ -544,6 +583,38 @@ public final class AdminApplicationController extends CiviFormController {
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);
+    RenderFilterParams filterParams =
+        RenderFilterParams.builder()
+            .setSearch(search)
+            .setFromDate(fromDate)
+            .setUntilDate(untilDate)
+            .setSelectedApplicationStatus(applicationStatus)
+            .build();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+      Messages enUsMessages = messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
+
+      ProgramApplicationListPageViewModel model =
+          new ProgramApplicationListPageMapper()
+              .map(
+                  program,
+                  activeStatusDefinitions,
+                  getAllApplicationStatusesForProgram(program.id()),
+                  paginationSpec,
+                  applications,
+                  filterParams,
+                  showDownloadButton,
+                  showDownloadModal.orElse(false),
+                  message,
+                  applicantService,
+                  dateConverter,
+                  enUsMessages);
+      return ok(applicationListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         tableView.render(
             request,
@@ -553,12 +624,7 @@ public final class AdminApplicationController extends CiviFormController {
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
-            RenderFilterParams.builder()
-                .setSearch(search)
-                .setFromDate(fromDate)
-                .setUntilDate(untilDate)
-                .setSelectedApplicationStatus(applicationStatus)
-                .build(),
+            filterParams,
             showDownloadModal,
             message));
   }

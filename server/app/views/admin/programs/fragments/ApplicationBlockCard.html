@@ -1,0 +1,78 @@
+<!--/*
+  One screen of a submitted application with its answers, on the admin
+  application view.
+
+  Legacy counterpart: ProgramApplicationView#renderApplicationBlock and
+  #renderAnswer.
+*/-->
+<!--/*@thymesVar id="block" type="views.admin.programs.ProgramApplicationPageViewModel.BlockCard"*/-->
+<!--/*@thymesVar id="answer" type="views.admin.programs.ProgramApplicationPageViewModel.Answer"*/-->
+<div
+  th:fragment="blockCard(block)"
+  class="cf-admin-application-block-card w-full shadow-lg mb-4"
+>
+  <div class="border border-gray-300 bg-white rounded p-4">
+    <div class="flex">
+      <div>
+        <div
+          class="text-black font-bold text-xl mb-2"
+          th:text="${block.name}"
+        ></div>
+      </div>
+      <p class="flex-grow"></p>
+      <p class="text-gray-700 italic" th:text="${block.description}"></p>
+    </div>
+    <div class="w-full">
+      <th:block th:each="answer : ${block.answers}">
+        <div
+          th:replace="~{admin/programs/fragments/ApplicationBlockCard :: answer(${answer})}"
+        ></div>
+      </th:block>
+    </div>
+  </div>
+</div>
+
+<div th:fragment="answer(answer)" class="flex">
+  <div class="mb-8">
+    <div
+      class="text-gray-400 text-base line-clamp-3"
+      th:text="${answer.questionName}"
+    ></div>
+  </div>
+  <p class="w-8"></p>
+  <!--/* th:replace sits on an element nested inside each case: fragment
+         inclusion is evaluated before th:case, so combining them on one
+         element would render every variant. */-->
+  <th:block th:switch="${answer.contentType.name()}">
+    <th:block th:case="'FILE_LIST'">
+      <!--/* Comma-separated file links; the separator span follows every
+             link but the last. */-->
+      <div class="text-gray-700 text-base">
+        <th:block th:each="file, iter : ${answer.files}">
+          <a
+            th:href="${file.href}"
+            class="text-blue-600"
+            th:text="${file.name}"
+          ></a
+          ><span th:unless="${iter.last}">, </span>
+        </th:block>
+      </div>
+    </th:block>
+    <th:block th:case="'FILE_LINK'">
+      <div class="text-gray-700 text-base">
+        <a th:href="${answer.fileHref}" th:text="${answer.answerText}"></a>
+      </div>
+    </th:block>
+    <th:block th:case="'TEXT'">
+      <div class="text-gray-700 text-base" th:text="${answer.answerText}"></div>
+    </th:block>
+  </th:block>
+  <p class="flex-grow"></p>
+  <div class="flex-auto text-right font-light text-xs">
+    <div class="cf-bt-date" th:text="|Answered on ${answer.answeredOn}|"></div>
+    <th:block th:if="${answer.showEligibilityText}">
+      <div th:if="${answer.eligible}">Meets eligibility</div>
+      <div th:unless="${answer.eligible}">Doesn't meet eligibility</div>
+    </th:block>
+  </div>
+</div>

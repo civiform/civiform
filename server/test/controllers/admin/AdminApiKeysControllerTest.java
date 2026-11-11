@@ -2,7 +2,6 @@ package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -10,13 +9,13 @@ import static play.test.Helpers.fakeRequest;
 
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import play.mvc.Http;
 import play.mvc.Result;
-import play.twirl.api.Content;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
@@ -24,14 +23,12 @@ import services.DateConverter;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
 import services.program.ProgramType;
-import services.settings.SettingsManifest;
 import support.ProgramBuilder;
 import views.admin.apikeys.ApiKeyCredentialsPageView;
-import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexPageView;
-import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOnePageView;
-import views.admin.apikeys.ApiKeyNewOneView;
+import views.admin.apikeys.ApiKeyNewOnePageViewModel;
+import views.admin.apikeys.ApiKeyNewOnePageViewModel.ProgramCheckbox;
 
 public class AdminApiKeysControllerTest extends ResetPostgres {
 
@@ -39,20 +36,18 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
   private static final String INTERNAL_PROGRAM_TWO = "Internal Two";
   private static final String EXTERNAL_PROGRAM = "External Program";
 
-  private ApiKeyNewOneView apiKeyNewOneView;
+  private ApiKeyNewOnePageView apiKeyNewOnePageView;
   private AdminApiKeysController controller;
   private ProfileUtils profileUtils;
-  private Content mockContent;
 
   @Before
   public void setUp() {
     resetTables();
 
-    apiKeyNewOneView = mock(ApiKeyNewOneView.class);
+    apiKeyNewOnePageView = mock(ApiKeyNewOnePageView.class);
     profileUtils = mock(ProfileUtils.class);
 
-    mockContent = mock(Content.class);
-    when(mockContent.body()).thenReturn("mocked content");
+    when(apiKeyNewOnePageView.render(any(Http.Request.class), any())).thenReturn("mocked content");
 
     CiviFormProfile mockProfile = mock(CiviFormProfile.class);
     when(profileUtils.currentUserProfile(any())).thenReturn(mockProfile);
@@ -60,19 +55,15 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
     controller =
         new AdminApiKeysController(
             instanceOf(ApiKeyService.class),
-            instanceOf(ApiKeyIndexView.class),
-            apiKeyNewOneView,
-            instanceOf(ApiKeyCredentialsView.class),
             instanceOf(ApiKeyIndexPageView.class),
-            instanceOf(ApiKeyNewOnePageView.class),
+            apiKeyNewOnePageView,
             instanceOf(ApiKeyCredentialsPageView.class),
             instanceOf(ProgramService.class),
             instanceOf(play.data.FormFactory.class),
             profileUtils,
             instanceOf(VersionRepository.class),
             instanceOf(ProgramRepository.class),
-            instanceOf(DateConverter.class),
-            instanceOf(SettingsManifest.class));
+            instanceOf(DateConverter.class));
   }
 
   @Test
@@ -83,15 +74,13 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
         .withProgramType(ProgramType.EXTERNAL)
         .buildDefinition();
 
-    when(apiKeyNewOneView.render(any(Http.Request.class), any())).thenReturn(mockContent);
-
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
-    verify(apiKeyNewOneView)
-        .render(
-            any(Http.Request.class),
-            eq(ImmutableSet.of(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO)));
+
+    ApiKeyNewOnePageViewModel model = captureNewOnePageModel();
+    assertThat(model.isShowForm()).isTrue();
+    assertThat(programLabels(model)).containsExactly(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO);
   }
 
   @Test
@@ -100,12 +89,13 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
         .withProgramType(ProgramType.EXTERNAL)
         .buildDefinition();
 
-    when(apiKeyNewOneView.renderNoPrograms(any(Http.Request.class))).thenReturn(mockContent);
-
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
-    verify(apiKeyNewOneView).renderNoPrograms(any(Http.Request.class));
+
+    ApiKeyNewOnePageViewModel model = captureNewOnePageModel();
+    assertThat(model.isShowForm()).isFalse();
+    assertThat(model.getProgramCheckboxes()).isEmpty();
   }
 
   @Test
@@ -113,15 +103,11 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
     ProgramBuilder.newActiveProgram(INTERNAL_PROGRAM_ONE).buildDefinition();
     ProgramBuilder.newActiveProgram(INTERNAL_PROGRAM_TWO).buildDefinition();
 
-    when(apiKeyNewOneView.render(any(Http.Request.class), any())).thenReturn(mockContent);
-
     Result result = controller.newOne(fakeRequest().build());
 
     assertThat(result.status()).isEqualTo(200);
-    verify(apiKeyNewOneView)
-        .render(
-            any(Http.Request.class),
-            eq(ImmutableSet.of(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO)));
+    assertThat(programLabels(captureNewOnePageModel()))
+        .containsExactly(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO);
   }
 
   @Test
@@ -142,15 +128,25 @@ public class AdminApiKeysControllerTest extends ResetPostgres {
                     "subnet", "invalid",
                     "programSlugs", ""));
 
-    when(apiKeyNewOneView.render(any(Http.Request.class), any(), any())).thenReturn(mockContent);
-
     Result result = controller.create(requestBuilder.build());
 
     assertThat(result.status()).isEqualTo(400);
-    verify(apiKeyNewOneView)
-        .render(
-            any(Http.Request.class),
-            eq(ImmutableSet.of(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO)),
-            any());
+
+    ApiKeyNewOnePageViewModel model = captureNewOnePageModel();
+    assertThat(model.isShowForm()).isTrue();
+    assertThat(programLabels(model)).containsExactly(INTERNAL_PROGRAM_ONE, INTERNAL_PROGRAM_TWO);
+  }
+
+  private ApiKeyNewOnePageViewModel captureNewOnePageModel() {
+    ArgumentCaptor<ApiKeyNewOnePageViewModel> captor =
+        ArgumentCaptor.forClass(ApiKeyNewOnePageViewModel.class);
+    verify(apiKeyNewOnePageView).render(any(Http.Request.class), captor.capture());
+    return captor.getValue();
+  }
+
+  private static ImmutableList<String> programLabels(ApiKeyNewOnePageViewModel model) {
+    return model.getProgramCheckboxes().stream()
+        .map(ProgramCheckbox::getLabel)
+        .collect(ImmutableList.toImmutableList());
   }
 }

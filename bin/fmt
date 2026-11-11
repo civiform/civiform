@@ -26,11 +26,7 @@ bin/pull-image --formatter
 # we run it on every call to bin/fmt.
 bin/generate-settings-manifest
 
-# Can't use TTY in CI
-interactive_flag="-it"
-if [[ -n "${CI}" ]]; then
-  interactive_flag=""
-fi
+interactive_flag="$(docker::interactive_flags)"
 
 readonly GIT_DIR="$(git rev-parse --show-toplevel)"
 repo_type="not-worktree"
@@ -54,8 +50,9 @@ if [[ "${repo_type}" == "not-worktree" ]]; then
     "$@"
 
 # If repo_type is a file then the current folder was created with the command `git worktree add` which
-# is a branch checked out in its own folder. For this we pass in the path of the worktree parent so
-# the fmt command will has access to other branches when it does a diff.
+# is a branch checked out in its own folder. For this we pass in the shared git directory, mounted at
+# the same path, so the worktree's .git file resolves and the fmt command has access to other branches
+# when it does a diff. This works for both bare clones and worktrees of a regular clone.
 # Example:
 #   > git clone --bare git@github.com:civiform/civiform.git
 #   > cd ./civiform
@@ -63,11 +60,11 @@ if [[ "${repo_type}" == "not-worktree" ]]; then
 #   > cd ./new-branch-name
 #   > bin/fmt
 elif [[ "${repo_type}" == "worktree" ]]; then
-  worktree_root="$(dirname "${GIT_DIR}")"
+  git_common_dir="$(cd "$(git rev-parse --git-common-dir)" && pwd)"
 
   docker run --rm ${interactive_flag} \
     -v "$(pwd):/code" \
-    -v "${worktree_root}:${worktree_root}" \
+    -v "${git_common_dir}:${git_common_dir}" \
     civiform/formatter \
     "$@"
 else

@@ -15,6 +15,13 @@ import {
 } from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
