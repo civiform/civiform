@@ -1,6 +1,10 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -12,11 +16,14 @@ import com.google.common.collect.ImmutableMap;
 import models.AccountModel;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import play.data.FormFactory;
+import play.mvc.Http;
 import repository.AccountRepository;
 import repository.ResetPostgres;
 import services.settings.SettingsManifest;
 import views.admin.ti.EditTrustedIntermediaryGroupPageView;
+import views.admin.ti.EditTrustedIntermediaryGroupPageViewModel;
 import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
 
@@ -35,15 +42,20 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
   private TrustedIntermediaryManagementController controller;
   private AccountRepository accountRepository;
+  private EditTrustedIntermediaryGroupPageView editPageView;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
 
+    // The real view's layout needs a signed-in profile, which fakeRequest() doesn't carry.
+    editPageView = mock(EditTrustedIntermediaryGroupPageView.class);
+    when(editPageView.render(any(Http.Request.class), any())).thenReturn("mocked content");
+
     controller =
         new TrustedIntermediaryManagementController(
             instanceOf(TrustedIntermediaryGroupListView.class),
-            instanceOf(EditTrustedIntermediaryGroupPageView.class),
+            editPageView,
             accountRepository,
             instanceOf(FormFactory.class),
             instanceOf(SettingsManifest.class),
@@ -136,7 +148,12 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
     assertThat(result.status()).isEqualTo(OK);
     // TODO(#10097): Assert that the title of the group is shown
-    assertThat(contentAsString(result)).contains(TEST_EMAIL);
+    ArgumentCaptor<EditTrustedIntermediaryGroupPageViewModel> captor =
+        ArgumentCaptor.forClass(EditTrustedIntermediaryGroupPageViewModel.class);
+    verify(editPageView).render(any(Http.Request.class), captor.capture());
+    assertThat(captor.getValue().getMembers())
+        .extracting(EditTrustedIntermediaryGroupPageViewModel.Member::getEmailAddress)
+        .containsExactly(TEST_EMAIL);
   }
 
   @Test
