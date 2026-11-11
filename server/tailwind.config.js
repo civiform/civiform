@@ -61,6 +61,7 @@ module.exports = {
     'sm:text-5xl',
     'space-x-3',
     'usa-alert-remove-top-margin',
+    'w-1/6',
   ],
   theme: {
     extend: {

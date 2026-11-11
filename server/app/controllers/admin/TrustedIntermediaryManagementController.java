@@ -27,7 +27,6 @@ import services.ti.NoSuchTrustedIntermediaryGroupError;
 import services.ti.NotEligibleToBecomeTiError;
 import views.admin.ti.EditTrustedIntermediaryGroupPageView;
 import views.admin.ti.EditTrustedIntermediaryGroupPageViewModel;
-import views.admin.ti.EditTrustedIntermediaryGroupView;
 import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListPageViewModel;
 import views.admin.ti.TrustedIntermediaryGroupListView;
@@ -38,7 +37,6 @@ public class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;
   private final AccountRepository accountRepository;
   private final FormFactory formFactory;
-  private final EditTrustedIntermediaryGroupView editView;
   private final EditTrustedIntermediaryGroupPageView editPageView;
   private final SettingsManifest settingsManifest;
   private final TrustedIntermediaryGroupListPageView trustedIntermediaryGroupListPageView;
@@ -46,7 +44,6 @@ public class TrustedIntermediaryManagementController extends Controller {
   @Inject
   public TrustedIntermediaryManagementController(
       TrustedIntermediaryGroupListView listView,
-      EditTrustedIntermediaryGroupView editView,
       EditTrustedIntermediaryGroupPageView editPageView,
       AccountRepository accountRepository,
       FormFactory formFactory,
@@ -55,7 +52,6 @@ public class TrustedIntermediaryManagementController extends Controller {
     this.listView = Preconditions.checkNotNull(listView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
     this.formFactory = Preconditions.checkNotNull(formFactory);
-    this.editView = Preconditions.checkNotNull(editView);
     this.editPageView = Preconditions.checkNotNull(editPageView);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.trustedIntermediaryGroupListPageView =
@@ -215,17 +211,13 @@ public class TrustedIntermediaryManagementController extends Controller {
       return notFound("no such group.");
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      EditTrustedIntermediaryGroupPageViewModel model =
-          new EditTrustedIntermediaryGroupPageMapper()
-              .map(
-                  tiGroup.get(),
-                  request.flash().get(FlashKey.PROVIDED_EMAIL_ADDRESS),
-                  request.flash().get(FlashKey.ERROR));
-      return ok(editPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return ok(editView.render(tiGroup.get(), request));
+    EditTrustedIntermediaryGroupPageViewModel model =
+        new EditTrustedIntermediaryGroupPageMapper()
+            .map(
+                tiGroup.get(),
+                request.flash().get(FlashKey.PROVIDED_EMAIL_ADDRESS),
+                request.flash().get(FlashKey.ERROR));
+    return ok(editPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /** POST endpoint for deleting a trusted intermediary group. */
