@@ -2,7 +2,7 @@ package views.admin.migration;
 
 import com.google.common.collect.ImmutableList;
 
-/** Form used to store which program an admin wants to export. See {@link AdminExportView}. */
+/** Form used to store which program an admin wants to export. See {@link AdminExportPageView}. */
 public final class AdminProgramExportForm {
   public static final String PROGRAM_ID_FIELD = "programId";
   public static final String PROGRAM_JSON_FIELD = "programJson";
