@@ -57,6 +57,7 @@ public final class ProgramImageView extends BaseHtmlView {
   private static final String IMAGE_DESCRIPTION_FORM_ID = "image-description-form";
   private static final String IMAGE_FILE_UPLOAD_FORM_ID = "image-file-upload-form";
   private static final String PAGE_TITLE = "Image upload";
+  private static final String PAGE_TITLE_ID = "program-image-title";
   private static final String DELETE_IMAGE_BUTTON_TEXT = "Delete image";
 
   private static final Logger logger = LoggerFactory.getLogger(ProgramImageView.class);
@@ -102,7 +103,7 @@ public final class ProgramImageView extends BaseHtmlView {
 
     DivTag mainContent = div().withClass("mx-20");
 
-    H1Tag titleContainer = renderHeader(PAGE_TITLE);
+    H1Tag titleContainer = renderHeader(PAGE_TITLE).withId(PAGE_TITLE_ID);
 
     DivTag formsContainer = div();
     Modal deleteImageModal = createDeleteImageModal(request, programDefinition, editStatus);
@@ -253,6 +254,7 @@ public final class ProgramImageView extends BaseHtmlView {
     DivTag fileInputElement =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* id= */ "program-image-upload-file-input",
+            /* labelledById= */ PAGE_TITLE_ID,
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
             /* hints= */ ImmutableList.of(
                 "The maximum size for image upload is 1MB.",

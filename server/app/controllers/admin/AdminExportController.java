@@ -20,10 +20,8 @@ import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.question.QuestionService;
 import services.question.types.QuestionDefinition;
-import services.settings.SettingsManifest;
 import views.admin.migration.AdminExportPageView;
 import views.admin.migration.AdminExportPageViewModel;
-import views.admin.migration.AdminExportView;
 import views.admin.migration.AdminProgramExportForm;
 
 /**
@@ -37,33 +35,27 @@ import views.admin.migration.AdminProgramExportForm;
  * environment (e.g. production).
  */
 public class AdminExportController extends CiviFormController {
-  private final AdminExportView adminExportView;
   private final AdminExportPageView adminExportPageView;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
   private final ProgramService programService;
   private final QuestionService questionService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminExportController(
-      AdminExportView adminExportView,
       AdminExportPageView adminExportPageView,
       FormFactory formFactory,
       ProfileUtils profileUtils,
       ProgramMigrationService programMigrationService,
       ProgramService programService,
       QuestionService questionService,
-      SettingsManifest settingsManifest,
       VersionRepository versionRepository) {
     super(profileUtils, versionRepository);
-    this.adminExportView = checkNotNull(adminExportView);
     this.adminExportPageView = checkNotNull(adminExportPageView);
     this.formFactory = checkNotNull(formFactory);
     this.programMigrationService = checkNotNull(programMigrationService);
     this.programService = checkNotNull(programService);
     this.questionService = checkNotNull(questionService);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -92,17 +84,12 @@ public class AdminExportController extends CiviFormController {
       return badRequest(serializeResult.getErrors().stream().findFirst().orElseThrow());
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      AdminExportPageViewModel model =
-          AdminExportPageViewModel.builder()
-              .adminName(program.adminName())
-              .programJson(serializeResult.getResult())
-              .build();
-      return ok(adminExportPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return ok(
-        adminExportView.render(request, program, serializeResult.getResult(), program.adminName()));
+    AdminExportPageViewModel model =
+        AdminExportPageViewModel.builder()
+            .adminName(program.adminName())
+            .programJson(serializeResult.getResult())
+            .build();
+    return ok(adminExportPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)

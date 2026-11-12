@@ -99,14 +99,20 @@ public abstract class FileUploadViewStrategy {
    * @param disabled true if the file input should be shown as disabled.
    * @param fileLimitMb the maximum file size in megabytes allowed for this file input element. Used
    *     to show an error client-side if the user uploads a file that's too large.
+   * @param labelledById the ID of the element that names the file input. USWDS sets its own
+   *     aria-label on the input, so the input's aria-labelledby lists this element and then the
+   *     input itself, which makes the accessible name this element's text followed by the USWDS
+   *     instructions (#10438).
    */
   public static DivTag createUswdsFileInputFormElement(
       String id,
+      String labelledById,
       String acceptedMimeTypes,
       ImmutableList<String> hints,
       boolean disabled,
       int fileLimitMb,
       Messages messages) {
+    String inputId = id + "-input";
     StringBuilder ariaDescribedByIds = new StringBuilder();
     for (int i = 0; i < hints.size(); i++) {
       ariaDescribedByIds.append(FILE_INPUT_HINT_ID_PREFIX);
@@ -128,9 +134,11 @@ public abstract class FileUploadViewStrategy {
             createFileTooLargeError(fileLimitMb, messages))
         .with(
             input()
+                .withId(inputId)
                 .withType("file")
                 .withName("file")
                 .withClasses("usa-file-input")
+                .attr("aria-labelledby", labelledById + " " + inputId)
                 .attr("aria-describedby", ariaDescribedByIds.toString())
                 .attr(FILE_LIMIT_ATTR, fileLimitMb)
                 .withAccept(acceptedMimeTypes)

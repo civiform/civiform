@@ -1,11 +1,18 @@
 import {test, expect} from '../support/civiform_fixtures'
-import {loginAsAdmin, validateScreenshot} from '../support'
+import {loginAsAdmin, validateScreenshot, enableFeatureFlag} from '../support'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe(
   'publishing all draft questions and programs',
   {tag: ['@uses-fixtures']},
   () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+    })
+
     const hiddenProgramNoQuestions = 'Public test program hidden no questions'
     const visibleProgramWithQuestion =
       'Public test program visible with question'
@@ -81,6 +88,13 @@ test.describe(
   'publish all programs -- disabled programs',
   {tag: ['@in-development']},
   () => {
+    test.beforeEach(async ({page}) => {
+      await enableFeatureFlag(
+        page,
+        'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+      )
+    })
+
     test('shows programs and questions that will be publised in the modal, including disabled programs', async ({
       page,
       adminPrograms,
@@ -137,6 +151,13 @@ test.describe(
 )
 
 test.describe('publish all programs -- universal questions', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows a modal with information about universal questions', async ({
     page,
     adminPrograms,
