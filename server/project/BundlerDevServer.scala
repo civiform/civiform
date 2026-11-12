@@ -16,6 +16,13 @@ object BundlerDevServer {
 
       override def afterStopped(): Unit = {
         println("Stopping Bundler dev server...")
+        stop()
+      }
+
+      // Play calls onError, not afterStopped, when the server fails to start.
+      override def onError(): Unit = stop()
+
+      private def stop(): Unit = {
         process.foreach(_.destroy())
         process = None
       }

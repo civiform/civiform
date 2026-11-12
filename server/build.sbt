@@ -346,14 +346,56 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 
+// True when the bundler dev server serves js/css. False when Play serves the
+// pre-built bundles in app/assets/dist.
+lazy val useBundlerDevServer =
+  sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean
+
 // Play run hooks only run when the app starts with sbt run (dev/test). They
 // are not called when the app is precompiled with sbt dist (prod).
 playRunHooks += TailwindBuilder(baseDirectory.value)
 playRunHooks ++= {
-  if (sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean) {
+  if (useBundlerDevServer) {
     Seq(BundlerDevServer(baseDirectory.value))
   } else {
     Seq(BundledAssetBuilder(baseDirectory.value))
+  }
+}
+
+// Play's dev reloader watches all of app/ by default, so a ts/scss edit makes
+// the next request run compile and the digest/gzip pipeline. The bundler dev
+// server serves those files, so stop watching them. Play still serves the rest
+// of app/assets and keeps watching it.
+//
+// Play reads this list once when `run` starts. Restart after adding a new
+// top-level directory such as app/foo/ or app/assets/foo/. Play picks up new
+// directories deeper than that without a restart.
+PlayKeys.playMonitoredFiles := {
+  val monitored = PlayKeys.playMonitoredFiles.value
+  val appDir = (Compile / sourceDirectory).value.getCanonicalFile
+  val assetsDir = (Assets / sourceDirectory).value.getCanonicalFile
+  val bundlerOwnedDirs = Set("javascripts", "stylesheets")
+
+  def subdirectories(dir: File): Seq[File] =
+    IO.listFiles(dir).toSeq.filter(_.isDirectory).map(_.getCanonicalFile)
+
+  if (useBundlerDevServer) {
+    monitored.flatMap { dir =>
+      if (dir.getCanonicalFile == appDir) {
+        subdirectories(appDir).flatMap { subdir =>
+          if (subdir == assetsDir) {
+            subdirectories(assetsDir)
+              .filterNot(d => bundlerOwnedDirs.contains(d.getName))
+          } else {
+            Seq(subdir)
+          }
+        }
+      } else {
+        Seq(dir)
+      }
+    }.distinct
+  } else {
+    monitored
   }
 }
 
