@@ -118,6 +118,22 @@ public abstract class RepeatedEntity {
         .atIndex(index());
   }
 
+  /**
+   * The last path segment of the blank marker that each initial question row submits, so the server
+   * counts the row even when its answer submits no value. It is deliberately not {@code
+   * entity_name}: the server ignores the marker's value and derives the stored entity name from the
+   * answer.
+   */
+  public static final String ENTITY_ROW_MARKER = "entity_row";
+
+  /**
+   * The path of this repeated entity's row marker, e.g. {@code
+   * applicant.household_members[0].entity_row}.
+   */
+  public Path entityRowMarkerPath() {
+    return contextualizedPath().join(ENTITY_ROW_MARKER);
+  }
+
   /** The depth is how deeply nested this repeated entity is. */
   public int depth() {
     return 1 + parent().map(RepeatedEntity::depth).orElse(0);
