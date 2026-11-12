@@ -17,16 +17,32 @@
        once and referenced from each entity row via aria-labelledby/aria-describedby. The initial
        question is always one of the valid types (enforced when the admin sets it up), so each row
        dispatches to the matching question-type fragment below. */-->
-  <th:block th:if="${initialQuestionType != null}">
+  <!--/* When the list question has a question-level error (required, too few or too many items,
+       duplicate names), the page must move focus somewhere and connect the error to it, since
+       there may be no inputs for the usual first-error autofocus. With no rows, the Add button
+       gets autofocus here. With rows, the first row's first field gets autofocus through its
+       renderer params (FIRST_FIELD, set in ApplicantProgramBlockEditView), unless a row has its
+       own error and already has autofocus. Either way the error is in the focused control's
+       aria-describedby, which is read on page load (role="alert" may not be). */-->
+  <th:block
+    th:if="${initialQuestionType != null}"
+    th:with="hasQuestionLevelErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()},
+             hasEntityRows=${!contextualizedInitialQuestions.isEmpty()},
+             describeFirstEntityWithError=${hasQuestionLevelErrors && hasEntityRows}"
+  >
     <!--/* Enumerator Title and Help Text */-->
     <div
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextGroupLabel(${question}, ${questionId})}"
     ></div>
 
-    <!--/* Display question level errors */-->
-    <div
-      th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
-    ></div>
+    <!--/* Display question level errors. There can be more than one (e.g. required and too few
+         items), and each error div has the same id, so the focused control's aria-describedby
+         points at this wrapper to read all of them. */-->
+    <div th:id="${questionId} + '-errors'">
+      <div
+        th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${questionErrors}, ${questionRendererParams}, ${questionId})}"
+      ></div>
+    </div>
 
     <!--/* Hidden template cloned by TS to submit a delete marker when a saved entity is removed. */-->
     <div th:replace="~{this :: deleteInputTemplate}"></div>
@@ -50,7 +66,10 @@
 
     <!--/* Add entity button: HTMX posts to the server, which returns a new entity row appended to
          #enumerator-fields. enumerator.ts supplies the current entityCount via hx-vals and gates
-         its legacy click handler on the absence of hx-post. */-->
+         its legacy click handler on the absence of hx-post. With no rows, the button is labelled
+         by the question title and described by the list-level errors and help text. With rows,
+         the first row carries those instead, so the button doesn't repeat them; enumerator.ts
+         keeps this in sync when rows are added or removed. */-->
     <button
       th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
       id="enumerator-field-add-button"
@@ -62,6 +81,9 @@
               data-min-entities=${enumeratorQuestion.getMinEntities().isPresent() ? enumeratorQuestion.getMinEntities().getAsInt() : ''},
               data-max-entities=${enumeratorQuestion.getMaxEntities().isPresent() ? enumeratorQuestion.getMaxEntities().getAsInt() : enumMaxEntityCount}"
       class="usa-button usa-button--outline margin-top-105"
+      th:aria-labelledby="${hasEntityRows ? null : questionId + '-title enumerator-field-add-button'}"
+      th:aria-describedby="${hasEntityRows ? null : (hasQuestionLevelErrors ? questionId + '-errors ' : '') + questionId + '-description'}"
+      th:autofocus="${hasQuestionLevelErrors && !hasEntityRows}"
     ></button>
   </th:block>
 
@@ -132,14 +154,21 @@
 
 <!--/* Renders one initial-question entity row (entity label + the initial question's inputs + a
      delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
-     are grouped with role="group"; single-input types carry a plain label on the control. */-->
+     are grouped with role="group"; single-input types carry a plain label on the control.
+     On the first row, a list-level error goes on the control that gets focus: rowAriaDescribedby
+     (the single-input control's description) starts with it, and group types get rowListErrorsId
+     for their first field. A group row's own description is only the help text, because
+     VoiceOver reads a group's description last. describeFirstEntityWithError is set by the
+     enumerator fragment above; it is unset when the HTMX add-entity partial renders a row on its
+     own, hence "== true". */-->
 <th:block
   th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex, rowRendererParams)"
   th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
            rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
            rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
-           rowAriaDescribedby=${isFirstEntity ? questionId + '-description' : null}"
+           rowAriaDescribedby=${isFirstEntity ? (describeFirstEntityWithError == true ? questionId + '-errors ' : '') + questionId + '-description' : null},
+           rowListErrorsId=${isFirstEntity && describeFirstEntityWithError == true ? questionId + '-errors' : null}"
 >
   <!--/* Multi-input types */-->
   <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
@@ -154,7 +183,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Date')}">
@@ -169,7 +199,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Address')}">
@@ -185,7 +216,8 @@
         inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
-          ${stateAbbreviations})})}"
+          ${stateAbbreviations},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Radio Button')}">
@@ -200,7 +232,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <!--/* Single-input types */-->
