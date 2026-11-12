@@ -298,4 +298,40 @@ public class LegacySvgFragmentsTest {
   public void iconNavigateNext_pagination() {
     ThymeleafFragmentTester.run(DIR + "iconNavigateNext.thtest");
   }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Create new program"). */
+  @Test
+  public void iconAdd_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconAddSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Publish", "Publish all drafts"). */
+  @Test
+  public void iconPublish_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconPublishSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("View" on program cards). */
+  @Test
+  public void iconView_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconViewSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Manage application statuses"). */
+  @Test
+  public void iconFlaky_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconFlakySvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Manage program admins"). */
+  @Test
+  public void iconGroup_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconGroupSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ProgramCardFactory.createImageIcon placeholder. */
+  @Test
+  public void iconImage_programCard() {
+    ThymeleafFragmentTester.run(DIR + "iconImageProgramCard.thtest");
+  }
 }

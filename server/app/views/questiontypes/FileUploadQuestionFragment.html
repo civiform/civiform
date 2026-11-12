@@ -16,6 +16,7 @@
   ></div>
   <div
     class="usa-hint"
+    th:id="${questionId} + '-hint'"
     th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   >
     <p
@@ -94,13 +95,19 @@
   </div>
 
   <!--/* File input. Triggers a htmx POST on change to upload the selected file. */-->
+  <!--/* USWDS sets the input's aria-label to its "Drag file here or choose from folder" instructions
+       and updates it after a file is chosen. aria-labelledby lists the question title and then the
+       input itself, so the accessible name is the title followed by whatever USWDS's aria-label
+       currently says. See #10438. VoiceOver in Safari ignores file input names whatever the markup
+       and reads only the value and description (#14467), so this is not heard there. */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
     type="file"
     name="file"
-    th:with="questionId=${question.getQuestionDefinition().getId()}"
-    th:aria-describedby="${hasErrors} ? |cf-fileupload-validation-errors-${questionId} cf-fileupload-sr-status-${questionId}| : |cf-fileupload-sr-status-${questionId}|"
+    th:with="questionDefId=${question.getQuestionDefinition().getId()}"
+    th:aria-labelledby="|${questionId}-title ${inputId}|"
+    th:aria-describedby="|${questionId}-description ${questionId}-hint | + (${hasErrors} ? |cf-fileupload-validation-errors-${questionDefId} | : '') + |cf-fileupload-sr-status-${questionDefId}|"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"

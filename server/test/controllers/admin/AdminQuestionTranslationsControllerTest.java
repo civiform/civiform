@@ -377,6 +377,7 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
     QuestionModel question = createDraftRepeatedQuestionWithoutThis();
     Http.RequestBuilder requestBuilder =
         fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",

@@ -1,0 +1,20 @@
+%NAME iconAdd - legacy ViewUtils.makeSvgTextButton ("Create new program").
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<svg th:replace="~{admin/shared/LegacySvgFragments :: iconAdd('inline-block h-4.5 w-4.5')}"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 20 20"
+  class="inline-block h-4.5 w-4.5"
+>
+  <path
+    d="M9.125 15.833V10.875H4.167V9.125H9.125V4.167H10.875V9.125H15.833V10.875H10.875V15.833Z"
+  ></path>
+</svg>
