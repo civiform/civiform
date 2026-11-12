@@ -1,0 +1,268 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="tiLayout" type="views.trustedintermediary.TrustedIntermediaryLayoutParams"*/-->
+<!--/*
+  Modals owned by trustedintermediary/TrustedIntermediaryLayout.html, the ones
+  the legacy j2html ApplicantLayout added to every trusted intermediary page.
+*/-->
+
+<!--/*
+  DevTools modal (ApplicantLayout.DEBUG_CONTENT_MODAL: views.components.Modal
+  with Width.THIRD and the default top, wrapping DebugContent.devTools()).
+  Opened by the "debug-content-modal-button" link in the navigation bar. The
+  buttons are not links: main.ts navigates on click via data-redirect-to.
+*/-->
+<div
+  th:fragment="devToolsModal"
+  th:if="${tiLayout.showDevTools()}"
+  id="debug-content-modal"
+  aria-labelledby="debug-content-modal-title"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-1/3 top-1/2"
+>
+  <div
+    id="debug-content-modal-title"
+    class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+  >
+    <div class="text-2xl text-gray-600 my-5 mx-4">Dev tools</div>
+    <!--/* Spacer so the close button and title don't overlap. */-->
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <div class="flex flex-col">
+      <p>Log in as:</p>
+      <button
+        class="m-2"
+        th:data-redirect-to="${tiLayout.fakeCiviformAdminUrl()}"
+        id="admin"
+      >
+        CiviForm Admin
+      </button>
+      <button
+        class="m-2"
+        th:data-redirect-to="${tiLayout.fakeProgramAdminUrl()}"
+        id="program-admin"
+      >
+        Program Admin
+      </button>
+      <button
+        class="m-2"
+        th:data-redirect-to="${tiLayout.fakeDualAdminUrl()}"
+        id="dual-admin"
+      >
+        Program and Civiform Admin
+      </button>
+      <button
+        class="m-2"
+        th:data-redirect-to="${tiLayout.fakeTrustedIntermediaryUrl()}"
+        id="trusted-intermediary"
+      >
+        Trusted Intermediary
+      </button>
+      <p>Other:</p>
+      <button
+        class="m-2"
+        th:data-redirect-to="${tiLayout.additionalToolsUrl()}"
+        id="additional-tools"
+      >
+        Additional tools
+      </button>
+    </div>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+    ></svg>
+  </button>
+</div>
+
+<!--/*
+  Session timeout warning modals (SessionTimeoutModals.render, built with
+  ViewUtils.makeUswdsModal) and the localized messages session.ts reads when
+  extending the session. The empty links are the modal openers makeUswdsModal
+  always emitted; session.ts opens the modals itself.
+*/-->
+<div
+  th:fragment="sessionTimeoutModals"
+  th:if="${tiLayout.showSessionTimeoutModals()}"
+  id="uswds-modal-container"
+  hidden
+>
+  <!--/* Inactivity warning: its footer lives inside the description because
+         the extend button needs htmx attributes makeUswdsModal's own footer
+         could not carry. */-->
+  <div class="margin-y-3">
+    <a
+      href="#session-inactivity-warning-modal"
+      class="usa-button bg-blue-600"
+      aria-controls="session-inactivity-warning-modal"
+      data-open-modal
+      data-modal-type="session-inactivity-warning"
+    ></a>
+    <div
+      class="usa-modal"
+      id="session-inactivity-warning-modal"
+      aria-labelledby="session-inactivity-warning-heading"
+      aria-describedby="session-inactivity-warning-description"
+      data-modal-type="session-inactivity-warning"
+    >
+      <div class="usa-modal__content">
+        <div class="mx-4 usa-modal__main">
+          <h2
+            class="usa-modal__heading"
+            id="session-inactivity-warning-heading"
+            th:text="#{session.warning.title}"
+          ></h2>
+          <div
+            class="my-6 usa-prose"
+            id="session-inactivity-warning-description"
+          >
+            <div>
+              <p th:text="#{session.inactivity.warning.message}"></p>
+              <div class="usa-modal__footer">
+                <ul class="usa-button-group">
+                  <li class="usa-button-group__item">
+                    <button
+                      type="button"
+                      id="extend-session-button"
+                      class="usa-button"
+                      data-close-modal
+                      data-modal-primary=""
+                      data-modal-type="session-inactivity-warning"
+                      hx-target="this"
+                      hx-swap="none"
+                      th:hx-post="${tiLayout.extendSessionUrl()}"
+                      th:hx-vals='|{"csrfToken": "${templateGlobals.csrfToken()}"}|'
+                      th:text="#{session.extend.button}"
+                    ></button>
+                  </li>
+                  <li class="usa-button-group__item">
+                    <button
+                      type="button"
+                      class="usa-button usa-button--unstyled padding-105 text-center"
+                      data-close-modal
+                      data-modal-secondary=""
+                      data-modal-type="session-inactivity-warning"
+                      th:text="#{button.cancel}"
+                    ></button>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label="Close this window"
+          class="usa-button usa-modal__close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 pt-4"
+          data-close-modal
+          data-modal-type="session-inactivity-warning"
+        >
+          <svg th:replace="~{:: usaCloseIcon}"></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!--/* Session length warning. Only logged in users see these pages, so it
+         always uses the logged in wording. */-->
+  <div class="margin-y-3">
+    <a
+      href="#session-length-warning-modal"
+      class="usa-button bg-blue-600"
+      aria-controls="session-length-warning-modal"
+      data-open-modal
+      data-modal-type="session-length-warning"
+    ></a>
+    <div
+      class="usa-modal"
+      id="session-length-warning-modal"
+      aria-labelledby="session-length-warning-heading"
+      aria-describedby="session-length-warning-description"
+      data-modal-type="session-length-warning"
+    >
+      <div class="usa-modal__content">
+        <div class="mx-4 usa-modal__main">
+          <h2
+            class="usa-modal__heading"
+            id="session-length-warning-heading"
+            th:text="#{session.warning.title}"
+          ></h2>
+          <div class="my-6 usa-prose" id="session-length-warning-description">
+            <div>
+              <p th:text="#{session.length.warning.message.loggedIn}"></p>
+            </div>
+          </div>
+          <div class="usa-modal__footer">
+            <ul class="usa-button-group">
+              <li class="usa-button-group__item">
+                <button
+                  type="button"
+                  class="usa-button"
+                  data-close-modal
+                  data-modal-primary=""
+                  data-modal-type="session-length-warning"
+                  th:text="#{session.login.button.loggedIn}"
+                ></button>
+              </li>
+              <li class="usa-button-group__item">
+                <button
+                  type="button"
+                  class="usa-button usa-button--unstyled padding-105 text-center"
+                  data-close-modal
+                  data-modal-secondary=""
+                  data-modal-type="session-length-warning"
+                  th:text="#{button.cancel}"
+                ></button>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <button
+          type="button"
+          aria-label="Close this window"
+          class="usa-button usa-modal__close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 pt-4"
+          data-close-modal
+          data-modal-type="session-length-warning"
+        >
+          <svg th:replace="~{:: usaCloseIcon}"></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="session-timeout-messages" class="hidden">
+    <span
+      id="session-extended-success-text"
+      role="alert"
+      th:text="#{session.extended.success}"
+    ></span>
+    <span
+      id="session-extended-error-text"
+      role="alert"
+      th:text="#{session.extended.error}"
+    ></span>
+  </div>
+</div>
+
+<!--/* Close icon of a USWDS modal: the legacy close icon with the extra
+       attributes makeUswdsModal put on it. */-->
+<svg
+  th:fragment="usaCloseIcon"
+  xmlns="http://www.w3.org/2000/svg"
+  fill="currentColor"
+  stroke="currentColor"
+  stroke-width="1%"
+  aria-hidden="true"
+  viewBox="0 0 48 48"
+  class="usa-icon"
+  focusable="false"
+  role="img"
+>
+  <path
+    d="m12.45 37.65-2.1-2.1L21.9 24 10.35 12.45l2.1-2.1L24 21.9l11.55-11.55 2.1 2.1L26.1 24l11.55 11.55-2.1 2.1L24 26.1Z"
+  ></path>
+</svg>

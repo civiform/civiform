@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   loginAsTestUser,
   logout,
@@ -11,6 +12,13 @@ import {
 } from '../support'
 
 test.describe('Ineligible Page Tests', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'Pet Assistance Program'
   const eligibilityQuestionId = 'eligibility-q'
   const questionText = 'How many pets do you have?'

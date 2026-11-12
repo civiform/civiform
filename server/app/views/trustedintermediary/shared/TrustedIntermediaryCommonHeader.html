@@ -1,0 +1,237 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="tiLayout" type="views.trustedintermediary.TrustedIntermediaryLayoutParams"*/-->
+<!--/*
+  Header partials of trustedintermediary/TrustedIntermediaryLayout.html. They
+  mirror what the legacy j2html ApplicantLayout rendered above the main
+  content of the trusted intermediary pages: the not-production banner
+  (PageNotProductionBanner) and the navigation bar (ApplicantLayout.renderNavBar
+  with the official government website banner from BaseHtmlLayout.getGovBanner).
+*/-->
+
+<!--/*
+  Sticky banner that makes it clear the site is not production. The second
+  line links to the production site, so the message is split around its {0}
+  placeholder and the link rendered between the two halves.
+*/-->
+<div
+  th:fragment="notProductionBanner"
+  th:if="${tiLayout.showNotProductionBanner()}"
+  class="sticky width-full top-0 left-0 z-50 text-white bg-red-600 p-6 flex flex-col justify-center items-center text-center"
+  role="alert"
+  th:aria-label="#{banner.notForProductionBannerLine1}"
+>
+  <h4
+    class="text-xl font-bold"
+    th:text="#{banner.notForProductionBannerLine1}"
+  ></h4>
+  <p
+    th:unless="${#strings.isEmpty(#strings.trim(tiLayout.productionUrl()))}"
+    class="mt-4"
+    th:with="line2=#{banner.notForProductionBannerLine2('%LINK%')}"
+  >
+    [(${#strings.substringBefore(line2, '%LINK%')})]<a
+      th:href="${tiLayout.productionUrl()}"
+      class="font-bold underline hover:no-underline"
+      th:text="|${tiLayout.civicEntityFullName()} CiviForm|"
+    ></a
+    >[(${#strings.substringAfter(line2, '%LINK%')})]
+  </p>
+</div>
+
+<nav th:fragment="navBar">
+  <!--/* The not-production banner replaces the official government website banner. */-->
+  <section
+    th:unless="${tiLayout.showNotProductionBanner()}"
+    class="usa-banner bg-gray-900"
+    th:aria-label="#{banner.title}"
+  >
+    <div class="usa-accordion">
+      <header class="usa-banner__header">
+        <div class="usa-banner__inner ml-0 pl-4">
+          <div class="grid-col-auto"></div>
+          <div class="grid-col-fill tablet:grid-col-auto" aria-hidden="true">
+            <p class="usa-banner__header-text" th:text="#{banner.title}"></p>
+            <p class="usa-banner__header-action" th:text="#{banner.link}"></p>
+          </div>
+          <button
+            type="button"
+            class="bg-transparent p-0 usa-accordion__button usa-banner__button"
+            aria-expanded="false"
+            aria-controls="gov-banner-default-default"
+          >
+            <span
+              class="usa-banner__button-text"
+              th:text="#{banner.link}"
+            ></span>
+          </button>
+        </div>
+      </header>
+      <!--/* "sm: ml-0" is a legacy typo, kept as is. */-->
+      <div
+        class="usa-banner__content usa-accordion__content sm: ml-0 sm:pl-4"
+        id="gov-banner-default-default"
+        hidden
+      >
+        <div class="grid-row grid-gap-lg">
+          <div class="usa-banner__guidance tablet:grid-col-6">
+            <img
+              class="usa-banner__icon usa-media-block__img"
+              th:src="${tiLayout.govIconUrl()}"
+              alt=""
+              role="img"
+              aria-hidden="true"
+            />
+            <div class="usa-media-block__body">
+              <p>
+                <strong th:text="#{banner.govWebsiteSectionHeader}"></strong
+                ><br /><span
+                  th:text="#{banner.govWebsiteSectionContent}"
+                ></span>
+              </p>
+            </div>
+          </div>
+          <div class="usa-banner__guidance tablet:grid-col-6">
+            <img
+              class="usa-banner__icon usa-media-block__img"
+              th:src="${tiLayout.httpsIconUrl()}"
+              alt=""
+              role="img"
+              aria-hidden="true"
+            />
+            <div class="usa-media-block__body">
+              <!--/* The lock icon sits in the middle of the sentence, so the
+                     message is split around its {0} placeholder and the icon
+                     rendered between the two halves. The legacy view emitted
+                     the message unescaped. */-->
+              <p th:with="content=#{banner.httpsSectionContent('%LOCK%')}">
+                <strong th:text="#{banner.httpsSectionHeader}"></strong
+                ><br />[(${#strings.substringBefore(content, '%LOCK%')})]<span
+                  class="icon-lock"
+                  ><svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="currentColor"
+                    stroke="currentColor"
+                    stroke-width="1%"
+                    aria-hidden="true"
+                    viewBox="0 0 52 64"
+                    class="inline align-baseline usa-banner__lock-image"
+                    role="img"
+                    aria-label="Locked padlock icon"
+                    focusable="false"
+                  >
+                    <path
+                      d="M26 0c10.493 0 19 8.507 19 19v9h3a4 4 0 0 1 4 4v28a4 4 0 0 1-4 4H4a4 4 0 0 1-4-4V32a4 4 0 0 1 4-4h3v-9C7 8.507 15.507 0 26 0zm0 8c-5.979 0-10.843 4.77-10.996 10.712L15 19v9h22v-9c0-6.075-4.925-11-11-11z"
+                    ></path>
+                    <title id="banner-lock-title-default">Lock</title>
+                  </svg></span
+                >[(${#strings.substringAfter(content, '%LOCK%')})]
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="bg-white border-b align-middle p-1 flex flex-row flex-wrap">
+    <!--/* Branding */-->
+    <div class="items-center place-items-center flex-shrink-0 grow md:grow-0">
+      <a
+        th:href="${tiLayout.homeUrl()}"
+        class="flex flex-row justify-center md:justify-left"
+      >
+        <img
+          th:src="${tiLayout.logoUrl()}"
+          th:alt="|${tiLayout.civicEntityFullName()} Logo|"
+          class="w-16 py-1"
+        />
+        <div
+          id="brand-id"
+          lang="en"
+          class="text-3xl opacity-75 flex flex-wrap content-center hover:opacity-100"
+        >
+          <!--/* The space before "CiviForm" separates it from the civic entity name. */-->
+          <p>
+            <b
+              th:unless="${tiLayout.hideCivicEntityName()}"
+              th:text="${tiLayout.civicEntityShortName()}"
+            ></b
+            ><span th:text="' CiviForm'"></span>
+          </p>
+        </div>
+      </a>
+    </div>
+
+    <!--/* Link back to the trusted intermediary dashboard */-->
+    <div class="flex flex-col justify-center items-center grow-0 md:grow">
+      <a
+        th:if="${tiLayout.isTrustedIntermediary()}"
+        id="ti-dashboard-link"
+        th:href="${tiLayout.tiDashboardUrl()}"
+        class="w-1/2 opacity-75 hover:opacity-100 block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-xl"
+        th:text="#{button.viewAndAddClients}"
+      ></a>
+    </div>
+
+    <!--/* Opens the DevTools modal; modal.ts pairs the trigger with the modal
+           through the "<modal id>-button" id. */-->
+    <div th:if="${tiLayout.showDevTools()}" class="place-content-center">
+      <a
+        id="debug-content-modal-button"
+        class="text-sm text-blue-900 font-bold opacity-75 underline hover:opacity-100 cursor-pointer"
+        >DevTools</a
+      >
+    </div>
+
+    <div
+      class="flex flex-row grow shrink-0 place-content-center max-w-full md:grow-0 md:shrink"
+    >
+      <!--/* Language switcher. The hidden submit button is clicked by
+             language_selector.ts when the selection changes. The inputs are
+             hidden through the hidden attribute, as j2html's isHidden() did. */-->
+      <div class="flex flex-col justify-center">
+        <form th:action="${tiLayout.updateLanguageUrl()}" method="POST">
+          <input
+            hidden
+            th:value="${templateGlobals.csrfToken()}"
+            name="csrfToken"
+          />
+          <input
+            hidden
+            th:value="${tiLayout.languageRedirectUrl()}"
+            name="redirectLink"
+          />
+          <select
+            id="select-language"
+            name="locale"
+            class="justify-center outline-none px-3 mx-3 py-1 text-xs rounded-full border border-gray-500 focus:border-black hover:border-black bg-white focus:bg-black hover:bg-black text-black focus:text-white hover:text-white"
+            th:aria-label="#{label.languageSr}"
+          >
+            <option
+              th:each="languageOption : ${tiLayout.languageOptions()}"
+              th:lang="${languageOption.code()}"
+              th:value="${languageOption.code()}"
+              th:selected="${languageOption.selected()}"
+              th:text="${languageOption.label()}"
+            ></option>
+          </select>
+          <button id="cf-update-lang" type="submit" hidden></button>
+        </form>
+      </div>
+
+      <!--/* Logged in user and logout link */-->
+      <div class="flex flex-col justify-center pr-4">
+        <div
+          class="text-sm"
+          th:text="#{header.userName(${tiLayout.accountIdentifier()})}"
+        ></div>
+        <a
+          id="logout-button"
+          th:href="${tiLayout.logoutUrl()}"
+          class="text-sm text-blue-900 font-bold opacity-75 underline hover:opacity-100"
+          th:text="#{button.logout}"
+        ></a>
+      </div>
+    </div>
+  </div>
+</nav>

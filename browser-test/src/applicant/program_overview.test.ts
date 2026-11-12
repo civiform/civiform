@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   ClientInformation,
   loginAsAdmin,
   loginAsTrustedIntermediary,
@@ -13,6 +14,13 @@ import {
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Applicant program overview', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'test'
   const questionText = 'This is a text question'
 
@@ -430,6 +438,13 @@ test.describe('Applicant program overview', () => {
 })
 
 test.describe('Applicant program overview for login only program', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'loginonly'
 
   test.beforeEach(async ({page, adminPrograms}) => {
@@ -487,6 +502,13 @@ test.describe('Applicant program overview for login only program', () => {
 })
 
 test.describe('guest cannot complete applications for login only program', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'loginonly'
 
   test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {

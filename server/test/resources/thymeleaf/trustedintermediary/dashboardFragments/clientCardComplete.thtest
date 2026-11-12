@@ -1,0 +1,89 @@
+%NAME clientCard - client with a date of birth, contact info, several applications and notes
+%TEMPLATE_MODE HTML
+%CONTEXT
+client = @views.trustedintermediary.TrustedIntermediaryClientListPageViewModel$Client@builder() \
+    .displayName("Gu, Darren") \
+    .editUrl("/admin/tiDash/editClientForm/7") \
+    .hasApplicant(true) \
+    .applicantId(42L) \
+    .applicationsUrl("/applicants/42/programs") \
+    .dateOfBirth("1986-01-28") \
+    .phoneNumber("(425) 637-3270") \
+    .emailAddress("darren@example.com") \
+    .applicationCount(2) \
+    .programNames("Food Assistance, Utility Discount") \
+    .notes("Prefers phone calls") \
+    .build()
+%MESSAGES
+link.edit=Edit
+button.viewApplications=View applications
+label.contactInfo=Contact Information
+content.oneAppSubmitted=1 application submitted
+content.numberOfAppSubmitted={0} applications submitted
+label.notes=Notes
+# ----------------------------------------------------------------------
+%INPUT
+<li th:replace="~{trustedintermediary/fragments/ClientCard :: clientCard(${client})}"></li>
+# ----------------------------------------------------------------------
+# The icons are faked so this test stays about the card; they have their own
+# thtests under admin/shared/legacySvgFragments/.
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconCake(classes)" th:text="|iconCake(${classes})|"></svg>
+<svg th:fragment="iconPhone(classes, linkId)" th:text="|iconPhone(${classes}, ${linkId})|"></svg>
+<svg th:fragment="iconEmail(classes, linkId)" th:text="|iconEmail(${classes}, ${linkId})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<li class="usa-card grid-col-12">
+  <div class="usa-card__container">
+    <div class="usa-card__header flex justify-between">
+      <div class="flex-col">
+        <div class="flex">
+          <h2 class="usa-card__heading">Gu, Darren</h2>
+          <u class="ml-2"
+            ><a
+              id="edit-client"
+              href="/admin/tiDash/editClientForm/7"
+              class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+              >Edit</a
+            ></u
+          >
+        </div>
+        <div class="flex text-xs">
+          <svg>iconCake(h-3 w-3 mr-1)</svg>
+          <p>1986-01-28</p>
+        </div>
+      </div>
+      <div>
+        <a
+          class="usa-button usa-button--outline"
+          id="act-as-42-button"
+          href="/applicants/42/programs"
+          >View applications</a
+        >
+      </div>
+    </div>
+    <div class="usa-card__body flex">
+      <div class="w-2/5">
+        <label for="card_contact_info" class="whitespace-nowrap">Contact Information</label>
+        <div class="text-xs" id="card_contact_info">
+          <div class="flex items-center">
+            <svg>iconPhone(h-3 w-3 mr-1, null)</svg>
+            <p>(425) 637-3270</p>
+          </div>
+          <div class="flex items-center">
+            <svg>iconEmail(h-3 w-3 mr-1, null)</svg>
+            <p>darren@example.com</p>
+          </div>
+        </div>
+      </div>
+      <div class="ml-10 w-2/5">
+        <label for="card_applications" class="whitespace-nowrap">2 applications submitted</label>
+        <p class="text-xs" id="card_applications">Food Assistance, Utility Discount</p>
+      </div>
+      <div class="ml-10 w-3/5">
+        <label for="card_notes">Notes</label>
+        <p class="text-xs" id="card_notes">Prefers phone calls</p>
+      </div>
+    </div>
+  </div>
+</li>
