@@ -15,6 +15,7 @@ import models.DisplayMode;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
@@ -32,6 +33,7 @@ import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.QuestionAnswerer;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import services.question.types.ScalarType;
 import support.ProgramBuilder;
 
@@ -1312,6 +1314,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedQuestionDefinition =
         testQuestionBank.nameRepeatedApplicantHouseholdMemberName().getQuestionDefinition();
+    QuestionDefinition newFlowEnumeratorQuestionDefinition =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.TEXT).getQuestionDefinition();
+    QuestionDefinition initialQuestionDefinition =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(
+                newFlowEnumeratorQuestionDefinition.getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow()
+            .getQuestionDefinition();
     programDefinition =
         ProgramBuilder.newDraftProgram("My Program")
             .withLocalizedName(Locale.GERMAN, "Mein Programm")
@@ -1329,6 +1339,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(enumeratorQuestionDefinition)
             .withRepeatedBlock("repeated")
             .withRequiredQuestionDefinition(repeatedQuestionDefinition)
+            .withBlock("new flow enumerator")
+            .withRequiredQuestionDefinitions(
+                ImmutableList.of(newFlowEnumeratorQuestionDefinition, initialQuestionDefinition))
             .buildDefinition();
     answerNameQuestion(programDefinition.id());
     answerColorQuestion(programDefinition.id());
@@ -1380,13 +1393,24 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         "baz",
         "qux");
 
+    // The new flow enumerator's entities are answered through its initial question, per entity.
+    Path newFlowEnumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(
+            newFlowEnumeratorQuestionDefinition.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, newFlowEnumeratorPath, ImmutableList.of("plant one"));
+    QuestionAnswerer.answerTextQuestion(
+        applicantData,
+        newFlowEnumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment()),
+        "plant one");
+
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
-    assertThat(result).hasSize(9);
+    assertThat(result).hasSize(10);
     assertThat(result.get(0).answerText()).isEqualTo("Alice Middle Last Jr.");
     assertThat(result.get(1).answerText()).isEqualTo("mauve");
     assertThat(result.get(2).answerText()).isEqualTo("123 Rhode St.\nSeattle, WA 12345");
@@ -1402,6 +1426,21 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     assertThat(result.get(6).questionIndex()).isEqualTo(0);
     assertThat(result.get(7).questionIndex()).isEqualTo(0);
     assertThat(result.get(8).questionIndex()).isEqualTo(0);
+
+    // Check the new flow enumerator is included and its initial question is not, since the initial
+    // question's answers are shown under the enumerator
+    assertThat(result.get(9).questionDefinition().getId())
+        .isEqualTo(newFlowEnumeratorQuestionDefinition.getId());
+    assertThat(result.get(9).answerText()).isEqualTo("plant one");
+
+    // The admin summary also omits the initial question
+    assertThat(subject.getSummaryDataOnlyActiveForAdmin())
+        .extracting(answerData -> answerData.questionDefinition().getId())
+        .containsExactlyElementsOf(
+            result.stream()
+                .map(answerData -> answerData.questionDefinition().getId())
+                .collect(ImmutableList.toImmutableList()))
+        .doesNotContain(initialQuestionDefinition.getId());
 
     for (int i = 0; i < result.size(); ++i) {
       assertThat(result.get(i).isEligible())
