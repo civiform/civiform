@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   dismissModal,
+  enableFeatureFlag,
   loginAsAdmin,
   validateScreenshot,
   validateToastMessage,
@@ -9,6 +10,11 @@ import {waitForAnyModalLocator} from '../support/wait'
 
 test.describe('modify program statuses', () => {
   test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+
     await loginAsAdmin(page)
   })
 

@@ -46,7 +46,7 @@ test.describe('developer tools', () => {
 
     await test.step('navigating to dev tools URL unsuccessful', async () => {
       await page.goto(`/dev/seed`)
-      expect(page.url()).toContain('/programs')
+      await expect(page).toHaveURL(/\/programs/)
       expect(await page.innerText('h1')).not.toContain('Dev tools')
     })
   })

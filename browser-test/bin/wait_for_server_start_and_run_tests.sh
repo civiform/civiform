@@ -47,4 +47,30 @@ done
 
 echo "Detected server start"
 
-npm test -- "$@"
+# Balance shards by expected test duration instead of by test count. Replaces
+# --shard=N/M with a --test-list file for that shard (see bin/shard_tests.mjs).
+# Without shard-durations.json, every shard uses Playwright's own sharding.
+# If the list can't be built, fail this shard instead of falling back: one
+# shard on Playwright's split while the others use the balanced lists would
+# run some tests twice and skip others without any test failing.
+args=()
+shard=""
+for arg in "$@"; do
+  if [[ "${arg}" =~ ^--shard=([0-9]+/[0-9]+)$ && -f shard-durations.json ]]; then
+    shard="${BASH_REMATCH[1]}"
+  else
+    args+=("${arg}")
+  fi
+done
+
+if [[ -n "${shard}" ]]; then
+  shard_list_file="$(mktemp)"
+  if ! node bin/shard_tests.mjs "${shard}" "${shard_list_file}" ${args[@]+"${args[@]}"}; then
+    echo "Could not build the duration-balanced test list for shard ${shard}."
+    echo "To turn balancing off, delete browser-test/shard-durations.json."
+    exit 1
+  fi
+  args+=("--test-list=${shard_list_file}")
+fi
+
+npm test -- ${args[@]+"${args[@]}"}

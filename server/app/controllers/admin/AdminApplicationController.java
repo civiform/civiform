@@ -25,12 +25,14 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
+import mapping.admin.programs.ProgramApplicationListPageMapper;
 import mapping.admin.programs.ProgramApplicationPageMapper;
 import models.ApplicationModel;
 import models.LifecycleStage;
 import org.pac4j.play.java.Secure;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.Lang;
 import play.i18n.Messages;
 import play.i18n.MessagesApi;
 import play.mvc.Http;
@@ -63,6 +65,8 @@ import services.statuses.StatusDefinitions;
 import services.statuses.StatusNotFoundException;
 import services.statuses.StatusService;
 import views.ApplicantUtils;
+import views.admin.programs.ProgramApplicationListPageView;
+import views.admin.programs.ProgramApplicationListPageViewModel;
 import views.admin.programs.ProgramApplicationPageView;
 import views.admin.programs.ProgramApplicationPageViewModel;
 import views.admin.programs.ProgramApplicationTableView;
@@ -89,6 +93,7 @@ public final class AdminApplicationController extends CiviFormController {
   private final DateConverter dateConverter;
   private final StatusService statusService;
   private final ProgramApplicationTableView tableView;
+  private final ProgramApplicationListPageView applicationListPageView;
   private final SettingsManifest settingsManifest;
 
   public enum RelativeTimeOfDay {
@@ -117,6 +122,7 @@ public final class AdminApplicationController extends CiviFormController {
       VersionRepository versionRepository,
       StatusService statusService,
       ProgramApplicationTableView tableView,
+      ProgramApplicationListPageView applicationListPageView,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.programService = checkNotNull(programService);
@@ -133,6 +139,7 @@ public final class AdminApplicationController extends CiviFormController {
     this.dateConverter = checkNotNull(dateConverter);
     this.statusService = checkNotNull(statusService);
     this.tableView = checkNotNull(tableView);
+    this.applicationListPageView = checkNotNull(applicationListPageView);
     this.settingsManifest = checkNotNull(settingsManifest);
   }
 
@@ -576,6 +583,38 @@ public final class AdminApplicationController extends CiviFormController {
     PaginationResult<ApplicationModel> applications =
         programService.getSubmittedProgramApplicationsAllVersions(
             programId, paginationSpec, filters);
+    RenderFilterParams filterParams =
+        RenderFilterParams.builder()
+            .setSearch(search)
+            .setFromDate(fromDate)
+            .setUntilDate(untilDate)
+            .setSelectedApplicationStatus(applicationStatus)
+            .build();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      boolean showDownloadButton =
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+              && profile.isOnlyProgramAdmin());
+      Messages enUsMessages = messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
+
+      ProgramApplicationListPageViewModel model =
+          new ProgramApplicationListPageMapper()
+              .map(
+                  program,
+                  activeStatusDefinitions,
+                  getAllApplicationStatusesForProgram(program.id()),
+                  paginationSpec,
+                  applications,
+                  filterParams,
+                  showDownloadButton,
+                  showDownloadModal.orElse(false),
+                  message,
+                  applicantService,
+                  dateConverter,
+                  enUsMessages);
+      return ok(applicationListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
+
     return ok(
         tableView.render(
             request,
@@ -585,12 +624,7 @@ public final class AdminApplicationController extends CiviFormController {
             getAllApplicationStatusesForProgram(program.id()),
             paginationSpec,
             applications,
-            RenderFilterParams.builder()
-                .setSearch(search)
-                .setFromDate(fromDate)
-                .setUntilDate(untilDate)
-                .setSelectedApplicationStatus(applicationStatus)
-                .build(),
+            filterParams,
             showDownloadModal,
             message));
   }

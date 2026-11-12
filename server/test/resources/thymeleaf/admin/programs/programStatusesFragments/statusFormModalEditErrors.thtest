@@ -1,0 +1,115 @@
+%NAME statusFormModal - rejected edit re-rendered on load with global and field errors, email warning, default checked
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+modal = @views.admin.programs.ProgramStatusesPageViewModel$StatusFormModal@builder() \
+    .id("uuid-edit").creation(false).displayOnLoad(true) \
+    .showEmailDeletionWarning(true) \
+    .configuredStatusText("Approved").statusText("Rejected").emailBody("You are approved") \
+    .defaultStatus(true) \
+    .globalErrors(@com.google.common.collect.ImmutableList@of("Something global")) \
+    .statusTextErrors(@com.google.common.collect.ImmutableList@of("Error: A status with name Rejected already exists")) \
+    .emailBodyErrors(@com.google.common.collect.ImmutableList@of()) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: statusFormModal(${modal}, '/admin/programs/7/statuses', 'Approved', 'abcdefgh', 'ijklmnop')}"></div>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconClose(classes)" th:text="|iconClose(${classes})|"></svg>
+# ----------------------------------------------------------------------
+# displayOnLoad appends cf-modal-display-on-load; the current default status
+# is spliced into data-messagepart; the field error adds the a11y attributes,
+# swaps the gray border for the red one and unhides the errors div.
+%OUTPUT
+<div
+  id="uuid-edit"
+  aria-labelledby="uuid-edit-title"
+  tabindex="0"
+  class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12 lg:w-1/2 top-1/2 cf-modal-display-on-load"
+>
+  <div id="uuid-edit-title" class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center">
+    <div class="text-2xl text-gray-600 my-5 mx-4">Edit this status</div>
+    <div class="w-12"></div>
+  </div>
+  <div class="my-5 mx-6">
+    <form
+      method="POST"
+      action="/admin/programs/7/statuses"
+      class="cf-status-change-form py-2"
+      data-dontshow="true"
+      data-messagepart="from Approved to "
+    >
+      <input type="hidden" value="token" name="csrfToken" />
+      <input type="hidden" name="configuredStatusText" value="Approved" />
+      <div class="pb-4">
+        <p class="text-sm text-red-600">Something global</p>
+      </div>
+      <div class="mb-2">
+        <label for="abcdefgh" class="pointer-events-none text-gray-600 text-base px-1 py-2"
+          >Status name (required)<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input
+            type="text"
+            value="Rejected"
+            aria-describedby="abcdefgh-errors"
+            aria-invalid="true"
+            maxlength="10000"
+            id="abcdefgh"
+            name="statusText"
+            class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600"
+          />
+          <div id="abcdefgh-errors" class="text-red-600 text-xs p-1">
+            <div>Error: A status with name Rejected already exists</div>
+          </div>
+        </div>
+      </div>
+      <div class="pt-8">
+        <div class="mb-2">
+          <label for="ijklmnop" class="pointer-events-none text-gray-600 text-base px-1 py-2"
+            >Email the applicant about the status change<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+          >
+          <div class="flex flex-col">
+            <textarea
+              rows="5"
+              maxlength="10000"
+              id="ijklmnop"
+              name="emailBody"
+              class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
+            >You are approved</textarea>
+            <div id="ijklmnop-errors" class="text-red-600 text-xs p-1 hidden">
+            </div>
+          </div>
+        </div>
+      </div>
+      <p class="m-2 p-2 text-sm border rounded-lg border-amber-400 bg-amber-200"
+        >Please be aware that clearing the email body will also clear any associated translations</p
+      >
+      <div class="flex mt-5 space-x-2">
+        <label
+          ><input
+            type="checkbox"
+            name="defaultStatusCheckbox"
+            checked="checked"
+            class="h-4 w-4 mr-4 align-middle self-center flex-none cf-set-default-status-checkbox"
+          /><span>Set as default status</span></label
+        >
+        <div class="flex-grow"></div>
+        <button
+          type="submit"
+          class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200"
+        >
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+  <button
+    type="button"
+    aria-label="Close"
+    class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+  >
+    <svg>iconClose(w-6 h-6 cursor-pointer)</svg>
+  </button>
+</div>

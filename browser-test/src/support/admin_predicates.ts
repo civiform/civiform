@@ -202,15 +202,17 @@ export class AdminPredicates {
   }
 
   async expectRootLogicalOperatorValues(logicalOperatorValue: 'AND' | 'OR') {
-    const conditionLogicSeparatorsText = this.page.locator(
-      '.cf-predicate-condition-separator span',
+    const conditionLogicSeparators = this.page.locator(
+      '.cf-predicate-condition-separator',
     )
 
-    expect(conditionLogicSeparatorsText.count()).not.toEqual(0)
+    await expect(conditionLogicSeparators).not.toHaveCount(0)
 
-    for (const separatorText of await conditionLogicSeparatorsText.all()) {
-      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
-      await expect(separatorText).toBeVisible()
+    for (const separator of await conditionLogicSeparators.all()) {
+      await expect(separator).toHaveText(logicalOperatorValue, {
+        ignoreCase: true,
+      })
+      await expect(separator).toBeVisible()
     }
   }
 
@@ -270,15 +272,17 @@ export class AdminPredicates {
     conditionId: number,
     logicalOperatorValue: 'AND' | 'OR',
   ) {
-    const subconditionLogicSeparatorsText = this.page.locator(
-      `#condition-${conditionId} .cf-predicate-subcondition-separator span`,
+    const subconditionLogicSeparators = this.page.locator(
+      `#condition-${conditionId} .cf-predicate-subcondition-separator`,
     )
 
-    expect(subconditionLogicSeparatorsText.count()).not.toEqual(0)
+    await expect(subconditionLogicSeparators).not.toHaveCount(0)
 
-    for (const separatorText of await subconditionLogicSeparatorsText.all()) {
-      await expect(separatorText).toHaveText(logicalOperatorValue.toLowerCase())
-      await expect(separatorText).toBeVisible()
+    for (const separator of await subconditionLogicSeparators.all()) {
+      await expect(separator).toHaveText(logicalOperatorValue, {
+        ignoreCase: true,
+      })
+      await expect(separator).toBeVisible()
     }
 
     await this.expectConditionLogicalOperatorLabel(
