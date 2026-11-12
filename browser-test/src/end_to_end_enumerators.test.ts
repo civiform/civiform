@@ -2736,7 +2736,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
       await expect(listedEntityInput).toBeVisible()
       await expect(listedEntityInput).toHaveAccessibleDescription(
-        'Enter the items or people an applicant lists out, such as “household member” or “income source.”',
+        'Enter the items or people an applicant lists out, such as "household member" or "income source."',
       )
     })
 

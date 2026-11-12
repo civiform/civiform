@@ -813,8 +813,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(unescaped).contains("What is being listed?");
     assertThat(unescaped)
         .contains(
-            "Enter the items or people an applicant lists out, such as “household member” or"
-                + " “income source.”");
+            "Enter the items or people an applicant lists out, such as \"household member\" or"
+                + " \"income source.\"");
     assertThat(unescaped)
         .contains("aria-describedby=\"enumerator-question-entity-type-input-description\"");
     assertThat(unescaped).doesNotContain("What are we enumerating");

@@ -1345,13 +1345,13 @@ heading.repeatedSet.previouslyUsed=Previously used for this list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Repeated questions
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as “household member” or “income source.”
+description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We’ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, “Do not include yourself.”
+description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
