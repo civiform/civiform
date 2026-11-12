@@ -275,7 +275,7 @@ public final class ReadOnlyApplicantProgramService {
                   // Return all blocks that contain errors, were answered in this program,
                   // contain a static question, or have an address needing correction.
                   (!block.isAnsweredWithoutErrors()
-                          //|| block.wasAnsweredInProgram(programDefinition .id())
+                          || block.wasAnsweredInProgram(programDefinition.id())
                           || block.containsStatic()
                           || block.hasAddressQuestionWithUncorrectedAddress())
                       && showBlock(block));
