@@ -182,10 +182,24 @@ test.describe('file upload applicant flow (feature flag enabled)', () => {
     }) => {
       await applicantQuestions.applyProgram(programName)
 
-      await expect(page.getByLabel('Drag file here')).toHaveAttribute(
+      await expect(page.locator('input[type="file"]')).toHaveAttribute(
         'aria-required',
       )
       await validateAccessibility(page)
+    })
+
+    test('file input is named by the question and keeps the USWDS instructions', async ({
+      page,
+      applicantQuestions,
+    }) => {
+      await applicantQuestions.applyProgram(programName)
+
+      // The question title comes first, then USWDS's "Drag file here..." aria-label.
+      const fileInput = page.locator('input[type="file"]')
+      await expect(fileInput).toHaveAccessibleName(
+        /^Upload anything from your computer.*Drag file here or choose from folder$/,
+      )
+      await expect(fileInput).toHaveAccessibleDescription(/^help text/)
     })
 
     test('re-answering question shows continue button but no delete button', async ({

@@ -1,7 +1,7 @@
 # Use postgres/example user/password credentials
 services:
   db:
-    image: postgres:16.15@sha256:9e2cf6287f25c3151f4c9421ccce2b17f3e60061c111a29165e0d2cdd9ff0a97
+    image: postgres:16.15@sha256:f9a7b9ebf6f56201f949db745e47bc423c0f0f8294bafe991cc10bf74b029657
     restart: always
     expose:
       - '5432'
@@ -31,9 +31,11 @@ services:
     entrypoint: /bin/bash
     tty: true # keep the container running
     stdin_open: true
-    ports: # For debugging
-      - 9100:9000
-      - 8459:8459
+    # For debugging. Override the host ports to run more than one test
+    # environment at once (e.g. from separate worktrees); 0 picks a free port.
+    ports:
+      - ${CIVIFORM_TEST_HTTP_HOST_PORT:-9100}:9000
+      - ${CIVIFORM_TEST_DEBUG_HOST_PORT:-8459}:8459
     environment:
       - AWS_ACCESS_KEY_ID=testAccessKey
       - AWS_SECRET_ACCESS_KEY=testSecretKey
