@@ -1,10 +1,6 @@
 <!--/*
   A single translatable field, paired with the default (English) text so admins
   can see what they are translating.
-
-  Legacy counterpart: TranslationFormView#fieldWithDefaultLocaleTextHint, which
-  wrapped a FieldWithLabel input/textarea and the English-text hint in a
-  two-column grid.
 */-->
 <!--/*@thymesVar id="field" type="views.admin.questions.QuestionTranslationPageViewModel.TranslationField"*/-->
 <div th:fragment="translationField(field)" class="grid gap-6 grid-cols-2">
@@ -23,8 +19,7 @@
   </th:block>
   <div class="px-2 py-1 text-sm bg-gray-100">
     <p class="font-medium">English text:</p>
-    <!--/* Markdown-rendered and sanitized by the mapper, as
-           TextFormatter.formatTextForAdmins did for the legacy view. */-->
+    <!--/* Markdown-rendered and sanitized by the mapper. */-->
     <div class="font-sans" th:utext="${field.defaultTextHtml}"></div>
   </div>
 </div>
