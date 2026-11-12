@@ -334,4 +334,10 @@ public class LegacySvgFragmentsTest {
   public void iconImage_programCard() {
     ThymeleafFragmentTester.run(DIR + "iconImageProgramCard.thtest");
   }
+
+  /** Legacy source: TrustedIntermediaryClientListView client date of birth. */
+  @Test
+  public void iconCake_clientDateOfBirth() {
+    ThymeleafFragmentTester.run(DIR + "iconCake.thtest");
+  }
 }

@@ -1,0 +1,184 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="tiLayout" type="views.trustedintermediary.TrustedIntermediaryLayoutParams"*/-->
+<!--/*
+  Transitional layout for trusted intermediary pages migrated 1:1 from j2html.
+  Those pages rendered in the applicant-side skeleton (ApplicantLayout), not
+  the admin one, so this mirrors that skeleton instead of
+  admin/LegacyTailwindLayout.html, which it is otherwise modeled on.
+*/-->
+<!doctype html>
+<html th:lang="${tiLayout.language()}" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <!--/* The legacy applicant layout joined the title and suffix with an em dash. */-->
+    <title
+      th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'CiviForm' : templateGlobals.pageTitle() + ' — CiviForm'}"
+    >
+    </title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="civiform-build-tag"
+      th:content="${layoutParams.civiformImageTag()}"
+    />
+    <meta
+      th:if="${layoutParams.addNoIndexMetaTag()}"
+      name="robots"
+      content="noindex"
+    />
+    <meta
+      name="htmx-config"
+      th:content='|{"inlineStyleNonce":"${templateGlobals.cspNonce()}"}|'
+    />
+
+    <!--/* Applicant-side pages show the deployment's own favicon (FAVICON_URL),
+           in the three link flavors the legacy layout emitted, rather than
+           the built-in one the admin layouts use. */-->
+    <th:block th:unless="${#strings.isEmpty(tiLayout.faviconUrl())}">
+      <link rel="icon" th:href="${tiLayout.faviconUrl()}" />
+      <link rel="apple-touch-icon" th:href="${tiLayout.faviconUrl()}" />
+      <link
+        rel="apple-touch-icon-precomposed.png"
+        th:href="${tiLayout.faviconUrl()}"
+      />
+    </th:block>
+
+    <!--/* Stylesheets to be added */-->
+    <link
+      th:each="stylesheet: ${layoutParams.stylesheets()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:href="${stylesheet}"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <!--/* Add feature flag json blob */-->
+    <th:block th:insert="~{shared/FeatureFlags}" />
+
+    <!--/* Scripts to be added before body content. Keep these to a minimum  */-->
+    <script
+      th:each="script: ${layoutParams.headScripts()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
+      th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
+    ></script>
+  </head>
+
+  <!--/*
+    Body, main and footer classes match the legacy j2html applicant skeleton
+    exactly: ApplicantStyles.BODY, the "bg-white" main style every trusted
+    intermediary view added, and the "mt-24" footer style ApplicantLayout
+    added, all rendered by HtmlBundle. Keep the body classes in sync with
+    views/style/ApplicantStyles.java.
+  */-->
+  <!--/* Body sets HTMX header so the CSRF token is always there */-->
+  <body
+    class="bg-civiform-white h-full w-full flex flex-col"
+    th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
+  >
+    <!--/* Not-production banner, the first child of the body when enabled */-->
+    <th:block
+      th:replace="~{trustedintermediary/shared/TrustedIntermediaryCommonHeader :: notProductionBanner}"
+    ></th:block>
+
+    <header>
+      <!--/* Toast shown on all pages in dev and staging environments to warn
+             against entering real user data, consumed by toast.ts. */-->
+      <div
+        th:if="${tiLayout.isDevOrStaging()}"
+        id="warning-message"
+        class="hidden cf-toast-data"
+        canDismiss="true"
+        canIgnore="true"
+        toastDuration="0"
+        condOnStorageKey
+        toastType="WARNING"
+        th:text="'Do not enter actual or personal data in this demo site'"
+      ></div>
+
+      <!--/* Optional page specific toasts. The legacy layout rendered every
+             toast at the top of the header. */-->
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: toasts} ?: ~{}"
+      ></th:block>
+
+      <!--/* Header navigation */-->
+      <th:block
+        th:replace="~{trustedintermediary/shared/TrustedIntermediaryCommonHeader :: navBar}"
+      ></th:block>
+    </header>
+
+    <!--/* Main */-->
+    <main class="bg-white">
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: content}"
+      ></th:block>
+    </main>
+
+    <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
+      <div
+        id="modal-glass-pane"
+        class="fixed h-screen w-screen bg-gray-400 opacity-75"
+      ></div>
+      <th:block
+        th:replace="~{trustedintermediary/shared/TrustedIntermediaryLayoutModals :: devToolsModal}"
+      ></th:block>
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: modals} ?: ~{}"
+      ></th:block>
+    </div>
+
+    <th:block
+      th:replace="~{trustedintermediary/shared/TrustedIntermediaryLayoutModals :: sessionTimeoutModals}"
+    ></th:block>
+
+    <!--/* Google Tag Manager */-->
+    <th:block
+      th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
+    ></th:block>
+
+    <!--/* Support contact, then the scripts to be added at the end, inside the
+           footer as the legacy layout did */-->
+    <footer class="mt-24">
+      <div class="flex flex-col">
+        <div class="mx-auto">
+          <!--/* The legacy span ended with a space separating it from the link. */-->
+          <span
+            class="text-gray-600"
+            th:text="|#{footer.supportLinkDescription} |"
+          ></span
+          ><a
+            th:href="|mailto:${tiLayout.supportEmail()}|"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-sm text-blue-900 font-bold opacity-75 underline hover:opacity-100"
+            th:text="${tiLayout.supportEmail()}"
+          ></a>
+        </div>
+        <!--/* Empty: trusted intermediary pages never showed the admin login prompt. */-->
+        <div class="mx-auto"></div>
+      </div>
+
+      <script
+        th:each="script: ${layoutParams.bodyScripts()}"
+        th:nonce="${templateGlobals.cspNonce()}"
+        th:src="${script.src()}"
+        th:type="${script.type()}"
+        th:async="${script.async()}"
+        th:defer="${script.defer()}"
+        th:integrity="${script.integrity()}"
+        th:id="${script.id()}"
+      ></script>
+    </footer>
+
+    <!--/* Optional page specific scripts. These should be load last. */-->
+    <th:block
+      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
+    ></th:block>
+  </body>
+</html>

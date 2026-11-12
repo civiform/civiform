@@ -1,0 +1,87 @@
+<!--/*
+  One client card of the trusted intermediary client list (legacy
+  TrustedIntermediaryClientListView.renderClientCard).
+
+  The edit-client and card_* ids repeat on every card, as they did in the
+  legacy view; browser tests and the label "for" attributes rely on them.
+  Without an applicant the legacy view left empty divs in place of the date of
+  birth, the "View applications" button, the contact info and the applications,
+  so those are kept to hold the layout.
+*/-->
+<!--/*@thymesVar id="client" type="views.trustedintermediary.TrustedIntermediaryClientListPageViewModel.Client"*/-->
+<li th:fragment="clientCard(client)" class="usa-card grid-col-12">
+  <div class="usa-card__container">
+    <div class="usa-card__header flex justify-between">
+      <div class="flex-col">
+        <div class="flex">
+          <h2 class="usa-card__heading" th:text="${client.displayName}"></h2>
+          <u class="ml-2"
+            ><a
+              id="edit-client"
+              th:href="${client.editUrl}"
+              class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+              th:text="#{link.edit}"
+            ></a
+          ></u>
+        </div>
+        <div th:if="${client.hasApplicant}" class="flex text-xs">
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconCake('h-3 w-3 mr-1')}"
+          ></svg>
+          <p th:text="${client.dateOfBirth}"></p>
+        </div>
+        <div th:unless="${client.hasApplicant}"></div>
+      </div>
+      <div th:if="${client.hasApplicant}">
+        <a
+          class="usa-button usa-button--outline"
+          th:id="|act-as-${client.applicantId}-button|"
+          th:href="${client.applicationsUrl}"
+          th:text="#{button.viewApplications}"
+        ></a>
+      </div>
+      <div th:unless="${client.hasApplicant}"></div>
+    </div>
+    <div class="usa-card__body flex">
+      <div th:if="${client.hasApplicant}" class="w-2/5">
+        <label
+          for="card_contact_info"
+          class="whitespace-nowrap"
+          th:text="#{label.contactInfo}"
+        ></label>
+        <div class="text-xs" id="card_contact_info">
+          <div th:if="${client.phoneNumber != null}" class="flex items-center">
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: iconPhone('h-3 w-3 mr-1', null)}"
+            ></svg>
+            <p th:text="${client.phoneNumber}"></p>
+          </div>
+          <div th:if="${client.emailAddress != null}" class="flex items-center">
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: iconEmail('h-3 w-3 mr-1', null)}"
+            ></svg>
+            <p th:text="${client.emailAddress}"></p>
+          </div>
+        </div>
+      </div>
+      <div th:unless="${client.hasApplicant}" class="w-2/5"></div>
+      <div th:if="${client.hasApplicant}" class="ml-10 w-2/5">
+        <label
+          for="card_applications"
+          class="whitespace-nowrap"
+          th:text="${client.applicationCount == 1} ? #{content.oneAppSubmitted} : #{content.numberOfAppSubmitted(${client.applicationCount})}"
+        ></label>
+        <p
+          class="text-xs"
+          id="card_applications"
+          th:text="${client.programNames}"
+        ></p>
+      </div>
+      <div th:unless="${client.hasApplicant}" class="ml-10 w-2/5"></div>
+      <div class="ml-10 w-3/5">
+        <label for="card_notes" th:text="#{label.notes}"></label>
+        <p class="text-xs" id="card_notes" th:text="${client.notes}"></p>
+      </div>
+    </div>
+  </div>
+</li>

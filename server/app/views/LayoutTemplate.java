@@ -7,7 +7,8 @@ package views;
 public enum LayoutTemplate {
   ADMIN_LAYOUT("admin/AdminLayout.html"),
   LEGACY_TAILWIND_LAYOUT("admin/LegacyTailwindLayout.html"),
-  TRANSITIONAL_LAYOUT("admin/TransitionalLayout.html");
+  TRANSITIONAL_LAYOUT("admin/TransitionalLayout.html"),
+  TRUSTED_INTERMEDIARY_LAYOUT("trustedintermediary/TrustedIntermediaryLayout.html");
 
   private final String path;
 

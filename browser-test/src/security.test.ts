@@ -1,5 +1,6 @@
 import {Page} from '@playwright/test'
 import {test, expect} from './support/civiform_fixtures'
+import {enableFeatureFlag} from './support'
 import {loginAsAdmin} from './support'
 import {loginAsProgramAdmin} from './support'
 import {loginAsTrustedIntermediary} from './support'
@@ -27,6 +28,13 @@ async function expectTiDashboard(page: Page) {
 }
 
 test.describe('applicant security', {tag: ['@parallel-candidate']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('applicant cannot access admin pages', async ({request}) => {
     const response = await request.get('/admin/programs')
     await expect(response).toBeOK()
@@ -47,6 +55,13 @@ test.describe('applicant security', {tag: ['@parallel-candidate']}, () => {
 })
 
 test.describe('non applicant security', {tag: ['@parallel-candidate']}, () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'Test program 1'
 
   test.beforeEach('Setup program', async ({page, adminPrograms}) => {

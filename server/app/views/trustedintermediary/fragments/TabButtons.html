@@ -1,0 +1,34 @@
+<!--/*
+  Tab links under the group name on the trusted intermediary dashboard pages
+  (legacy TrustedIntermediaryDashboardView.renderTabButtons).
+
+  Parameters:
+    clientListUrl      - target of the "Client list" tab
+    accountSettingsUrl - target of the "Account settings" tab
+    currentTab         - 'CLIENT_LIST' or 'ACCOUNT_SETTINGS', the tab the page
+                         is on
+*/-->
+<nav
+  th:fragment="tabButtons(clientListUrl, accountSettingsUrl, currentTab)"
+  th:with="currentTabClasses='border-b-4 border-blue-600 text-bold', otherTabClasses='hover:border-b-4 hover:border-blue-600 hover:text-blue-600'"
+  class="px-20 text-sm tracking-tight flex"
+  aria-label="Trusted Intermediary"
+  data-testid="ti-nav"
+>
+  <a
+    id="client-list-link"
+    th:href="${clientListUrl}"
+    class="mr-10 py-4"
+    th:classappend="${currentTab == 'CLIENT_LIST'} ? ${currentTabClasses} : ${otherTabClasses}"
+    th:attr="aria-current=${currentTab == 'CLIENT_LIST'} ? 'page'"
+    th:text="#{header.clientList}"
+  ></a>
+  <a
+    id="account-settings-link"
+    th:href="${accountSettingsUrl}"
+    class="py-4"
+    th:classappend="${currentTab == 'ACCOUNT_SETTINGS'} ? ${currentTabClasses} : ${otherTabClasses}"
+    th:attr="aria-current=${currentTab == 'ACCOUNT_SETTINGS'} ? 'page'"
+    th:text="#{header.acctSettings}"
+  ></a>
+</nav>

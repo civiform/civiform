@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   ClientInformation,
   loginAsAdmin,
   loginAsTestUser,
@@ -13,6 +14,13 @@ import {waitForAnyModalLocator} from '../support/wait'
 import {ProgramVisibility} from '../support/admin_programs'
 
 test.describe('Pre-Screener Upsell Tests', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'Pre-Screener Program'
   const eligibleProgram1 = 'Eligible Program 1'
 

@@ -1,6 +1,7 @@
 import {test} from '../../support/civiform_fixtures'
 import {expect} from '@playwright/test'
 import {
+  enableFeatureFlag,
   ClientInformation,
   loginAsAdmin,
   loginAsTestUser,
@@ -15,6 +16,13 @@ import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
 test.describe('Applicant navigation flow', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test.describe('navigation with pre-screener', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'
