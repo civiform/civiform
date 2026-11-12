@@ -67,7 +67,9 @@ public class EnumeratorQuestionDefinitionTest {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(config, LocalizedStrings.withDefaultValue("foo"));
 
-    ImmutableSet<CiviFormError> errors = question.validate();
+    ImmutableSet<CiviFormError> errors =
+        question.validate(
+            /* previousDefinition= */ Optional.empty(), /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors)
         .isEqualTo(
@@ -75,6 +77,44 @@ public class EnumeratorQuestionDefinitionTest {
                 .map(CiviFormError::of)
                 .map(ImmutableSet::of)
                 .orElse(ImmutableSet.of()));
+  }
+
+  @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
+  private static ImmutableList<Object[]> getValidationWithEnumeratorImprovementsTestData() {
+    return ImmutableList.of(
+        new Object[] {
+          OptionalInt.of(-1), OptionalInt.empty(), "Minimum list count cannot be negative"
+        },
+        new Object[] {
+          OptionalInt.empty(), OptionalInt.of(0), "Maximum list count cannot be less than 1"
+        },
+        new Object[] {
+          OptionalInt.of(2),
+          OptionalInt.of(1),
+          "Minimum list count must be less than or equal to the maximum list count"
+        });
+  }
+
+  @Test
+  @Parameters(method = "getValidationWithEnumeratorImprovementsTestData")
+  public void validate_withEnumeratorImprovementsEnabled_usesListCountWording(
+      OptionalInt minEntities, OptionalInt maxEntities, String expectedErrorMessage) {
+    QuestionDefinitionConfig config =
+        makeConfigBuilder()
+            .setValidationPredicates(
+                EnumeratorValidationPredicates.builder()
+                    .setMinEntities(minEntities)
+                    .setMaxEntities(maxEntities)
+                    .build())
+            .build();
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(config, LocalizedStrings.withDefaultValue("foo"));
+
+    ImmutableSet<CiviFormError> errors =
+        question.validate(
+            /* previousDefinition= */ Optional.empty(), /* enumeratorImprovementsEnabled= */ true);
+
+    assertThat(errors).containsOnly(CiviFormError.of(expectedErrorMessage));
   }
 
   private QuestionDefinitionConfig.Builder makeConfigBuilder() {

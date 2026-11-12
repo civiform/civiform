@@ -96,6 +96,7 @@ public enum MessageKey {
   BUTTON_PREVIOUS_SCREEN("button.previousScreen"),
   BUTTON_REMOVE_QUESTION("button.removeQuestion"),
   BUTTON_REPEATED_SET_ADD_NEW("button.repeatedSet.addNew"),
+  BUTTON_REPEATED_SET_CHOOSE_EXISTING("button.repeatedSet.chooseExisting"),
   BUTTON_REPEATED_SET_INITIAL_QUESTION_ADD("button.repeatedSet.initialQuestion.add"),
   BUTTON_REPEATED_SET_INITIAL_QUESTION_SAVE("button.repeatedSet.initialQuestion.save"),
   BUTTON_REPEATED_SET_INITIAL_QUESTION_REMOVE_ARIA_LABEL(
@@ -199,6 +200,8 @@ public enum MessageKey {
   INPUT_REPEATED_SET_HINT_TEXT("input.repeatedSet.hintText"),
   INPUT_REPEATED_SET_MIN_ENTITIES("input.repeatedSet.minEntities"),
   INPUT_REPEATED_SET_MAX_ENTITIES("input.repeatedSet.maxEntities"),
+  INPUT_REPEATED_SET_MIN_LIST_COUNT("input.repeatedSet.minListCount"),
+  INPUT_REPEATED_SET_MAX_LIST_COUNT("input.repeatedSet.maxListCount"),
   INPUT_REPEATED_SET_QUESTION_TEXT("input.repeatedSet.questionText"),
   INPUT_REPEATED_SET_QUESTION_TEXT_AUTOFILL_SUGGESTION(
       "input.repeatedSet.questionTextAutofillSuggestion"),

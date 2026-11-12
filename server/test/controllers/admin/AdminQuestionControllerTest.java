@@ -766,7 +766,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
-    assertThat(content).contains("Listed entity");
+    assertThat(content).contains("What is being listed?");
     assertThat(content).doesNotContain("initial-question-section");
     assertThat(content).doesNotContain("Admin id:");
   }
@@ -806,12 +806,11 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
   private static void assertListedEntityAndInitialQuestionShown(String content) {
     String unescaped = StringEscapeUtils.unescapeHtml4(content);
-    assertThat(unescaped).contains("Listed entity");
+    assertThat(unescaped).contains("What is being listed?");
     assertThat(unescaped)
         .contains(
-            "Specify the type of individuals or objects an applicant will need to list out."
-                + " Please add these in the singular form, e.g. \"household member\" or"
-                + " \"income source.\"");
+            "Enter the items or people an applicant lists out, such as “household member” or"
+                + " “income source.”");
     assertThat(unescaped)
         .contains("aria-describedby=\"enumerator-question-entity-type-input-description\"");
     assertThat(unescaped).doesNotContain("What are we enumerating");
