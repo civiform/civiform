@@ -17,7 +17,12 @@ object TailwindBuilder {
         )
       }
 
-      override def afterStopped() = {
+      override def afterStopped() = stop()
+
+      // Play calls onError, not afterStopped, when the server fails to start.
+      override def onError() = stop()
+
+      private def stop(): Unit = {
         process.foreach(_.destroy())
         process = None
       }
