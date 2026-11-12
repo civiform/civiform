@@ -28,27 +28,22 @@ import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 import services.statuses.OutOfDateStatusesException;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
 import views.admin.programs.ProgramTranslationPageView;
 import views.admin.programs.ProgramTranslationPageViewModel;
-import views.admin.programs.ProgramTranslationView;
-import views.components.ToastMessage;
 
 /** Provides methods for updating localizations for a given program. */
 public class AdminProgramTranslationsController extends CiviFormController {
 
   private final ProgramService service;
   private final ProgramRepository programRepository;
-  private final ProgramTranslationView translationView;
   private final ProgramTranslationPageView translationPageView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
   private final Optional<Locale> maybeFirstTranslatableLocale;
   private final StatusService statusService;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminProgramTranslationsController(
@@ -56,21 +51,17 @@ public class AdminProgramTranslationsController extends CiviFormController {
       VersionRepository versionRepository,
       ProgramRepository programRepository,
       ProgramService service,
-      ProgramTranslationView translationView,
       ProgramTranslationPageView translationPageView,
       FormFactory formFactory,
       TranslationLocales translationLocales,
-      StatusService statusService,
-      SettingsManifest settingsManifest) {
+      StatusService statusService) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.programRepository = checkNotNull(programRepository);
-    this.translationView = checkNotNull(translationView);
     this.translationPageView = checkNotNull(translationPageView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
     this.statusService = checkNotNull(statusService);
-    this.settingsManifest = checkNotNull(settingsManifest);
     this.maybeFirstTranslatableLocale =
         this.translationLocales.translatableLocales().stream().findFirst();
   }
@@ -98,16 +89,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
    *
    * @param request the current {@link Http.Request}
    * @param locale the locale to update, as an ISO language tag
-   * @return a rendered {@link ProgramTranslationView} pre-populated with any existing translations
-   *     for the given locale
+   * @return a rendered {@link ProgramTranslationPageView} pre-populated with any existing
+   *     translations for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, String programName, String locale)
       throws ProgramNotFoundException {
     ProgramDefinition program = getDraftAndActiveProgramDefinition(programName);
     Optional<Locale> maybeLocaleToEdit = translationLocales.fromLanguageTag(locale);
-    Optional<ToastMessage> errorMessage =
-        request.flash().get(FlashKey.ERROR).map(m -> ToastMessage.errorNonLocalized(m));
     if (maybeLocaleToEdit.isEmpty()) {
       return redirect(routes.AdminProgramController.index().url())
           .flashing(FlashKey.ERROR, String.format("The %s locale is not supported", locale));
@@ -116,27 +105,15 @@ public class AdminProgramTranslationsController extends CiviFormController {
         statusService.lookupActiveStatusDefinitions(programName);
     Locale localeToEdit = maybeLocaleToEdit.get();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      ProgramTranslationPageViewModel model =
-          buildTranslationPageModel(
-              program,
-              activeStatusDefinitions,
-              ProgramTranslationForm.fromProgram(
-                  program, localeToEdit, formFactory, activeStatusDefinitions),
-              localeToEdit,
-              request.flash().get(FlashKey.ERROR));
-      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return ok(
-        translationView.render(
-            request,
-            localeToEdit,
+    ProgramTranslationPageViewModel model =
+        buildTranslationPageModel(
             program,
             activeStatusDefinitions,
             ProgramTranslationForm.fromProgram(
                 program, localeToEdit, formFactory, activeStatusDefinitions),
-            errorMessage));
+            localeToEdit,
+            request.flash().get(FlashKey.ERROR));
+    return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   private ProgramTranslationPageViewModel buildTranslationPageModel(
@@ -188,7 +165,7 @@ public class AdminProgramTranslationsController extends CiviFormController {
    * @param request the current {@link Http.Request}
    * @param locale the locale to update, as an ISO language tag
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
-   *     same {@link ProgramTranslationView} with error messages
+   *     same {@link ProgramTranslationPageView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   // Adding our custom large body parser. The introduction of the eligibility message
@@ -230,26 +207,14 @@ public class AdminProgramTranslationsController extends CiviFormController {
         service.updateLocalization(
             program.id(), localeToUpdate, translationForm.getUpdateData(blockIds));
     if (result.isError()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        ProgramTranslationPageViewModel model =
-            buildTranslationPageModel(
-                program,
-                currentStatusDefinitions,
-                translationForm,
-                localeToUpdate,
-                Optional.of(joinErrors(result.getErrors())));
-        return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      ToastMessage errorMessage = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
-      return ok(
-          translationView.render(
-              request,
-              localeToUpdate,
+      ProgramTranslationPageViewModel model =
+          buildTranslationPageModel(
               program,
               currentStatusDefinitions,
               translationForm,
-              Optional.of(errorMessage)));
+              localeToUpdate,
+              Optional.of(joinErrors(result.getErrors())));
+      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
     final ErrorAnd<StatusDefinitions, CiviFormError> statusUpdate;
     try {
@@ -261,47 +226,23 @@ public class AdminProgramTranslationsController extends CiviFormController {
           .flashing(FlashKey.ERROR, e.userFacingMessage());
     }
     if (statusUpdate.isError()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        ProgramTranslationPageViewModel model =
-            buildTranslationPageModel(
-                program,
-                currentStatusDefinitions,
-                translationForm,
-                localeToUpdate,
-                Optional.of(joinErrors(statusUpdate.getErrors())));
-        return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      ToastMessage errorMessage =
-          ToastMessage.errorNonLocalized(joinErrors(statusUpdate.getErrors()));
-      return ok(
-          translationView.render(
-              request,
-              localeToUpdate,
-              program,
-              currentStatusDefinitions,
-              translationForm,
-              Optional.of(errorMessage)));
-    }
-
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       ProgramTranslationPageViewModel model =
           buildTranslationPageModel(
               program,
-              statusUpdate.getResult(),
+              currentStatusDefinitions,
               translationForm,
               localeToUpdate,
-              /* errorMessage= */ Optional.empty());
+              Optional.of(joinErrors(statusUpdate.getErrors())));
       return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
-    return ok(
-        translationView.render(
-            request,
-            localeToUpdate,
+    ProgramTranslationPageViewModel model =
+        buildTranslationPageModel(
             program,
             statusUpdate.getResult(),
             translationForm,
-            /* message= */ Optional.empty()));
+            localeToUpdate,
+            /* errorMessage= */ Optional.empty());
+    return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 }

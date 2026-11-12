@@ -9,8 +9,7 @@ import views.shared.LayoutDeps;
 /**
  * Thymeleaf view for the program translations page, rendering ProgramTranslationPage.html.
  *
- * <p>A 1:1 port of {@link ProgramTranslationView}; slated for replacement by an {@code
- * AdminLayoutBaseView} page during the admin redesign.
+ * <p>Slated for replacement by an {@code AdminLayoutBaseView} page during the admin redesign.
  */
 public final class ProgramTranslationPageView
     extends LegacyTailwindLayoutBaseView<ProgramTranslationPageViewModel> {

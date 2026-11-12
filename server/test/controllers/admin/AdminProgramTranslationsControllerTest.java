@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import controllers.FlashKey;
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.Optional;
 import models.ApplicationStep;
@@ -22,14 +23,13 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.ApplicationStatusesRepository;
 import repository.ProgramRepository;
-import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 
-public class AdminProgramTranslationsControllerTest extends ResetPostgres {
+public class AdminProgramTranslationsControllerTest extends WithMockedProfiles {
 
   private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
@@ -54,6 +54,9 @@ public class AdminProgramTranslationsControllerTest extends ResetPostgres {
 
   @Before
   public void setup() {
+    resetDatabase();
+    createGlobalAdminWithMockedProfile();
+
     programRepository = instanceOf(ProgramRepository.class);
     controller = instanceOf(AdminProgramTranslationsController.class);
     applicationStatusesRepository = instanceOf(ApplicationStatusesRepository.class);
