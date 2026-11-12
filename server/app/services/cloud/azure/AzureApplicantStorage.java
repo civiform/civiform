@@ -81,7 +81,7 @@ public class AzureApplicantStorage implements ApplicantStorageClient {
   @Override
   public String getPresignedUrlString(String fileKey, Optional<String> originalFileName) {
     String blobUrl = client.getBlobUrl(fileKey);
-    String sasToken = client.getSasToken(fileKey, originalFileName);
+    String sasToken = client.getDownloadSasToken(fileKey, originalFileName);
     String signedUrl = String.format("%s?%s", blobUrl, sasToken);
 
     try {
