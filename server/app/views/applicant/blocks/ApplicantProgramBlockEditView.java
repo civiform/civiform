@@ -10,6 +10,7 @@ import controllers.applicant.ApplicantRequestedAction;
 import controllers.applicant.ApplicantRoutes;
 import forms.questions.EnumeratorQuestionForm;
 import java.time.Clock;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -502,31 +503,59 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     // a running error count lets calculateAutoFocusTarget focus only the first entity row that has
     // an error.
     AtomicInteger errorCount = new AtomicInteger(0);
-    List<ApplicantQuestionRendererParams> initialQuestionRendererParamsList =
+    List<ApplicantQuestionRendererParams.AutoFocusTarget> autofocusTargets =
         contextualizedInitialQuestions.stream()
             .map(
                 initialQuestion -> {
                   if (initialQuestion.hasErrors()) {
                     errorCount.incrementAndGet();
                   }
-                  return ApplicantQuestionRendererParams.builder()
-                      .setMessages(params.messages())
-                      .setErrorDisplayMode(params.errorDisplayMode())
-                      .setAutofocus(
-                          calculateAutoFocusTarget(
-                              params.errorDisplayMode(),
-                              params.block().hasErrors(),
-                              errorCount.get()))
-                      .build();
+                  return calculateAutoFocusTarget(
+                      params.errorDisplayMode(), params.block().hasErrors(), errorCount.get());
                 })
+            .collect(Collectors.toCollection(ArrayList::new));
+    // A list-level error (required, too few or too many items, duplicate names) has no field of its
+    // own. When no row has its own error to focus, focus the first row's first field, whose
+    // description starts with the list-level error, so the error is read. With no rows, the
+    // fragment autofocuses the Add button instead.
+    if (!autofocusTargets.isEmpty()
+        && autofocusTargets.stream()
+            .noneMatch(ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_ERROR::equals)
+        && showsListLevelErrors(params)) {
+      autofocusTargets.set(0, ApplicantQuestionRendererParams.AutoFocusTarget.FIRST_FIELD);
+    }
+    List<ApplicantQuestionRendererParams> initialQuestionRendererParamsList =
+        autofocusTargets.stream()
+            .map(
+                autofocusTarget ->
+                    ApplicantQuestionRendererParams.builder()
+                        .setMessages(params.messages())
+                        .setErrorDisplayMode(params.errorDisplayMode())
+                        .setAutofocus(autofocusTarget)
+                        .build())
             .collect(Collectors.toList());
     context.setVariable("initialQuestionRendererParamsList", initialQuestionRendererParamsList);
-    // When a row already autofocuses its own error, a list-level error must not move focus to the
-    // first row too (one autofocus per page).
-    context.setVariable(
-        "initialQuestionRowHasAutofocus",
-        initialQuestionRendererParamsList.stream()
-            .anyMatch(ApplicantQuestionRendererParams::autofocusFirstError));
+  }
+
+  /**
+   * Returns true if the enumerator on this block has list-level errors to show, using the same
+   * initial-question-flow signal as the enumerator fragment so a blank entity name in the new flow
+   * isn't counted.
+   */
+  private static boolean showsListLevelErrors(ApplicationBaseViewParams params) {
+    if (!ApplicantQuestionRendererParams.ErrorDisplayMode.shouldShowErrors(
+        params.errorDisplayMode())) {
+      return false;
+    }
+    ApplicantQuestion enumerator = params.block().getEnumeratorQuestion();
+    // TODO(#11943): Part of the initialQuestionFlowIsActive signal; call createEnumeratorQuestion()
+    // with no args when removing the blank-name check in EnumeratorQuestion.
+    var listErrors =
+        enumerator
+            .createEnumeratorQuestion(params.block().initialQuestionFlowIsActive())
+            .getValidationErrors()
+            .get(enumerator.getContextualizedPath());
+    return listErrors != null && !listErrors.isEmpty();
   }
 
   /**

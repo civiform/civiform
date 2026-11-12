@@ -18,7 +18,6 @@ const VISIBLE_ENTITY_FIELDS_SELECTOR =
 
 export function init() {
   updateListeners()
-  focusFirstEntityOnListError()
 
   // After HTMX swaps a new entity row into #enumerator-fields, re-attach listeners to the new
   // controls and move focus into the new row.
@@ -207,40 +206,6 @@ function setFocusAfterEnumeratorRemoval() {
     // Set focus to last remove button
     ;(deleteButtons[deleteButtons.length - 1] as HTMLElement).focus()
   }
-}
-
-/**
- * When the page loads with a list-level error (e.g. too few items or duplicate names) and entity
- * rows on the page, the server marks #enumerator-fields. Focus the first row's first input and make
- * sure its aria-describedby starts with the list-level errors, so the error is read right after the
- * field's name. A single-input row's control already has them from the server. A group row (name,
- * date, address, radio) only has them added here, because VoiceOver reads a group's description
- * last. Done here rather than with autofocus because the first input lives in each question type's
- * own fragment.
- */
-function focusFirstEntityOnListError() {
-  const fields = document.querySelector<HTMLElement>(
-    '#enumerator-fields[data-autofocus-first-entity="true"]',
-  )
-  if (fields === null) return
-
-  const firstInput = fields
-    .querySelector('.cf-enumerator-field:not(.display-none)')
-    ?.querySelector<HTMLElement>('input:not([type=hidden]), select, textarea')
-  if (!firstInput) return
-
-  const root = fields.closest('.cf-question-enumerator')
-  if (root !== null && root.id !== '') {
-    const errorsId = `${root.id}-errors`
-    const describedBy = (firstInput.getAttribute('aria-describedby') ?? '')
-      .split(/\s+/)
-      .filter((id) => id !== '' && id !== errorsId)
-    firstInput.setAttribute(
-      'aria-describedby',
-      [errorsId, ...describedBy].join(' '),
-    )
-  }
-  firstInput.focus()
 }
 
 /** Focus the first input in the last (newly HTMX-added) entity row. */

@@ -17,18 +17,18 @@
        once and referenced from each entity row via aria-labelledby/aria-describedby. The initial
        question is always one of the valid types (enforced when the admin sets it up), so each row
        dispatches to the matching question-type fragment below. */-->
-  <!--/* When the list question has a question-level error (required, too few or too many items),
-       the page must move focus somewhere and connect the error to it, since there may be no inputs
-       for the usual first-error autofocus. With no rows, the Add button gets focus. With rows, the
-       first row's first input gets focus (in enumerator.ts), unless a row has its own error and
-       already has autofocus. Either way the error is in the focused control's aria-describedby,
-       which is read on page load (role="alert" may not be). */-->
+  <!--/* When the list question has a question-level error (required, too few or too many items,
+       duplicate names), the page must move focus somewhere and connect the error to it, since
+       there may be no inputs for the usual first-error autofocus. With no rows, the Add button
+       gets autofocus here. With rows, the first row's first field gets autofocus through its
+       renderer params (FIRST_FIELD, set in ApplicantProgramBlockEditView), unless a row has its
+       own error and already has autofocus. Either way the error is in the focused control's
+       aria-describedby, which is read on page load (role="alert" may not be). */-->
   <th:block
     th:if="${initialQuestionType != null}"
     th:with="hasQuestionLevelErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()},
              hasEntityRows=${!contextualizedInitialQuestions.isEmpty()},
-             describeFirstEntityWithError=${hasQuestionLevelErrors && hasEntityRows},
-             focusFirstEntity=${hasQuestionLevelErrors && hasEntityRows && !(initialQuestionRowHasAutofocus == true)}"
+             describeFirstEntityWithError=${hasQuestionLevelErrors && hasEntityRows}"
   >
     <!--/* Enumerator Title and Help Text */-->
     <div
@@ -47,11 +47,7 @@
     <!--/* Hidden template cloned by TS to submit a delete marker when a saved entity is removed. */-->
     <div th:replace="~{this :: deleteInputTemplate}"></div>
 
-    <div
-      id="enumerator-fields"
-      class="cf-initial-question-entities"
-      th:attr="data-autofocus-first-entity=${focusFirstEntity ? 'true' : null}"
-    >
+    <div id="enumerator-fields" class="cf-initial-question-entities">
       <th:block
         th:each="initialQForEntity,iterator: ${contextualizedInitialQuestions}"
       >
@@ -159,17 +155,20 @@
 <!--/* Renders one initial-question entity row (entity label + the initial question's inputs + a
      delete button) by dispatching to the matching question-type fragment. Multi-input types (Name, Date, Address, Radio)
      are grouped with role="group"; single-input types carry a plain label on the control.
-     rowAriaDescribedby goes on a single-input row's control, and on the first row it starts with
-     any list-level error. A group row's description is only the help text, because VoiceOver reads
-     a group's description last; enumerator.ts adds the list-level error to the input it focuses
-     instead. */-->
+     On the first row, a list-level error goes on the control that gets focus: rowAriaDescribedby
+     (the single-input control's description) starts with it, and group types get rowListErrorsId
+     for their first field. A group row's own description is only the help text, because
+     VoiceOver reads a group's description last. describeFirstEntityWithError is set by the
+     enumerator fragment above; it is unset when the HTMX add-entity partial renders a row on its
+     own, hence "== true". */-->
 <th:block
   th:fragment="initialQuestionEntityRow(initialQForEntity, questionId, isFirstEntity, rowNumber, isSaved, entityIndex, rowRendererParams)"
   th:with="rowFieldId=${'id-' + #strings.randomAlphanumeric(8)},
            rowLabelId=${'id-' + #strings.randomAlphanumeric(8)},
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
            rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
-           rowAriaDescribedby=${isFirstEntity ? (describeFirstEntityWithError == true ? questionId + '-errors ' : '') + questionId + '-description' : null}"
+           rowAriaDescribedby=${isFirstEntity ? (describeFirstEntityWithError == true ? questionId + '-errors ' : '') + questionId + '-description' : null},
+           rowListErrorsId=${isFirstEntity && describeFirstEntityWithError == true ? questionId + '-errors' : null}"
 >
   <!--/* Multi-input types */-->
   <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
@@ -184,7 +183,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Date')}">
@@ -199,7 +199,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Address')}">
@@ -215,7 +216,8 @@
         inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
-          ${stateAbbreviations})})}"
+          ${stateAbbreviations},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <th:block th:if="${initialQuestionType.getLabel().equals('Radio Button')}">
@@ -230,7 +232,8 @@
         deleteButtonId=${entityIndex},
         inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
           ${initialQForEntity},
-          ${rowRendererParams})})}"
+          ${rowRendererParams},
+          ${rowListErrorsId})})}"
     ></div>
   </th:block>
   <!--/* Single-input types */-->
