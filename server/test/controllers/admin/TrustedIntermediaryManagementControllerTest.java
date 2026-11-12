@@ -1,6 +1,12 @@
 package controllers.admin;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.NOT_FOUND;
 import static play.mvc.Http.Status.OK;
 import static play.mvc.Http.Status.SEE_OTHER;
@@ -8,6 +14,8 @@ import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import auth.CiviFormProfile;
+import auth.ProfileUtils;
 import com.google.common.collect.ImmutableMap;
 import models.AccountModel;
 import org.junit.Before;
@@ -18,8 +26,10 @@ import repository.ResetPostgres;
 import services.settings.SettingsManifest;
 import views.admin.ti.EditTrustedIntermediaryGroupPageView;
 import views.admin.ti.EditTrustedIntermediaryGroupView;
+import views.admin.ti.TrustedIntermediaryGroupIndexPageView;
 import views.admin.ti.TrustedIntermediaryGroupListPageView;
 import views.admin.ti.TrustedIntermediaryGroupListView;
+import views.shared.LayoutDeps;
 
 public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
@@ -28,6 +38,8 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
   private static final String EMAIL_ADDRESS_KEY = "emailAddress";
   private static final String ACCOUNT_ID_KEY = "accountId";
   private static final String ERROR_KEY = "error";
+  private static final String PROVIDED_NAME_KEY = "providedName";
+  private static final String PROVIDED_DESCRIPTION_KEY = "providedDescription";
   private static final String GROUP_1_NAME = "Group 1";
   private static final String GROUP_1_DESCRIPTION = "Description 1";
   private static final String GROUP_2_NAME = "Group 2";
@@ -36,10 +48,30 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
   private TrustedIntermediaryManagementController controller;
   private AccountRepository accountRepository;
+  private TrustedIntermediaryGroupListPageView redesignPageView;
+  private TrustedIntermediaryGroupIndexPageView indexPageView;
 
   @Before
   public void setup() {
     accountRepository = instanceOf(AccountRepository.class);
+
+    // The Thymeleaf page views render the admin header from the current user's profile, which a
+    // fake request does not carry, so give them a mocked profile.
+    ProfileUtils profileUtils = mock(ProfileUtils.class);
+    when(profileUtils.currentUserProfile(any())).thenReturn(mock(CiviFormProfile.class));
+    LayoutDeps injectedLayoutDeps = instanceOf(LayoutDeps.class);
+    LayoutDeps layoutDeps =
+        new LayoutDeps(
+            injectedLayoutDeps.baseViewDeps(),
+            injectedLayoutDeps.bundledAssetsFinder(),
+            profileUtils,
+            injectedLayoutDeps.deploymentType(),
+            injectedLayoutDeps.clock());
+
+    // Spies, so tests can verify which view the flags selected; the legacy page and the Thymeleaf
+    // port render much of the same text.
+    redesignPageView = spy(new TrustedIntermediaryGroupListPageView(layoutDeps));
+    indexPageView = spy(new TrustedIntermediaryGroupIndexPageView(layoutDeps));
 
     controller =
         new TrustedIntermediaryManagementController(
@@ -49,7 +81,8 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
             accountRepository,
             instanceOf(FormFactory.class),
             instanceOf(SettingsManifest.class),
-            instanceOf(TrustedIntermediaryGroupListPageView.class));
+            redesignPageView,
+            indexPageView);
   }
 
   @Test
@@ -74,6 +107,93 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
     assertThat(result.charset()).hasValue("utf-8");
     assertThat(contentAsString(result)).contains(GROUP_1_NAME);
     assertThat(contentAsString(result)).contains(GROUP_2_NAME);
+  }
+
+  @Test
+  public void index_thymeleafDisabled_rendersLegacyView() {
+    var result = controller.index(fakeRequest());
+
+    assertThat(result.status()).isEqualTo(OK);
+    verify(indexPageView, never()).render(any(), any());
+    verify(redesignPageView, never()).render(any(), any());
+  }
+
+  @Test
+  public void index_thymeleafAndRedesignEnabled_rendersRedesignView() {
+    var result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", "true")
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    verify(redesignPageView).render(any(), any());
+    verify(indexPageView, never()).render(any(), any());
+  }
+
+  @Test
+  public void index_thymeleafEnabled_withNoTis_rendersThymeleafViewWithEmptyList() {
+    var result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    verify(indexPageView).render(any(), any());
+    assertThat(contentAsString(result)).contains("Create new trusted intermediary");
+    assertThat(contentAsString(result)).doesNotContain("cf-ti-row");
+  }
+
+  @Test
+  public void index_thymeleafEnabled_withTis_rendersSortableRows() {
+    accountRepository.createNewTrustedIntermediaryGroup(GROUP_1_NAME, GROUP_1_DESCRIPTION);
+    accountRepository.createNewTrustedIntermediaryGroup(GROUP_2_NAME, GROUP_2_DESCRIPTION);
+
+    var result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .build());
+    String content = contentAsString(result);
+
+    assertThat(result.status()).isEqualTo(OK);
+    verify(indexPageView).render(any(), any());
+    assertThat(content).contains(GROUP_1_NAME, GROUP_1_DESCRIPTION);
+    assertThat(content).contains(GROUP_2_NAME, GROUP_2_DESCRIPTION);
+    // The ids, classes and data attributes admin_trusted_intermediary_list.ts sorts by.
+    assertThat(content).contains("id=\"cf-ti-list\"", "cf-ti-sublist", "cf-ti-element");
+    assertThat(content).contains("data-tiname=\"" + GROUP_1_NAME + "\"", "data-nummember=\"0\"");
+  }
+
+  @Test
+  public void index_thymeleafEnabled_withFlashError_showsNonDismissibleErrorToastAndStickyValues() {
+    var result =
+        controller.index(
+            fakeRequestBuilder()
+                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
+                .flash(
+                    ImmutableMap.of(
+                        ERROR_KEY,
+                        "Must provide a unique group name.",
+                        PROVIDED_NAME_KEY,
+                        GROUP_1_NAME,
+                        PROVIDED_DESCRIPTION_KEY,
+                        GROUP_1_DESCRIPTION))
+                .build());
+    String content = contentAsString(result);
+
+    assertThat(result.status()).isEqualTo(OK);
+    verify(indexPageView).render(any(), any());
+    assertThat(content)
+        .contains(
+            "id=\"warning-message-ti-form-fill\"",
+            "canDismiss=\"false\"",
+            "Error: Must provide a unique group name.");
+    assertThat(content)
+        .contains("value=\"" + GROUP_1_NAME + "\"", "value=\"" + GROUP_1_DESCRIPTION + "\"");
   }
 
   @Test

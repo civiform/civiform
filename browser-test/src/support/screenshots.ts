@@ -66,6 +66,15 @@ export const validateScreenshot = async (
         await normalizeElements(frame)
       }
 
+      // Wait for every image to finish loading or fail. An image changes size
+      // when its load settles (a broken image grows to fit its alt text), so a
+      // screenshot taken while one is pending is unstable.
+      for (const frame of page.frames()) {
+        await frame.waitForFunction(() =>
+          Array.from(document.images).every((img) => img.complete),
+        )
+      }
+
       if (fullPage) {
         // Some tests take screenshots while scroll position in the middle. That
         // affects header which is position fixed and on final full-page screenshots

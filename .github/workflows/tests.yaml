@@ -70,6 +70,9 @@ jobs:
 
     outputs:
       matrix: ${{ steps.build-matrix.outputs.matrix }}
+      # Number of shards per cloud. Not strategy.job-total, which counts every job in the matrix
+      # (20 when both clouds run), so half the shards would never run.
+      shard_total: ${{ steps.build-matrix.outputs.shard_total }}
 
     steps:
       - id: build-matrix
@@ -92,6 +95,7 @@ jobs:
           set -e
           echo "matrix=${matrix}"
           echo "matrix=${matrix}" >> $GITHUB_OUTPUT
+          echo "shard_total=$(echo "${matrix}" | jq '.shard_number | length')" >> $GITHUB_OUTPUT
 
   run_browser_tests:
     needs: setup-browser-test-matrix
@@ -142,9 +146,9 @@ jobs:
           CI: true
         run: |
           if [[ "${{ matrix.cloud }}" == "azure" ]]; then
-            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ strategy.job-total }}" --grep-invert "@skip-on-azure"
+            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ needs.setup-browser-test-matrix.outputs.shard_total }}" --grep-invert "@skip-on-azure"
           else
-            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ strategy.job-total }}"
+            bin/run-browser-tests-ci --shard="${{ matrix.shard_number }}/${{ needs.setup-browser-test-matrix.outputs.shard_total }}"
           fi
 
       # We'll treat aws as the source of truth for images snapshots. Attempts to run both will
@@ -188,7 +192,9 @@ jobs:
             browser-test/tmp/videos/
 
       # Upload the Playwright JSON report from passing runs. It carries per-test durations, which
-      # is the data needed to balance shards by time rather than by file count. Note the gate is
+      # browser-test/bin/update_shard_durations.mjs turns into browser-test/shard-durations.json,
+      # used by browser-test/bin/shard_tests.mjs to balance shards by time rather than by test
+      # count. Note the gate is
       # coarse: success() only skips shards where a test failed even after its retry. A test that
       # fails and then passes on retry is still uploaded with both attempts, each carrying `status`
       # and `retry`, so anything balancing on this data must filter to passed results itself.

@@ -1,0 +1,212 @@
+<!--/*
+  A program card on the CiviForm admin's program list page, with a draft row
+  and/or an active row. The markup mirrors the legacy ProgramCardFactory.
+*/-->
+<!--/*@thymesVar id="card" type="views.admin.programs.ProgramIndexPageViewModel.ProgramCard"*/-->
+<div
+  th:fragment="programCard(card)"
+  class="cf-admin-program-card w-full my-4 pl-6 border border-gray-300 rounded-lg"
+>
+  <div class="flex">
+    <div class="w-1/4 py-7 pr-2">
+      <p
+        class="cf-program-title text-black font-bold text-xl"
+        th:text="${card.title}"
+      ></p>
+      <div
+        class="cf-program-description line-clamp-2 text-sm lg:text-base mb-4"
+      >
+        <span th:text="${card.shortDescription}"></span>
+      </div>
+
+      <!--/* Program type indicator. DEFAULT programs have none. Each icon is
+             nested inside its case so only the matching one is included. */-->
+      <th:block th:switch="${card.programType.name()}">
+        <div
+          th:case="'PRE_SCREENER_FORM'"
+          class="text-black items-center flex mb-4"
+        >
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('inline-block ml-3 mr-2 w-5 h-5')}"
+          ></svg>
+          <span class="text-base font-semibold">Pre-Screener</span>
+        </div>
+        <div th:case="'EXTERNAL'" class="text-black items-center flex mb-4">
+          <svg
+            th:replace="~{admin/shared/LegacySvgFragments :: iconLabel('inline-block ml-3 mr-2 w-5 h-5')}"
+          ></svg>
+          <span class="text-base font-semibold">External program</span>
+        </div>
+      </th:block>
+
+      <!--/* The label spans hug their value spans so no whitespace text node
+             lands between them. The labels' trailing spaces (and the two after
+             "Categories:") are intentional, hence the th:text literals. */-->
+      <p
+        th:if="${card.adminNote != null}"
+        class="line-clamp-3 text-sm lg:text-base"
+      >
+        <span class="font-semibold" th:text="'Admin note: '"></span
+        ><span th:text="${card.adminNote}"></span>
+      </p>
+      <p class="text-sm lg:text-base mb-4">
+        <span class="font-semibold" th:text="'Visibility state: '"></span
+        ><span th:text="${card.visibilityState}"></span>
+      </p>
+      <p class="text-sm lg:text-base">
+        <span class="font-semibold" th:text="'Categories:  '"></span
+        ><span th:text="${card.categoriesText}"></span>
+      </p>
+    </div>
+
+    <div class="flex-grow text-sm lg:text-base">
+      <!--/* The th:if conditions sit on wrapping blocks because th:replace has
+             a higher precedence than th:if on the same element. */-->
+      <th:block th:if="${card.draftRow != null}">
+        <div th:replace="~{:: programRow(${card.draftRow})}"></div>
+      </th:block>
+      <th:block th:if="${card.activeRow != null}">
+        <div th:replace="~{:: programRow(${card.activeRow})}"></div>
+      </th:block>
+    </div>
+  </div>
+</div>
+
+<!--/* One draft or active row of a program card. data-lifecycle-stage gives
+       Playwright a unique handle on the row. */-->
+<div
+  th:fragment="programRow(row)"
+  th:attr="data-lifecycle-stage=${row.active} ? 'active' : 'draft'"
+  class="py-7 flex flex-row hover:bg-gray-100"
+  th:classappend="${row.secondRow} ? 'border-t'"
+>
+  <!--/* Program image, or a grayed-out placeholder if it has none. */-->
+  <div th:if="${row.imageUrl != null}" class="w-16 h-9">
+    <img
+      th:src="${row.imageUrl}"
+      th:alt="${row.imageAlt}"
+      class="w-full aspect-video object-cover"
+    />
+  </div>
+  <div th:if="${row.imageUrl == null}">
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconImage('w-16 h-9 text-gray-300')}"
+    ></svg>
+  </div>
+
+  <!--/* Lifecycle badge. */-->
+  <p
+    class="font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8"
+    th:classappend="${row.active} ? 'bg-civiform-green-light text-civiform-green' : 'bg-civiform-purple-light text-civiform-purple'"
+  >
+    <svg
+      th:replace="~{admin/shared/LegacySvgFragments :: iconNoiseControlOff('inline-block w-5 h-5')}"
+    ></svg
+    ><span class="mr-1" th:text="${row.active} ? 'Active' : 'Draft'"></span>
+  </p>
+
+  <div class="ml-4 xl:ml-10">
+    <!--/* Date and time on wide screens, date only on narrow ones. */-->
+    <p>
+      <span th:text="${row.active} ? 'Published on ' : 'Edited on '"></span
+      ><span
+        class="cf-bt-date font-semibold hidden lg:inline"
+        th:text="${row.updatedDateTime}"
+      ></span
+      ><span
+        class="cf-bt-date font-semibold lg:hidden"
+        th:text="${row.updatedDate}"
+      ></span>
+    </p>
+    <p>
+      <span class="font-semibold" th:text="${row.blockCount}"></span
+      ><span
+        th:text="${row.blockCount == 1} ? ' screen, ' : ' screens, '"
+      ></span
+      ><span class="font-semibold" th:text="${row.questionCount}"></span
+      ><span
+        th:text="${row.questionCount == 1} ? ' question' : ' questions'"
+      ></span>
+    </p>
+    <p
+      th:if="${row.universalQuestionsText != null}"
+      th:text="${row.universalQuestionsText}"
+    ></p>
+    <div class="flex items-center gap-1">
+      <th:block
+        th:text="${row.translationComplete} ? 'Translation complete' : 'Translation incomplete'"
+      ></th:block>
+      <th:block th:if="${row.translationComplete}">
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('h-4 w-4')}"
+        ></svg>
+      </th:block>
+      <th:block th:unless="${row.translationComplete}">
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconClose('h-4 w-4')}"
+        ></svg>
+      </th:block>
+    </div>
+  </div>
+
+  <div class="flex-grow"></div>
+
+  <div class="flex space-x-2 pr-6 font-medium">
+    <th:block th:each="action : ${row.rowActions}">
+      <button th:replace="~{:: actionButton(${action})}"></button>
+    </th:block>
+
+    <!--/* Extra actions dropdown (main.ts pairs .cf-with-dropdown with the
+           <id>-dropdown sibling). The button is invisible when the row has no
+           extra actions. */-->
+    <div class="relative">
+      <button
+        th:id="|extra-actions-${row.id}|"
+        class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12"
+        th:classappend="${row.hasExtraActions} ? '' : 'invisible'"
+      >
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconMoreVert('inline-block h-4.5 w-4.5')}"
+        ></svg>
+        <span class="text-left"></span>
+      </button>
+      <div
+        th:id="|extra-actions-${row.id}-dropdown|"
+        class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+      >
+        <th:block th:each="action : ${row.extraActions}">
+          <button th:replace="~{:: actionButton(${action})}"></button>
+        </th:block>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!--/* One program row button. th:attr drops attributes whose value is null, so
+       each button only gets the behavior the mapper set. main.ts follows
+       data-redirect-to and admin_programs.ts copies
+       data-copyable-program-link. A button with neither is a modal trigger,
+       connected by modal.ts through its id. */-->
+<button
+  th:fragment="actionButton(action)"
+  th:attr="id=${action.id}, form=${action.formId}, data-redirect-to=${action.redirectUrl}, data-copyable-program-link=${action.copyableLink}"
+  class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+  th:classappend="${action.dropdownStyle} ? '' : 'rounded-full'"
+>
+  <!--/* The fragment name is preprocessed (__...__) because it varies per
+         action. The values come from the mapper's fixed list of actions,
+         never from user input. */-->
+  <svg
+    th:replace="~{admin/shared/LegacySvgFragments :: __${action.iconFragment}__('inline-block h-4.5 w-4.5')}"
+  ></svg>
+  <span class="text-left" th:text="${action.label}"></span>
+  <form
+    th:if="${action.postUrl != null}"
+    th:id="${action.formId}"
+    class="hidden"
+    method="POST"
+    th:action="${action.postUrl}"
+  >
+    <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+  </form>
+</button>
