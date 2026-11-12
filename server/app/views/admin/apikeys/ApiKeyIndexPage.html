@@ -1,41 +1,42 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.apikeys.ApiKeyIndexPageViewModel"*/-->
 <th:block th:fragment="content">
-  <!--/* The layout's <main> supplies the legacy centered wrapper, so this div is
-         the direct child of <main> in the legacy j2html DOM. */-->
-  <div class="px-20">
-    <div class="flex items-center place-content-between my-8">
-      <h1 th:text="${model.title}"></h1>
+  <div class="padding-x-4">
+    <div
+      class="display-flex flex-align-center flex-justify margin-y-4 flex-wrap"
+    >
+      <h1 class="margin-0" th:text="${model.title}"></h1>
       <!--/* data-redirect-to is picked up by main.ts, as
              BaseHtmlView.asRedirectElement intended. */-->
       <button
         id="new-api-key-button"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+        type="button"
+        class="usa-button display-flex flex-align-center margin-right-0"
         th:data-redirect-to="${model.newKeyUrl}"
       >
-        <!--/* No whitespace between the svg and the span: this button is `block`,
-               not `flex`, so a text node here would render as a ~4px space that
-               the legacy j2html markup does not have. */-->
         <svg
-          th:replace="~{admin/shared/LegacySvgFragments :: iconPlus('inline-block h-4.5 w-4.5')}"
-        ></svg
-        ><span class="text-left">New API key</span>
+          th:replace="~{admin/shared/LegacySvgFragments :: iconPlus('usa-icon margin-right-05')}"
+        ></svg>
+        <span>New API key</span>
       </button>
     </div>
 
     <!--/* Status filters. The selected one is underlined. */-->
-    <a
-      th:each="link : ${model.filterLinks}"
-      th:href="${link.href}"
-      class="text-blue-600 hover:text-blue-500 inline-flex items-center m-2"
-      th:classappend="${link.selected} ? 'border-blue-400 border-b-2'"
-      th:text="${link.text}"
-    ></a>
+    <nav aria-label="API key status" class="display-flex flex-wrap">
+      <a
+        th:each="link : ${model.filterLinks}"
+        th:href="${link.href}"
+        class="usa-link margin-1 padding-bottom-05"
+        th:classappend="${link.selected} ? 'border-bottom-05 border-primary text-no-underline'"
+        th:attr="aria-current=${link.selected} ? 'page' : null"
+        th:text="${link.text}"
+      ></a>
+    </nav>
 
     <div>
       <p
         th:unless="${model.hasApiKeys}"
-        class="p-4"
+        class="padding-2"
         th:text="|No ${model.selectedStatusLowercase} API keys found.|"
       ></p>
       <th:block th:each="apiKey : ${model.apiKeys}">
