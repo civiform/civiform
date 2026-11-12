@@ -2205,7 +2205,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       const blockForm = page.locator('#cf-block-form')
-      const addButton = blockForm.locator('#enumerator-field-add-button')
+      // With no rows the Add button is labelled by the question title too; with rows it isn't.
+      const addButtonWithQuestion = blockForm.getByRole('button', {
+        name: 'List the names of your pets. Add Pets',
+      })
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Pets',
+        exact: true,
+      })
 
       await test.step('Continue without adding any items', async () => {
         await applicantQuestions.applyProgram(programName)
@@ -2221,11 +2228,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockForm.getByText('Error: Please enter at least 2 values.'),
         ).toBeVisible()
-        await expect(addButton).toBeFocused()
-        await expect(addButton).toHaveAccessibleName(
-          'List the names of your pets. Add Pets',
-        )
-        await expect(addButton).toHaveAccessibleDescription(
+        await expect(addButtonWithQuestion).toBeFocused()
+        await expect(addButtonWithQuestion).toHaveAccessibleDescription(
           /^(?=.*Error: This question is required\.)(?=.*Error: Please enter at least 2 values\.)Error: .*Pets help text$/,
         )
         await validateAccessibility(page, '#cf-block-form')
@@ -2234,7 +2238,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Add one item and verify the Add button no longer repeats the question', async () => {
         // The first row now carries the question title, help text and error, so the button
         // doesn't repeat them.
-        await addButton.click()
+        await addButtonWithQuestion.click()
         await waitForHtmxReady(page)
         await expect(addButton).not.toHaveAttribute('aria-labelledby')
         await expect(addButton).not.toHaveAttribute('aria-describedby')
@@ -2259,11 +2263,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Remove the item and verify the Add button carries the question again', async () => {
         page.once('dialog', (dialog) => void dialog.accept())
         await blockForm.getByRole('button', {name: 'Remove Pets #1'}).click()
-        await expect(addButton).toBeFocused()
-        await expect(addButton).toHaveAccessibleName(
-          'List the names of your pets. Add Pets',
-        )
-        await expect(addButton).toHaveAccessibleDescription(
+        await expect(addButtonWithQuestion).toBeFocused()
+        await expect(addButtonWithQuestion).toHaveAccessibleDescription(
           /^Error: Please enter at least 2 values\..*Pets help text$/,
         )
       })
