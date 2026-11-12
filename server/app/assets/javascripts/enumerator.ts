@@ -38,6 +38,13 @@ export function updateListeners() {
     'input',
     refreshAddButtonStatus,
   )
+  // Picking a radio option changes whether its row is empty. This also covers optional radios,
+  // which aren't in the gating selector above.
+  addEventListenerToElements(
+    '.cf-question-enumerator .cf-enumerator-field input[type="radio"]',
+    'change',
+    refreshAddButtonStatus,
+  )
 
   // Only attach the JS add handler for the legacy add button. The initial-question add button is
   // handled by HTMX plus the htmx:afterSettle listener above.
@@ -199,8 +206,10 @@ function focusFirstInputInLastEntity() {
  */
 function refreshAddButtonStatus() {
   const hasEmptyGatingInput = Array.from(
-    document.querySelectorAll(ADD_BUTTON_GATING_INPUTS_SELECTOR),
-  ).some((item) => (item as HTMLInputElement).value === '')
+    document.querySelectorAll<HTMLInputElement>(
+      ADD_BUTTON_GATING_INPUTS_SELECTOR,
+    ),
+  ).some(isInputEmpty)
 
   const addButton = document.getElementById(
     'enumerator-field-add-button',
@@ -250,7 +259,22 @@ function isLastEntityRowEmpty(): boolean {
   const valueInputs = lastField.querySelectorAll<HTMLInputElement>(
     'input:not([type=hidden]), select, textarea',
   )
-  return Array.from(valueInputs).every((input) => input.value === '')
+  return Array.from(valueInputs).every(isInputEmpty)
+}
+
+/**
+ * Returns true if the input has no answer yet. A radio input's value is its option value whether
+ * or not it is selected, so a radio counts as empty when no radio in its group (same name, in the
+ * same entity row) is checked. Everything else is empty when its value is blank.
+ */
+function isInputEmpty(input: HTMLInputElement): boolean {
+  if (input.type !== 'radio') {
+    return input.value === ''
+  }
+  const row = input.closest('.cf-enumerator-field') ?? document
+  return !Array.from(
+    row.querySelectorAll<HTMLInputElement>('input[type="radio"]'),
+  ).some((radio) => radio.name === input.name && radio.checked)
 }
 
 /**

@@ -2161,8 +2161,25 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await validateAccessibility(page, '#cf-block-form')
       })
 
-      await test.step('Pick a season and continue to the dates list set', async () => {
+      await test.step('Verify Add stays disabled until a radio option is selected', async () => {
+        // A radio input's value is its option value whether or not it is selected, so the blank row
+        // used to count as answered and the applicant could stack up blank rows.
+        const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
+        await expect(addSeasons).toBeDisabled()
         await blockForm.getByText('Spring').click()
+        await expect(addSeasons).toBeEnabled()
+      })
+
+      await test.step('Add a second blank season and verify Add is disabled again', async () => {
+        const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
+        await addSeasons.click()
+        await waitForHtmxReady(page)
+        await expect(addSeasons).toBeDisabled()
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Seasons #2'}).click()
+      })
+
+      await test.step('Continue to the dates list set', async () => {
         await applicantQuestions.clickContinue()
         await blockForm.getByRole('button', {name: 'Add Dates'}).click()
         await waitForHtmxReady(page)
