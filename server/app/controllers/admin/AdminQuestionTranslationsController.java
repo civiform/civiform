@@ -32,14 +32,11 @@ import services.question.types.QuestionType;
 import services.settings.SettingsManifest;
 import views.admin.questions.QuestionTranslationPageView;
 import views.admin.questions.QuestionTranslationPageViewModel;
-import views.admin.questions.QuestionTranslationView;
-import views.components.ToastMessage;
 
 /** Provides controller methods for editing and updating question translations. */
 public class AdminQuestionTranslationsController extends CiviFormController {
 
   private final QuestionService questionService;
-  private final QuestionTranslationView translationView;
   private final QuestionTranslationPageView translationPageView;
   private final FormFactory formFactory;
   private final TranslationLocales translationLocales;
@@ -51,14 +48,12 @@ public class AdminQuestionTranslationsController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       QuestionService questionService,
-      QuestionTranslationView translationView,
       QuestionTranslationPageView translationPageView,
       FormFactory formFactory,
       TranslationLocales translationLocales,
       SettingsManifest settingsManifest) {
     super(profileUtils, versionRepository);
     this.questionService = checkNotNull(questionService);
-    this.translationView = checkNotNull(translationView);
     this.translationPageView = checkNotNull(translationPageView);
     this.formFactory = checkNotNull(formFactory);
     this.translationLocales = checkNotNull(translationLocales);
@@ -91,8 +86,8 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    *
    * @param request the current {@link Http.Request}
    * @param locale the locale to update, as an ISO language tag
-   * @return a rendered {@link QuestionTranslationView} pre-populated with any existing translations
-   *     for the given locale
+   * @return a rendered {@link QuestionTranslationPageView} pre-populated with any existing
+   *     translations for the given locale
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, String questionName, String locale) {
@@ -105,22 +100,13 @@ public class AdminQuestionTranslationsController extends CiviFormController {
 
     QuestionDefinition definition = getDraftQuestionDefinition(questionName);
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      QuestionTranslationPageViewModel model =
-          buildTranslationPageModel(
-              definition,
-              localeToEdit,
-              request.flash().get(FlashKey.CONCURRENT_UPDATE),
-              settingsManifest.getImagesInQuestionFeatureEnabled(request));
-      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    Optional<ToastMessage> message =
-        request.flash().get(FlashKey.CONCURRENT_UPDATE).map(m -> ToastMessage.errorNonLocalized(m));
-    if (message.isPresent()) {
-      return ok(translationView.renderErrors(request, localeToEdit, definition, message.get()));
-    }
-    return ok(translationView.render(request, localeToEdit, definition));
+    QuestionTranslationPageViewModel model =
+        buildTranslationPageModel(
+            definition,
+            localeToEdit,
+            request.flash().get(FlashKey.CONCURRENT_UPDATE),
+            settingsManifest.getImagesInQuestionFeatureEnabled(request));
+    return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /**
@@ -129,7 +115,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
    * @param request the current {@link Http.Request}
    * @param locale the locale to update, as an ISO language tag
    * @return redirects to the admin's home page if updates were successful; otherwise, renders the
-   *     same {@link QuestionTranslationView} with error messages
+   *     same {@link QuestionTranslationPageView} with error messages
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result update(Http.Request request, String questionName, String locale) {
@@ -153,34 +139,15 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               definitionWithUpdates,
               settingsManifest.getEnumeratorImprovementsEnabled(request));
 
-      if (result.isError()) {
-        String errorText = joinErrors(result.getErrors());
-
-        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-          QuestionTranslationPageViewModel model =
-              buildTranslationPageModel(
-                  definitionWithUpdates,
-                  localeToUpdate,
-                  Optional.of(errorText),
-                  settingsManifest.getImagesInQuestionFeatureEnabled(request));
-          return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-        }
-
-        ToastMessage message = ToastMessage.errorNonLocalized(errorText);
-        return ok(
-            translationView.renderErrors(request, localeToUpdate, definitionWithUpdates, message));
-      }
-
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        QuestionTranslationPageViewModel model =
-            buildTranslationPageModel(
-                definitionWithUpdates,
-                localeToUpdate,
-                /* errorMessage= */ Optional.empty(),
-                settingsManifest.getImagesInQuestionFeatureEnabled(request));
-        return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-      return ok(translationView.render(request, localeToUpdate, definitionWithUpdates));
+      Optional<String> errorMessage =
+          result.isError() ? Optional.of(joinErrors(result.getErrors())) : Optional.empty();
+      QuestionTranslationPageViewModel model =
+          buildTranslationPageModel(
+              definitionWithUpdates,
+              localeToUpdate,
+              errorMessage,
+              settingsManifest.getImagesInQuestionFeatureEnabled(request));
+      return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
 
     } catch (UnsupportedQuestionTypeException e) {
       return badRequest(e.getMessage());

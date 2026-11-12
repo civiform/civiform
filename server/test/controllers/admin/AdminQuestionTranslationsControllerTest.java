@@ -11,6 +11,7 @@ import static support.FakeRequestBuilder.fakeRequestBuilder;
 import com.google.common.collect.ImmutableMap;
 import controllers.BadRequestException;
 import controllers.FlashKey;
+import controllers.WithMockedProfiles;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +22,6 @@ import org.junit.Test;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.QuestionRepository;
-import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -30,7 +30,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
-public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
+public class AdminQuestionTranslationsControllerTest extends WithMockedProfiles {
 
   private static final Locale ES_LOCALE = Locale.forLanguageTag("es-US");
 
@@ -46,6 +46,9 @@ public class AdminQuestionTranslationsControllerTest extends ResetPostgres {
 
   @Before
   public void setup() {
+    resetDatabase();
+    createGlobalAdminWithMockedProfile();
+
     questionRepository = instanceOf(QuestionRepository.class);
     controller = instanceOf(AdminQuestionTranslationsController.class);
     // Create a new draft version.
