@@ -30,6 +30,12 @@ test.describe('Admin can manage question image', () => {
     await test.step('Verify initial state: alt text empty and dropzone disabled', async () => {
       await adminQuestionImage.expectDescription('')
       await adminQuestionImage.expectDropzoneDisabled()
+      // USWDS sets its aria-label even while the input is disabled, so the label is not doubled.
+      await expect(
+        adminQuestionImage.getImageUploadInput(),
+      ).toHaveAccessibleName(
+        /^Image upload.*Drag file here or choose from folder$/,
+      )
       await adminQuestionImage.expectDeleteButtonHidden()
       await adminQuestionImage.expectNoExistingImageAlert()
     })
@@ -37,6 +43,14 @@ test.describe('Admin can manage question image', () => {
     await test.step('Enter alt text and verify dropzone becomes enabled', async () => {
       await adminQuestionImage.setImageDescription('Sample alt text')
       await adminQuestionImage.expectDropzoneEnabled()
+    })
+
+    await test.step('File input is named by its label and keeps the USWDS instructions', async () => {
+      await expect(
+        adminQuestionImage.getImageUploadInput(),
+      ).toHaveAccessibleName(
+        /^Image upload.*Drag file here or choose from folder$/,
+      )
     })
 
     await test.step('Clear alt text and verify dropzone becomes disabled', async () => {
