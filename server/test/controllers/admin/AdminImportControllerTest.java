@@ -44,7 +44,7 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_migrationEnabled_ok() {
+  public void index_rendersImportPage() {
     ProgramBuilder.newActiveProgram("active-program-1").build();
     ProgramBuilder.newActiveProgram("active-program-2").build();
     ProgramBuilder.newDraftProgram("draft-program").build();
@@ -52,20 +52,9 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     Result result = controller.index(fakeRequest());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Import a program");
-  }
-
-  @Test
-  public void index_thymeleafEnabled_rendersImportPage() {
-    Result result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
     assertThat(content).contains("admin-import-header");
+    assertThat(content).contains("Import a program");
     assertThat(content).contains("Import an existing program");
     assertThat(content).contains("Paste the JSON file contents into this box.");
   }
@@ -93,11 +82,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxImportProgram_thymeleafEnabled_malformedJson_rendersErrorPartial() {
+  public void hxImportProgram_malformedJson_rendersErrorPartial() {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", "{\"garbage\": true}"))
                 .build());
@@ -225,27 +213,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxImportProgram_jsonHasAllProgramInfo_resultHasProgramAndQuestionInfo() {
+  public void hxImportProgram_validJson_rendersProgramDataPartial() {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .method("POST")
-                .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
-                .build());
-
-    assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Minimal Sample Program");
-    assertThat(contentAsString(result)).contains("minimal-sample-program");
-    assertThat(contentAsString(result)).contains("Screen 1");
-    assertThat(contentAsString(result)).contains("Please enter your first and last name");
-  }
-
-  @Test
-  public void hxImportProgram_thymeleafEnabled_validJson_rendersProgramDataPartial() {
-    Result result =
-        controller.hxImportProgram(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());
@@ -254,6 +225,7 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(content).contains("Program preview");
     assertThat(content).contains("Minimal Sample Program");
+    assertThat(content).contains("minimal-sample-program");
     assertThat(content).contains("Screen 1");
     assertThat(content).contains("Please enter your first and last name");
     assertThat(content).contains("New Question");
@@ -361,11 +333,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void hxSaveProgram_thymeleafEnabled_rendersProgramSavedPartial() {
+  public void hxSaveProgram_rendersProgramSavedPartial() {
     Result result =
         controller.hxSaveProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", PROGRAM_JSON_WITH_ONE_QUESTION))
                 .build());

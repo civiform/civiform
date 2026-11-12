@@ -9,6 +9,7 @@ test.describe('program migration', () => {
   const ALERT_SUCCESS = 'usa-alert--success'
 
   test.beforeEach(async ({page}) => {
+    // The import page always renders with Thymeleaf; the export page is still behind this flag.
     await enableFeatureFlag(
       page,
       'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
