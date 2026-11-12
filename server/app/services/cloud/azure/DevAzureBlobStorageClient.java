@@ -72,10 +72,19 @@ class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
 
   @Override
   public String getSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
-    BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
+    return generateSasToken(fileName, prefixedOriginalFileName, uploadSasPermission());
+  }
 
-    BlobSasPermission blobSasPermission =
-        new BlobSasPermission().setReadPermission(true).setWritePermission(true);
+  @Override
+  public String getDownloadSasToken(String fileName, Optional<String> prefixedOriginalFileName) {
+    return generateSasToken(fileName, prefixedOriginalFileName, downloadSasPermission());
+  }
+
+  private String generateSasToken(
+      String fileName,
+      Optional<String> prefixedOriginalFileName,
+      BlobSasPermission blobSasPermission) {
+    BlobClient blobClient = blobContainerClient.getBlobClient(fileName);
 
     BlobServiceSasSignatureValues signatureValues =
         new BlobServiceSasSignatureValues(
