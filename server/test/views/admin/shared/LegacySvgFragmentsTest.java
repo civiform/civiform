@@ -125,6 +125,12 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconTranslateSvgTextButton.thtest");
   }
 
+  /** Legacy source: AdminLayout.createManageTranslationsButton ("Manage translations"). */
+  @Test
+  public void iconLanguage_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconLanguageSvgTextButton.thtest");
+  }
+
   /** Legacy source: ViewUtils.makeSvgTextButton ("Archive"). */
   @Test
   public void iconArchive_svgTextButton() {
@@ -269,9 +275,63 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconLabelProgramTypeIndicator.thtest");
   }
 
-  /** Legacy source: ViewUtils.makeSvgTextButton ("Export to PDF" on the application view). */
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Export to PDF" and "Download" buttons). */
   @Test
   public void iconDownload_svgTextButton() {
     ThymeleafFragmentTester.run(DIR + "iconDownloadSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Filter" on the applications list). */
+  @Test
+  public void iconFilterAlt_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconFilterAltSvgTextButton.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderPreviousPageButton (pagination). */
+  @Test
+  public void iconNavigateBefore_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateBefore.thtest");
+  }
+
+  /** Legacy source: BaseHtmlView.renderNextPageButton (pagination). */
+  @Test
+  public void iconNavigateNext_pagination() {
+    ThymeleafFragmentTester.run(DIR + "iconNavigateNext.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Create new program"). */
+  @Test
+  public void iconAdd_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconAddSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Publish", "Publish all drafts"). */
+  @Test
+  public void iconPublish_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconPublishSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("View" on program cards). */
+  @Test
+  public void iconView_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconViewSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Manage application statuses"). */
+  @Test
+  public void iconFlaky_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconFlakySvgTextButton.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeSvgTextButton ("Manage program admins"). */
+  @Test
+  public void iconGroup_svgTextButton() {
+    ThymeleafFragmentTester.run(DIR + "iconGroupSvgTextButton.thtest");
+  }
+
+  /** Legacy source: ProgramCardFactory.createImageIcon placeholder. */
+  @Test
+  public void iconImage_programCard() {
+    ThymeleafFragmentTester.run(DIR + "iconImageProgramCard.thtest");
   }
 }
