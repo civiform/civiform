@@ -155,7 +155,8 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
                         int completedBlockCount =
-                            roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
+                            roApplicantProgramService.getActiveAndCompletedInProgramBlockCount(
+                                settingsManifest.getEnumeratorImprovementsEnabled(request));
                         ImmutableList<AnswerData> summaryData =
                             roApplicantProgramService.getSummaryDataOnlyActive();
 

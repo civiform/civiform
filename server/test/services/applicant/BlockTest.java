@@ -138,8 +138,8 @@ public class BlockTest {
     assertThat(block.getName()).isEqualTo("name");
     assertThat(block.getDescription()).isEqualTo("description");
     assertThat(block.getVisibleQuestions()).isEmpty();
-    assertThat(block.hasErrors()).isFalse();
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -299,7 +299,7 @@ public class BlockTest {
             .build();
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -311,7 +311,7 @@ public class BlockTest {
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -325,7 +325,7 @@ public class BlockTest {
         ImmutableMap.of(Path.create("applicant.applicant_favorite_color"), "invalid_input"));
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.hasErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -340,7 +340,7 @@ public class BlockTest {
             .build();
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
     assertThat(block.containsStatic()).isFalse();
   }
 
@@ -351,7 +351,7 @@ public class BlockTest {
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
 
     // No questions filled in yet.
-    assertThat(block.isAnsweredWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
     assertThat(block.containsStatic()).isFalse();
   }
 
@@ -364,7 +364,7 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isAnsweredWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -377,7 +377,7 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -406,7 +406,7 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
     assertThat(block.containsStatic()).isTrue();
   }
 
@@ -430,7 +430,7 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
     assertThat(block.containsStatic()).isTrue();
   }
 
@@ -441,12 +441,12 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isAnsweredWithoutErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
 
     // Complete the block.
     answerNameQuestion(applicantData, UNUSED_PROGRAM_ID);
     answerColorQuestion(applicantData, UNUSED_PROGRAM_ID);
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -485,7 +485,8 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
 
-    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L, /* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
   }
 
   @Test
@@ -498,7 +499,8 @@ public class BlockTest {
     answerNameQuestion(applicantData, 567L);
     answerColorQuestion(applicantData, 567L);
 
-    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L, /* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
   }
 
   @Test
@@ -509,7 +511,8 @@ public class BlockTest {
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), applicantData);
     answerNameQuestion(applicantData, 1L);
 
-    assertThat(block.wasAnsweredInProgram(1L)).isFalse();
+    assertThat(block.wasAnsweredInProgram(1L, /* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
   }
 
   @Test
@@ -521,7 +524,8 @@ public class BlockTest {
     answerNameQuestion(applicantData, 22L);
     answerColorQuestion(applicantData, 22L);
 
-    assertThat(block.wasAnsweredInProgram(22L)).isTrue();
+    assertThat(block.wasAnsweredInProgram(22L, /* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
   }
 
   @Test
@@ -533,7 +537,8 @@ public class BlockTest {
     answerNameQuestion(applicantData, 100L);
     answerColorQuestion(applicantData, 200L);
 
-    assertThat(block.wasAnsweredInProgram(200L)).isTrue();
+    assertThat(block.wasAnsweredInProgram(200L, /* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
   }
 
   @Test
@@ -657,7 +662,7 @@ public class BlockTest {
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId, 1L));
 
-    assertThat(block.hasErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
     // Check that there is a required error for a question in the block.
     assertThat(
             block.getVisibleQuestions().stream()
@@ -698,7 +703,7 @@ public class BlockTest {
         .map(ApplicantQuestion::getContextualizedPath)
         .forEach(path -> QuestionAnswerer.addMetadata(applicantData, path, programId + 1, 1L));
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -729,7 +734,8 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
   }
 
   @Test
@@ -756,7 +762,7 @@ public class BlockTest {
     ApplicantData applicantData = new ApplicantData();
     Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -786,7 +792,7 @@ public class BlockTest {
     QuestionAnswerer.answerTextQuestion(
         applicantData, block.getVisibleQuestions().get(1).getContextualizedPath(), "brown");
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
   }
 
   @Test
@@ -818,7 +824,8 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
   }
 
   @Test
@@ -848,7 +855,8 @@ public class BlockTest {
 
     Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
-    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
   }
 
   @Test
@@ -1169,14 +1177,16 @@ public class BlockTest {
     Block block = makeUnrepeatedBlock("id", blockDefinition, new ApplicantModel(), applicantData);
 
     // Block should not be complete when visible question is unanswered
-    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
 
     // Answer only the visible question (not the hidden one)
     answerNameQuestion(applicantData, programId);
 
     // Block should now be complete even though hidden question is not answered
-    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -1212,9 +1222,10 @@ public class BlockTest {
     // Block with only hidden questions should be complete without any answers
     // because getQuestions().isEmpty() returns true
     assertThat(block.getVisibleQuestions()).isEmpty();
-    assertThat(block.hasErrors()).isFalse();
-    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
-    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
   }
 
   @Test
@@ -1280,8 +1291,9 @@ public class BlockTest {
 
     answerNameQuestion(applicantData, programId);
 
-    assertThat(block.hasErrors()).isFalse();
-    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
   }
 
   @Test
@@ -1462,7 +1474,11 @@ public class BlockTest {
         block.getEnumeratorQuestion().getContextualizedPath(),
         ImmutableList.of("Sarah", "Jonathan"));
 
-    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.initialQuestionFlowIsActive(/* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ true)).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ true))
+        .isTrue();
   }
 
   @Test
@@ -1550,39 +1566,202 @@ public class BlockTest {
   }
 
   @Test
-  public void hasErrors_withEntitiesFromLegacyInput_ignoresInitialQuestion() {
+  public void initialQuestionFlowIsActive_withFlagOnAndInitialQuestion_returnsTrue() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive(/* enumeratorImprovementsEnabled= */ true))
+        .isTrue();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withFlagOff_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive(/* enumeratorImprovementsEnabled= */ false))
+        .isFalse();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withNoInitialQuestion_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1",
+            enumeratorBlockWithoutInitialQuestion(),
+            new ApplicantModel(),
+            new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive(/* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withNonEnumeratorBlock_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", setUpBlockWithQuestions(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive(/* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+  }
+
+  @Test
+  public void entitiesFromLegacyInput_withFlagOff_areComplete() {
     ApplicantData applicantData = new ApplicantData();
     Block block =
         makeUnrepeatedBlock(
             "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
-    // The legacy input (e.g. with the enumerator improvements flag off) saves entity names on the
-    // enumerator question only. Nothing is written at the initial question's path, not even
-    // metadata.
+    answerEnumeratorWithLegacyInput(applicantData, block);
+
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ false)).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
+  }
+
+  @Test
+  public void entitiesFromLegacyInput_withFlagOn_areNotComplete() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithLegacyInput(applicantData, block);
+
+    // The initial question, which is required, hasn't been answered for either entity.
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ true)).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+    assertThat(
+            block.wasAnsweredInProgram(
+                /* programId= */ 1L, /* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+  }
+
+  @Test
+  public void entitiesWithInitialQuestionAnswered_withFlagOn_areComplete() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithLegacyInput(applicantData, block);
+    for (ApplicantQuestion initialQuestion : block.getContextualizedInitialQuestions()) {
+      QuestionAnswerer.answerNameQuestion(
+          applicantData,
+          initialQuestion.getContextualizedPath(),
+          "First",
+          /* middle= */ "",
+          "Last",
+          /* suffix= */ "");
+      QuestionAnswerer.addMetadata(
+          applicantData,
+          initialQuestion.getContextualizedPath(),
+          /* programId= */ 1L,
+          /* timestamp= */ 1L);
+    }
+
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ true)).isFalse();
+    assertThat(block.isAnsweredWithoutErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ true))
+        .isTrue();
+  }
+
+  @Test
+  public void hasErrors_withBlankEntityFromInitialQuestionFlow_withFlagOn_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithBlankInitialQuestionRow(applicantData, block);
+
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ true))
+        .isFalse();
+  }
+
+  @Test
+  public void hasErrors_withInvalidInitialQuestionAnswer_withFlagOn_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithMissingLastName(applicantData, block);
+
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+  }
+
+  @Test
+  public void hasErrors_withInvalidInitialQuestionAnswer_withFlagOff_ignoresInitialQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithMissingLastName(applicantData, block);
+
+    // With the flag off the applicant sees the legacy input, which can't fix the initial question.
+    assertThat(block.getContextualizedInitialQuestions().get(0).hasErrors()).isTrue();
+    assertThat(block.hasErrors(/* enumeratorImprovementsEnabled= */ false)).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors(/* enumeratorImprovementsEnabled= */ false))
+        .isTrue();
+  }
+
+  /**
+   * Saves one entity through the initial-question flow with a name initial question that is missing
+   * its last name. The entity name is set, so the enumerator itself has no errors.
+   */
+  private static void answerEnumeratorWithMissingLastName(
+      ApplicantData applicantData, Block block) {
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("Sarah"));
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath().atIndex(0),
+        /* programId= */ 1L,
+        /* timestamp= */ 1L);
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        block.getContextualizedInitialQuestions().get(0).getContextualizedPath(),
+        "Sarah",
+        /* middle= */ "",
+        /* last= */ "",
+        /* suffix= */ "");
+  }
+
+  /**
+   * Saves entity names the way the legacy free-text input does (e.g. with the enumerator
+   * improvements flag off): on the enumerator question only. Nothing is written at the initial
+   * question's path, not even metadata.
+   */
+  private static void answerEnumeratorWithLegacyInput(ApplicantData applicantData, Block block) {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         block.getEnumeratorQuestion().getContextualizedPath(),
         ImmutableList.of("Sarah", "Jonathan"));
-
-    assertThat(block.hasErrors()).isFalse();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath().atIndex(0),
+        /* programId= */ 1L,
+        /* timestamp= */ 1L);
   }
 
-  @Test
-  public void hasErrors_withBlankEntityFromInitialQuestionFlow_returnsTrue() {
-    ApplicantData applicantData = new ApplicantData();
-    Block block =
-        makeUnrepeatedBlock(
-            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+  /**
+   * Saves a single blank row the way the initial-question flow does: it writes metadata at the
+   * initial question's path, even for a blank row.
+   */
+  private static void answerEnumeratorWithBlankInitialQuestionRow(
+      ApplicantData applicantData, Block block) {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, block.getEnumeratorQuestion().getContextualizedPath(), ImmutableList.of(""));
-    // The initial-question flow writes metadata at the initial question's path, even for a blank
-    // row.
     QuestionAnswerer.addMetadata(
         applicantData,
         block.getContextualizedInitialQuestions().get(0).getContextualizedPath(),
         /* programId= */ 1L,
         /* timestamp= */ 1L);
-
-    assertThat(block.hasErrors()).isTrue();
   }
 
   @Test

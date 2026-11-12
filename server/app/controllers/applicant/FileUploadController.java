@@ -181,7 +181,8 @@ public final class FileUploadController extends CiviFormController {
                               formData,
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               /* forceUpdate= */ true,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request),
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -270,7 +271,8 @@ public final class FileUploadController extends CiviFormController {
                   formData,
                   settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(

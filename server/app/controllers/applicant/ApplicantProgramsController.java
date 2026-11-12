@@ -268,7 +268,8 @@ public final class ApplicantProgramsController extends CiviFormController {
                       roApplicantService -> {
                         Optional<Block> blockMaybe =
                             roApplicantService.getFirstBlockRequiringAction(
-                                /* includeStatic= */ true);
+                                /* includeStatic= */ true,
+                                settingsManifest.getEnumeratorImprovementsEnabled(request));
                         if (programSlugUrlsEnabled) {
                           return blockMaybe.flatMap(
                               block ->

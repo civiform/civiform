@@ -8,7 +8,9 @@ import com.google.common.collect.ImmutableMap;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -49,7 +51,9 @@ public final class ReadOnlyApplicantProgramService {
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
   private ImmutableList<Block> allActiveBlockList;
   private ImmutableList<Block> allHiddenBlockList;
-  private ImmutableList<Block> currentBlockList;
+  // Keyed by whether the enumerator improvements flag is on, since that changes which blocks are
+  // in progress.
+  private final Map<Boolean, ImmutableList<Block>> inProgressBlocksMemo = new HashMap<>();
 
   public ReadOnlyApplicantProgramService(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
@@ -247,9 +251,11 @@ public final class ReadOnlyApplicantProgramService {
    *
    * @return the count of active blocks completed in this program.
    */
-  public int getActiveAndCompletedInProgramBlockCount() {
+  public int getActiveAndCompletedInProgramBlockCount(boolean enumeratorImprovementsEnabled) {
     return Math.toIntExact(
-        getAllActiveBlocks().stream().filter(Block::isCompletedInProgramWithoutErrors).count());
+        getAllActiveBlocks().stream()
+            .filter(block -> block.isCompletedInProgramWithoutErrors(enumeratorImprovementsEnabled))
+            .count());
   }
 
   /**
@@ -264,23 +270,23 @@ public final class ReadOnlyApplicantProgramService {
    * <p>This list does not include blocks that were completely filled out in a different program,
    * unless the block has an address question that still needs correction.
    *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on
    * @return a list of {@link Block}s that were completed by the applicant in this session or still
    *     need to be completed for this program
    */
-  public ImmutableList<Block> getInProgressBlocks() {
-    if (currentBlockList == null) {
-      currentBlockList =
-          getBlocks(
-              block ->
-                  // Return all blocks that contain errors, were answered in this program,
-                  // contain a static question, or have an address needing correction.
-                  (!block.isAnsweredWithoutErrors()
-                          || block.wasAnsweredInProgram(programDefinition.id())
-                          || block.containsStatic()
-                          || block.hasAddressQuestionWithUncorrectedAddress())
-                      && showBlock(block));
-    }
-    return currentBlockList;
+  public ImmutableList<Block> getInProgressBlocks(boolean enumeratorImprovementsEnabled) {
+    return inProgressBlocksMemo.computeIfAbsent(
+        enumeratorImprovementsEnabled,
+        enumImprovementsEnabled ->
+            getBlocks(
+                block ->
+                    // Return all blocks that contain errors, were answered in this program,
+                    // contain a static question, or have an address needing correction.
+                    (!block.isAnsweredWithoutErrors(enumImprovementsEnabled)
+                            || block.wasAnsweredInProgram(programDefinition.id(), enumImprovementsEnabled)
+                            || block.containsStatic()
+                            || block.hasAddressQuestionWithUncorrectedAddress())
+                        && showBlock(block)));
   }
 
   /**
@@ -376,8 +382,9 @@ public final class ReadOnlyApplicantProgramService {
   /**
    * Get the next in-progress block that comes after the block with the given ID if there is one.
    */
-  public Optional<Block> getInProgressBlockAfter(String blockId) {
-    ImmutableList<Block> blocks = getInProgressBlocks();
+  public Optional<Block> getInProgressBlockAfter(
+      String blockId, boolean enumeratorImprovementsEnabled) {
+    ImmutableList<Block> blocks = getInProgressBlocks(enumeratorImprovementsEnabled);
     for (int i = 0; i < blocks.size() - 1; i++) {
       if (blocks.get(i).getId().equals(blockId)) {
         return Optional.of(blocks.get(i + 1));
@@ -404,11 +411,12 @@ public final class ReadOnlyApplicantProgramService {
    * is incomplete, if it has an address question that needs correction, or (if {@code
    * includeStatic} is true) if it contains static content.
    */
-  public Optional<Block> getFirstBlockRequiringAction(boolean includeStatic) {
-    return getInProgressBlocks().stream()
+  public Optional<Block> getFirstBlockRequiringAction(
+      boolean includeStatic, boolean enumeratorImprovementsEnabled) {
+    return getInProgressBlocks(enumeratorImprovementsEnabled).stream()
         .filter(
             block ->
-                !block.isCompletedInProgramWithoutErrors()
+                !block.isCompletedInProgramWithoutErrors(enumeratorImprovementsEnabled)
                     || block.hasAddressQuestionWithUncorrectedAddress()
                     || (includeStatic && block.containsStatic()))
         .findFirst();

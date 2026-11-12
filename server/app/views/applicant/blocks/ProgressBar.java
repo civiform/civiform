@@ -14,16 +14,23 @@ public final class ProgressBar {
   private final int stepIndex; // Index of the step the user is currently on, 0-indexed
   private final ImmutableList<Block> blocks;
   private final Messages messages;
+  private final boolean enumeratorImprovementsEnabled;
 
   /**
    * @param blocks The blocks of the application
    * @param blockIndex The block visible to user on this page, 0-indexed
    * @param messages The localized {@link Messages} for the current applicant
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on
    */
-  public ProgressBar(ImmutableList<Block> blocks, int blockIndex, Messages messages) {
+  public ProgressBar(
+      ImmutableList<Block> blocks,
+      int blockIndex,
+      Messages messages,
+      boolean enumeratorImprovementsEnabled) {
     this.blocks = checkNotNull(blocks);
     this.stepIndex = blockIndex;
     this.messages = checkNotNull(messages);
+    this.enumeratorImprovementsEnabled = enumeratorImprovementsEnabled;
   }
 
   public int getStepCount() {
@@ -38,7 +45,7 @@ public final class ProgressBar {
 
     if (index >= 0
         && index < blocks.size()
-        && blocks.get(index).isCompletedInProgramWithoutErrors()) {
+        && blocks.get(index).isCompletedInProgramWithoutErrors(enumeratorImprovementsEnabled)) {
       classes += "usa-step-indicator__segment--complete ";
     }
 

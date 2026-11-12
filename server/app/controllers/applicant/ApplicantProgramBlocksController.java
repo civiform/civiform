@@ -191,8 +191,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
    * submitting the answers.
    *
    * <p>`edit` takes the applicant to the next in-progress block, see {@link
-   * ReadOnlyApplicantProgramService#getInProgressBlocks()}. If there are no more blocks, summary
-   * page is shown.
+   * ReadOnlyApplicantProgramService#getInProgressBlocks(boolean)}. If there are no more blocks,
+   * summary page is shown.
    *
    * <p>`questionName` is present when answering a question or reviewing an answer.
    */
@@ -389,7 +389,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     cleanForm(questionPathToValueMap),
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                     false,
-                    settingsManifest.getApiBridgeEnabled(request)),
+                    settingsManifest.getApiBridgeEnabled(request),
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -764,7 +765,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   fileUploadQuestionFormData.build(),
                   settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -1108,7 +1110,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               fileUploadQuestionFormData.build(),
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               false,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request),
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -1278,7 +1281,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   applicantRequestedActionWrapper.getAction();
 
               if (canNavigateAwayFromBlockImmediately(
-                  formData, applicantRequestedAction, optionalBlockBeforeUpdate)) {
+                  formData,
+                  applicantRequestedAction,
+                  optionalBlockBeforeUpdate,
+                  settingsManifest.getEnumeratorImprovementsEnabled(request))) {
 
                 return redirectToRequestedPage(
                     profile,
@@ -1289,7 +1295,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantRequestedAction,
                     readOnlyApplicantProgramService,
                     /* flashingMap= */ ImmutableMap.of(),
-                    programSlugUrlsEnabled);
+                    programSlugUrlsEnabled,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request));
               }
               return applicantService
                   .stageAndUpdateIfValid(
@@ -1299,7 +1306,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       formData,
                       settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                       false,
-                      settingsManifest.getApiBridgeEnabled(request))
+                      settingsManifest.getApiBridgeEnabled(request),
+                      settingsManifest.getEnumeratorImprovementsEnabled(request))
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(
@@ -1325,7 +1333,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   private boolean canNavigateAwayFromBlockImmediately(
       ImmutableMap<String, String> formData,
       ApplicantRequestedAction applicantRequestedAction,
-      Optional<Block> optionalBlockBeforeUpdate) {
+      Optional<Block> optionalBlockBeforeUpdate,
+      boolean enumeratorImprovementsEnabled) {
     // An applicant can immediately navigate away from a block if:
     // There are no answers currently filled out...
     return formData.values().stream().allMatch(value -> value.equals(""))
@@ -1336,7 +1345,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         && (applicantRequestedAction == REVIEW_PAGE || applicantRequestedAction == PREVIOUS_BLOCK)
         // ... and the applicant didn't previously complete this block...
         && optionalBlockBeforeUpdate.isPresent()
-        && !optionalBlockBeforeUpdate.get().isCompletedInProgramWithoutErrors()
+        && !optionalBlockBeforeUpdate
+            .get()
+            .isCompletedInProgramWithoutErrors(enumeratorImprovementsEnabled)
         // ...and there's at least one required question, meaning that all blank answers
         // is *not* a valid response.
         // [Explanation: We don't allow applicants to submit an application until they've
@@ -1414,7 +1425,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
     // Validation errors: re-render this block with errors and previously entered data.
-    if (thisBlockUpdated.hasErrors()) {
+    if (thisBlockUpdated.hasErrors(settingsManifest.getEnumeratorImprovementsEnabled(request))) {
       ApplicantQuestionRendererParams.ErrorDisplayMode errorDisplayMode;
       if (applicantRequestedAction == REVIEW_PAGE) {
         errorDisplayMode = DISPLAY_ERRORS_WITH_MODAL_REVIEW;
@@ -1505,7 +1516,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedAction,
         roApplicantProgramService,
         flashingMap,
-        settingsManifest.getProgramSlugUrlsEnabled(request));
+        settingsManifest.getProgramSlugUrlsEnabled(request),
+        settingsManifest.getEnumeratorImprovementsEnabled(request));
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1518,7 +1530,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       ApplicantRequestedAction applicantRequestedAction,
       ReadOnlyApplicantProgramService roApplicantProgramService,
       Map<String, String> flashingMap,
-      boolean programSlugUrlsEnabled) {
+      boolean programSlugUrlsEnabled,
+      boolean enumeratorImprovementsEnabled) {
     if (applicantRequestedAction == REVIEW_PAGE) {
       if (programSlugUrlsEnabled) {
         return supplyAsync(
@@ -1555,9 +1568,12 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     Optional<String> nextBlockIdMaybe =
         inReview
             ? roApplicantProgramService
-                .getFirstBlockRequiringAction(/* includeStatic= */ false)
+                .getFirstBlockRequiringAction(
+                    /* includeStatic= */ false, enumeratorImprovementsEnabled)
                 .map(Block::getId)
-            : roApplicantProgramService.getInProgressBlockAfter(blockId).map(Block::getId);
+            : roApplicantProgramService
+                .getInProgressBlockAfter(blockId, enumeratorImprovementsEnabled)
+                .map(Block::getId);
     return nextBlockIdMaybe
         .map(
             nextBlockId ->

@@ -89,7 +89,11 @@ public class AddressCorrectionBlockView extends ApplicantBaseView {
 
     // Progress bar
     ProgressBar progressBar =
-        new ProgressBar(params.blockList(), params.blockIndex(), params.messages());
+        new ProgressBar(
+            params.blockList(),
+            params.blockIndex(),
+            params.messages(),
+            settingsManifest.getEnumeratorImprovementsEnabled(request));
     context.setVariable("progressBar", progressBar);
 
     boolean anySuggestions = addressSuggestionGroup.getAddressSuggestions().size() > 0;

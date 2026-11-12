@@ -97,6 +97,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
@@ -133,6 +134,7 @@ public final class ApplicantService {
   private final MessagesApi messagesApi;
   private final Database database;
   private final ApiBridgeProcessor apiBridgeProcessor;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -154,7 +156,8 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ApiBridgeProcessor apiBridgeProcessor) {
+      ApiBridgeProcessor apiBridgeProcessor,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -182,6 +185,7 @@ public final class ApplicantService {
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
     this.apiBridgeProcessor = checkNotNull(apiBridgeProcessor);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -286,7 +290,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -321,7 +326,8 @@ public final class ApplicantService {
         updates,
         addressServiceAreaValidationEnabled,
         forceUpdate,
-        apiBridgeEnabled);
+        apiBridgeEnabled,
+        enumeratorImprovementsEnabled);
   }
 
   /**
@@ -367,7 +373,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -433,7 +440,8 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate,
                               forceUpdate,
-                              apiBridgeEnabled);
+                              apiBridgeEnabled,
+                              enumeratorImprovementsEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -445,7 +453,8 @@ public final class ApplicantService {
                   updates,
                   Optional.empty(),
                   forceUpdate,
-                  apiBridgeEnabled);
+                  apiBridgeEnabled,
+                  enumeratorImprovementsEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -462,7 +471,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -487,7 +497,8 @@ public final class ApplicantService {
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
-    if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
+    if (forceUpdate
+        || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors(enumeratorImprovementsEnabled))) {
 
       if (apiBridgeEnabled) {
         return apiBridgeProcessor
@@ -535,13 +546,15 @@ public final class ApplicantService {
       CiviFormProfile submitterProfile,
       Request request,
       boolean answerOptionScoringEnabled) {
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {
         return getReadOnlyApplicantProgramService(applicantId, programId)
             .thenCompose(
                 ro ->
-                    validateApplicationForSubmission(ro, programId)
+                    validateApplicationForSubmission(ro, programId, enumeratorImprovementsEnabled)
                         .thenComposeAsync(
                             v -> submitterProfile.getAccount(),
                             classLoaderExecutionContext.current())
@@ -569,7 +582,7 @@ public final class ApplicantService {
       return getReadOnlyApplicantProgramService(applicantId, programId)
           .thenCompose(
               ro ->
-                  validateApplicationForSubmission(ro, programId)
+                  validateApplicationForSubmission(ro, programId, enumeratorImprovementsEnabled)
                       .thenCompose(
                           v -> {
                             EligibilityDetermination eligibilityDetermination =
@@ -844,10 +857,12 @@ public final class ApplicantService {
    *     wrapped in a failed future with a user visible message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
+      ReadOnlyApplicantProgramService roApplicantProgramService,
+      long programId,
+      boolean enumeratorImprovementsEnabled) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService
-        .getFirstBlockRequiringAction(/* includeStatic= */ false)
+        .getFirstBlockRequiringAction(/* includeStatic= */ false, enumeratorImprovementsEnabled)
         .isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
