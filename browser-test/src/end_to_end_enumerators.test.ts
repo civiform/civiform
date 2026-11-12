@@ -2158,6 +2158,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockForm.getByRole('radio', {name: 'Winter (will hide next block)'}),
         ).toBeFocused()
+        // The row's hidden marker is named entity_row, since the server ignores its value and
+        // derives the entity name from the answer.
+        await expect(
+          blockForm.locator('input[type="hidden"][name$=".entity_row"]'),
+        ).toHaveCount(1)
         await validateAccessibility(page, '#cf-block-form')
       })
 

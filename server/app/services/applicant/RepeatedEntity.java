@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import java.util.Optional;
 import java.util.stream.Stream;
 import services.Path;
-import services.applicant.question.Scalar;
 import services.program.predicate.PredicateDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 
@@ -120,11 +119,19 @@ public abstract class RepeatedEntity {
   }
 
   /**
-   * The path of this repeated entity's name, e.g. {@code
-   * applicant.household_members[0].entity_name}.
+   * The last path segment of the blank marker that each initial question row submits, so the server
+   * counts the row even when its answer submits no value. It is deliberately not {@code
+   * entity_name}: the server ignores the marker's value and derives the stored entity name from the
+   * answer.
    */
-  public Path entityNamePath() {
-    return contextualizedPath().join(Scalar.ENTITY_NAME);
+  public static final String ENTITY_ROW_MARKER = "entity_row";
+
+  /**
+   * The path of this repeated entity's row marker, e.g. {@code
+   * applicant.household_members[0].entity_row}.
+   */
+  public Path entityRowMarkerPath() {
+    return contextualizedPath().join(ENTITY_ROW_MARKER);
   }
 
   /** The depth is how deeply nested this repeated entity is. */

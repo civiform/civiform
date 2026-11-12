@@ -140,7 +140,7 @@
            rowInputId=${'id-' + #strings.randomAlphanumeric(8)},
            rowAriaLabelledby=${isFirstEntity ? questionId + '-title ' + rowLabelId : null},
            rowAriaDescribedby=${isFirstEntity ? questionId + '-description' : null},
-           rowEntityNamePath=${initialQForEntity.getRepeatedEntity().get().entityNamePath()}"
+           rowMarkerPath=${initialQForEntity.getRepeatedEntity().get().entityRowMarkerPath()}"
 >
   <!--/* Multi-input types */-->
   <th:block th:if="${initialQuestionType.getLabel().equals('Name')}">
@@ -153,7 +153,7 @@
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/NameQuestionFragment :: nameForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams})})}"
@@ -169,7 +169,7 @@
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/DateQuestionFragment :: dateForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams})})}"
@@ -185,7 +185,7 @@
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/AddressQuestionFragment :: addressForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -202,7 +202,7 @@
         isFirstEntity=${isFirstEntity},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/RadioButtonQuestionFragment :: radioForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams})})}"
@@ -218,7 +218,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/TextQuestionFragment :: textForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -236,7 +236,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/EmailQuestionFragment :: emailForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -254,7 +254,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/IdQuestionFragment :: idForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -272,7 +272,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/NumberQuestionFragment :: numberForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -290,7 +290,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/PhoneQuestionFragment :: phoneForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -308,7 +308,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/CurrencyQuestionFragment :: currencyForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -326,7 +326,7 @@
         rowNumber=${rowNumber},
         isSaved=${isSaved},
         deleteButtonId=${entityIndex},
-        entityNamePath=${rowEntityNamePath},
+        markerPath=${rowMarkerPath},
         inputContent=~{questiontypes/DropdownQuestionFragment :: dropdownForInitialQuestion(
           ${initialQForEntity},
           ${rowRendererParams},
@@ -345,7 +345,7 @@
      receives a fragment expression (e.g. ~{NameQuestionFragment :: nameForInitialQuestion(...)})
      that renders the question-type-specific inputs. */-->
 <div
-  th:fragment="initialQuestionEntityRowMultipleInput(questionId, fieldId, labelId, rowNumber, isFirstEntity, isSaved, deleteButtonId, entityNamePath, inputContent)"
+  th:fragment="initialQuestionEntityRowMultipleInput(questionId, fieldId, labelId, rowNumber, isFirstEntity, isSaved, deleteButtonId, markerPath, inputContent)"
   role="group"
   class="cf-enumerator-field maxw-mobile-lg"
   th:id="${fieldId}"
@@ -359,9 +359,7 @@
     th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></div>
   <div th:replace="${inputContent}"></div>
-  <div
-    th:replace="~{this :: entityRowMarker(entityNamePath=${entityNamePath})}"
-  ></div>
+  <div th:replace="~{this :: entityRowMarker(markerPath=${markerPath})}"></div>
   <div
     th:replace="~{this :: enumeratorEntityDeleteButton(
       isSaved=${isSaved},
@@ -374,7 +372,7 @@
      its own "<entity type> #N" label, and the first entity's input references the
      enumerator title/help via aria-labelledby/aria-describedby. */-->
 <div
-  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, isSaved, deleteButtonId, entityNamePath, inputContent)"
+  th:fragment="initialQuestionEntityRowSingleInput(fieldId, labelId, inputId, rowNumber, isSaved, deleteButtonId, markerPath, inputContent)"
   class="cf-enumerator-field cf-applicant-question-field maxw-mobile-lg"
   th:id="${fieldId}"
   th:attr="data-entity-saved=${isSaved ? 'true' : null}"
@@ -386,9 +384,7 @@
     th:text="${enumeratorQuestion.getEntityType()} + ' #' + ${rowNumber}"
   ></label>
   <div th:replace="${inputContent}"></div>
-  <div
-    th:replace="~{this :: entityRowMarker(entityNamePath=${entityNamePath})}"
-  ></div>
+  <div th:replace="~{this :: entityRowMarker(markerPath=${markerPath})}"></div>
   <div
     th:replace="~{this :: enumeratorEntityDeleteButton(
       isSaved=${isSaved},
@@ -399,12 +395,13 @@
 
 <!--/* Hidden marker submitted with every initial-question entity row, so the server creates the
      entity even when the row's answer submits nothing (an unselected radio button, an empty date).
-     The entity name itself is derived from the answer, so the server doesn't store this value. It
-     lives inside the row so removing an unsaved row also removes its marker. */-->
+     Its name is "entity_row", not "entity_name", because the server ignores its value: the stored
+     entity name is derived from the answer. It lives inside the row so removing an unsaved row also
+     removes its marker. */-->
 <input
-  th:fragment="entityRowMarker(entityNamePath)"
+  th:fragment="entityRowMarker(markerPath)"
   type="hidden"
-  th:name="${entityNamePath}"
+  th:name="${markerPath}"
   value=""
 />
 

@@ -1286,10 +1286,10 @@ public class ApplicantServiceTest extends ResetPostgres {
     // applicant.household_members[0].member_name, and first_name/last_name hang off it.
     Path initialQuestionPath =
         enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
-    // Every entity row also submits a blank entity name marker, as the form does.
+    // Every entity row also submits a blank row marker, as the form does.
     ImmutableMap<String, String> formData =
         ImmutableMap.<String, String>builder()
-            .put(enumeratorPath.atIndex(0).join(Scalar.ENTITY_NAME).toString(), "")
+            .put(enumeratorPath.atIndex(0).join(RepeatedEntity.ENTITY_ROW_MARKER).toString(), "")
             .putAll(
                 fieldValues.entrySet().stream()
                     .collect(
