@@ -3,12 +3,12 @@ package views.admin.apikeys;
 import com.google.inject.Inject;
 import play.i18n.Messages;
 import views.admin.AdminLayout;
-import views.admin.LegacyTailwindLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
 /** Thymeleaf view for the API keys index page, rendering ApiKeyIndexPage.html. */
 public final class ApiKeyIndexPageView
-    extends LegacyTailwindLayoutBaseView<ApiKeyIndexPageViewModel> {
+    extends TransitionalLayoutBaseView<ApiKeyIndexPageViewModel> {
 
   @Inject
   public ApiKeyIndexPageView(LayoutDeps layoutDeps) {
