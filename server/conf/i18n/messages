@@ -1265,11 +1265,11 @@ option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
 label.repeatedSet.newSetForm=Create new list set
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=Listed entity
+input.repeatedSet.listedEntity=What is being listed?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=List set admin ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Question text
+input.repeatedSet.questionText=Prompt text
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion={0} list set
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
@@ -1280,6 +1280,10 @@ input.repeatedSet.hintText=Hint text
 input.repeatedSet.minEntities=Minimum entity count
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=Maximum entity count
+# A form field where admins set the minimum number of items or people that applicants must add to a list set
+input.repeatedSet.minListCount=Minimum list count
+# A form field where admins set the maximum number of items or people that applicants can add to a list set
+input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Initial question
 # Description explaining what the initial question is and what the "Add initial question" button does
@@ -1303,7 +1307,7 @@ text.repeatedSet.backfillProgramCountMany={0} programs
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=Save initial question
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=A list set question must first be added before repeated questions can be. Please navigate to the parent screen to add a list set question.
+alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the previous screen to add one.
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
@@ -1311,13 +1315,15 @@ alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a n
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Initial question must be added
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Creating a list set will add a new question to the question bank.
+alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that are associated with a different list set are not available to be added.
+alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable. Choose a different question or create a new one.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set
+button.repeatedSet.addNew=Add list set screen
+# Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
+button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
@@ -1329,23 +1335,23 @@ text.nestedRepeatedSet=Nested list set
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=Add a list set that will ask residents to add objects or individuals to a list. If a list set has already been added and you would like to select a different one, delete the question below.
+text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Add the questions you would like to be asked about each object or individual listed by the applicant. If a question you add is not already associated with the list set, the question will be duplicated for this list set in the question bank.
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=List set question
+heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Previously used for this list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Repeated questions
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."
+description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We will auto-generate an ID from the listed entity defined above. Please customize as needed.
+description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Add text that will prompt applicants to list out the entity defined above.
+description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Add a hint that will help applicants decide what entities to list out.
+description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question

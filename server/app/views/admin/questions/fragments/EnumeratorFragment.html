@@ -1,8 +1,8 @@
 <!--/*@thymesVar id="questionForm" type="forms.questions.EnumeratorQuestionForm"*/-->
 <!--/* Type-specific question config for ENUMERATOR questions: required
      entity type input plus min/max entity count fields. When the
-     enumerator-improvements flag is on, the fields use the "Listed entity"
-     terminology and the entity type input has a description. */-->
+     enumerator-improvements flag is on, the fields use the "What is being listed?"
+     and "list count" terminology and the entity type input has a description. */-->
 <th:block th:fragment="build(questionForm)" xmlns:th="http://www.thymeleaf.org">
   <div class="mb-2">
     <label
@@ -43,9 +43,9 @@
     </div>
   </div>
   <div
-    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'minEntities', #{input.repeatedSet.minEntities}, ${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : null}, '0')}"
+    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'minEntities', ${model.enumeratorImprovementsEnabled} ? #{input.repeatedSet.minListCount} : #{input.repeatedSet.minEntities}, ${questionForm.getMinEntities().isPresent() ? questionForm.getMinEntities().getAsInt() : null}, '0')}"
   ></div>
   <div
-    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'maxEntities', #{input.repeatedSet.maxEntities}, ${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : null}, '1')}"
+    th:replace="~{admin/shared/LegacyFieldWithLabel/NumberField :: numberField(${model.randomFieldId()}, 'maxEntities', ${model.enumeratorImprovementsEnabled} ? #{input.repeatedSet.maxListCount} : #{input.repeatedSet.maxEntities}, ${questionForm.getMaxEntities().isPresent() ? questionForm.getMaxEntities().getAsInt() : null}, '1')}"
   ></div>
 </th:block>

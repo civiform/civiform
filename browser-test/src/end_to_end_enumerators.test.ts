@@ -132,8 +132,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         initialBlockCount = await screenLinks.count()
       })
 
-      await test.step('Click "Add list set" button', async () => {
-        await page.getByRole('button', {name: 'Add list set'}).click()
+      await test.step('Click "Add list set screen" button', async () => {
+        await page.getByRole('button', {name: 'Add list set screen'}).click()
       })
 
       await test.step('Validate that two new blocks appear in the block order panel', async () => {
@@ -223,8 +223,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel.getByTestId('choose-existing-radio-label').click()
       })
 
-      await test.step('Click the "Add question" button', async () => {
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+      await test.step('Click the "Add list set" button', async () => {
+        await blockPanel
+          .getByRole('button', {name: 'Add list set', exact: true})
+          .click()
       })
 
       await test.step('Validate that the question bank sidebar only shows enumerator questions', async () => {
@@ -265,7 +267,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
 
       await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
-        await expect(blockPanel.getByText('List set question')).toBeFocused()
+        await expect(
+          blockPanel.getByRole('heading', {name: 'List set', exact: true}),
+        ).toBeFocused()
       })
 
       await test.step('Validate that the card offering to add an initial question is shown', async () => {
@@ -376,7 +380,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Add an existing enumerator question that has no initial question', async () => {
         await addRepeatedSetBlocks(page)
         await blockPanel.getByTestId('choose-existing-radio-label').click()
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await blockPanel
+          .getByRole('button', {name: 'Add list set', exact: true})
+          .click()
         await pickQuestionFromBank(page, 'Sample Enumerator Question')
         await expect(
           blockPanel.getByTestId(
@@ -408,7 +414,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPrograms.gotoEditDraftProgramPage('Other enumerator program')
         await addRepeatedSetBlocks(page)
         await blockPanel.getByTestId('choose-existing-radio-label').click()
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await blockPanel
+          .getByRole('button', {name: 'Add list set', exact: true})
+          .click()
         await pickQuestionFromBank(page, 'Sample Enumerator Question')
         await expect(
           blockPanel.getByTestId(
@@ -654,7 +662,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .getByText('List the names of your pets.')
 
         await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
-          await expect(blockPanel.getByText('List set question')).toBeFocused()
+          await expect(
+            blockPanel.getByRole('heading', {name: 'List set', exact: true}),
+          ).toBeFocused()
         })
 
         await test.step('Verify the enumerator question card is shown', async () => {
@@ -665,7 +675,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Take a screenshot of the list set section', async () => {
           // Clear the heading's focus outline so this matches the general screenshot.
-          await blockPanel.getByText('List set question').blur()
+          await blockPanel
+            .getByRole('heading', {name: 'List set', exact: true})
+            .blur()
           await validateScreenshot(
             page.locator('#repeated-set-question-section'),
             'enumerator-list-set-section',
@@ -789,10 +801,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await test.step('Verify the enumerator form fields are restored from session storage on return', async () => {
           await expect(
-            blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+            blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
           ).toHaveValue('Pets')
           await expect(
-            blockPanel.getByRole('textbox', {name: 'Question text'}),
+            blockPanel.getByRole('textbox', {name: 'Prompt text'}),
           ).toHaveValue('List the names of your pets.')
           await expect(
             blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
@@ -910,8 +922,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel.getByTestId('choose-existing-radio-label').click()
       })
 
-      await test.step('Click the "Add question" button', async () => {
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+      await test.step('Click the "Add list set" button', async () => {
+        await blockPanel
+          .getByRole('button', {name: 'Add list set', exact: true})
+          .click()
         await expect(questionBankSidebar).toBeVisible()
       })
 
@@ -1012,13 +1026,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const listedEntityInput = blockPanel.getByRole('textbox', {
-        name: 'Listed entity',
+        name: 'What is being listed?',
       })
       const adminIdInput = blockPanel.getByRole('textbox', {
         name: 'List set admin ID',
       })
       const questionTextInput = blockPanel.getByRole('textbox', {
-        name: 'Question text',
+        name: 'Prompt text',
       })
 
       await test.step('Add a new repeated set', async () => {
@@ -1070,9 +1084,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Submit the new enumerator question form without filling out all the required fields or selecting an initial question', async () => {
         await blockPanel
-          .getByRole('textbox', {name: 'Listed entity'})
+          .getByRole('textbox', {name: 'What is being listed?'})
           .fill('Pets')
-        await blockPanel.getByRole('textbox', {name: 'Question text'}).fill('')
+        await blockPanel.getByRole('textbox', {name: 'Prompt text'}).fill('')
         await blockPanel
           .getByRole('textbox', {name: 'List set admin ID'})
           .fill('')
@@ -1089,12 +1103,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(errorAlert).toBeVisible()
       })
 
-      await test.step('Validate that the form is still visible and Listed entity is retained', async () => {
+      await test.step('Validate that the form is still visible and "What is being listed?" is retained', async () => {
         await expect(
           blockPanel.locator('#new-enumerator-question-form'),
         ).toBeVisible()
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toHaveValue('Pets')
       })
 
@@ -1121,7 +1135,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           blockPanel.locator('#new-enumerator-question-form'),
         ).toBeVisible()
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toHaveValue('Pets')
         await expect(
           initialQuestionSlot.getByTestId(
@@ -1162,7 +1176,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Verify that focus is on the first input field of the enumerator form', async () => {
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toBeFocused()
       })
     })
@@ -1338,10 +1352,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         // Return to enumerator screen
         await page.getByRole('link', {name: 'Screen 2'}).click()
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toHaveValue('Pets')
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Question text'}),
+          blockPanel.getByRole('textbox', {name: 'Prompt text'}),
         ).toHaveValue('List the names of your pets.')
         await expect(
           blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
@@ -1362,10 +1376,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Verify the enumerator form fields are empty — storage was cleared on delete', async () => {
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toHaveValue('')
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Question text'}),
+          blockPanel.getByRole('textbox', {name: 'Prompt text'}),
         ).toHaveValue('')
         await expect(
           blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
@@ -1396,10 +1410,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Verify the enumerator form fields are empty — storage was cleared on submit', async () => {
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Listed entity'}),
+          blockPanel.getByRole('textbox', {name: 'What is being listed?'}),
         ).toHaveValue('')
         await expect(
-          blockPanel.getByRole('textbox', {name: 'Question text'}),
+          blockPanel.getByRole('textbox', {name: 'Prompt text'}),
         ).toHaveValue('')
         await expect(
           blockPanel.getByRole('textbox', {name: 'List set admin ID'}),
@@ -1420,7 +1434,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
       const repeatedSetAlert = blockPanel.getByRole('alert').filter({
         hasText:
-          'A list set question must first be added before repeated questions can be. Please navigate to the parent screen to add a list set question.',
+          'Add a list set before you add repeated questions. Go to the previous screen to add one.',
       })
 
       await test.step('Add a new repeated set and go to the repeated screen', async () => {
@@ -1529,7 +1543,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Questions that are associated with a different list set are not available to be added.',
+            'Questions that belong to another list set are unavailable. Choose a different question or create a new one.',
           ),
         ).toBeVisible()
         await expect(
@@ -1685,11 +1699,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         )
         await chooseExistingLabel.check()
 
-        const addQuestionButton = page.getByRole('button', {
-          name: 'Add question',
+        const addListSetButton = page.getByRole('button', {
+          name: 'Add list set',
+          exact: true,
         })
         await expect(chooseExistingButton).toBeChecked()
-        await expect(addQuestionButton).toBeVisible()
+        await expect(addListSetButton).toBeVisible()
       })
     })
 
@@ -1721,7 +1736,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Add the existing enumerator question to a new repeated set', async () => {
         await addRepeatedSetBlocks(page)
         await blockPanel.getByTestId('choose-existing-radio-label').click()
-        await blockPanel.getByRole('button', {name: 'Add question'}).click()
+        await blockPanel
+          .getByRole('button', {name: 'Add list set', exact: true})
+          .click()
         await pickQuestionFromBank(page, 'enumerator-ete-householdmembers')
       })
 
@@ -2728,7 +2745,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   // a parent enumerator block (Screen 2) plus a repeated child block (Screen 3)
   // and lands on the parent enumerator block.
   async function addRepeatedSetBlocks(page: Page) {
-    await page.getByRole('button', {name: 'Add list set'}).click()
+    await page.getByRole('button', {name: 'Add list set screen'}).click()
   }
 
   async function fillEnumeratorQuestionForm(
@@ -2756,13 +2773,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
     await test.step('Fill out the new enumerator question form', async () => {
       const listedEntityInput = blockPanel.getByRole('textbox', {
-        name: 'Listed entity',
+        name: 'What is being listed?',
       })
       await expect(listedEntityInput).toHaveAttribute('aria-required', 'true')
       await listedEntityInput.fill(listedEntity)
 
       const questionTextInput = blockPanel.getByRole('textbox', {
-        name: 'Question text',
+        name: 'Prompt text',
       })
       await expect(questionTextInput).toHaveAttribute('aria-required', 'true')
       await questionTextInput.fill(questionText)
@@ -2783,7 +2800,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       if (maxEntities != null) {
         await blockPanel
-          .getByRole('spinbutton', {name: 'Maximum entity count'})
+          .getByRole('spinbutton', {name: 'Maximum list count'})
           .fill(String(maxEntities))
       }
     })
@@ -2856,7 +2873,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
   /**
    * Clicks "Edit" on the `enumeratorAdminId` enumerator question card, verifies the question edit
-   * form shows the "Listed entity" field with its description and the initial question's admin id,
+   * form shows the "What is being listed?" field with its description and the initial question's admin id,
    * then returns to the program block edit page.
    */
   async function expectInitialQuestionInEditForm(
@@ -2873,13 +2890,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await waitForPageJsLoad(page)
     })
 
-    await test.step('Verify the "Listed entity" field and its description', async () => {
+    await test.step('Verify the "What is being listed?" field and its description', async () => {
       const listedEntityInput = page.getByRole('textbox', {
-        name: 'Listed entity',
+        name: 'What is being listed?',
       })
       await expect(listedEntityInput).toBeVisible()
       await expect(listedEntityInput).toHaveAccessibleDescription(
-        'Specify the type of individuals or objects an applicant will need to list out. Please add these in the singular form, e.g. "household member" or "income source."',
+        'Enter the items or people an applicant lists out, such as "household member" or "income source."',
       )
     })
 
