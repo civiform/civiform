@@ -25,6 +25,7 @@ export function init() {
   document.addEventListener('htmx:afterSettle', (event) => {
     if (event.detail.target.id === 'enumerator-fields') {
       updateListeners()
+      syncAddButtonAria()
       focusFirstInputInLastEntity()
     }
   })
@@ -154,7 +155,39 @@ function removeEnumeratorField(event: Event) {
   // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
   refreshAddButtonStatus()
+  syncAddButtonAria()
   setFocusAfterEnumeratorRemoval()
+}
+
+/**
+ * Keep the initial-question add button's aria in step with the rows on the page. With no rows,
+ * the button is labelled by the question title and described by the list-level errors (when
+ * shown) and help text, as the server renders it. With rows, the first row carries those, so the
+ * button drops them to avoid a screen reader hearing them twice. Legacy add buttons are skipped.
+ */
+function syncAddButtonAria() {
+  const addButton = document.getElementById('enumerator-field-add-button')
+  if (addButton === null || !isInitialQuestionAddButton(addButton)) return
+
+  const root = addButton.closest('.cf-question-enumerator')
+  if (root === null || root.id === '') return
+
+  if (document.querySelectorAll(VISIBLE_ENTITY_FIELDS_SELECTOR).length > 0) {
+    addButton.removeAttribute('aria-labelledby')
+    addButton.removeAttribute('aria-describedby')
+    return
+  }
+
+  addButton.setAttribute(
+    'aria-labelledby',
+    `${root.id}-title enumerator-field-add-button`,
+  )
+  const errors = document.getElementById(`${root.id}-errors`)
+  const hasErrors = errors !== null && errors.textContent?.trim() !== ''
+  addButton.setAttribute(
+    'aria-describedby',
+    `${hasErrors ? `${root.id}-errors ` : ''}${root.id}-description`,
+  )
 }
 
 /**

@@ -2231,9 +2231,13 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await validateAccessibility(page, '#cf-block-form')
       })
 
-      await test.step('Add one item and continue', async () => {
+      await test.step('Add one item and verify the Add button no longer repeats the question', async () => {
+        // The first row now carries the question title, help text and error, so the button
+        // doesn't repeat them.
         await addButton.click()
         await waitForHtmxReady(page)
+        await expect(addButton).not.toHaveAttribute('aria-labelledby')
+        await expect(addButton).not.toHaveAttribute('aria-describedby')
         await blockForm.getByRole('textbox').first().fill('Spot')
         await applicantQuestions.clickContinue()
       })
@@ -2247,7 +2251,21 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(firstRowInput).toHaveAccessibleDescription(
           /^Error: Please enter at least 2 values\..*Pets help text/,
         )
+        await expect(addButton).not.toHaveAttribute('aria-labelledby')
+        await expect(addButton).not.toHaveAttribute('aria-describedby')
         await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Remove the item and verify the Add button carries the question again', async () => {
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Pets #1'}).click()
+        await expect(addButton).toBeFocused()
+        await expect(addButton).toHaveAccessibleName(
+          'List the names of your pets. Add Pets',
+        )
+        await expect(addButton).toHaveAccessibleDescription(
+          /^Error: Please enter at least 2 values\..*Pets help text$/,
+        )
       })
     })
 
