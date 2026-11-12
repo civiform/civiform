@@ -203,19 +203,18 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable(
           "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
 
-      // Whether the entities on an enumerator block came through the initial-question flow.
-      // Used to suppress blank/duplicate-blank entry error validation when the initial-question
-      // fields report those errors themselves.
+      // Whether the enumerator block uses the initial-question flow (the enumerator improvements
+      // flag is on and the enumerator has an initial question). Used to suppress blank/duplicate-
+      // blank entry error validation when the initial-question fields report those errors
+      // themselves.
       // TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
       // check in EnumeratorQuestion.
-      context.setVariable(
-          "initialQuestionFlowIsActive", applicationParams.block().initialQuestionFlowIsActive());
+      boolean initialQuestionFlowIsActive = applicationParams.block().initialQuestionFlowIsActive();
+      context.setVariable("initialQuestionFlowIsActive", initialQuestionFlowIsActive);
 
-      // Initial-question context for enumerator blocks when enumerator improvements are enabled and
-      // the enumerator has an initial question configured. When absent, the enumerator fragment
-      // falls back to the legacy text input.
-      if (settingsManifest.getEnumeratorImprovementsEnabled(request)
-          && applicationParams.block().getInitialQuestion().isPresent()) {
+      // Initial-question context for enumerator blocks using the initial-question flow. When
+      // absent, the enumerator fragment falls back to the legacy text input.
+      if (initialQuestionFlowIsActive) {
         setInitialQuestionContext(context, applicationParams);
       }
       context.setVariable(

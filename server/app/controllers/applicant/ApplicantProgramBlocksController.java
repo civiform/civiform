@@ -389,7 +389,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     cleanForm(questionPathToValueMap),
                     settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                     false,
-                    settingsManifest.getApiBridgeEnabled(request)),
+                    settingsManifest.getApiBridgeEnabled(request),
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -467,7 +468,9 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                           .thenComposeAsync(
                               v ->
                                   applicantService.getReadOnlyApplicantProgramService(
-                                      applicantId, programId),
+                                      applicantId,
+                                      programId,
+                                      settingsManifest.getEnumeratorImprovementsEnabled(request)),
                               classLoaderExecutionContext.current())
                           .toCompletableFuture();
 
@@ -591,7 +594,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(v -> checkProgramAuthorization(request, programId))
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            v ->
+                applicantService.getReadOnlyApplicantProgramService(
+                    applicantId,
+                    programId,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
@@ -700,7 +707,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v -> checkProgramAuthorization(request, programId),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            v ->
+                applicantService.getReadOnlyApplicantProgramService(
+                    applicantId,
+                    programId,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
@@ -764,7 +775,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   fileUploadQuestionFormData.build(),
                   settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -847,7 +859,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v -> checkProgramAuthorization(request, programId),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            v ->
+                applicantService.getReadOnlyApplicantProgramService(
+                    applicantId,
+                    programId,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             roApplicantProgramService -> {
@@ -976,7 +992,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             v -> checkProgramAuthorization(request, programId),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            v ->
+                applicantService.getReadOnlyApplicantProgramService(
+                    applicantId,
+                    programId,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
@@ -1108,7 +1128,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               fileUploadQuestionFormData.build(),
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               false,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request),
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -1201,7 +1222,11 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                 v -> checkApplicantAuthorization(request, applicantId),
                 classLoaderExecutionContext.current())
             .thenComposeAsync(
-                v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+                v ->
+                    applicantService.getReadOnlyApplicantProgramService(
+                        applicantId,
+                        programId,
+                        settingsManifest.getEnumeratorImprovementsEnabled(request)),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1299,7 +1324,8 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       formData,
                       settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                       false,
-                      settingsManifest.getApiBridgeEnabled(request))
+                      settingsManifest.getApiBridgeEnabled(request),
+                      settingsManifest.getEnumeratorImprovementsEnabled(request))
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(

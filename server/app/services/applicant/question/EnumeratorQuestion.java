@@ -77,9 +77,9 @@ public final class EnumeratorQuestion extends AbstractQuestion {
     // When the initial-question flow is active, the initial question's own per-entity
     // validation already reports a missing answer. Skip the enumerator-level blank-name check
     // and ignore blank (unanswered) names when checking for duplicates so the applicant
-    // does not see a redundant top-level error. This is gated on the new enumerator flow
-    // being enabled (not just an initial question being configured) so a legacy free-text
-    // submission still validates blank names normally.
+    // does not see a redundant top-level error. This is gated on the initial-question flow
+    // being active (the enumerator improvements flag is on and an initial question is
+    // configured) so a legacy free-text submission still validates blank names normally.
     ImmutableList<String> entitiesToValidate =
         initialQuestionFlowIsActive
             ? entityNames.stream()

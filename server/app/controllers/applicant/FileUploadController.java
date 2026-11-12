@@ -135,7 +135,8 @@ public final class FileUploadController extends CiviFormController {
     String fileKey = filePart.getRef();
 
     return applicantService
-        .getReadOnlyApplicantProgramService(applicantId, programId)
+        .getReadOnlyApplicantProgramService(
+            applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled(request))
         .thenComposeAsync(
             roApplicantProgramService -> {
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
@@ -181,7 +182,8 @@ public final class FileUploadController extends CiviFormController {
                               formData,
                               settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                               /* forceUpdate= */ true,
-                              settingsManifest.getApiBridgeEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(request),
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -247,7 +249,11 @@ public final class FileUploadController extends CiviFormController {
 
     return checkApplicantAuthorization(request, applicantId)
         .thenComposeAsync(
-            v -> applicantService.getReadOnlyApplicantProgramService(applicantId, programId),
+            v ->
+                applicantService.getReadOnlyApplicantProgramService(
+                    applicantId,
+                    programId,
+                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -270,7 +276,8 @@ public final class FileUploadController extends CiviFormController {
                   formData,
                   settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(request),
+                  settingsManifest.getEnumeratorImprovementsEnabled(request));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(

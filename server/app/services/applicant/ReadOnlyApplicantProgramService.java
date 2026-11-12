@@ -47,29 +47,23 @@ public final class ReadOnlyApplicantProgramService {
 
   private final ProgramDefinition programDefinition;
   private final JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory;
+  private final boolean enumeratorImprovementsEnabled;
   private ImmutableList<Block> allActiveBlockList;
   private ImmutableList<Block> allHiddenBlockList;
   private ImmutableList<Block> currentBlockList;
 
-  public ReadOnlyApplicantProgramService(
-      JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
-      ApplicantModel applicant,
-      ApplicantData applicantData,
-      ProgramDefinition programDefinition) {
-    this(
-        jsonPathPredicateGeneratorFactory,
-        applicant,
-        applicantData,
-        programDefinition,
-        /* failedUpdates= */ ImmutableMap.of());
-  }
-
+  /**
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on for the
+   *     request this service is built for. With it on, an enumerator's initial question must be
+   *     answered for every entity before its block counts as complete.
+   */
   public ReadOnlyApplicantProgramService(
       JsonPathPredicateGeneratorFactory jsonPathPredicateGeneratorFactory,
       ApplicantModel applicant,
       ApplicantData applicantData,
       ProgramDefinition programDefinition,
-      ImmutableMap<Path, String> failedUpdates) {
+      ImmutableMap<Path, String> failedUpdates,
+      boolean enumeratorImprovementsEnabled) {
     this.jsonPathPredicateGeneratorFactory = checkNotNull(jsonPathPredicateGeneratorFactory);
     this.applicant = checkNotNull(applicant);
     this.applicantData = new ApplicantData(checkNotNull(applicantData).asJsonString());
@@ -77,6 +71,7 @@ public final class ReadOnlyApplicantProgramService {
     this.applicantData.setFailedUpdates(failedUpdates);
     this.applicantData.lock();
     this.programDefinition = checkNotNull(programDefinition);
+    this.enumeratorImprovementsEnabled = enumeratorImprovementsEnabled;
   }
 
   /** Returns the applicant model for this application. */
@@ -621,7 +616,8 @@ public final class ReadOnlyApplicantProgramService {
               blockDefinition,
               applicant,
               applicantData,
-              maybeRepeatedEntity);
+              maybeRepeatedEntity,
+              enumeratorImprovementsEnabled);
       if (includeBlockIfTrue.test(block)) {
         blockListBuilder.add(block);
       }
