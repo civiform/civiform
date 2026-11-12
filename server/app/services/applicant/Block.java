@@ -56,22 +56,31 @@ public final class Block {
   private final ApplicantModel applicant;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
+  private final boolean enumeratorImprovementsEnabled;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
   private Optional<ApplicantQuestion> enumeratorQuestion = Optional.empty();
 
+  /**
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on for the
+   *     request this block is built for. It decides whether an enumerator's initial question takes
+   *     part in the block's answered, completion, and error checks; see {@link
+   *     #initialQuestionFlowIsActive}.
+   */
   Block(
       String id,
       BlockDefinition blockDefinition,
       ApplicantModel applicant,
       ApplicantData applicantData,
-      Optional<RepeatedEntity> repeatedEntity) {
+      Optional<RepeatedEntity> repeatedEntity,
+      boolean enumeratorImprovementsEnabled) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicant = checkNotNull(applicant);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
+    this.enumeratorImprovementsEnabled = enumeratorImprovementsEnabled;
   }
 
   public String getId() {
@@ -232,7 +241,7 @@ public final class Block {
    * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
    * check in {@link services.applicant.question.EnumeratorQuestion}.
    */
-  public boolean initialQuestionFlowIsActive(boolean enumeratorImprovementsEnabled) {
+  public boolean initialQuestionFlowIsActive() {
     return enumeratorImprovementsEnabled && getInitialQuestion().isPresent();
   }
 
@@ -241,9 +250,8 @@ public final class Block {
    * visible questions, plus the initial question contextualized to each entity when the
    * initial-question flow is active.
    */
-  private ImmutableList<ApplicantQuestion> getQuestionsToValidate(
-      boolean enumeratorImprovementsEnabled) {
-    if (!initialQuestionFlowIsActive(enumeratorImprovementsEnabled)) {
+  private ImmutableList<ApplicantQuestion> getQuestionsToValidate() {
+    if (!initialQuestionFlowIsActive()) {
       return getVisibleQuestions();
     }
     return ImmutableList.<ApplicantQuestion>builder()
@@ -497,9 +505,8 @@ public final class Block {
    * <p>The initial question is only checked when the initial-question flow is active. With the
    * enumerator improvements flag off, the applicant sees the legacy input and can't answer it.
    */
-  public boolean hasErrors(boolean enumeratorImprovementsEnabled) {
-    return getQuestionsToValidate(enumeratorImprovementsEnabled).stream()
-            .anyMatch(ApplicantQuestion::hasErrors)
+  public boolean hasErrors() {
+    return getQuestionsToValidate().stream().anyMatch(ApplicantQuestion::hasErrors)
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
@@ -510,17 +517,16 @@ public final class Block {
    *
    * <p>A block with optional questions that are not answered is not answered.
    */
-  public boolean isAnsweredWithoutErrors(boolean enumeratorImprovementsEnabled) {
-    return isAnswered(enumeratorImprovementsEnabled) && !hasErrors(enumeratorImprovementsEnabled);
+  public boolean isAnsweredWithoutErrors() {
+    return isAnswered() && !hasErrors();
   }
 
   /**
    * A block is answered if all of its {@link ApplicantQuestion}s {@link
    * AbstractQuestion#isAnswered()}.
    */
-  private boolean isAnswered(boolean enumeratorImprovementsEnabled) {
-    return getQuestionsToValidate(enumeratorImprovementsEnabled).stream()
-        .allMatch(ApplicantQuestion::isAnswered);
+  private boolean isAnswered() {
+    return getQuestionsToValidate().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
   public int answeredQuestionsCount() {
@@ -554,9 +560,8 @@ public final class Block {
    * A block is complete with respect to a specific program if all of its questions are answered, or
    * are optional questions that were skipped in the program.
    */
-  public boolean isCompletedInProgramWithoutErrors(boolean enumeratorImprovementsEnabled) {
-    return isCompleteInProgram(enumeratorImprovementsEnabled)
-        && !hasErrors(enumeratorImprovementsEnabled);
+  public boolean isCompletedInProgramWithoutErrors() {
+    return isCompleteInProgram() && !hasErrors();
   }
 
   /**
@@ -565,9 +570,9 @@ public final class Block {
    * from being able to submit their applications). OR 2) Each of its required questions is answered
    * AND each of its optional questions is answered or intentionally skipped.
    */
-  private boolean isCompleteInProgram(boolean enumeratorImprovementsEnabled) {
-    return
-    getQuestionsToValidate(enumeratorImprovementsEnabled).stream().allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
+  private boolean isCompleteInProgram() {
+    return getQuestionsToValidate().stream()
+        .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
   }
 
   /** Returns true if this block contains only optional questions and false otherwise. */
@@ -580,14 +585,13 @@ public final class Block {
    * the program.
    *
    * @param programId the program ID to check
-   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on
    * @return true if this block is complete at least one question was updated while filling out the
    *     program with the given ID; false if this block has unanswered questions, has errors, or if
    *     all of its questions were answered in a different program.
    */
-  public boolean wasAnsweredInProgram(long programId, boolean enumeratorImprovementsEnabled) {
-    return isAnsweredWithoutErrors(enumeratorImprovementsEnabled)
-        && getQuestionsToValidate(enumeratorImprovementsEnabled).stream()
+  public boolean wasAnsweredInProgram(long programId) {
+    return isAnsweredWithoutErrors()
+        && getQuestionsToValidate().stream()
             .anyMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();

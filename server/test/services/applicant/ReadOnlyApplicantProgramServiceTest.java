@@ -75,7 +75,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getProgramTitle_returnsProgramTitleInDefaultLocale() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getProgramTitle()).isEqualTo("My Program setup");
   }
@@ -85,7 +90,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     applicantData.setPreferredLocale(Locale.GERMAN);
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getProgramTitle()).isEqualTo("Mein Programm");
   }
@@ -94,7 +104,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getProgramDescription_returnsProgramDescription() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getProgramDescription()).isEqualTo("My Program long description");
   }
@@ -103,7 +118,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getProgramShortDescription_returnsProgramShortDescription() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getProgramShortDescription()).isEqualTo("Short description");
   }
@@ -116,7 +136,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             .buildDefinition();
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithMarkup);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programWithMarkup,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getProgramShortDescription())
         .isEqualTo("&lt;b&gt;Food&lt;/b&gt; &amp; &quot;housing&quot;");
@@ -141,7 +166,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(service.getStoredFileKeys()).containsOnly("file-key", "file-key-2");
   }
@@ -170,7 +200,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(service.getStoredFileKeys()).containsOnly("file-key", "file-key-2");
   }
@@ -231,7 +266,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<ApplicantQuestion> applicantQuestions =
         subject.getAllQuestions().collect(ImmutableList.toImmutableList());
 
@@ -285,7 +325,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory,
             applicant,
             applicantData,
-            programDefinitionWithStatic);
+            programDefinitionWithStatic,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(3);
@@ -308,24 +350,23 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             jsonPathPredicateGeneratorFactory,
             applicant,
             applicantData,
-            programDefinitionWithStatic);
+            programDefinitionWithStatic,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
     assertThat(allBlocks.get(0).getName()).isEqualTo("Block one");
 
-    ImmutableList<Block> inProgressBlocks =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> inProgressBlocks = subject.getInProgressBlocks();
 
     assertThat(inProgressBlocks).hasSize(1);
     assertThat(inProgressBlocks.get(0).getName()).isEqualTo("Block one");
 
     Optional<Block> firstIncompleteBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
     Optional<Block> firstIncompleteExcludingStatic =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ false);
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(firstIncompleteBlock.isPresent()).isTrue();
     assertThat(firstIncompleteBlock.get().getName()).isEqualTo("Block one");
@@ -358,7 +399,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(1);
@@ -390,7 +436,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
 
     assertThat(allBlocks).hasSize(2);
@@ -451,7 +502,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
     assertThat(blocks).as("The block count when the Predicate evluates to visible").hasSize(10);
@@ -460,7 +516,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     answerColorQuestion(program.id(), "red");
     ReadOnlyApplicantProgramService serviceWhenHidden =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<Block> blocksWhenHidden = serviceWhenHidden.getAllActiveBlocks();
 
     assertThat(blocks).isNotEqualTo(blocksWhenHidden);
@@ -485,15 +546,17 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<Block> allBlocks = subject.getAllActiveBlocks();
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
     Optional<Block> maybeBlockExcludeStatic =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ false);
+        subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(allBlocks).hasSize(2);
     assertThat(maybeBlock).isNotEmpty();
@@ -546,7 +609,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<Block> blocks = service.getAllActiveBlocks();
 
@@ -644,9 +712,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getInProgressBlocks_getsTheApplicantSpecificBlocksForTheProgram() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-    ImmutableList<Block> blockList =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(2);
     Block block = blockList.get(0);
@@ -660,9 +732,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-    ImmutableList<Block> blockList =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).hasSize(1);
     assertThat(blockList.get(0).getName()).isEqualTo("Block two");
@@ -677,9 +753,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-    ImmutableList<Block> blockList =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     assertThat(blockList).isEmpty();
   }
@@ -691,9 +771,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
-    ImmutableList<Block> blockList =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
     assertThat(blockList).hasSize(2);
@@ -711,10 +795,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    ImmutableList<Block> blockList =
-        subject.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false);
+    ImmutableList<Block> blockList = subject.getInProgressBlocks();
 
     // Block 1 should still be there
     Block block = blockList.get(0);
@@ -749,15 +837,25 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
-    assertThat(service.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)).hasSize(2);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    assertThat(service.getInProgressBlocks()).hasSize(2);
 
     // Answer "green" to the question - the predicate is now false, so we should not show the block.
     answerColorQuestion(program.id(), "green");
     service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
-    assertThat(service.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)).hasSize(1);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    assertThat(service.getInProgressBlocks()).hasSize(1);
   }
 
   @Test
@@ -785,15 +883,25 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     answerColorQuestion(program.id(), "blue");
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
-    assertThat(service.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)).hasSize(1);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    assertThat(service.getInProgressBlocks()).hasSize(1);
 
     // Answer "green" to the question - the predicate is now false, so we should show the block.
     answerColorQuestion(program.id(), "green");
     service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
-    assertThat(service.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)).hasSize(2);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    assertThat(service.getInProgressBlocks()).hasSize(2);
   }
 
   @Test
@@ -824,8 +932,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     answerNameQuestion(program.id());
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
-    assertThat(service.getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)).hasSize(3);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    assertThat(service.getInProgressBlocks()).hasSize(3);
   }
 
   @Test
@@ -845,7 +958,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -867,7 +985,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -882,7 +1005,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -904,7 +1032,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -926,7 +1059,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isTrue();
   }
@@ -941,7 +1079,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.shouldDisplayEligibilityMessage()).isFalse();
   }
@@ -952,7 +1095,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -976,7 +1124,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -1002,7 +1155,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<ApplicantQuestion> eligibilityQuestions = subject.getIneligibleQuestions();
 
@@ -1028,12 +1186,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    assertThat(
-            service.getActiveAndCompletedInProgramBlockCount(
-                /* enumeratorImprovementsEnabled= */ false))
-        .isEqualTo(1);
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
   }
 
   @Test
@@ -1053,12 +1213,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    assertThat(
-            service.getActiveAndCompletedInProgramBlockCount(
-                /* enumeratorImprovementsEnabled= */ false))
-        .isEqualTo(0);
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
   }
 
   @Test
@@ -1078,19 +1240,26 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    assertThat(
-            service.getActiveAndCompletedInProgramBlockCount(
-                /* enumeratorImprovementsEnabled= */ false))
-        .isEqualTo(0);
+    assertThat(service.getActiveAndCompletedInProgramBlockCount()).isEqualTo(0);
   }
 
   @Test
   public void getActiveBlock_blockExists_returnsTheBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     Optional<Block> maybeBlock = subject.getActiveBlock("1");
 
@@ -1102,7 +1271,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getActiveBlock_blockNotInList_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     Optional<Block> maybeBlock = subject.getActiveBlock("111");
 
@@ -1113,10 +1287,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getBlockAfter_thereExistsABlockAfter_returnsTheBlockAfterTheGivenBlock() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getInProgressBlockAfter("1", /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getId()).isEqualTo("2");
@@ -1126,10 +1304,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getBlockAfter_argIsLastBlock_returnsEmpty() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getInProgressBlockAfter("321", /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -1159,10 +1341,11 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
                 .setCategories(ImmutableList.of())
                 .setApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
                 .setBridgeDefinitions(ImmutableMap.of())
-                .build());
+                .build(),
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getInProgressBlockAfter("321", /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("321");
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -1171,11 +1354,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getFirstIncompleteBlock_firstIncompleteBlockReturned() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block one");
@@ -1188,18 +1374,16 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    assertThat(
-            subject
-                .getInProgressBlocks(/* enumeratorImprovementsEnabled= */ false)
-                .get(0)
-                .getName())
-        .isEqualTo("Block one");
+    assertThat(subject.getInProgressBlocks().get(0).getName()).isEqualTo("Block one");
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
@@ -1223,11 +1407,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programWithCorrection,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isNotEmpty();
     assertThat(maybeBlock.get().getName()).isEqualTo("Block two");
@@ -1263,11 +1450,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programWithCorrection,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -1312,11 +1502,14 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programWithCorrection2);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programWithCorrection2,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ true, /* enumeratorImprovementsEnabled= */ false);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ true);
 
     assertThat(maybeBlock).isEmpty();
   }
@@ -1325,7 +1518,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void preferredLanguageSupported_returnsTrueForDefaults() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(subject.preferredLanguageSupported()).isTrue();
   }
 
@@ -1335,7 +1533,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.preferredLanguageSupported()).isFalse();
   }
@@ -1447,7 +1650,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(10);
@@ -1510,7 +1718,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(2);
@@ -1541,7 +1754,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(2);
@@ -1578,7 +1796,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(2);
@@ -1626,7 +1849,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
     assertThat(result).hasSize(1);
@@ -1637,7 +1865,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getSummaryDataOnlyActive_returnsWithEmptyData() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     ImmutableList<AnswerData> result = subject.getSummaryDataOnlyActive();
 
@@ -1651,7 +1884,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   public void getBlockIndex() {
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(subject.getBlockIndex("1")).isEqualTo(0);
     assertThat(subject.getBlockIndex("2")).isEqualTo(1);
@@ -1693,7 +1931,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(subject.isApplicationEligible()).isEqualTo(expectedResult);
   }
 
@@ -1756,7 +1999,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
@@ -1816,7 +2064,12 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     // Test the summary data
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
     assertThat(subject.isApplicationNotEligible()).isEqualTo(expectedResult);
   }
 
@@ -1826,20 +2079,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     programDefinition = setUpProgramWithInitialQuestionEnumerator();
     answerNameQuestion(programDefinition.id());
     answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id());
-    ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+    ReadOnlyApplicantProgramService subject = subjectWithEnumeratorImprovements();
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ true);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getName()).isEqualTo("Enumerator block");
-    assertThat(
-            subject.getActiveAndCompletedInProgramBlockCount(
-                /* enumeratorImprovementsEnabled= */ true))
-        .isEqualTo(1);
+    assertThat(subject.getActiveAndCompletedInProgramBlockCount()).isEqualTo(1);
   }
 
   @Test
@@ -1848,13 +2094,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     programDefinition = setUpProgramWithInitialQuestionEnumerator();
     answerNameQuestion(programDefinition.id());
     answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id() + 1);
-    ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+    ReadOnlyApplicantProgramService subject = subjectWithEnumeratorImprovements();
 
-    Optional<Block> maybeBlock =
-        subject.getFirstBlockRequiringAction(
-            /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ true);
+    Optional<Block> maybeBlock = subject.getFirstBlockRequiringAction(/* includeStatic= */ false);
 
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getName()).isEqualTo("Enumerator block");
@@ -1867,16 +2109,15 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id());
     ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
 
-    assertThat(
-            subject.getFirstBlockRequiringAction(
-                /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ false))
-        .isEmpty();
-    assertThat(
-            subject.getActiveAndCompletedInProgramBlockCount(
-                /* enumeratorImprovementsEnabled= */ false))
-        .isEqualTo(2);
+    assertThat(subject.getFirstBlockRequiringAction(/* includeStatic= */ false)).isEmpty();
+    assertThat(subject.getActiveAndCompletedInProgramBlockCount()).isEqualTo(2);
   }
 
   @Test
@@ -1884,16 +2125,20 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     programDefinition = setUpProgramWithInitialQuestionEnumerator();
     answerNameQuestion(programDefinition.id());
     answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id() + 1);
-    ReadOnlyApplicantProgramService subject =
+    ReadOnlyApplicantProgramService flagOffSubject =
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            programDefinition,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+    ReadOnlyApplicantProgramService flagOnSubject = subjectWithEnumeratorImprovements();
 
     // With the flag off, the enumerator block was completed in another program, so it's skipped.
-    assertThat(subject.getInProgressBlockAfter("1", /* enumeratorImprovementsEnabled= */ false))
-        .isEmpty();
+    assertThat(flagOffSubject.getInProgressBlockAfter("1")).isEmpty();
     // With the flag on, the initial question still needs an answer for each entity.
-    Optional<Block> maybeBlock =
-        subject.getInProgressBlockAfter("1", /* enumeratorImprovementsEnabled= */ true);
+    Optional<Block> maybeBlock = flagOnSubject.getInProgressBlockAfter("1");
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getName()).isEqualTo("Enumerator block");
   }
@@ -1910,14 +2155,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
       QuestionAnswerer.addMetadata(
           applicantData, initialQuestionPath, programDefinition.id(), 12345L);
     }
-    ReadOnlyApplicantProgramService subject =
-        new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+    ReadOnlyApplicantProgramService subject = subjectWithEnumeratorImprovements();
 
-    assertThat(
-            subject.getFirstBlockRequiringAction(
-                /* includeStatic= */ false, /* enumeratorImprovementsEnabled= */ true))
-        .isEmpty();
+    assertThat(subject.getFirstBlockRequiringAction(/* includeStatic= */ false)).isEmpty();
   }
 
   /**
@@ -1940,6 +2180,20 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
         .withRequiredQuestionDefinitions(
             ImmutableList.of(initialQuestionEnumerator, initialQuestion))
         .buildDefinition();
+  }
+
+  /**
+   * Builds the service for {@code programDefinition} as it is built for a request that has the
+   * enumerator improvements flag on.
+   */
+  private ReadOnlyApplicantProgramService subjectWithEnumeratorImprovements() {
+    return new ReadOnlyApplicantProgramService(
+        jsonPathPredicateGeneratorFactory,
+        applicant,
+        applicantData,
+        programDefinition,
+        /* failedUpdates= */ ImmutableMap.of(),
+        /* enumeratorImprovementsEnabled= */ true);
   }
 
   private Path initialQuestionEnumeratorPath() {

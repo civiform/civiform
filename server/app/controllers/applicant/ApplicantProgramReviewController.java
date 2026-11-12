@@ -125,7 +125,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   .thenComposeAsync(
                       v ->
                           applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
+                              applicantId,
+                              programId,
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(
                       (roApplicantProgramService) -> {
@@ -155,8 +157,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
                         int totalBlockCount = roApplicantProgramService.getAllActiveBlocks().size();
                         int completedBlockCount =
-                            roApplicantProgramService.getActiveAndCompletedInProgramBlockCount(
-                                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                            roApplicantProgramService.getActiveAndCompletedInProgramBlockCount();
                         ImmutableList<AnswerData> summaryData =
                             roApplicantProgramService.getSummaryDataOnlyActive();
 

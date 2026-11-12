@@ -263,13 +263,14 @@ public final class ApplicantProgramsController extends CiviFormController {
                   .thenComposeAsync(
                       v ->
                           applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId))
+                              applicantId,
+                              programId,
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)))
                   .thenApplyAsync(
                       roApplicantService -> {
                         Optional<Block> blockMaybe =
                             roApplicantService.getFirstBlockRequiringAction(
-                                /* includeStatic= */ true,
-                                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                                /* includeStatic= */ true);
                         if (programSlugUrlsEnabled) {
                           return blockMaybe.flatMap(
                               block ->

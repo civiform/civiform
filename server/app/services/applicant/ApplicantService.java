@@ -201,9 +201,13 @@ public final class ApplicantService {
    *
    * <p>A ProgramNotFoundException may be thrown when the future completes if the programId does not
    * correspond to a real Program.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on for the
+   *     current request. With it on, an enumerator's initial question must be answered for every
+   *     entity before its block counts as complete.
    */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
-      long applicantId, long programId) {
+      long applicantId, long programId, boolean enumeratorImprovementsEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
@@ -219,12 +223,21 @@ public final class ApplicantService {
                   jsonPathPredicateGeneratorFactory,
                   applicant,
                   applicant.getApplicantData(),
-                  programDefinition);
+                  programDefinition,
+                  /* failedUpdates= */ ImmutableMap.of(),
+                  enumeratorImprovementsEnabled);
             },
             classLoaderExecutionContext.current());
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from an application.
+   *
+   * <p>This and the other overloads that don't take {@code enumeratorImprovementsEnabled} are for
+   * reading submitted or in-memory data (exports, admin views, eligibility). They build the service
+   * with the flag off, so they must not be used to decide whether an applicant has finished a
+   * block.
+   */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
       ApplicationModel application) {
     try {
@@ -233,7 +246,9 @@ public final class ApplicantService {
               jsonPathPredicateGeneratorFactory,
               application.getApplicant(),
               application.getApplicantData(),
-              programService.getFullProgramDefinition(application.getProgram().id)));
+              programService.getFullProgramDefinition(application.getProgram().id),
+              /* failedUpdates= */ ImmutableMap.of(),
+              /* enumeratorImprovementsEnabled= */ false));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
@@ -246,7 +261,9 @@ public final class ApplicantService {
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
-        programDefinition);
+        programDefinition,
+        /* failedUpdates= */ ImmutableMap.of(),
+        /* enumeratorImprovementsEnabled= */ false);
   }
 
   /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
@@ -255,7 +272,12 @@ public final class ApplicantService {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramService(
-        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+        jsonPathPredicateGeneratorFactory,
+        applicant,
+        applicantData,
+        programDefinition,
+        /* failedUpdates= */ ImmutableMap.of(),
+        /* enumeratorImprovementsEnabled= */ false);
   }
 
   /**
@@ -397,7 +419,9 @@ public final class ApplicantService {
                       jsonPathPredicateGeneratorFactory,
                       applicant,
                       applicant.getApplicantData(),
-                      programDefinition);
+                      programDefinition,
+                      /* failedUpdates= */ ImmutableMap.of(),
+                      enumeratorImprovementsEnabled);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -493,12 +517,12 @@ public final class ApplicantService {
             applicant,
             applicant.getApplicantData(),
             programDefinition,
-            failedUpdates);
+            failedUpdates,
+            enumeratorImprovementsEnabled);
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
-    if (forceUpdate
-        || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors(enumeratorImprovementsEnabled))) {
+    if (forceUpdate || (blockMaybe.isPresent() && !blockMaybe.get().hasErrors())) {
 
       if (apiBridgeEnabled) {
         return apiBridgeProcessor
@@ -551,10 +575,11 @@ public final class ApplicantService {
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {
-        return getReadOnlyApplicantProgramService(applicantId, programId)
+        return getReadOnlyApplicantProgramService(
+                applicantId, programId, enumeratorImprovementsEnabled)
             .thenCompose(
                 ro ->
-                    validateApplicationForSubmission(ro, programId, enumeratorImprovementsEnabled)
+                    validateApplicationForSubmission(ro, programId)
                         .thenComposeAsync(
                             v -> submitterProfile.getAccount(),
                             classLoaderExecutionContext.current())
@@ -579,10 +604,11 @@ public final class ApplicantService {
                             classLoaderExecutionContext.current()));
       }
 
-      return getReadOnlyApplicantProgramService(applicantId, programId)
+      return getReadOnlyApplicantProgramService(
+              applicantId, programId, enumeratorImprovementsEnabled)
           .thenCompose(
               ro ->
-                  validateApplicationForSubmission(ro, programId, enumeratorImprovementsEnabled)
+                  validateApplicationForSubmission(ro, programId)
                       .thenCompose(
                           v -> {
                             EligibilityDetermination eligibilityDetermination =
@@ -857,12 +883,10 @@ public final class ApplicantService {
    *     wrapped in a failed future with a user visible message for the issue.
    */
   private CompletableFuture<Void> validateApplicationForSubmission(
-      ReadOnlyApplicantProgramService roApplicantProgramService,
-      long programId,
-      boolean enumeratorImprovementsEnabled) {
+      ReadOnlyApplicantProgramService roApplicantProgramService, long programId) {
     // Check that all blocks have been answered.
     if (!roApplicantProgramService
-        .getFirstBlockRequiringAction(/* includeStatic= */ false, enumeratorImprovementsEnabled)
+        .getFirstBlockRequiringAction(/* includeStatic= */ false)
         .isEmpty()) {
       throw new ApplicationOutOfDateException();
     }
@@ -891,7 +915,9 @@ public final class ApplicantService {
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
-        getReadOnlyApplicantProgramService(applicantId, programId)
+        // The stored file keys don't depend on the enumerator improvements flag.
+        getReadOnlyApplicantProgramService(
+                applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
             .thenApplyAsync(
                 applicantService -> applicantService.getStoredFileKeys(),
                 classLoaderExecutionContext.current())
@@ -2117,7 +2143,9 @@ public final class ApplicantService {
       String blockId,
       Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
+    // Looking up the address question doesn't depend on the enumerator improvements flag.
+    return getReadOnlyApplicantProgramService(
+            applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
         .thenComposeAsync(
             roApplicantProgramService -> {
               Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);

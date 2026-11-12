@@ -79,11 +79,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     // Progress Bar
     ProgressBar progressBar =
-        new ProgressBar(
-            params.blocks(),
-            params.blocks().size(),
-            params.messages(),
-            settingsManifest.getEnumeratorImprovementsEnabled(request));
+        new ProgressBar(params.blocks(), params.blocks().size(), params.messages());
     context.setVariable("progressBar", progressBar);
 
     // Toasts
@@ -149,7 +145,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
   private String getBlockEditUrl(Params params, Block block, Request request) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    if (block.isAnsweredWithoutErrors(settingsManifest.getEnumeratorImprovementsEnabled(request))) {
+    if (block.isAnsweredWithoutErrors()) {
       if (programSlugUrlsEnabled) {
         return applicantRoutes
             .blockReview(

@@ -75,7 +75,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             blockDefinition,
             new ApplicantModel(),
             applicantData,
-            /* repeatedEntity= */ Optional.empty());
+            /* repeatedEntity= */ Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
   }
 
   @Test
@@ -171,7 +172,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             blockDefinition,
             new ApplicantModel(),
             applicantData,
-            /* repeatedEntity= */ Optional.empty());
+            /* repeatedEntity= */ Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(
@@ -225,7 +227,8 @@ public class ServiceAreaUpdateResolverTest extends ResetPostgres {
             blockDefinition,
             new ApplicantModel(),
             applicantData,
-            /* repeatedEntity= */ Optional.empty());
+            /* repeatedEntity= */ Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
     ImmutableMap<String, String> updates =
         ImmutableMap.<String, String>builder()
             .put(

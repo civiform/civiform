@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Optional;
@@ -56,7 +57,12 @@ public class ApplicationScoreCalculatorTest extends ResetPostgres {
   private ApplicationScores calculate(ProgramDefinition program) {
     return calculator.calculate(
         new ReadOnlyApplicantProgramService(
-            jsonPathPredicateGeneratorFactory, applicant, applicantData, program));
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false));
   }
 
   /** Computes scores and writes them back to the applicant data, as submit does end to end. */

@@ -1200,7 +1200,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         stageInitialQuestionAnswer(
             QuestionType.NAME, ImmutableMap.of(Scalar.FIRST_NAME, "", Scalar.LAST_NAME, ""));
 
-    assertThat(staged.block().hasErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+    assertThat(staged.block().hasErrors()).isTrue();
     assertThat(
             staged
                 .initialQuestion()
@@ -1218,7 +1218,7 @@ public class ApplicantServiceTest extends ResetPostgres {
         stageInitialQuestionAnswer(
             QuestionType.NAME, ImmutableMap.of(Scalar.FIRST_NAME, "Sarah", Scalar.LAST_NAME, ""));
 
-    assertThat(staged.block().hasErrors(/* enumeratorImprovementsEnabled= */ true)).isTrue();
+    assertThat(staged.block().hasErrors()).isTrue();
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors =
         staged.initialQuestion().getQuestion().getValidationErrors();
     assertThat(errors.get(staged.initialQuestionPath().join(Scalar.LAST_NAME)))
@@ -1234,7 +1234,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             QuestionType.NAME,
             ImmutableMap.of(Scalar.FIRST_NAME, "Sarah", Scalar.LAST_NAME, "Brown"));
 
-    assertThat(staged.block().hasErrors(/* enumeratorImprovementsEnabled= */ true)).isFalse();
+    assertThat(staged.block().hasErrors()).isFalse();
     assertThat(staged.initialQuestion().getQuestion().getValidationErrors()).isEmpty();
   }
 
@@ -1284,7 +1284,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     // code) so these are exercised for the initial question before staging.
     Block block =
         subject
-            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .getReadOnlyApplicantProgramService(
+                applicant.id, programDefinition.id(), /* enumeratorImprovementsEnabled= */ true)
             .toCompletableFuture()
             .join()
             .getActiveBlock("1")
@@ -1670,7 +1671,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
         subject
-            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .getReadOnlyApplicantProgramService(
+                applicant.id, programDefinition.id(), /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -5736,7 +5738,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -5772,7 +5775,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -5823,7 +5827,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -5855,7 +5860,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         blockDefinition,
         applicantAfter,
         applicantDataAfter,
-        Optional.empty());
+        Optional.empty(),
+        /* enumeratorImprovementsEnabled= */ false);
   }
 
   @Test

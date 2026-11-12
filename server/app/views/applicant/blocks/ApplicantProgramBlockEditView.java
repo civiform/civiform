@@ -87,8 +87,6 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
     boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -120,15 +118,14 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         new ProgressBar(
             applicationParams.blockList(),
             applicationParams.blockIndex(),
-            applicationParams.messages(),
-            enumeratorImprovementsEnabled);
+            applicationParams.messages());
     context.setVariable("progressBar", progressBar);
 
     // Eligibility Alerts
     context.setVariable("eligibilityAlertSettings", applicationParams.eligibilityAlertSettings());
 
     Map<Long, ApplicantQuestionRendererParams> questionParams =
-        getApplicantQuestionRendererParams(applicationParams, enumeratorImprovementsEnabled);
+        getApplicantQuestionRendererParams(applicationParams);
     context.setVariable("questionRendererParams", questionParams);
     context.setVariable(
         "submitFormAction",
@@ -212,14 +209,13 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       // themselves.
       // TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
       // check in EnumeratorQuestion.
-      boolean initialQuestionFlowIsActive =
-          applicationParams.block().initialQuestionFlowIsActive(enumeratorImprovementsEnabled);
+      boolean initialQuestionFlowIsActive = applicationParams.block().initialQuestionFlowIsActive();
       context.setVariable("initialQuestionFlowIsActive", initialQuestionFlowIsActive);
 
       // Initial-question context for enumerator blocks using the initial-question flow. When
       // absent, the enumerator fragment falls back to the legacy text input.
       if (initialQuestionFlowIsActive) {
-        setInitialQuestionContext(context, applicationParams, enumeratorImprovementsEnabled);
+        setInitialQuestionContext(context, applicationParams);
       }
       context.setVariable(
           "imagesInQuestionFeatureEnabled",
@@ -368,7 +364,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
   // Returns a mapping from Question ID to Renderer params for that question.
   private Map<Long, ApplicantQuestionRendererParams> getApplicantQuestionRendererParams(
-      ApplicationBaseViewParams params, boolean enumeratorImprovementsEnabled) {
+      ApplicationBaseViewParams params) {
     AtomicInteger errorCount = new AtomicInteger(0);
 
     return params.block().getVisibleQuestions().stream()
@@ -386,7 +382,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                           .setAutofocus(
                               calculateAutoFocusTarget(
                                   params.errorDisplayMode(),
-                                  params.block().hasErrors(enumeratorImprovementsEnabled),
+                                  params.block().hasErrors(),
                                   errorCount.get()));
                   if (question.getType().equals(QuestionType.MAP)) {
                     paramsBuilder.setGeoJson(getQuestionGeoJsonData(question));
@@ -487,9 +483,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
    * per-entity paths.
    */
   private void setInitialQuestionContext(
-      ThymeleafModule.PlayThymeleafContext context,
-      ApplicationBaseViewParams params,
-      boolean enumeratorImprovementsEnabled) {
+      ThymeleafModule.PlayThymeleafContext context, ApplicationBaseViewParams params) {
     List<ApplicantQuestion> contextualizedInitialQuestions =
         params.block().getContextualizedInitialQuestions();
     context.setVariable("initialQuestionType", params.block().getInitialQuestion().get().getType());
@@ -520,7 +514,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
                       .setAutofocus(
                           calculateAutoFocusTarget(
                               params.errorDisplayMode(),
-                              params.block().hasErrors(enumeratorImprovementsEnabled),
+                              params.block().hasErrors(),
                               errorCount.get()))
                       .build();
                 })
