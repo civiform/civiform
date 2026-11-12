@@ -24,7 +24,8 @@
         questionRendererParams=${questionRendererParams},
         stateAbbreviations=${stateAbbreviations},
         questionId=${questionId},
-        isInitialQuestion=false)}"
+        isInitialQuestion=false,
+        listErrorsId=null)}"
     ></div>
   </fieldset>
 </div>
@@ -34,7 +35,7 @@
      role="group" wrapper and the group label, so the title, help text, and standalone fieldset are
      omitted here. */-->
 <div
-  th:fragment="addressForInitialQuestion(question, questionRendererParams, stateAbbreviations)"
+  th:fragment="addressForInitialQuestion(question, questionRendererParams, stateAbbreviations, listErrorsId)"
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
            addressQuestion=${question.createAddressQuestion()},
            hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
@@ -48,16 +49,20 @@
       questionRendererParams=${questionRendererParams},
       stateAbbreviations=${stateAbbreviations},
       questionId=${questionId},
-      isInitialQuestion=true)}"
+      isInitialQuestion=true,
+      listErrorsId=${listErrorsId})}"
   ></div>
 </div>
 
 <!--/* The address input fields (street, line 2, city, state, ZIP), shared by the
      standalone and initial-question fragments. When isInitialQuestion is true there is no title/help
      text at this level, so the street input's aria-describedby omits the "-description" reference. The
-     other fields already reference only their own field-level error description. */-->
+     other fields already reference only their own field-level error description. listErrorsId is the
+     enumerator's list-level errors id when this is the first entity row of a list with such an error
+     (otherwise null); the street input's aria-describedby starts with it, and street takes
+     FIRST_FIELD autofocus. */-->
 <th:block
-  th:fragment="addressFields(question, questionRendererParams, stateAbbreviations, questionId, isInitialQuestion)"
+  th:fragment="addressFields(question, questionRendererParams, stateAbbreviations, questionId, isInitialQuestion, listErrorsId)"
   th:with="addressQuestion=${question.createAddressQuestion()},
            firstPathWithError=${addressQuestion.getFirstPathWithError()},
            hasGroupErrors=${addressQuestion.getValidationErrors().get(addressQuestion.getContextualizedPath())},"
@@ -78,7 +83,7 @@
                     hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
                     showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},
                     hasError=${hasGroupErrors || hasFieldErrors},
-                    initialDescribedBy=${hasError ? questionId + '-error' : null},
+                    initialDescribedBy=${listErrorsId == null && !hasError ? null : (listErrorsId != null ? listErrorsId : '') + (listErrorsId != null && hasError ? ' ' : '') + (hasError ? questionId + '-error' : '')},
                     standaloneDescribedBy=${questionId + '-description' + (hasError ? ' ' + questionId + '-error' : '')},"
     class="cf-address-street-1"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
@@ -108,7 +113,7 @@
       th:aria-invalid="${hasFieldErrors}"
       th:aria-required="${!question.isOptional()}"
       autocomplete="address-line1"
-      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)}"
+      th:autofocus="${(questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(streetPath)) || questionRendererParams.autofocusFirstField()}"
     />
   </div>
 

@@ -279,6 +279,7 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
+                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", programJsonWithEnumeratorsWithoutThis()))
                 .build());
