@@ -19,37 +19,37 @@ apiKey = @views.admin.apikeys.ApiKeyIndexPageViewModel$ApiKey@builder() \
 # A key with no grants still renders the (header-only) table, as the legacy
 # view did.
 %OUTPUT
-<div class="w-full shadow-lg mb-6">
-  <div class="border border-gray-300 bg-white rounded p-4">
-    <h2 class="mb-2 cf-api-key-name">
-      Test API key<span class="text-gray-700 text-sm"> retired</span>
-    </h2>
-    <div class="flex place-content-between">
-      <div>
-        <div>
-          <p class="cf-bt-api-key-id">ID: key-id</p>
-          <p class="text-gray-700 text-sm">Allowed subnets: 1.1.1.1/32</p>
-          <p class="text-gray-700 text-sm cf-bt-date">Expires on: 2100-01-01</p>
-        </div>
-      </div>
-      <div class="text-xs">
-        <p class="cf-bt-date">Created 2024/01/01 at 9:00 AM PST</p>
-        <p class="cf-bt-api-key-created-by">Created by admin@example.com</p>
-        <p id="test-api-key-last-call-ip">Last used by 1.1.1.1</p>
-        <p id="test-api-key-call-count">Call count: 2</p>
-        <p>Retired Mon, 1 Jan 2024 09:00:00 GMT</p>
-      </div>
+<div
+  class="width-full margin-bottom-3 padding-2 bg-white border-1px border-base-lighter radius-md shadow-3"
+>
+  <h2 class="margin-top-0 margin-bottom-1 cf-api-key-name">
+    Test API key<span class="text-base-dark font-sans-xs text-normal"> retired</span>
+  </h2>
+  <div class="display-flex flex-justify flex-wrap">
+    <div>
+      <p class="margin-0 cf-bt-api-key-id">ID: key-id</p>
+      <p class="margin-0 text-base-dark font-sans-xs">Allowed subnets: 1.1.1.1/32</p>
+      <p class="margin-0 text-base-dark font-sans-xs cf-bt-date">Expires on: 2100-01-01</p>
     </div>
-    <div class="flex place-content-between mt-4">
-      <table class="table-auto w-2/3">
+    <div class="font-sans-3xs">
+      <p class="margin-0 cf-bt-date">Created 2024/01/01 at 9:00 AM PST</p>
+      <p class="margin-0 cf-bt-api-key-created-by">Created by admin@example.com</p>
+      <p class="margin-0" id="test-api-key-last-call-ip">Last used by 1.1.1.1</p>
+      <p class="margin-0" id="test-api-key-call-count">Call count: 2</p>
+      <p class="margin-0">Retired Mon, 1 Jan 2024 09:00:00 GMT</p>
+    </div>
+  </div>
+  <div class="display-flex flex-justify flex-align-end margin-top-2 flex-wrap">
+    <table class="usa-table usa-table--borderless usa-table--compact margin-0">
+      <thead>
         <tr>
-          <th class="text-left text-sm">Program name</th>
-          <th class="text-left text-sm">Program slug</th>
-          <th class="text-left text-sm">Permission</th>
+          <th scope="col">Program name</th>
+          <th scope="col">Program slug</th>
+          <th scope="col">Permission</th>
         </tr>
-      </table>
-      <div class="flex">
-      </div>
-    </div>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
   </div>
 </div>
