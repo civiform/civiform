@@ -51,7 +51,7 @@ test.describe('Admin can manage translations', () => {
     await applicantProgramOverview.startApplicationFromTranslatedProgramOverviewPage(
       'Descripción general del programa', // translated page title
       'Inscribirse en el programa Spanish question program', // translated page header
-      'Comenzar una solicitud', // translated button text
+      'Iniciar la inscripción como invitado', // translated button text
     )
 
     // TODO(#9203): When the bug is fixed, we don't need to select Español again.

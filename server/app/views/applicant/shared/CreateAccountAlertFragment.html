@@ -45,3 +45,47 @@
     </p>
   </div>
 </div>
+
+<div
+  th:fragment="programOverviewCreateAccount(createAccountLink, loginLink, createAccountLinkText, loginLinkText)"
+  class="usa-alert usa-alert--info"
+>
+  <div class="usa-alert__body">
+    <h2
+      th:if="${!loginOnly}"
+      class="usa-alert__heading"
+      th:text="#{alert.createAccount}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccount})}"
+    ></h2>
+    <h2
+      th:if="${loginOnly}"
+      class="usa-alert__heading"
+      th:text="#{alert.createAccountForLoginOnly}"
+      th:aria-label="#{heading.informationAriaLabelPrefix(#{alert.createAccountForLoginOnly})}"
+    ></h2>
+    <p
+      class="usa-alert__text"
+      th:text="#{alert.createAccountDescriptionOverview}"
+    ></p>
+
+    <div class="content-spacing"></div>
+
+    <div class="cf-start-application-actions">
+      <a
+        class="usa-button usa-button--inverse margin-left-0"
+        role="button"
+        th:text="${createAccountLinkText}"
+        id="create-account"
+        th:href="${createAccountLink}"
+      ></a>
+      <a
+        th:if="${!loginOnly}"
+        class="usa-link"
+        role="button"
+        href="javascript:void(0);"
+        th:text="${loginLinkText}"
+        th:href="${loginLink}"
+      ></a>
+    </div>
+  </div>
+</div>

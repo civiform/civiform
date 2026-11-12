@@ -25,17 +25,40 @@
       <div class="grid-container">
         <div class="grid-row">
           <div class="tablet:grid-col-8">
+            <div th:if="${!loginOnly and isGuest}">
+              <h2
+                class="cf-prose-h3 margin-top-0 margin-bottom-2"
+                th:text="#{heading.startApplication}"
+              ></h2>
+              <div
+                class="cf-start-application-card"
+                data-testid="start-application-card"
+              >
+                <p
+                  class="margin-top-0 margin-bottom-2"
+                  th:text="#{content.startApplicationPrompt}"
+                ></p>
+                <div class="cf-start-application-actions">
+                  <a
+                    class="usa-button margin-left-0"
+                    role="button"
+                    th:href="${createAccountLink}"
+                    th:text="#{button.loginToStartApplication}"
+                  ></a>
+                  <a
+                    class="usa-link"
+                    role="button"
+                    th:href="${actionUrl}"
+                    th:text="#{link.startAsGuest}"
+                  ></a>
+                </div>
+              </div>
+            </div>
             <a
-              th:if="${!loginOnly}"
+              th:if="${!isGuest}"
               th:href="${actionUrl}"
               class="usa-button"
-              th:text="#{button.startApp}"
-            ></a>
-            <a
-              th:if="${loginOnly and !isGuest}"
-              th:href="${actionUrl}"
-              class="usa-button"
-              th:text="#{button.startApp}"
+              th:text="${hasStartedOrSubmittedApplication} ? #{button.continueApplication} : #{button.startApplication}"
             ></a>
 
             <a
@@ -79,14 +102,14 @@
               </div>
               <div th:if="${isGuest}" class="section-internal">
                 <div
-                  th:replace="~{applicant/shared/CreateAccountAlertFragment :: createAccount(${createAccountLink}, ${actionUrl}, #{link.createAccountFromOverview}, #{link.startAsGuest})}"
+                  th:replace="~{applicant/shared/CreateAccountAlertFragment :: programOverviewCreateAccount(${createAccountLink}, ${actionUrl}, #{button.loginToStartApplication}, #{link.startAsGuest})}"
                 ></div>
               </div>
               <div th:if="${!isGuest}" class="section-internal">
                 <a
                   th:href="${actionUrl}"
                   class="usa-button"
-                  th:text="#{button.startApp}"
+                  th:text="${hasStartedOrSubmittedApplication} ? #{button.continueApplication} : #{button.startApplication}"
                 ></a>
               </div>
             </div>
