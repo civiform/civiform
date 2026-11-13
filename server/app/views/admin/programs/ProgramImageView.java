@@ -257,7 +257,9 @@ public final class ProgramImageView extends BaseHtmlView {
             /* labelledById= */ PAGE_TITLE_ID,
             /* acceptedMimeTypes= */ MIME_TYPES_IMAGES,
             /* hints= */ ImmutableList.of(
-                "The maximum size for image upload is 1MB.",
+                String.format(
+                    "The maximum size for image upload is %dMB.",
+                    publicStorageClient.getFileLimitMb()),
                 "The image will be automatically cropped to 16x9. The program card preview on the"
                     + " right will show the cropping once the image is saved."),
             /* disabled= */ hasNoDescription,
