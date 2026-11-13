@@ -111,6 +111,11 @@ test.describe('address applicant flow', () => {
       await test.step('Confirm address zip error is visible', async () => {
         const error = page.locator('.cf-address-zip-error')
         await expect(error).toBeVisible()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'address-zip-field-error',
+          {fullPage: false},
+        )
         await validateAccessibility(page)
       })
     })
@@ -126,6 +131,11 @@ test.describe('address applicant flow', () => {
       })
 
       await expectQuestionHasFieldErrorsForAllExceptZip(page, 0)
+      await validateScreenshot(
+        page.getByTestId('questionRoot'),
+        'address-field-errors',
+        {fullPage: false},
+      )
       await validateAccessibility(page)
     })
   })
