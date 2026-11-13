@@ -7,6 +7,7 @@ import static org.mockito.Mockito.doThrow;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mockito;
 import repository.ResetPostgres;
 import services.monitoring.EmailSendMetrics;
 import software.amazon.awssdk.core.exception.SdkClientException;
@@ -25,6 +26,9 @@ public class SimpleEmailTest extends ResetPostgres {
     metrics = instanceOf(EmailSendMetrics.class);
     // In the test environment SimpleEmail uses a mock SES client.
     sesClient = simpleEmail.getClient().get();
+    // SimpleEmail is a singleton and the app is shared by every test in this class, so clear
+    // the stubs a previous test set up.
+    Mockito.reset(sesClient);
   }
 
   @Test
