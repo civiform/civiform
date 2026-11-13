@@ -110,9 +110,11 @@
             </div>
           </div>
 
-          <div class="usa-hint" id="question-image-file-input-hint">
-            The maximum size for image upload is 1MB.
-          </div>
+          <div
+            class="usa-hint"
+            id="question-image-file-input-hint"
+            th:text="|The maximum size for image upload is ${questionImageMaxFileSizeMb}MB.|"
+          ></div>
           <!-- USWDS replaces the label with its own aria-label. See the comment on the file input in questiontypes/FileUploadQuestionFragment.html (#10438). -->
           <input
             accept="image/png,image/jpeg"
@@ -131,7 +133,7 @@
             hx-encoding="multipart/form-data"
             hx-include="#questionImageDescription, [name='csrfToken']"
             hx-swap="outerHTML"
-            data-file-limit-mb="1"
+            th:data-file-limit-mb="${questionImageMaxFileSizeMb}"
           />
           <div
             id="question-image-file-input-errors"

@@ -29,6 +29,7 @@ import play.mvc.Http;
 import repository.ResetPostgres;
 import services.cloud.BucketType;
 import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 import services.cloud.StorageServiceName;
 
 public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres {
@@ -97,14 +98,22 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
     0x31
   };
 
+  private static final String UPLOAD_URI =
+      String.format("/admin/questions/%d/hx/image/upload", QUESTION_ID);
+
+  // A PNG header padded to 1.5 MB, between the old hardcoded 1 MB limit and a 2 MB limit.
+  private static final byte[] ONE_AND_A_HALF_MB_PNG =
+      java.util.Arrays.copyOf(PNG_HEADER, 3 * 512 * 1024);
+
   private QuestionImageStreamingMultipartBodyParser parser;
   private Materializer materializer;
+  private ErrorHandler errorHandler;
   private MultipartUploadSinks sinks;
 
   @Before
   public void setUp() {
     materializer = instanceOf(Materializer.class);
-    ErrorHandler errorHandler = instanceOf(ErrorHandler.class);
+    errorHandler = instanceOf(ErrorHandler.class);
 
     sinks = mock(MultipartUploadSinks.class);
     when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
@@ -120,15 +129,51 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
                                         .setStorageServiceName(StorageServiceName.S3)
                                         .build())));
 
-    parser =
-        new QuestionImageStreamingMultipartBodyParser(
-            materializer, errorHandler, sinks, instanceOf(FileTypeValidation.class));
+    parser = newParser(/* fileLimitMb= */ 1);
+  }
+
+  private QuestionImageStreamingMultipartBodyParser newParser(int fileLimitMb) {
+    PublicStorageClient publicStorageClient = mock(PublicStorageClient.class);
+    when(publicStorageClient.getFileLimitMb()).thenReturn(fileLimitMb);
+    return new QuestionImageStreamingMultipartBodyParser(
+        materializer,
+        errorHandler,
+        sinks,
+        instanceOf(FileTypeValidation.class),
+        publicStorageClient);
   }
 
   @Test
-  public void maxFileSize_isOneMegabyte() {
-    assertThat(QuestionImageStreamingMultipartBodyParser.MAX_FILE_SIZE)
-        .isEqualTo(1L * 1024L * 1024L);
+  public void streamingUpload_fileUnderPublicStorageLimit_isAccepted() {
+    QuestionImageStreamingMultipartBodyParser parserWithTwoMbLimit =
+        newParser(/* fileLimitMb= */ 2);
+
+    var result = upload(parserWithTwoMbLimit, ONE_AND_A_HALF_MB_PNG);
+
+    assertThat(result.right.isPresent()).isTrue();
+  }
+
+  @Test
+  public void streamingUpload_fileOverPublicStorageLimit_isRejected() {
+    var result = upload(parser, ONE_AND_A_HALF_MB_PNG);
+
+    assertThat(result.left.isPresent()).isTrue();
+    assertThat(result.left.get().status()).isEqualTo(Http.Status.REQUEST_ENTITY_TOO_LARGE);
+  }
+
+  private play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>> upload(
+      QuestionImageStreamingMultipartBodyParser uploadParser, byte[] content) {
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(UPLOAD_URI)
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+    return uploadParser
+        .apply(request)
+        .run(createMultipartRequestBody("big.png", "image/png", content), materializer)
+        .toCompletableFuture()
+        .join();
   }
 
   @Test
