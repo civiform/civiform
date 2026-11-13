@@ -32,11 +32,21 @@ test.describe('name applicant flow', () => {
         })
       })
 
-      await test.step('Screenshot with errors', async () => {
+      await test.step('Screenshot with question-level errors', async () => {
         await applicantQuestions.clickContinue()
         await validateScreenshot(
           page.getByTestId('questionRoot'),
           'name-errors',
+          {fullPage: false},
+        )
+      })
+
+      await test.step('Screenshot with field-level errors', async () => {
+        await applicantQuestions.answerNameQuestion('Frida', '', '')
+        await applicantQuestions.clickContinue()
+        await validateScreenshot(
+          page.getByTestId('questionRoot'),
+          'name-field-errors',
           {fullPage: false},
         )
       })
