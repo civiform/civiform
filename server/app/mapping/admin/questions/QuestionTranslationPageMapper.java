@@ -259,10 +259,7 @@ public final class QuestionTranslationPageMapper {
                 /* ariaLabelForNewTabs= */ "opens in a new tab"));
   }
 
-  /**
-   * Returns the English display text for a locale. Mirrors {@code
-   * TranslationFormView#getDisplayLanguage}, which the legacy j2html view uses.
-   */
+  /** Returns the English display text for a locale. */
   private static String getDisplayLanguage(Locale locale) {
     return locale.equals(Locale.TRADITIONAL_CHINESE)
         ? "Traditional Chinese"
