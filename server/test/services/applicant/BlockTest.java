@@ -1489,6 +1489,30 @@ public class BlockTest {
   }
 
   @Test
+  public void getAllQuestionsExceptInitialQuestion_excludesInitialQuestion() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    ImmutableList<Long> questionIds =
+        block.getAllQuestionsExceptInitialQuestion().stream()
+            .map(question -> question.getQuestionDefinition().getId())
+            .collect(ImmutableList.toImmutableList());
+
+    assertThat(questionIds).containsExactly(ENUMERATOR_QUESTION_ID);
+  }
+
+  @Test
+  public void getAllQuestionsExceptInitialQuestion_withNonEnumeratorBlock_returnsAllQuestions() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", setUpBlockWithQuestions(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.getAllQuestionsExceptInitialQuestion())
+        .containsExactlyElementsOf(block.getAllQuestions());
+  }
+
+  @Test
   public void getContextualizedInitialQuestions_withNoInitialQuestion_returnsEmpty() {
     BlockDefinition definition = enumeratorBlockWithoutInitialQuestion();
     Block block = makeUnrepeatedBlock("1", definition, new ApplicantModel(), new ApplicantData());
