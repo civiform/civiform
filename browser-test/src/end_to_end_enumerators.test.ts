@@ -2126,6 +2126,106 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('keeps a blank radio button or date row on the screen with its error after continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator blank radio and date rows program'
+
+      await test.step('Publish a program with a radio button list set and a date list set', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Seasons',
+          questionText: 'List your seasons.',
+          adminId: 'seasons list set',
+          initialQuestion: SAMPLE_QUESTIONS.radioButton,
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Dates',
+          questionText: 'List your dates.',
+          adminId: 'dates list set',
+          initialQuestion: SAMPLE_QUESTIONS.date,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const requiredError = blockForm.getByText(
+        'Error: This question is required.',
+      )
+
+      await test.step('Add a season, leave it blank and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await blockForm.getByRole('button', {name: 'Add Seasons'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the blank radio button row stays with its error and focus', async () => {
+        // An unselected radio group submits no value, so without the row's marker the entity
+        // wasn't saved and the row disappeared.
+        await expect(requiredError).toBeVisible()
+        await expect(
+          blockForm.getByRole('radio', {name: 'Winter (will hide next block)'}),
+        ).toBeFocused()
+        // The row's hidden marker is named entity_row, since the server ignores its value and
+        // derives the entity name from the answer.
+        await expect(
+          blockForm.locator('input[type="hidden"][name$=".entity_row"]'),
+        ).toHaveCount(1)
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Verify Add stays disabled until a radio option is selected', async () => {
+        // A radio input's value is its option value whether or not it is selected, so the blank row
+        // used to count as answered and the applicant could stack up blank rows.
+        const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
+        await expect(addSeasons).toBeDisabled()
+        await blockForm.getByText('Spring').click()
+        await expect(addSeasons).toBeEnabled()
+      })
+
+      await test.step('Add a second blank season and verify Add is disabled again', async () => {
+        const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
+        await addSeasons.click()
+        await waitForHtmxReady(page)
+        await expect(addSeasons).toBeDisabled()
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Seasons #2'}).click()
+      })
+
+      await test.step('Continue to the dates list set', async () => {
+        await applicantQuestions.clickContinue()
+        await blockForm.getByRole('button', {name: 'Add Dates'}).click()
+        await waitForHtmxReady(page)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the blank date row stays with its error and focus', async () => {
+        await expect(requiredError).toBeVisible()
+        await expect(
+          blockForm.getByRole('combobox', {name: /Month/}),
+        ).toBeFocused()
+      })
+
+      await test.step('Fill in the date and continue to the review page', async () => {
+        await blockForm
+          .getByRole('combobox', {name: /Month/})
+          .selectOption({index: 2})
+        await blockForm.getByRole('textbox', {name: /Day/}).fill('12')
+        await blockForm.getByRole('textbox', {name: /Year/}).fill('2000')
+        await applicantQuestions.clickContinue()
+        await expect(page).toHaveURL(/\/review/)
+      })
+    })
+
     test('validates the initial question on continue in the same way as a standalone question', async ({
       page,
       adminPrograms,
@@ -2196,6 +2296,157 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(
           blockForm.getByRole('textbox', {name: 'First name'}),
         ).toBeHidden()
+      })
+    })
+
+    test('moves focus to the Add button or the first row and describes a list-level error on continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator list-level error focus program'
+
+      await test.step('Publish a program whose list set needs at least two items', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          questionText: 'List the names of your pets.',
+          hintText: 'Pets help text',
+          minEntities: 2,
+          initialQuestion: SAMPLE_QUESTIONS.text,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      // With no rows the Add button is labelled by the question title too; with rows it isn't.
+      const addButtonWithQuestion = blockForm.getByRole('button', {
+        name: 'List the names of your pets. Add Pets',
+      })
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Pets',
+        exact: true,
+      })
+
+      await test.step('Continue without adding any items', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the Add button has focus and its description starts with both errors', async () => {
+        // With no items and a minimum of 2, the list shows two errors. Both are read, before the
+        // help text.
+        await expect(
+          blockForm.getByText('Error: This question is required.'),
+        ).toBeVisible()
+        await expect(
+          blockForm.getByText('Error: Please enter at least 2 values.'),
+        ).toBeVisible()
+        await expect(addButtonWithQuestion).toBeFocused()
+        await expect(addButtonWithQuestion).toHaveAccessibleDescription(
+          /^(?=.*Error: This question is required\.)(?=.*Error: Please enter at least 2 values\.)Error: .*Pets help text$/,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Add one item and verify the Add button no longer repeats the question', async () => {
+        // The first row now carries the question title, help text and error, so the button
+        // doesn't repeat them.
+        await addButtonWithQuestion.click()
+        await waitForHtmxReady(page)
+        await expect(addButton).not.toHaveAttribute('aria-labelledby')
+        await expect(addButton).not.toHaveAttribute('aria-describedby')
+        await blockForm.getByRole('textbox').first().fill('Spot')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the first row has focus and its description starts with the error', async () => {
+        const firstRowInput = blockForm.getByRole('textbox').first()
+        await expect(
+          blockForm.getByText('Error: Please enter at least 2 values.'),
+        ).toBeVisible()
+        await expect(firstRowInput).toBeFocused()
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: Please enter at least 2 values\..*Pets help text/,
+        )
+        await expect(addButton).not.toHaveAttribute('aria-labelledby')
+        await expect(addButton).not.toHaveAttribute('aria-describedby')
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Remove the item and verify the Add button carries the question again', async () => {
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm.getByRole('button', {name: 'Remove Pets #1'}).click()
+        await expect(addButtonWithQuestion).toBeFocused()
+        await expect(addButtonWithQuestion).toHaveAccessibleDescription(
+          /^Error: Please enter at least 2 values\..*Pets help text$/,
+        )
+      })
+    })
+
+    test('moves focus to the first input of a grouped row and reads the list-level error first on continue', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator grouped row error focus program'
+
+      await test.step('Publish a program whose list set has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Household members',
+          questionText: 'List the people in your household.',
+          hintText: 'Include yourself.',
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Household members',
+      })
+
+      await test.step('Add the same name twice and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        for (const row of [0, 1]) {
+          await addButton.click()
+          await waitForHtmxReady(page)
+          await blockForm
+            .getByRole('textbox', {name: 'First name'})
+            .nth(row)
+            .fill('Sarah')
+          await blockForm
+            .getByRole('textbox', {name: 'Last name'})
+            .nth(row)
+            .fill('Brown')
+        }
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step("Verify the first row's first name has focus and its description starts with the error", async () => {
+        // The error is on the input, not only on the row's group, because VoiceOver reads a
+        // group's description last.
+        const firstName = blockForm
+          .getByRole('textbox', {name: 'First name'})
+          .first()
+        await expect(
+          blockForm.getByText(
+            'Error: Please enter a unique value for each line.',
+          ),
+        ).toBeVisible()
+        await expect(firstName).toBeFocused()
+        await expect(firstName).toHaveAccessibleDescription(
+          /^Error: Please enter a unique value for each line\./,
+        )
+        await validateAccessibility(page, '#cf-block-form')
       })
     })
 
@@ -2604,6 +2855,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText?: string
       adminId?: string
       hintText?: string
+      minEntities?: number
       maxEntities?: number
       initialQuestion?: string
     },
@@ -2614,6 +2866,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText = 'List the names of your pets.',
       adminId = 'pets enumerator',
       hintText = 'Hint',
+      minEntities,
       maxEntities,
       initialQuestion,
     } = options ?? {}
@@ -2638,6 +2891,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await adminIdInput.fill(adminId)
 
       await blockPanel.getByRole('textbox', {name: 'Hint text'}).fill(hintText)
+
+      if (minEntities != null) {
+        await blockPanel
+          .getByRole('spinbutton', {name: 'Minimum entity count'})
+          .fill(String(minEntities))
+      }
 
       if (maxEntities != null) {
         await blockPanel
@@ -2683,6 +2942,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       questionText?: string
       adminId?: string
       hintText?: string
+      minEntities?: number
       maxEntities?: number
       initialQuestion?: string
     },

@@ -8,8 +8,8 @@ import views.shared.LayoutDeps;
 
 /**
  * Thymeleaf view for the trusted intermediary group edit page, rendering
- * EditTrustedIntermediaryGroupPage.html. A 1:1 port of {@link EditTrustedIntermediaryGroupView};
- * slated for replacement by an {@code AdminLayoutBaseView} page on redesign.
+ * EditTrustedIntermediaryGroupPage.html. Slated for replacement by an {@code AdminLayoutBaseView}
+ * page on redesign.
  */
 public final class EditTrustedIntermediaryGroupPageView
     extends LegacyTailwindLayoutBaseView<EditTrustedIntermediaryGroupPageViewModel> {
