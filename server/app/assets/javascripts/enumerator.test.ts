@@ -63,6 +63,12 @@ describe('enumerator removal of saved rows', () => {
       'applicant.seasons[1].season.text': 'Summer',
       'applicant.seasons[2].season.text': 'Fall',
     })
+    const deleteMarker = assertNotNull(
+      document.querySelector<HTMLInputElement>(
+        'input[name="delete_entity[]"]:not([disabled])',
+      ),
+    )
+    expect(deleteMarker.value).toBe('0')
   })
 
   it('removeSavedRow_editToRemainingRow_isSubmittedAtItsOwnPosition', () => {
