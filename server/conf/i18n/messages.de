@@ -1265,11 +1265,11 @@ option.repeatedSet.chooseExisting=
 # Label for the new list set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=
+input.repeatedSet.listedEntity=What is being listed?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=
+input.repeatedSet.questionText=Prompt text
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
@@ -1291,7 +1291,7 @@ description.repeatedSet.initialQuestion=
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=
+description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
 description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
