@@ -1315,13 +1315,13 @@ alert.repeatedSet.initialQuestionNotFound=
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=
+alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=
+alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=
 # Button for admins to add a new list set
-button.repeatedSet.addNew=
+button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
