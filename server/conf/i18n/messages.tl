@@ -1265,11 +1265,11 @@ option.repeatedSet.chooseExisting=
 # Label for the new list set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=
+input.repeatedSet.listedEntity=What is being listed?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=
+input.repeatedSet.questionText=Prompt text
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion=
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
