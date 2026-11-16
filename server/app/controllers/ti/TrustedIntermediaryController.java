@@ -15,6 +15,7 @@ import controllers.FlashKey;
 import forms.TiClientInfoForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.trustedintermediary.TrustedIntermediaryAccountSettingsPageMapper;
 import mapping.trustedintermediary.TrustedIntermediaryClientListPageMapper;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
@@ -37,6 +38,8 @@ import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.trustedintermediary.EditTiClientView;
+import views.trustedintermediary.TrustedIntermediaryAccountSettingsPageView;
+import views.trustedintermediary.TrustedIntermediaryAccountSettingsPageViewModel;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsView;
 import views.trustedintermediary.TrustedIntermediaryClientListPageView;
 import views.trustedintermediary.TrustedIntermediaryClientListPageViewModel;
@@ -59,6 +62,7 @@ public final class TrustedIntermediaryController {
   private final TrustedIntermediaryAccountSettingsView tiAccountSettingsView;
   private final SettingsManifest settingsManifest;
   private final TrustedIntermediaryClientListPageView tiClientListPageView;
+  private final TrustedIntermediaryAccountSettingsPageView tiAccountSettingsPageView;
   private final ProgramService programService;
   private final DateConverter dateConverter;
 
@@ -74,6 +78,7 @@ public final class TrustedIntermediaryController {
       TrustedIntermediaryAccountSettingsView tiAccountSettingsView,
       SettingsManifest settingsManifest,
       TrustedIntermediaryClientListPageView tiClientListPageView,
+      TrustedIntermediaryAccountSettingsPageView tiAccountSettingsPageView,
       ProgramService programService,
       DateConverter dateConverter) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
@@ -86,6 +91,7 @@ public final class TrustedIntermediaryController {
     this.tiAccountSettingsView = Preconditions.checkNotNull(tiAccountSettingsView);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.tiClientListPageView = Preconditions.checkNotNull(tiClientListPageView);
+    this.tiAccountSettingsPageView = Preconditions.checkNotNull(tiAccountSettingsPageView);
     this.programService = Preconditions.checkNotNull(programService);
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
@@ -165,6 +171,16 @@ public final class TrustedIntermediaryController {
 
     if (trustedIntermediaryGroup.isEmpty()) {
       return notFound();
+    }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      TrustedIntermediaryAccountSettingsPageViewModel model =
+          new TrustedIntermediaryAccountSettingsPageMapper()
+              .map(
+                  trustedIntermediaryGroup.get(),
+                  settingsManifest.getBaseUrl().orElse(""),
+                  request.flash().get(FlashKey.ERROR));
+      return ok(tiAccountSettingsPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
     Optional<String> applicantName =
