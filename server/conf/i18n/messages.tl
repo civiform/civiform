@@ -1301,11 +1301,11 @@ alert.repeatedSet.backfillSaveWarningOneProgram=
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
 alert.repeatedSet.backfillSaveWarningPrograms=
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany=
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
