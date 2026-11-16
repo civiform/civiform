@@ -34,6 +34,8 @@ button.cancel=Cancel
 %INPUT[admin/shared/LegacySvgFragments]
 <svg th:fragment="iconInfo(classes)" th:text="|iconInfo(${classes})|"></svg>
 # ----------------------------------------------------------------------
+# No whitespace between the CSRF input and the buttons: the buttons are
+# inline-block, and j2html put no text node between them.
 %OUTPUT
 <div>
   <p class="text-sm text-gray-600 mb-2">Note: Fields marked with a <span class="text-red-600">*</span> are required.</p>
@@ -112,9 +114,11 @@ button.cancel=Cancel
           </div>
         </div>
       </div>
-      <input hidden value="csrf-token" name="csrfToken" />
-      <button type="submit" class="usa-button">Save</button>
-      <button
+      <input hidden value="csrf-token" name="csrfToken" /><button
+        type="submit"
+        class="usa-button"
+      >Save</button
+      ><button
         type="button"
         class="usa-button usa-button--outline m-2"
         data-redirect-to="https://civiform.example.com/admin/tiDash?page=1"

@@ -213,15 +213,16 @@
       <div
         th:replace="~{:: textareaField('ti-note-input', 'tiNote', |#{label.notes} #{content.optional}|, ${form.tiNote})}"
       ></div>
-      <!--/* Hidden through the hidden attribute, as j2html's isHidden() did. */-->
-      <input hidden th:value="${csrfToken}" name="csrfToken" />
-      <button
+      <!--/* The CSRF input is hidden through the hidden attribute, as j2html's
+             isHidden() did. No whitespace between it and the buttons: the
+             buttons are inline-block, so a text node would render as a gap
+             j2html never had. data-redirect-to is handled by main.ts. */-->
+      <input hidden th:value="${csrfToken}" name="csrfToken" /><button
         type="submit"
         class="usa-button"
         th:text="#{button.save}"
-      ></button>
-      <!--/* data-redirect-to is handled by main.ts. */-->
-      <button
+      ></button
+      ><button
         type="button"
         class="usa-button usa-button--outline m-2"
         th:data-redirect-to="${cancelUrl}"
