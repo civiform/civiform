@@ -1293,7 +1293,7 @@ label.repeatedSet.initialQuestionAdminId=
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
 description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
-description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
+description.repeatedSet.backfillInitialQuestion=
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
