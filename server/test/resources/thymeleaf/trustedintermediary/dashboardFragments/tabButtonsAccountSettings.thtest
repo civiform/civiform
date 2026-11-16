@@ -1,0 +1,29 @@
+%NAME tabButtons - account settings is the current tab
+%TEMPLATE_MODE HTML
+%MESSAGES
+header.clientList=Client list
+header.acctSettings=Account settings
+# ----------------------------------------------------------------------
+%INPUT
+<nav th:replace="~{trustedintermediary/fragments/TabButtons :: tabButtons('https://civiform.example.com/admin/tiDash?page=1', 'https://civiform.example.com/admin/tiDash/accountSettings', 'ACCOUNT_SETTINGS')}"></nav>
+# ----------------------------------------------------------------------
+%OUTPUT
+<nav
+  class="px-20 text-sm tracking-tight flex"
+  aria-label="Trusted Intermediary"
+  data-testid="ti-nav"
+>
+  <a
+    id="client-list-link"
+    href="https://civiform.example.com/admin/tiDash?page=1"
+    class="mr-10 py-4 hover:border-b-4 hover:border-blue-600 hover:text-blue-600"
+    >Client list</a
+  >
+  <a
+    id="account-settings-link"
+    href="https://civiform.example.com/admin/tiDash/accountSettings"
+    class="py-4 border-b-4 border-blue-600 text-bold"
+    aria-current="page"
+    >Account settings</a
+  >
+</nav>
