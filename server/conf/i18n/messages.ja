@@ -1280,6 +1280,10 @@ input.repeatedSet.hintText=
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
+# A form field where admins set the minimum number of items or people that applicants must add to a list set
+input.repeatedSet.minListCount=Minimum list count
+# A form field where admins set the maximum number of items or people that applicants can add to a list set
+input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=
 # Description explaining what the initial question is and what the "Add initial question" button does
@@ -1318,6 +1322,8 @@ alert.repeatedSet.previouslyUsed=
 button.repeatedSet.submitNew=
 # Button for admins to add a new list set
 button.repeatedSet.addNew=
+# Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
+button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
