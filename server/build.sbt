@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.14",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.31.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus. See filters.PrometheusRequestMetricsFilter
@@ -149,7 +149,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.6.5",
+      "ch.qos.logback" % "logback-classic" % "1.6.6",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (

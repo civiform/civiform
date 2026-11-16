@@ -1358,7 +1358,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                 .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
                 .attr("hx-swap", "outerHTML")
                 .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+                .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_CHOOSE_EXISTING.getKeyName())))
         .withId("add-question-section")
         .withClass("hidden");
   }
@@ -1502,7 +1502,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
                 .setFieldName("minEntities")
-                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
+                .setLabelText(
+                    messages.at(MessageKey.INPUT_REPEATED_SET_MIN_LIST_COUNT.getKeyName()))
                 .setValue(
                     optionalQuestionForm
                         .map(EnumeratorQuestionForm::getMinEntities)
@@ -1511,7 +1512,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
                 .setFieldName("maxEntities")
-                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
+                .setLabelText(
+                    messages.at(MessageKey.INPUT_REPEATED_SET_MAX_LIST_COUNT.getKeyName()))
                 .setValue(
                     optionalQuestionForm
                         .map(EnumeratorQuestionForm::getMaxEntities)
