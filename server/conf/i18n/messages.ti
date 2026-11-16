@@ -1293,7 +1293,7 @@ label.repeatedSet.initialQuestionAdminId=
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
 description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
-description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
+description.repeatedSet.backfillInitialQuestion=
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
@@ -1339,19 +1339,19 @@ text.repeatedSet.addQuestionDescription=A list set asks applicants to add items 
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=
+heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=
+description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=
+description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=
+description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=
+description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
