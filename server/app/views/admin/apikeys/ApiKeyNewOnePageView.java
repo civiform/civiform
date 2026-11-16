@@ -3,12 +3,12 @@ package views.admin.apikeys;
 import com.google.inject.Inject;
 import play.i18n.Messages;
 import views.admin.AdminLayout;
-import views.admin.LegacyTailwindLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
 /** Thymeleaf view for the new API key page, rendering ApiKeyNewOnePage.html. */
 public final class ApiKeyNewOnePageView
-    extends LegacyTailwindLayoutBaseView<ApiKeyNewOnePageViewModel> {
+    extends TransitionalLayoutBaseView<ApiKeyNewOnePageViewModel> {
 
   @Inject
   public ApiKeyNewOnePageView(LayoutDeps layoutDeps) {

@@ -31,7 +31,8 @@ export class AdminApiKeys {
     await this.page.fill('#subnet', subnet)
 
     for (const slug of programSlugs) {
-      await this.page.check(`#${slug}`)
+      // USWDS moves the input offscreen, so click its label instead.
+      await this.page.locator(`label[for="${slug}"]`).click()
     }
 
     await this.page.click('#apikey-submit-button')
