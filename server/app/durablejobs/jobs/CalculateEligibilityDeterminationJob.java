@@ -85,7 +85,7 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
 
               ReadOnlyApplicantProgramService roAppProgramService =
                   applicantService.getReadOnlyApplicantProgramService(
-                      application, programDefinition);
+                      application, programDefinition, /* enumeratorImprovementsEnabled= */ false);
 
               EligibilityDetermination eligibilityDetermination =
                   applicantService.calculateEligibilityDetermination(

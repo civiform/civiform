@@ -362,7 +362,8 @@ public final class AdminApplicationController extends CiviFormController {
 
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
-            .getReadOnlyApplicantProgramService(application)
+            .getReadOnlyApplicantProgramService(
+                application, /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();

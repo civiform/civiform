@@ -117,7 +117,8 @@ public final class JsonExporterService {
     for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
       // We use an empty ApplicantData because these should all be exported as unanswered questions.
       applicantService
-          .getReadOnlyApplicantProgramService(new ApplicantData(), pd)
+          .getReadOnlyApplicantProgramService(
+              new ApplicantData(), pd, /* enumeratorImprovementsEnabled= */ false)
           .getAllQuestions()
           .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
           .forEach(aq -> answersToExport.putIfAbsent(aq.getContextualizedPath(), aq));
@@ -213,7 +214,8 @@ public final class JsonExporterService {
 
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
     applicantService
-        .getReadOnlyApplicantProgramService(application, programDefinition)
+        .getReadOnlyApplicantProgramService(
+            application, programDefinition, /* enumeratorImprovementsEnabled= */ false)
         .getAllQuestions()
         .filter(aq -> !aq.getType().equals(QuestionType.STATIC))
         .forEach(

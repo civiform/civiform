@@ -114,7 +114,8 @@ public final class PdfExporter {
       throws DocumentException, IOException {
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
-            .getReadOnlyApplicantProgramService(application)
+            .getReadOnlyApplicantProgramService(
+                application, /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
 

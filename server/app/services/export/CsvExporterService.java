@@ -118,7 +118,9 @@ public final class CsvExporterService {
             app ->
                 applicantService
                     .getReadOnlyApplicantProgramService(
-                        app, programDefinitionsForAllVersions.get(app.getProgram().id))
+                        app,
+                        programDefinitionsForAllVersions.get(app.getProgram().id),
+                        /* enumeratorImprovementsEnabled= */ false)
                     .getAllQuestions())
         .forEach(aq -> uniqueQuestions.putIfAbsent(aq.getContextualizedPath(), aq));
 
@@ -163,7 +165,9 @@ public final class CsvExporterService {
               getProgramDefinition.apply(application.getProgram().id);
           ReadOnlyApplicantProgramService roApplicantService =
               applicantService.getReadOnlyApplicantProgramService(
-                  application, programDefForApplication);
+                  application,
+                  programDefForApplication,
+                  /* enumeratorImprovementsEnabled= */ false);
 
           Optional<Boolean> optionalEligibilityStatus =
               shouldCheckEligibility

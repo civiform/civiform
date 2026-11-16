@@ -233,13 +233,12 @@ public final class ApplicantService {
   /**
    * Get a {@link ReadOnlyApplicantProgramService} from an application.
    *
-   * <p>This and the other overloads that don't take {@code enumeratorImprovementsEnabled} are for
-   * reading submitted or in-memory data (exports, admin views, eligibility). They build the service
-   * with the flag off, so they must not be used to decide whether an applicant has finished a
-   * block.
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
    */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
-      ApplicationModel application) {
+      ApplicationModel application, boolean enumeratorImprovementsEnabled) {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramService(
@@ -248,27 +247,43 @@ public final class ApplicantService {
               application.getApplicantData(),
               programService.getFullProgramDefinition(application.getProgram().id),
               /* failedUpdates= */ ImmutableMap.of(),
-              /* enumeratorImprovementsEnabled= */ false));
+              enumeratorImprovementsEnabled));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from an application and program definition.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
+   */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
-      ApplicationModel application, ProgramDefinition programDefinition) {
+      ApplicationModel application,
+      ProgramDefinition programDefinition,
+      boolean enumeratorImprovementsEnabled) {
     return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
         programDefinition,
         /* failedUpdates= */ ImmutableMap.of(),
-        /* enumeratorImprovementsEnabled= */ false);
+        enumeratorImprovementsEnabled);
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
+   */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      ApplicantData applicantData,
+      ProgramDefinition programDefinition,
+      boolean enumeratorImprovementsEnabled) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramService(
@@ -277,7 +292,7 @@ public final class ApplicantService {
         applicantData,
         programDefinition,
         /* failedUpdates= */ ImmutableMap.of(),
-        /* enumeratorImprovementsEnabled= */ false);
+        enumeratorImprovementsEnabled);
   }
 
   /**
@@ -1311,7 +1326,10 @@ public final class ApplicantService {
   public Optional<Boolean> getApplicantMayBeEligibleStatus(
       ApplicantModel applicant, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(applicant.getApplicantData(), programDefinition);
+        getReadOnlyApplicantProgramService(
+            applicant.getApplicantData(),
+            programDefinition,
+            /* enumeratorImprovementsEnabled= */ false);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
@@ -1325,7 +1343,8 @@ public final class ApplicantService {
   public Optional<Boolean> getApplicationEligibilityStatus(
       ApplicationModel application, ProgramDefinition programDefinition) {
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(application, programDefinition);
+        getReadOnlyApplicantProgramService(
+            application, programDefinition, /* enumeratorImprovementsEnabled= */ false);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
