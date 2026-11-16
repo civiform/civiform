@@ -8,12 +8,12 @@ import java.util.List;
 
 /** Implements common logic for the Azure blob storage client. */
 abstract class BaseAzureBlobStorageClient implements AzureBlobStorageClientInterface {
-  /** A download link only needs to read the blob. */
+  /** Returns the permissions for download SAS tokens, which can only read. */
   static BlobSasPermission downloadSasPermission() {
     return new BlobSasPermission().setReadPermission(true);
   }
 
-  /** Upload links keep read and write, which the upload flow currently relies on. */
+  /** Returns the permissions for upload SAS tokens, which can read and write. */
   static BlobSasPermission uploadSasPermission() {
     return new BlobSasPermission().setReadPermission(true).setWritePermission(true);
   }
