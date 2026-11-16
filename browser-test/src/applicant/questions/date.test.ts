@@ -100,6 +100,52 @@ test.describe('Date question for applicant flow', () => {
       await expect(page.getByLabel('Month')).toHaveAttribute('aria-required')
       await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
 
+      await test.step('shows USWDS format hints before submit', async () => {
+        // Visible group hint for sighted users
+        const groupHint = page.getByText(
+          'Select a month. Enter 1 or 2 digits for the day and 4 digits for the year.',
+        )
+        await expect(groupHint).toBeVisible()
+        await expect(groupHint).toHaveAttribute('aria-hidden', 'true')
+
+        // Per-field screen-reader-only hints
+        const monthHint = page.getByText('Select a month from the dropdown.', {
+          exact: true,
+        })
+        const dayHint = page.getByText('Enter 1 or 2 digits for the day.', {
+          exact: true,
+        })
+        const yearHint = page.getByText('Enter 4 digits for the year.', {
+          exact: true,
+        })
+        await expect(monthHint).toHaveClass(/usa-sr-only/)
+        await expect(dayHint).toHaveClass(/usa-sr-only/)
+        await expect(yearHint).toHaveClass(/usa-sr-only/)
+
+        const monthHintId = await monthHint.getAttribute('id')
+        const dayHintId = await dayHint.getAttribute('id')
+        const yearHintId = await yearHint.getAttribute('id')
+        expect(monthHintId).toBeTruthy()
+        expect(dayHintId).toBeTruthy()
+        expect(yearHintId).toBeTruthy()
+
+        await expect(page.getByLabel('Month')).toHaveAttribute(
+          'aria-describedby',
+          new RegExp(`\\b${monthHintId}\\b`),
+        )
+        await expect(page.getByLabel('Day')).toHaveAttribute(
+          'aria-describedby',
+          new RegExp(`\\b${dayHintId}\\b`),
+        )
+        await expect(page.getByLabel('Year')).toHaveAttribute(
+          'aria-describedby',
+          new RegExp(`\\b${yearHintId}\\b`),
+        )
+        // Group hint has no id and is aria-hidden, so it is not referenced by fields.
+        await expect(groupHint).not.toHaveAttribute('id')
+        await expect(page.getByLabel('Year')).toHaveAttribute('minlength', '4')
+      })
+
       await validateAccessibility(page)
     })
   })
