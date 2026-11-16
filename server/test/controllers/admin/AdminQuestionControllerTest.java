@@ -823,7 +823,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(unescaped)
         .containsPattern("Admin id:</strong>\\s*applicant's household member's name");
     assertThat(unescaped)
-        .contains("This is the question that the applicant will use to list out an entity.");
+        .contains("Applicants use this question to add each item or person to the list set.");
   }
 
   @Test

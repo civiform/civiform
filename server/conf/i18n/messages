@@ -1291,7 +1291,7 @@ description.repeatedSet.initialQuestion=Add the question that the applicant will
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Admin id:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=This is the question that the applicant will use to list out an entity.
+description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Description on the card shown to admins when an existing list set has no initial question yet, explaining what an initial question is and what the "Add question" button does
 description.repeatedSet.backfillInitialQuestion=Add an initial question that accompanies the enumerator selected above. For example if your enumerator asks users to list members of their household, you might choose a name question.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
@@ -1317,7 +1317,7 @@ alert.repeatedSet.initialQuestionRequired=Initial question must be added
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable. Choose a different question or create a new one.
+alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set

@@ -1543,7 +1543,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
         await expect(
           page.getByText(
-            'Questions that belong to another list set are unavailable. Choose a different question or create a new one.',
+            'Questions that belong to another list set are unavailable.',
           ),
         ).toBeVisible()
         await expect(
@@ -2894,7 +2894,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       if (minEntities != null) {
         await blockPanel
-          .getByRole('spinbutton', {name: 'Minimum entity count'})
+          .getByRole('spinbutton', {name: 'Minimum list count'})
           .fill(String(minEntities))
       }
 
@@ -3009,7 +3009,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       ).toBeVisible()
       await expect(
         page.getByText(
-          'This is the question that the applicant will use to list out an entity.',
+          'Applicants use this question to add each item or person to the list set.',
         ),
       ).toBeVisible()
     })
