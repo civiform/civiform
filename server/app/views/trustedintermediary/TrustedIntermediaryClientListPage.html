@@ -1,0 +1,141 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TrustedIntermediaryClientListPageViewModel"*/-->
+<!--/* Flash error toast, consumed by toast.ts; the layout renders this
+       fragment in the page header. Error toasts are not dismissible: the
+       ToastMessage constructor overrides the canDismiss=true field default
+       for ERROR. */-->
+<th:block th:fragment="toasts">
+  <div
+    th:if="${model.errorMessage != null}"
+    th:id="${model.errorToastId}"
+    class="hidden cf-toast-data"
+    canDismiss="false"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage}"
+  ></div>
+</th:block>
+
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy wrapper, so these are the
+         direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="py-16 px-20 ti-header-band" th:text="${model.tiGroupName}"></h1>
+  <nav
+    th:replace="~{trustedintermediary/fragments/TabButtons :: tabButtons(${model.clientListUrl}, ${model.accountSettingsUrl}, 'CLIENT_LIST')}"
+  ></nav>
+  <div
+    class="flex items-center h-24 px-20 ti-header-band mb-10 justify-between"
+  >
+    <h2 class="mb-0" th:text="#{title.allClients}"></h2>
+    <a
+      id="add-new-client"
+      class="usa-button"
+      th:href="${model.addClientUrl}"
+      th:text="#{button.addNewClient}"
+    ></a>
+  </div>
+
+  <div class="px-20">
+    <h4 th:text="#{header.search}"></h4>
+    <div>
+      <form
+        id="ti-search-form"
+        class="flex my-6"
+        method="GET"
+        th:action="${model.searchUrl}"
+      >
+        <div class="flex flex-col justify-between">
+          <div>
+            <label
+              class="usa-label"
+              id="name-search"
+              for="name-query"
+              th:text="#{label.searchByName}"
+            ></label>
+            <span class="usa-hint" th:text="#{label.nameExample}"></span>
+          </div>
+          <input
+            class="usa-input mt-12"
+            id="name-query"
+            name="nameQuery"
+            th:value="${model.nameQuery}"
+          />
+        </div>
+        <div class="ml-6">
+          <div>
+            <legend class="usa-legend" th:text="#{label.searchByDob}"></legend>
+            <span
+              class="usa-hint"
+              id="mdHint"
+              th:text="#{label.dobExample}"
+            ></span>
+          </div>
+          <fieldset
+            th:replace="~{trustedintermediary/fragments/MemorableDate :: memorableDate('date-of-birth', 'monthQuery', ${model.monthQuery}, 'dayQuery', ${model.dayQuery}, 'yearQuery', ${model.yearQuery}, ${!model.validSearch})}"
+          ></fieldset>
+        </div>
+        <!--/* Hidden through the hidden attribute, as j2html's isHidden() did. */-->
+        <input
+          hidden
+          th:value="${templateGlobals.csrfToken()}"
+          name="csrfToken"
+        />
+        <div class="flex flex-col justify-end">
+          <button
+            type="submit"
+            class="usa-button usa-button--outline ml-6 h-11"
+            th:text="#{button.search}"
+          ></button>
+        </div>
+      </form>
+      <div class="flex items-center mb-4">
+        <h3
+          th:if="${model.validSearch}"
+          data-testid="displaying-clients"
+          class="mr-6"
+          th:switch="${model.clientCountHeading.name()}"
+        >
+          <th:block
+            th:case="'ALL_CLIENTS'"
+            th:text="#{title.displayingAllClients}"
+          ></th:block>
+          <th:block
+            th:case="'ONE_CLIENT'"
+            th:text="#{title.displayingOneClient}"
+          ></th:block>
+          <th:block
+            th:case="'MULTIPLE_CLIENTS'"
+            th:text="#{title.displayingMultiClients(${model.clientCount})}"
+          ></th:block>
+        </h3>
+        <u class="text-sm"
+          ><a
+            th:href="${model.searchUrl}"
+            class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+            th:text="#{button.clearSearch}"
+          ></a
+        ></u>
+      </div>
+    </div>
+
+    <div>
+      <!--/* th:replace nests inside the th:each and th:if elements: fragment
+             inclusion is evaluated before iteration and conditionals on the
+             same element. */-->
+      <ul class="usa-card-group">
+        <th:block th:each="client : ${model.clients}">
+          <li
+            th:replace="~{trustedintermediary/fragments/ClientCard :: clientCard(${client})}"
+          ></li>
+        </th:block>
+      </ul>
+      <th:block th:if="${model.pagination != null}">
+        <nav
+          th:replace="~{admin/shared/LegacyPagination :: localizedPagination(${model.pagination})}"
+        ></nav>
+      </th:block>
+    </div>
+  </div>
+</th:block>

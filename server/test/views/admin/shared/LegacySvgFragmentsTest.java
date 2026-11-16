@@ -334,4 +334,22 @@ public class LegacySvgFragmentsTest {
   public void iconImage_programCard() {
     ThymeleafFragmentTester.run(DIR + "iconImageProgramCard.thtest");
   }
+
+  /** Legacy source: TrustedIntermediaryClientListView client date of birth. */
+  @Test
+  public void iconCake_clientDateOfBirth() {
+    ThymeleafFragmentTester.run(DIR + "iconCake.thtest");
+  }
+
+  /** Legacy source: ViewUtils.makeUswdsModal close button. */
+  @Test
+  public void iconCloseUswdsModal_modalCloseButton() {
+    ThymeleafFragmentTester.run(DIR + "iconCloseUswdsModal.thtest");
+  }
+
+  /** Legacy source: gov banner lock icon (admin Banner, TI common header). */
+  @Test
+  public void iconLock_govBanner() {
+    ThymeleafFragmentTester.run(DIR + "iconLock.thtest");
+  }
 }
