@@ -347,7 +347,7 @@ public class LegacySvgFragmentsTest {
     ThymeleafFragmentTester.run(DIR + "iconCloseUswdsModal.thtest");
   }
 
-  /** Legacy source: gov banner lock icon (admin Banner, TI common header). */
+  /** Legacy source: gov banner lock icon (BaseHtmlLayout.getGovBanner, TI common header). */
   @Test
   public void iconLock_govBanner() {
     ThymeleafFragmentTester.run(DIR + "iconLock.thtest");
