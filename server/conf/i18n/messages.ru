@@ -1321,7 +1321,7 @@ alert.repeatedSet.previouslyUsed=Questions that belong to another list set are u
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=
 # Button for admins to add a new list set
-button.repeatedSet.addNew=
+button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
