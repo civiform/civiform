@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
   loginAsProgramAdmin,
@@ -25,6 +26,7 @@ test.describe('primary applicant info questions', () => {
     page,
     adminQuestions,
   }) => {
+    await disableFeatureFlag(page, 'enumerator_improvements_enabled')
     await loginAsAdmin(page)
 
     const enumeratorName = 'name-enumerator'

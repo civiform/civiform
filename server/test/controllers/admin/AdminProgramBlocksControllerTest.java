@@ -647,6 +647,7 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     Request request =
         fakeRequestBuilder()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
             .uri(
                 routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
                         .url()

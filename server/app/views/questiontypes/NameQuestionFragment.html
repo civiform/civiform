@@ -22,7 +22,8 @@
         question=${question},
         questionRendererParams=${questionRendererParams},
         questionId=${questionId},
-        isInitialQuestion=false)}"
+        isInitialQuestion=false,
+        listErrorsId=null)}"
     ></div>
   </fieldset>
 </div>
@@ -32,7 +33,7 @@
      wrapper and the group label, so the title, help text, and standalone fieldset are omitted
      here. */-->
 <div
-  th:fragment="nameForInitialQuestion(question, questionRendererParams)"
+  th:fragment="nameForInitialQuestion(question, questionRendererParams, listErrorsId)"
   th:with="nameQuestion=${question.createNameQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              hasGroupErrors=${nameQuestion.getValidationErrors().get(question.getContextualizedPath())},"
@@ -45,15 +46,19 @@
       question=${question},
       questionRendererParams=${questionRendererParams},
       questionId=${questionId},
-      isInitialQuestion=true)}"
+      isInitialQuestion=true,
+      listErrorsId=${listErrorsId})}"
   ></div>
 </div>
 
 <!--/* The name input fields (first, middle, last, suffix), shared by the standalone
      and initial-question fragments. When isInitialQuestion is true there is no title/help text, so
-     the first name input's aria-describedby omits the "-description" reference. */-->
+     the first name input's aria-describedby omits the "-description" reference. listErrorsId is the
+     enumerator's list-level errors id when this is the first entity row of a list with such an
+     error (otherwise null); the first name input's aria-describedby starts with it, and the input
+     takes FIRST_FIELD autofocus. */-->
 <th:block
-  th:fragment="nameFields(question, questionRendererParams, questionId, isInitialQuestion)"
+  th:fragment="nameFields(question, questionRendererParams, questionId, isInitialQuestion, listErrorsId)"
   th:with="nameQuestion=${question.createNameQuestion()},
              maxInputLength=10000,
              firstPathWithError=${nameQuestion.getFirstPathWithError()},
@@ -73,7 +78,7 @@
         hasFieldErrors=${questionRendererParams.shouldShowErrors() && fieldErrors != null && !fieldErrors.isEmpty()},
         showFieldErrorMessages=${!hasGroupErrors && hasFieldErrors},
         hasError=${hasGroupErrors || hasFieldErrors},
-        initialDescribedBy=${hasError ? questionId + '-error' : null},
+        initialDescribedBy=${listErrorsId == null && !hasError ? null : (listErrorsId != null ? listErrorsId : '') + (listErrorsId != null && hasError ? ' ' : '') + (hasError ? questionId + '-error' : '')},
         standaloneDescribedBy=${questionId + '-description' + (hasError ? ' ' + questionId + '-error' : '')},"
     class="cf-name-first margin-bottom-1"
     th:classappend="${showFieldErrorMessages ? 'cf-question-field-with-error' : ''}"
@@ -103,7 +108,7 @@
       th:value="${nameQuestion.getFirstNameValue().orElse('')}"
       th:aria-describedby="${isInitialQuestion ? initialDescribedBy : standaloneDescribedBy}"
       th:name="${firstNamePath}"
-      th:autofocus="${questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)}"
+      th:autofocus="${(questionRendererParams.autofocusFirstError() && !firstPathWithError.isEmpty() && firstPathWithError.get().equals(firstNamePath)) || questionRendererParams.autofocusFirstField()}"
       th:aria-required="${!question.isOptional()}"
     />
   </div>

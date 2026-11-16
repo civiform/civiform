@@ -4,6 +4,7 @@ import {
   AdminQuestions,
   loginAsAdmin,
   logout,
+  disableFeatureFlag,
   validateAccessibility,
   validateScreenshot,
   waitForPageJsLoad,
@@ -11,6 +12,10 @@ import {
 import {Page} from '@playwright/test'
 
 test.describe('End to end enumerator test', () => {
+  test.beforeEach(async ({page}) => {
+    await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+  })
+
   const programName = 'Ete enumerator program'
 
   test.describe('Admin page', () => {
@@ -493,13 +498,16 @@ test.describe('End to end enumerator test', () => {
       )
     })
 
-    await test.step('Verify non-repeated questions are available in question bank', async () => {
+    await test.step('Verify only non-repeated questions are available in question bank', async () => {
       await expect(page.locator('#question-bank-nonuniversal')).toContainText(
         'enumerator-ete-name',
       )
       await expect(page.locator('#question-bank-nonuniversal')).toContainText(
         'enumerator-ete-householdmembers',
       )
+      await expect(
+        page.locator('#question-bank-nonuniversal'),
+      ).not.toContainText('enumerator-ete-repeated-name')
     })
 
     await test.step('Add an enumerator question. All options should go away.', async () => {

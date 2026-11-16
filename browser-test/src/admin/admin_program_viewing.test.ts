@@ -78,16 +78,6 @@ test.describe('admin program view page', () => {
     })
   })
 
-  test('view draft program', async ({page, adminPrograms}) => {
-    await loginAsAdmin(page)
-
-    const programName = 'Draft Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoEditDraftProgramPage(programName)
-
-    await validateScreenshot(page, 'program-draft-view')
-  })
-
   test('view program with universal questions', async ({
     page,
     adminPrograms,

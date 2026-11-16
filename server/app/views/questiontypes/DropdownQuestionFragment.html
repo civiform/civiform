@@ -71,7 +71,7 @@
     th:aria-required="${!question.isOptional()}"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
     th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
-    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    th:autofocus="${questionRendererParams.autofocusSingleField()}"
   >
     <option
       value

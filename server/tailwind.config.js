@@ -50,8 +50,10 @@ module.exports = {
     'grid-cols-8',
     'grid-rows-4',
     'grid-rows-6',
+    'mb-5',
     'place-content-between',
     'pt-0',
+    'pt-10',
     'px-6',
     'row-span-2',
     'row-start-1',
@@ -61,6 +63,7 @@ module.exports = {
     'sm:text-5xl',
     'space-x-3',
     'usa-alert-remove-top-margin',
+    'w-1/6',
   ],
   theme: {
     extend: {

@@ -74,6 +74,6 @@
     th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
-    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    th:autofocus="${questionRendererParams.autofocusSingleField()}"
   />
 </th:block>

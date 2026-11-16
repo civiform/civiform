@@ -106,6 +106,10 @@ export default defineConfig({
     // Output to the location Play will look for assets
     outDir: 'app/assets/dist',
     emptyOutDir: true,
+    // Play serves public/ itself, so don't copy it into outDir. Keep publicDir
+    // enabled until we remove tailwind. The dev server serves tailwind.css
+    // from it.
+    copyPublicDir: false,
     // Up the warning size limit past our largest chunk
     chunkSizeWarningLimit: 1100,
     // Generate source maps

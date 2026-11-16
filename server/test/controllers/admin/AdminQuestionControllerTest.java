@@ -735,7 +735,11 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void edit_enumerator_withImprovementsDisabled_hidesInitialQuestion() {
     QuestionModel enumeratorQuestion =
         testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
-    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .build();
 
     Result result =
         controller
