@@ -1335,11 +1335,11 @@ text.nestedRepeatedSet=
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=
+text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=
+heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
