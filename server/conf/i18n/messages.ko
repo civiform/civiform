@@ -1339,19 +1339,19 @@ text.repeatedSet.addQuestionDescription=A list set asks applicants to add items 
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=
+heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=반복 질문
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=
+description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=
+description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=
+description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=
+description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=
 #An informative description below the option to choose an existing question
