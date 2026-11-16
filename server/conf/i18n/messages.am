@@ -1321,7 +1321,7 @@ alert.repeatedSet.previouslyUsed=Questions that belong to another list set are u
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=
 # Button for admins to add a new list set
-button.repeatedSet.addNew=
+button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
@@ -1335,11 +1335,11 @@ text.nestedRepeatedSet=
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=
+text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # Information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=
+heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=
 # Heading above the questions section on repeated screens in the admin program screen editor.
