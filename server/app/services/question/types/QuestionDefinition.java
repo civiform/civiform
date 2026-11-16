@@ -395,6 +395,15 @@ public abstract class QuestionDefinition {
   }
 
   /**
+   * Hook for question types whose validation depends on the enumerator improvements flag; ignores
+   * the flag by default.
+   */
+  ImmutableSet<CiviFormError> internalValidate(
+      Optional<QuestionDefinition> previousDefinition, boolean enumeratorImprovementsEnabled) {
+    return internalValidate(previousDefinition);
+  }
+
+  /**
    * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
    *
    * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
@@ -441,7 +450,7 @@ public abstract class QuestionDefinition {
       errors.add(CiviFormError.of("Repeated questions must reference '$this' in the text"));
     }
 
-    errors.addAll(internalValidate(previousDefinition));
+    errors.addAll(internalValidate(previousDefinition, enumeratorImprovementsEnabled));
     return errors.build();
   }
 
