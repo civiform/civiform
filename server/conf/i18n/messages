@@ -280,13 +280,13 @@ label.dob=Date of birth
 # Example above the 3 birth date input fields (Month, Day, Year).
 label.dobExample=For example: January 28 1986
 # Visible format instructions above applicant memorable date Month/Day/Year fields. Hidden from screen readers; each field has its own screen-reader-only hint.
-hint.memorableDate=Select a month. Enter 1 or 2 digits for the day and 4 digits for the year.
+hint.memorableDate=Select a month. Enter 1-31 for the day and a 4 digit year e.g. 1996.
 # Screen-reader-only format instruction for the Month dropdown of a memorable date.
 hint.memorableDate.month=Select a month from the dropdown.
 # Screen-reader-only format instruction for the Day text input of a memorable date.
-hint.memorableDate.day=Enter 1 or 2 digits for the day.
+hint.memorableDate.day=Enter 1-31.
 # Screen-reader-only format instruction for the Year text input of a memorable date.
-hint.memorableDate.year=Enter 4 digits for the year.
+hint.memorableDate.year=Enter a 4 digit year e.g. 1996.
 # Label above the "Email" column of the community-based organization members table.
 label.email=Email
 # Validation error message below date of birth input when the TI clicks on save without filling out the field.

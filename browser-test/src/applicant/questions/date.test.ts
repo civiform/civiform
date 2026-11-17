@@ -102,7 +102,7 @@ test.describe('Date question for applicant flow', () => {
 
       await test.step('shows USWDS format hints before submit', async () => {
         const groupHint = page.getByText(
-          'Select a month. Enter 1 or 2 digits for the day and 4 digits for the year.',
+          'Select a month. Enter 1-31 for the day and a 4 digit year e.g. 1996.',
         )
         await expect(groupHint).toHaveAttribute('aria-hidden', 'true')
         await expect(groupHint).not.toHaveAttribute('id')
@@ -111,10 +111,10 @@ test.describe('Date question for applicant flow', () => {
         const monthHint = page.getByText('Select a month from the dropdown.', {
           exact: true,
         })
-        const dayHint = page.getByText('Enter 1 or 2 digits for the day.', {
+        const dayHint = page.getByText('Enter 1-31.', {
           exact: true,
         })
-        const yearHint = page.getByText('Enter 4 digits for the year.', {
+        const yearHint = page.getByText('Enter a 4 digit year e.g. 1996.', {
           exact: true,
         })
         await expect(monthHint).toHaveClass(/usa-sr-only/)

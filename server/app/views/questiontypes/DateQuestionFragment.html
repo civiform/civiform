@@ -66,16 +66,14 @@
            monthHasError=${hasErrors && dateQuestion.hasMonthError()},
            dayHasError=${hasErrors && dateQuestion.hasDayError()},
            yearHasError=${hasErrors && dateQuestion.hasYearError()},
-           errorId=${questionId + '-error'},
-           monthHintId=${questionId + '-month-hint'},
-           dayHintId=${questionId + '-day-hint'},
-           yearHintId=${questionId + '-year-hint'},
+           errorId=|${questionId}-error|,
+           monthHintId=|${questionId}-month-hint|,
+           dayHintId=|${questionId}-day-hint|,
+           yearHintId=|${questionId}-year-hint|,
            descriptionId=${isInitialQuestion ? null : questionId + '-description'},
-           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
-           monthOwnDescribedBy=${monthHasError ? describedByPrefix + monthHintId + ' ' + errorId : describedByPrefix + monthHintId},
-           monthDescribedBy=${listErrorsId == null ? monthOwnDescribedBy : listErrorsId + ' ' + monthOwnDescribedBy},
-           dayDescribedBy=${dayHasError ? describedByPrefix + dayHintId + ' ' + errorId : describedByPrefix + dayHintId},
-           yearDescribedBy=${yearHasError ? describedByPrefix + yearHintId + ' ' + errorId : describedByPrefix + yearHintId}"
+           monthDescribedBy=|${listErrorsId} ${descriptionId} ${monthHintId} ${monthHasError ? errorId : null}|,
+           dayDescribedBy=|${descriptionId} ${dayHintId} ${dayHasError ? errorId : null}|,
+           yearDescribedBy=|${descriptionId} ${yearHintId} ${yearHasError ? errorId : null}|"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
