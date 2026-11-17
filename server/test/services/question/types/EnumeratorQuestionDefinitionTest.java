@@ -45,7 +45,11 @@ public class EnumeratorQuestionDefinitionTest {
       validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsDisabled_returnsDefaultErrors() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            makeConfigBuilder().setName("").setQuestionText(LocalizedStrings.of()).build(),
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of())
+                .build(),
             LocalizedStrings.withDefaultValue("foo"));
 
     assertThat(
@@ -62,7 +66,11 @@ public class EnumeratorQuestionDefinitionTest {
       validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsEnabled_returnsListSetErrors() {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(
-            makeConfigBuilder().setName("").setQuestionText(LocalizedStrings.of()).build(),
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of())
+                .build(),
             LocalizedStrings.withDefaultValue("foo"));
 
     assertThat(
