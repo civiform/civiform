@@ -157,7 +157,11 @@ public final class ProgramQuestionBank {
     DivTag contentDiv = div().withClasses("relative", "grid", "gap-6", "px-5", "pt-6", "pb-12");
     questionForm.with(contentDiv);
 
-    H1Tag headerDiv = h1("Add a question").withId(headingId).withClasses("mx-2", "text-xl");
+    String heading =
+        params.mode() == Mode.EXISTING_ENUMERATOR_ONLY
+            ? messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION_BANK.getKeyName())
+            : "Add a question";
+    H1Tag headerDiv = h1(heading).withId(headingId).withClasses("mx-2", "text-xl");
     contentDiv.with(
         div()
             .withClasses("flex", "items-center")

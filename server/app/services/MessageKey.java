@@ -144,11 +144,11 @@ public enum MessageKey {
   DESCRIPTION_REPEATED_SET_ADMIN_ID("description.repeatedSet.adminId"),
   DESCRIPTION_LISTED_ENTITY("description.repeatedSet.listedEntity"),
   DESCRIPTION_REPEATED_SET_HINT_TEXT("description.repeatedSet.hintText"),
-  DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION(
-      "description.repeatedSet.backfillInitialQuestion"),
   DESCRIPTION_REPEATED_SET_INITIAL_QUESTION("description.repeatedSet.initialQuestion"),
   DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_ADMIN_ID(
       "description.repeatedSet.initialQuestionAdminId"),
+  DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_COPY("description.repeatedSet.initialQuestionCopy"),
+  DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_NOTE("description.repeatedSet.initialQuestionNote"),
   DESCRIPTION_REPEATED_SET_QUESTION_TEXT("description.repeatedSet.questionText"),
   DESCRIPTION_REPEATED_SET_CREATE_NEW_QUESTION("description.repeatedSet.createNewQuestion"),
   DESCRIPTION_REPEATED_SET_CHOOSE_EXISTING_QUESTION(
@@ -188,7 +188,9 @@ public enum MessageKey {
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
   HEADING_REPEATED_SET_PREVIOUSLY_USED("heading.repeatedSet.previouslyUsed"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
+  HEADING_REPEATED_SET_QUESTION_BANK("heading.repeatedSet.questionBank"),
   HEADING_REPEATED_QUESTIONS("heading.repeatedQuestions"),
+  HEADING_REPEATED_QUESTIONS_ABOUT_ENTITY("heading.repeatedQuestionsAboutEntity"),
   HEADING_REVIEW_AND_SUBMIT("heading.reviewAndSubmit"), // North Star only
   HEADING_SUCCESS_ARIA_LABEL_PREFIX("heading.successAriaLabelPrefix"), // North Star only
   ID_VALIDATION_NUMBER_REQUIRED("validation.numberRequired"),
@@ -275,6 +277,7 @@ public enum MessageKey {
   TAG_MAY_QUALIFY("tag.mayQualify"),
   TAG_MAY_QUALIFY_TI("tag.mayQualifyTi"),
   TEXT_NESTED_REPEATED_SET("text.nestedRepeatedSet"),
+  TEXT_REPEATED_QUESTIONS_COPY_DESCRIPTION("text.repeatedQuestions.copyDescription"),
   TEXT_REPEATED_QUESTIONS_DESCRIPTION("text.repeatedQuestions.description"),
   TEXT_REPEATED_SET("text.repeatedSet"),
   TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION("text.repeatedSet.addQuestionDescription"),

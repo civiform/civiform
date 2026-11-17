@@ -568,10 +568,36 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             /* isRepeatingBlockOptional= */ Optional.empty());
 
     assertThat(result.status()).isEqualTo(OK);
+    // TODO(#11943): Remove the three doesNotContain checks once the enumerator improvements flag is
+    // removed.
     assertThat(contentAsString(result))
-        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .contains("This question repeats for each item or person an applicant adds.")
+        .doesNotContain("By selecting an enumerator, you are creating a repeated question")
         .doesNotContain("Please reference the applicant-defined repeated entity name")
         .doesNotContain("To reference the repeated entities containing this one, use");
+  }
+
+  @Test
+  public void newOne_enumeratorFlagDisabled_showsFullRepeatedQuestionInformationMessage() {
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .contains("Please reference the applicant-defined repeated entity name")
+        .contains("To reference the repeated entities containing this one, use")
+        .doesNotContain("This question repeats for each item or person an applicant adds.");
   }
 
   @Test
