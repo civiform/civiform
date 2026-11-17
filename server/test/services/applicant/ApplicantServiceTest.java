@@ -3475,12 +3475,12 @@ public class ApplicantServiceTest extends ResetPostgres {
         .stageAndUpdateIfValid(
             applicant.id,
             programDefinition.id(),
-            "1",
+            /* blockId= */ "1",
             ImmutableMap.of(
                 enumeratorPath.atIndex(0).toString(), "Alice",
                 enumeratorPath.atIndex(1).toString(), "Bob"),
-            false,
-            false,
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
             /* apiBridgeEnabled= */ false,
             /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
