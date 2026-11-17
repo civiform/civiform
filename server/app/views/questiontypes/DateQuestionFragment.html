@@ -71,11 +71,11 @@
            dayHintId=${questionId + '-day-hint'},
            yearHintId=${questionId + '-year-hint'},
            descriptionId=${isInitialQuestion ? null : questionId + '-description'},
-           descriptionPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
-           monthOwnDescribedBy=${monthHasError ? descriptionPrefix + monthHintId + ' ' + errorId : descriptionPrefix + monthHintId},
+           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
+           monthOwnDescribedBy=${monthHasError ? describedByPrefix + monthHintId + ' ' + errorId : describedByPrefix + monthHintId},
            monthDescribedBy=${listErrorsId == null ? monthOwnDescribedBy : listErrorsId + ' ' + monthOwnDescribedBy},
-           dayDescribedBy=${dayHasError ? descriptionPrefix + dayHintId + ' ' + errorId : descriptionPrefix + dayHintId},
-           yearDescribedBy=${yearHasError ? descriptionPrefix + yearHintId + ' ' + errorId : descriptionPrefix + yearHintId}"
+           dayDescribedBy=${dayHasError ? describedByPrefix + dayHintId + ' ' + errorId : describedByPrefix + dayHintId},
+           yearDescribedBy=${yearHasError ? describedByPrefix + yearHintId + ' ' + errorId : describedByPrefix + yearHintId}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
