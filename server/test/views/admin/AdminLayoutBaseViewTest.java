@@ -138,6 +138,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
     String result = customView.render(fakeRequest(), new CustomViewModel());
 
     assertThat(result).contains("cf-demo-banner");
+    assertThat(result).contains("aria-label=\"Demo mode information\"");
     assertThat(result).contains("Demo: TestCity");
     assertThat(result).contains("View as:");
     assertThat(result)
@@ -157,6 +158,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
             "class=\"usa-button"
                 + " usa-button--outline\"\\s+id=\"trusted-intermediary\"\\s*>Trusted"
                 + " Intermediary</a");
+    assertThat(result).contains("/assets/Images/uswds/sprite.svg#settings");
   }
 
   @Test
