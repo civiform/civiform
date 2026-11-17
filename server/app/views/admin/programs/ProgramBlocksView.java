@@ -685,17 +685,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("my-4")
             .with(
                 div(showRepeatedQuestionsSectionStyling
-                        ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
+                        ? getRepeatedQuestionsHeading(messages, optionalParentEnumeratorBlock)
                         : "Questions")
                     .withClasses("text-lg", "font-bold", "py-2"),
                 iff(
                     showRepeatedQuestionsSectionStyling,
-                    p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
-                        .withClasses(
-                            "text-gray-cool-50",
-                            "font-ui-sm",
-                            "margin-bottom-1",
-                            "maxw-mobile-lg")));
+                    div(
+                            p(messages.at(
+                                    MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
+                                .withClass("margin-bottom-1"),
+                            p(messages.at(
+                                    MessageKey.TEXT_REPEATED_QUESTIONS_COPY_DESCRIPTION
+                                        .getKeyName()))
+                                .withClass("margin-bottom-1"))
+                        .withClasses("text-gray-cool-50", "font-ui-sm", "maxw-mobile-lg")));
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -852,6 +855,25 @@ public final class ProgramBlocksView extends ProgramBaseView {
     div.with(blockInfoDisplay, visibilityPredicateDisplay);
     maybeEligibilityPredicateDisplay.ifPresent(div::with);
     return div.with(programQuestions);
+  }
+
+  /**
+   * Returns the heading for the questions section of a repeated screen. Names the item listed on
+   * the parent list set screen, for example "Repeated questions about each household member". Falls
+   * back to "Repeated questions" when the parent screen has no list set yet.
+   */
+  private String getRepeatedQuestionsHeading(
+      Messages messages, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    return optionalParentEnumeratorBlock
+        .filter(BlockDefinition::hasEnumeratorQuestion)
+        .map(block -> block.getEnumeratorQuestionDefinition().getEntityType())
+        .filter(entityType -> !entityType.isEmpty())
+        .map(
+            entityType ->
+                messages.at(
+                    MessageKey.HEADING_REPEATED_QUESTIONS_ABOUT_ENTITY.getKeyName(),
+                    entityType.getDefault()))
+        .orElseGet(() -> messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName()));
   }
 
   private Optional<BlockDefinition> optionallyGetParentEnumeratorBlock(
@@ -1022,12 +1044,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             .with(ViewUtils.requiredQuestionIndicator()))
                         .withId("backfill-initial-question-label")
                         .withClasses("usa-label", "margin-top-0"),
-                    p(messages.at(
-                            MessageKey.DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION
-                                .getKeyName()))
-                        .withId("initial-question-description")
-                        .withClasses(
-                            "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
+                    div(renderInitialQuestionDescription(messages)).withClass("margin-top-105"),
                     // Wrapper keeps the 12px gap to the description when the slot is swapped.
                     div(optionalStagedInitialQuestion
                             .map(
@@ -1282,6 +1299,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
+   * Renders the three-paragraph initial question description. The wrapper carries the id that the
+   * "Add initial question" button references with {@code aria-describedby}, so screen readers
+   * announce all three paragraphs.
+   */
+  private DivTag renderInitialQuestionDescription(Messages messages) {
+    return div(
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                .withClass("margin-bottom-1"),
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_COPY.getKeyName()))
+                .withClass("margin-bottom-1"),
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_NOTE.getKeyName()))
+                .withClasses("text-italic", "margin-bottom-0"))
+        .withId("initial-question-description")
+        .withClasses("font-ui-sm", "text-base");
+  }
+
+  /**
    * Renders the empty {@code #initial-question-slot} containing the "Add initial question" button.
    * Used both for the initial render when no initial question is selected and as the HTMX response
    * when the admin clicks Remove on the initial question card to clear the selection.
@@ -1524,9 +1558,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .with(ViewUtils.requiredQuestionIndicator()))
                     .withId("initial-question-label")
                     .withClasses("usa-label"),
-                p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
-                    .withId("initial-question-description")
-                    .withClasses("font-ui-sm", "text-base"),
+                renderInitialQuestionDescription(messages),
                 optionalInitialQuestion
                     .map(
                         q ->

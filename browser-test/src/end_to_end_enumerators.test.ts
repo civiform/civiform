@@ -207,6 +207,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const questionBankSidebar = page.getByRole('form', {
         name: 'Add a question',
       })
+      const listSetBankSidebar = page.getByRole('form', {
+        name: 'Add a list set',
+      })
 
       const backfillCard = blockPanel.locator('#backfill-initial-question-card')
       const addInitialQuestionButton = backfillCard.getByRole('button', {
@@ -231,24 +234,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Validate that the question bank sidebar only shows enumerator questions', async () => {
         await expect(
-          questionBankSidebar.getByText('enumerator-ete-householdmembers'),
+          listSetBankSidebar.getByText('enumerator-ete-householdmembers'),
         ).toBeVisible()
         await expect(
-          questionBankSidebar.getByText('Sample Enumerator Question'),
+          listSetBankSidebar.getByText('Sample Enumerator Question'),
         ).toBeVisible()
         await expect(
-          questionBankSidebar.getByText('enumerator-ete-repeated-name'),
+          listSetBankSidebar.getByText('enumerator-ete-repeated-name'),
         ).toBeHidden()
       })
 
       await test.step('Validate that the question bank sidebar does not show the "Create new question" button', async () => {
         await expect(
-          questionBankSidebar.getByText(
+          listSetBankSidebar.getByText(
             "Not finding a question you're looking for in this list?",
           ),
         ).toBeHidden()
         await expect(
-          questionBankSidebar.getByRole('button', {
+          listSetBankSidebar.getByRole('button', {
             name: 'Create new question',
           }),
         ).toBeHidden()
@@ -263,7 +266,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
         await expect(enumeratorQuestionCard).toBeVisible()
 
-        await expect(questionBankSidebar).toBeHidden()
+        await expect(listSetBankSidebar).toBeHidden()
       })
 
       await test.step('Validate that focus is sent to the repeated set question section heading', async () => {
@@ -736,12 +739,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeVisible()
         })
 
-        await test.step('Click Edit on the copied initial question and verify its Question enumerator is set to the new enumerator', async () => {
+        await test.step('Click Edit on the copied initial question and verify its associated list set is set to the new enumerator', async () => {
           await adminQuestions.gotoQuestionEditPage(
             'income-non-repeated-question -_- a',
           )
           await expect(
-            page.getByLabel('Question enumerator').locator('option[selected]'),
+            page.getByLabel('Associated list set').locator('option[selected]'),
           ).toHaveText('pets enumerator')
         })
       })
@@ -785,8 +788,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Name', exact: true}).click()
         })
 
-        await test.step('Verify the "Question enumerator" dropdown is disabled', async () => {
-          await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await test.step('Verify the "Associated list set" dropdown is disabled', async () => {
+          await expect(page.getByLabel('Associated list set')).toBeDisabled()
         })
 
         await test.step('Fill out the new question form and submit it', async () => {
@@ -870,10 +873,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           ).toBeHidden()
         })
 
-        await test.step('Click Edit on the newly-created initial question and verify its Question enumerator is set to the new enumerator', async () => {
+        await test.step('Click Edit on the newly-created initial question and verify its associated list set is set to the new enumerator', async () => {
           await adminQuestions.gotoQuestionEditPage(newQuestionAdminId)
           await expect(
-            page.getByLabel('Question enumerator').locator('option[selected]'),
+            page.getByLabel('Associated list set').locator('option[selected]'),
           ).toHaveText('pets enumerator')
         })
       })
@@ -884,8 +887,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const blockPanel = page.getByTestId('block-panel-edit')
       const initialQuestionSlot = blockPanel.locator('#initial-question-slot')
-      const questionBankSidebar = page.getByRole('form', {
-        name: 'Add a question',
+      const listSetBankSidebar = page.getByRole('form', {
+        name: 'Add a list set',
       })
 
       await addRepeatedSetBlocks(page)
@@ -926,7 +929,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await blockPanel
           .getByRole('button', {name: 'Add list set', exact: true})
           .click()
-        await expect(questionBankSidebar).toBeVisible()
+        await expect(listSetBankSidebar).toBeVisible()
       })
 
       await test.step('Add the existing enumerator question back to the block', async () => {
@@ -1453,7 +1456,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         ).toBeVisible()
         await expect(
           questionsSection.getByText(
-            'Add the questions you would like to be asked about each object or individual listed by the applicant.',
+            'Add questions you want applicants to answer about each item or person they list.',
+          ),
+        ).toBeVisible()
+        await expect(
+          questionsSection.getByText(
+            'If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.',
           ),
         ).toBeVisible()
 
@@ -1482,6 +1490,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
         await expect(addQuestionButton).toBeEnabled()
         await expect(repeatedSetAlert).toBeHidden()
+      })
+
+      await test.step('Verify the repeated questions heading names the listed item', async () => {
+        await expect(
+          questionsSection.getByText('Repeated questions about each Pets', {
+            exact: true,
+          }),
+        ).toBeVisible()
       })
     })
 
@@ -1591,10 +1607,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await page.getByRole('link', {name: 'Text', exact: true}).click()
         })
 
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+        await expect(page.getByLabel('Associated list set')).toBeDisabled()
 
         await expect(
-          page.getByLabel('Question enumerator').locator('option[selected]'),
+          page.getByLabel('Associated list set').locator('option[selected]'),
         ).toHaveText('pets enumerator')
       })
 
@@ -1721,8 +1737,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await page.getByRole('link', {name: 'Text', exact: true}).click()
       })
 
-      await test.step('Verify that the "Question enumerator" dropdown is disabled', async () => {
-        await expect(page.getByLabel('Question enumerator')).toBeDisabled()
+      await test.step('Verify that the "Associated list set" dropdown is disabled', async () => {
+        await expect(page.getByLabel('Associated list set')).toBeDisabled()
       })
     })
 
@@ -2958,7 +2974,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
    */
   async function pickQuestionFromBank(page: Page, adminId: string) {
     const questionBankSidebar = page.getByRole('form', {
-      name: 'Add a question',
+      name: /^Add a (question|list set)$/,
     })
 
     await test.step(`Click "Add" next to "${adminId}" in the question bank`, async () => {
