@@ -112,6 +112,8 @@ public final class PdfExporter {
   public InMemoryPdf exportApplication(
       ApplicationModel application, boolean isAdmin, boolean includeScores)
       throws DocumentException, IOException {
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // export only reads the answers, so the value doesn't matter.
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
             .getReadOnlyApplicantProgramService(

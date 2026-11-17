@@ -83,6 +83,9 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
               ProgramDefinition programDefinition =
                   programService.getFullProgramDefinition(programId);
 
+              // The enumerator improvements flag only changes block completion and validation
+              // checks. The eligibility determination only looks at eligibility conditions and
+              // whether their questions are answered, so the value doesn't matter.
               ReadOnlyApplicantProgramService roAppProgramService =
                   applicantService.getReadOnlyApplicantProgramService(
                       application, programDefinition, /* enumeratorImprovementsEnabled= */ false);

@@ -930,7 +930,9 @@ public final class ApplicantService {
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
-        // The stored file keys don't depend on the enumerator improvements flag.
+        // The enumerator improvements flag only changes block completion and validation checks.
+        // The stored file keys come from the answers to file upload questions, so the value
+        // doesn't matter.
         getReadOnlyApplicantProgramService(
                 applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
             .thenApplyAsync(
@@ -1325,6 +1327,9 @@ public final class ApplicantService {
    */
   public Optional<Boolean> getApplicantMayBeEligibleStatus(
       ApplicantModel applicant, ProgramDefinition programDefinition) {
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // eligibility check only looks at eligibility conditions and whether their questions are
+    // answered, so the value doesn't matter.
     ReadOnlyApplicantProgramService roAppProgramService =
         getReadOnlyApplicantProgramService(
             applicant.getApplicantData(),
@@ -1342,6 +1347,9 @@ public final class ApplicantService {
    */
   public Optional<Boolean> getApplicationEligibilityStatus(
       ApplicationModel application, ProgramDefinition programDefinition) {
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // eligibility check only looks at eligibility conditions and whether their questions are
+    // answered, so the value doesn't matter.
     ReadOnlyApplicantProgramService roAppProgramService =
         getReadOnlyApplicantProgramService(
             application, programDefinition, /* enumeratorImprovementsEnabled= */ false);
@@ -2182,7 +2190,8 @@ public final class ApplicantService {
       String blockId,
       Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
-    // Looking up the address question doesn't depend on the enumerator improvements flag.
+    // The enumerator improvements flag only changes block completion and validation checks. This
+    // only looks up the block's address question, so the value doesn't matter.
     return getReadOnlyApplicantProgramService(
             applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
         .thenComposeAsync(

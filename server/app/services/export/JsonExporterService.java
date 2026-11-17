@@ -116,6 +116,8 @@ public final class JsonExporterService {
     Map<Path, ApplicantQuestion> answersToExport = new HashMap<>();
     for (ProgramDefinition pd : programDefinitionsForAllVersions.values()) {
       // We use an empty ApplicantData because these should all be exported as unanswered questions.
+      // The enumerator improvements flag only changes block completion and validation checks.
+      // Listing the questions doesn't use those, so the value doesn't matter.
       applicantService
           .getReadOnlyApplicantProgramService(
               new ApplicantData(), pd, /* enumeratorImprovementsEnabled= */ false)
@@ -213,6 +215,8 @@ public final class JsonExporterService {
         includeScores ? snapshot.readDouble(ApplicationScores.TOTAL_SCORE_PATH) : Optional.empty();
 
     ImmutableMap.Builder<Path, Optional<?>> entriesBuilder = ImmutableMap.builder();
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // export only reads the answers, so the value doesn't matter.
     applicantService
         .getReadOnlyApplicantProgramService(
             application, programDefinition, /* enumeratorImprovementsEnabled= */ false)

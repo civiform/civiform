@@ -113,6 +113,8 @@ public final class CsvExporterService {
       throws ProgramNotFoundException {
     Map<Path, ApplicantQuestion> uniqueQuestions = new HashMap<>();
 
+    // The enumerator improvements flag only changes block completion and validation checks.
+    // Listing the questions doesn't use those, so the value doesn't matter.
     applications.stream()
         .flatMap(
             app ->
@@ -163,6 +165,8 @@ public final class CsvExporterService {
         for (ApplicationModel application : applications) {
           ProgramDefinition programDefForApplication =
               getProgramDefinition.apply(application.getProgram().id);
+          // The enumerator improvements flag only changes block completion and validation checks.
+          // The export only reads the answers, so the value doesn't matter.
           ReadOnlyApplicantProgramService roApplicantService =
               applicantService.getReadOnlyApplicantProgramService(
                   application,

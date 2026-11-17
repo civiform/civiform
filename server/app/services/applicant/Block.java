@@ -231,12 +231,7 @@ public final class Block {
   }
 
   /**
-   * Returns true when this enumerator block uses the initial-question flow: the enumerator
-   * improvements flag is on and the block has an initial question. This matches when the applicant
-   * is shown the initial-question inputs instead of the legacy free-text entity-name input.
-   *
-   * <p>When true, the initial question is required for every entity, including entities that were
-   * entered through the legacy input while the flag was off.
+   * Returns true when this enumerator block should use the initial-question flow.
    *
    * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
    * check in {@link services.applicant.question.EnumeratorQuestion}.
@@ -246,9 +241,8 @@ public final class Block {
   }
 
   /**
-   * Returns the questions that block-level answered, completion, and error checks look at: the
-   * visible questions, plus the initial question contextualized to each entity when the
-   * initial-question flow is active.
+   * Returns the questions that should be used in determining if this block has been correctly
+   * filled out.
    */
   private ImmutableList<ApplicantQuestion> getQuestionsToValidate() {
     if (!initialQuestionFlowIsActive()) {
@@ -501,9 +495,6 @@ public final class Block {
   /**
    * A block has errors if any one of its {@link ApplicantQuestion}s has errors or if there were any
    * failures to update the {@link ApplicantData}.
-   *
-   * <p>The initial question is only checked when the initial-question flow is active. With the
-   * enumerator improvements flag off, the applicant sees the legacy input and can't answer it.
    */
   public boolean hasErrors() {
     return getQuestionsToValidate().stream().anyMatch(ApplicantQuestion::hasErrors)
