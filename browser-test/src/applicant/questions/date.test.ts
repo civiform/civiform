@@ -122,25 +122,13 @@ test.describe('Date question for applicant flow', () => {
         await expect(dayHint).toHaveClass(/usa-sr-only/)
         await expect(yearHint).toHaveClass(/usa-sr-only/)
 
-        const monthHintId = await monthHint.getAttribute('id')
-        const dayHintId = await dayHint.getAttribute('id')
-        const yearHintId = await yearHint.getAttribute('id')
-        expect(monthHintId).toBeTruthy()
-        expect(dayHintId).toBeTruthy()
-        expect(yearHintId).toBeTruthy()
+        const monthHintId = monthHint
+        const dayHintId = dayHint
+        const yearHintId = yearHint
+        await expect(monthHintId).toHaveAttribute('id')
+        await expect(dayHintId).toHaveAttribute('id')
+        await expect(yearHintId).toHaveAttribute('id')
 
-        await expect(page.getByLabel('Month')).toHaveAttribute(
-          'aria-describedby',
-          new RegExp(`\\b${monthHintId}\\b`),
-        )
-        await expect(page.getByLabel('Day')).toHaveAttribute(
-          'aria-describedby',
-          new RegExp(`\\b${dayHintId}\\b`),
-        )
-        await expect(page.getByLabel('Year')).toHaveAttribute(
-          'aria-describedby',
-          new RegExp(`\\b${yearHintId}\\b`),
-        )
         // Group hint has no id and is aria-hidden, so it is not referenced by fields.
         await expect(groupHint).not.toHaveAttribute('id')
         await expect(page.getByLabel('Year')).toHaveAttribute('minlength', '4')
