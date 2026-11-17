@@ -16,6 +16,7 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
@@ -822,8 +823,11 @@ public final class ProgramBlocksView extends ProgramBaseView {
       if (showRepeatedQuestionsSectionStyling) {
         if (!isEnumeratorBlockComplete) {
           programQuestions.with(
-              AlertComponent.renderSlimInfoAlert(
-                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()),
+              AlertComponent.renderSlimAlert(
+                  AlertType.WARNING,
+                  renderAddQuestionDisabledAlertText(
+                      messages, program.id(), optionalParentEnumeratorBlock),
+                  /* hidden= */ false,
                   "maxw-mobile-lg",
                   "margin-bottom-1"));
         }
@@ -1083,6 +1087,29 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
   }
 
+  /**
+   * Renders the text of the alert shown on a repeated screen whose parent list set has no list set
+   * question yet. "previous screen" links to the parent screen when it's known.
+   */
+  private DomContent renderAddQuestionDisabledAlertText(
+      Messages messages, long programId, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    String linkText = messages.at(MessageKey.LINK_REPEATED_SET_PREVIOUS_SCREEN.getKeyName());
+    String linkHtml =
+        optionalParentEnumeratorBlock
+            .map(
+                parent ->
+                    a(linkText)
+                        .withHref(
+                            controllers.admin.routes.AdminProgramBlocksController.edit(
+                                    programId, parent.id())
+                                .url())
+                        .withClass("usa-link")
+                        .render())
+            .orElse(text(linkText).render());
+    return rawHtml(
+        messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName(), linkHtml));
+  }
+
   private DivTag renderEnumeratorQuestionCardSection(
       Messages messages, Optional<DivTag> optionalEnumeratorQuestionCard) {
     DivTag enumeratorQuestionCard = optionalEnumeratorQuestionCard.orElse(div());
@@ -1156,6 +1183,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<QuestionDefinition> optionalInitialQuestion,
       boolean initialQuestionWasNewlyCreated) {
     return div(
+            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+                .withId("repeated-set-question-section-heading")
+                .withClasses("font-bold", "margin-bottom-05", "text-black-700")
+                .with(ViewUtils.requiredQuestionIndicator()),
+            div()
+                .withClasses("font-ui-sm", "text-base", "margin-bottom-1")
+                .with(
+                    span(
+                        messages.at(
+                            MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
                 request,
@@ -1368,31 +1405,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderChooseExistingQuestion(Messages messages, Long programId, Long blockId) {
-    return div(
-            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
-                .withId("repeated-set-question-section-heading")
-                .withClasses("font-bold", "margin-bottom-05", "text-black-700")
-                .with(ViewUtils.requiredQuestionIndicator()),
-            div()
-                .withClasses("font-ui-sm", "text-base", "margin-bottom-1")
-                .with(
-                    span(
-                        messages.at(
-                            MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
-            button("")
-                .withId("add-question")
-                .withClasses("usa-button", "usa-button--outline")
-                .attr(
-                    "hx-get",
-                    controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
-                            programId,
-                            blockId,
-                            ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())
-                        .url())
-                .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
-                .attr("hx-swap", "outerHTML")
-                .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_CHOOSE_EXISTING.getKeyName())))
+    return div(button("")
+            .withId("add-question")
+            .withClass("usa-button")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
+                        programId,
+                        blockId,
+                        ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())
+                    .url())
+            .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+            .attr("hx-swap", "outerHTML")
+            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+            .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_CHOOSE_EXISTING.getKeyName())))
         .withId("add-question-section")
         .withClass("hidden");
   }

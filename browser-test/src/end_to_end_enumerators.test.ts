@@ -1479,8 +1479,15 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(repeatedSetAlert).toBeVisible()
       })
 
-      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
-        await page.getByRole('link', {name: 'Screen 2'}).click()
+      await test.step('Follow the alert link and save an enumerator question on the parent repeated set screen', async () => {
+        await repeatedSetAlert
+          .getByRole('link', {name: 'previous screen'})
+          .click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ false,
+          blockPanel,
+          /* expectedScreenNumber= */ 2,
+        )
         await fillAndSubmitEnumeratorQuestionForm(page, {
           initialQuestion: SAMPLE_QUESTIONS.number,
         })

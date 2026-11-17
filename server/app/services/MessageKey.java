@@ -218,6 +218,7 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
+  LINK_REPEATED_SET_PREVIOUS_SCREEN("link.repeatedSet.previousScreen"),
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
