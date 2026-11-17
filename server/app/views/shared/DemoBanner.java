@@ -8,7 +8,6 @@ import java.util.Optional;
 import lombok.Builder;
 import play.mvc.Http;
 import services.settings.SettingsManifest;
-import views.components.Icons;
 
 /**
  * View model containing values used by {@code shared/DemoBannerFragment.html} and the Applicant
@@ -89,9 +88,5 @@ public record DemoBanner(
 
   public String additionalToolsUrl() {
     return controllers.dev.routes.DevToolsController.index().url();
-  }
-
-  public Icons cogIcon() {
-    return Icons.COG;
   }
 }

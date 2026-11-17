@@ -657,6 +657,10 @@ hr.code-separator {
 
 // Demo banner custom background color and responsive layout
 .usa-site-alert.cf-demo-banner {
+  .usa-alert {
+    border: none;
+  }
+
   .usa-alert,
   .usa-alert .usa-alert__body {
     background-color: #e7f0f9;
