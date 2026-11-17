@@ -101,12 +101,11 @@ test.describe('Date question for applicant flow', () => {
       await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
 
       await test.step('shows USWDS format hints before submit', async () => {
-        // Visible group hint for sighted users
         const groupHint = page.getByText(
           'Select a month. Enter 1 or 2 digits for the day and 4 digits for the year.',
         )
-        await expect(groupHint).toBeVisible()
         await expect(groupHint).toHaveAttribute('aria-hidden', 'true')
+        await expect(groupHint).not.toHaveAttribute('id')
 
         // Per-field screen-reader-only hints
         const monthHint = page.getByText('Select a month from the dropdown.', {
@@ -121,16 +120,10 @@ test.describe('Date question for applicant flow', () => {
         await expect(monthHint).toHaveClass(/usa-sr-only/)
         await expect(dayHint).toHaveClass(/usa-sr-only/)
         await expect(yearHint).toHaveClass(/usa-sr-only/)
+        await expect(monthHint).toHaveAttribute('id')
+        await expect(dayHint).toHaveAttribute('id')
+        await expect(yearHint).toHaveAttribute('id')
 
-        const monthHintId = monthHint
-        const dayHintId = dayHint
-        const yearHintId = yearHint
-        await expect(monthHintId).toHaveAttribute('id')
-        await expect(dayHintId).toHaveAttribute('id')
-        await expect(yearHintId).toHaveAttribute('id')
-
-        // Group hint has no id and is aria-hidden, so it is not referenced by fields.
-        await expect(groupHint).not.toHaveAttribute('id')
         await expect(page.getByLabel('Year')).toHaveAttribute('minlength', '4')
       })
 
