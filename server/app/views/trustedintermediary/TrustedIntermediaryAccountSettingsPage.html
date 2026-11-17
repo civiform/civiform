@@ -1,0 +1,83 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TrustedIntermediaryAccountSettingsPageViewModel"*/-->
+<!--/* Flash error toast, consumed by toast.ts; the layout renders this
+       fragment in the page header. Error toasts are not dismissible: the
+       ToastMessage constructor overrides the canDismiss=true field default
+       for ERROR. */-->
+<th:block th:fragment="toasts">
+  <div
+    th:if="${model.errorMessage != null}"
+    th:id="${model.errorToastId}"
+    class="hidden cf-toast-data"
+    canDismiss="false"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    toastType="ERROR"
+    th:text="${model.errorMessage}"
+  ></div>
+</th:block>
+
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy wrapper, so these are the
+         direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="py-16 px-20 ti-header-band" th:text="${model.tiGroupName}"></h1>
+  <nav
+    th:replace="~{trustedintermediary/fragments/TabButtons :: tabButtons(${model.clientListUrl}, ${model.accountSettingsUrl}, 'ACCOUNT_SETTINGS')}"
+  ></nav>
+  <div>
+    <!--/* renderSubHeader's "mb-4" was replaced by the later withClasses call,
+           so only the header band classes remain. */-->
+    <h2
+      class="flex items-center h-24 px-20 ti-header-band mb-10"
+      th:text="#{header.acctSettings}"
+    ></h2>
+    <div class="px-20">
+      <h3 class="mt-8" th:text="#{title.orgMembers}"></h3>
+      <div>
+        <table
+          data-testid="org-members-table"
+          class="usa-table usa-table--striped w-5/6"
+        >
+          <thead>
+            <tr>
+              <th
+                scope="col"
+                data-testid="org-members-name"
+                class="w-1/3"
+                th:text="#{label.name}"
+              ></th>
+              <th
+                scope="col"
+                data-testid="org-members-email"
+                class="w-2/5"
+                th:text="#{label.email}"
+              ></th>
+              <th
+                scope="col"
+                data-testid="org-members-status"
+                class="w-1/5"
+                th:text="#{label.acctStatus}"
+              ></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="member : ${model.members}"
+              class="cf-admin-question-table-row"
+            >
+              <td th:text="${member.displayName}"></td>
+              <td
+                class="cf-bt-email"
+                th:text="${member.emailAddress != null} ? ${member.emailAddress} : '(no email address)'"
+              ></td>
+              <td
+                th:text="${member.signedIn} ? 'OK' : 'Not yet signed in.'"
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</th:block>
