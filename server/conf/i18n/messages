@@ -1288,9 +1288,9 @@ input.repeatedSet.maxListCount=Maximum list count
 label.repeatedSet.initialQuestion=Initial question
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
-# Second paragraph of the initial question description, explaining that choosing an existing question saves a copy of it
+# Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
-# Third paragraph of the initial question description, shown in italics, explaining which prompt and hint text applicants see
+# Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Admin id:
@@ -1354,7 +1354,7 @@ heading.repeatedSet.previouslyUsed=Previously used for this list set
 heading.repeatedSet.questionBank=Add a list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Repeated questions
-# Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, for example "household member".
+# Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
