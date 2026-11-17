@@ -1,0 +1,50 @@
+%NAME clientCard - account without an applicant keeps empty placeholders
+%TEMPLATE_MODE HTML
+%CONTEXT
+client = @views.trustedintermediary.TrustedIntermediaryClientListPageViewModel$Client@builder() \
+    .displayName("<Unnamed User>") \
+    .editUrl("/admin/tiDash/editClientForm/7") \
+    .hasApplicant(false) \
+    .notes("") \
+    .build()
+%MESSAGES
+link.edit=Edit
+button.viewApplications=View applications
+label.contactInfo=Contact Information
+content.oneAppSubmitted=1 application submitted
+content.numberOfAppSubmitted={0} applications submitted
+label.notes=Notes
+# ----------------------------------------------------------------------
+%INPUT
+<li th:replace="~{trustedintermediary/fragments/ClientCard :: clientCard(${client})}"></li>
+# ----------------------------------------------------------------------
+%OUTPUT
+<li class="usa-card grid-col-12">
+  <div class="usa-card__container">
+    <div class="usa-card__header flex justify-between">
+      <div class="flex-col">
+        <div class="flex">
+          <h2 class="usa-card__heading">&lt;Unnamed User&gt;</h2>
+          <u class="ml-2"
+            ><a
+              id="edit-client"
+              href="/admin/tiDash/editClientForm/7"
+              class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+              >Edit</a
+            ></u
+          >
+        </div>
+        <div></div>
+      </div>
+      <div></div>
+    </div>
+    <div class="usa-card__body flex">
+      <div class="w-2/5"></div>
+      <div class="ml-10 w-2/5"></div>
+      <div class="ml-10 w-3/5">
+        <label for="card_notes">Notes</label>
+        <p class="text-xs" id="card_notes"></p>
+      </div>
+    </div>
+  </div>
+</li>

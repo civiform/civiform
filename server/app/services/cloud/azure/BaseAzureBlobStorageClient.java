@@ -3,10 +3,21 @@ package services.cloud.azure;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.models.BlobCorsRule;
 import com.azure.storage.blob.models.BlobServiceProperties;
+import com.azure.storage.blob.sas.BlobSasPermission;
 import java.util.List;
 
 /** Implements common logic for the Azure blob storage client. */
 abstract class BaseAzureBlobStorageClient implements AzureBlobStorageClientInterface {
+  /** Returns the permissions for download SAS tokens, which can only read. */
+  static BlobSasPermission downloadSasPermission() {
+    return new BlobSasPermission().setReadPermission(true);
+  }
+
+  /** Returns the permissions for upload SAS tokens, which can read and write. */
+  static BlobSasPermission uploadSasPermission() {
+    return new BlobSasPermission().setReadPermission(true).setWritePermission(true);
+  }
+
   protected void setCorsRules(BlobServiceClient blobServiceClient, String baseUrl) {
     BlobServiceProperties properties =
         new BlobServiceProperties()

@@ -1,12 +1,31 @@
 <!--/*
   USWDS pagination control, legacy BaseHtmlView.renderPagination-parity
-  markup for migrated admin pages. Which page buttons and ellipses appear
-  is decided by mapping.admin.shared.LegacyPaginationMapper; this fragment
-  only renders the resulting views.admin.shared.LegacyPagination.
+  markup for migrated pages. Which page buttons and ellipses appear
+  is decided by mapping.admin.shared.LegacyPaginationMapper; these fragments
+  only render the resulting views.admin.shared.LegacyPagination.
+
+  The legacy renderer localized the arrow labels only when it was handed
+  Messages, so there is one fragment per case:
+    pagination          - English labels, for admin pages
+    localizedPagination - labels in the viewer's language, for the pages
+                          trusted intermediaries and applicants see
 */-->
 <!--/*@thymesVar id="pagination" type="views.admin.shared.LegacyPagination"*/-->
+<th:block th:fragment="pagination(pagination)">
+  <nav
+    th:replace="~{:: paginationNav(${pagination}, 'Previous', 'Next')}"
+  ></nav>
+</th:block>
+
+<th:block th:fragment="localizedPagination(pagination)">
+  <nav
+    th:replace="~{:: paginationNav(${pagination}, #{button.previousScreen}, #{button.nextPage})}"
+  ></nav>
+</th:block>
+
+<!--/* The control itself; use one of the two fragments above. */-->
 <nav
-  th:fragment="pagination(pagination)"
+  th:fragment="paginationNav(pagination, previousLabel, nextLabel)"
   class="usa-pagination"
   aria-label="Pagination"
 >
@@ -23,7 +42,10 @@
         <svg
           th:replace="~{admin/shared/LegacySvgFragments :: iconNavigateBefore('usa-icon h-4 w-4')}"
         ></svg>
-        <span class="usa-pagination__link-text">Previous</span>
+        <span
+          class="usa-pagination__link-text"
+          th:text="${previousLabel}"
+        ></span>
       </a>
     </li>
     <th:block th:each="item : ${pagination.items}">
@@ -58,7 +80,7 @@
         aria-label="Next page"
         th:href="${pagination.nextPageUrl}"
       >
-        <span class="usa-pagination__link-text">Next</span>
+        <span class="usa-pagination__link-text" th:text="${nextLabel}"></span>
         <svg
           th:replace="~{admin/shared/LegacySvgFragments :: iconNavigateNext('usa-icon h-4 w-4')}"
         ></svg>

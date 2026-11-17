@@ -11,9 +11,11 @@ import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
 import controllers.BadRequestException;
+import controllers.FlashKey;
 import forms.TiClientInfoForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.trustedintermediary.TrustedIntermediaryClientListPageMapper;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
@@ -24,15 +26,20 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.AccountRepository;
 import repository.SearchParameters;
+import services.DateConverter;
 import services.applicant.ApplicantPersonalInfo;
 import services.applicant.ApplicantPersonalInfo.Representation;
 import services.applicant.exception.ApplicantNotFoundException;
 import services.pagination.PaginationInfo;
+import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.ti.AddNewApplicantReturnObject;
 import services.ti.TrustedIntermediarySearchResult;
 import services.ti.TrustedIntermediaryService;
 import views.trustedintermediary.EditTiClientView;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsView;
+import views.trustedintermediary.TrustedIntermediaryClientListPageView;
+import views.trustedintermediary.TrustedIntermediaryClientListPageViewModel;
 import views.trustedintermediary.TrustedIntermediaryClientListView;
 
 /**
@@ -50,6 +57,10 @@ public final class TrustedIntermediaryController {
   private final TrustedIntermediaryService tiService;
   private final EditTiClientView editTiClientView;
   private final TrustedIntermediaryAccountSettingsView tiAccountSettingsView;
+  private final SettingsManifest settingsManifest;
+  private final TrustedIntermediaryClientListPageView tiClientListPageView;
+  private final ProgramService programService;
+  private final DateConverter dateConverter;
 
   @Inject
   public TrustedIntermediaryController(
@@ -60,7 +71,11 @@ public final class TrustedIntermediaryController {
       TrustedIntermediaryClientListView trustedIntermediaryClientListView,
       TrustedIntermediaryService tiService,
       EditTiClientView editTiClientView,
-      TrustedIntermediaryAccountSettingsView tiAccountSettingsView) {
+      TrustedIntermediaryAccountSettingsView tiAccountSettingsView,
+      SettingsManifest settingsManifest,
+      TrustedIntermediaryClientListPageView tiClientListPageView,
+      ProgramService programService,
+      DateConverter dateConverter) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
     this.tiClientListView = Preconditions.checkNotNull(trustedIntermediaryClientListView);
     this.accountRepository = Preconditions.checkNotNull(accountRepository);
@@ -69,6 +84,10 @@ public final class TrustedIntermediaryController {
     this.tiService = Preconditions.checkNotNull(tiService);
     this.editTiClientView = Preconditions.checkNotNull(editTiClientView);
     this.tiAccountSettingsView = Preconditions.checkNotNull(tiAccountSettingsView);
+    this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.tiClientListPageView = Preconditions.checkNotNull(tiClientListPageView);
+    this.programService = Preconditions.checkNotNull(programService);
+    this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
 
   @Secure(authorizers = Authorizers.Labels.TI)
@@ -104,6 +123,22 @@ public final class TrustedIntermediaryController {
     }
     PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      TrustedIntermediaryClientListPageViewModel model =
+          new TrustedIntermediaryClientListPageMapper()
+              .map(
+                  trustedIntermediaryGroup.get(),
+                  pageInfo.getPageItems(),
+                  pageInfo.getPageCount(),
+                  pageInfo.getPage(),
+                  searchParameters,
+                  settingsManifest.getBaseUrl().orElse(""),
+                  programService,
+                  dateConverter,
+                  request.flash().get(FlashKey.ERROR));
+      return ok(tiClientListPageView.render(request, model)).as(Http.MimeTypes.HTML);
+    }
 
     Optional<String> applicantName =
         civiformProfile.getApplicant().join().getApplicantDisplayName();
