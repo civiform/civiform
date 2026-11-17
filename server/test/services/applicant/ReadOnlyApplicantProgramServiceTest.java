@@ -2121,11 +2121,11 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getInProgressBlockAfter_legacyEntitiesInAnotherProgram_dependsOnFlag() {
+  public void getInProgressBlockAfter_legacyEntitiesInAnotherProgram_withFlagOff_returnsEmpty() {
     programDefinition = setUpProgramWithInitialQuestionEnumerator();
     answerNameQuestion(programDefinition.id());
     answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id() + 1);
-    ReadOnlyApplicantProgramService flagOffSubject =
+    ReadOnlyApplicantProgramService subject =
         new ReadOnlyApplicantProgramService(
             jsonPathPredicateGeneratorFactory,
             applicant,
@@ -2133,12 +2133,21 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             programDefinition,
             /* failedUpdates= */ ImmutableMap.of(),
             /* enumeratorImprovementsEnabled= */ false);
-    ReadOnlyApplicantProgramService flagOnSubject = subjectWithEnumeratorImprovements();
 
-    // With the flag off, the enumerator block was completed in another program, so it's skipped.
-    assertThat(flagOffSubject.getInProgressBlockAfter("1")).isEmpty();
-    // With the flag on, the initial question still needs an answer for each entity.
-    Optional<Block> maybeBlock = flagOnSubject.getInProgressBlockAfter("1");
+    // The enumerator block was completed in another program, so it's skipped.
+    assertThat(subject.getInProgressBlockAfter("1")).isEmpty();
+  }
+
+  @Test
+  public void
+      getInProgressBlockAfter_legacyEntitiesInAnotherProgram_withFlagOn_returnsEnumerator() {
+    programDefinition = setUpProgramWithInitialQuestionEnumerator();
+    answerNameQuestion(programDefinition.id());
+    answerEnumeratorWithLegacyInput(/* programId= */ programDefinition.id() + 1);
+    ReadOnlyApplicantProgramService subject = subjectWithEnumeratorImprovements();
+
+    // The initial question still needs an answer for each entity.
+    Optional<Block> maybeBlock = subject.getInProgressBlockAfter("1");
     assertThat(maybeBlock).isPresent();
     assertThat(maybeBlock.get().getName()).isEqualTo("Enumerator block");
   }
