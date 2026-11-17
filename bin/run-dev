@@ -13,8 +13,8 @@ docker::set_project_name_dev
 truth::declare_var_false runprod
 truth::declare_var_false is_keycloak
 
-# Default to using Localstack emulator.
-emulators::set_localstack_emulator_vars
+# Default to using the Floci AWS emulator.
+emulators::set_floci_emulator_vars
 
 #######################################
 # Process the script's commandline args.

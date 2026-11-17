@@ -1,0 +1,40 @@
+#! /usr/bin/env bash
+
+# DOC: Poll Floci and block until it is ready, including its init hook.
+
+source bin/lib.sh
+
+floci_endpoint="http://localhost:4566"
+
+if [ "$1" ]; then
+  floci_endpoint="${1}"
+fi
+
+echo "Using Floci endpoint: ${floci_endpoint}"
+
+START_TIME="$(date +%s)"
+DEADLINE="$(($START_TIME + 200))"
+
+echo "Waiting for Floci to get set up..."
+
+# /_floci/init reports "ready":true under "completed" once the ready hooks
+# have run. The hook in bin/floci/init/ready.d creates the S3 buckets and
+# verifies the SES sender, so emails and uploads work once this passes. If the
+# hook fails, Floci shuts down and this times out; check the floci container
+# logs.
+ready() {
+  [[ "${1}" == *'"ready":true'* ]]
+}
+
+readonly INIT_URL="${floci_endpoint}/_floci/init"
+
+until ready "$(curl --silent --fail --max-time 2 "${INIT_URL}")"; do
+  if (("$(date +%s)" > "${DEADLINE}")); then
+    out::error "deadline exceeded waiting for Floci start; check the floci container logs"
+    exit 1
+  fi
+
+  sleep 1
+done
+
+echo "Floci is ready"

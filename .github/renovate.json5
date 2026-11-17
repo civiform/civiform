@@ -130,12 +130,6 @@
       ],
       labels: ["dependencies", "ignore-for-release"],
     },
-    // Keep localstack on v4.x due to licensing changes
-    {
-      matchPackageNames: ["localstack/localstack"],
-      matchManagers: ["docker-compose"],
-      allowedVersions: "<5.0.0",
-    },
     {
       matchPackageNames: ["postgres"],
       allowedVersions: "<17.0.0",
@@ -192,6 +186,10 @@
     {
       matchPackageNames: ["docker/setup-qemu-action"],
       prHeader: "Release Notes: https://github.com/docker/setup-qemu-action/releases",
+    },
+    {
+      matchPackageNames: ["floci/floci"],
+      prHeader: "Release Notes: https://github.com/floci-io/floci/releases",
     },
     {
       matchPackageNames: ["github/codeql-action"],

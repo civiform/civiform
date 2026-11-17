@@ -170,11 +170,11 @@ public class DevToolsView extends BaseHtmlView {
                 .withTarget("_blank"),
             createLink(
                     "\uD83D\uDCC1 S3 Private Bucket",
-                    "http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3")
+                    "http://localhost.localstack.cloud:4566/civiform-local-s3")
                 .withTarget("_blank"),
             createLink(
                     "\uD83D\uDCC1 S3 Public Bucket",
-                    "http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public")
+                    "http://localhost.localstack.cloud:4566/civiform-local-s3-public")
                 .withTarget("_blank"));
   }
 

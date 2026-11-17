@@ -7,7 +7,7 @@ services:
       - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
     command: -c 'config_file=/etc/postgresql/postgresql.conf'
 
-  localstack:
+  floci:
     ports:
       - 6645:4566
 

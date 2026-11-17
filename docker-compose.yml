@@ -1,17 +1,26 @@
 # Use postgres/example user/password credentials
 services:
-  localstack:
-    image: localstack/localstack:4.14.0@sha256:3ebc37595918b8accb852f8048fef2aff047d465167edd655528065b07bc364a
+  # Floci AWS emulator for S3 and SES. The -compat image bundles the AWS CLI,
+  # which the init hook uses to create the buckets and verify the sender.
+  floci:
+    image: floci/floci:2.5.0-compat@sha256:e84b1be922a9406852d88d5c7cdf9f76cdf83045bcf21a39d35b80473e433f39
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
     environment:
-      - SERVICES=s3,ses
+      # Unsigned requests (such as the dev tools bucket links) use this region.
+      - FLOCI_DEFAULT_REGION=us-west-2
+      - SENDER_EMAIL_ADDRESS
+    volumes:
+      # Floci keeps state in memory, so this hook runs on every container start
+      # to recreate the buckets and re-verify the SES sender.
+      - ./bin/floci/init/ready.d:/etc/floci/init/ready.d:ro
     networks:
       default:
         aliases:
           # We use hosted-style for s3 bucket urls. Which matches production.
-          # https://docs.localstack.cloud/user-guide/aws/s3/
+          # Floci accepts the LocalStack hostnames, so we keep them.
+          # https://github.com/floci-io/floci/blob/main/docs/services/s3.md
           # So we need to add host mapping for test bucket civiform-local-s3
           # and civiform-local-s3-public
           - civiform-local-s3.s3.localhost.localstack.cloud
