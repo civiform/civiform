@@ -829,8 +829,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             QuestionType.ENUMERATOR.toString());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("Enumerator question must have specified entity type");
+    assertThat(StringEscapeUtils.unescapeHtml4(contentAsString(result)))
+        .contains("Enter an answer for \"What is being listed?\"");
     assertListedEntityAndInitialQuestionShown(contentAsString(result));
   }
 

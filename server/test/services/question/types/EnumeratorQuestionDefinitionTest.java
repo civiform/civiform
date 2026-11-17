@@ -27,6 +27,52 @@ public class EnumeratorQuestionDefinitionTest {
         .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));
   }
 
+  @Test
+  public void validate_withEmptyEntityStringAndEnumeratorImprovementsEnabled_returnsListSetError() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            makeConfigBuilder().build(), LocalizedStrings.withDefaultValue(""));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ true))
+        .containsOnly(CiviFormError.of("Enter an answer for \"What is being listed?\""));
+  }
+
+  @Test
+  public void
+      validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsDisabled_returnsDefaultErrors() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            makeConfigBuilder().setName("").setQuestionText(LocalizedStrings.of()).build(),
+            LocalizedStrings.withDefaultValue("foo"));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ false))
+        .containsOnly(
+            CiviFormError.of("Administrative identifier cannot be blank"),
+            CiviFormError.of("Question text cannot be blank"));
+  }
+
+  @Test
+  public void
+      validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsEnabled_returnsListSetErrors() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            makeConfigBuilder().setName("").setQuestionText(LocalizedStrings.of()).build(),
+            LocalizedStrings.withDefaultValue("foo"));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ true))
+        .containsOnly(
+            CiviFormError.of("Enter list set admin ID"), CiviFormError.of("Enter prompt text"));
+  }
+
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
   private static ImmutableList<Object[]> getValidationTestData() {
     return ImmutableList.of(
@@ -83,21 +129,21 @@ public class EnumeratorQuestionDefinitionTest {
   private static ImmutableList<Object[]> getValidationWithEnumeratorImprovementsTestData() {
     return ImmutableList.of(
         new Object[] {
-          OptionalInt.of(-1), OptionalInt.empty(), "Minimum list count cannot be negative"
+          OptionalInt.of(-1), OptionalInt.empty(), "Enter a minimum list count of 0 or more"
         },
         new Object[] {
-          OptionalInt.empty(), OptionalInt.of(0), "Maximum list count cannot be less than 1"
+          OptionalInt.empty(), OptionalInt.of(0), "Enter a maximum list count of 1 or more"
         },
         new Object[] {
           OptionalInt.of(2),
           OptionalInt.of(1),
-          "Minimum list count must be less than or equal to the maximum list count"
+          "Enter a minimum list count that is less than or equal to the maximum list count"
         });
   }
 
   @Test
   @Parameters(method = "getValidationWithEnumeratorImprovementsTestData")
-  public void validate_withEnumeratorImprovementsEnabled_usesListCountWording(
+  public void validate_withEnumeratorImprovementsEnabled_usesListSetWording(
       OptionalInt minEntities, OptionalInt maxEntities, String expectedErrorMessage) {
     QuestionDefinitionConfig config =
         makeConfigBuilder()
