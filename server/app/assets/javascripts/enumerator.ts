@@ -30,6 +30,9 @@ export function init() {
   document.addEventListener('htmx:afterSettle', (event) => {
     if (event.detail.target.id === 'enumerator-fields') {
       updateListeners()
+      // The server numbers the new row by its position among all rows, including hidden removed
+      // rows, so relabel it by its visible position before the Add button's aria is synced.
+      repaintAllLabelsAndButtons()
       syncAddButtonAria()
       focusFirstInputInLastEntity()
     }
