@@ -16,7 +16,9 @@ import forms.TiClientInfoForm;
 import java.util.Optional;
 import javax.inject.Inject;
 import mapping.trustedintermediary.TrustedIntermediaryAccountSettingsPageMapper;
+import mapping.trustedintermediary.TrustedIntermediaryAddClientPageMapper;
 import mapping.trustedintermediary.TrustedIntermediaryClientListPageMapper;
+import mapping.trustedintermediary.TrustedIntermediaryEditClientPageMapper;
 import models.AccountModel;
 import models.TrustedIntermediaryGroupModel;
 import org.pac4j.play.java.Secure;
@@ -41,9 +43,13 @@ import views.trustedintermediary.EditTiClientView;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsPageView;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsPageViewModel;
 import views.trustedintermediary.TrustedIntermediaryAccountSettingsView;
+import views.trustedintermediary.TrustedIntermediaryAddClientPageView;
+import views.trustedintermediary.TrustedIntermediaryAddClientPageViewModel;
 import views.trustedintermediary.TrustedIntermediaryClientListPageView;
 import views.trustedintermediary.TrustedIntermediaryClientListPageViewModel;
 import views.trustedintermediary.TrustedIntermediaryClientListView;
+import views.trustedintermediary.TrustedIntermediaryEditClientPageView;
+import views.trustedintermediary.TrustedIntermediaryEditClientPageViewModel;
 
 /**
  * Controller for handling methods for an trusted intermediary managing their clients and applying
@@ -63,6 +69,8 @@ public final class TrustedIntermediaryController {
   private final SettingsManifest settingsManifest;
   private final TrustedIntermediaryClientListPageView tiClientListPageView;
   private final TrustedIntermediaryAccountSettingsPageView tiAccountSettingsPageView;
+  private final TrustedIntermediaryAddClientPageView tiAddClientPageView;
+  private final TrustedIntermediaryEditClientPageView tiEditClientPageView;
   private final ProgramService programService;
   private final DateConverter dateConverter;
 
@@ -79,6 +87,8 @@ public final class TrustedIntermediaryController {
       SettingsManifest settingsManifest,
       TrustedIntermediaryClientListPageView tiClientListPageView,
       TrustedIntermediaryAccountSettingsPageView tiAccountSettingsPageView,
+      TrustedIntermediaryAddClientPageView tiAddClientPageView,
+      TrustedIntermediaryEditClientPageView tiEditClientPageView,
       ProgramService programService,
       DateConverter dateConverter) {
     this.profileUtils = Preconditions.checkNotNull(profileUtils);
@@ -92,6 +102,8 @@ public final class TrustedIntermediaryController {
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
     this.tiClientListPageView = Preconditions.checkNotNull(tiClientListPageView);
     this.tiAccountSettingsPageView = Preconditions.checkNotNull(tiAccountSettingsPageView);
+    this.tiAddClientPageView = Preconditions.checkNotNull(tiAddClientPageView);
+    this.tiEditClientPageView = Preconditions.checkNotNull(tiEditClientPageView);
     this.programService = Preconditions.checkNotNull(programService);
     this.dateConverter = Preconditions.checkNotNull(dateConverter);
   }
@@ -207,6 +219,15 @@ public final class TrustedIntermediaryController {
     if (!trustedIntermediaryGroup.get().id.equals(id)) {
       return unauthorized();
     }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderAddClientPage(
+          request,
+          trustedIntermediaryGroup.get(),
+          /* submittedForm= */ Optional.empty(),
+          /* newClientApplicantId= */ Optional.empty());
+    }
+
     Optional<String> applicantName = civiformProfile.getApplicant().join().getApplicantName();
 
     return ok(
@@ -236,6 +257,15 @@ public final class TrustedIntermediaryController {
     if (!isManagedAccount) {
       return forbidden();
     }
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderEditClientPage(
+          request,
+          trustedIntermediaryGroup.get(),
+          accountId,
+          /* submittedForm= */ Optional.empty());
+    }
+
     String applicantName =
         accountRepository.lookupAccount(accountId).get().getApplicantDisplayName();
     return ok(
@@ -268,6 +298,15 @@ public final class TrustedIntermediaryController {
             trustedIntermediaryGroup.get(),
             messagesApi.preferred(request));
     Form<TiClientInfoForm> form = addNewApplicantReturnObject.getForm();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderAddClientPage(
+          request,
+          trustedIntermediaryGroup.get(),
+          Optional.of(form),
+          Optional.ofNullable(addNewApplicantReturnObject.getApplicantId()));
+    }
+
     return ok(
         editTiClientView.render(
             /* tiGroup= */ trustedIntermediaryGroup.get(),
@@ -297,6 +336,11 @@ public final class TrustedIntermediaryController {
     form =
         tiService.updateClientInfo(
             form, trustedIntermediaryGroup.get(), id, messagesApi.preferred(request));
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderEditClientPage(request, trustedIntermediaryGroup.get(), id, Optional.of(form));
+    }
+
     return ok(
         editTiClientView.render(
             /* tiGroup= */ trustedIntermediaryGroup.get(),
@@ -311,6 +355,49 @@ public final class TrustedIntermediaryController {
             /* applicantIdOfTi= */ getTiApplicantIdFromCiviformProfile(civiformProfile),
             /* tiClientInfoForm= */ Optional.of(form),
             /* applicantIdOfNewlyAddedClient= */ null));
+  }
+
+  /** Renders the Thymeleaf add client page, on first show and after a submission. */
+  private Result renderAddClientPage(
+      Http.Request request,
+      TrustedIntermediaryGroupModel tiGroup,
+      Optional<Form<TiClientInfoForm>> submittedForm,
+      Optional<Long> newClientApplicantId) {
+    TrustedIntermediaryAddClientPageViewModel model =
+        new TrustedIntermediaryAddClientPageMapper()
+            .map(
+                tiGroup,
+                submittedForm,
+                newClientApplicantId,
+                settingsManifest.getNameSuffixDropdownEnabled(request),
+                settingsManifest.getBaseUrl().orElse(""),
+                dateConverter,
+                messagesApi.preferred(request));
+
+    return ok(tiAddClientPageView.render(request, model)).as(Http.MimeTypes.HTML);
+  }
+
+  /** Renders the Thymeleaf edit client page, on first show and after a submission. */
+  private Result renderEditClientPage(
+      Http.Request request,
+      TrustedIntermediaryGroupModel tiGroup,
+      Long accountId,
+      Optional<Form<TiClientInfoForm>> submittedForm) {
+    // The legacy view looked the account up the same way.
+    AccountModel account = accountRepository.lookupAccount(accountId).get();
+
+    TrustedIntermediaryEditClientPageViewModel model =
+        new TrustedIntermediaryEditClientPageMapper()
+            .map(
+                tiGroup,
+                account,
+                submittedForm,
+                settingsManifest.getNameSuffixDropdownEnabled(request),
+                settingsManifest.getBaseUrl().orElse(""),
+                dateConverter,
+                messagesApi.preferred(request));
+
+    return ok(tiEditClientPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   private Long getTiApplicantIdFromCiviformProfile(CiviFormProfile civiformProfile) {

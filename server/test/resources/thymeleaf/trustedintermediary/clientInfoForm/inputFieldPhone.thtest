@@ -1,0 +1,28 @@
+%NAME inputField - optional input with inputmode and placeholder
+%TEMPLATE_MODE HTML
+%CONTEXT
+field = new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("", @com.google.common.collect.ImmutableList@of())
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{trustedintermediary/fragments/ClientInfoForm :: inputField('text', 'phone-number-input', 'phoneNumber', 'Phone number (optional)', false, ${field}, 'tel', '(xxx) xxx-xxxx', null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-2">
+  <label for="phone-number-input" class="usa-label mt-0"
+    >Phone number (optional)<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <input
+      type="text"
+      inputmode="tel"
+      value=""
+      maxlength="10000"
+      id="phone-number-input"
+      name="phoneNumber"
+      placeholder="(xxx) xxx-xxxx"
+      class="usa-input"
+    />
+    <div id="phone-number-input-errors" class="text-red-600 text-xs p-1 hidden">
+    </div>
+  </div>
+</div>

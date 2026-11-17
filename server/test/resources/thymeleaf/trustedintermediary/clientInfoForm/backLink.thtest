@@ -1,0 +1,18 @@
+%NAME backLink - arrow icon then the text
+%TEMPLATE_MODE HTML
+%MESSAGES
+button.backToClientList=Back to client list
+# ----------------------------------------------------------------------
+%INPUT
+<a th:replace="~{trustedintermediary/fragments/ClientInfoForm :: backLink('https://civiform.example.com/admin/tiDash?page=1')}"></a>
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconInfo(classes)" th:text="|iconInfo(${classes})|"></svg>
+<svg th:fragment="iconArrowLeft(classes)" th:text="|iconArrowLeft(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<a
+  id="ti-dashboard-link"
+  href="https://civiform.example.com/admin/tiDash?page=1"
+  class="text-blue-600 hover:text-blue-500 inline-flex items-center underline"
+  ><svg>iconArrowLeft(mr-2 w-5 h-5)</svg>Back to client list</a
+>
