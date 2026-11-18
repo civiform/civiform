@@ -2303,8 +2303,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expectSeasons(['Summer', FALL])
       })
 
-      await test.step('Change the remaining first season after removing the other one', async () => {
-        await removeSeason(2)
+      await test.step('Remove the first saved season and change the one that remains', async () => {
+        // An edit to a row after a removed saved row used to be deleted with it, so the old
+        // answer stayed.
+        await removeSeason(1)
         await blockForm
           .getByText(WINTER, {exact: true})
           .locator('visible=true')
