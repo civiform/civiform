@@ -163,19 +163,19 @@ class GitHub:
 
 
 def parse_summary(log_text):
-  """Returns {"failed": [...], "flaky": [...], "found_summary": bool}.
+  """Returns {"failed": [...], "flaky": [...], "has_test_results": bool}.
 
   Tests are identified as "file › describe › title" without line/column, so a
   test is still grouped with itself after its file is edited.
   """
-  result = {"failed": set(), "flaky": set(), "found_summary": False}
+  result = {"failed": set(), "flaky": set(), "has_test_results": False}
   section = None
   for raw in log_text.splitlines():
     line = ANSI_RE.sub("", TIMESTAMP_RE.sub("", raw)).rstrip()
     header = SECTION_RE.match(line)
     if header:
       section = header.group(2)
-      result["found_summary"] = True
+      result["has_test_results"] = True
       continue
     entry = ENTRY_RE.match(line) if section in ("failed", "flaky") else None
     if entry:
@@ -348,7 +348,7 @@ def aggregate(records, max_failures):
 
 
 def print_report(ranked, records, ignored, skipped, top):
-  parsed = [r for r in records if r["found_summary"]]
+  parsed = [r for r in records if r["has_test_results"]]
   dates = sorted(r["created_at"] for r in parsed if r["created_at"])
 
   print()
@@ -382,7 +382,7 @@ def print_report(ranked, records, ignored, skipped, top):
 
 
 def write_csv(path, ranked, records):
-  runs = sum(1 for r in records if r["found_summary"])
+  runs = sum(1 for r in records if r["has_test_results"])
   with open(path, "w", newline="") as f:
     w = csv.writer(f)
     w.writerow(["test", "flaky", "failed", "rate_pct", "last_seen", "last_job_url"])
