@@ -262,7 +262,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses("mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.EMAIL)
-                                    // 4.5 is 18px as defined in tailwind.config.js
+                                    // 4.5 is 18px as defined in tailwind.css
                                     .withClasses("mr-2", "inline-block", "h-4.5", "w-4.5"),
                                 span("Applicant notification email added"))),
                 div().withClass("flex-grow"),
@@ -273,7 +273,7 @@ public final class ProgramStatusesView extends BaseHtmlView {
                         p().withClasses("mt-1", "text-xs", "flex", "items-center")
                             .with(
                                 Icons.svg(Icons.CHECK)
-                                    // 4.5 is 18px as defined in tailwind.config.js
+                                    // 4.5 is 18px as defined in tailwind.css
                                     .withClasses("mr-2", "inline-block", "h-4.5", "w-4.5"),
                                 span("Default status"))),
                 div().withClass("flex-grow"),

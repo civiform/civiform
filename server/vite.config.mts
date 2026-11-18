@@ -32,7 +32,6 @@ const assetPaths = {
   uswds_js: 'node_modules/@uswds/uswds/dist/js/uswds.min.js',
   uswdsinit_js: 'node_modules/@uswds/uswds/dist/js/uswds-init.min.js',
   northstar_css: 'app/assets/stylesheets/northstar/styles.scss',
-  tailwind: 'app/assets/stylesheets/styles.css',
   maplibregl_css: 'node_modules/maplibre-gl/dist/maplibre-gl.css',
   swaggerui_css: 'node_modules/swagger-ui-dist/swagger-ui.css',
   swaggerui_js: 'node_modules/swagger-ui-dist/swagger-ui-bundle.js',
@@ -72,7 +71,6 @@ export default defineConfig({
         assetPaths.uswds_css,
         assetPaths.northstar_css,
         assetPaths.maplibregl_css,
-        assetPaths.tailwind,
       ],
     },
     watch: {
@@ -107,8 +105,8 @@ export default defineConfig({
     outDir: 'app/assets/dist',
     emptyOutDir: true,
     // Play serves public/ itself, so don't copy it into outDir. Keep publicDir
-    // enabled until we remove tailwind. The dev server serves tailwind.css
-    // from it.
+    // enabled because the dev server serves the frozen
+    // public/stylesheets/tailwind.css from it.
     copyPublicDir: false,
     // Up the warning size limit past our largest chunk
     chunkSizeWarningLimit: 1100,
@@ -123,7 +121,6 @@ export default defineConfig({
         uswds_css: resolve(import.meta.dirname, assetPaths.uswds_css),
         northstar_css: resolve(import.meta.dirname, assetPaths.northstar_css),
         maplibregl: resolve(import.meta.dirname, assetPaths.maplibregl_css),
-        tailwind: resolve(import.meta.dirname, assetPaths.tailwind),
         // Load page specific files
         ...Object.fromEntries(
           Object.entries(pageEntries).map(([key, path]) => [
