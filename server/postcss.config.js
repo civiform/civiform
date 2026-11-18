@@ -4,7 +4,6 @@ This ensures browser compatibility, which USWDS relies on.
 
 module.exports = {
   plugins: {
-    tailwindcss: {},
     autoprefixer: {},
   },
 }

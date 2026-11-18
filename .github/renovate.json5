@@ -151,11 +151,6 @@
       prHeader: "**USWDS upgrade: needs a deliberate accessibility review before merging.** This PR opens as a draft on purpose. Read the release notes (https://github.com/uswds/uswds/releases) for component, markup, focus, and ARIA changes. Check that browser tests with accessibility checks pass, then manually test the applicant flow, going through the criteria in the manual accessibility testing guide (https://github.com/civiform/civiform/wiki/Accessibility#manual-accessibility-testing). Record what you checked in this PR, then mark it ready for review.",
     },
     {
-      groupName: "tailwindcss",
-      matchPackageNames: ["tailwindcss"],
-      allowedVersions: "<4.0.0",
-    },
-    {
       groupName: "vite and vitest",
       matchPackageNames: ["/^vite/", "/^@vitejs//", "/^@vitest//"],
     },

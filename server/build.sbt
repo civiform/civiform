@@ -293,7 +293,6 @@ lazy val root = (project in file("."))
       startupTransition compose previous
     }
   )
-  .settings(excludeTailwindGeneration: _*)
 //jacoco report setting
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
@@ -315,28 +314,6 @@ lazy val startupTransition: State => State = { s: State =>
   "pullRemoteCache" :: s
 }
 
-// Ignore the tailwind.sbt generated css file when watching for recompilation.
-// Since this file is generated when build.sbt is loaded, it causes the server
-// to reload when stopping/starting the server on watch mode.
-lazy val excludeTailwindGeneration = Seq(watchSources := {
-  val fileToExclude =
-    "server/public/stylesheets/tailwind.css"
-  val customSourcesFilter = new FileFilter {
-    override def accept(f: File): Boolean =
-      f.getPath.contains(fileToExclude)
-    override def toString = s"CustomSourcesFilter($fileToExclude)"
-  }
-
-  watchSources.value.map { source =>
-    new Source(
-      source.base,
-      source.includeFilter,
-      source.excludeFilter || customSourcesFilter,
-      source.recursive
-    )
-  }
-})
-
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
@@ -353,7 +330,6 @@ lazy val useBundlerDevServer =
 
 // Play run hooks only run when the app starts with sbt run (dev/test). They
 // are not called when the app is precompiled with sbt dist (prod).
-playRunHooks += TailwindBuilder(baseDirectory.value)
 playRunHooks ++= {
   if (useBundlerDevServer) {
     Seq(BundlerDevServer(baseDirectory.value))
