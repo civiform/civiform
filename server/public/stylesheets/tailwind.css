@@ -1439,6 +1439,10 @@ input[type='radio']:focus,
   width: 0.75rem;
 }
 
+.w-3\/12 {
+  width: 25%;
+}
+
 .w-3\/5 {
   width: 60%;
 }
@@ -1631,6 +1635,10 @@ input[type='radio']:focus,
 
 .list-disc {
   list-style-type: disc;
+}
+
+.grid-flow-row-dense {
+  grid-auto-flow: row dense;
 }
 
 .grid-cols-1 {
@@ -2142,6 +2150,11 @@ input[type='radio']:focus,
   padding: 2rem;
 }
 
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
+}
+
 .px-1 {
   padding-left: 0.25rem;
   padding-right: 0.25rem;
@@ -2427,6 +2440,10 @@ input[type='radio']:focus,
   font-style: italic;
 }
 
+.leading-8 {
+  line-height: 2rem;
+}
+
 .tracking-tight {
   letter-spacing: -0.025em;
 }
@@ -2533,6 +2550,10 @@ input[type='radio']:focus,
 
 .underline {
   text-decoration-line: underline;
+}
+
+.underline-offset-2 {
+  text-underline-offset: 2px;
 }
 
 .placeholder-gray-500::-moz-placeholder {
@@ -2918,6 +2939,10 @@ input[type='radio']:focus,
 
   .md\:flex-row {
     flex-direction: row;
+  }
+
+  .md\:max-w-lg {
+    max-width: 32rem;
   }
 
   .md\:px-4 {
