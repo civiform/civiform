@@ -14,7 +14,9 @@ import static play.test.Helpers.fakeRequest;
 
 import controllers.ErrorHandler;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.apache.pekko.stream.Materializer;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
@@ -263,6 +265,126 @@ public class QuestionImageStreamingMultipartBodyParserTest extends ResetPostgres
     assertThatThrownBy(() -> stage.toCompletableFuture().join())
         .hasCauseInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("not an allowed upload type");
+  }
+
+  @Test
+  public void streamingUpload_mismatchedContentWithFailureWrappingSink_failsWithTypeException() {
+    // Mimic AwsS3MultipartUploadSinkProvider / GcpMultipartUploadSinkProvider, which catch stream
+    // failures in .exceptionally(...) and return a completed StreamingMultipartUploadResult with
+    // Status.FAILURE.
+    AtomicInteger bytesSentToStorage = new AtomicInteger(0);
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
+        .thenAnswer(
+            invocation ->
+                Sink.<ByteString, ByteString>fold(
+                        ByteString.emptyByteString(),
+                        (acc, chunk) -> {
+                          bytesSentToStorage.addAndGet(chunk.size());
+                          return acc.concat(chunk);
+                        })
+                    .mapMaterializedValue(
+                        stage ->
+                            stage
+                                .thenApply(
+                                    bytes ->
+                                        StreamingMultipartUploadResult.builder()
+                                            .setStatus(
+                                                StreamingMultipartUploadResult.Status.SUCCESS)
+                                            .setStorageServiceName(StorageServiceName.AWS_S3)
+                                            .build())
+                                .exceptionally(
+                                    throwable ->
+                                        StreamingMultipartUploadResult.builder()
+                                            .setStatus(
+                                                StreamingMultipartUploadResult.Status.FAILURE)
+                                            .setStorageServiceName(StorageServiceName.AWS_S3)
+                                            .setErrorMessage(
+                                                Optional.ofNullable(throwable.getMessage()))
+                                            .setCause(Optional.of(throwable))
+                                            .build())));
+
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(String.format("/admin/questions/%d/hx/image/upload", QUESTION_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    Source<ByteString, ?> source =
+        createMultipartRequestBody("pdf-renamed.png", "image/png", PDF_HEADER);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+
+    assertThatThrownBy(() -> stage.toCompletableFuture().join())
+        .hasCauseInstanceOf(FileUploadTypeException.class)
+        .hasMessageContaining("Content bytes do not match extension .png");
+    assertThat(bytesSentToStorage.get()).isZero();
+  }
+
+  @Test
+  public void streamingUpload_cloudStorageFailureResult_failsParser() {
+    RuntimeException s3Failure = new RuntimeException("Access denied to S3 bucket");
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
+        .thenAnswer(
+            invocation ->
+                Sink.<ByteString>ignore()
+                    .mapMaterializedValue(
+                        done ->
+                            CompletableFuture.completedFuture(
+                                StreamingMultipartUploadResult.builder()
+                                    .setStatus(StreamingMultipartUploadResult.Status.FAILURE)
+                                    .setStorageServiceName(StorageServiceName.AWS_S3)
+                                    .setErrorMessage(Optional.of(s3Failure.getMessage()))
+                                    .setCause(Optional.of(s3Failure))
+                                    .build())));
+
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(String.format("/admin/questions/%d/hx/image/upload", QUESTION_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    Source<ByteString, ?> source = createMultipartRequestBody("hello.png", "image/png", PNG_HEADER);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+
+    assertThatThrownBy(() -> stage.toCompletableFuture().join())
+        .hasMessageContaining("Access denied to S3 bucket");
+  }
+
+  @Test
+  public void streamingUpload_notImplementedStorageResult_failsParser() {
+    when(sinks.getSinkForCloudProvider(any(BucketType.class), anyString(), any(), any(), anyInt()))
+        .thenAnswer(
+            invocation ->
+                Sink.<ByteString>ignore()
+                    .mapMaterializedValue(
+                        done ->
+                            done.thenApply(
+                                ignored ->
+                                    StreamingMultipartUploadResult.builder()
+                                        .setStatus(
+                                            StreamingMultipartUploadResult.Status.NOT_IMPLEMENTED)
+                                        .setStorageServiceName(StorageServiceName.AZURE_BLOB)
+                                        .build())));
+
+    Http.RequestHeader request =
+        fakeRequest()
+            .method("POST")
+            .uri(String.format("/admin/questions/%d/hx/image/upload", QUESTION_ID))
+            .header("Content-Type", "multipart/form-data; boundary=" + MULTIPART_BOUNDARY)
+            .build();
+
+    Source<ByteString, ?> source = createMultipartRequestBody("hello.png", "image/png", PNG_HEADER);
+
+    CompletionStage<play.libs.F.Either<play.mvc.Result, Http.MultipartFormData<String>>> stage =
+        parser.apply(request).run(source, materializer);
+
+    assertThatThrownBy(() -> stage.toCompletableFuture().join())
+        .hasMessageContaining("NOT_IMPLEMENTED");
   }
 
   @Test

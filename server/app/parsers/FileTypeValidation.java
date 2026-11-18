@@ -62,6 +62,11 @@ public final class FileTypeValidation {
                     : mimeType.equals(allowed));
   }
 
+  private record SniffState(ByteString bufferedHeader, boolean validated) {
+    static final SniffState INITIAL = new SniffState(ByteString.emptyByteString(), false);
+    static final SniffState VALIDATED = new SniffState(ByteString.emptyByteString(), true);
+  }
+
   /**
    * Returns a pass-through Pekko {@link Flow} that sniffs the first {@link #HEADER_SIZE} bytes of
    * an upload stream, validates them against the filename's extension and the allowed upload types,
@@ -70,31 +75,29 @@ public final class FileTypeValidation {
    * <p>An upload pipeline in Pekko Streams is composed of a {@code Source} (the request body), zero
    * or more {@code Flow}s (transformations), and a {@code Sink} (the cloud storage upload). Bytes
    * are pulled through the graph in chunks. This {@code Flow} is inserted between the source and
-   * the upload sink so that every chunk of bytes flows through our {@code .stateMap(...)} and
-   * {@code .map(...)} on its way to storage, where we inspect the prefix without buffering the
-   * entire file.
+   * the upload sink so that every chunk of bytes flows through our {@code .statefulMap(...)} on its
+   * way to storage, where we inspect the prefix without buffering the entire file.
    *
    * <p>How this works:
    *
    * <ul>
    *   <li>{@link Flow#of(Class)} creates an identity {@code Flow<ByteString, ByteString>}, i.e. a
    *       stream whose input and output element type is {@link ByteString}.
-   *   <li>{@code .statefulMap} accumulates the first {@link #HEADER_SIZE} bytes into the stage's
-   *       state. Each element is emitted as a {@link Pair} of {@code (currentHeader, bytes)}. The
-   *       end-of-stream callback fires when upstream finishes, including during failure cleanup
-   *       triggered by a downstream throw, and throws {@link FileUploadTypeException} only when the
-   *       final state is shorter than {@link #HEADER_SIZE}. Any earlier validation failure from the
-   *       {@code .map} propagates unmasked.
-   *   <li>When the accumulated header first reaches {@link #HEADER_SIZE}, the map hands it to
-   *       {@link #validateHeaderBytes}, which runs Tika and throws {@link FileUploadTypeException}
-   *       on any mismatch. {@code detectedMimeTypeRef} is only populated if the bytes have already
-   *       been validated, so we only call Tika once.
-   *   <li>Throwing inside the {@code .map} function fails the stream under Pekko's default
-   *       supervision strategy ("stop"), which propagates as an upstream failure to the downstream
-   *       sink. The S3 / GCS Pekko connectors abort the in-progress multipart upload on upstream
-   *       failure, so the rejected file is not committed to cloud storage.
-   *   <li>Throwing inside the cleanup function also aborts the upload. The cleanup still runs after
-   *       a downstream failure or completion in the {@code .map}.
+   *   <li>{@code .statefulMap} tracks {@link SniffState}, buffering bytes until at least {@link
+   *       #HEADER_SIZE} bytes have arrived and emitting empty chunks (dropped by {@code .filter})
+   *       in the meantime so no bytes reach the downstream cloud storage upload sink before Tika
+   *       validation succeeds. Once {@link #HEADER_SIZE} bytes are available, it calls {@link
+   *       #validateHeaderBytes} to run Tika and throws {@link FileUploadTypeException} on any
+   *       mismatch. On success, it records the detected MIME type in {@code detectedMimeTypeRef},
+   *       flushes the buffered bytes downstream, and transitions to {@link SniffState#VALIDATED} so
+   *       subsequent chunks pass straight through.
+   *   <li>The end-of-stream callback fires when upstream finishes, including during failure cleanup
+   *       triggered by a downstream throw, and throws {@link FileUploadTypeException} only when
+   *       {@code !finalState.validated()} (fewer than {@link #HEADER_SIZE} bytes arrived). Any
+   *       earlier validation failure or downstream failure propagates unmasked.
+   *   <li>Throwing inside {@code .statefulMap} fails the stream under Pekko's default supervision
+   *       strategy ("stop"), which propagates as an upstream failure to the downstream sink so the
+   *       rejected file is never committed to cloud storage.
    *   <li>The detected MIME type is written into {@code detectedMimeTypeRef} so the caller can
    *       attach the MIME to the resulting {@code FilePart}.
    *   <li>{@code allowedFileTypeSpecifiers} is converted to normalized MIME / wildcard entries
@@ -127,33 +130,28 @@ public final class FileTypeValidation {
             .collect(ImmutableList.toImmutableList());
     return Flow.of(ByteString.class)
         .statefulMap(
-            ByteString::emptyByteString,
-            (accumulatedHeader, bytes) -> {
-              ByteString currentHeader = accumulatedHeader;
-              if (accumulatedHeader.size() < FileTypeValidation.HEADER_SIZE) {
-                int remainingBytes = FileTypeValidation.HEADER_SIZE - accumulatedHeader.size();
-                currentHeader = accumulatedHeader.concat(bytes.take(remainingBytes));
+            () -> SniffState.INITIAL,
+            (state, bytes) -> {
+              if (state.validated()) {
+                return Pair.create(state, bytes);
               }
-              return Pair.create(currentHeader, Pair.create(currentHeader, bytes));
+              ByteString combined = state.bufferedHeader().concat(bytes);
+              if (combined.size() < FileTypeValidation.HEADER_SIZE) {
+                return Pair.create(new SniffState(combined, false), ByteString.emptyByteString());
+              }
+              String detectedMimeType =
+                  validateHeaderBytes(
+                      combined.take(FileTypeValidation.HEADER_SIZE), fileName, allowedFileTypes);
+              detectedMimeTypeRef.set(detectedMimeType);
+              return Pair.create(SniffState.VALIDATED, combined);
             },
-            finalHeader -> {
-              if (finalHeader.size() < FileTypeValidation.HEADER_SIZE) {
+            finalState -> {
+              if (!finalState.validated()) {
                 throw new FileUploadTypeException("File is too small to validate its type.");
               }
               return Optional.empty();
             })
-        .map(
-            finalHeaderAndBytes -> {
-              ByteString finalHeader = finalHeaderAndBytes.first();
-              ByteString bytes = finalHeaderAndBytes.second();
-              if (finalHeader.size() >= FileTypeValidation.HEADER_SIZE
-                  && detectedMimeTypeRef.get() == null) {
-                String detectedMimeType =
-                    validateHeaderBytes(finalHeader, fileName, allowedFileTypes);
-                detectedMimeTypeRef.set(detectedMimeType);
-              }
-              return bytes;
-            });
+        .filter(bytes -> !bytes.isEmpty());
   }
 
   @VisibleForTesting

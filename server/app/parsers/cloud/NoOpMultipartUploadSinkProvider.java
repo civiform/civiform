@@ -1,7 +1,6 @@
 package parsers.cloud;
 
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
@@ -37,13 +36,12 @@ public final class NoOpMultipartUploadSinkProvider
       int chunkSize) {
     return getBaseSink(bucketType, fileKey, contentType, contentDisposition, chunkSize)
         .mapMaterializedValue(
-            completionStage -> {
-              // Return a completed future with no result, since this is just a placeholder
-              return CompletableFuture.completedFuture(
-                  StreamingMultipartUploadResult.builder()
-                      .setStatus(StreamingMultipartUploadResult.Status.NOT_IMPLEMENTED)
-                      .setStorageServiceName(storageServiceName)
-                      .build());
-            });
+            completionStage ->
+                completionStage.thenApply(
+                    ignored ->
+                        StreamingMultipartUploadResult.builder()
+                            .setStatus(StreamingMultipartUploadResult.Status.NOT_IMPLEMENTED)
+                            .setStorageServiceName(storageServiceName)
+                            .build()));
   }
 }

@@ -23,6 +23,8 @@ public abstract class StreamingMultipartUploadResult {
 
   public abstract Optional<String> getErrorMessage();
 
+  public abstract Optional<Throwable> getCause();
+
   public static Builder builder() {
     return new AutoValue_StreamingMultipartUploadResult.Builder();
   }
@@ -38,6 +40,8 @@ public abstract class StreamingMultipartUploadResult {
     public abstract Builder setStoredFilePath(Optional<String> storedFilePath);
 
     public abstract Builder setErrorMessage(Optional<String> errorMessage);
+
+    public abstract Builder setCause(Optional<Throwable> cause);
 
     public abstract StreamingMultipartUploadResult build();
   }

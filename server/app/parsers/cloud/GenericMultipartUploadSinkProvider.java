@@ -1,7 +1,9 @@
 package parsers.cloud;
 
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
 import parsers.StreamingMultipartUploadResult;
@@ -43,13 +45,29 @@ public abstract class GenericMultipartUploadSinkProvider<T> {
 
   // Construct a failed upload result for the given storage service from a supplied throwable.
   protected StreamingMultipartUploadResult failedResult(Throwable throwable) {
-    String errorMessage =
-        throwable.getCause() != null ? throwable.getCause().getMessage() : throwable.getMessage();
+    Throwable cause = unwrapAsyncWrapper(throwable);
+    String errorMessage = cause.getMessage();
+    if (errorMessage == null && cause.getCause() != null) {
+      errorMessage = cause.getCause().getMessage();
+    }
+    if (errorMessage == null) {
+      errorMessage = throwable.getMessage();
+    }
 
     return StreamingMultipartUploadResult.builder()
         .setStatus(StreamingMultipartUploadResult.Status.FAILURE)
         .setStorageServiceName(storageServiceName)
-        .setErrorMessage(Optional.of(errorMessage))
+        .setErrorMessage(Optional.ofNullable(errorMessage))
+        .setCause(Optional.of(cause))
         .build();
+  }
+
+  private static Throwable unwrapAsyncWrapper(Throwable throwable) {
+    Throwable current = throwable;
+    while ((current instanceof CompletionException || current instanceof ExecutionException)
+        && current.getCause() != null) {
+      current = current.getCause();
+    }
+    return current;
   }
 }
