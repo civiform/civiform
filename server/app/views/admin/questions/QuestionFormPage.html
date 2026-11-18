@@ -89,8 +89,7 @@
 
           <div
             id="existing-image-alert"
-            role="alert"
-            aria-live="polite"
+            data-testid="existing-image-alert"
             th:classappend="${model.hasExistingImage() ? '' : 'hidden'}"
             class="usa-alert usa-alert--info usa-alert--slim mb-2"
           >
@@ -130,8 +129,6 @@
           />
           <div
             id="question-image-file-input-errors"
-            role="alert"
-            aria-label="Image upload error"
             class="text-red-600 text-xs p-1 hidden"
           ></div>
         </div>

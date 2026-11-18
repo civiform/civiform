@@ -26,9 +26,7 @@ export class AdminQuestionImage {
   }
 
   getExistingAlert() {
-    return this.page
-      .getByRole('alert')
-      .filter({hasText: 'A file is currently uploaded for this question'})
+    return this.page.getByTestId('existing-image-alert')
   }
 
   getUpdateButton() {
@@ -36,7 +34,7 @@ export class AdminQuestionImage {
   }
 
   getImageUploadError() {
-    return this.page.getByRole('alert', {name: 'Image upload error'})
+    return this.page.getByRole('alert')
   }
 
   async expectNoUploadError() {

@@ -115,7 +115,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
                         .withClasses("text-red-600", "text-base", "py-2")
                         .withId("question-image-file-input-errors")
                         .attr("role", "alert")
-                        .attr("aria-label", "Image upload error")
                         .render())
                 .as(play.mvc.Http.MimeTypes.HTML));
       }
@@ -158,7 +157,6 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
                       .withClasses("text-red-600", "text-base", "py-2")
                       .withId("question-image-file-input-errors")
                       .attr("role", "alert")
-                      .attr("aria-label", "Image upload error")
                       .render())
               .as(play.mvc.Http.MimeTypes.HTML));
     }

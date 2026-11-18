@@ -106,8 +106,6 @@ public class AdminQuestionImageController extends CiviFormController {
     return ok(div()
                 .withClasses("text-red-600", "text-xs", "p-1", "hidden")
                 .withId("question-image-file-input-errors")
-                .attr("role", "alert")
-                .attr("aria-label", "Image upload error")
                 .render()
             + input()
                 .withType("hidden")
@@ -158,7 +156,6 @@ public class AdminQuestionImageController extends CiviFormController {
                 .withClasses("text-red-600", "text-base", "py-2")
                 .withId("question-image-file-input-errors")
                 .attr("role", "alert")
-                .attr("aria-label", "Image upload error")
                 .toString())
         .as(Http.MimeTypes.HTML);
   }

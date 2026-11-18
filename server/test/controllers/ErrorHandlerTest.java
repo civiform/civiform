@@ -173,6 +173,7 @@ public class ErrorHandlerTest extends ResetPostgres {
     String html = contentAsString(result);
     assertThat(html).contains("id=\"question-image-file-input-errors\"");
     assertThat(html).contains("role=\"alert\"");
+    assertThat(html).doesNotContain("aria-label=\"Image upload error\"");
     assertThat(html).contains("Request entity too large");
   }
 }
