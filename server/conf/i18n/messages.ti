@@ -1311,9 +1311,9 @@ button.repeatedSet.initialQuestion.save=Save initial question
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the previous screen to add one.
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=
+alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=
+alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
@@ -1321,7 +1321,7 @@ alert.repeatedSet.newQuestion=When you create this list set, the system saves it
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=
+button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
