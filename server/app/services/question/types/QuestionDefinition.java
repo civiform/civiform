@@ -404,6 +404,22 @@ public abstract class QuestionDefinition {
   }
 
   /**
+   * Error shown when the question text is blank. To be overridden by question types that word it
+   * differently.
+   */
+  String blankQuestionTextError(boolean enumeratorImprovementsEnabled) {
+    return "Question text cannot be blank";
+  }
+
+  /**
+   * Error shown when the admin ID is blank. To be overridden by question types that word it
+   * differently.
+   */
+  String blankAdminIdError(boolean enumeratorImprovementsEnabled) {
+    return "Administrative identifier cannot be blank";
+  }
+
+  /**
    * Overload of {@code validate()} that sets {@code previousDefinition} to empty.
    *
    * <p>See {@link #validate(Optional)} for the implications of not providing a {@code
@@ -424,13 +440,13 @@ public abstract class QuestionDefinition {
 
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (config.questionText().isEmpty()) {
-      errors.add(CiviFormError.of("Question text cannot be blank"));
+      errors.add(CiviFormError.of(blankQuestionTextError(enumeratorImprovementsEnabled)));
     }
     if (config.questionText().hasEmptyTranslation()) {
-      errors.add(CiviFormError.of("Question text cannot be blank"));
+      errors.add(CiviFormError.of(blankQuestionTextError(enumeratorImprovementsEnabled)));
     }
     if (config.name().isBlank()) {
-      errors.add(CiviFormError.of("Administrative identifier cannot be blank"));
+      errors.add(CiviFormError.of(blankAdminIdError(enumeratorImprovementsEnabled)));
     }
     if (getQuestionPathSegment().equals(Path.empty().join(Scalar.ENTITY_NAME).toString())) {
       errors.add(

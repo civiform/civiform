@@ -308,6 +308,25 @@ public class QuestionDefinitionTest {
   }
 
   @Test
+  public void validateBadQuestion_withEnumeratorImprovementsEnabled_returnsDefaultErrors() {
+    QuestionDefinition question =
+        new TextQuestionDefinition(
+            configBuilder
+                .setName("")
+                .setDescription("")
+                .setQuestionText(LocalizedStrings.of())
+                .setQuestionHelpText(LocalizedStrings.empty())
+                .build());
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ true))
+        .containsOnly(
+            CiviFormError.of("Administrative identifier cannot be blank"),
+            CiviFormError.of("Question text cannot be blank"));
+  }
+
+  @Test
   public void validate_withRepeatedQuestion_missingEntityNameFormatString_returnsErrors()
       throws Exception {
     QuestionDefinition question = builder.setEnumeratorId(Optional.of(1L)).build();

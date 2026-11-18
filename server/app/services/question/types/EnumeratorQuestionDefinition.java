@@ -46,31 +46,60 @@ public class EnumeratorQuestionDefinition extends QuestionDefinition {
     return EnumeratorValidationPredicates.create();
   }
 
+  // TODO(#11943): Remove the flag-off wording from these errors once the enumerator improvements
+  // flag is removed.
   @Override
   ImmutableSet<CiviFormError> internalValidate(
       Optional<QuestionDefinition> previousDefinition, boolean enumeratorImprovementsEnabled) {
     ImmutableSet.Builder<CiviFormError> errors = new ImmutableSet.Builder<>();
     if (getEntityType().hasEmptyTranslation()) {
-      errors.add(CiviFormError.of("Enumerator question must have specified entity type"));
+      errors.add(
+          CiviFormError.of(
+              enumeratorImprovementsEnabled
+                  ? "Enter an answer for \"What is being listed?\""
+                  : "Enumerator question must have specified entity type"));
     }
 
-    String countName = enumeratorImprovementsEnabled ? "list count" : "entity count";
     OptionalInt min = getMinEntities();
     OptionalInt max = getMaxEntities();
     if (min.isPresent() && min.getAsInt() < 0) {
-      errors.add(CiviFormError.of(String.format("Minimum %s cannot be negative", countName)));
+      errors.add(
+          CiviFormError.of(
+              enumeratorImprovementsEnabled
+                  ? "Enter a minimum list count of 0 or more"
+                  : "Minimum entity count cannot be negative"));
     }
     if (max.isPresent() && max.getAsInt() < 1) {
-      errors.add(CiviFormError.of(String.format("Maximum %s cannot be less than 1", countName)));
+      errors.add(
+          CiviFormError.of(
+              enumeratorImprovementsEnabled
+                  ? "Enter a maximum list count of 1 or more"
+                  : "Maximum entity count cannot be less than 1"));
     }
     if (min.isPresent() && max.isPresent() && min.getAsInt() > max.getAsInt()) {
       errors.add(
           CiviFormError.of(
-              String.format(
-                  "Minimum %s must be less than or equal to the maximum %s",
-                  countName, countName)));
+              enumeratorImprovementsEnabled
+                  ? "Enter a minimum list count that is less than or equal to the maximum list"
+                      + " count"
+                  : "Minimum entity count must be less than or equal to the maximum entity"
+                      + " count"));
     }
     return errors.build();
+  }
+
+  @Override
+  String blankQuestionTextError(boolean enumeratorImprovementsEnabled) {
+    return enumeratorImprovementsEnabled
+        ? "Enter prompt text"
+        : super.blankQuestionTextError(enumeratorImprovementsEnabled);
+  }
+
+  @Override
+  String blankAdminIdError(boolean enumeratorImprovementsEnabled) {
+    return enumeratorImprovementsEnabled
+        ? "Enter list set admin ID"
+        : super.blankAdminIdError(enumeratorImprovementsEnabled);
   }
 
   public LocalizedStrings getEntityType() {

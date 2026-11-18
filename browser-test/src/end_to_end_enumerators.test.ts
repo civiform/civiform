@@ -1101,7 +1101,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       await test.step('Validate the error alert lists all missing fields', async () => {
         const errorAlert = blockPanel.getByRole('alert').filter({
           hasText:
-            'Error: Question text cannot be blank. Administrative identifier cannot be blank. Initial question must be added.',
+            'Error: Enter prompt text. Enter list set admin ID. Please add an initial question.',
         })
         await expect(errorAlert).toBeVisible()
       })
