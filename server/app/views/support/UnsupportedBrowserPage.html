@@ -1,10 +1,13 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="model" type="views.support.UnsupportedBrowserPageView.Model"*/-->
 <!--/*
   Standalone page shown to browsers UnsupportedBrowserFilter rejects (IE).
-  Rendered without a layout: no navigation, session handling or JS bundles,
-  which those browsers can't run anyway. Body classes match
-  ApplicantStyles.BODY.
+  Rendered without a layout or navigation. It still loads the applicant JS
+  bundle, with the #modal-container, warning toast and feature flags it
+  expects, because the browser tests' page fixture waits for the bundle to
+  initialize and dismisses the toast on every page. Body and footer classes
+  match the legacy ApplicantLayout skeleton.
 */-->
 <!doctype html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
@@ -24,8 +27,25 @@
       type="text/css"
       rel="stylesheet"
     />
+    <th:block th:insert="~{shared/FeatureFlags}" />
   </head>
   <body class="bg-civiform-white h-full w-full flex flex-col">
+    <header>
+      <!--/* Toast warning against entering real user data in dev and staging,
+             consumed by toast.ts. */-->
+      <div
+        th:if="${model.isDevOrStaging()}"
+        id="warning-message"
+        class="hidden cf-toast-data"
+        canDismiss="true"
+        canIgnore="true"
+        toastDuration="0"
+        condOnStorageKey
+        toastType="WARNING"
+        th:text="'Do not enter actual or personal data in this demo site'"
+      ></div>
+    </header>
+
     <main>
       <div class="container mx-auto max-w-xl p-4">
         <h1 class="text-center mb-4">Unsupported browser</h1>
@@ -68,5 +88,22 @@
         </div>
       </div>
     </main>
+
+    <!--/* Empty, but modal.ts only signals it has loaded when it exists. */-->
+    <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
+      <div
+        id="modal-glass-pane"
+        class="fixed h-screen w-screen bg-gray-400 opacity-75"
+      ></div>
+    </div>
+
+    <footer class="mt-24">
+      <script
+        th:each="script: ${layoutParams.bodyScripts()}"
+        th:nonce="${templateGlobals.cspNonce()}"
+        th:src="${script.src()}"
+        th:type="${script.type()}"
+      ></script>
+    </footer>
   </body>
 </html>
