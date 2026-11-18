@@ -21,15 +21,13 @@ Parsed results are cached per job (see --cache-dir) and every cached result is
 included in the report, so history keeps building past GitHub's log retention
 as long as the script is run at least once a month.
 
-Ignoring runs: pass --ignore and/or --ignore-file to leave runs out, e.g. a day
-staging was known to be broken. Entries use the run number GitHub shows (the
-"#1811" in the run title, written without the "#") and an optional attempt
-number:
+Ignoring runs: runs listed in DEFAULT_IGNORES below are always left out, e.g. a
+day staging was known to be broken; pass --ignore to leave out more. Entries use
+the run number GitHub shows (the "#1811" in the run title, written without the
+"#") and an optional attempt number:
 
     1811        # every attempt of run #1811
     1811:2      # only attempt 2 of run #1811
-
-In an ignore file, put one entry per line; "#" starts a comment.
 
 Authentication: set GITHUB_TOKEN (or GH_TOKEN) to a token that can read Actions
 on the repo. A fine-grained token with "Actions: read" is enough.
@@ -49,10 +47,11 @@ import urllib.request
 from collections import defaultdict
 
 API = "https://api.github.com"
-# Default --ignore-file, which lives next to this script.
-DEFAULT_IGNORE_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "find-flakey-ci-tests.ignored_runs")
+# Runs always left out of the report; --ignore values are added to these.
+# Each entry is "RUN" or "RUN:ATTEMPT"; note why it's here.
+DEFAULT_IGNORES = [
+    "1811:2",  # Someone used staging while the tests were running. Nov 11.
+]
 # Bump this when the parser changes so cached results are recomputed.
 CACHE_VERSION = 1
 
@@ -208,17 +207,8 @@ def parse_ignore_entry(entry):
 
 
 def load_ignores(args):
-    entries = list(args.ignore or [])
-    path = args.ignore_file
-    # The default file is optional; a path passed explicitly must exist.
-    if path != DEFAULT_IGNORE_FILE or os.path.exists(path):
-        with open(path) as f:
-            for line in f:
-                # Drop any commented part of the line.
-                line = line.split("#", 1)[0].strip()
-                if line:
-                    entries.append(line)
-    return {parse_ignore_entry(e) for e in entries}
+    # args.ignore is DEFAULT_IGNORES plus any --ignore values.
+    return {parse_ignore_entry(e) for e in args.ignore}
 
 
 def is_ignored(ignores, run_number, attempt=None):
@@ -460,13 +450,10 @@ def main():
         "--ignore",
         action="append",
         metavar="RUN[:ATTEMPT]",
+        # A copy, because "append" adds the command line values to this list.
+        default=list(DEFAULT_IGNORES),
         help="run number to leave out, e.g. 1811 for every attempt or"
-        " 1811:2 for only attempt 2. Repeatable.")
-    parser.add_argument(
-        "--ignore-file",
-        metavar="PATH",
-        default=DEFAULT_IGNORE_FILE,
-        help="file of --ignore entries, one per line, '#' for comments."
+        " 1811:2 for only attempt 2. Repeatable; added to the defaults."
         " (default: %(default)s)")
     parser.add_argument(
         "--offline",
