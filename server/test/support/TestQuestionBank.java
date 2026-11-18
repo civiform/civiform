@@ -615,7 +615,8 @@ public class TestQuestionBank {
                 .setName("applicant's household member's name")
                 .setDescription("The household member's name")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(Locale.US, "This is sample initial question help text."))
                 .build());
     var initialQuestionModel = maybeSave(initialQuestion);
 
@@ -625,7 +626,8 @@ public class TestQuestionBank {
                 .setName("applicant household members")
                 .setDescription("The applicant's household members")
                 .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
-                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
+                .setQuestionHelpText(
+                    LocalizedStrings.of(Locale.US, "This is sample enumerator help text."))
                 .setEnumeratorInitialQuestionId(initialQuestionModel.id)
                 .build(),
             LocalizedStrings.empty());

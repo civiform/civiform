@@ -8,7 +8,6 @@ import {
   logout,
   waitForPageJsLoad,
   validateScreenshot,
-  validateToastMessage,
   selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
@@ -803,7 +802,7 @@ test.describe('Trusted intermediaries', () => {
     await waitForPageJsLoad(page)
 
     await tiDashboard.expectDateSearchError()
-    tiDashboard.expectRedDateFieldOutline(true, true, false)
+    await tiDashboard.expectRedDateFieldOutline(true, true, false)
     await tiDashboard.expectDashboardNotContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
     await expect(page.getByTestId('displaying-clients')).toBeHidden()
@@ -842,90 +841,6 @@ test.describe('Trusted intermediaries', () => {
     ).toBeVisible()
     await tiDashboard.expectDashboardContainClient(client1)
     await tiDashboard.expectDashboardNotContainClient(client2)
-  })
-
-  test('managing trusted intermediary', async ({page, adminTiGroups}) => {
-    await loginAsAdmin(page)
-    await adminTiGroups.gotoAdminTIPage()
-    await adminTiGroups.fillInGroupBasics('group name', 'group description')
-    await adminTiGroups.expectGroupExist('group name', 'group description')
-    await validateScreenshot(page, 'ti-groups-page')
-
-    // validate error message if empty name
-    await adminTiGroups.editGroup('group name')
-    await page.click('text="Add"')
-    await validateToastMessage(page, 'Must provide email address.')
-
-    // validate adding valid email address works
-    await adminTiGroups.editGroup('group name')
-    await adminTiGroups.addGroupMember('foo@bar.com')
-    await adminTiGroups.expectGroupMemberExist('<Unnamed User>', 'foo@bar.com')
-    await validateScreenshot(page, 'manage-ti-group-members-page')
-  })
-
-  test('sort trusted intermediaries based on selection', async ({
-    page,
-    adminTiGroups,
-  }) => {
-    await loginAsAdmin(page)
-
-    await test.step('set up group aaa with 3 memebers', async () => {
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.fillInGroupBasics('aaa', 'aaa')
-      await adminTiGroups.editGroup('aaa')
-      await adminTiGroups.addGroupMember('foo@bar.com')
-      await adminTiGroups.addGroupMember('foo2@bar.com')
-      await adminTiGroups.addGroupMember('foo3@bar.com')
-    })
-
-    await test.step('set up group bbb with 0 members', async () => {
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.fillInGroupBasics('bbb', 'bbb')
-    })
-
-    await test.step('set up group ccc with 1 members', async () => {
-      await adminTiGroups.gotoAdminTIPage()
-      await adminTiGroups.fillInGroupBasics('ccc', 'ccc')
-      await adminTiGroups.editGroup('ccc')
-      await adminTiGroups.addGroupMember('foo4@bar.com')
-    })
-
-    await adminTiGroups.gotoAdminTIPage()
-    await page.locator('#cf-ti-list').selectOption('tiname-asc')
-    await expect(page.getByTestId('ti-info')).toHaveText(
-      ['aaa\naaa', 'bbb\nbbb', 'ccc\nccc'],
-      {useInnerText: true},
-    )
-    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-asc')
-
-    await page.locator('#cf-ti-list').selectOption('tiname-desc')
-    await expect(page.getByTestId('ti-info')).toHaveText(
-      ['ccc\nccc', 'bbb\nbbb', 'aaa\naaa'],
-      {useInnerText: true},
-    )
-    await validateScreenshot(page, 'ti-list-sort-dropdown-tiname-desc')
-
-    await page.locator('#cf-ti-list').selectOption('nummember-desc')
-    await expect(page.getByTestId('ti-member')).toHaveText(
-      [
-        'Members: 3\nClients: 0',
-        'Members: 1\nClients: 0',
-        'Members: 0\nClients: 0',
-      ],
-      {useInnerText: true},
-    )
-    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-desc')
-
-    await page.locator('#cf-ti-list').selectOption('nummember-asc')
-    await expect(page.getByTestId('ti-member')).toHaveText(
-      [
-        'Members: 0\nClients: 0',
-        'Members: 1\nClients: 0',
-        'Members: 3\nClients: 0',
-      ],
-      {useInnerText: true},
-    )
-    await validateScreenshot(page, 'ti-list-sort-dropdown-nummember-asc')
   })
 
   test('logging in as a trusted intermediary', async ({page}) => {

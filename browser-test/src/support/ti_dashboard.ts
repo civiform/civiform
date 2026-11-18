@@ -225,10 +225,9 @@ export class TIDashboard {
   }
 
   async expectSuccessToast(successToastMessage: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successToastMessage)
+    await expect(
+      this.page.locator('#toast-container .bg-cf-toast-success'),
+    ).toContainText(successToastMessage)
   }
 
   async expectSuccessAlertOnUpdate() {
@@ -272,25 +271,25 @@ export class TIDashboard {
     await expect(tiBanner).toBeHidden()
   }
 
-  expectRedDateFieldOutline(
+  async expectRedDateFieldOutline(
     missingMonth: boolean,
     missingDay: boolean,
     missingYear: boolean,
   ) {
     if (missingMonth) {
-      expect(
-        this.page.locator('#date-of-birth-month .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-month')).toContainClass(
+        'usa-input--error',
+      )
     }
     if (missingDay) {
-      expect(
-        this.page.locator('#date-of-birth-day .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-day')).toContainClass(
+        'usa-input--error',
+      )
     }
     if (missingYear) {
-      expect(
-        this.page.locator('#date-of-birth-year .usa-input--error'),
-      ).not.toBeNull()
+      await expect(this.page.locator('#date-of-birth-year')).toContainClass(
+        'usa-input--error',
+      )
     }
   }
 

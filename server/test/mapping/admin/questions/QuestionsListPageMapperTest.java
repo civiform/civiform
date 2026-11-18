@@ -19,9 +19,11 @@ import services.DateConverter;
 import services.DeletionStatus;
 import services.LocalizedStrings;
 import services.TranslationLocales;
+import services.cloud.PublicStorageClient;
 import services.question.ActiveAndDraftQuestions;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
+import support.cloud.FakePublicStorageClient;
 import views.admin.questions.QuestionsListPageViewModel;
 import views.admin.questions.QuestionsListPageViewModel.ExtraAction;
 import views.admin.questions.QuestionsListPageViewModel.ModalModel;
@@ -37,10 +39,12 @@ public final class QuestionsListPageMapperTest {
   private TranslationLocales translationLocales;
   private Set<QuestionDefinition> questionsWithCompleteTranslations;
   private DateConverter dateConverter;
+  private FakePublicStorageClient fakePublicStorageClient;
 
   @Before
   public void setup() {
     mapper = new QuestionsListPageMapper();
+    fakePublicStorageClient = new FakePublicStorageClient();
     questionsWithCompleteTranslations = new HashSet<>();
     activeAndDraftQuestions = mock(ActiveAndDraftQuestions.class);
     translationLocales = mock(TranslationLocales.class);
@@ -63,7 +67,24 @@ public final class QuestionsListPageMapperTest {
         dateConverter,
         /* enumeratorImprovementsEnabled= */ false,
         /* successMessage= */ Optional.empty(),
-        /* errorMessage= */ Optional.empty());
+        /* errorMessage= */ Optional.empty(),
+        fakePublicStorageClient,
+        /* imagesInQuestionFeatureEnabled= */ false);
+  }
+
+  private QuestionsListPageViewModel map(
+      PublicStorageClient publicStorageClient, boolean imagesInQuestionFeatureEnabled) {
+    return mapper.map(
+        activeAndDraftQuestions,
+        /* filter= */ Optional.empty(),
+        translationLocales,
+        questionsWithCompleteTranslations::contains,
+        dateConverter,
+        /* enumeratorImprovementsEnabled= */ false,
+        /* successMessage= */ Optional.empty(),
+        /* errorMessage= */ Optional.empty(),
+        publicStorageClient,
+        imagesInQuestionFeatureEnabled);
   }
 
   private QuestionDefinition mockQuestion(String name, long id) {
@@ -191,7 +212,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ true,
             /* successMessage= */ Optional.empty(),
-            /* errorMessage= */ Optional.empty());
+            /* errorMessage= */ Optional.empty(),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getCreateQuestionOptions())
         .noneMatch(option -> option.getId().equals("create-enumerator-question"));
@@ -208,7 +231,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ false,
             /* successMessage= */ Optional.of("question created"),
-            /* errorMessage= */ Optional.empty());
+            /* errorMessage= */ Optional.empty(),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getToasts()).hasSize(1);
     assertThat(result.getToasts().get(0).getMessage()).isEqualTo("question created");
@@ -227,7 +252,9 @@ public final class QuestionsListPageMapperTest {
             dateConverter,
             /* enumeratorImprovementsEnabled= */ false,
             /* successMessage= */ Optional.empty(),
-            /* errorMessage= */ Optional.of("something broke"));
+            /* errorMessage= */ Optional.of("something broke"),
+            fakePublicStorageClient,
+            /* imagesInQuestionFeatureEnabled= */ false);
 
     assertThat(result.getToasts()).hasSize(1);
     assertThat(result.getToasts().get(0).getMessage()).isEqualTo("Error: something broke");
@@ -531,5 +558,54 @@ public final class QuestionsListPageMapperTest {
 
     QuestionRow row = result.getOtherRows().get(0);
     assertThat(row.getActiveRow().isTranslationComplete()).isTrue();
+  }
+
+  @Test
+  public void map_withQuestionImage_featureEnabled_populatesImageUrlAndAltText() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/test-image.png"));
+    when(question.getLocalizedImageDescription())
+        .thenReturn(Optional.of(LocalizedStrings.withDefaultValue("Sample alt text")));
+    addQuestion("q1", Optional.of(question), Optional.empty());
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getImageUrl()).isEqualTo("fakeUrl.com/question-image/question-1/test-image.png");
+    assertThat(row.getImageAltText()).isEqualTo("Sample alt text");
+  }
+
+  @Test
+  public void map_withQuestionImage_featureDisabled_imageUrlIsNull() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey())
+        .thenReturn(Optional.of("question-image/question-1/test-image.png"));
+    addQuestion("q1", Optional.of(question), Optional.empty());
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ false);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getImageUrl()).isNull();
+    assertThat(row.getImageAltText()).isNull();
+  }
+
+  @Test
+  public void map_withoutQuestionImage_imageUrlIsNull() {
+    FakePublicStorageClient publicStorageClient = new FakePublicStorageClient();
+    QuestionDefinition question = mockQuestion("q1", 1L);
+    when(question.getImageFileKey()).thenReturn(Optional.empty());
+    addQuestion("q1", Optional.of(question), Optional.empty());
+
+    QuestionsListPageViewModel result =
+        map(publicStorageClient, /* imagesInQuestionFeatureEnabled= */ true);
+
+    QuestionRow row = result.getOtherRows().get(0);
+    assertThat(row.getImageUrl()).isNull();
+    assertThat(row.getImageAltText()).isNull();
   }
 }

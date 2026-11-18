@@ -42,7 +42,7 @@
         class="hidden text-blue-600 text-sm p-2 font-mono border-4 border-blue-400 space-y-4"
       >
         <p
-          th:text="'By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.'"
+          th:text="${model.enumeratorImprovementsEnabled} ? #{text.repeatedQuestion.listSetInformation} : 'By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.'"
         ></p>
         <th:block th:unless="${model.enumeratorImprovementsEnabled}">
           <p>
@@ -83,7 +83,10 @@
 
         <!-- 2. Image upload field (starts disabled if alt-text is empty) -->
         <div class="usa-form-group">
-          <label class="usa-label" for="question-image-input"
+          <label
+            class="usa-label"
+            id="question-image-input-label"
+            for="question-image-input"
             >Image upload</label
           >
 
@@ -109,8 +112,10 @@
           <div class="usa-hint" id="question-image-file-input-hint">
             The maximum size for image upload is 1MB.
           </div>
+          <!-- USWDS replaces the label with its own aria-label. See the comment on the file input in questiontypes/FileUploadQuestionFragment.html (#10438). -->
           <input
             accept="image/png,image/jpeg"
+            aria-labelledby="question-image-input-label question-image-input"
             aria-describedby="question-image-file-input-hint question-image-file-input-errors"
             class="usa-file-input"
             id="question-image-input"
@@ -218,7 +223,10 @@
         <label
           for="question-enumerator-select"
           class="pointer-events-none text-gray-600 text-base px-1 py-2"
-          >Question enumerator<span
+          ><th:block
+            th:text="${model.enumeratorImprovementsEnabled} ? #{label.repeatedQuestion.associatedListSet} : 'Question enumerator'"
+          ></th:block
+          ><span
             th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
           ></span
         ></label>

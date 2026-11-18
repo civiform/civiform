@@ -70,6 +70,13 @@ test.describe('Program admin program list', () => {
 })
 
 test.describe('Translation tag showing as expected', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   const programName = 'Program for translation tags'
 
   test('Tag translation incomplete and complete shows up as expected', async ({

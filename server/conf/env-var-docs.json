@@ -924,11 +924,6 @@
         "values": ["none", "not_production", "demo"],
         "required": false
       },
-      "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED": {
-        "mode": "ADMIN_WRITEABLE",
-        "description": "Enables civiform admins to set up a customized eligibility message per screen.",
-        "type": "bool"
-      },
       "NAME_SUFFIX_DROPDOWN_ENABLED": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Enables suffix dropdown field in name question.",

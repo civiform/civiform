@@ -27,6 +27,60 @@ public class EnumeratorQuestionDefinitionTest {
         .containsOnly(CiviFormError.of("Enumerator question must have specified entity type"));
   }
 
+  @Test
+  public void validate_withEmptyEntityStringAndEnumeratorImprovementsEnabled_returnsListSetError() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            makeConfigBuilder().build(), LocalizedStrings.withDefaultValue(""));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ true))
+        .containsOnly(CiviFormError.of("Enter an answer for \"What is being listed?\""));
+  }
+
+  @Test
+  public void
+      validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsDisabled_returnsDefaultErrors() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of())
+                .build(),
+            LocalizedStrings.withDefaultValue("foo"));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ false))
+        .containsOnly(
+            CiviFormError.of("Administrative identifier cannot be blank"),
+            CiviFormError.of("Question text cannot be blank"));
+  }
+
+  @Test
+  public void
+      validate_withBlankQuestionTextAndAdminIdAndEnumeratorImprovementsEnabled_returnsListSetErrors() {
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of())
+                .build(),
+            LocalizedStrings.withDefaultValue("foo"));
+
+    assertThat(
+            question.validate(
+                /* previousDefinition= */ Optional.empty(),
+                /* enumeratorImprovementsEnabled= */ true))
+        .containsOnly(
+            CiviFormError.of("Enter list set admin ID"), CiviFormError.of("Enter prompt text"));
+  }
+
   @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
   private static ImmutableList<Object[]> getValidationTestData() {
     return ImmutableList.of(
@@ -67,7 +121,9 @@ public class EnumeratorQuestionDefinitionTest {
     QuestionDefinition question =
         new EnumeratorQuestionDefinition(config, LocalizedStrings.withDefaultValue("foo"));
 
-    ImmutableSet<CiviFormError> errors = question.validate();
+    ImmutableSet<CiviFormError> errors =
+        question.validate(
+            /* previousDefinition= */ Optional.empty(), /* enumeratorImprovementsEnabled= */ false);
 
     assertThat(errors)
         .isEqualTo(
@@ -75,6 +131,44 @@ public class EnumeratorQuestionDefinitionTest {
                 .map(CiviFormError::of)
                 .map(ImmutableSet::of)
                 .orElse(ImmutableSet.of()));
+  }
+
+  @SuppressWarnings("unused") // Is used via reflection by the @Parameters annotation below
+  private static ImmutableList<Object[]> getValidationWithEnumeratorImprovementsTestData() {
+    return ImmutableList.of(
+        new Object[] {
+          OptionalInt.of(-1), OptionalInt.empty(), "Enter a minimum list count of 0 or more"
+        },
+        new Object[] {
+          OptionalInt.empty(), OptionalInt.of(0), "Enter a maximum list count of 1 or more"
+        },
+        new Object[] {
+          OptionalInt.of(2),
+          OptionalInt.of(1),
+          "Enter a minimum list count that is less than or equal to the maximum list count"
+        });
+  }
+
+  @Test
+  @Parameters(method = "getValidationWithEnumeratorImprovementsTestData")
+  public void validate_withEnumeratorImprovementsEnabled_usesListSetWording(
+      OptionalInt minEntities, OptionalInt maxEntities, String expectedErrorMessage) {
+    QuestionDefinitionConfig config =
+        makeConfigBuilder()
+            .setValidationPredicates(
+                EnumeratorValidationPredicates.builder()
+                    .setMinEntities(minEntities)
+                    .setMaxEntities(maxEntities)
+                    .build())
+            .build();
+    QuestionDefinition question =
+        new EnumeratorQuestionDefinition(config, LocalizedStrings.withDefaultValue("foo"));
+
+    ImmutableSet<CiviFormError> errors =
+        question.validate(
+            /* previousDefinition= */ Optional.empty(), /* enumeratorImprovementsEnabled= */ true);
+
+    assertThat(errors).containsOnly(CiviFormError.of(expectedErrorMessage));
   }
 
   private QuestionDefinitionConfig.Builder makeConfigBuilder() {

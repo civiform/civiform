@@ -24,7 +24,7 @@ import views.components.ToastMessage.ToastType;
 /** Maps the server settings manifest to the {@link AdminSettingsIndexPageViewModel}. */
 public final class AdminSettingsIndexPageMapper {
 
-  /** The sections shown, in display order. Mirrors the legacy AdminSettingsIndexView.SECTIONS. */
+  /** The sections shown, in display order. */
   private static final ImmutableList<String> SECTIONS =
       ImmutableList.of(
           FEATURE_FLAG_SETTING_SECTION_NAME,

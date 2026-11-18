@@ -26,24 +26,17 @@ import services.DateConverter;
 import services.apikey.ApiKeyCreationResult;
 import services.apikey.ApiKeyService;
 import services.program.ProgramService;
-import services.settings.SettingsManifest;
 import views.admin.apikeys.ApiKeyCredentialsPageView;
 import views.admin.apikeys.ApiKeyCredentialsPageViewModel;
-import views.admin.apikeys.ApiKeyCredentialsView;
 import views.admin.apikeys.ApiKeyIndexPageView;
 import views.admin.apikeys.ApiKeyIndexPageViewModel;
-import views.admin.apikeys.ApiKeyIndexView;
 import views.admin.apikeys.ApiKeyNewOnePageView;
 import views.admin.apikeys.ApiKeyNewOnePageViewModel;
-import views.admin.apikeys.ApiKeyNewOneView;
 
 /** Controller for admins managing ApiKeys. */
 public class AdminApiKeysController extends CiviFormController {
 
   private final ApiKeyService apiKeyService;
-  private final ApiKeyIndexView indexView;
-  private final ApiKeyNewOneView newOneView;
-  private final ApiKeyCredentialsView apiKeyCredentialsView;
   private final ApiKeyIndexPageView indexPageView;
   private final ApiKeyNewOnePageView newOnePageView;
   private final ApiKeyCredentialsPageView credentialsPageView;
@@ -51,14 +44,10 @@ public class AdminApiKeysController extends CiviFormController {
   private final FormFactory formFactory;
   private final ProgramRepository programRepository;
   private final DateConverter dateConverter;
-  private final SettingsManifest settingsManifest;
 
   @Inject
   public AdminApiKeysController(
       ApiKeyService apiKeyService,
-      ApiKeyIndexView indexView,
-      ApiKeyNewOneView newOneView,
-      ApiKeyCredentialsView apiKeyCredentialsView,
       ApiKeyIndexPageView indexPageView,
       ApiKeyNewOnePageView newOnePageView,
       ApiKeyCredentialsPageView credentialsPageView,
@@ -67,13 +56,9 @@ public class AdminApiKeysController extends CiviFormController {
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
       ProgramRepository programRepository,
-      DateConverter dateConverter,
-      SettingsManifest settingsManifest) {
+      DateConverter dateConverter) {
     super(profileUtils, versionRepository);
     this.apiKeyService = checkNotNull(apiKeyService);
-    this.indexView = checkNotNull(indexView);
-    this.newOneView = checkNotNull(newOneView);
-    this.apiKeyCredentialsView = checkNotNull(apiKeyCredentialsView);
     this.indexPageView = checkNotNull(indexPageView);
     this.newOnePageView = checkNotNull(newOnePageView);
     this.credentialsPageView = checkNotNull(credentialsPageView);
@@ -81,7 +66,6 @@ public class AdminApiKeysController extends CiviFormController {
     this.formFactory = checkNotNull(formFactory);
     this.programRepository = checkNotNull(programRepository);
     this.dateConverter = checkNotNull(dateConverter);
-    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -112,17 +96,9 @@ public class AdminApiKeysController extends CiviFormController {
   public Result newOne(Http.Request request) {
     ImmutableSet<String> programNames = programRepository.getAllNonExternalProgramNames();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      ApiKeyNewOnePageViewModel model =
-          new ApiKeyNewOnePageMapper().map(programNames, /* maybeForm= */ Optional.empty());
-      return ok(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    if (programNames.isEmpty()) {
-      return ok(newOneView.renderNoPrograms(request));
-    } else {
-      return ok(newOneView.render(request, programNames));
-    }
+    ApiKeyNewOnePageViewModel model =
+        new ApiKeyNewOnePageMapper().map(programNames, /* maybeForm= */ Optional.empty());
+    return ok(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
@@ -133,50 +109,28 @@ public class AdminApiKeysController extends CiviFormController {
     ApiKeyCreationResult result = apiKeyService.createApiKey(form, profile);
 
     if (result.isSuccessful()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-        ApiKeyCredentialsPageViewModel model =
-            new ApiKeyCredentialsPageMapper()
-                .map(
-                    result.getApiKey(),
-                    result.getEncodedCredentials(),
-                    result.getKeyId(),
-                    result.getKeySecret());
-        return created(credentialsPageView.render(request, model)).as(Http.MimeTypes.HTML);
-      }
-
-      return created(
-          apiKeyCredentialsView.render(
-              request,
-              result.getApiKey(),
-              result.getEncodedCredentials(),
-              result.getKeyId(),
-              result.getKeySecret()));
+      ApiKeyCredentialsPageViewModel model =
+          new ApiKeyCredentialsPageMapper()
+              .map(
+                  result.getApiKey(),
+                  result.getEncodedCredentials(),
+                  result.getKeyId(),
+                  result.getKeySecret());
+      return created(credentialsPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      ApiKeyNewOnePageViewModel model =
-          new ApiKeyNewOnePageMapper()
-              .map(programService.getAllNonExternalProgramNames(), Optional.of(result.getForm()));
-      return badRequest(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return badRequest(
-        newOneView.render(
-            request,
-            programService.getAllNonExternalProgramNames(),
-            Optional.of(result.getForm())));
+    ApiKeyNewOnePageViewModel model =
+        new ApiKeyNewOnePageMapper()
+            .map(programService.getAllNonExternalProgramNames(), Optional.of(result.getForm()));
+    return badRequest(newOnePageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   private Result renderIndex(
       Http.Request request, ApiKeyStatus selectedStatus, ImmutableList<ApiKeyModel> apiKeys) {
     ImmutableSet<String> allProgramNames = programService.getAllProgramNames();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
-      ApiKeyIndexPageViewModel model =
-          new ApiKeyIndexPageMapper().map(selectedStatus, apiKeys, allProgramNames, dateConverter);
-      return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-
-    return ok(indexView.render(request, selectedStatus.displayName(), apiKeys, allProgramNames));
+    ApiKeyIndexPageViewModel model =
+        new ApiKeyIndexPageMapper().map(selectedStatus, apiKeys, allProgramNames, dateConverter);
+    return ok(indexPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 }

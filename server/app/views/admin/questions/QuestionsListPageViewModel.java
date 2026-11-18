@@ -95,6 +95,10 @@ public final class QuestionsListPageViewModel implements BaseViewModel {
     // Null when there is no draft/active version.
     private final VersionRow draftRow;
     private final VersionRow activeRow;
+    // URL of the question image, or null when absent.
+    private final String imageUrl;
+    // Alt text of the question image, or null when absent.
+    private final String imageAltText;
   }
 
   /** One "draft" or "active" row within a question card. */

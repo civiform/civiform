@@ -178,9 +178,9 @@ test.describe('Create and edit map question', () => {
         await expect(page.getByText('Create')).toBeVisible()
         await expect(page.getByLabel('GeoJSON endpoint')).toBeVisible()
 
-        const toastContainer = await page.innerHTML('#toast-container')
-        expect(toastContainer).toContain('bg-cf-toast-error')
-        expect(toastContainer).toContain('cannot be empty')
+        await expect(
+          page.locator('#toast-container .bg-cf-toast-error'),
+        ).toContainText('cannot be empty')
       })
     })
 

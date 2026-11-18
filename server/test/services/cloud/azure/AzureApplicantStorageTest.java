@@ -59,10 +59,18 @@ public class AzureApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getPresignedUrl() {
+  public void getPresignedUrl_usesDownloadToken() {
     String url = azureApplicantStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.empty());
 
-    assertThat(url).isEqualTo("http://localhost?sasToken");
+    assertThat(url).isEqualTo("http://localhost?downloadSasToken");
+  }
+
+  @Test
+  public void getPresignedUrl_originalFileNameSet_usesDownloadToken() {
+    String url =
+        azureApplicantStorage.getPresignedUrlString(TEST_FILE_NAME, Optional.of("file.pdf"));
+
+    assertThat(url).isEqualTo("http://localhost?downloadSasTokenWithContentHeaders");
   }
 
   @Test

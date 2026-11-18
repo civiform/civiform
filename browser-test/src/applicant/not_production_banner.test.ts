@@ -34,7 +34,7 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Verify demo banner', async () => {
       const demoBanner = page.getByRole('region', {
-        name: 'Demo mode informational alert',
+        name: 'Demo mode information',
       })
       await expect(demoBanner).toBeVisible()
       await validateScreenshot(demoBanner, 'demo-banner')
@@ -60,7 +60,7 @@ test.describe('Ineligible Page Tests', () => {
 
     await test.step('Verify demo banner on mobile', async () => {
       const demoBanner = page.getByRole('region', {
-        name: 'Demo mode informational alert',
+        name: 'Demo mode information',
       })
       await expect(demoBanner).toBeVisible()
       await validateScreenshot(demoBanner, 'demo-banner-mobile')

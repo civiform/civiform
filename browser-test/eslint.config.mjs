@@ -94,6 +94,17 @@ export default [
             "playwright/no-nested-step": "off",
             "playwright/no-skipped-test": "off",
             "playwright/no-wait-for-selector": "off",
+
+            // bin/shard_tests.mjs assigns tests to CI shards one by one, so
+            // a serial group would be split across shards and its later
+            // tests would run without the earlier ones.
+            "no-restricted-syntax": ["error", {
+                selector: "CallExpression[callee.property.name='configure'] Property[key.name='mode'][value.value='serial']",
+                message: "Serial describe groups are not supported: CI splits tests across shards one by one (see bin/shard_tests.mjs).",
+            }, {
+                selector: "MemberExpression[object.property.name='describe'][property.name='serial']",
+                message: "Serial describe groups are not supported: CI splits tests across shards one by one (see bin/shard_tests.mjs).",
+            }],
         },
     },
 

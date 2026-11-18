@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   loginAsCiviformAndProgramAdmin,
@@ -13,6 +14,13 @@ import {
 import {ProgramExtraAction, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Program admin review of submitted applications', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('all major steps', async ({
     page,
     adminQuestions,

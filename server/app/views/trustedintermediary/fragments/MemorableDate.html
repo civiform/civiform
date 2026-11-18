@@ -1,0 +1,92 @@
+<!--/*
+  USWDS memorable date (month/day/year) with the incomplete-date error state,
+  legacy ViewUtils.makeMemorableDate-parity markup with localized labels. The
+  date is never required here, so the required indicators render hidden.
+
+  With showError the error message appears and every empty part is outlined.
+  The legacy withCondClass call replaced the class attribute instead of adding
+  to it, so an outlined part loses its usa-input / usa-select class.
+
+  Parameters:
+    idPrefix   - prefix of the element ids: <idPrefix>-fieldset, -month, -day
+                 and -year
+    monthName  - name of the month select
+    monthValue - selected month, '1' to '12', or '' for the placeholder
+    dayName    - name of the day input
+    dayValue   - value of the day input
+    yearName   - name of the year input
+    yearValue  - value of the year input
+    showError  - show the incomplete-date error
+*/-->
+<fieldset
+  th:fragment="memorableDate(idPrefix, monthName, monthValue, dayName, dayValue, yearName, yearValue, showError)"
+  th:id="|${idPrefix}-fieldset|"
+  class="usa-fieldset"
+>
+  <div class="text-red-600 text-xs" id="memorable_date_error">
+    <span th:if="${showError}" th:text="#{error.incompleteDate}"></span>
+  </div>
+  <div class="usa-memorable-date">
+    <div class="usa-form-group usa-form-group--month usa-form-group--select">
+      <label class="usa-label" th:for="|${idPrefix}-month|"
+        >[[#{label.month}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+        ></span
+      ></label>
+      <select
+        th:class="${showError and #strings.isEmpty(monthValue)} ? 'usa-input--error mt-2.5 py-1' : 'usa-select'"
+        th:id="|${idPrefix}-month|"
+        th:name="${monthName}"
+        aria-describedby="mdHint"
+      >
+        <option
+          value=""
+          th:selected="${#strings.isEmpty(monthValue)}"
+          th:text="|- #{placeholder.memorableDate} -|"
+        ></option>
+        <option
+          th:each="month, monthStatus : ${ {'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'} }"
+          th:with="monthNumber=${#strings.toString(monthStatus.count)}"
+          th:value="${monthNumber}"
+          th:selected="${monthValue == monthNumber}"
+          th:text="${#messages.msg('option.memorableDate.' + month)}"
+        ></option>
+      </select>
+    </div>
+    <div class="usa-form-group usa-form-group--day">
+      <label class="usa-label" th:for="|${idPrefix}-day|"
+        >[[#{label.day}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+        ></span
+      ></label>
+      <input
+        th:class="${showError and #strings.isEmpty(dayValue)} ? 'usa-input--error mt-2.5' : 'usa-input'"
+        th:id="|${idPrefix}-day|"
+        th:name="${dayName}"
+        aria-describedby="mdHint"
+        inputmode="numeric"
+        maxlength="2"
+        pattern="[0-9]*"
+        th:value="${dayValue}"
+      />
+    </div>
+    <div class="usa-form-group usa-form-group--year">
+      <label class="usa-label" th:for="|${idPrefix}-year|"
+        >[[#{label.year}]]<span
+          th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+        ></span
+      ></label>
+      <input
+        th:class="${showError and #strings.isEmpty(yearValue)} ? 'usa-input--error mt-2.5' : 'usa-input'"
+        th:id="|${idPrefix}-year|"
+        th:name="${yearName}"
+        aria-describedby="mdHint"
+        minlength="4"
+        inputmode="numeric"
+        maxlength="4"
+        pattern="[0-9]*"
+        th:value="${yearValue}"
+      />
+    </div>
+  </div>
+</fieldset>

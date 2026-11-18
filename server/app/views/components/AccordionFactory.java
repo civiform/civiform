@@ -35,7 +35,7 @@ public final class AccordionFactory {
                     .withClasses(
                         ReferenceClasses.ACCORDION_BUTTON,
                         "usa-accordion__button",
-                        // Negating all the inherited button styles from styles.css
+                        // Negating all the inherited button styles from tailwind.css
                         "bg-white",
                         "text-black",
                         "px-5",

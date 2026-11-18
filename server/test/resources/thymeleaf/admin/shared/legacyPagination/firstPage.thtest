@@ -1,0 +1,38 @@
+%NAME pagination - first of three pages: no previous arrow, current page marked, next arrow
+%TEMPLATE_MODE HTML
+%CONTEXT
+pagination = @views.admin.shared.LegacyPagination@builder() \
+    .previousPageUrl(null).nextPageUrl("/list?page=2") \
+    .items(@com.google.common.collect.ImmutableList@of( \
+        @views.admin.shared.LegacyPagination$Item@page(1, "/list?page=1", true), \
+        @views.admin.shared.LegacyPagination$Item@page(2, "/list?page=2", false), \
+        @views.admin.shared.LegacyPagination$Item@page(3, "/list?page=3", false))) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<nav th:replace="~{admin/shared/LegacyPagination :: pagination(${pagination})}"></nav>
+# ----------------------------------------------------------------------
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconNavigateBefore(classes)" th:text="|iconNavigateBefore(${classes})|"></svg>
+<svg th:fragment="iconNavigateNext(classes)" th:text="|iconNavigateNext(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<nav class="usa-pagination" aria-label="Pagination">
+  <ul class="usa-pagination__list">
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button usa-current" href="/list?page=1" aria-label="Page1" aria-current="page">1</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=2" aria-label="Page2">2</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__page-no">
+      <a class="usa-pagination__button" href="/list?page=3" aria-label="Page3">3</a>
+    </li>
+    <li class="usa-pagination__item usa-pagination__arrow">
+      <a class="usa-pagination__link usa-pagination__next-page" aria-label="Next page" href="/list?page=2">
+        <span class="usa-pagination__link-text">Next</span>
+        <svg>iconNavigateNext(usa-icon h-4 w-4)</svg>
+      </a>
+    </li>
+  </ul>
+</nav>

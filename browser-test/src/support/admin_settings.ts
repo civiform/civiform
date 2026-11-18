@@ -61,16 +61,16 @@ export class AdminSettings {
   async saveChanges(expectUpdated = true, expectError = false) {
     await this.page.click('button:text("Save changes")')
 
-    const toastMessages = await this.page.innerText('#toast-container')
+    const toastContainer = this.page.locator('#toast-container')
 
     if (expectUpdated) {
-      expect(toastMessages).toContain('Settings updated')
+      await expect(toastContainer).toContainText('Settings updated')
     } else if (expectError) {
-      expect(toastMessages).toContain(
+      await expect(toastContainer).toContainText(
         "Error: That update didn't look quite right. Please fix the errors in the form and try saving again.",
       )
     } else {
-      expect(toastMessages).toContain('No changes to save')
+      await expect(toastContainer).toContainText('No changes to save')
     }
   }
 

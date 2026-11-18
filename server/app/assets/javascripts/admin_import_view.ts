@@ -1,7 +1,7 @@
 import {attachRedirectToPageListeners} from '@/main'
 
 /**
- * Dynamic behavior for AdminImportView.
+ * Dynamic behavior for AdminImportPageView.
  *
  * Some HTMX swap listeners ensure that the program import form (and its contents,
  * such as the stringified program JSON) work correctly.

@@ -9,22 +9,28 @@ import controllers.CiviFormController;
 import controllers.FlashKey;
 import forms.admin.ProgramStatusesForm;
 import java.util.Optional;
+import mapping.admin.programs.ProgramStatusesPageMapper;
 import org.pac4j.play.java.Secure;
 import play.data.DynamicForm;
 import play.data.Form;
 import play.data.FormFactory;
+import play.i18n.MessagesApi;
 import play.mvc.Http;
 import play.mvc.Result;
 import repository.VersionRepository;
 import services.CiviFormError;
 import services.ErrorAnd;
 import services.LocalizedStrings;
+import services.TranslationLocales;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
+import services.settings.SettingsManifest;
 import services.statuses.DuplicateStatusException;
 import services.statuses.StatusDefinitions;
 import services.statuses.StatusService;
+import views.admin.programs.ProgramStatusesPageView;
+import views.admin.programs.ProgramStatusesPageViewModel;
 import views.admin.programs.ProgramStatusesView;
 
 /**
@@ -38,6 +44,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
   private final RequestChecker requestChecker;
   private final FormFactory formFactory;
   private final ProgramService programService;
+  private final SettingsManifest settingsManifest;
+  private final ProgramStatusesPageView statusesPageView;
+  private final TranslationLocales translationLocales;
+  private final MessagesApi messagesApi;
 
   @Inject
   public AdminProgramStatusesController(
@@ -47,13 +57,21 @@ public final class AdminProgramStatusesController extends CiviFormController {
       FormFactory formFactory,
       ProfileUtils profileUtils,
       VersionRepository versionRepository,
-      ProgramService programService) {
+      ProgramService programService,
+      SettingsManifest settingsManifest,
+      ProgramStatusesPageView statusesPageView,
+      TranslationLocales translationLocales,
+      MessagesApi messagesApi) {
     super(profileUtils, versionRepository);
     this.service = checkNotNull(service);
     this.statusesView = checkNotNull(statusesView);
     this.requestChecker = checkNotNull(requestChecker);
     this.formFactory = checkNotNull(formFactory);
     this.programService = checkNotNull(programService);
+    this.settingsManifest = checkNotNull(settingsManifest);
+    this.statusesPageView = checkNotNull(statusesPageView);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.messagesApi = checkNotNull(messagesApi);
   }
 
   /** Displays the list of {@link StatusDefinitions} associated with the program. */
@@ -61,12 +79,37 @@ public final class AdminProgramStatusesController extends CiviFormController {
   public Result index(Http.Request request, long programId) throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
     ProgramDefinition program = programService.getFullProgramDefinition(programId);
+    StatusDefinitions activeStatusDefinitions =
+        service.lookupActiveStatusDefinitions(program.adminName());
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderStatusesPage(
+          request, program, activeStatusDefinitions, /* maybeStatusForm= */ Optional.empty());
+    }
+
     return ok(
         statusesView.render(
-            request,
-            program,
-            service.lookupActiveStatusDefinitions(program.adminName()),
-            /* maybeStatusForm= */ Optional.empty()));
+            request, program, activeStatusDefinitions, /* maybeStatusForm= */ Optional.empty()));
+  }
+
+  /** Renders the Thymeleaf version of the page. */
+  private Result renderStatusesPage(
+      Http.Request request,
+      ProgramDefinition program,
+      StatusDefinitions activeStatusDefinitions,
+      Optional<Form<ProgramStatusesForm>> maybeStatusForm) {
+    ProgramStatusesPageViewModel model =
+        new ProgramStatusesPageMapper()
+            .map(
+                program,
+                activeStatusDefinitions,
+                maybeStatusForm,
+                messagesApi.preferred(request),
+                /* hasTranslatableLocales= */ !translationLocales.translatableLocales().isEmpty(),
+                /* successMessage= */ request.flash().get(FlashKey.SUCCESS),
+                /* errorMessage= */ request.flash().get(FlashKey.ERROR));
+
+    return ok(statusesPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /**
@@ -99,6 +142,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        return renderStatusesPage(request, program, activeStatusDefinitions, Optional.of(form));
+      }
+
       return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     // Because we need to look directly at the value sent (or absent) in the form data
@@ -129,6 +176,10 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // whenever there is are form validation errors, which preserves the
       // form values.
       form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        return renderStatusesPage(request, program, activeStatusDefinitions, Optional.of(form));
+      }
+
       return ok(statusesView.render(request, program, activeStatusDefinitions, Optional.of(form)));
     }
     final String indexUrl = routes.AdminProgramStatusesController.index(programId).url();

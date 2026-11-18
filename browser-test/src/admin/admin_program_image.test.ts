@@ -99,6 +99,19 @@ test.describe('Admin can manage program image', () => {
     })
   })
 
+  test('file input is named by the page title and keeps the USWDS instructions', async ({
+    page,
+    adminPrograms,
+  }) => {
+    const programName = 'Image Input Name Program'
+    await adminPrograms.addProgram(programName)
+    await adminPrograms.goToProgramImagePage(programName)
+
+    await expect(page.locator('#program-image-input')).toHaveAccessibleName(
+      /^Image upload.*Drag file here or choose from folder$/,
+    )
+  })
+
   test.describe('back button', () => {
     const programName = 'Back Test Program'
 

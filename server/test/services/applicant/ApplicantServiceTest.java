@@ -1010,6 +1010,28 @@ public class ApplicantServiceTest extends ResetPostgres {
         .containsExactly("Sarah Brown");
   }
 
+  @Test
+  public void stageAndUpdateIfValid_enumeratorWithInitialQuestionNotOnBlock_savesEntityNames() {
+    // With the enumerator improvements flag off, adding a list set to a program doesn't add its
+    // initial question to the block.
+    QuestionDefinition enumeratorDefinition =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.NAME).getQuestionDefinition();
+    createProgram(enumeratorDefinition);
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorDefinition.getQuestionPathSegment());
+
+    stageEnumeratorUpdates(
+        programDefinition,
+        applicant,
+        "1",
+        ImmutableMap.of(enumeratorPath.atIndex(0).toString(), "Sarah"));
+
+    ApplicantData applicantDataAfter =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(applicantDataAfter.readRepeatedEntities(enumeratorPath)).containsExactly("Sarah");
+  }
+
   /** Looks up the definition of the initial question linked to the given enumerator question. */
   private QuestionDefinition initialQuestionDefinition(QuestionDefinition enumeratorDefinition) {
     long initialQuestionId = enumeratorDefinition.getEnumeratorInitialQuestionId().orElseThrow();
@@ -1163,6 +1185,45 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void
+      stageAndUpdateIfValid_radioInitialQuestionNothingSelected_keepsEntityWithRequiredError() {
+    // An unselected radio group submits no field, so only the row's marker is sent. The entity
+    // should still be created so the row stays on the screen with its error.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(QuestionType.RADIO_BUTTON, ImmutableMap.of());
+
+    assertThat(staged.block().getContextualizedInitialQuestions()).hasSize(1);
+    assertThat(staged.block().hasErrors()).isTrue();
+    assertThat(
+            staged
+                .initialQuestion()
+                .getQuestion()
+                .getValidationErrors()
+                .get(staged.initialQuestionPath()))
+        .anyMatch(ValidationErrorMessage::isRequiredError);
+  }
+
+  @Test
+  public void
+      stageAndUpdateIfValid_dateInitialQuestionAllFieldsEmpty_keepsEntityWithRequiredError() {
+    // Date cleanup drops a fully empty date, so only the row's marker is left. The entity should
+    // still be created so the row stays on the screen with its error.
+    StagedInitialQuestion staged =
+        stageInitialQuestionAnswer(
+            QuestionType.DATE, ImmutableMap.of(Scalar.YEAR, "", Scalar.MONTH, "", Scalar.DAY, ""));
+
+    assertThat(staged.block().getContextualizedInitialQuestions()).hasSize(1);
+    assertThat(staged.block().hasErrors()).isTrue();
+    assertThat(
+            staged
+                .initialQuestion()
+                .getQuestion()
+                .getValidationErrors()
+                .get(staged.initialQuestionPath()))
+        .anyMatch(ValidationErrorMessage::isRequiredError);
+  }
+
+  @Test
   public void stageAndUpdateIfValid_initialQuestionMissingOneRequiredField_blockHasFieldError() {
     // Only the last name is missing, so (like a standalone name question) a field-specific error
     // attaches to the last-name path and there is no top-level "required" error.
@@ -1225,12 +1286,17 @@ public class ApplicantServiceTest extends ResetPostgres {
     // applicant.household_members[0].member_name, and first_name/last_name hang off it.
     Path initialQuestionPath =
         enumeratorPath.atIndex(0).join(initialQuestionDefinition.getQuestionPathSegment());
+    // Every entity row also submits a blank row marker, as the form does.
     ImmutableMap<String, String> formData =
-        fieldValues.entrySet().stream()
-            .collect(
-                ImmutableMap.toImmutableMap(
-                    entry -> initialQuestionPath.join(entry.getKey()).toString(),
-                    entry -> entry.getValue()));
+        ImmutableMap.<String, String>builder()
+            .put(enumeratorPath.atIndex(0).join(RepeatedEntity.ENTITY_ROW_MARKER).toString(), "")
+            .putAll(
+                fieldValues.entrySet().stream()
+                    .collect(
+                        ImmutableMap.toImmutableMap(
+                            entry -> initialQuestionPath.join(entry.getKey()).toString(),
+                            entry -> entry.getValue())))
+            .build();
 
     // Run the controller's form-data preprocessing (memorable-date consolidation, phone country
     // code) so these are exercised for the initial question before staging.
@@ -2327,7 +2393,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
+                        "/admin/programs/%d/applications/%d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(emailSendClient)
@@ -2426,7 +2492,7 @@ public class ApplicantServiceTest extends ResetPostgres {
                 programName,
                 baseUrl
                     + String.format(
-                        "/admin/programs/%1$d/applications?selectedApplicationUri=%%2Fadmin%%2Fprograms%%2F%1$d%%2Fapplications%%2F%2$d",
+                        "/admin/programs/%d/applications/%d",
                         programDefinition.id(), application.id)));
     // TI email
     Mockito.verify(emailSendClient)

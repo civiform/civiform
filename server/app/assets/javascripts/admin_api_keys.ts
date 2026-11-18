@@ -1,4 +1,4 @@
-// Javascript handling for the admin API keys page (ApiKeyIndexView)
+// Javascript handling for the admin API keys page (ApiKeyIndexPage.html)
 import {addEventListenerToElements} from '@/util'
 
 function onRetireKeyFormSubmit(event: Event) {

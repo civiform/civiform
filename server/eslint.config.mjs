@@ -18,7 +18,6 @@ export default [
       "eslint.config.mjs",
       "vitest.setup.ts",
       "postcss.config.js",
-      "tailwind.config.js",
       "config.d.ts"
     ],
   },

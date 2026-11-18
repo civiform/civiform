@@ -72,6 +72,7 @@ public class FileUploadViewStrategyTest {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* id= */ "fakeId",
+            /* labelledById= */ "fakeTitleId",
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false,
@@ -86,7 +87,27 @@ public class FileUploadViewStrategyTest {
             + FILE_INPUT_HINT_ID_PREFIX
             + "2";
     assertThat(uswdsForm.render())
-        .containsPattern("<input type=\"file\".*aria-describedby=\"" + expectedAriaDescribedBy);
+        .containsPattern(
+            "<input id=\"fakeId-input\" type=\"file\".*aria-describedby=\""
+                + expectedAriaDescribedBy);
+  }
+
+  @Test
+  public void createUswdsFileInputFormElement_isLabelledByTitleThenItself() {
+    DivTag uswdsForm =
+        FileUploadViewStrategy.createUswdsFileInputFormElement(
+            /* id= */ "fakeId",
+            /* labelledById= */ "fakeTitleId",
+            /* acceptedMimeTypes= */ "image/*",
+            /* hints= */ ImmutableList.of("hint0"),
+            /* disabled= */ false,
+            FILE_LIMIT_MB,
+            messages);
+
+    assertThat(uswdsForm.render())
+        .containsPattern(
+            "<input id=\"fakeId-input\" type=\"file\".*aria-labelledby=\"fakeTitleId"
+                + " fakeId-input\"");
   }
 
   @Test
@@ -94,6 +115,7 @@ public class FileUploadViewStrategyTest {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* id= */ "fakeId",
+            /* labelledById= */ "fakeTitleId",
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false,
@@ -109,6 +131,7 @@ public class FileUploadViewStrategyTest {
     DivTag uswdsForm =
         FileUploadViewStrategy.createUswdsFileInputFormElement(
             /* id= */ "fakeId",
+            /* labelledById= */ "fakeTitleId",
             /* acceptedMimeTypes= */ "image/*",
             /* hints= */ ImmutableList.of("hint0", "hint1", "hint2"),
             /* disabled= */ false,
@@ -116,7 +139,7 @@ public class FileUploadViewStrategyTest {
             messages);
 
     assertThat(uswdsForm.render())
-        .containsPattern("<input type=\"file\".*data-file-limit-mb=\"5\"");
+        .containsPattern("<input id=\"fakeId-input\" type=\"file\".*data-file-limit-mb=\"5\"");
   }
 
   @Test

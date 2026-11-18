@@ -1,0 +1,44 @@
+%NAME nameSuffixSelect - the stored suffix is selected
+%TEMPLATE_MODE HTML
+%CONTEXT
+form = @views.trustedintermediary.TrustedIntermediaryClientInfoForm@builder() \
+    .nameSuffix(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("JR", @com.google.common.collect.ImmutableList@of())) \
+    .suffixOptions(@com.google.common.collect.ImmutableList@of( \
+        new views.trustedintermediary.TrustedIntermediaryClientInfoForm$SuffixOption("JR", "Jr.", true), \
+        new views.trustedintermediary.TrustedIntermediaryClientInfoForm$SuffixOption("SR", "Sr.", false))) \
+    .build()
+%MESSAGES
+label.nameSuffix=Suffix
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{trustedintermediary/fragments/ClientInfoForm :: nameSuffixSelect(${form})}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-2">
+  <label for="name-suffix-select" class="usa-label mt-0"
+    >Suffix<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <select
+      maxlength="10000"
+      id="name-suffix-select"
+      name="nameSuffix"
+      class="usa-select"
+    >
+      <option value="" hidden></option>
+      <optgroup label="">
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="JR"
+          selected="selected"
+        >Jr.</option>
+        <option
+          class="cf-multi-option-question-option cf-multi-option-value"
+          value="SR"
+        >Sr.</option>
+      </optgroup>
+    </select>
+    <div id="name-suffix-select-errors" class="text-red-600 text-xs p-1 hidden">
+    </div>
+  </div>
+</div>

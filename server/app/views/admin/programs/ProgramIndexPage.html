@@ -1,0 +1,287 @@
+<!--/* CiviForm admin's list of all programs. */-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramIndexPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* Flash toasts, consumed by toast.ts. The legacy layout rendered these
+       in the page header; they are hidden data divs, so position does not
+       matter. */-->
+  <div
+    th:each="toast : ${model.toasts}"
+    class="hidden cf-toast-data"
+    th:id="${toast.id}"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    th:attr="canDismiss=${toast.canDismiss} ? 'true' : 'false', toastType=${toast.type}"
+    th:text="${toast.message}"
+  ></div>
+
+  <div class="px-4">
+    <div class="flex items-center space-x-4 mt-12">
+      <h1 th:text="${model.title}"></h1>
+      <div class="flex-grow"></div>
+      <div class="flex flex-col items-end">
+        <div class="flex flex-row space-x-4">
+          <!--/* modal.ts connects each trigger through its "<modal id>-button" id. */-->
+          <button
+            id="download-demographics-csv-modal-button"
+            class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200 my-2"
+          >
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: iconDownload('inline-block h-4.5 w-4.5')}"
+            ></svg>
+            <span class="text-left">Download demographic data (CSV)</span>
+          </button>
+          <!--/* main.ts follows data-redirect-to. */-->
+          <button
+            id="new-program-button"
+            class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200 my-2"
+            th:data-redirect-to="${model.newProgramUrl}"
+          >
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: iconAdd('inline-block h-4.5 w-4.5')}"
+            ></svg>
+            <span class="text-left">Create new program</span>
+          </button>
+          <button
+            th:if="${model.publishAllTriggerId != null}"
+            th:id="${model.publishAllTriggerId}"
+            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 my-2"
+          >
+            <svg
+              th:replace="~{admin/shared/LegacySvgFragments :: iconPublish('inline-block h-4.5 w-4.5')}"
+            ></svg>
+            <span class="text-left">Publish all drafts</span>
+          </button>
+        </div>
+        <a class="usa-link" th:href="${model.importProgramUrl}"
+          >Import existing program</a
+        >
+      </div>
+    </div>
+
+    <div class="flex items-center space-x-4 mt-12">
+      <h2 th:text="${model.explanation}"></h2>
+    </div>
+    <div class="mt-10 flex">
+      <div class="flex-grow"></div>
+      <p class="text-sm">Sorting by most recently updated</p>
+    </div>
+
+    <a
+      th:each="tab : ${model.tabs}"
+      th:href="${tab.url}"
+      th:text="${tab.label}"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center m-2"
+      th:classappend="${tab.selected} ? 'border-blue-400 border-b-2'"
+    ></a>
+
+    <div class="mt-6">
+      <th:block th:each="card : ${model.programCards}">
+        <div
+          th:replace="~{admin/programs/fragments/ProgramIndexProgramCard :: programCard(${card})}"
+        ></div>
+      </th:block>
+    </div>
+  </div>
+</th:block>
+
+<!--/* Modals, inserted by the layout into #modal-container. */-->
+<th:block th:fragment="modals">
+  <div
+    th:each="modal : ${model.modals}"
+    th:id="${modal.id}"
+    tabindex="0"
+    th:attr="aria-labelledby=|${modal.id}-title|"
+    class="cf-modal hidden absolute left-1/2 transform -translate-x-1/2 -translate-y-1/2 rounded-3xl shadow-xl bg-white max-h-screen overflow-y-auto w-11/12"
+    th:classappend="|${modal.widthClass} top-1/2|"
+  >
+    <div
+      th:id="|${modal.id}-title|"
+      class="sticky top-0 px-2 pt-2 flex gap-4 place-items-center"
+    >
+      <div
+        class="text-2xl text-gray-600 my-5 mx-4"
+        th:text="${modal.title}"
+      ></div>
+      <!--/* Spacer so the close button and title don't overlap. */-->
+      <div class="w-12"></div>
+    </div>
+    <div class="my-5 mx-6">
+      <th:block th:switch="${modal.type.name()}">
+        <th:block th:case="'DEMOGRAPHICS_CSV'">
+          <div th:replace="~{:: demographicsModalContent(${modal})}"></div>
+        </th:block>
+        <th:block th:case="'PUBLISH_PROGRAM'">
+          <form th:replace="~{:: publishProgramModalContent(${modal})}"></form>
+        </th:block>
+        <th:block th:case="'PUBLISH_ALL'">
+          <div th:replace="~{:: publishAllModalContent(${modal})}"></div>
+        </th:block>
+      </th:block>
+    </div>
+    <button
+      type="button"
+      aria-label="Close"
+      class="cf-modal-close flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 top-0 right-0 absolute my-6 mx-4"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconClose('w-6 h-6 cursor-pointer')}"
+      ></svg>
+    </button>
+  </div>
+</th:block>
+
+<!--/* Content of the demographics download modal. */-->
+<div th:fragment="demographicsModalContent(modal)" class="px-8">
+  <form method="GET" th:action="${modal.actionUrl}">
+    <p class="text-sm">
+      This will download demographic data for all applications for all programs.
+      Use the filters below to select a date range for the exported data. If you
+      select a large date range or leave it blank, the data could be slow to
+      export.
+    </p>
+    <fieldset class="mt-4 pt-1 pb-2 border">
+      <legend class="ml-3">Applications submitted</legend>
+      <!--/* The field names should be kept in sync with
+             AdminApplicationController.downloadDemographics. */-->
+      <div
+        th:replace="~{admin/shared/LegacyFieldWithLabel/DateField :: dateField('demographics-from-date', 'fromDate', 'From:', '', 'ml-3 inline-flex')}"
+      ></div>
+      <div
+        th:replace="~{admin/shared/LegacyFieldWithLabel/DateField :: dateField('demographics-until-date', 'untilDate', 'Until:', '', 'ml-3 inline-flex')}"
+      ></div>
+    </fieldset>
+    <button
+      type="submit"
+      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 mt-6"
+    >
+      <svg
+        th:replace="~{admin/shared/LegacySvgFragments :: iconDownload('inline-block h-4.5 w-4.5')}"
+      ></svg>
+      <span class="text-left">Download demographic data (CSV)</span>
+    </button>
+  </form>
+</div>
+
+<!--/* Content of the modal that publishes a single draft program. */-->
+<form
+  th:fragment="publishProgramModalContent(modal)"
+  method="POST"
+  th:action="${modal.actionUrl}"
+>
+  <input hidden th:value="${templateGlobals.csrfToken()}" name="csrfToken" />
+  <div th:if="${modal.missingUniversalQuestions}">
+    <div
+      th:replace="~{:: warningAlert(null, 'Warning: This program does not use all recommended universal questions.')}"
+    ></div>
+    <p class="py-4">
+      We recommend using all universal questions when possible to create
+      consistent reuse of data and question formatting.
+    </p>
+  </div>
+  <div class="flex flex-col md:flex-row py-4">
+    <button
+      type="submit"
+      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+    >
+      Publish program
+    </button>
+    <button th:replace="~{:: cancelButton}"></button>
+  </div>
+</form>
+
+<!--/* Content of the modal that publishes all draft programs and questions. */-->
+<div th:fragment="publishAllModalContent(modal)" class="flex-row space-y-6">
+  <div
+    th:replace="~{:: warningAlert('All draft questions in programs will be published.', 'Due to the nature of shared questions and versioning, all questions and programs will need to be published together.')}"
+  ></div>
+
+  <div class="cf-admin-publish-references-program">
+    <p class="font-bold text-lg" th:text="${modal.programsHeading}"></p>
+    <p th:if="${modal.draftPrograms.isEmpty()}" class="pl-5">None</p>
+    <ul
+      th:unless="${modal.draftPrograms.isEmpty()}"
+      class="list-disc list-inside"
+    >
+      <!--/* The spans and link hug each other so no whitespace text node lands
+             between them; browser tests compare the items' exact text. */-->
+      <li th:each="program : ${modal.draftPrograms}" class="pt-2">
+        <span class="font-medium" th:text="${program.name}"></span
+        ><span
+          >[[${program.visibilityText}]]<span
+            th:if="${program.universalQuestionsText != null}"
+            th:text="|- ${program.universalQuestionsText}|"
+          ></span></span
+        ><a
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          th:href="${program.editUrl}"
+          >Edit</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <div class="cf-admin-publish-references-question">
+    <p class="font-bold text-lg" th:text="${modal.questionsHeading}"></p>
+    <p th:if="${modal.draftQuestions.isEmpty()}" class="pl-5">None</p>
+    <ul
+      th:unless="${modal.draftQuestions.isEmpty()}"
+      class="list-disc list-inside"
+    >
+      <li th:each="question : ${modal.draftQuestions}" class="pt-2">
+        <span class="font-medium" th:text="${question.text}"></span
+        ><span th:text="' - '"></span
+        ><a
+          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          th:href="${question.editUrl}"
+          th:attr="data-testid=${question.adminName}"
+          >Edit</a
+        >
+      </li>
+    </ul>
+  </div>
+
+  <div class="flex flex-row pt-5">
+    <form method="POST" th:action="${modal.actionUrl}">
+      <input
+        hidden
+        th:value="${templateGlobals.csrfToken()}"
+        name="csrfToken"
+      />
+      <button
+        type="submit"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+      >
+        Publish all draft programs and questions
+      </button>
+    </form>
+    <button th:replace="~{:: cancelButton}"></button>
+  </div>
+</div>
+
+<!--/* A USWDS warning alert. Pass a null title for an alert without a heading. */-->
+<div
+  th:fragment="warningAlert(title, text)"
+  class="usa-alert usa-alert--warning"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <h4
+      th:if="${title != null}"
+      class="usa-alert__heading"
+      th:text="${title}"
+    ></h4>
+    <p class="usa-alert__text" th:text="${text}"></p>
+  </div>
+</div>
+
+<!--/* Closes the enclosing modal (modal.ts handles .cf-modal-close). */-->
+<button
+  th:fragment="cancelButton"
+  type="button"
+  class="text-blue-900 font-bold opacity-75 underline hover:opacity-100 border-none hover:bg-opacity-0 bg-transparent cf-modal-close"
+>
+  Cancel
+</button>

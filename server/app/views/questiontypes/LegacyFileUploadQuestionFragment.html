@@ -15,6 +15,7 @@
   ></div>
   <div
     class="usa-hint"
+    th:id="${questionId} + '-hint'"
     th:with="maxFiles=${question.getQuestionDefinition().getMaxFiles()}"
   >
     <p
@@ -71,12 +72,14 @@
     </div>
   </div>
 
+  <!--/* aria-labelledby keeps the question title in the name. See the comment on the file input in questiontypes/FileUploadQuestionFragment.html (#10438). */-->
   <input
     th:id="${inputId}"
     class="usa-file-input"
     type="file"
     name="file"
-    th:aria-describedby="${hasErrors} ? ' ' + ${questionId} + '-error' : ''"
+    th:aria-labelledby="|${questionId}-title ${inputId}|"
+    th:aria-describedby="|${questionId}-description ${questionId}-hint| + (${hasErrors} ? | ${questionId}-error| : '')"
     th:aria-invalid="${hasErrors}"
     th:accept="${fileUploadAllowedFileTypeSpecifiers}"
     th:data-file-limit-mb="${maxFileSizeMb}"

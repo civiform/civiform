@@ -1,5 +1,6 @@
 package controllers.admin;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.ImmutableList.toImmutableList;
 import static play.mvc.Results.notFound;
 import static play.mvc.Results.ok;
@@ -12,6 +13,7 @@ import com.google.common.collect.ImmutableSet;
 import forms.ManageProgramAdminsForm;
 import java.util.Optional;
 import javax.inject.Inject;
+import mapping.admin.programs.ManageProgramAdminsPageMapper;
 import models.AccountModel;
 import models.ProgramModel;
 import org.pac4j.play.java.Secure;
@@ -21,8 +23,12 @@ import play.mvc.Http;
 import play.mvc.Result;
 import repository.ProgramRepository;
 import services.CiviFormError;
+import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
 import services.role.RoleService;
+import services.settings.SettingsManifest;
+import views.admin.programs.ManageProgramAdminsPageView;
+import views.admin.programs.ManageProgramAdminsPageViewModel;
 import views.admin.programs.ManageProgramAdminsView;
 import views.components.ToastMessage;
 
@@ -30,26 +36,32 @@ import views.components.ToastMessage;
 public final class ProgramAdminManagementController {
 
   private final ManageProgramAdminsView manageAdminsView;
+  private final ManageProgramAdminsPageView manageAdminsPageView;
   private final ProgramRepository programRepository;
   private final RoleService roleService;
   private final FormFactory formFactory;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ProgramAdminManagementController(
       ManageProgramAdminsView manageAdminsView,
+      ManageProgramAdminsPageView manageAdminsPageView,
       ProgramRepository programRepository,
       RoleService roleService,
-      FormFactory formFactory) {
+      FormFactory formFactory,
+      SettingsManifest settingsManifest) {
     this.manageAdminsView = manageAdminsView;
+    this.manageAdminsPageView = checkNotNull(manageAdminsPageView);
     this.programRepository = programRepository;
     this.roleService = roleService;
     this.formFactory = formFactory;
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Displays a form for managing program admins of a given program. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result edit(Http.Request request, long programId) {
-    return this.loadProgram(request, programId, /* message= */ Optional.empty());
+    return this.loadProgram(request, programId, /* errorMessage= */ Optional.empty());
   }
 
   /** Removes `adminEmail` as a program admin for the program identified by `programId`. */
@@ -72,8 +84,7 @@ public final class ProgramAdminManagementController {
         formFactory.form(ManageProgramAdminsForm.class).bindFromRequest(request);
     String adminEmail = Strings.nullToEmpty(form.get().getAdminEmail()).trim();
     if (adminEmail.isEmpty()) {
-      ToastMessage message = ToastMessage.errorNonLocalized("Enter an admin email");
-      return this.loadProgram(request, programId, Optional.of(message));
+      return this.loadProgram(request, programId, Optional.of("Enter an admin email"));
     }
     try {
       Optional<CiviFormError> maybeError =
@@ -83,19 +94,17 @@ public final class ProgramAdminManagementController {
         return redirect(routes.ProgramAdminManagementController.edit(programId));
       }
 
-      ToastMessage message = ToastMessage.errorNonLocalized(maybeError.get().message());
-
-      return this.loadProgram(request, programId, Optional.of(message));
+      return this.loadProgram(request, programId, Optional.of(maybeError.get().message()));
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());
     }
   }
 
   /**
-   * Displays a form for managing program admins of a given program. Displays a message as an error
-   * toast if provided.
+   * Displays a form for managing program admins of a given program. Displays the error message as
+   * an error toast if provided.
    */
-  private Result loadProgram(Http.Request request, long programId, Optional<ToastMessage> message) {
+  private Result loadProgram(Http.Request request, long programId, Optional<String> errorMessage) {
     try {
       Optional<ProgramModel> program =
           programRepository.lookupProgram(programId).toCompletableFuture().join();
@@ -108,12 +117,22 @@ public final class ProgramAdminManagementController {
                 .map(AccountModel::getEmailAddress)
                 .collect(toImmutableList());
 
+        ProgramDefinition programDefinition =
+            programRepository.getShallowProgramDefinition(program.get());
+
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+          ManageProgramAdminsPageViewModel model =
+              new ManageProgramAdminsPageMapper()
+                  .map(programDefinition, programAdmins, errorMessage);
+          return ok(manageAdminsPageView.render(request, model)).as(Http.MimeTypes.HTML);
+        }
+
         return ok(
             manageAdminsView.render(
                 request,
-                programRepository.getShallowProgramDefinition(program.get()),
+                programDefinition,
                 programAdmins,
-                message));
+                errorMessage.map(ToastMessage::errorNonLocalized)));
       }
     } catch (ProgramNotFoundException e) {
       return notFound(e.getLocalizedMessage());

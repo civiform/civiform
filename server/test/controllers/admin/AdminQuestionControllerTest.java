@@ -73,19 +73,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     // Create a draft question with an existing image file key and alt text
     String fileKey = "questions/1/image1.png";
     String altText = "Alt text description";
-    QuestionDefinition definition =
-        new StaticContentQuestionDefinition(
-            QuestionDefinitionConfig.builder()
-                .setName("static-question-" + UUID.randomUUID())
-                .setDescription("static content description")
-                .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
-                .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"))
-                .setImageFileKey(fileKey)
-                .setLocalizedImageDescription(LocalizedStrings.withDefaultValue(altText))
-                .build());
-    QuestionModel question = new QuestionModel(definition);
-    question.addVersion(draftVersion);
-    question.save();
+    QuestionModel question = createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
     //  Verify the edit page renders successfully
     Request editRequest = fakeRequestBuilder().addCSRFToken().build();
@@ -480,6 +468,51 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   }
 
   @Test
+  public void index_withQuestionImage_featureEnabled_displaysImage() {
+    String fileKey = "question-image/question-1/test-image.png";
+    String altText = "Alt text for static question image";
+    createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+            .build();
+    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
+    assertThat(contentAsString(result)).contains(fileKey);
+    assertThat(contentAsString(result)).contains("alt=\"" + altText + "\"");
+  }
+
+  @Test
+  public void index_withQuestionImage_featureDisabled_doesNotDisplayImage() {
+    createDraftStaticQuestion(
+        Optional.of("question-image/question-1/test-image.png"),
+        Optional.of("Alt text for static question image"));
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
+            .build();
+    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("data-testid=\"question-image-container\"");
+  }
+
+  @Test
+  public void index_withoutQuestionImage_doesNotDisplayImage() {
+    createDraftStaticQuestion(Optional.empty(), Optional.empty());
+
+    Request request =
+        fakeRequestBuilder()
+            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+            .build();
+    Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).doesNotContain("data-testid=\"question-image-container\"");
+  }
+
+  @Test
   public void newOne_returnsExpectedForm() {
     Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result =
@@ -535,10 +568,36 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             /* isRepeatingBlockOptional= */ Optional.empty());
 
     assertThat(result.status()).isEqualTo(OK);
+    // TODO(#11943): Remove the three doesNotContain checks once the enumerator improvements flag is
+    // removed.
     assertThat(contentAsString(result))
-        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .contains("This question repeats for each item or person an applicant adds.")
+        .doesNotContain("By selecting an enumerator, you are creating a repeated question")
         .doesNotContain("Please reference the applicant-defined repeated entity name")
         .doesNotContain("To reference the repeated entities containing this one, use");
+  }
+
+  @Test
+  public void newOne_enumeratorFlagDisabled_showsFullRepeatedQuestionInformationMessage() {
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .build();
+    Result result =
+        controller.newOne(
+            request,
+            "text",
+            "/some/redirect/url",
+            /* enumeratorQuestionOptional= */ Optional.empty(),
+            /* isRepeatingBlockOptional= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result))
+        .contains("By selecting an enumerator, you are creating a repeated question - a question")
+        .contains("Please reference the applicant-defined repeated entity name")
+        .contains("To reference the repeated entities containing this one, use")
+        .doesNotContain("This question repeats for each item or person an applicant adds.");
   }
 
   @Test
@@ -702,7 +761,11 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void edit_enumerator_withImprovementsDisabled_hidesInitialQuestion() {
     QuestionModel enumeratorQuestion =
         testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
-    Request request = fakeRequestBuilder().addCSRFToken().build();
+    Request request =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
+            .build();
 
     Result result =
         controller
@@ -733,7 +796,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
-    assertThat(content).contains("Listed entity");
+    assertThat(content).contains("What is being listed?");
     assertThat(content).doesNotContain("initial-question-section");
     assertThat(content).doesNotContain("Admin id:");
   }
@@ -766,18 +829,17 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             QuestionType.ENUMERATOR.toString());
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result))
-        .contains("Enumerator question must have specified entity type");
+    assertThat(StringEscapeUtils.unescapeHtml4(contentAsString(result)))
+        .contains("Enter an answer for \"What is being listed?\"");
     assertListedEntityAndInitialQuestionShown(contentAsString(result));
   }
 
   private static void assertListedEntityAndInitialQuestionShown(String content) {
     String unescaped = StringEscapeUtils.unescapeHtml4(content);
-    assertThat(unescaped).contains("Listed entity");
+    assertThat(unescaped).contains("What is being listed?");
     assertThat(unescaped)
         .contains(
-            "Specify the type of individuals or objects an applicant will need to list out."
-                + " Please add these in the singular form, e.g. \"household member\" or"
+            "Enter the items or people an applicant lists out, such as \"household member\" or"
                 + " \"income source.\"");
     assertThat(unescaped)
         .contains("aria-describedby=\"enumerator-question-entity-type-input-description\"");
@@ -787,7 +849,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(unescaped)
         .containsPattern("Admin id:</strong>\\s*applicant's household member's name");
     assertThat(unescaped)
-        .contains("This is the question that the applicant will use to list out an entity.");
+        .contains("Applicants use this question to add each item or person to the list set.");
   }
 
   @Test
@@ -1869,6 +1931,24 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     assertThat(content).contains("filters[0]");
     assertThat(content).contains("filters[1]");
     assertThat(content).doesNotContain("filters[2]");
+  }
+
+  private QuestionModel createDraftStaticQuestion(
+      Optional<String> imageFileKey, Optional<String> altText) {
+    QuestionDefinitionConfig.Builder builder =
+        QuestionDefinitionConfig.builder()
+            .setName("static-question-" + UUID.randomUUID())
+            .setDescription("static content description")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Static content text"))
+            .setQuestionHelpText(LocalizedStrings.withDefaultValue("Static content help text"));
+    imageFileKey.ifPresent(builder::setImageFileKey);
+    altText.ifPresent(
+        text -> builder.setLocalizedImageDescription(LocalizedStrings.withDefaultValue(text)));
+    QuestionModel question =
+        new QuestionModel(new StaticContentQuestionDefinition(builder.build()));
+    question.addVersion(draftVersion);
+    question.save();
+    return question;
   }
 
   private NameQuestionDefinition createNameQuestionDuplicate(QuestionModel question) {

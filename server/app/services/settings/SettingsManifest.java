@@ -1070,11 +1070,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
     return getString("BANNER_TYPE", request);
   }
 
-  /** Enables civiform admins to set up a customized eligibility message per screen. */
-  public boolean getCustomizedEligibilityMessageEnabled(RequestHeader request) {
-    return getBool("CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED", request);
-  }
-
   /** Enables suffix dropdown field in name question. */
   public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
     return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
@@ -2355,13 +2350,6 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           SettingType.ENUM,
                           SettingMode.ADMIN_WRITEABLE,
                           ImmutableList.of("none", "not_production", "demo")),
-                      SettingDescription.create(
-                          "CUSTOMIZED_ELIGIBILITY_MESSAGE_ENABLED",
-                          "Enables civiform admins to set up a customized eligibility message per"
-                              + " screen.",
-                          /* isRequired= */ false,
-                          SettingType.BOOLEAN,
-                          SettingMode.ADMIN_WRITEABLE),
                       SettingDescription.create(
                           "NAME_SUFFIX_DROPDOWN_ENABLED",
                           "Enables suffix dropdown field in name question.",

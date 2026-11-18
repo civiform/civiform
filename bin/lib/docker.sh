@@ -46,6 +46,56 @@ function docker::compose_unit_test() {
 }
 
 #######################################
+# Picks the host ports for the unit test environment so that a worktree's test
+# environment can start while another worktree's is running. For each port not
+# set by the caller:
+#   * If this project's civiform container exists, reuse the port it was
+#     configured with. A different value would make compose recreate the
+#     container and kill any sbt running in it.
+#   * Otherwise, if another container already publishes the default port, use
+#     0 so Docker picks a free one.
+#   * Otherwise, leave it unset so the compose default applies.
+# Globals:
+#   COMPOSE_PROJECT_NAME
+#   CIVIFORM_TEST_HTTP_HOST_PORT
+#   CIVIFORM_TEST_DEBUG_HOST_PORT
+#######################################
+function docker::set_unit_test_host_ports() {
+  docker::set_unit_test_host_port CIVIFORM_TEST_HTTP_HOST_PORT 9000 9100
+  docker::set_unit_test_host_port CIVIFORM_TEST_DEBUG_HOST_PORT 8459 8459
+}
+
+#######################################
+# Sets one unit test host port. See docker::set_unit_test_host_ports.
+# Arguments:
+#   1: name of the env var holding the host port
+#   2: container port
+#   3: default host port
+#######################################
+function docker::set_unit_test_host_port() {
+  local var_name="$1"
+  local container_port="$2"
+  local default_host_port="$3"
+
+  if [[ -n "${!var_name}" ]]; then
+    return
+  fi
+
+  local server_container_name="${COMPOSE_PROJECT_NAME}-civiform-1"
+  local configured_host_port
+  configured_host_port="$(docker inspect \
+    -f "{{range (index .HostConfig.PortBindings \"${container_port}/tcp\")}}{{.HostPort}}{{end}}" \
+    "${server_container_name}" 2>/dev/null || true)"
+
+  if [[ -n "${configured_host_port}" ]]; then
+    export "${var_name}=${configured_host_port}"
+  elif [[ -n "$(docker ps -q --filter "publish=${default_host_port}")" ]]; then
+    echo "Host port ${default_host_port} is in use by another container, letting Docker pick one for ${var_name}"
+    export "${var_name}=0"
+  fi
+}
+
+#######################################
 # Runs docker compose with the unit test local development settings.
 # Arguments:
 #   @: arguments for compose
@@ -259,10 +309,9 @@ function docker::do_dockerhub_login() {
 # Runs sbt command inside dev civiform container. The container should be
 # already running.
 # Arguments:
-#   The function takes optional params
-#   1. The port to connect the debugger to
-#   2. The command to run.
-# If no command to run is passed sbt starts in interactive shell mode.
+#   1: The port to connect the debugger to
+#   @: Optional sbt commands to run, one per argument. If none are passed sbt
+#      starts in interactive shell mode.
 # Globals:
 #   COMPOSE_PROJECT_NAME
 #######################################
@@ -272,7 +321,18 @@ function docker::dev_and_test_server_sbt_command() {
   local server_container_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $server_container_name)
 
   # -Dsbt.offline tells sbt to run in "offline" mode and not re-download dependancies.
-  docker exec -it $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.rmi.port=50000 -Djava.rmi.server.hostname=0.0.0.0 -Dsbt.offline $2
+  docker exec $(docker::interactive_flags) $server_container_name ./entrypoint.sh -jvm-debug "$server_container_ip:$1" -Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.port=50000 -Dcom.sun.management.jmxremote.ssl=false -Dcom.sun.management.jmxremote.authenticate=false -Dcom.sun.management.jmxremote.rmi.port=50000 -Djava.rmi.server.hostname=0.0.0.0 -Dsbt.offline "${@:2}"
+}
+
+#######################################
+# Prints the flags for docker run/exec to attach an interactive TTY, but only
+# when stdin is a terminal. Requesting a TTY without one fails with "the input
+# device is not a TTY" (e.g. in CI or when run by an agent or another script).
+#######################################
+function docker::interactive_flags() {
+  if [[ -t 0 ]]; then
+    echo "-it"
+  fi
 }
 
 #######################################

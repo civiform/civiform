@@ -16,6 +16,7 @@ import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
 import repository.ApplicationStatusesRepository;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.Path;
@@ -65,9 +66,6 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   protected ProgramAdminApplicationService programAdminApplicationService;
   private static ProgramService programService;
 
-  protected ProgramModel fakeProgramWithEnumerator;
-  protected ProgramModel fakeProgramWithVisibility;
-  protected ProgramModel fakeProgramWithEligibility;
   protected ProgramModel fakeProgram;
   protected ImmutableList<QuestionModel> fakeQuestions;
   protected ApplicantModel applicantOne;
@@ -343,7 +341,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * Creates a program that has an visibility predicate, one applicant, and one application. The
    * applications have submission times one month apart starting on 2023-01-01.
    */
-  protected void createFakeProgramWithVisibilityPredicate() {
+  protected ProgramModel createFakeProgramWithVisibilityPredicate() {
     QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
     QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
 
@@ -354,7 +352,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
                     colorQuestion.id, Scalar.TEXT, Operator.EQUAL_TO, PredicateValue.of("red"))),
             PredicateAction.HIDE_BLOCK);
 
-    fakeProgramWithVisibility =
+    ProgramModel fakeProgramWithVisibility =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program")
             .withBlock("Screen 1")
@@ -385,6 +383,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     CfTestHelpers.withMockedInstantNow(
         "2023-01-01T00:00:00Z", () -> applicationSeven.setSubmitTimeToNow());
     applicationSeven.save();
+    return fakeProgramWithVisibility;
   }
 
   /**
@@ -416,8 +415,8 @@ public abstract class AbstractExporterTest extends ResetPostgres {
    * Creates a program that has an eligibility predicate, three applicants, and three applications.
    * The applications have submission times one month apart starting on 2022-01-01.
    */
-  protected void createFakeProgramWithEligibilityPredicateAndThreeApplications() {
-    fakeProgramWithEligibility =
+  protected ProgramModel createFakeProgramWithEligibilityPredicateAndThreeApplications() {
+    ProgramModel fakeProgramWithEligibility =
         createFakeProgramWithEligibilityPredicate("Fake Program With Eligibility");
 
     // First applicant is not eligible.
@@ -479,13 +478,31 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
+    return fakeProgramWithEligibility;
+  }
+
+  /** Creates a program whose enumerator block holds an enumerator and its initial question. */
+  protected ProgramModel createFakeProgramWithEnumeratorAndInitialQuestion() {
+    QuestionModel enumerator =
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+    QuestionModel initialQuestion =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(
+                enumerator.getQuestionDefinition().getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow();
+    return ProgramBuilder.newActiveProgram()
+        .withName("Fake Program With Initial Question")
+        .withBlock()
+        .withRequiredQuestion(enumerator)
+        .withRequiredQuestion(initialQuestion)
+        .build();
   }
 
   /**
    * Creates a program that has an enumerator question with children, three applicants, and three
    * applications. The applications have submission times one month apart starting on 2022-01-01.
    */
-  protected void createFakeProgramWithEnumeratorAndAnswerQuestions() {
+  protected ProgramModel createFakeProgramWithEnumeratorAndAnswerQuestions() {
     QuestionModel nameQuestion = testQuestionBank.nameApplicantName();
     QuestionModel colorQuestion = testQuestionBank.textApplicantFavoriteColor();
     QuestionModel monthlyIncomeQuestion = testQuestionBank.currencyApplicantMonthlyIncome();
@@ -494,7 +511,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     QuestionModel hmJobsQuestion = testQuestionBank.enumeratorNestedApplicantHouseholdMemberJobs();
     QuestionModel hmNumberDaysWorksQuestion =
         testQuestionBank.numberNestedRepeatedApplicantHouseholdMemberDaysWorked();
-    fakeProgramWithEnumerator =
+    ProgramModel fakeProgramWithEnumerator =
         ProgramBuilder.newActiveProgram()
             .withName("Fake Program With Enumerator")
             .withBlock()
@@ -631,6 +648,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
     CfTestHelpers.withMockedInstantNow(
         "2022-03-01T00:00:00Z", () -> applicationThree.setSubmitTimeToNow());
     applicationThree.save();
+    return fakeProgramWithEnumerator;
   }
 
   /** A Builder to build a fake program */

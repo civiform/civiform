@@ -833,7 +833,7 @@ export class ApplicantQuestions {
   // Expect the program index (home) page
   async expectProgramsPage() {
     await waitForPageJsLoad(this.page)
-    expect(this.page.url().split('/').pop()).toEqual('programs')
+    await expect(this.page).toHaveURL(/\/programs$/)
   }
 
   async expectReviewPage() {

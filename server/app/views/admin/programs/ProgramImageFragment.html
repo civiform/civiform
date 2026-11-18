@@ -16,7 +16,7 @@
       <span th:text="#{link.adminProgramImage.back}" />
     </a>
 
-    <h1 th:text="#{title.adminProgramImage}" />
+    <h1 id="program-image-title" th:text="#{title.adminProgramImage}" />
 
     <div
       class="usa-error-message margin-bottom-2"
@@ -50,8 +50,11 @@
               th:text="#{content.adminProgramImage.hintCrop}"
             />
           </div>
+          <!--/* The input has no label of its own, so the page title names it, followed by USWDS's
+            aria-label. See the comment on the file input in questiontypes/FileUploadQuestionFragment.html (#10438). */-->
           <input
             accept="image/png,image/jpeg"
+            aria-labelledby="program-image-title program-image-input"
             aria-describedby="program-image-file-input-hint"
             class="usa-file-input"
             id="program-image-input"

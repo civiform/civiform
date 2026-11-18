@@ -48,8 +48,8 @@ lazy val root = (project in file("."))
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
 
       // Amazon AWS SDK
-      "software.amazon.awssdk" % "s3" % "2.57.7",
-      "software.amazon.awssdk" % "ses" % "2.57.7",
+      "software.amazon.awssdk" % "s3" % "2.59.1",
+      "software.amazon.awssdk" % "ses" % "2.59.1",
 
       // Microsoft Azure SDK
       "com.azure" % "azure-identity" % "1.18.1",
@@ -60,7 +60,7 @@ lazy val root = (project in file("."))
 
       // Database and database testing libraries
       "org.postgresql" % "postgresql" % "42.7.14",
-      "com.google.cloud.sql" % "postgres-socket-factory" % "1.30.1",
+      "com.google.cloud.sql" % "postgres-socket-factory" % "1.31.0",
       "com.h2database" % "h2" % "2.5.252" % Test,
 
       // Metrics collection and export for Prometheus. See filters.PrometheusRequestMetricsFilter
@@ -122,7 +122,7 @@ lazy val root = (project in file("."))
       // pdf library for export
       "com.itextpdf" % "itextpdf" % "5.5.13.6",
       // Phone number formatting and validation dependency
-      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.41",
+      "com.googlecode.libphonenumber" % "libphonenumber" % "9.0.43",
 
       // Slugs for deeplinking.
       "com.github.slugify" % "slugify" % "4.0.1",
@@ -149,7 +149,7 @@ lazy val root = (project in file("."))
 
       // Override default Play logback version. We need to use logback
       // compatible with sl4j 2.0 because the latter pulled in by pac4j.
-      "ch.qos.logback" % "logback-classic" % "1.6.5",
+      "ch.qos.logback" % "logback-classic" % "1.6.7",
 
       // Swagger 2.0 Dependencies
       "io.swagger" % "swagger-core" % "1.6.16" exclude (
@@ -293,7 +293,6 @@ lazy val root = (project in file("."))
       startupTransition compose previous
     }
   )
-  .settings(excludeTailwindGeneration: _*)
 //jacoco report setting
 jacocoReportSettings := JacocoReportSettings()
   .withFormats(JacocoReportFormats.HTML, JacocoReportFormats.XML)
@@ -315,28 +314,6 @@ lazy val startupTransition: State => State = { s: State =>
   "pullRemoteCache" :: s
 }
 
-// Ignore the tailwind.sbt generated css file when watching for recompilation.
-// Since this file is generated when build.sbt is loaded, it causes the server
-// to reload when stopping/starting the server on watch mode.
-lazy val excludeTailwindGeneration = Seq(watchSources := {
-  val fileToExclude =
-    "server/public/stylesheets/tailwind.css"
-  val customSourcesFilter = new FileFilter {
-    override def accept(f: File): Boolean =
-      f.getPath.contains(fileToExclude)
-    override def toString = s"CustomSourcesFilter($fileToExclude)"
-  }
-
-  watchSources.value.map { source =>
-    new Source(
-      source.base,
-      source.includeFilter,
-      source.excludeFilter || customSourcesFilter,
-      source.recursive
-    )
-  }
-})
-
 JsEngineKeys.engineType := JsEngineKeys.EngineType.Node
 
 resolvers += "Shibboleth" at "https://build.shibboleth.net/nexus/content/groups/public"
@@ -346,14 +323,55 @@ dependencyOverrides ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-annotations" % "2.22"
 )
 
+// True when the bundler dev server serves js/css. False when Play serves the
+// pre-built bundles in app/assets/dist.
+lazy val useBundlerDevServer =
+  sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean
+
 // Play run hooks only run when the app starts with sbt run (dev/test). They
 // are not called when the app is precompiled with sbt dist (prod).
-playRunHooks += TailwindBuilder(baseDirectory.value)
 playRunHooks ++= {
-  if (sys.env.getOrElse("USE_BUNDLER_DEV_SERVER", "true").toBoolean) {
+  if (useBundlerDevServer) {
     Seq(BundlerDevServer(baseDirectory.value))
   } else {
     Seq(BundledAssetBuilder(baseDirectory.value))
+  }
+}
+
+// Play's dev reloader watches all of app/ by default, so a ts/scss edit makes
+// the next request run compile and the digest/gzip pipeline. The bundler dev
+// server serves those files, so stop watching them. Play still serves the rest
+// of app/assets and keeps watching it.
+//
+// Play reads this list once when `run` starts. Restart after adding a new
+// top-level directory such as app/foo/ or app/assets/foo/. Play picks up new
+// directories deeper than that without a restart.
+PlayKeys.playMonitoredFiles := {
+  val monitored = PlayKeys.playMonitoredFiles.value
+  val appDir = (Compile / sourceDirectory).value.getCanonicalFile
+  val assetsDir = (Assets / sourceDirectory).value.getCanonicalFile
+  val bundlerOwnedDirs = Set("javascripts", "stylesheets")
+
+  def subdirectories(dir: File): Seq[File] =
+    IO.listFiles(dir).toSeq.filter(_.isDirectory).map(_.getCanonicalFile)
+
+  if (useBundlerDevServer) {
+    monitored.flatMap { dir =>
+      if (dir.getCanonicalFile == appDir) {
+        subdirectories(appDir).flatMap { subdir =>
+          if (subdir == assetsDir) {
+            subdirectories(assetsDir)
+              .filterNot(d => bundlerOwnedDirs.contains(d.getName))
+          } else {
+            Seq(subdir)
+          }
+        }
+      } else {
+        Seq(dir)
+      }
+    }.distinct
+  } else {
+    monitored
   }
 }
 

@@ -1,0 +1,89 @@
+<!--/*
+  Admin "Manage application statuses" page: a 1:1 port of the legacy j2html
+  ProgramStatusesView. Rendered through LegacyTailwindLayout and slated for
+  replacement by an AdminLayoutBaseView page in the admin redesign.
+*/-->
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.admin.programs.ProgramStatusesPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* Flash toasts, consumed by toast.ts. The legacy layout rendered these
+       in the page header; they are hidden data divs, so position does not
+       matter. */-->
+  <div
+    th:each="toast : ${model.toasts}"
+    class="hidden cf-toast-data"
+    th:id="${toast.id}"
+    canIgnore="false"
+    toastDuration="0"
+    condOnStorageKey
+    th:attr="canDismiss=${toast.canDismiss} ? 'true' : 'false', toastType=${toast.type}"
+    th:text="${toast.message}"
+  ></div>
+
+  <div class="px-4">
+    <div class="flex items-center space-x-4 mt-12 mb-10">
+      <h1
+        th:text="|Manage application statuses for ${model.programDisplayName}|"
+      ></h1>
+      <div class="flex-grow"></div>
+      <!--/* AdminLayout.createManageTranslationsButton: only rendered when
+           there are translatable locales. The button has no type attribute,
+           as makeSvgTextButton's j2html button() had none. */-->
+      <button
+        th:if="${model.manageTranslationsUrl != null}"
+        class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
+        th:attr="data-redirect-to=${model.manageTranslationsUrl}"
+      >
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconLanguage('inline-block h-4.5 w-4.5')}"
+        ></svg
+        ><span class="text-left">Manage translations</span>
+      </button>
+      <button
+        th:id="|${model.createStatusModal.id}-button|"
+        class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200 my-2"
+      >
+        <svg
+          th:replace="~{admin/shared/LegacySvgFragments :: iconPlus('inline-block h-4.5 w-4.5')}"
+        ></svg
+        ><span class="text-left">Create a new status</span>
+      </button>
+    </div>
+
+    <div class="cf-admin-program-status-list">
+      <p
+        th:with="count=${#lists.size(model.statusItems)}"
+        th:text="${count == 1} ? '1 result' : |${count} results|"
+      ></p>
+      <div class="mt-6 border rounded-md divide-y border-gray-200">
+        <th:block th:each="item : ${model.statusItems}">
+          <div
+            th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: statusItem(${item})}"
+          ></div>
+        </th:block>
+        <p
+          th:if="${model.statusItems.isEmpty()}"
+          class="ml-4 my-4"
+          th:text="'No statuses have been created yet'"
+        ></p>
+      </div>
+    </div>
+  </div>
+</th:block>
+
+<!--/* Modals, inserted by the layout into #modal-container in the order the
+     legacy view accumulated them: the create modal, then each status's edit
+     modal followed by its delete modal. */-->
+<th:block th:fragment="modals">
+  <div
+    th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: statusFormModal(${model.createStatusModal}, ${model.createOrUpdateUrl}, ${model.currentDefaultStatusText}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+  ></div>
+  <th:block th:each="item : ${model.statusItems}">
+    <div
+      th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: statusFormModal(${item.editModal}, ${model.createOrUpdateUrl}, ${model.currentDefaultStatusText}, ${model.randomFieldId()}, ${model.randomFieldId()})}"
+    ></div>
+    <div
+      th:replace="~{admin/programs/fragments/ProgramStatusesFragments :: deleteStatusModal(${item.deleteModalId}, ${item.statusText}, ${model.deleteUrl})}"
+    ></div>
+  </th:block>
+</th:block>

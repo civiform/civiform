@@ -127,8 +127,7 @@ export const validateToastMessage = async (page: Page, value: string) => {
   await test.step(
     'Validate toast message',
     async () => {
-      const toastMessages = await page.innerText('#toast-container')
-      expect(toastMessages).toContain(value)
+      await expect(page.locator('#toast-container')).toContainText(value)
     },
     {box: true},
   )

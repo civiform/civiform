@@ -5,7 +5,6 @@ import static services.applicant.ApplicantPersonalInfo.ApplicantType.GUEST;
 
 import actions.RouteExtractor;
 import auth.CiviFormProfile;
-import auth.FakeAdminClient;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import controllers.LanguageUtils;
@@ -30,6 +29,7 @@ import views.CspUtil;
 import views.components.Icons;
 import views.html.helper.CSRF;
 import views.shared.BannerUtils;
+import views.shared.DemoBanner;
 import views.shared.FeatureFlags;
 
 public abstract class ApplicantBaseView {
@@ -104,7 +104,6 @@ public abstract class ApplicantBaseView {
         "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
-    context.setVariable("cogIcon", Icons.COG);
     context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
     context.setVariable("govIcon", bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"));
     context.setVariable(
@@ -184,8 +183,10 @@ public abstract class ApplicantBaseView {
 
     context.setVariable("isDevOrStaging", isDevOrStaging);
 
-    maybeSetUpDemoBanner(context, request);
+    context.setVariable(
+        "demoBanner", DemoBanner.create(settingsManifest, request, profile, isDevOrStaging, clock));
     maybeSetUpNotProductionBanner(context, request, messages);
+
     boolean sessionTimeoutEnabled = settingsManifest.getSessionTimeoutEnabled();
     context.setVariable("sessionTimeoutEnabled", sessionTimeoutEnabled);
     if (sessionTimeoutEnabled) {
@@ -201,34 +202,6 @@ public abstract class ApplicantBaseView {
 
     boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
-
-    boolean showDebugTools =
-        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
-    context.setVariable("showDebugTools", showDebugTools);
-    if (showDebugTools) {
-      context.setVariable(
-          "fakeCiviformAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.GLOBAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeProgramAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.PROGRAM_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeDualAdminUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.DUAL_ADMIN)
-              .url());
-      context.setVariable(
-          "fakeTrustedIntermediaryUrl",
-          routes.CallbackController.fakeAdmin(
-                  FakeAdminClient.CLIENT_NAME, FakeAdminClient.TRUSTED_INTERMEDIARY)
-              .url());
-      context.setVariable(
-          "additionalToolsUrl", controllers.dev.routes.DevToolsController.index().url());
-    }
 
     return context;
   }
@@ -354,20 +327,6 @@ public abstract class ApplicantBaseView {
           .url();
     }
     return request.uri();
-  }
-
-  private void maybeSetUpDemoBanner(ThymeleafModule.PlayThymeleafContext context, Request request) {
-    boolean demoBannerEnabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
-    context.setVariable("demoBannerEnabled", demoBannerEnabled);
-    if (!demoBannerEnabled) {
-      return;
-    }
-    String civicEntityShortName =
-        settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("");
-    context.setVariable("civicEntityShortName", civicEntityShortName);
-    context.setVariable(
-        "demoBannerDaysRemainingCount",
-        BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest, clock).orElse(null));
   }
 
   private void maybeSetUpNotProductionBanner(

@@ -1,6 +1,5 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
-  enableFeatureFlag,
   isLocalDevEnvironment,
   loginAsAdmin,
   validateScreenshot,
@@ -8,13 +7,6 @@ import {
 } from '../support'
 
 test.describe('Admin can manage question translations', () => {
-  test.beforeEach(async ({page}) => {
-    await enableFeatureFlag(
-      page,
-      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
-    )
-  })
-
   test('creates a question and adds translations', async ({
     page,
     adminQuestions,

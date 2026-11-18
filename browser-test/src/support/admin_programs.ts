@@ -1165,22 +1165,22 @@ export class AdminPrograms {
   }
 
   async expectAddProgramAdminErrorToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain(
+    const toastContainer = this.page.locator('#toast-container')
+    await expect(toastContainer).toContainText(
       "as a Program Admin because they haven't previously logged into" +
         ' CiviForm. Have the user log in, then add them as a Program Admin. After' +
         " they've been added, they will need refresh their browser see the programs" +
         " they've been assigned to.",
     )
-    expect(toastMessages).toContain('Error: ')
+    await expect(toastContainer).toContainText('Error: ')
   }
 
   async expectDisplayNameErrorToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain(
+    const toastContainer = this.page.locator('#toast-container')
+    await expect(toastContainer).toContainText(
       'A public display name for the program is required.',
     )
-    expect(toastMessages).toContain('Error: ')
+    await expect(toastContainer).toContainText('Error: ')
   }
 
   async expectEditPredicatePage(predicateType: PredicateType) {
@@ -1190,10 +1190,9 @@ export class AdminPrograms {
   }
 
   async expectSuccessToast(successToastMessage: string) {
-    const toastContainer = await this.page.innerHTML('#toast-container')
-
-    expect(toastContainer).toContain('bg-cf-toast-success')
-    expect(toastContainer).toContain(successToastMessage)
+    await expect(
+      this.page.locator('#toast-container .bg-cf-toast-success'),
+    ).toContainText(successToastMessage)
   }
 
   async expectProgramBlockEditPage(programName = '') {
@@ -1716,11 +1715,9 @@ export class AdminPrograms {
       this.page.locator(this.selectApplicationBlock(blockName)),
     ).toContainText(questionName)
 
-    expect(
-      this.page
-        .locator(this.selectWithinApplicationBlock(blockName, 'a'))
-        .getAttribute('href'),
-    ).not.toBeNull()
+    await expect(
+      this.page.locator(this.selectWithinApplicationBlock(blockName, 'a')),
+    ).toHaveAttribute('href')
   }
 
   async isStatusSelectorVisible(): Promise<boolean> {
@@ -1752,8 +1749,9 @@ export class AdminPrograms {
   }
 
   async expectUpdateStatusToast() {
-    const toastMessages = await this.page.innerText('#toast-container')
-    expect(toastMessages).toContain('Application status updated')
+    await expect(this.page.locator('#toast-container')).toContainText(
+      'Application status updated',
+    )
   }
 
   private statusSelector() {

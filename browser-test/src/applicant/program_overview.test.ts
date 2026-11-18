@@ -287,7 +287,7 @@ test.describe('Applicant program overview', () => {
 
     await test.step(`opens the deep link of the disabled program and gets redirected to an error info page`, async () => {
       await page.goto(`/programs/${disabledProgramName}`)
-      expect(page.url()).toContain('/disabled')
+      await expect(page).toHaveURL(/\/disabled/)
       await expect(
         page.getByRole('heading', {
           name: 'This program is no longer available',
@@ -297,7 +297,7 @@ test.describe('Applicant program overview', () => {
 
     await test.step(`clicks on visit homepage button and it takes me to home page`, async () => {
       await page.click('#visit-home-page-button')
-      expect(page.url()).toContain('/programs')
+      await expect(page).toHaveURL(/\/programs/)
       await expect(
         page.getByRole('heading', {
           name: 'Apply for government programs online',

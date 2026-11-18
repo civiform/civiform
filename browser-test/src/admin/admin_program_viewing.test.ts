@@ -15,6 +15,13 @@ import {
 } from '../support/admin_programs'
 
 test.describe('admin program view page', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('view active program shows read only view', async ({
     page,
     adminPrograms,
@@ -69,16 +76,6 @@ test.describe('admin program view page', () => {
         page.getByText('Categories: Education, Internet'),
       ).toBeVisible()
     })
-  })
-
-  test('view draft program', async ({page, adminPrograms}) => {
-    await loginAsAdmin(page)
-
-    const programName = 'Draft Program'
-    await adminPrograms.addProgram(programName)
-    await adminPrograms.gotoEditDraftProgramPage(programName)
-
-    await validateScreenshot(page, 'program-draft-view')
   })
 
   test('view program with universal questions', async ({

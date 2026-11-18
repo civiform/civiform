@@ -3,20 +3,13 @@ package views.admin;
 import static j2html.TagCreator.div;
 import static j2html.TagCreator.iff;
 import static j2html.TagCreator.iffElse;
-import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.ul;
 
 import com.google.common.collect.ImmutableList;
 import j2html.tags.DomContent;
 import j2html.tags.specialized.ButtonTag;
 import j2html.tags.specialized.DivTag;
-import j2html.tags.specialized.FieldsetTag;
-import j2html.tags.specialized.UlTag;
 import java.util.Optional;
-import services.question.QuestionOption;
-import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.NullQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import views.ViewUtils;
@@ -28,31 +21,6 @@ import views.style.StyleUtils;
 
 /** Contains methods for rendering questions across admin pages. */
 public final class QuestionCard {
-  /**
-   * Renders a question for import, including info about the question and possibly its
-   * duplicate-handling options
-   *
-   * @param questionDefinition the question definition to render
-   * @param badgeForImport a badge indicating if the question is new or a duplicate
-   * @param maybeDuplicateHandlingForImport a div tag containing the duplicate handling options, if
-   *     this question is a duplicate
-   * @return a div tag containing the rendered question
-   */
-  public static DivTag renderForImport(
-      QuestionDefinition questionDefinition,
-      DivTag badgeForImport,
-      Optional<FieldsetTag> maybeDuplicateHandlingForImport) {
-    return render(
-        questionDefinition,
-        /* malformedQuestionDefinition= */ false,
-        /* editButtonsForProgramPage= */ ImmutableList.of(),
-        Optional.of(badgeForImport),
-        maybeDuplicateHandlingForImport,
-        /* visibilityConditionEditLinks= */ Optional.empty(),
-        /* includeHelpText= */ true,
-        /* includeUniversalBadge= */ true);
-  }
-
   /**
    * Renders a question for a program, including info about the question and possibly some editing
    * controls
@@ -74,8 +42,6 @@ public final class QuestionCard {
         questionDefinition,
         malformedQuestionDefinition,
         editButtonsForProgramPage,
-        /* maybeBadgeForImport= */ Optional.empty(),
-        /* maybeDuplicateHandlingForImport= */ Optional.empty(),
         visibilityConditionEditLinks,
         /* includeHelpText= */ true,
         /* includeUniversalBadge= */ true);
@@ -97,8 +63,6 @@ public final class QuestionCard {
         /* malformedQuestionDefinition= */ selectedQuestion instanceof NullQuestionDefinition,
         /* editButtonsForProgramPage= */ deleteButton.stream()
             .collect(ImmutableList.toImmutableList()),
-        /* maybeBadgeForImport= */ Optional.empty(),
-        /* maybeDuplicateHandlingForImport= */ Optional.empty(),
         /* visibilityConditionEditLinks= */ Optional.empty(),
         /* includeHelpText= */ false,
         /* includeUniversalBadge= */ false);
@@ -112,14 +76,11 @@ public final class QuestionCard {
       QuestionDefinition questionDefinition,
       boolean malformedQuestionDefinition,
       ImmutableList<DomContent> editButtonsForProgramPage,
-      Optional<DivTag> maybeBadgeForImport,
-      Optional<FieldsetTag> maybeDuplicateHandlingForImport,
       Optional<DivTag> visibilityConditionEditLinks,
       boolean includeHelpText,
       boolean includeUniversalBadge) {
     boolean showUniversalBadge =
         includeUniversalBadge && !malformedQuestionDefinition && questionDefinition.isUniversal();
-    boolean showOneOrMoreBadges = showUniversalBadge || maybeBadgeForImport.isPresent();
     DivTag cardDiv =
         div()
             .withData("testid", "question-admin-name-" + questionDefinition.getName())
@@ -132,14 +93,10 @@ public final class QuestionCard {
                 "rounded-md",
                 StyleUtils.hover("text-gray-800", "bg-gray-100"))
             .condWith(
-                showOneOrMoreBadges,
+                showUniversalBadge,
                 div()
                     .withClasses("flex", "mx-4", "mt-4", "mb-2")
-                    .condWith(
-                        showUniversalBadge,
-                        ViewUtils.makeUniversalBadge(questionDefinition, "mr-2"))
-                    // Default to null, since condWith doesn't short-circuit
-                    .condWith(maybeBadgeForImport.isPresent(), maybeBadgeForImport.orElse(null)));
+                    .with(ViewUtils.makeUniversalBadge(questionDefinition, "mr-2")));
     SvgTag icon =
         Icons.questionTypeSvg(questionDefinition.getQuestionType())
             .withClasses("shrink-0", "h-12", "w-6");
@@ -170,44 +127,17 @@ public final class QuestionCard {
                         .with(TextFormatter.formatTextForAdmins(questionHelpText))
                         .withClasses("mt-1", "text-sm")),
                 p(String.format("Admin ID: %s", questionDefinition.getName()))
-                    .withClasses("mt-1", "text-sm"),
-
-                // Only show multi-option text during program import
-                maybeBadgeForImport.isPresent()
-                        && questionDefinition.getQuestionType().isMultiOptionType()
-                    ? getOptions((MultiOptionQuestionDefinition) questionDefinition)
-                    : null);
+                    .withClasses("mt-1", "text-sm"));
 
     DivTag row =
         div()
             .withClasses("flex", "gap-4", "items-center", "px-4", "py-2")
             .with(icon, content)
-            .condWith(
-                maybeDuplicateHandlingForImport.isPresent(),
-                // Default to null, since condWith doesn't short-circuit
-                maybeDuplicateHandlingForImport.orElse(null))
             .with(editButtonsForProgramPage);
 
     return cardDiv
         .with(row)
         .condWith(
             visibilityConditionEditLinks.isPresent(), visibilityConditionEditLinks.orElse(null));
-  }
-
-  /** Lists the question's options along with their scores if they have one. */
-  private static UlTag getOptions(MultiOptionQuestionDefinition question) {
-    UlTag options = ul().withClasses("list-disc", "mx-4", "mt-2");
-    for (QuestionOption option : question.getOptions()) {
-      options.with(
-          li(
-              span(option.optionText().getDefault()),
-              iff(
-                  option.score().isPresent(),
-                  span(String.format(
-                          "(Score: %s)",
-                          option.score().map(QuestionOption::formatScore).orElse("")))
-                      .withClasses("ml-1", "text-sm", "text-gray-600"))));
-    }
-    return options;
   }
 }

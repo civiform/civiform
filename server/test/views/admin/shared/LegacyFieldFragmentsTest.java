@@ -105,4 +105,14 @@ public class LegacyFieldFragmentsTest {
   public void emailField() {
     ThymeleafFragmentTester.run(DIR + "emailField.thtest");
   }
+
+  @Test
+  public void dateField_emptyValueFlexWrapper() {
+    ThymeleafFragmentTester.run(DIR + "dateFieldEmpty.thtest");
+  }
+
+  @Test
+  public void dateField_withValue() {
+    ThymeleafFragmentTester.run(DIR + "dateFieldValue.thtest");
+  }
 }

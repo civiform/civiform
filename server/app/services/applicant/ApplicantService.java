@@ -12,7 +12,6 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.typesafe.config.Config;
-import controllers.admin.routes;
 import io.ebean.DB;
 import io.ebean.Database;
 import io.ebean.Transaction;
@@ -928,29 +927,16 @@ public final class ApplicantService {
    */
   private void notifyProgramAdmins(
       long applicantId, long programId, long applicationId, String programName) {
-    String applicationViewLink =
-        controllers.admin.routes.AdminApplicationController.show(
-                programId,
-                applicationId,
-                /* search= */ Optional.empty(),
-                /* fromDate= */ Optional.empty(),
-                /* toDate= */ Optional.empty(),
-                /* page= */ Optional.empty(),
-                /* selectedApplicationStatus= */ Optional.empty())
-            .url();
-
     String viewLink =
         baseUrl
-            + routes.AdminApplicationController.index(
+            + controllers.admin.routes.AdminApplicationController.show(
                     programId,
+                    applicationId,
                     /* search= */ Optional.empty(),
-                    /* page= */ Optional.empty(),
                     /* fromDate= */ Optional.empty(),
-                    /* untilDate= */ Optional.empty(),
-                    /* applicationStatus= */ Optional.empty(),
-                    Optional.of(applicationViewLink),
-                    /* showDownloadModal= */ Optional.empty(),
-                    /* message= */ Optional.empty())
+                    /* toDate= */ Optional.empty(),
+                    /* page= */ Optional.empty(),
+                    /* selectedApplicationStatus= */ Optional.empty())
                 .url();
 
     String subject = String.format("New application %d submitted", applicationId);
@@ -1793,6 +1779,11 @@ public final class ApplicantService {
 
     // Write each field value using the setter for its scalar type.
     for (Update update : initialQuestionUpdates) {
+      if (isEntityRowMarker(update.path(), enumeratorPath)) {
+        // The row's marker only says the entity exists, so it's counted in entityIndices below
+        // but not stored. The entity name is derived from the answer.
+        continue;
+      }
       ScalarType type = scalarTypesByFieldName.get(update.path().keyName());
       if (type == null) {
         // The update was classified as an initial-question field, so its final segment should match
@@ -1829,6 +1820,21 @@ public final class ApplicantService {
           applicantData,
           updateMetadata);
     }
+  }
+
+  /**
+   * Returns true if the update path is the blank row marker that each initial question row submits
+   * (e.g. {@code household_members[0].entity_row}). It makes the server create the entity even when
+   * the row's answer submits no value, such as an unselected radio button or an empty date. See
+   * {@link RepeatedEntity#ENTITY_ROW_MARKER}.
+   */
+  private boolean isEntityRowMarker(Path updatePath, Path enumeratorPath) {
+    int enumeratorDepth = enumeratorPath.segments().size();
+    return updatePath.segments().size() == enumeratorDepth + 1
+        && updatePath.equals(
+            enumeratorPath
+                .atIndex(getEntityIndexFromPath(updatePath, enumeratorDepth))
+                .join(RepeatedEntity.ENTITY_ROW_MARKER));
   }
 
   /**

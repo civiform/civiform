@@ -57,8 +57,13 @@
   class="margin-bottom-105"
   th:with="ariaLabelForNewTabs=#{link.opensNewTabSr}"
 >
-  <!--/* Question title */-->
-  <label class="usa-label display-flex" th:for="${inputId}">
+  <!--/* Question title. The id lets inputs whose accessible name is replaced by a script (like
+       the USWDS file input) reference the title with aria-labelledby. */-->
+  <label
+    class="usa-label display-flex"
+    th:id="${questionId} + '-title'"
+    th:for="${inputId}"
+  >
     <div th:replace="~{this :: titleContent(${question})}"></div>
   </label>
 

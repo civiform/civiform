@@ -1,6 +1,7 @@
 <!--/*@thymesVar id="isGuest" type="java.lang.Boolean"*/-->
 <!--/*@thymesVar id="extendSessionUrl" type="java.lang.String"*/-->
 <!--/*@thymesVar id="csrfToken" type="java.lang.String"*/-->
+<!--/*@thymesVar id="demoBanner" type="views.shared.DemoBanner"*/-->
 <div
   th:fragment="devTools"
   id="modal-container"
@@ -23,32 +24,32 @@
         <div class="display-flex flex-column">
           <p class="margin-0">Log in as:</p>
           <a
-            th:href="${fakeCiviformAdminUrl}"
+            th:href="${demoBanner.fakeCiviformAdminUrl()}"
             class="usa-button margin-y-2"
             id="admin"
             >Civiform Admin</a
           >
           <a
-            th:href="${fakeProgramAdminUrl}"
+            th:href="${demoBanner.fakeProgramAdminUrl()}"
             class="usa-button margin-y-2"
             id="program-admin"
             >Program Admin</a
           >
           <a
-            th:href="${fakeDualAdminUrl}"
+            th:href="${demoBanner.fakeDualAdminUrl()}"
             class="usa-button margin-y-2"
             id="dual-admin"
             >Program and Civiform Admin</a
           >
           <a
-            th:href="${fakeTrustedIntermediaryUrl}"
+            th:href="${demoBanner.fakeTrustedIntermediaryUrl()}"
             class="usa-button margin-y-2"
             id="trusted-intermediary"
             >Trusted Intermediary</a
           >
           <p class="margin-0">Other:</p>
           <a
-            th:href="${additionalToolsUrl}"
+            th:href="${demoBanner.additionalToolsUrl()}"
             class="usa-button margin-y-2"
             id="additional-tools"
             >Additional tools</a

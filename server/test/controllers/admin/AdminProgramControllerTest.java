@@ -30,6 +30,9 @@ import repository.CategoryRepository;
 import repository.ProgramRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
+import services.DateConverter;
+import services.TranslationLocales;
+import services.cloud.PublicStorageClient;
 import services.program.ProgramNotFoundException;
 import services.program.ProgramService;
 import services.program.ProgramType;
@@ -39,6 +42,7 @@ import support.ProgramBuilder;
 import support.SqlStatementCounter.SqlCounts;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramFormPageView;
+import views.admin.programs.ProgramIndexPageView;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -90,6 +94,10 @@ public class AdminProgramControllerTest extends ResetPostgres {
             instanceOf(ProgramNewOneView.class),
             instanceOf(ProgramMetaDataEditView.class),
             instanceOf(ProgramFormPageView.class),
+            instanceOf(ProgramIndexPageView.class),
+            instanceOf(PublicStorageClient.class),
+            instanceOf(TranslationLocales.class),
+            instanceOf(DateConverter.class),
             versionRepository,
             instanceOf(ProfileUtils.class),
             instanceOf(FormFactory.class),

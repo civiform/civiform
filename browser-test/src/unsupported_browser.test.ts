@@ -7,6 +7,6 @@ test.describe('unsupported browser', {tag: ['@parallel-candidate']}, () => {
 
   test('redirect ie user agent to page unsupported page', async ({page}) => {
     await page.goto('/')
-    expect(page.url()).toContain('/support/unsupportedBrowser')
+    await expect(page).toHaveURL(/\/support\/unsupportedBrowser/)
   })
 })

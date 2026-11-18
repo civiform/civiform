@@ -7,13 +7,16 @@ docker::set_project_name_dev
 
 bin/pull-image
 
-# Can't use TTY in CI
-interactive_flag="-it"
-if [[ -n "${CI}" ]]; then
-  interactive_flag=""
+interactive_flag="$(docker::interactive_flags)"
+
+# Vitest prints color codes even without a terminal, which clutters logs. Turn
+# color off when stdout isn't a terminal (piped, redirected, CI, agents).
+color_env=()
+if [[ ! -t 1 ]]; then
+  color_env=(-e NO_COLOR=1)
 fi
 
-docker run --rm $interactive_flag \
+docker run --rm $interactive_flag "${color_env[@]}" \
   -v "$(pwd)/server:/usr/src/server" \
   --entrypoint /bin/bash \
   civiform/civiform-dev \
