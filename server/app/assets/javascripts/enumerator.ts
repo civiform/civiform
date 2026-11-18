@@ -16,6 +16,12 @@ const ADD_BUTTON_GATING_INPUTS_SELECTOR = [
 const VISIBLE_ENTITY_FIELDS_SELECTOR =
   '.cf-question-enumerator .cf-enumerator-field:not(.display-none)'
 
+// Every entity row, including saved rows hidden by the remove button. A removed saved row keeps its
+// position (and its delete marker points at that position), so input names are numbered against
+// this list rather than the visible one.
+const ALL_ENTITY_FIELDS_SELECTOR =
+  '.cf-question-enumerator .cf-enumerator-field'
+
 export function init() {
   updateListeners()
 
@@ -24,6 +30,9 @@ export function init() {
   document.addEventListener('htmx:afterSettle', (event) => {
     if (event.detail.target.id === 'enumerator-fields') {
       updateListeners()
+      // The server numbers the new row by its position among all rows, including hidden removed
+      // rows, so relabel it by its visible position before the Add button's aria is synced.
+      repaintAllLabelsAndButtons()
       syncAddButtonAria()
       focusFirstInputInLastEntity()
     }
@@ -251,8 +260,13 @@ function refreshAddButtonStatus() {
 
   const isInitialQuestion = isInitialQuestionAddButton(addButton)
 
-  const entityCount = document.querySelectorAll(
+  const visibleEntityCount = document.querySelectorAll(
     VISIBLE_ENTITY_FIELDS_SELECTOR,
+  ).length
+  // The server numbers the new row from this count, so it includes hidden removed rows to avoid
+  // reusing their positions.
+  const entityCount = document.querySelectorAll(
+    ALL_ENTITY_FIELDS_SELECTOR,
   ).length
 
   // Initial-question rows may be fully optional, so the gating-input check alone wouldn't stop the
@@ -264,7 +278,7 @@ function refreshAddButtonStatus() {
   addButton.disabled =
     hasEmptyGatingInput ||
     lastRowEmpty ||
-    (maxEntities > 0 && entityCount >= maxEntities)
+    (maxEntities > 0 && visibleEntityCount >= maxEntities)
 
   // For the initial-question (HTMX) button, pass the current entityCount so the server assigns the
   // next entity the correct index, plus the enumerator question's root id so the server can render
@@ -321,18 +335,21 @@ function repaintAllLabelsAndButtons() {
   enumeratorFields.forEach((field, index) => {
     addIndexToLabelAndButton(field, index)
     repointEntityAria(field, index)
-    renumberEntityInputNames(field, index)
   })
+  document
+    .querySelectorAll(ALL_ENTITY_FIELDS_SELECTOR)
+    .forEach(renumberEntityInputNames)
 }
 
 /**
- * Rewrite the enumerator entity index in every input name in a row so it matches the row's current
- * position. Initial-question inputs bake a concrete index into their name (e.g.
- * applicant.pets[2].pet_name.text); after a non-last row is removed these must be renumbered to stay
- * contiguous 0..N-1, which is what the server requires for enumerator updates. Legacy rows don't
- * need this (Play assigns indices by submission order via the "[]" suffix) and are skipped.
+ * Rewrite the enumerator entity index in every input name in a row so it matches the row's position
+ * among all rows, including saved rows hidden by the remove button. Initial-question inputs bake a
+ * concrete index into their name (e.g. applicant.pets[2].pet_name.text). Saved rows keep their
+ * position because the server deletes them by that position, so only rows after a removed unsaved
+ * row move, keeping the indices contiguous 0..N-1. Legacy rows don't need this (Play assigns indices
+ * by submission order via the "[]" suffix) and are skipped.
  * @param {Element} field The entity row.
- * @param {number} index The zero-based position of the entity in the visible list.
+ * @param {number} index The zero-based position of the entity among all rows.
  */
 function renumberEntityInputNames(field: Element, index: number) {
   // Only initial-question rows; a legacy row has no concrete index of its own to renumber.

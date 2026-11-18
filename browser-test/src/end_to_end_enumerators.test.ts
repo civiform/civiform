@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  ApplicantQuestions,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -2242,6 +2243,108 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('keeps saved rows at their positions when one is removed and labels a row added afterward', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator remove saved row program'
+
+      await test.step('Publish a program with a radio button list set', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Seasons',
+          questionText: 'List your seasons.',
+          adminId: 'seasons list set',
+          initialQuestion: SAMPLE_QUESTIONS.radioButton,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      // The sample radio button question's Winter and Fall options carry a hide-next-block suffix.
+      const WINTER = 'Winter (will hide next block)'
+      const FALL = 'Fall (will hide next block)'
+      const blockForm = page.locator('#cf-block-form')
+      const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
+      const addSeason = (option: string) =>
+        addRadioButtonEntity(page, 'Seasons', option)
+      const removeSeason = (number: number) =>
+        removeInitialQuestionEntity(page, 'Seasons', number)
+      const expectSeasons = (options: string[]) =>
+        expectSelectedRadioOptions(page, options)
+      const saveAndReopen = () =>
+        saveAndReopenListPage(page, applicantQuestions)
+
+      await test.step('Save three seasons and reopen the list page', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await addSeason('Spring')
+        await addSeason('Summer')
+        await addSeason(FALL)
+        await saveAndReopen()
+        await expectSeasons(['Spring', 'Summer', FALL])
+      })
+
+      await test.step('Remove the first saved season and verify the others are kept', async () => {
+        // The rows after a removed saved row used to be submitted one position too low, so the
+        // server deleted the wrong row and the page showed a duplicate entry error.
+        await removeSeason(1)
+        await applicantQuestions.clickContinue()
+        await expect(page).toHaveURL(/\/review/)
+        await applicantQuestions.clickEdit()
+        await expectSeasons(['Summer', FALL])
+      })
+
+      await test.step('Remove the first saved season and change the one that remains', async () => {
+        // An edit to a row after a removed saved row used to be deleted with it, so the old
+        // answer stayed.
+        await removeSeason(1)
+        await blockForm
+          .getByText(WINTER, {exact: true})
+          .locator('visible=true')
+          .click()
+        await saveAndReopen()
+        await expectSeasons([WINTER])
+      })
+
+      await test.step('Save two more seasons and reopen the list page', async () => {
+        await addSeason('Spring')
+        await addSeason('Summer')
+        await saveAndReopen()
+        await expectSeasons([WINTER, 'Spring', 'Summer'])
+      })
+
+      await test.step('Remove the first season and verify a row added afterward is labeled by its visible position', async () => {
+        await removeSeason(1)
+        await addSeasons.click()
+        await waitForHtmxReady(page)
+        await expect(
+          blockForm.getByRole('button', {name: 'Remove Seasons #3'}),
+        ).toBeVisible()
+        await expect(
+          blockForm.getByRole('button', {name: 'Remove Seasons #4'}),
+        ).toHaveCount(0)
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Remove every season and verify the first row added afterward keeps the question title', async () => {
+        await removeSeason(3)
+        await removeSeason(2)
+        await removeSeason(1)
+        await addSeasons.click()
+        await waitForHtmxReady(page)
+        await expect(
+          blockForm.getByRole('group', {name: 'List your seasons. Seasons #1'}),
+        ).toBeVisible()
+        await expect(
+          blockForm.getByRole('button', {name: 'Remove Seasons #1'}),
+        ).toBeVisible()
+      })
+    })
+
     test('validates the initial question on continue in the same way as a standalone question', async ({
       page,
       adminPrograms,
@@ -2849,6 +2952,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   // Clicks the "Add {entityType}" button on an enumerator screen whose
   // enumerator has an initial question, and waits for the new entity row to be
   // rendered.
+  // Adds an initial-question row for a radio button list set and selects an option in it.
+  async function addRadioButtonEntity(
+    page: Page,
+    entityType: string,
+    option: string,
+  ) {
+    await clickAddInitialQuestionEntity(page, entityType)
+    await page
+      .locator('#cf-block-form')
+      .getByText(option, {exact: true})
+      .last()
+      .click()
+  }
+
+  async function removeInitialQuestionEntity(
+    page: Page,
+    entityType: string,
+    rowNumber: number,
+  ) {
+    page.once('dialog', (dialog) => void dialog.accept())
+    await page
+      .locator('#cf-block-form')
+      .getByRole('button', {name: `Remove ${entityType} #${rowNumber}`})
+      .click()
+  }
+
+  // Checks that exactly these radio options are selected across the visible rows.
+  async function expectSelectedRadioOptions(page: Page, options: string[]) {
+    const blockForm = page.locator('#cf-block-form')
+    await expect(blockForm.getByRole('radio', {checked: true})).toHaveCount(
+      options.length,
+    )
+    for (const option of options) {
+      await expect(
+        blockForm.getByRole('radio', {name: option, checked: true}),
+      ).toHaveCount(1)
+    }
+  }
+
+  // Saves the list page, which is the program's only screen, and opens it again from review.
+  async function saveAndReopenListPage(
+    page: Page,
+    applicantQuestions: ApplicantQuestions,
+  ) {
+    await applicantQuestions.clickContinue()
+    await expect(page).toHaveURL(/\/review/)
+    await applicantQuestions.clickEdit()
+  }
+
   async function clickAddInitialQuestionEntity(page: Page, entityType: string) {
     await page
       .locator('#cf-block-form')
