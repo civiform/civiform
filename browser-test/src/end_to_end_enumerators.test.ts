@@ -1435,10 +1435,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const addQuestionButton = blockPanel.getByRole('button', {
         name: 'Add question',
       })
-      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
-        hasText:
-          'Add a list set before you add repeated questions. Go to the previous screen to add one.',
-      })
+      const repeatedSetAlert = blockPanel.getByText(
+        'Add a list set before you add repeated questions. Go to the previous screen to add one.',
+      )
 
       await test.step('Add a new repeated set and go to the repeated screen', async () => {
         await addRepeatedSetBlocks(page)

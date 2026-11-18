@@ -185,6 +185,7 @@ public enum MessageKey {
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
+  HEADING_WARNING_PREFIX("heading.warningPrefix"),
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
   HEADING_REPEATED_SET_PREVIOUSLY_USED("heading.repeatedSet.previouslyUsed"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),

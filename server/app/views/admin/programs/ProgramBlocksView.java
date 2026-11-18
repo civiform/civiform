@@ -823,13 +823,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       if (showRepeatedQuestionsSectionStyling) {
         if (!isEnumeratorBlockComplete) {
           programQuestions.with(
-              AlertComponent.renderSlimAlert(
-                  AlertType.WARNING,
-                  renderAddQuestionDisabledAlertText(
-                      messages, program.id(), optionalParentEnumeratorBlock),
-                  /* hidden= */ false,
-                  "maxw-mobile-lg",
-                  "margin-bottom-1"));
+              renderAddQuestionDisabledAlert(
+                  messages, program.id(), optionalParentEnumeratorBlock));
         }
         programQuestions.with(addQuestion);
 
@@ -1085,6 +1080,35 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withClasses("usa-button", "margin-top-2")
         .withText(messages.at(MessageKey.BUTTON_CONTINUE_TO_CHILD_SCREEN.getKeyName()))
         .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
+  }
+
+  /**
+   * Renders the warning shown on a repeated screen whose parent list set has no list set question
+   * yet. Built here instead of with {@link AlertComponent}, which adds {@code role="alert"} and
+   * {@code aria-live}. This warning is already on the page when it loads, and {@code role="alert"}
+   * makes VoiceOver split the sentence around the link. A hidden "Warning:" prefix tells screen
+   * reader users what kind of message it is.
+   */
+  // TODO(#14535): Move this static alert into AlertComponent so other pages can use it.
+  private DivTag renderAddQuestionDisabledAlert(
+      Messages messages, long programId, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    return div()
+        .withClasses(
+            "usa-alert",
+            BaseStyles.ALERT_WARNING,
+            BaseStyles.ALERT_SLIM,
+            "maxw-mobile-lg",
+            "margin-bottom-1")
+        .with(
+            div()
+                .withClass("usa-alert__body")
+                .with(
+                    p(messages.at(MessageKey.HEADING_WARNING_PREFIX.getKeyName()))
+                        .withClass("usa-sr-only"),
+                    p().withClass("usa-alert__text")
+                        .with(
+                            renderAddQuestionDisabledAlertText(
+                                messages, programId, optionalParentEnumeratorBlock))));
   }
 
   /**
