@@ -23,7 +23,9 @@ public class DevRoutesFilter extends EssentialFilter {
   public EssentialAction apply(EssentialAction next) {
     return EssentialAction.of(
         request -> {
-          boolean isDevPath = request.uri().toLowerCase(Locale.ROOT).startsWith("/dev");
+          // Check path(), not uri(). The router matches on path(), and uri() is the raw request
+          // target, which may be absolute-form ("http://host/dev/...") and not start with "/dev".
+          boolean isDevPath = request.path().toLowerCase(Locale.ROOT).startsWith("/dev");
           if (!isDevOrStaging && isDevPath) {
             return Accumulator.done(notFound());
           }
