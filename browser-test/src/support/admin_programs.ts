@@ -1370,7 +1370,10 @@ export class AdminPrograms {
   }
 
   async closeQuestionBank() {
-    await this.page.getByRole('button', {name: 'Close', exact: true}).click()
+    await this.page
+      .getByRole('form', {name: /Add a (question|list set)/})
+      .getByRole('button', {name: 'Close', exact: true})
+      .click()
     await this.waitForQuestionBankAnimationToFinish()
   }
 
