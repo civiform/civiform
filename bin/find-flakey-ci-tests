@@ -37,7 +37,6 @@ on the repo. A fine-grained token with "Actions: read" is enough.
 """
 
 import argparse
-import csv
 import datetime as dt
 import glob
 import json
@@ -51,6 +50,10 @@ import urllib.request
 from collections import defaultdict
 
 API = "https://api.github.com"
+# Default --ignore-file, which lives next to this script.
+DEFAULT_IGNORE_FILE = os.path.join(
+    os.path.dirname(os.path.abspath(__file__)), "find-flakey-ci-tests.ignored_runs"
+)
 # Bump this when the parser changes so cached results are recomputed.
 CACHE_VERSION = 1
 
@@ -203,7 +206,9 @@ def parse_ignore_entry(entry):
 
 def load_ignores(args):
   entries = list(args.ignore or [])
-  for path in args.ignore_file or []:
+  path = args.ignore_file
+  # The default file is optional; a path passed explicitly must exist.
+  if path != DEFAULT_IGNORE_FILE or os.path.exists(path):
     with open(path) as f:
       for line in f:
         # Drop any commented part of the line.
@@ -323,7 +328,7 @@ def load_records(cache_dir, days, ignores):
 
 
 def aggregate(records, max_failures):
-  stats = defaultdict(lambda: {"flaky": 0, "failed": 0, "last_seen": "", "last_url": ""})
+  stats = defaultdict(lambda: {"flaky": 0, "failed": 0, "last_seen": ""})
   ignored = 0
   for rec in records:
     # Many hard failures in one run usually means staging was down or the
@@ -338,7 +343,6 @@ def aggregate(records, max_failures):
         s[kind] += 1
         if (rec["created_at"] or "") > s["last_seen"]:
           s["last_seen"] = rec["created_at"]
-          s["last_url"] = rec["job_url"]
   ranked = sorted(
       stats.items(),
       key=lambda kv: (kv[1]["flaky"] + kv[1]["failed"], kv[1]["last_seen"]),
@@ -372,24 +376,20 @@ def print_report(ranked, records, ignored, skipped, top):
   header = f"{'Flaky':>5} {'Failed':>6} {'Rate%':>6}  {'Last seen':<10}  Test"
   print(header)
   print("-" * len(header))
-  for test, s in ranked[: top or None]:
+  # --top keeps the most frequent tests; those are shown most recently seen first,
+  # with ties going to the test with more occurrences.
+  rows = sorted(
+      ranked[: top or None],
+      key=lambda kv: (kv[1]["last_seen"], kv[1]["flaky"] + kv[1]["failed"]),
+      reverse=True,
+  )
+  for test, s in rows:
     rate = 100.0 * (s["flaky"] + s["failed"]) / len(parsed) if parsed else 0
     print(f"{s['flaky']:>5} {s['failed']:>6} {rate:>6.1f}  {s['last_seen'][:10]:<10}  {test}")
   print()
   print("Flaky  = failed, then passed on retry (the run still passed)")
   print("Failed = failed both attempts")
   print("Rate%  = (flaky + failed) / test runs")
-
-
-def write_csv(path, ranked, records):
-  runs = sum(1 for r in records if r["has_test_results"])
-  with open(path, "w", newline="") as f:
-    w = csv.writer(f)
-    w.writerow(["test", "flaky", "failed", "rate_pct", "last_seen", "last_job_url"])
-    for test, s in ranked:
-      rate = 100.0 * (s["flaky"] + s["failed"]) / runs if runs else 0
-      w.writerow([test, s["flaky"], s["failed"], f"{rate:.1f}", s["last_seen"], s["last_url"]])
-  print(f"Wrote {path}", file=sys.stderr)
 
 
 # ---------------------------------------------------------------------------
@@ -417,7 +417,6 @@ def main():
                       " (default: %(default)s)")
   parser.add_argument("--top", type=int, default=50,
                       help="rows to print; 0 for all (default: %(default)s)")
-  parser.add_argument("--csv", help="also write the full results to this CSV file")
   parser.add_argument("--cache-dir",
                       default=os.path.join(os.path.expanduser("~"), ".cache",
                                            "civiform-flakey-ci-tests"),
@@ -425,9 +424,9 @@ def main():
   parser.add_argument("--ignore", action="append", metavar="RUN[:ATTEMPT]",
                       help="run number to leave out, e.g. 1811 for every attempt or"
                       " 1811:2 for only attempt 2. Repeatable.")
-  parser.add_argument("--ignore-file", action="append", metavar="PATH",
+  parser.add_argument("--ignore-file", metavar="PATH", default=DEFAULT_IGNORE_FILE,
                       help="file of --ignore entries, one per line, '#' for comments."
-                      " Repeatable.")
+                      " (default: %(default)s)")
   parser.add_argument("--offline", action="store_true",
                       help="skip GitHub and report from cached results only")
   parser.add_argument("--parse-file", metavar="LOG",
@@ -446,8 +445,6 @@ def main():
   records, skipped = load_records(args.cache_dir, args.report_days, ignores)
   ranked, ignored = aggregate(records, None if args.max_failures < 0 else args.max_failures)
   print_report(ranked, records, ignored, skipped, args.top)
-  if args.csv:
-    write_csv(args.csv, ranked, records)
 
 
 if __name__ == "__main__":
