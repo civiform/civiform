@@ -1287,7 +1287,7 @@ input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
-description.repeatedSet.initialQuestion=
+description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
@@ -1339,7 +1339,7 @@ text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=
+text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
 text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
