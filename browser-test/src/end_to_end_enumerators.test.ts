@@ -1,5 +1,6 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  ApplicantQuestions,
   disableFeatureFlag,
   enableFeatureFlag,
   loginAsAdmin,
@@ -2253,36 +2254,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const FALL = 'Fall (will hide next block)'
       const blockForm = page.locator('#cf-block-form')
       const addSeasons = blockForm.getByRole('button', {name: 'Add Seasons'})
-
-      async function addSeason(option: string) {
-        await addSeasons.click()
-        await waitForHtmxReady(page)
-        await blockForm.getByText(option, {exact: true}).last().click()
-      }
-
-      async function removeSeason(number: number) {
-        page.once('dialog', (dialog) => void dialog.accept())
-        await blockForm
-          .getByRole('button', {name: `Remove Seasons #${number}`})
-          .click()
-      }
-
-      async function expectSeasons(options: string[]) {
-        await expect(blockForm.getByRole('radio', {checked: true})).toHaveCount(
-          options.length,
-        )
-        for (const option of options) {
-          await expect(
-            blockForm.getByRole('radio', {name: option, checked: true}),
-          ).toHaveCount(1)
-        }
-      }
-
-      async function saveAndReopen() {
-        await applicantQuestions.clickContinue()
-        await expect(page).toHaveURL(/\/review/)
-        await applicantQuestions.clickEdit()
-      }
+      const addSeason = (option: string) =>
+        addRadioButtonEntity(page, 'Seasons', option)
+      const removeSeason = (number: number) =>
+        removeInitialQuestionEntity(page, 'Seasons', number)
+      const expectSeasons = (options: string[]) =>
+        expectSelectedRadioOptions(page, options)
+      const saveAndReopen = () =>
+        saveAndReopenListPage(page, applicantQuestions)
 
       await test.step('Save three seasons and reopen the list page', async () => {
         await applicantQuestions.applyProgram(programName)
@@ -2957,6 +2936,55 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
   // Clicks the "Add {entityType}" button on an enumerator screen whose
   // enumerator has an initial question, and waits for the new entity row to be
   // rendered.
+  // Adds an initial-question row for a radio button list set and selects an option in it.
+  async function addRadioButtonEntity(
+    page: Page,
+    entityType: string,
+    option: string,
+  ) {
+    await clickAddInitialQuestionEntity(page, entityType)
+    await page
+      .locator('#cf-block-form')
+      .getByText(option, {exact: true})
+      .last()
+      .click()
+  }
+
+  async function removeInitialQuestionEntity(
+    page: Page,
+    entityType: string,
+    rowNumber: number,
+  ) {
+    page.once('dialog', (dialog) => void dialog.accept())
+    await page
+      .locator('#cf-block-form')
+      .getByRole('button', {name: `Remove ${entityType} #${rowNumber}`})
+      .click()
+  }
+
+  // Checks that exactly these radio options are selected across the visible rows.
+  async function expectSelectedRadioOptions(page: Page, options: string[]) {
+    const blockForm = page.locator('#cf-block-form')
+    await expect(blockForm.getByRole('radio', {checked: true})).toHaveCount(
+      options.length,
+    )
+    for (const option of options) {
+      await expect(
+        blockForm.getByRole('radio', {name: option, checked: true}),
+      ).toHaveCount(1)
+    }
+  }
+
+  // Saves the list page, which is the program's only screen, and opens it again from review.
+  async function saveAndReopenListPage(
+    page: Page,
+    applicantQuestions: ApplicantQuestions,
+  ) {
+    await applicantQuestions.clickContinue()
+    await expect(page).toHaveURL(/\/review/)
+    await applicantQuestions.clickEdit()
+  }
+
   async function clickAddInitialQuestionEntity(page: Page, entityType: string) {
     await page
       .locator('#cf-block-form')
