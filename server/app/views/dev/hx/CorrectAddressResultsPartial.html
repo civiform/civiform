@@ -1,7 +1,7 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.dev.hx.CorrectAddressResultsPartialViewModel"*/-->
 <div data-testid="address-correction-results">
-  <h2>Address Correction Results</h2>
+  <h2 class="margin-top-0">Address Correction Results</h2>
   <p th:if="${model.addressSuggestions().isEmpty()}">No results found</p>
 
   <form
@@ -10,7 +10,7 @@
     th:attr="hx-post=${model.checkServiceAreaActionUrl()}"
     hx-target="#checkServiceAreaDebugOutput"
     hx-swap="innerHTML"
-    class="margin-bottom-4"
+    class="border-top border-base-lighter padding-top-2 margin-bottom-4"
   >
     <input
       type="hidden"
@@ -33,9 +33,9 @@
       th:value="${suggestion.location.wellKnownId}"
     />
 
-    <h3 class="margin-bottom-05" th:text="${suggestion.address.street}"></h3>
+    <h3 class="margin-y-0" th:text="${suggestion.address.street}"></h3>
     <p
-      class="margin-top-0"
+      class="margin-top-05 margin-bottom-0"
       th:text="|${suggestion.address.city}, ${suggestion.address.state}, ${suggestion.address.zip}|"
     ></p>
     <table class="usa-table usa-table--borderless usa-table--compact">
@@ -72,7 +72,9 @@
           th:text="${entry.value.label + ' (' + entry.value.attribute + '=' + entry.value.id + ')'}"
         ></option>
       </cf:select>
-      <cf:button type="submit" text="Check Service Area" />
+      <div class="margin-top-2">
+        <cf:button type="submit" text="Check Service Area" />
+      </div>
     </th:block>
   </form>
 </div>

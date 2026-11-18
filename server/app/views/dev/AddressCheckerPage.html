@@ -16,37 +16,39 @@
     Back to dev tools
   </a>
 
-  <section class="bg-base-lightest padding-2 margin-y-4">
-    <h2 class="margin-top-0">Current Address Settings</h2>
-    <p>
+  <section class="bg-base-lightest padding-3 margin-top-2 margin-bottom-5">
+    <h2 class="margin-0">Current Address Settings</h2>
+    <p class="margin-top-2 margin-bottom-1">
       <strong>Address Correction:</strong>
       <span
         th:text="${model.addressCorrectionEnabled} ? 'Enabled' : 'Disabled'"
       ></span>
     </p>
-    <p>
+    <p class="margin-0">
       <strong>Address Validation:</strong>
       <span
         th:text="${model.addressValidationEnabled} ? 'Enabled' : 'Disabled'"
       ></span>
     </p>
     <th:block th:if="${model.findAddressCandidatesUrls.present}">
-      <h3 class="margin-bottom-0">Find Address Candidates Url(s)</h3>
-      <ul class="usa-list usa-list--unstyled">
-        <li
-          th:each="url : ${model.findAddressCandidatesUrls.get()}"
-          th:text="${url}"
-        ></li>
-      </ul>
+      <h3 class="margin-top-2 margin-bottom-05">
+        Find Address Candidates Url(s)
+      </h3>
+      <div
+        th:each="url : ${model.findAddressCandidatesUrls.get()}"
+        th:text="${url}"
+        class="text-break"
+      ></div>
     </th:block>
     <th:block th:if="${model.addressServiceAreaValidationUrls.present}">
-      <h3 class="margin-bottom-0">Service Area Validation Url(s)</h3>
-      <ul class="usa-list usa-list--unstyled margin-bottom-0">
-        <li
-          th:each="url : ${model.addressServiceAreaValidationUrls.get()}"
-          th:text="${url}"
-        ></li>
-      </ul>
+      <h3 class="margin-top-2 margin-bottom-05">
+        Service Area Validation Url(s)
+      </h3>
+      <div
+        th:each="url : ${model.addressServiceAreaValidationUrls.get()}"
+        th:text="${url}"
+        class="text-break"
+      ></div>
     </th:block>
   </section>
 
@@ -54,7 +56,7 @@
     <!-- Address Correction -->
     <div class="tablet:grid-col-6">
       <th:block th:if="${model.showCorrectAddressForm()}">
-        <h2>Correct Address</h2>
+        <h2 class="margin-top-0">Correct Address</h2>
         <form
           method="post"
           th:action="${model.correctAddressActionUrl}"
@@ -85,7 +87,7 @@
       </th:block>
       <div
         th:unless="${model.showCorrectAddressForm()}"
-        class="usa-alert usa-alert--error margin-top-4"
+        class="usa-alert usa-alert--error"
         role="alert"
       >
         <div class="usa-alert__body">
@@ -105,7 +107,7 @@
     <!-- Service Area Validation -->
     <div class="tablet:grid-col-6">
       <th:block th:if="${model.showCheckServiceAreaForm()}">
-        <h2>Check Service Area</h2>
+        <h2 class="margin-top-0">Check Service Area</h2>
         <form
           method="post"
           th:action="${model.checkServiceAreaActionUrl}"
@@ -163,7 +165,7 @@
       </th:block>
       <div
         th:unless="${model.showCheckServiceAreaForm()}"
-        class="usa-alert usa-alert--error margin-top-4"
+        class="usa-alert usa-alert--error"
         role="alert"
       >
         <div class="usa-alert__body">

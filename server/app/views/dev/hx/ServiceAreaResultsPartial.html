@@ -1,6 +1,7 @@
 <!--/*@thymesVar id="model" type="views.dev.hx.ServiceAreaResultsPartialViewModel"*/-->
 <div>
   <h2
+    class="margin-top-0"
     th:if="${model.selectedResult().isPresent()}"
     th:with="result=${model.selectedResult().get()}"
   >
@@ -11,7 +12,7 @@
     ></span>
   </h2>
 
-  <h3>Result Details</h3>
+  <h3 class="margin-bottom-0">Result Details</h3>
   <table class="usa-table">
     <thead>
       <tr>
