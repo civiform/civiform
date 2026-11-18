@@ -62,7 +62,7 @@ public final class AddressCheckerController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       AddressCheckerPageViewModel model =
           AddressCheckerPageViewModel.builder()
               .backLinkUrl(routes.DevToolsController.index().url())
