@@ -1293,19 +1293,19 @@ description.repeatedSet.initialQuestionCopy=If you choose an existing question, 
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=
+label.repeatedSet.initialQuestionAdminId=Admin id:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
 description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
-alert.repeatedSet.backfillSaveWarning=
+alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=
+alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=
+alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=
+text.repeatedSet.backfillProgramCountOne=1 program
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany=
+text.repeatedSet.backfillProgramCountMany={0} programs
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
