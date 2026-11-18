@@ -129,6 +129,9 @@ public class DevToolsController extends Controller {
               .durableJobOptions(durableJobOptions)
               .isDev(deploymentType.isDev())
               .csrfToken(csrfToken)
+              .flashSuccess(request.flash().get(FlashKey.SUCCESS))
+              .flashError(request.flash().get(FlashKey.ERROR))
+              .flashWarning(request.flash().get(FlashKey.WARNING))
               .build();
       return ok(devToolsPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
@@ -283,7 +286,7 @@ public class DevToolsController extends Controller {
     if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
       return redirect(routes.DevToolsController.index().url())
           .flashing(
-              "warning",
+              FlashKey.WARNING,
               "The cache is not enabled, so no cache was cleared. To enable caching, set"
                   + " VERSION_CACHE_ENABLED or PROGRAM_CACHE_ENABLED to true.");
     }
