@@ -1,6 +1,7 @@
 package views.dev;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import views.BaseViewModel;
@@ -21,4 +22,7 @@ public class DevToolsPageViewModel implements BaseViewModel {
   private final boolean isDev;
   private final ImmutableList<String> durableJobOptions;
   private final String csrfToken;
+  private final Optional<String> flashSuccess;
+  private final Optional<String> flashError;
+  private final Optional<String> flashWarning;
 }

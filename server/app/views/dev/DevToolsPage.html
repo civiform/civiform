@@ -1,6 +1,19 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.dev.DevToolsPageViewModel"*/-->
 <th:block th:fragment="content">
+  <!--/* Flash toasts, consumed by toast.ts. */-->
+  <div
+    th:replace="~{components/ToastFragment :: success(${model.flashSuccess})}"
+  ></div>
+  <div
+    th:replace="~{components/ToastFragment :: error(${model.flashError})}"
+  ></div>
+  <div th:if="${model.flashWarning.isPresent()}">
+    <div
+      th:replace="~{components/ToastFragment :: toast(${'id-' + #strings.randomAlphanumeric(8)}, ${model.flashWarning.get()}, true, false, 0, null, 'warning')}"
+    ></div>
+  </div>
+
   <a class="usa-button usa-button--outline" th:href="${model.homeUrl}"
     >🏠 [[#{devtools.homepage}]]</a
   >
