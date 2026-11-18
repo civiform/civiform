@@ -301,12 +301,17 @@ def collect(args, gh, ignores):
 def load_records(cache_dir, days, ignores):
     """Loads cached results, optionally limited to the last `days` days.
 
-  Returns (records, number of cached records left out by the ignore list).
-  """
+    The limit is in whole UTC calendar days counting today: 1 keeps only today,
+    7 keeps today and the 6 days before it, each from midnight.
+
+    Returns (records, number of cached records left out by the ignore list).
+    """
     cutoff = None
     if days:
-        cutoff = (dt.datetime.now(dt.timezone.utc) -
-                  dt.timedelta(days=days)).isoformat()
+        # A date string like "2026-11-11" sorts before every timestamp on that
+        # day ("2026-11-11T06:13:59Z"), so comparing strings keeps that whole day.
+        cutoff = (dt.datetime.now(dt.timezone.utc).date() -
+                  dt.timedelta(days=days - 1)).isoformat()
     records = []
     skipped = 0
     for path in glob.glob(os.path.join(cache_dir, "*.json")):
@@ -426,8 +431,8 @@ def main():
         "--report-days",
         type=int,
         default=0,
-        help="limit the report to the last N days of cached results;"
-        " 0 for all cached history (default: %(default)s)")
+        help="limit the report to the last N UTC calendar days, counting today"
+        " (1 = today only); 0 for all cached history (default: %(default)s)")
     parser.add_argument(
         "--max-failures",
         type=int,
