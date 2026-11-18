@@ -23,7 +23,6 @@ import services.settings.SettingsManifest;
 import views.components.TextFormatter;
 import views.dev.AddressCheckerPageView;
 import views.dev.AddressCheckerPageViewModel;
-import views.dev.AddressCheckerView;
 import views.dev.hx.CorrectAddressViewPartial;
 import views.dev.hx.ServiceAreaCheckViewPartial;
 
@@ -33,7 +32,6 @@ public final class AddressCheckerController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(AddressCheckerController.class);
 
   private final SettingsManifest settingsManifest;
-  private final AddressCheckerView addressCheckerView;
   private final AddressCheckerPageView addressCheckerPageView;
   private final CorrectAddressViewPartial correctAddressViewPartial;
   private final ServiceAreaCheckViewPartial checkServiceAreaViewPartial;
@@ -44,7 +42,6 @@ public final class AddressCheckerController extends Controller {
   @Inject
   AddressCheckerController(
       SettingsManifest settingsManifest,
-      AddressCheckerView addressCheckerView,
       CorrectAddressViewPartial correctAddressViewPartial,
       ServiceAreaCheckViewPartial checkServiceAreaViewPartial,
       EsriClient esriClient,
@@ -52,7 +49,6 @@ public final class AddressCheckerController extends Controller {
       FormFactory formFactory,
       AddressCheckerPageView addressCheckerPageView) {
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.addressCheckerView = checkNotNull(addressCheckerView);
     this.correctAddressViewPartial = checkNotNull(correctAddressViewPartial);
     this.checkServiceAreaViewPartial = checkServiceAreaViewPartial;
     this.esriClient = checkNotNull(esriClient);
@@ -62,23 +58,21 @@ public final class AddressCheckerController extends Controller {
   }
 
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
-      AddressCheckerPageViewModel model =
-          AddressCheckerPageViewModel.builder()
-              .backLinkUrl(routes.DevToolsController.index().url())
-              .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
-              .addressValidationEnabled(
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
-              .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
-              .addressServiceAreaValidationUrls(
-                  settingsManifest.getEsriAddressServiceAreaValidationUrls())
-              .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
-              .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
-              .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
-              .build();
-      return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-    return ok(addressCheckerView.render(request));
+    AddressCheckerPageViewModel model =
+        AddressCheckerPageViewModel.builder()
+            .backLinkUrl(routes.DevToolsController.index().url())
+            .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
+            .addressValidationEnabled(
+                settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+            .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
+            .addressServiceAreaValidationUrls(
+                settingsManifest.getEsriAddressServiceAreaValidationUrls())
+            .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
+            .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
+            .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
+            .build();
+
+    return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /** Performs address correction and returns the results */
