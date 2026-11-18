@@ -1315,7 +1315,7 @@ alert.repeatedSet.initialQuestionArchived=
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
 alert.repeatedSet.initialQuestionNotFound=
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=
+alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
