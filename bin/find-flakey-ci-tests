@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 
 # DOC: Scan the "AWS Staging Deploy" GitHub Action logs and rank flaky browser tests. Run with -h for more info.
-
 """Collate flaky Playwright tests from the "AWS Staging Deploy" Action logs.
 
 The staging deploy (civiform/civiform-staging-deploy, aws_deploy.yaml) runs the
@@ -52,8 +51,8 @@ from collections import defaultdict
 API = "https://api.github.com"
 # Default --ignore-file, which lives next to this script.
 DEFAULT_IGNORE_FILE = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)), "find-flakey-ci-tests.ignored_runs"
-)
+    os.path.dirname(os.path.abspath(__file__)),
+    "find-flakey-ci-tests.ignored_runs")
 # Bump this when the parser changes so cached results are recomputed.
 CACHE_VERSION = 1
 
@@ -66,18 +65,15 @@ ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
 TIMESTAMP_RE = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z ?")
 # Summary section headers, e.g. "  3 flaky", "  700 passed (25.3m)".
 SECTION_RE = re.compile(
-    r"^ {2}(\d+) (failed|flaky|skipped|passed|did not run|interrupted)\b"
-)
+    r"^ {2}(\d+) (failed|flaky|skipped|passed|did not run|interrupted)\b")
 # Summary entries, e.g. "    [chromium] › src/a.test.ts:1:2 › Suite › title ───".
 ENTRY_RE = re.compile(
-    r"^ {4}(?:\[[^\]]+\] › )?(\S+?\.(?:test|spec)\.[jt]sx?):\d+:\d+ › (.*)$"
-)
+    r"^ {4}(?:\[[^\]]+\] › )?(\S+?\.(?:test|spec)\.[jt]sx?):\d+:\d+ › (.*)$")
 # The run of box-drawing characters ("─", U+2500) that Playwright pads each
 # summary entry with, e.g. "src/a.test.ts:1:2 › Suite › title ─────". The
 # padding fills the terminal width, so its length varies. It's stripped so the
 # same test always gets the same name.
 TRAILING_RULE_RE = re.compile(r"\s*─+\s*$")
-
 
 # ---------------------------------------------------------------------------
 # GitHub API
@@ -85,79 +81,84 @@ TRAILING_RULE_RE = re.compile(r"\s*─+\s*$")
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
-  """Lets us follow redirects ourselves so the auth token isn't sent to secondary servers unecessarily."""
+    """Lets us follow redirects ourselves so the auth token isn't sent to secondary servers unecessarily."""
 
-  def redirect_request(self, req, fp, code, msg, headers, newurl):
-    return None
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
 
 
 _opener = urllib.request.build_opener(NoRedirect)
 
 
 def get_token():
-  token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
-  if token:
-    return token
-  sys.exit("No GitHub token found. Set GITHUB_TOKEN (needs Actions read access).")
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        return token
+    sys.exit(
+        "No GitHub token found. Set GITHUB_TOKEN (needs Actions read access).")
 
 
 class GitHub:
 
-  def __init__(self, repo, token):
-    self.repo = repo
-    self.token = token
+    def __init__(self, repo, token):
+        self.repo = repo
+        self.token = token
 
-  def _request(self, url, auth=True):
-    headers = {
-        "Accept": "application/vnd.github+json",
-        "X-GitHub-Api-Version": "2022-11-28",
-        "User-Agent": "find-flakey-ci-tests",
-    }
-    if auth:
-      headers["Authorization"] = f"Bearer {self.token}"
-    for attempt in range(4):
-      try:
-        return _opener.open(urllib.request.Request(url, headers=headers), timeout=120)
-      except urllib.error.HTTPError as e:
-        if e.code in (301, 302, 303, 307, 308):
-          return e  # caller follows Location
-        if (e.code >= 500 or e.code == 429) and attempt < 3:
-          time.sleep(2**attempt)
-          continue
-        raise
-      except (urllib.error.URLError, TimeoutError):
-        if attempt < 3:
-          time.sleep(2**attempt)
-          continue
-        raise
+    def _request(self, url, auth=True):
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "find-flakey-ci-tests",
+        }
+        if auth:
+            headers["Authorization"] = f"Bearer {self.token}"
+        for attempt in range(4):
+            try:
+                return _opener.open(
+                    urllib.request.Request(url, headers=headers), timeout=120)
+            except urllib.error.HTTPError as e:
+                if e.code in (301, 302, 303, 307, 308):
+                    return e  # caller follows Location
+                if (e.code >= 500 or e.code == 429) and attempt < 3:
+                    time.sleep(2**attempt)
+                    continue
+                raise
+            except (urllib.error.URLError, TimeoutError):
+                if attempt < 3:
+                    time.sleep(2**attempt)
+                    continue
+                raise
 
-  def get_json(self, path, params):
-    with self._request(f"{API}{path}?{urllib.parse.urlencode(params)}") as resp:
-      return json.load(resp)
+    def get_json(self, path, params):
+        with self._request(
+                f"{API}{path}?{urllib.parse.urlencode(params)}") as resp:
+            return json.load(resp)
 
-  def paginate(self, path, key, params):
-    page = 1
-    while True:
-      items = self.get_json(path, dict(params, per_page=100, page=page)).get(key, [])
-      yield from items
-      if len(items) < 100:
-        return
-      page += 1
+    def paginate(self, path, key, params):
+        page = 1
+        while True:
+            items = self.get_json(path, dict(params, per_page=100,
+                                             page=page)).get(key, [])
+            yield from items
+            if len(items) < 100:
+                return
+            page += 1
 
-  def job_log(self, job_id):
-    """Returns the job's log text, or None if it has expired."""
-    try:
-      resp = self._request(f"{API}/repos/{self.repo}/actions/jobs/{job_id}/logs")
-      if resp.status in (301, 302, 303, 307, 308):
-        location = resp.headers["Location"]
-        resp.close()
-        resp = self._request(location, auth=False)
-      with resp:
-        return resp.read().decode("utf-8", errors="replace")
-    except urllib.error.HTTPError as e:
-      if e.code in (404, 410):
-        return None
-      raise
+    def job_log(self, job_id):
+        """Returns the job's log text, or None if it has expired."""
+        try:
+            resp = self._request(
+                f"{API}/repos/{self.repo}/actions/jobs/{job_id}/logs")
+            if resp.status in (301, 302, 303, 307, 308):
+                location = resp.headers["Location"]
+                resp.close()
+                resp = self._request(location, auth=False)
+            with resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 410):
+                return None
+            raise
 
 
 # ---------------------------------------------------------------------------
@@ -166,29 +167,29 @@ class GitHub:
 
 
 def parse_summary(log_text):
-  """Returns {"failed": [...], "flaky": [...], "has_test_results": bool}.
+    """Returns {"failed": [...], "flaky": [...], "has_test_results": bool}.
 
   Tests are identified as "file › describe › title" without line/column, so a
   test is still grouped with itself after its file is edited.
   """
-  result = {"failed": set(), "flaky": set(), "has_test_results": False}
-  section = None
-  for raw in log_text.splitlines():
-    line = ANSI_RE.sub("", TIMESTAMP_RE.sub("", raw)).rstrip()
-    header = SECTION_RE.match(line)
-    if header:
-      section = header.group(2)
-      result["has_test_results"] = True
-      continue
-    entry = ENTRY_RE.match(line) if section in ("failed", "flaky") else None
-    if entry:
-      title = TRAILING_RULE_RE.sub("", entry.group(2))
-      result[section].add(f"{entry.group(1)} › {title}")
-    else:
-      section = None
-  result["failed"] = sorted(result["failed"])
-  result["flaky"] = sorted(result["flaky"])
-  return result
+    result = {"failed": set(), "flaky": set(), "has_test_results": False}
+    section = None
+    for raw in log_text.splitlines():
+        line = ANSI_RE.sub("", TIMESTAMP_RE.sub("", raw)).rstrip()
+        header = SECTION_RE.match(line)
+        if header:
+            section = header.group(2)
+            result["has_test_results"] = True
+            continue
+        entry = ENTRY_RE.match(line) if section in ("failed", "flaky") else None
+        if entry:
+            title = TRAILING_RULE_RE.sub("", entry.group(2))
+            result[section].add(f"{entry.group(1)} › {title}")
+        else:
+            section = None
+    result["failed"] = sorted(result["failed"])
+    result["flaky"] = sorted(result["flaky"])
+    return result
 
 
 # ---------------------------------------------------------------------------
@@ -197,34 +198,35 @@ def parse_summary(log_text):
 
 
 def parse_ignore_entry(entry):
-  """Parses "1811" or "1811:2" into (run_number, attempt); attempt None means all."""
-  match = re.fullmatch(r"(\d+)(?::(\d+))?", entry.strip())
-  if not match:
-    sys.exit(f"Can't parse ignore entry {entry!r}; expected RUN or RUN:ATTEMPT, e.g. 1811:2")
-  return int(match.group(1)), int(match.group(2)) if match.group(2) else None
+    """Parses "1811" or "1811:2" into (run_number, attempt); attempt None means all."""
+    match = re.fullmatch(r"(\d+)(?::(\d+))?", entry.strip())
+    if not match:
+        sys.exit(
+            f"Can't parse ignore entry {entry!r}; expected RUN or RUN:ATTEMPT, e.g. 1811:2"
+        )
+    return int(match.group(1)), int(match.group(2)) if match.group(2) else None
 
 
 def load_ignores(args):
-  entries = list(args.ignore or [])
-  path = args.ignore_file
-  # The default file is optional; a path passed explicitly must exist.
-  if path != DEFAULT_IGNORE_FILE or os.path.exists(path):
-    with open(path) as f:
-      for line in f:
-        # Drop any commented part of the line.
-        line = line.split("#", 1)[0].strip()
-        if line:
-          entries.append(line)
-  return {parse_ignore_entry(e) for e in entries}
+    entries = list(args.ignore or [])
+    path = args.ignore_file
+    # The default file is optional; a path passed explicitly must exist.
+    if path != DEFAULT_IGNORE_FILE or os.path.exists(path):
+        with open(path) as f:
+            for line in f:
+                # Drop any commented part of the line.
+                line = line.split("#", 1)[0].strip()
+                if line:
+                    entries.append(line)
+    return {parse_ignore_entry(e) for e in entries}
 
 
 def is_ignored(ignores, run_number, attempt=None):
-  """With attempt=None, true only when every attempt of the run is ignored."""
-  if run_number is None:
-    return False
-  return (run_number, None) in ignores or (
-      attempt is not None and (run_number, attempt) in ignores
-  )
+    """With attempt=None, true only when every attempt of the run is ignored."""
+    if run_number is None:
+        return False
+    return (run_number, None) in ignores or (
+        attempt is not None and (run_number, attempt) in ignores)
 
 
 # ---------------------------------------------------------------------------
@@ -233,7 +235,7 @@ def is_ignored(ignores, run_number, attempt=None):
 
 
 def collect(args, gh, ignores):
-  """Downloads logs for new jobs from GitHub and saves a parsed record of each in the cache.
+    """Downloads logs for new jobs from GitHub and saves a parsed record of each in the cache.
 
   Returns nothing; the report is built afterwards from the cache by load_records().
 
@@ -243,83 +245,93 @@ def collect(args, gh, ignores):
   ignored runs/attempts, jobs that were skipped or never finished, and jobs whose
   log has expired.
   """
-  since =(dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=args.days)).date()
-  runs = list(
-      gh.paginate(
-          f"/repos/{gh.repo}/actions/workflows/{args.workflow}/runs",
-          # response data key 
-          "workflow_runs",
-          {"created": f">={since.isoformat()}", "status": "completed"},
-      )
-  )
-  print(f"Found {len(runs)} runs of {args.workflow} since {since}.", file=sys.stderr)
+    since = (dt.datetime.now(dt.timezone.utc) -
+             dt.timedelta(days=args.days)).date()
+    runs = list(
+        gh.paginate(
+            f"/repos/{gh.repo}/actions/workflows/{args.workflow}/runs",
+            # response data key
+            "workflow_runs",
+            {
+                "created": f">={since.isoformat()}",
+                "status": "completed"
+            },
+        ))
+    print(
+        f"Found {len(runs)} runs of {args.workflow} since {since}.",
+        file=sys.stderr)
 
-  os.makedirs(args.cache_dir, exist_ok=True)
-  fetched = 0
-  for run in runs:
-    if is_ignored(ignores, run.get("run_number")):
-      continue
-    # filter=all includes jobs from earlier attempts of re-run runs.
-    jobs = gh.paginate(
-        f"/repos/{gh.repo}/actions/runs/{run['id']}/jobs", "jobs", {"filter": "all"}
-    )
-    for job in jobs:
-      if job.get("conclusion") in ("skipped", None):
-        continue
-      if is_ignored(ignores, run.get("run_number"), job.get("run_attempt", 1)):
-        continue
-      cache_path = os.path.join(args.cache_dir, f"{job['id']}.json")
-      if os.path.exists(cache_path):
-        with open(cache_path) as f:
-          if json.load(f).get("cache_version") == CACHE_VERSION:
+    os.makedirs(args.cache_dir, exist_ok=True)
+    fetched = 0
+    for run in runs:
+        if is_ignored(ignores, run.get("run_number")):
             continue
-      log = gh.job_log(job["id"])
-      if log is None:
-        continue  # expired; nothing to learn
-      fetched += 1
-      record = {
-          "cache_version": CACHE_VERSION,
-          "job_id": job["id"],
-          "job_url": job["html_url"],
-          "run_id": run["id"],
-          "run_number": run.get("run_number"),
-          "run_attempt": job.get("run_attempt", 1),
-          "event": run.get("event"),
-          "conclusion": job.get("conclusion"),
-          "created_at": job.get("started_at") or run.get("created_at"),
-          **parse_summary(log),
-      }
-      with open(cache_path, "w") as f:
-        json.dump(record, f)
-      print(f"  parsed #{record['run_number']}:{record['run_attempt']}"
-            f" {record['created_at'][:10]}"
-            f" ({record['conclusion']}): {len(record['flaky'])} flaky,"
-            f" {len(record['failed'])} failed", file=sys.stderr)
-  print(f"Downloaded {fetched} new logs.", file=sys.stderr)
+        # filter=all includes jobs from earlier attempts of re-run runs.
+        jobs = gh.paginate(
+            f"/repos/{gh.repo}/actions/runs/{run['id']}/jobs", "jobs",
+            {"filter": "all"})
+        for job in jobs:
+            if job.get("conclusion") in ("skipped", None):
+                continue
+            if is_ignored(ignores, run.get("run_number"), job.get("run_attempt",
+                                                                  1)):
+                continue
+            cache_path = os.path.join(args.cache_dir, f"{job['id']}.json")
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    if json.load(f).get("cache_version") == CACHE_VERSION:
+                        continue
+            log = gh.job_log(job["id"])
+            if log is None:
+                continue  # expired; nothing to learn
+            fetched += 1
+            record = {
+                "cache_version": CACHE_VERSION,
+                "job_id": job["id"],
+                "job_url": job["html_url"],
+                "run_id": run["id"],
+                "run_number": run.get("run_number"),
+                "run_attempt": job.get("run_attempt", 1),
+                "event": run.get("event"),
+                "conclusion": job.get("conclusion"),
+                "created_at": job.get("started_at") or run.get("created_at"),
+                **parse_summary(log),
+            }
+            with open(cache_path, "w") as f:
+                json.dump(record, f)
+            print(
+                f"  parsed #{record['run_number']}:{record['run_attempt']}"
+                f" {record['created_at'][:10]}"
+                f" ({record['conclusion']}): {len(record['flaky'])} flaky,"
+                f" {len(record['failed'])} failed",
+                file=sys.stderr)
+    print(f"Downloaded {fetched} new logs.", file=sys.stderr)
 
 
 def load_records(cache_dir, days, ignores):
-  """Loads cached results, optionally limited to the last `days` days.
+    """Loads cached results, optionally limited to the last `days` days.
 
   Returns (records, number of cached records left out by the ignore list).
   """
-  cutoff = None
-  if days:
-    cutoff = (dt.datetime.now(dt.timezone.utc) - dt.timedelta(days=days)).isoformat()
-  records = []
-  skipped = 0
-  for path in glob.glob(os.path.join(cache_dir, "*.json")):
-    with open(path) as f:
-      rec = json.load(f)
-    if rec.get("cache_version") != CACHE_VERSION:
-      continue
-    if cutoff and (rec.get("created_at") or "") < cutoff:
-      continue
-    if is_ignored(ignores, rec.get("run_number"), rec.get("run_attempt", 1)):
-      skipped += 1
-      continue
-    records.append(rec)
-  return records, skipped
+    cutoff = None
+    if days:
+        cutoff = (dt.datetime.now(dt.timezone.utc) -
+                  dt.timedelta(days=days)).isoformat()
+    records = []
+    skipped = 0
+    for path in glob.glob(os.path.join(cache_dir, "*.json")):
+        with open(path) as f:
+            rec = json.load(f)
+        if rec.get("cache_version") != CACHE_VERSION:
+            continue
+        if cutoff and (rec.get("created_at") or "") < cutoff:
+            continue
+        if is_ignored(ignores, rec.get("run_number"), rec.get("run_attempt",
+                                                              1)):
+            skipped += 1
+            continue
+        records.append(rec)
+    return records, skipped
 
 
 # ---------------------------------------------------------------------------
@@ -328,68 +340,74 @@ def load_records(cache_dir, days, ignores):
 
 
 def aggregate(records, max_failures):
-  stats = defaultdict(lambda: {"flaky": 0, "failed": 0, "last_seen": ""})
-  ignored = 0
-  for rec in records:
-    # Many hard failures in one run usually means staging was down or the
-    # deploy was broken, not flakiness, so those are left out.
-    failed = rec["failed"]
-    if max_failures is not None and len(failed) > max_failures:
-      ignored += 1
-      failed = []
-    for kind, tests in (("flaky", rec["flaky"]), ("failed", failed)):
-      for test in tests:
-        s = stats[test]
-        s[kind] += 1
-        if (rec["created_at"] or "") > s["last_seen"]:
-          s["last_seen"] = rec["created_at"]
-  ranked = sorted(
-      stats.items(),
-      key=lambda kv: (kv[1]["flaky"] + kv[1]["failed"], kv[1]["last_seen"]),
-      reverse=True,
-  )
-  return ranked, ignored
+    stats = defaultdict(lambda: {"flaky": 0, "failed": 0, "last_seen": ""})
+    ignored = 0
+    for rec in records:
+        # Many hard failures in one run usually means staging was down or the
+        # deploy was broken, not flakiness, so those are left out.
+        failed = rec["failed"]
+        if max_failures is not None and len(failed) > max_failures:
+            ignored += 1
+            failed = []
+        for kind, tests in (("flaky", rec["flaky"]), ("failed", failed)):
+            for test in tests:
+                s = stats[test]
+                s[kind] += 1
+                if (rec["created_at"] or "") > s["last_seen"]:
+                    s["last_seen"] = rec["created_at"]
+    ranked = sorted(
+        stats.items(),
+        key=lambda kv: (kv[1]["flaky"] + kv[1]["failed"], kv[1]["last_seen"]),
+        reverse=True,
+    )
+    return ranked, ignored
 
 
 def print_report(ranked, records, ignored, skipped, top):
-  parsed = [r for r in records if r["has_test_results"]]
-  dates = sorted(r["created_at"] for r in parsed if r["created_at"])
+    parsed = [r for r in records if r["has_test_results"]]
+    dates = sorted(r["created_at"] for r in parsed if r["created_at"])
 
-  print()
-  print("Staging browser test flakiness")
-  print("=" * 30)
-  if dates:
-    print(f"Window:      {dates[0][:10]} to {dates[-1][:10]}")
-  print(f"Test runs:   {len(parsed)}")
-  if len(records) > len(parsed):
-    print(f"No results:  {len(records) - len(parsed)}  (deploy failed or tests didn't finish)")
-  if skipped:
-    print(f"Ignored:     {skipped} run attempt(s) on the ignore list")
-  if ignored:
-    print(f"Outages:     hard failures dropped from {ignored} run(s) with more than --max-failures")
-  print()
+    print()
+    print("Staging browser test flakiness")
+    print("=" * 30)
+    if dates:
+        print(f"Window:      {dates[0][:10]} to {dates[-1][:10]}")
+    print(f"Test runs:   {len(parsed)}")
+    if len(records) > len(parsed):
+        print(
+            f"No results:  {len(records) - len(parsed)}  (deploy failed or tests didn't finish)"
+        )
+    if skipped:
+        print(f"Ignored:     {skipped} run attempt(s) on the ignore list")
+    if ignored:
+        print(
+            f"Outages:     hard failures dropped from {ignored} run(s) with more than --max-failures"
+        )
+    print()
 
-  if not ranked:
-    print("No flaky or failed tests found.")
-    return
+    if not ranked:
+        print("No flaky or failed tests found.")
+        return
 
-  header = f"{'Flaky':>5} {'Failed':>6} {'Rate%':>6}  {'Last seen':<10}  Test"
-  print(header)
-  print("-" * len(header))
-  # --top keeps the most frequent tests; those are shown most recently seen first,
-  # with ties going to the test with more occurrences.
-  rows = sorted(
-      ranked[: top or None],
-      key=lambda kv: (kv[1]["last_seen"], kv[1]["flaky"] + kv[1]["failed"]),
-      reverse=True,
-  )
-  for test, s in rows:
-    rate = 100.0 * (s["flaky"] + s["failed"]) / len(parsed) if parsed else 0
-    print(f"{s['flaky']:>5} {s['failed']:>6} {rate:>6.1f}  {s['last_seen'][:10]:<10}  {test}")
-  print()
-  print("Flaky  = failed, then passed on retry (the run still passed)")
-  print("Failed = failed both attempts")
-  print("Rate%  = (flaky + failed) / test runs")
+    header = f"{'Flaky':>5} {'Failed':>6} {'Rate%':>6}  {'Last seen':<10}  Test"
+    print(header)
+    print("-" * len(header))
+    # --top keeps the most frequent tests; those are shown most recently seen first,
+    # with ties going to the test with more occurrences.
+    rows = sorted(
+        ranked[:top or None],
+        key=lambda kv: (kv[1]["last_seen"], kv[1]["flaky"] + kv[1]["failed"]),
+        reverse=True,
+    )
+    for test, s in rows:
+        rate = 100.0 * (s["flaky"] + s["failed"]) / len(parsed) if parsed else 0
+        print(
+            f"{s['flaky']:>5} {s['failed']:>6} {rate:>6.1f}  {s['last_seen'][:10]:<10}  {test}"
+        )
+    print()
+    print("Flaky  = failed, then passed on retry (the run still passed)")
+    print("Failed = failed both attempts")
+    print("Rate%  = (flaky + failed) / test runs")
 
 
 # ---------------------------------------------------------------------------
@@ -398,54 +416,85 @@ def print_report(ranked, records, ignored, skipped, top):
 
 
 def main():
-  parser = argparse.ArgumentParser(
-      description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
-  )
-  parser.add_argument("--repo", default="civiform/civiform-staging-deploy",
-                      help="owner/name (default: %(default)s)")
-  parser.add_argument("--workflow", default="aws_deploy.yaml",
-                      help="workflow file (default: %(default)s)")
-  parser.add_argument("--days", type=int, default=30,
-                      help="how far back to fetch logs (default: %(default)s)")
-  parser.add_argument("--report-days", type=int, default=0,
-                      help="limit the report to the last N days of cached results;"
-                      " 0 for all cached history (default: %(default)s)")
-  parser.add_argument("--max-failures", type=int, default=5,
-                      help="ignore hard failures from runs with more than this many,"
-                      " since those are usually outages rather than flakes; flaky"
-                      " tests from those runs still count. -1 to disable."
-                      " (default: %(default)s)")
-  parser.add_argument("--top", type=int, default=50,
-                      help="rows to print; 0 for all (default: %(default)s)")
-  parser.add_argument("--cache-dir",
-                      default=os.path.join(os.path.expanduser("~"), ".cache",
-                                           "civiform-flakey-ci-tests"),
-                      help="where parsed per-job results are kept (default: %(default)s)")
-  parser.add_argument("--ignore", action="append", metavar="RUN[:ATTEMPT]",
-                      help="run number to leave out, e.g. 1811 for every attempt or"
-                      " 1811:2 for only attempt 2. Repeatable.")
-  parser.add_argument("--ignore-file", metavar="PATH", default=DEFAULT_IGNORE_FILE,
-                      help="file of --ignore entries, one per line, '#' for comments."
-                      " (default: %(default)s)")
-  parser.add_argument("--offline", action="store_true",
-                      help="skip GitHub and report from cached results only")
-  parser.add_argument("--parse-file", metavar="LOG",
-                      help="parse one downloaded log file, print its flaky/failed tests, and exit")
-  args = parser.parse_args()
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--repo",
+        default="civiform/civiform-staging-deploy",
+        help="owner/name (default: %(default)s)")
+    parser.add_argument(
+        "--workflow",
+        default="aws_deploy.yaml",
+        help="workflow file (default: %(default)s)")
+    parser.add_argument(
+        "--days",
+        type=int,
+        default=30,
+        help="how far back to fetch logs (default: %(default)s)")
+    parser.add_argument(
+        "--report-days",
+        type=int,
+        default=0,
+        help="limit the report to the last N days of cached results;"
+        " 0 for all cached history (default: %(default)s)")
+    parser.add_argument(
+        "--max-failures",
+        type=int,
+        default=5,
+        help="ignore hard failures from runs with more than this many,"
+        " since those are usually outages rather than flakes; flaky"
+        " tests from those runs still count. -1 to disable."
+        " (default: %(default)s)")
+    parser.add_argument(
+        "--top",
+        type=int,
+        default=50,
+        help="rows to print; 0 for all (default: %(default)s)")
+    parser.add_argument(
+        "--cache-dir",
+        default=os.path.join(
+            os.path.expanduser("~"), ".cache", "civiform-flakey-ci-tests"),
+        help="where parsed per-job results are kept (default: %(default)s)")
+    parser.add_argument(
+        "--ignore",
+        action="append",
+        metavar="RUN[:ATTEMPT]",
+        help="run number to leave out, e.g. 1811 for every attempt or"
+        " 1811:2 for only attempt 2. Repeatable.")
+    parser.add_argument(
+        "--ignore-file",
+        metavar="PATH",
+        default=DEFAULT_IGNORE_FILE,
+        help="file of --ignore entries, one per line, '#' for comments."
+        " (default: %(default)s)")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="skip GitHub and report from cached results only")
+    parser.add_argument(
+        "--parse-file",
+        metavar="LOG",
+        help=
+        "parse one downloaded log file, print its flaky/failed tests, and exit")
+    args = parser.parse_args()
 
-  if args.parse_file:
-    with open(args.parse_file, encoding="utf-8", errors="replace") as f:
-      print(json.dumps(parse_summary(f.read()), indent=2, ensure_ascii=False))
-    return
+    if args.parse_file:
+        with open(args.parse_file, encoding="utf-8", errors="replace") as f:
+            print(
+                json.dumps(
+                    parse_summary(f.read()), indent=2, ensure_ascii=False))
+        return
 
-  ignores = load_ignores(args)
-  if not args.offline:
-    collect(args, GitHub(args.repo, get_token()), ignores)
+    ignores = load_ignores(args)
+    if not args.offline:
+        collect(args, GitHub(args.repo, get_token()), ignores)
 
-  records, skipped = load_records(args.cache_dir, args.report_days, ignores)
-  ranked, ignored = aggregate(records, None if args.max_failures < 0 else args.max_failures)
-  print_report(ranked, records, ignored, skipped, args.top)
+    records, skipped = load_records(args.cache_dir, args.report_days, ignores)
+    ranked, ignored = aggregate(
+        records, None if args.max_failures < 0 else args.max_failures)
+    print_report(ranked, records, ignored, skipped, args.top)
 
 
 if __name__ == "__main__":
-  main()
+    main()
