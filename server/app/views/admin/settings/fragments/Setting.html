@@ -9,10 +9,10 @@
 <div
   th:fragment="setting(setting)"
   th:data-testid="|${setting.variableName}-container|"
-  class="md:max-w-lg max-w-md"
+  class="grid-col-12 desktop:grid-col-6 maxw-mobile-lg margin-bottom-4"
 >
-  <div class="font-semibold break-all" th:text="${setting.variableName}"></div>
-  <div class="text-sm" th:utext="${setting.descriptionHtml}"></div>
+  <div class="text-bold text-break-all" th:text="${setting.variableName}"></div>
+  <div class="font-sans-2xs" th:utext="${setting.descriptionHtml}"></div>
   <!--/* th:replace has to sit on an inner element: it is evaluated before
          th:case, so a combined attribute would include every input. */-->
   <th:block th:switch="${setting.inputTypeName}">

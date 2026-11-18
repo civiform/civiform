@@ -1,20 +1,33 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.settings.AdminSettingsIndexPageViewModel"*/-->
 <th:block th:fragment="content">
-  <div class="flex flex-grow flex-col px-2 2xl:px-16">
-    <div class="flex flex-grow">
-      <div class="relative md:px-4 px-0 xl:w-2/12 w-3/12">
+  <div class="padding-x-4">
+    <div class="grid-row">
+      <div class="grid-col-3 desktop-lg:grid-col-2 padding-right-4">
         <!--/* admin_settings_view.ts scrolls to a section when one of these
-               links is clicked. */-->
-        <div id="admin-settings-side-nav" class="fixed">
-          <h1 class="text-3xl py-6">Settings</h1>
-          <a
-            th:each="section : ${model.sections}"
-            class="block bold py-1"
-            th:href="|#${section.slug}|"
-            th:text="${section.name}"
-          ></a>
-          <button type="submit" class="mt-12" form="settings-update-form">
+               links is clicked. USWDS top-* utilities stop at 24px, so the
+               nav sticks at top-0 and its padding/negative margin pair clears
+               the fixed admin header, the same 72px as the main padding. */-->
+        <div
+          id="admin-settings-side-nav"
+          class="position-sticky top-0 padding-top-9 margin-top-neg-9"
+        >
+          <h1 class="margin-top-2 margin-bottom-3">Settings</h1>
+          <nav aria-label="Settings sections">
+            <ul class="usa-sidenav">
+              <li
+                th:each="section : ${model.sections}"
+                class="usa-sidenav__item"
+              >
+                <a th:href="|#${section.slug}|" th:text="${section.name}"></a>
+              </li>
+            </ul>
+          </nav>
+          <button
+            type="submit"
+            class="usa-button margin-top-4"
+            form="settings-update-form"
+          >
             Save changes
           </button>
         </div>
@@ -23,7 +36,7 @@
         th:action="${model.formActionUrl}"
         method="POST"
         id="settings-update-form"
-        class="my-10"
+        class="grid-col-9 desktop-lg:grid-col-10 margin-bottom-5"
       >
         <input
           hidden
@@ -46,7 +59,7 @@
     <div
       th:if="${model.errorToastId != null}"
       th:with="errorText=|That update didn't look quite right. Please fix the errors in the form and try saving again.|"
-      class="hidden cf-toast-data"
+      class="display-none cf-toast-data"
       th:id="${model.errorToastId}"
       canDismiss="false"
       canIgnore="false"
@@ -57,7 +70,7 @@
     ></div>
     <th:block th:each="toast : ${model.flashToasts}">
       <div
-        class="hidden cf-toast-data"
+        class="display-none cf-toast-data"
         th:id="${toast.id}"
         canDismiss="true"
         canIgnore="false"
