@@ -46,29 +46,25 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
     return AdminLayout.NavPage.NULL_PAGE;
   }
 
-  /**
-   * Returns the profile for the current request. Subclasses that allow unauthenticated access
-   * (e.g., dev tools pages) may override this to return an optional profile.
-   */
-  protected Optional<CiviFormProfile> getProfile(Http.Request request) {
-    return Optional.of(profileUtils.currentUserProfile(request));
-  }
-
   @Override
   protected void customizeContext(
       Http.Request request, ThymeleafModule.PlayThymeleafContext context) {
-    Optional<CiviFormProfile> profile = getProfile(request);
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
     context.setVariable(
         "demoBanner",
         DemoBanner.create(
-            settingsManifest, request, profile, deploymentType.isDevOrStaging(), clock));
+            settingsManifest,
+            request,
+            Optional.of(profile),
+            deploymentType.isDevOrStaging(),
+            clock));
 
     context.setVariable(
         "adminCommonHeader",
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
-            .isOnlyProgramAdmin(profile.map(CiviFormProfile::isOnlyProgramAdmin).orElse(false))
+            .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
             .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
             .build());
 

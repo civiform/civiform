@@ -1,0 +1,117 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="layoutParams" type="views.shared.LayoutParams"*/-->
+<!--/*@thymesVar id="isDevOrStaging" type="java.lang.Boolean"*/-->
+<!--/*
+  Bare shell for pages rendered without a signed in user. No navigation,
+  sidebar or footer. It loads the applicant JS bundle, with the
+  #modal-container, warning toast and feature flags it expects, because the
+  browser tests' page fixture waits for the bundle to initialize and dismisses
+  the toast on every page.
+*/-->
+<!doctype html>
+<html lang="en-US" xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title
+      th:text="${#strings.isEmpty(templateGlobals.pageTitle()) ? 'CiviForm' : templateGlobals.pageTitle() + ' - CiviForm'}"
+    ></title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="civiform-build-tag"
+      th:content="${layoutParams.civiformImageTag()}"
+    />
+    <meta
+      th:if="${layoutParams.addNoIndexMetaTag()}"
+      name="robots"
+      content="noindex"
+    />
+    <meta
+      name="htmx-config"
+      th:content='|{"inlineStyleNonce":"${templateGlobals.cspNonce()}"}|'
+    />
+
+    <link rel="icon" th:href="${layoutParams.favicon()}" />
+
+    <link
+      th:each="stylesheet: ${layoutParams.stylesheets()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:href="${stylesheet}"
+      type="text/css"
+      rel="stylesheet"
+    />
+
+    <th:block th:insert="~{shared/FeatureFlags}" />
+
+    <script
+      th:each="script: ${layoutParams.headScripts()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
+      th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
+    ></script>
+  </head>
+
+  <!--/* Body sets HTMX header so the CSRF token is always there */-->
+  <body th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'>
+    <header>
+      <div th:replace="~{shared/DemoBannerFragment :: demoBanner}"></div>
+
+      <!--/* Toast warning against entering real user data in dev and staging,
+             consumed by toast.ts. */-->
+      <div
+        th:if="${isDevOrStaging}"
+        id="warning-message"
+        class="display-none cf-toast-data"
+        canDismiss="true"
+        canIgnore="true"
+        toastDuration="0"
+        condOnStorageKey
+        toastType="WARNING"
+        th:text="'Do not enter actual or personal data in this demo site'"
+      ></div>
+    </header>
+
+    <main id="main-content" class="grid-container" data-testid="page-content">
+      <h1
+        id="sitePageHeading"
+        class="margin-top-6"
+        th:text="${templateGlobals.pageHeading()}"
+      ></h1>
+      <p
+        th:if="${templateGlobals.pageIntro().isPresent()}"
+        th:text="${templateGlobals.pageIntro().get()}"
+      ></p>
+
+      <th:block
+        th:insert="~{${layoutParams.pageTemplate()} :: content}"
+      ></th:block>
+    </main>
+
+    <!--/* Empty, but modal.ts only signals it has loaded when it exists. */-->
+    <div
+      id="modal-container"
+      class="display-none position-fixed height-viewport width-full z-100"
+    ></div>
+
+    <script
+      th:each="script: ${layoutParams.bodyScripts()}"
+      th:nonce="${templateGlobals.cspNonce()}"
+      th:src="${script.src()}"
+      th:type="${script.type()}"
+      th:async="${script.async()}"
+      th:defer="${script.defer()}"
+      th:integrity="${script.integrity()}"
+      th:id="${script.id()}"
+      th:crossorigin="${#strings.equals(script.type(), 'text/javascript') ? 'anonymous' : null}"
+    ></script>
+
+    <!--/* Optional page specific scripts. These should be load last. */-->
+    <th:block
+      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
+    ></th:block>
+  </body>
+</html>
