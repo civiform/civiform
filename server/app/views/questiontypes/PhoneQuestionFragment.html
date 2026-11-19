@@ -54,7 +54,11 @@
   th:with="phoneQuestion=${question.createPhoneQuestion()},
              fieldErrors=${phoneQuestion.getValidationErrors().get(phoneQuestion.getPhoneNumberPath())},
              questionErrors=${phoneQuestion.getValidationErrors().get(question.getContextualizedPath())},
-             hasErrors=${questionRendererParams.shouldShowErrors() && !phoneQuestion.getValidationErrors().isEmpty()}"
+             hasErrors=${questionRendererParams.shouldShowErrors() && !phoneQuestion.getValidationErrors().isEmpty()},
+             standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+             initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+               : ariaDescribedby == null ? errorAnchorId + '-error'
+               : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -78,7 +82,7 @@
       th:value="${phoneQuestion.getPhoneNumberValue().orElse('')}"
       placeholder="(xxx) xxx-xxxx"
       th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-      th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+      th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"
       th:autofocus="${questionRendererParams.autofocusSingleField()}"

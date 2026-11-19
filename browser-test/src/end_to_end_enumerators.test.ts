@@ -2513,6 +2513,82 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('reads the field error first on a single-input row on continue and after a row is removed', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator single-input field error program'
+
+      await test.step('Publish a program whose list set has a phone initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Phone number',
+          questionText: 'List the phone numbers where we can reach you.',
+          hintText: 'Include mobile, home, and work numbers.',
+          initialQuestion: SAMPLE_QUESTIONS.phone,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Phone number',
+      })
+      // The first row is labelled by the question title plus its entity label.
+      const firstRowInput = blockForm.getByRole('textbox', {
+        name: 'List the phone numbers where we can reach you. Phone number #1',
+      })
+      const secondRowInput = blockForm.getByRole('textbox', {
+        name: 'Phone number #2',
+        exact: true,
+      })
+
+      await test.step('Add two rows with invalid phone numbers and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await firstRowInput.fill('1234567890')
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await secondRowInput.fill('5553231234')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the first row has focus and its description starts with its error', async () => {
+        await expect(
+          blockForm.getByText('Error: This phone number is invalid'),
+        ).toHaveCount(2)
+        await expect(firstRowInput).toBeFocused()
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: This phone number is invalid.*Include mobile, home, and work numbers\.$/,
+        )
+        await expect(secondRowInput).toHaveAccessibleDescription(
+          'Error: This phone number is invalid',
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Remove the first row and verify the remaining row still reads its error first', async () => {
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm
+          .getByRole('button', {name: 'Remove Phone number #1'})
+          .click()
+        await expect(blockForm.getByRole('textbox')).toHaveCount(1)
+        // The remaining row is now first, so it takes over the question title and help text and
+        // keeps its own error ahead of them.
+        await expect(firstRowInput).toHaveValue(/555/)
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: This phone number is invalid.*Include mobile, home, and work numbers\.$/,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+    })
+
     test('moves focus to the first input of a grouped row and reads the list-level error first on continue', async ({
       page,
       adminPrograms,

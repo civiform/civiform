@@ -439,15 +439,31 @@ function repointEntityAria(field: Element, index: number) {
     : field.querySelector<HTMLElement>('input, select, textarea')
   if (ariaTarget === null) return
 
+  // A single-input control keeps its own field error (rendered server-side with the control's id
+  // plus "-error"), read before the help text. Grouped rows attach their errors to the inputs inside
+  // the group, which aren't touched here.
+  const fieldErrorId = `${ariaTarget.id}-error`
+  const errorPrefix =
+    !isGroup && document.getElementById(fieldErrorId) !== null
+      ? fieldErrorId
+      : null
+
   if (index === 0) {
     ariaTarget.setAttribute('aria-labelledby', `${titleId} ${labelId}`)
-    ariaTarget.setAttribute('aria-describedby', descriptionId)
+    ariaTarget.setAttribute(
+      'aria-describedby',
+      errorPrefix === null ? descriptionId : `${errorPrefix} ${descriptionId}`,
+    )
   } else if (isGroup) {
     ariaTarget.setAttribute('aria-labelledby', labelId)
     ariaTarget.removeAttribute('aria-describedby')
   } else {
     ariaTarget.removeAttribute('aria-labelledby')
-    ariaTarget.removeAttribute('aria-describedby')
+    if (errorPrefix === null) {
+      ariaTarget.removeAttribute('aria-describedby')
+    } else {
+      ariaTarget.setAttribute('aria-describedby', errorPrefix)
+    }
   }
 }
 
