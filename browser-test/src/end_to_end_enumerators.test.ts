@@ -1436,10 +1436,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const addQuestionButton = blockPanel.getByRole('button', {
         name: 'Add question',
       })
-      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
-        hasText:
-          'Add a list set before you add repeated questions. Go to the previous screen to add one.',
-      })
+      const repeatedSetAlert = blockPanel.getByText(
+        'Add a list set before you add repeated questions. Go to the previous screen to add one.',
+      )
 
       await test.step('Add a new repeated set and go to the repeated screen', async () => {
         await addRepeatedSetBlocks(page)
@@ -1480,8 +1479,15 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(repeatedSetAlert).toBeVisible()
       })
 
-      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
-        await page.getByRole('link', {name: 'Screen 2'}).click()
+      await test.step('Follow the alert link and save an enumerator question on the parent repeated set screen', async () => {
+        await repeatedSetAlert
+          .getByRole('link', {name: 'previous screen'})
+          .click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ false,
+          blockPanel,
+          /* expectedScreenNumber= */ 2,
+        )
         await fillAndSubmitEnumeratorQuestionForm(page, {
           initialQuestion: SAMPLE_QUESTIONS.number,
         })
