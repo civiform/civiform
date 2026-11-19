@@ -27,14 +27,12 @@ import services.openapi.OpenApiVersion;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.admin.docs.SchemaPageView;
-import views.docs.SchemaView;
 
 /** This handles endpoints related to serving openapi schema data */
 public final class OpenApiSchemaController {
   private final ApiDocsService apiDocsService;
   private final SettingsManifest settingsManifest;
   private final DeploymentType deploymentType;
-  private final SchemaView schemaView;
   private final SchemaPageView schemaPageView;
   private final MessagesApi messagesApi;
   private static final Logger logger = LoggerFactory.getLogger(OpenApiSchemaController.class);
@@ -44,13 +42,11 @@ public final class OpenApiSchemaController {
       ApiDocsService apiDocsService,
       SettingsManifest settingsManifest,
       DeploymentType deploymentType,
-      SchemaView schemaView,
       SchemaPageView schemaPageView,
       MessagesApi messagesApi) {
     this.apiDocsService = checkNotNull(apiDocsService);
     this.settingsManifest = checkNotNull(settingsManifest);
     this.deploymentType = checkNotNull(deploymentType);
-    this.schemaView = checkNotNull(schemaView);
     this.schemaPageView = checkNotNull(schemaPageView);
     this.messagesApi = checkNotNull(messagesApi);
   }
@@ -143,22 +139,16 @@ public final class OpenApiSchemaController {
                 Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
             .url();
 
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
-      return ok(schemaPageView.render(
-              request,
-              SchemaPageMapper.map(
-                  messagesApi.preferred(request),
-                  programSlug,
-                  stage,
-                  openApiVersion,
-                  url,
-                  allNonExternalProgramSlugs)))
-          .as(Http.MimeTypes.HTML);
-    }
-
-    SchemaView.Form form = new SchemaView.Form(programSlug, stage, openApiVersion);
-
-    return ok(schemaView.render(request, form, url, allNonExternalProgramSlugs));
+    return ok(schemaPageView.render(
+            request,
+            SchemaPageMapper.map(
+                messagesApi.preferred(request),
+                programSlug,
+                stage,
+                openApiVersion,
+                url,
+                allNonExternalProgramSlugs)))
+        .as(Http.MimeTypes.HTML);
   }
 
   /** Redirect to the swagger ui to view the select swagger/openapi */
