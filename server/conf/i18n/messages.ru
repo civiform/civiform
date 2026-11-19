@@ -376,17 +376,17 @@ title.programOverview={0} – Обзор программы
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Как подать заявку
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=Начать подачу заявления
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=Ready to apply? Log in to save your progress.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=Начать подачу заявления
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=Продолжить подачу заявления
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Log in to start application
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=Используйте учётную запись, чтобы снова войти и проверить статус заявления, а также сэкономить время при подаче заявлений на другие программы.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Как подать заявку на участие в программе "{0}"
 # The text on the button that takes users to the account creation form.
@@ -608,11 +608,11 @@ content.adminProgramImage.cardPreviewError=Ошибка создания пре�
 #--------------------------------------------------------------------------------------------------------------#
 
 # Message shown when alt text is required but missing.
-validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+validation.adminQuestionImage.altTextRequired=При загрузке изображения к вопросу необходимо описание изображения.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=Описание нельзя удалить, пока есть изображение. Сначала удалите изображение.
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=Введите описание изображения (альтернативный текст)
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -786,13 +786,13 @@ validation.dateTooFarInFuture=Дата должна быть раньше {0}.
 validation.dateNotInRange=Дата должна быть между {0} и {1}.
 validation.currentDateRequired=Введите сегодняшнюю дату.
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=Введите год из четырёх цифр, например 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=Выберите месяц.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=Введите день.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=Введите корректный день от 1 до 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 – январь
 # A month option when selecting a specific date from a dropdown menu.
@@ -1059,10 +1059,10 @@ adminValidation.multiOptionAdminError=В названиях, предназна�
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = Увеличить изображение
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=открывается в новой вкладке
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -1165,13 +1165,13 @@ banner.immigrationStatusInfoBanner.linkText=здесь
 #------------------------------------------------------------------------------#
 
 # Header for demo banner alert
-label.demoBanner.heading=Demo: {0}
+label.demoBanner.heading=Демо: {0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=Информация о демонстрационном режиме
 # Count of remaining days for the demo environment (singular)
-banner.demoBanner.dayRemaining=1 day remaining
+banner.demoBanner.dayRemaining=Остался 1 день
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} days remaining
+banner.demoBanner.daysRemaining=Осталось дней: {0}
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1257,7 +1257,7 @@ session.length.warning.message.loggedIn=Ваш сеанс скоро закон�
 #------------------------------------------------------------------------------#
 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
-ariaLabel.indentedPage=Indented page
+ariaLabel.indentedPage=Страница с отступом
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=List set creation method
 # Option for allowing an admin to create a new list set
@@ -1273,9 +1273,9 @@ input.repeatedSet.adminId=List set admin ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=Prompt text
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} list set
+input.repeatedSet.adminIdAutofillSuggestion=Набор списка {0}
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=Добавьте каждый элемент ({0}).
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=Hint text
 # A form field where admins set the minimum number of entities that applicants must list
@@ -1287,43 +1287,43 @@ input.repeatedSet.minListCount=Minimum list count
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
-label.repeatedSet.initialQuestion=Initial question
+label.repeatedSet.initialQuestion=Начальный вопрос
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
-description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
+description.repeatedSet.initialQuestion=Добавьте вопрос, который идентифицирует каждый элемент или человека. Например, если заявители перечисляют членов семьи, добавьте вопрос для сбора имени каждого члена.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=Если вы выберете существующий вопрос, система сохранит его копию для этого набора списка в банке вопросов. Оригинал останется без изменений.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=Админ. идентификатор:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=Заявители используют этот вопрос, чтобы добавить каждый элемент или человека в набор списка.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
-alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
+alert.repeatedSet.backfillSaveWarning=После сохранения начальный вопрос удалить будет нельзя.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
 alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
 alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=1 программа
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
 text.repeatedSet.backfillProgramCountMany={0} programs
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=Сохранить начальный вопрос
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
+alert.repeatedSet.addQuestionDisabled=Добавьте набор списка, прежде чем добавлять повторяющиеся вопросы. Для этого перейдите в раздел {0}.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=previous screen
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+alert.repeatedSet.initialQuestionArchived=Начальный вопрос архивирован. Выберите новый начальный вопрос
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=Начальный вопрос не найден. Выберите новый начальный вопрос
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Please add an initial question
+alert.repeatedSet.initialQuestionRequired=Добавьте начальный вопрос
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=Вопросы, относящиеся к другому набору списка, недоступны.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
@@ -1331,9 +1331,9 @@ button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
-button.repeatedSet.initialQuestion.add=Add initial question
+button.repeatedSet.initialQuestion.add=Добавить начальный вопрос
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
-button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
+button.repeatedSet.initialQuestion.removeAriaLabel=Удалить начальный вопрос {0}
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=List set
 # Text letting admins know which block represents the group of screens for nested repeating questions
@@ -1343,7 +1343,7 @@ text.repeatedSet.screenNameDescription=Applicants will see the listed entity the
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
+text.repeatedQuestions.description=Добавьте вопросы, на которые заявители должны ответить о каждом элементе или человеке из списка.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
 text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
@@ -1353,7 +1353,7 @@ label.repeatedQuestion.associatedListSet=Associated list set
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=Previously used for this list set
+heading.repeatedSet.previouslyUsed=Ранее использовалось для этого набора списка
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
 heading.repeatedSet.questionBank=Add a list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
@@ -1371,21 +1371,21 @@ description.repeatedSet.hintText=Enter a hint that helps applicants decide what 
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=Добавить существующий набор списка из банка вопросов.
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
-button.addNestedRepeatedSet=Add nested list set
+button.addNestedRepeatedSet=Добавить вложенный набор списка
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=Перейти к дочернему экрану
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=Добавить вопрос
 # A button on a question card for admins to remove the question from the screen.
-button.removeQuestion=Remove
+button.removeQuestion=Удалить
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+tooltip.deleteScreenDisabled=Этот экран нельзя удалить, так как к нему привязаны повторяющиеся экраны.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
+tooltip.removeEnumeratorQuestionDisabled=Этот вопрос нельзя удалить, так как к нему привязаны дополнительные вопросы.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
