@@ -20,3 +20,7 @@ When updating this file:
 - We use the following key format: `${component_type}.${descriptive_name}`
   - For example, `button.nextPage` would contain a translation for a button used to go to the next page. `button.ariaLabel.delete` would contain a translation a screen reader could read for the delete button.
 - Keys in this file should be alphabetized within their own section or sub-section.
+
+# Glossary
+
+As a trial, transifex-glossary.csv contains a glossary of terms in Transifex's [import format](https://help.transifex.com/en/articles/6230893-upload-a-glossary). A point of friction is that Transifex requires the glossary to have at least one translation, but it doesn't need all of them to still show the definition of the term.
