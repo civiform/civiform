@@ -47,7 +47,7 @@ header.userName=ເຂົ້າສູ່ລະບົບໃນຖານະ {0} �
 # Error message to answer a required question
 validation.isRequired=ຕ້ອງຕອບຄຳຖາມນີ້.
 # Error message to fill a required field
-validation.fieldIsRequired=This field is required.
+validation.fieldIsRequired=ໜ້ານີ້ຈຳເປັນຕ້ອງໃສ່ຂໍ້ມູນ
 # Validation error that is shown when the user input couldn't be converted for any reason.
 validation.invalidInput=ກະລຸນາປ້ອນຂໍ້ມູນທີ່ຖືກຕ້ອງ.
 content.requiredFieldsNote=ໝາຍເຫດ: ຕ້ອງລະບຸຊ່ອງຂໍ້ມູນທີ່ມີເຄື່ອງໝາຍ {0}.
@@ -80,9 +80,9 @@ link.skipToMainContent=ຂ້າມໄປຫາເນື້ອຫາຫຼັກ
 # The text on the button an applicant clicks to create an account.
 button.createAnAccount=ສ້າງບັນຊີ
 # The text on the button in the login drop down an applicant clicks to log in to their session.
-button.applicantLogin=Applicant log in
+button.applicantLogin=ຜູ້ສະໝັກເຂົ້າສູ່ລະບົບ
 # The text on the button in the login drop down an admin clicks to log in to their session.
-button.adminLogin=Administrator log in
+button.adminLogin=ຜູ້ດູແລລະບົບເຂົ້າສູ່ລະບົບ
 # The text on the button an applicant clicks to log in to their session.
 button.login=ເຂົ້າສູ່ລະບົບ
 # The text on the button an applicant clicks to sign in to their session.
@@ -109,10 +109,10 @@ input.multipleFileUploadHint=ເລືອກຢ່າງໜ້ອຍ 1 ໄຟລ
 input.unlimitedFileUploadHint=ເລືອກຢ່າງໜ້ອຍ 1 ໄຟລ໌
 # Screen reader text for the file input when exactly 1 file has already been uploaded.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.singular=1 file already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.singular=1 ເອກະສານໄດ້ອັບໂຫຼດແລ້ວ. ເລືອກເອກະສານເພື່ອນອັບໂຫຼດເພີ່ມເຕີມ.
 # Screen reader text for the file input when 2 or more files have already been uploaded. {0} is the number of files.
 # Screen readers announce this when focusing the input, instead of the browser-native "No file selected" text.
-input.filesAlreadyUploadedAriaLabel.plural={0} files already uploaded. Select a file to upload more.
+input.filesAlreadyUploadedAriaLabel.plural={0}ເອກະສານອັບໂຫຼດສຳເລດແລ້ວ. ເລືອກເອກະສານເພື່ອນອັບໂຫຼດເພີ່ມເຕີມ.
 # The button text for saving the current applicant-entered data and continuing to the next screen in the form.
 button.nextScreen=ບັນທຶກ ແລະ ສືບຕໍ່
 # The button text for navigating to the previous screen in the form.
@@ -249,7 +249,7 @@ button.search=ຊອກຫາ
 # Button to start an application on behalf of a client.
 button.startApp=ເປີດແອັບພລິເຄຊັນ
 # Button to redirect to the login page when the applicant is not logged in for login-only programs.
-button.startAppForLoginOnlyProgram=Sign in to start an application
+button.startAppForLoginOnlyProgram=ສະໝັກເພື່ອນຳໃຊ້
 # Button to view the applications belonging to an applicant.
 button.viewApplications=ເບິ່ງແອັບພລິເຄຊັນ
 # Button to view and add clients
@@ -535,7 +535,7 @@ heading.nextSteps=ຂັ້ນຕອນຕໍ່ໄປຂອງຂ້ອຍແ�
 # Confirmation "alert" message that appears next to a checkmark icon. {0} is the program name, such as "Housing Assistance Program"
 alert.submitted=ທ່ານໄດ້ສົ່ງໃບສະໝັກຂອງທ່ານແລ້ວ {0} ລາຍການ
 #  Information "alert"  title for programs that require an account to apply
-alert.createAccountForLoginOnly=To access your application later, you must create an account
+alert.createAccountForLoginOnly=ເພື່ອເຂົ້າເຖິງແອັບພິເຄຊັ່ນໃນຄັ້ງຕໍ່ໄປ, ເຈົ້າຕ້ອງສ້າງບັນຊີ
 # Informational "alert" title to encourage the user to create an account
 alert.createAccount=ເພື່ອເຂົ້າເຖິງໃບສະໝັກຂອງທ່ານໃນພາຍຫຼັງ, ໃຫ້ສ້າງບັນຊີ
 # Description text in an alert that explains how creating an account can help the user
@@ -545,9 +545,9 @@ alert.noProgramsAvailable=ທ່ານໄດ້ເລີ່ມຕົ້ນ ຫ�
 # Hyperlink to log in to an existing account
 content.loginToExistingAccount=ເຂົ້າສູ່ລະບົບບັນຊີທີ່ມີຢູ່ແລ້ວ
 # Informational "alert" title to push user to login as the program is only for logged in user
-alert.loginOnly=You must log in to apply for this program
+alert.loginOnly=ເຈົ້າຕ້ອງເຂົ້າສູ່ລະບົບເພື່ອສະໝັກໂປແກຣມນີ້
 # Description text in an alert that explains why the user must log in to apply for the program
-alert.loginOnlyDescription=Please log in or create an account to continue with this application.
+alert.loginOnlyDescription=ກະລຸນາເຂົ້າສູ່ລະບົບ ຫລື ເປີດບັນຊີເພື່ອນຳໃຊ້ແອັບພິເຄຊັ່ນນີ້
 
 #-------------------------------------------------------------------------------------------------------------------------#
 # APPLICANT DUPLICATE SUBMISSION PAGE/MODAL - text for a page informing the applicant of a duplicate submission and redirecting #
@@ -575,33 +575,33 @@ button.homePage=ກັບຄືນໄປຫາໜ້າຫຼັກ
 #--------------------------------------------------------------------------------------------------------------#
 
 # Title of the admin page where a program''s summary image and alt text are set.
-title.adminProgramImage=Image upload
+title.adminProgramImage=ຮູບພາບໄດ້ອັບໂຫຼດແລ້ວ
 # Link text to return to program editing from the program image page.
-link.adminProgramImage.back=Back
+link.adminProgramImage.back=ກັບຄືນ
 # Hint under the file input about maximum upload size for a program summary image.
-content.adminProgramImage.hintMaxSize=The maximum size for image upload is 1MB.
+content.adminProgramImage.hintMaxSize=ຂະໜາດຂອງໄຟຣ໌ທີ່ຈະອັບໂຫຼດຕ້ອງບໍ່ເກິນ 1MB
 # Hint explaining automatic 16x9 cropping and that the preview reflects saved images.
-content.adminProgramImage.hintCrop=The image will be automatically cropped to 16x9. The program card preview on the right shows the saved image.
+content.adminProgramImage.hintCrop=ຮູບພາບຈະຖືກຕັດອັດຕະໂນມັດໃຫ້ເປັນອັດຕາສ່ວນ 16:9. ຕົວຢ່າງບັດໂປຣແກຣມຢູ່ດ້ານຂວາຈະສະແດງຮູບພາບທີ່ບັນທຶກໄວ້
 # Label for the field where the admin enters alt text for the program summary image.
-label.adminProgramImage.altText=Enter image description (Alt Text)
+label.adminProgramImage.altText=ຕື່ມຂໍ້ຄວາມອະທິບາຍກ່ຽວກັບຮູບພາບ
 # Button to leave the program image step and continue program setup (creation flow).
-button.adminProgramImage.continue=Continue
+button.adminProgramImage.continue=ສືບຕໍ່
 # Button to save and return when editing an existing program (non-creation flow).
-button.adminProgramImage.save=Save
+button.adminProgramImage.save=ບັນທຶກ
 # Button to delete an uploaded program image
-button.adminProgramImage.delete=Delete image
+button.adminProgramImage.delete=ລົບຮູບພາບ
 # Message shown when alt text is required but missing.
-validation.adminProgramImage.altTextRequired=Image description is required when a program image is uploaded.
+validation.adminProgramImage.altTextRequired=ຕ້ອງໃສ່ຄຳອະທິບາຍຮູບພາບ ເມື່ອອັບໂຫຼດຮູບພາບໂປຣແກຣມ
 # Toast after saving a program image and alt text together.
-toast.adminProgramImage.imageAndDescriptionSaved=Image is saved with the description: {0}
+toast.adminProgramImage.imageAndDescriptionSaved=ຮູບພາບແລະຄໍາອະທິບາຍໄດ້ຖືກບັນຖືກແລ້ວ:{0}
 # Toast after saving alt text without uploading a new file.
-toast.adminProgramImage.descriptionSet=Image description set to {0}
+toast.adminProgramImage.descriptionSet=ຕັ້ງຄ່າຄຳອະທິບາຍຮູບພາບເປັນ{0}
 # Error when alt text cannot be cleared while an image remains.
-toast.adminProgramImage.descriptionNotRemovable=Description can't be removed because an image is present. Delete the image before deleting the description.
+toast.adminProgramImage.descriptionNotRemovable=ບໍ່ສາມາດລົບຄໍາອະທິບາຍເພາະຮູບພາບກໍາລັງສະແດງຢູ່. ລົບຮູບພາບກ່ອນຈື່ງລົບຄໍາອະທິບາຍ
 # Toast after deleting a program image
-toast.adminProgramImage.imageRemoved=Image removed
+toast.adminProgramImage.imageRemoved=ຮູບພາບຖືກລົບແລ້ວ
 # Message when the program card preview cannot be rendered.
-content.adminProgramImage.cardPreviewError=Error generating card preview
+content.adminProgramImage.cardPreviewError=ເກີດຂໍ້ຜິດພາບໃນການສະແດງຮູບພາບໂປຣແກຣມ
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN QUESTION IMAGE - admin-facing text for uploading a question image                             #
@@ -612,99 +612,99 @@ validation.adminQuestionImage.altTextRequired=Image description is required when
 # Error when alt text cannot be cleared while an image remains.
 validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=ຕື່ມຂໍ້ຄວາມອະທິບາຍກ່ຽວກັບຮູບພາບ
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
 #--------------------------------------------------------------------------------------------------------------#
 
 # Navigation link to go back to editing the program screen. {0} is the screen title, such as "Your Household"
-link.backToEditProgramBlock=Back to edit {0}
+link.backToEditProgramBlock=ກັບໄປແກ້ໄຂ {0}
 
 # Long form description for configuring a visibility condition and how it can be used to show or hide a screen for applicants filling out an application form with multiple screens.
-content.predicateVisibilityDescription=Configure when this screen is shown or hidden for applicants based on responses to questions on preceding screens.
+content.predicateVisibilityDescription=ກຳນົດຄ່າເພື່ອໃຫ້ໜ້າຈໍນີ້ສະແດງ ຫລື ປິດສຳຫລັບຜູ້ສະໝັກຕາມການຕອບຄຳຖາມເທິງໜ້າຈໍກ່ອນໜ້າ
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualifies for the program. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.predicateEligibilityDescription=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen. Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.predicateEligibilityDescription=ເພິ່ມເງື່ອນໄຂການມີສິດເພື່ອພິຈາລະນາວ່າຜູ້ສະໝັກມີຄຸນສົມບັດສຳຫລັບໂປແກຣມໂດຍອີງຈາກການຕອບຄຳຖາມເທິງໜ້າຈໍນີ້ຫລືບໍ່. ຜູ້ສະໝັກທີ່ບໍ່ກົງຕາມຂໍ້ກຳນົດຂັ້ນຕ່ຳ ຈະຖືກປິດກັ້ນບໍ່ໃຫ້ສົ່ງໃບສະໝັກ. ເຈົ້າສາມາດປ່ຽນສິ່ງນີ້ໄດ້ໃນ
 # Long form description for configuring an eligibility condition and how it can be used to determine if an applicant qualitifies for the program.
-content.predicateEligibilityDescription.v2=Add eligibility conditions to determine if an applicant qualifies for the program based on responses to questions on this screen.
+content.predicateEligibilityDescription.v2=ເພິ່ມເງື່ອນໄຂການມີສິດເພື່ອພິຈາລະນາວ່າຜູ້ສະໝັກມີຄຸນສົມບັດສຳຫລັບໂປຣແກມໂດຍອີງໃສ່ການຕອບຄຳຖາມເທິງໜ້າຈໍນີ້
 # Text informing admins that ineligible applicants will be blocked from submitting an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.blockIneligibleApplicants=Applicants who do not meet the minimum requirements will be blocked from submitting an application. You can change this in the
+content.blockIneligibleApplicants=ຜູ້ສະໝັກທີ່ບໍ່ກົງຕາມຂໍ້ກຳນົດຂັ້ນຕ່ຳຈະຖືກປິດກັ້ນບໍ່ໃຫ້ສົ່ງໃບສະໝັກ. ເຈົ້າສາມາດປ່ຽນໄດ້ໃນ
 # Text informing admins that ineligible applicants will still be able to submit an application. This text is followed by a link to edit the program, the full sentence reads "You can change this in the program settings."
-content.allowIneligibleApplicants=Applicants can submit an application even if they do not meet the minimum requirements. You can change this in the
+content.allowIneligibleApplicants=ຜູ້ສະໝັກສາມາດສົ່ງໃບສະໝັກໄດ້ເຖິງວ່າຈະບໍ່ເປັນໄປຕາມຂໍ້ກຳນົດຂັ້ນຕ່ຳກໍຕາມ. ເຈົ້າສາມາດປ່ຽນໄດ້ໃນ
 # Link to edit the program. This text is appended to the long form description for eligibility conditions. The full sentence reads "You can change this in the program settings."
-link.programSettings=program settings
+link.programSettings=ການຕັ້ງຄ່າໂປແກຣມ
 
 # Text that precedes select option dropdowns for a form to configure screen visibility conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateScreenIs=Screen is
+content.predicateScreenIs=ໜ້າຈໍແມ່ນ
 # Text that precedes a select option dropdown for a form to configure applicant eligibility conditions. The full sentence reads "Applicant is eligible if any/all conditions are true:"
-content.predicateApplicantIsEligible=Applicant is eligible if
+content.predicateApplicantIsEligible=ຜູ້ສະໝັກມີສິດຖ້າ
 # Text that is appended to the end of a header describing a visibility or eligibility condition and before a form to configure those conditions. The full sentence reads "This screen is shown if any/all conditions are true:"
-content.predicateConditionsAreTrue=conditions are true:
+content.predicateConditionsAreTrue=ເງື່ອນໄຂແມ່ນຄວາມຈິງ:
 # Text that shows on the eligibility predicate screen when no eligibility conditions are set.
-content.predicateEligibilityNullState=Applicant is always eligible.
+content.predicateEligibilityNullState=ຜູ້ສະໝັກມີສິດຕະຫລອດ
 # Text that shows on the visibility predicate screen when no visibility conditions are set.
-content.predicateVisibilityNullState=This screen is always shown.
+content.predicateVisibilityNullState=ໜ້າຈໍນີ້ສະແດງຜົນຕະຫລອດ
 
 # Text that precedes a select option dropdown for a form to configure a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateConditionIsTrueIf=Condition is true if
+content.predicateConditionIsTrueIf=ເງື່ອນໄຂແມ່ນຄວາມຈິງຖ້າວ່າ
 # Text that is appended to the end of a header describing a single condition within a visibility or eligibility predicate and before a form to configure sub-conditions. The full sentence reads "Condition is true if any/all sub-conditions are true:"
-content.predicateSubconditionsAreTrue=sub-conditions are true:
+content.predicateSubconditionsAreTrue=ເງື່ອນໄຂຍ່ອຍແມ່ນຄວາມຈິງ:
 
 # Label for select option dropdown to choose a question
-label.predicateQuestion=Question
+label.predicateQuestion=ຄຳຖາມ
 # Label for a select option dropdown to choose a field to use within a question, such as "first name", "email", "date", etc.
-label.predicateField=Field
+label.predicateField=ເຂດທີ່
 # Label for a select option dropdown to choose a state for a logical condition, such as "is equal to", "is one of", "is later than", etc.
-label.predicateState=State
+label.predicateState=ສະພາວະ
 # Label for an input field to enter a value or multiple values.
-label.predicateValue=Value(s)
+label.predicateValue=ຄ່າ
 # Placeholder text for select option dropdown
-option.selectPlaceholder=- Select -
+option.selectPlaceholder=ເລືອກ
 # Hint text for providing multiple values in a single input field
-content.multipleValuesInputHint=Enter a list of comma-seperated values. For example, "item1,item2,item3".
+content.multipleValuesInputHint=ໃສ່ເຄື່ອງໝາຍຈ້ຳ ຈຸດໃນລາຍການ. ຍົກຕົວຢ່າງ "ລາຍການ1,ລາຍການ2,ລາຍການ3"
 # Text between two input fields that represent a range. For example, "between input1 and input2".
-content.and=and
+content.and=ແລະ
 
 # Button to append form fields for configuring a new condition
-button.predicateAddCondition=Add condition
+button.predicateAddCondition=ເພີ່ມເງື່ອນໄຂ
 # Button to remove a condition from the form
-button.predicateDeleteCondition=Delete condition
+button.predicateDeleteCondition=ລົບເງື່ອນໄຂ
 # Button to remove all conditions from the form
-button.predicateDeleteAllConditions=Delete all conditions
+button.predicateDeleteAllConditions=ລົບອອກທຸກເງື່ອນໄຂ
 # Link to append form fields for configuring a new sub-condition within a condition
-link.predicateAddSubcondition=Add sub-condition
+link.predicateAddSubcondition=ເພີ່ມເງື່ອນໄຂຍ່ອຍ
 # Link to remove a sub-condition from the form
-link.predicateDeleteSubcondition=Delete sub-condition
+link.predicateDeleteSubcondition=ລົບເງື່ອນໄຂຍ່ອຍ
 # Link to go back to the top of the page
-link.backToTop=Back to top
+link.backToTop=ກັບໄປທາງເທິງ
 # Button to save the visibility or eligibility predicate and return to editing the program.
-button.saveAndExit=Save and exit
+button.saveAndExit=ບັນທຶກ ແລະ ອອກ
 
 # Confirmation dialog shown to admin for deleting all conditions in the predicate edit view
-confirm.deleteAllConditions=Are you sure you would like to delete all conditions?
+confirm.deleteAllConditions=ເຈົ້າແນ່ໃຈບໍ່ທີ່ຈະລົບອອກທຸກເງື່ອນໄຂ?
 # Confirmation dialog shown to admin for deleting a condition in the predicate edit view
-confirm.deleteSingleCondition=Are you sure you would like to delete this condition?
+confirm.deleteSingleCondition=ເຈົ້າແນ່ໃຈບໍ່ທີ່ຈະລົບເງື່ອນໄຂນີ້?
 # Confirmation dialog shown to admin for leaving predicate edit without saving.
-confirm.leaveWithoutSaving=Are you sure you would like to leave?
+confirm.leaveWithoutSaving=ເຈົ້າແນ່ໃຈບໍ່ທີ່ຈະອອກຈາກນີ້?
 # Dialog to warn admin that a deletion action cannot be undone
-confirm.actionNotReversable=This action cannot be undone.
+confirm.actionNotReversable=ການດຳເນີນການນີ້ຕ້ອງແລ້ວສົມບູນ
 # Dialog to warn admin that they have unsaved changes in the predicate edit view.
-confirm.unsavedChanges=You have unsaved changes that will be lost.
+confirm.unsavedChanges=ເຈົ້າມີຂໍ້ມູນສ່ຽງທີ່ຈະສູນຫາຍຖ້າບໍ່ໄດ້ບັນທຶກ
 
 # Alert shown to notify admin that a visibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsVisibility=There are no available questions on preceding screens with which to set a visibility condition for this screen.
+alert.predicateNoAvailableQuestionsVisibility=ບໍ່ມີຄຳຖາມໃນໜ້າຈໍກ່ອນໜ້າທີ່ຕ້ອງຕັ້ງຄ່າເງື່ອນໄຂການແນມເຫັນສຳຫລັງໜ້າຈໍນີ້
 # Alert shown to notify admin that an eligibility condition cannot be created because there are no available questions to use.
-alert.predicateNoAvailableQuestionsEligibility=There are no available questions on this screen with which to set an eligibility condition.
+alert.predicateNoAvailableQuestionsEligibility=ບໍ່ມີຄຳຖາມເທິງໜ້າຈໍນີ້ສຳຫລັບກຳນົດເງື່ອນໄຂການມີສິດ
 
 # Label for textarea where admins can enter a message to show to applicants who are deemed ineligible based on the eligibility conditions set.
-label.predicateEligibilityMessageField=Display message shown to ineligible applicants
+label.predicateEligibilityMessageField=ສະແດງຂໍ້ຄວາມເຖິງຜູ້ສະໝັກທີ່ບໍ່ມີສິດ
 # Help text for a textarea input explaining that markdown is supported.
-content.markdownSupported=Markdown is supported
+content.markdownSupported=ການກົດເລືອກໄດ້ຮັບການສະໜັບສະໜູນ
 
 # Error message for when the admin leaves a multi-select question blank in admin predicate edit.
-validation.selectionRequired=You must select at least one option.
+validation.selectionRequired=ເຈົ້າຈຳເປັນຕ້ອງເລືອກຢ່າງໜ້ອຍ1ຕົວເລືອກ
 # Error message for when the admin leaves a question unselected in admin predicate edit.
-validation.questionRequired=You must select a question.
+validation.questionRequired=ເຈົ້າຈຳເປັນຕ້ອງເລືອກຄຳຖາມ
 
 #----------------------------------------------------------#
 # ADDRESS QUESTION - text when viewing an address question #
@@ -722,7 +722,7 @@ label.zipcode=ລະຫັດ ZIP
 validation.streetRequired=ກະລຸນາໃສ່ຊື່ ແລະ ໝາຍເລກຖະໜົນທີ່ຖືກຕ້ອງ.
 validation.cityRequired=ກະລຸນາໃສ່ເມືອງ.
 validation.currencyMisformatted=ສະກຸນເງິນຕ້ອງເປັນໜຶ່ງໃນຮູບແບບຕໍ່ໄປນີ້: 1000 1,000 1000.30 1,000.30
-validation.currencyMisformatted.v2=Currency must have two numeric characters (0-9) after the decimal. Maximum length is 19 characters long.
+validation.currencyMisformatted.v2=ສະກຸນເງິນຕ້ອງມີໂຕເລກ2ຫລັກ (0-9) ຫລັງຈຸດທົດສະນິຍົມ. ຄວາມຍາວສູງສຸດແມ່ນ 19 ໂຕເລກ.
 validation.stateRequired=ກະລຸນາໃສ່ລັດ.
 validation.invalidZipcode=ກະລຸນາໃສ່ລະຫັດ ZIP 5 ຕົວເລກທີ່ຖືກຕ້ອງ.
 validation.noPoBox=ກະລຸນາໃສ່ທີ່ຢູ່ທີ່ຖືກຕ້ອງ. ພວກເຮົາບໍ່ຮັບຂໍ້ມູນຕູ້ໄປສະນີ.
@@ -734,7 +734,7 @@ validation.noPoBox=ກະລຸນາໃສ່ທີ່ຢູ່ທີ່ຖື�
 # Title for a page asking the user to check if their address is correct and check whether it matches one of the listed address suggestions
 title.confirmAddress=ຢືນຢັນທີ່ຢູ່ຂອງທ່ານ
 # Message explaining that the address the user provided couldn't be found when comparing it to a list of valid addresses.
-content.confirmAddressLine1.v2=Address confirmation needed.
+content.confirmAddressLine1.v2=ຕ້ອງຢັ້ງຢືນທີ່ຢູ່
 # Message asking the user to check if their address is correct, or choose from the provided list of suggested valid addresses.
 content.foundSimilarAddressLine2=ກະລຸນາກວດສອບການສະກົດທີ່ຢູ່ຂອງທ່ານ ຫຼື ເລືອກຕົວເລືອກຈາກລາຍຊື່ທີ່ໃຫ້ໄວ້.
 # Message asking the user to check if their address is correct and/or edit the address so that it's valid.
@@ -854,9 +854,9 @@ validation.fileRequired=ກະລຸນາເລືອກໄຟລ໌.
 # An error shown to the user if they upload a file that's too large. The error also asks them to upload a smaller file. {0} will be a number specifying the maximum size the file can be in megabytes. For example, "Please choose a file less than 100 MB".
 validation.fileTooLarge=ໄຟລ໌ຂອງທ່ານໃຫຍ່ເກີນໄປ. ກະລຸນາເລືອກໄຟລ໌ທີ່ນ້ອຍກວ່າ {0} MB.
 # Error shown when an applicant uploads more files than the maximum allowed.
-validation.fileLimitReached=Could not upload file. Maximum file number has been reached.
+validation.fileLimitReached=ບໍ່ສາມາດອັບໂຫຼດເອກະສານ. ເກີນຈຳນວນເອກະສານສູງສຸດແລ້ວ.
 # Shown when an HTMX file upload request fails (any non-success response).
-validation.fileUploadRequestFailed=We couldn't upload your file. Please try again.
+validation.fileUploadRequestFailed=ພວກເຮົາບໍ່ສາມາດອັບໂຫຼດໄຟລ໌ຂໍ້ມູນ.ກະລຸນາລອງອີກຄັ້ງ
 # Text shown on a tag while a file is uploading.
 label.uploading=ກຳລັງອັບໂຫຼດ
 # Label applied to a list of uploaded files
@@ -871,7 +871,7 @@ validation.idTooLong=ຕ້ອງມີບໍ່ເກີນ {0} ຕົວອັ
 validation.idTooShort=ຕ້ອງມີຢ່າງໜ້ອຍ {0} ຕົວອັກສອນ.
 # Validation error that appears if a user enters an answer that is not a number
 validation.numberRequired=ຕ້ອງມີແຕ່ຕົວເລກເທົ່ານັ້ນ.
-validation.numberRequired.v2=Must contain only numbers 0-9.
+validation.numberRequired.v2=ຕ້ອງມີສະເພາະພຽງຕົວເລກ 0-9 ເທົ່ານັ້ນ
 
 #----------------------------------------------------------------------------------------------------------#
 # MULTI-SELECT QUESTION - text shown when filling out a question with multiple answers, such as a checkbox #
@@ -920,7 +920,7 @@ validation.lastNameRequired=ກະລຸນາໃສ່ນາມສະກຸນ�
 validation.numberTooBig=ຕ້ອງບໍ່ເກີນ {0}.
 validation.numberTooSmall=ຕ້ອງບໍ່ຕ່ຳກວ່າ {0}.
 validation.numberNonInteger=ຕົວເລກຕ້ອງເປັນຈຳນວນເຕັມບວກ ແລະ ສາມາດມີໄດ້ສະເພາະຕົວອັກສອນທີ່ເປັນຕົວເລກ 0-9 ເທົ່ານັ້ນ.
-validation.numberNonInteger.v2=Number must be a positive whole number and can only contain numeric characters 0-9. Maximum length is 19 characters long.
+validation.numberNonInteger.v2=ໂຕເລກຕ້ອງເປັນຈຳນວນເຕັມບວກແລະສາມາດປະກອບດ້ວຍໂຕເລກ 0-9 ເທົ່ານັ້ນ. ຄວາມຍາວສູງສຸດແມ່ນ 19 ໂຕເລກ.
 
 #---------------------------------------------------------------------#
 # TEXT QUESTION - text specific to filling out a question with words. #
@@ -944,106 +944,106 @@ option.maybe=ອາດຈະ
 #-------------------------------------------------------------#
 
 # Text for map question apply filters button
-map.applyFiltersButtonText=Apply filters
+map.applyFiltersButtonText=ເພິ່ມຕົວຄັດກອງ
 # Aria label for next page pagination button
-map.ariaLabelNextPage=Go to next page of map locations
+map.ariaLabelNextPage=ໄປຕຳແໜ່ງຕໍ່ໄປຢູ່ເທິງແຜນທີ່
 # Aria label for pagination list
-map.ariaLabelPaginationList=Pagination for map locations
+map.ariaLabelPaginationList=ການແບ່ງໜ້າສຳຫລັບຕຳແໜ່ງແຜນທີ່
 # Aria label for previous page pagination button
-map.ariaLabelPreviousPage=Go to previous page of map locations
+map.ariaLabelPreviousPage=ກັບໄປຕຳແໜ່ງກ່ອນໜ້ານີ້ຢູ່ເທິງແຜນທີ່
 # Header for the section showing available locations
-map.availableLocations=Available locations
+map.availableLocations=ສະຖານທີ່ທີ່ສາມາດໃຊ້ໄດ້
 # Legend text for the map filters section
-map.filterLegendText=Filters
+map.filterLegendText=ຄັດກອງ
 # Aria label for pagination buttons
-map.goToPage=Go to page {0} of map locations
+map.goToPage=ໄປໜ້າທີ່ {0} ຂອງຕຳແໜ່ງໃນແຜນທີ່
 # Link text for location details URLs
-map.locationLinkText=View more details
+map.locationLinkText=ເບິ່ງລາຍລະອຽດເພິ່ມເຕີມ
 # The screen reader text on a link to view more details for a location. The variable represents the location name.
-map.locationLinkTextSr=View more details for {0}
+map.locationLinkTextSr=ເບິ່ງລາຍລະອຽດເພິ່ມເຕີມເພື່ອ {0}
 # Text showing the count of displayed locations, with placeholders for current count and total count
-map.locationsCount=Displaying {0} to {1} of {2} locations
+map.locationsCount=ສະແດງຜົນສະຖານທີ່{0} ຫາ{1} ຂອງ{2}
 # Text showing the count of selected locations, with placeholders for current count and maximum allowed selections
-map.locationsSelectedCount={0} of {1} maximum locations selected.
+map.locationsSelectedCount={0} ຂອງ {1} ຈຳນວນການເລືອກສະຖານທີ່ສູງສຸດ
 # Alt text for map region
-map.mapRegionAltText=Interactive map displaying locations
+map.mapRegionAltText=ແຜນທີ່ທີ່ສະແດງສະຖານທີ່
 # Text for map question selected button in popups
-map.mapSelectedButtonText=Selected
+map.mapSelectedButtonText=ເລືອກ
 # Message displayed when filter results return no locations
-map.noResultsFound=No results found. Please try adjusting your filters.
+map.noResultsFound=ບໍ່ພົບທີ່ຄົ້ນຫາ. ກະລຸນາປັບຕົວຄັດກອງຄືນໃໝ່
 # Message displayed when no locations have been selected yet
 map.noSelectionsMessage=ບໍ່ໄດ້ເລືອກສະຖານທີ່.
 # Sr only message displayed when page has changed
-map.paginationStatus=Now displaying page {0} of {1}.
+map.paginationStatus=ຕອນນີ້ສະແດງເຖິງໜ້າ {0} ຂອງ {1}
 # Text for map question reset filters button
-map.resetFiltersButtonText=Clear filters
+map.resetFiltersButtonText=ລົບລ້າງຕົວຄັດກອງ
 # Heading for the section showing selected locations
 map.selectedLocationsHeading=ສະຖານທີ່ທີ່ເລືອກ
 # Placeholder text for map question select button in popups
-map.selectLocationButtonText=Select location
+map.selectLocationButtonText=ເລືອກສະຖານທີ່
 # Text showing the maximum number of locations that can be selected, with a placeholder for that number
-map.selectLocations=Select up to {0} locations
+map.selectLocations=ສາມາດເລືອກໄດ້ເຖິງ {0} ສະຖານທີ່
 # Placeholder text for map question select option dropdown
-map.selectOptionPlaceholderText=- Select -
+map.selectOptionPlaceholderText=ເລືອກ
 # Button text to switch from list view to map view on mobile
-map.switchToMapView=Switch to map view
+map.switchToMapView=ສະຫລັບໄປແບບແຜນທີ່
 # Button text to switch from map view to list view on mobile
-map.switchToListView=Switch to list view
+map.switchToListView=ສະຫລັບໄປເບິ່ງແບບລາຍການ
 # Screen reader text announcing that the view has been switched to map view
-map.switchToMapViewSr=View has been switched to map
+map.switchToMapViewSr=ປ່ຽນການແນມເບິ່ງເປັນແຜນທີ່
 # Screen reader text announcing that the view has been switched to list view
-map.switchToListViewSr=View has been switched to list
+map.switchToListViewSr=ປ່ຽນການແນມເບິ່ງເປັນລາຍການ
 # Error message that indicates the applicant has selected too many locations
-map.validation.tooManySelections=Please select at most {0} locations.
+map.validation.tooManySelections=ກະລຸນາເລືອກສະຖານທີ່ໃຫ້ໄດ້{0}
 # Error message that indicates the geojson could not be loaded and displayed to the applicant due to an internal error, with placeholders for html links to the homepage and contact us email
-map.geoJsonErrorText = We''re sorry we are unable to display this question at this time. Please try returning to this application at a later time. In the meantime, return to the {0} or {1} and we''ll point you in the right direction.
-map.contactUs = contact us
-map.homepage = homepage
+map.geoJsonErrorText = ຂໍອະໄພເຮົາບໍ່ສາມາດສະແດງຄຳຖາມນີ້ໄດ້ໃນຂະນະນີ້ ກະລຸນາລອງກັບມາທີ່ແອັບພິເຄຊັ່ນນີ້ໃນພາຍຫລັງ ໃນລະຫວ່າງນີ້ໃຫ້ກັບໄປທີ່ {0} ຫລື {1} ແລ້ວທາງເຮົາຈະແນະນຳຂັ້ນຕອນຕໍ່ໄປ
+map.contactUs = ຕິດຕໍ່ພວກເຮົາ
+map.homepage = ໜ້າຫລັກ
 # screen reader text anouncing that a user cannot select any more locations with a placeholder for the total amount of locations they are allowed to select.
-map.maxLocationsSelectedSr = Maximum of {0} locations selected. To add a different location, please unselect at least one of the locations you have chosen.
+map.maxLocationsSelectedSr = ສະຖານທີ່ທີ່ສາມາດເລືອກໄດ້ສູງສຸດ{0}. ເພື່ອເພີ່ມສະຖານທີ່ທີ່ແຕກຕ່າງກັນ, ກະລຸນາກົດອອກຢ່າງໜ້ອຍໜຶ່ງສະຖານທີ່ທີ່ເຈົ້າເລືອກໄວ້ກ່ອນໜ້າ.
 
 #---------------------------------------------------------------------------#
 # MAP QUESTION ADMIN EDIT - text specific to creating/editing map questions. #
 #---------------------------------------------------------------------------#
 
 # Button for adding a filter
-map.addFilterButton=Add filter
+map.addFilterButton=ເພີ່ມຕົວຄັດກອງ
 # Subtitle text for adding filters
-map.addFiltersSubtitle=Select up to six filters to make available to applicants.
+map.addFiltersSubtitle=ສາມາດເລືອກໄດ້ສູງສຸດເຖິງຫົກຕົວຄັດກອງເພື່ອໃຫ້ຜູ້ສະໝັກສາມາດໃຊ້ໄດ້
 # Title for filters section
-map.addFiltersTitle=Filters
+map.addFiltersTitle=ຄັດກອງ
 # Button for adding a tag
-map.addTagButton=Add tag
+map.addTagButton=ເພິ່ມແທັກ
 # Subtitle text for adding a tag
-map.addTagSubtitle=Add a tag to be displayed on certain locations where a selected key matches a certain value. When an applicant selects at least one of these locations, optionally display an alert in the Selected Locations area.
+map.addTagSubtitle=ເພິ່ມແທັກທີ່ສະແດງໃນບາງຕຳແໜ່ງໂດຍທີ່ຈຸດທີ່ເລືອກກົງກັບຄ່າທີ່ກຳນົດ ເມື່ອຜູ້ສະໝັກເລືອກສະຖານທີ່ເຫລົ່ານີ້ຢ່າງໜ້ອຍໜຶ່ງແຫ່ງ ສາມາດເລືອກສະແດງການແຈ້ງເຕືອນໃນພື້ນທີ່ສະຖານທີ່ທີ່ເລືອກໄດ້
 # Title for tag section
-map.addTagTitle=Tag
+map.addTagTitle=ແທັກ
 # Label for display name field
-map.displayNameLabel=Display name
+map.displayNameLabel=ຊື່ທີ່ສະແດງ
 # Label for key field
-map.keyLabel=Key
+map.keyLabel=ສຳຄັນ
 # Error message when a configured key is not found in the GeoJSON data
-map.keyNotFoundError=Error: Key not found. Please select a different key.
+map.keyNotFoundError=ຂໍ້ຜິດພາດ: ບໍ່ພົບຈຸດທີ່ຄົ້ນຫາ. ກະລຸນາເລືອກຈຸດອື່ນ
 # Help text for location address field
-map.locationAddressHelpText=Select which key represents the location address.
+map.locationAddressHelpText=ເລືອກຈຸດທີ່ສະແດງເຖິງທີ່ຢູ່ຂອງສະຖານທີ່
 # Label for location address key field
-map.locationAddressLabel=Address key
+map.locationAddressLabel=ລະຫັດທີ່ຢູ່
 # Help text for location details URL field
-map.locationDetailsUrlHelpText=Select which key represents the location details URL.
+map.locationDetailsUrlHelpText=ເລືອກຈຸດທີ່ສະແດງເຖິງ URL ຂອງລາຍລະອຽດສະຖານທີ່
 # Label for location detail URL key field
-map.locationDetailsUrlLabel=View more details URL key
+map.locationDetailsUrlLabel=ເບິ່ງລາຍລະອຽດເພິ່ມເຕີມລະຫັດ URL
 # Help text for location name field
-map.locationNameHelpText=Select which key represents the location name.
+map.locationNameHelpText=ເລືອກຈຸດທີ່ສະແດງເຖິງຊື່ສະຖານທີ່
 # Label for location name key field
-map.locationNameLabel=Name key
+map.locationNameLabel=ຊື່ລະຫັດ
 # Label for maximum number of locations field
-map.maxLocationSelectionsLabel=Maximum location selections
+map.maxLocationSelectionsLabel=ຈຳນວນສະຖານທີ່ເລືອກໄດ້ສູງສຸດ
 # Label for setting text field
-map.settingTextLabel=Alert text
+map.settingTextLabel=ຂໍ້ຄວາມແຈ້ງເຕືອນ
 # Label for value field
-map.valueLabel=Value
+map.valueLabel=ຄ່າ
 # Text on a grey square that indicates where a map will appear once a question has been published
-map.mapPreviewText=Map will display here
+map.mapPreviewText=ແຜນທີ່ຈະສະແດງທີ່ນີ້
 
 #---------------------------------------------------------------------#
 # MULTI OPTION QUESTION ADMIN EDIT - text specific when creating/editing a multi option question. #
@@ -1076,7 +1076,7 @@ error.internalServerTitle.v2=ເກີດຂໍ້ຜິດພາດຂຶ້ນ
 # The subtitle on the error page that is show to the user in medium font
 error.internalServerSubtitle=ພວກເຮົາຂໍອະໄພ, ມີຂໍ້ຜິດພາດພາຍໃນເກີດຂຶ້ນໃນລະບົບຂອງພວກເຮົາ.
 # Additional information about the error that is shown to the user in small font
-error.internalServerDescription=Please contact technical support for assistance at {0} and include this error ID {1}.
+error.internalServerDescription=ກະລຸນາຕິດຕໍ່ການຊ່ວຍເຫລືອກັບທີມເຕັກນິກ{0} ແລະ ແຈ້ງລະຫັດທີ່ຜິດພາດນີ້ {1}
 # A button redirecting the user to the homepage
 error.internalServerHomeButton=ເຂົ້າເບິ່ງໜ້າຫຼັກ
 # A message to the user indicating what the status code is of the error that was thrown, for example 404 or 500
@@ -1133,17 +1133,17 @@ banner.guestBannerText=ຫຼັງຈາກທີ່ທ່ານສະໝັກ
 # A call to action within another message that will be a link to end your guest session.
 banner.endYourSession=ສິ້ນສຸດເຊດຊັນຂອງທ່ານ
 # A message letting the user know how long their session will last before they are logged out automatically. The placeholder will be a phrase like "2 hours and 30 minutes" or "30 minutes".
-banner.sessionExpiration=Your session will automatically expire after {0} from the beginning of your session, so please log in or submit your application before that time to avoid losing your progress.
+banner.sessionExpiration=ການທຳງານຈະໝົດອັດຕະໂນມັດຫລັງຈາກ {0} ຈາກຈຸດເລີ່ມຕົ້ນຂອງການທຳງານ, ດັ່ງນັ້ນກະລຸນາເຂົ້າລະບົບ ຫລື ສົ່ງໃບສະໝັກຂອງເຈົ້າກ່ອນເວລາດັ່ງກ່າວ ເພື່ອຫລີກລ້ຽງການສູນເສຍຂໍ້ມູນ
 # Phrases that combine hours and minutes for the session expiration message.
-banner.hourAndMinutes=1 hour and {0} minutes
-banner.hourAndMinute=1 hour and 1 minute
-banner.hoursAndMinutes={0} hours and {1} minutes
-banner.hoursAndMinute={0} hours and 1 minute
+banner.hourAndMinutes=1 ຊົ່ວໂມງ ແລະ {0} ນາທີ
+banner.hourAndMinute=1 ຊົ່ວໂມງ ແລະ 1 ນາທີ
+banner.hoursAndMinutes={0} ຊົ່ວໂມງ ແລະ {1} ນາທີ
+banner.hoursAndMinute={0} ຊົ່ວໂມງ ແລະ 1 ນາທີ
 # Amount of time in hours or minutes for the session expiration message.
-banner.minutes={0} minutes
-banner.hours={0} hours
-banner.hour=1 hour
-banner.minute=1 minute
+banner.minutes={0} ນາທີ
+banner.hours={0} ຊົ່ວໂມງ
+banner.hour=1 ຊົ່ວໂມງ
+banner.minute=1 ນາທີ
 
 #------------------------------------------------------------------------------#
 # DATA SECURITY BANNER - alert explaining data protection to users             #
@@ -1392,127 +1392,127 @@ tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because
 #------------------------------------------------------------------------------#
 
 # Caption for the table showing submissions by program
-caption.submissionsByProgram=Submissions by program (all programs)
+caption.submissionsByProgram=ການສະໝັກໂດຍໂປຣແກມ (ທຸກໂປຣແກມ)
 # Column header for program name
-content.program=Program
+content.program=ໂປຣແກມ
 # Column header for number of submissions
-content.submissions=Submissions
+content.submissions=ການສະໝັກ
 # Column header for 25th percentile time to complete
-content.timeToCompleteP25=Time to complete (p25)
+content.timeToCompleteP25=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ25)
 # Column header for median (50th percentile) time to complete
-content.medianTimeToComplete=Median time to complete
+content.medianTimeToComplete=ເວລາສະເລ່ຍທີ່ຕ້ອງແລ້ວ
 # Column header for 75th percentile time to complete
-content.timeToCompleteP75=Time to complete (p75)
+content.timeToCompleteP75=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ75)
 # Column header for 99th percentile time to complete
-content.timeToCompleteP99=Time to complete (p99)
+content.timeToCompleteP99=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ99)
 # Text on button to download CSV file
-button.downloadCsv=Download CSV
+button.downloadCsv=ດາວໂຫລດ CSV
 # Caption for the table showing submissions by month
-caption.submissionsByMonth=Submissions by month (all programs)
+caption.submissionsByMonth=ການສະໝັກລາຍເດືອນ (ທຸກໂປຣແກມ)
 # Column header for month
-content.month=Month
+content.month=ເດືອນ
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #
 #------------------------------------------------------------------------------#
 
 # Heading for the program reporting page
-reportingProgram.heading={0} reporting
+reportingProgram.heading={0} ບົດລາຍງານ
 # Info text about data delay
-reportingProgram.dataDelay=Data may be up to an hour delayed.
+reportingProgram.dataDelay=ຂໍ້ມູນອັບເດດອາດຈະຊ້າປະມານໜຶ່ງຊົ່ວໂມງ
 # Caption for the table showing submissions by month for a program
-reportingProgram.caption.submissionsByMonth=Submissions by month
+reportingProgram.caption.submissionsByMonth=ການສະໝັກລາຍເດືອນ
 # Column header for month
-reportingProgram.month=Month
+reportingProgram.month=ເດືອນ
 # Column header for submissions
-reportingProgram.submissions=Submissions
+reportingProgram.submissions=ການສະໝັກ
 # Column header for 25th percentile time to complete
-reportingProgram.timeToCompleteP25=Time to complete (p25)
+reportingProgram.timeToCompleteP25=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ25)
 # Column header for median (50th percentile) time to complete
-reportingProgram.medianTimeToComplete=Median time to complete
+reportingProgram.medianTimeToComplete=ເວລາສະເລ່ຍທີ່ຕ້ອງແລ້ວ
 # Column header for 75th percentile time to complete
-reportingProgram.timeToCompleteP75=Time to complete (p75)
+reportingProgram.timeToCompleteP75=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ75)
 # Column header for 99th percentile time to complete
-reportingProgram.timeToCompleteP99=Time to complete (p99)
+reportingProgram.timeToCompleteP99=ເວລາທີ່ຕ້ອງແລ້ວ (ພີ99)
 # Text on button to download CSV file
-reportingProgram.downloadCsv=Download CSV
+reportingProgram.downloadCsv=ດາວໂຫລດ CSV
 
 #------------------------------------------------------------------------------#
 #  ADMIN API DOCS                                                              #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminApiDocs.pageTitle=API documentation
+adminApiDocs.pageTitle=ເອກະສານອະທິບາຍການໃຊ້ API
 
 # Aria label for the nav that switches between API docs sub-pages.
-adminApiDocs.tabs.ariaLabel=API documentation sections
+adminApiDocs.tabs.ariaLabel=ພາກສ່ວນຂອງເອກະສານຄູ່ມື API
 # Tab label for the main API docs page.
-adminApiDocs.tabs.docs=Docs
+adminApiDocs.tabs.docs=ເອກະສານ
 # Tab label for the schema viewer page.
-adminApiDocs.tabs.schema=Schema viewer
+adminApiDocs.tabs.schema=ໜ້າສະແດງໂຄງສ້າງຂໍ້ມູນ
 
 # Intro paragraph as text before the external-docs link.
-adminApiDocs.intro.beforeLink=This page includes program-specific API Documentation for Active and Draft programs. Detailed documentation about authentication, pagination, and every field's possible values is located at
+adminApiDocs.intro.beforeLink=ໜ້ານີ້ລວມມີເອກະສານຄູ່ມື API ສໍາລັບການນໍາໃຊ້ ແລະຮ່າງໂປຣແກຣມ. ເອກະສານລາຍລະອຽດກ່ຽວກັບການຢືນຢັນຕົວຕົນ, ການແບ່ງໜ້າ ແລະ ຄ່າທີ່ເປັນໄປໄດ້ຂອງແຕ່ລະຂົງເຂດ ຢູ່ທີ່
 # Visible text of the external-docs link in the intro paragraph.
 adminApiDocs.intro.linkText=docs.civiform.us/it-manual/api
 # Intro paragraph as text after the external-docs link.
 adminApiDocs.intro.afterLink=.
 
 # Heading on the collapsible "How does this work?" accordion.
-adminApiDocs.accordion.heading=How does this work?
+adminApiDocs.accordion.heading=ວິທີນີ້ເຮັດວຽກແນວໃດ
 # First paragraph inside the accordion.
-adminApiDocs.accordion.paragraph1=The API response preview is a sample of what the API response might look like for a given program. All data is fake. Single-select and multi-select questions have sample answers that are selected from the available responses.
+adminApiDocs.accordion.paragraph1=ຕົວຢ່າງການສະແດງ API response ແມ່ນຕົວຢ່າງວ່າ API response ອາດຈະມີລັກສະນະແນວໃດສຳລັບໂປຣແກຣມໃດໜຶ່ງ. ຂໍ້ມູນທັງໝົດແມ່ນຂໍ້ມູນສົມມຸດ. ຄຳຖາມແບບເລືອກໄດ້ພຽງຄຳຕອບດຽວ ແລະ ແບບເລືອກໄດ້ຫຼາຍຄຳຕອບ ຈະມີຄຳຕອບຕົວຢ່າງທີ່ຖືກເລືອກຈາກບັນດາຄຳຕອບທີ່ມີໃຫ້ເລືອກ
 # Second paragraph inside the accordion as text before the shareable link.
-adminApiDocs.accordion.paragraph2.beforeLink=You may share this link,
+adminApiDocs.accordion.paragraph2.beforeLink=ທ່ານສາມາດແບ່ງປັນລິ້ງນີ້ໄດ້
 # Second paragraph inside the accordion as text after the shareable link.
-adminApiDocs.accordion.paragraph2.afterLink=, with anyone who needs to see API docs. It is accessible without logging in, so they do not need to be a CiviForm Admin or Program Admin to view this page.
+adminApiDocs.accordion.paragraph2.afterLink=ກັບທຸກຄົນທີ່ຈຳເປັນຕ້ອງເບິ່ງເອກະສານ API. ໜ້ານີ້ສາມາດເຂົ້າເບິ່ງໄດ້ໂດຍບໍ່ຕ້ອງລັອກອິນ, ດັ່ງນັ້ນຜູ້ໃຊ້ບໍ່ຈຳເປັນຕ້ອງເປັນ ຜູ້ດູແລ ລະບົບ CiviForm ຫຼື ຜູ້ດູແລ ໂປຣແກຣມ ເພື່ອເຂົ້າເບິ່ງໜ້ານີ້
 
 # Label for the program selector.
-adminApiDocs.selectProgram=Select a program:
+adminApiDocs.selectProgram=ເລືອກໂປຣແກຣມ
 # Label for the program-version selector.
-adminApiDocs.selectVersion=Select version:
+adminApiDocs.selectVersion=ເລືກຮູບແບບ
 # Option label for the active version of a program.
-adminApiDocs.version.active=Active
+adminApiDocs.version.active=ເປີດໃຊ້ງານ
 # Option label for the draft version of a program.
-adminApiDocs.version.draft=Draft
+adminApiDocs.version.draft=ຮ່າງ
 
 # Message shown when the requested program + version combination does not exist.
-adminApiDocs.notFound=No programs found. Please create and publish a program before accessing API docs.
+adminApiDocs.notFound=ບໍ່ພົບໂປຣແກຣມ. ກະລຸນາສ້າງ ແລະ ເຜີຍແຜ່ໂປຣແກຣມກ່ອນ ຈຶ່ງຈະສາມາດເຂົ້າເບິ່ງ API docs ໄດ້.
 # Heading for the list of questions on the selected program.
-adminApiDocs.questions=Questions
+adminApiDocs.questions=ຄໍາຖາມ
 # Label for a question's admin name
-adminApiDocs.adminName=Admin Name
+adminApiDocs.adminName=ຊື້ຜູ້ດູແລ
 # Label for a question's type (text, number, etc.).
-adminApiDocs.type=Type
+adminApiDocs.type=ປະເພດ
 # Label for a question's display text.
-adminApiDocs.text=Text
+adminApiDocs.text=ຂໍ້ຄວາມ
 # Label for a multi-option question's answer options.
-adminApiDocs.options=Options
+adminApiDocs.options=ທາງເລືອກ
 # Label preceding the list of a question's currently-available options.
-adminApiDocs.currentOptions=Current options:
+adminApiDocs.currentOptions=ທາງເລືອກທີ່ມີຢູ່
 # Label preceding the list of every option the question has ever had.
-adminApiDocs.allOptions=All possible options:
+adminApiDocs.allOptions=ຕົວເລືອກທີ່ເປັນໄປໄດ້ທັງໝົດ
 # Heading above the JSON preview of the API response.
-adminApiDocs.responsePreview=API response preview
+adminApiDocs.responsePreview=ເບິ່ງຕົວຢ່າງ API response
 
 #------------------------------------------------------------------------------#
 #  ADMIN SCHEMA VIEWER                                                         #
 #------------------------------------------------------------------------------#
 
 # Admin API Docs page title
-adminSchemaViewer.pageTitle=API schema viewer
+adminSchemaViewer.pageTitle=ໜ້າສະແດງໂຄງສ້າງ API
 # First intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro1=This page shows a visualization of the OpenAPI Schema. Both version 2 (formerly Swagger 2) and version 3 are available.
+adminSchemaViewer.intro1=ໜ້ານີ້ສະແດງຮູບແບບພາບຈຳລອງຂອງ ໂຄງຮ່າງ OpenAPI . ມີໃຫ້ໃຊ້ທັງ 2 ເວີຊັນ (ເຊິ່ງເຄີຍເອີ້ນວ່າ Swagger 2) ແລະ ເວີຊັນ 3
 # Second intro paragraph on the OpenAPI schema viewer page.
-adminSchemaViewer.intro2=We recommend only using version 3 unless there is a specific need for the older format.
+adminSchemaViewer.intro2=ພວກເຮົາແນະນຳໃຫ້ໃຊ້ສະເພາະເວີຊັນ 3 ເທົ່ານັ້ນ ເວັ້ນແຕ່ວ່າຈະມີເຫດຜົນສະເພາະທີ່ຈຳເປັນຕ້ອງໃຊ້ຮູບແບບເກົ່າ
 # Label for the program selector on the schema viewer page.
-adminSchemaViewer.selectProgram=Program:
+adminSchemaViewer.selectProgram=ໂປຣແກຣມ
 # Label for the program-status selector on the schema viewer page.
-adminSchemaViewer.selectStatus=Status:
+adminSchemaViewer.selectStatus=ສະຖານະ
 # Label for the OpenAPI version selector on the schema viewer page.
-adminSchemaViewer.selectVersion=OpenApi Version:
+adminSchemaViewer.selectVersion=ຮູບແບບຂອງ OpenApi
 # Error generating OpenAPI YAML
-adminSchemaViewer.yamlError=Unable to generate OpenApi version '{0}' for program '{1}' at stage '{2}'.
+adminSchemaViewer.yamlError=ບໍ່ສາມາດສ້າງ OpenAPI ເວີຊັນ ‘{0}’ ສຳລັບໂປຣແກຣມ ‘{1}’ ໃນຂັ້ນຕອນ ‘{2}’ ໄດ້
 
 #------------------------------------------------------------------------------#
 #  DEV TOOLS - text for the developer tools page                               #
