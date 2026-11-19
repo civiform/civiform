@@ -1298,7 +1298,13 @@ public class BlockTest {
             .build();
 
     Block block =
-        new Block("id", blockDefinition, new ApplicantModel(), applicantData, Optional.empty());
+        new Block(
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     String resultingName = block.getLocalizedName(Locale.getDefault());
     assertThat(resultingName).isEqualTo(expectedName);
@@ -1332,7 +1338,8 @@ public class BlockTest {
             blockDefinition,
             new ApplicantModel(),
             applicantData,
-            Optional.of(repeatedEntity));
+            Optional.of(repeatedEntity),
+            /* enumeratorImprovementsEnabled= */ false);
 
     String resultingName = block.getLocalizedName(Locale.getDefault());
     assertThat(resultingName).isEqualTo(expectedName);
@@ -1368,7 +1375,8 @@ public class BlockTest {
             blockDefinition,
             new ApplicantModel(),
             applicantData,
-            Optional.of(repeatedEntity));
+            Optional.of(repeatedEntity),
+            /* enumeratorImprovementsEnabled= */ false);
 
     String resultingName = block.getLocalizedName(Locale.getDefault());
     assertThat(resultingName).isEqualTo(entityName + " - " + expectedName);
@@ -1411,7 +1419,12 @@ public class BlockTest {
 
     Block block =
         new Block(
-            "id", blockDefinition, new ApplicantModel(), applicantData, Optional.of(childEntity));
+            "id",
+            blockDefinition,
+            new ApplicantModel(),
+            applicantData,
+            Optional.of(childEntity),
+            /* enumeratorImprovementsEnabled= */ false);
 
     String resultingName = block.getLocalizedName(Locale.getDefault());
     assertThat(resultingName)
@@ -1455,14 +1468,16 @@ public class BlockTest {
   public void hasErrors_withInitialQuestionNotOnBlock_usesLegacyValidation() {
     ApplicantData applicantData = new ApplicantData();
     Block block =
-        makeUnrepeatedBlock(
+        makeUnrepeatedBlockWithEnumeratorImprovements(
             "1", enumeratorBlockMissingInitialQuestion(), new ApplicantModel(), applicantData);
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         block.getEnumeratorQuestion().getContextualizedPath(),
         ImmutableList.of("Sarah", "Jonathan"));
 
+    assertThat(block.initialQuestionFlowIsActive()).isFalse();
     assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
   }
 
   @Test
@@ -1550,39 +1565,190 @@ public class BlockTest {
   }
 
   @Test
-  public void hasErrors_withEntitiesFromLegacyInput_ignoresInitialQuestion() {
+  public void initialQuestionFlowIsActive_withFlagOnAndInitialQuestion_returnsTrue() {
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive()).isTrue();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withFlagOff_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithInitialQuestion(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive()).isFalse();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withNoInitialQuestion_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1",
+            enumeratorBlockWithoutInitialQuestion(),
+            new ApplicantModel(),
+            new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive()).isFalse();
+  }
+
+  @Test
+  public void initialQuestionFlowIsActive_withNonEnumeratorBlock_returnsFalse() {
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", setUpBlockWithQuestions(), new ApplicantModel(), new ApplicantData());
+
+    assertThat(block.initialQuestionFlowIsActive()).isFalse();
+  }
+
+  @Test
+  public void entitiesFromLegacyInput_withFlagOff_areComplete() {
     ApplicantData applicantData = new ApplicantData();
     Block block =
         makeUnrepeatedBlock(
             "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
-    // The legacy input (e.g. with the enumerator improvements flag off) saves entity names on the
-    // enumerator question only. Nothing is written at the initial question's path, not even
-    // metadata.
+    answerEnumeratorWithLegacyInput(applicantData, block);
+
+    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void entitiesFromLegacyInput_withFlagOn_areNotComplete() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithLegacyInput(applicantData, block);
+
+    // The initial question, which is required, hasn't been answered for either entity.
+    assertThat(block.hasErrors()).isTrue();
+    assertThat(block.isAnsweredWithoutErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+    assertThat(block.wasAnsweredInProgram(/* programId= */ 1L)).isFalse();
+  }
+
+  @Test
+  public void entitiesWithInitialQuestionAnswered_withFlagOn_areComplete() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithLegacyInput(applicantData, block);
+    for (ApplicantQuestion initialQuestion : block.getContextualizedInitialQuestions()) {
+      QuestionAnswerer.answerNameQuestion(
+          applicantData,
+          initialQuestion.getContextualizedPath(),
+          "First",
+          /* middle= */ "",
+          "Last",
+          /* suffix= */ "");
+      QuestionAnswerer.addMetadata(
+          applicantData,
+          initialQuestion.getContextualizedPath(),
+          /* programId= */ 1L,
+          /* timestamp= */ 1L);
+    }
+
+    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isAnsweredWithoutErrors()).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  @Test
+  public void hasErrors_withBlankEntityFromInitialQuestionFlow_withFlagOn_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithBlankInitialQuestionRow(applicantData, block);
+
+    assertThat(block.hasErrors()).isTrue();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isFalse();
+  }
+
+  @Test
+  public void hasErrors_withInvalidInitialQuestionAnswer_withFlagOn_returnsTrue() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlockWithEnumeratorImprovements(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithMissingLastName(applicantData, block);
+
+    assertThat(block.hasErrors()).isTrue();
+  }
+
+  @Test
+  public void hasErrors_withInvalidInitialQuestionAnswer_withFlagOff_ignoresInitialQuestion() {
+    ApplicantData applicantData = new ApplicantData();
+    Block block =
+        makeUnrepeatedBlock(
+            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+    answerEnumeratorWithMissingLastName(applicantData, block);
+
+    // With the flag off the applicant sees the legacy input, which can't fix the initial question.
+    assertThat(block.getContextualizedInitialQuestions().get(0).hasErrors()).isTrue();
+    assertThat(block.hasErrors()).isFalse();
+    assertThat(block.isCompletedInProgramWithoutErrors()).isTrue();
+  }
+
+  /**
+   * Saves one entity through the initial-question flow with a name initial question that is missing
+   * its last name. The entity name is set, so the enumerator itself has no errors.
+   */
+  private static void answerEnumeratorWithMissingLastName(
+      ApplicantData applicantData, Block block) {
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath(),
+        ImmutableList.of("Sarah"));
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath().atIndex(0),
+        /* programId= */ 1L,
+        /* timestamp= */ 1L);
+    QuestionAnswerer.answerNameQuestion(
+        applicantData,
+        block.getContextualizedInitialQuestions().get(0).getContextualizedPath(),
+        "Sarah",
+        /* middle= */ "",
+        /* last= */ "",
+        /* suffix= */ "");
+  }
+
+  /**
+   * Saves entity names the way the legacy free-text input does (e.g. with the enumerator
+   * improvements flag off): on the enumerator question only. Nothing is written at the initial
+   * question's path, not even metadata.
+   */
+  private static void answerEnumeratorWithLegacyInput(ApplicantData applicantData, Block block) {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData,
         block.getEnumeratorQuestion().getContextualizedPath(),
         ImmutableList.of("Sarah", "Jonathan"));
-
-    assertThat(block.hasErrors()).isFalse();
+    QuestionAnswerer.addMetadata(
+        applicantData,
+        block.getEnumeratorQuestion().getContextualizedPath().atIndex(0),
+        /* programId= */ 1L,
+        /* timestamp= */ 1L);
   }
 
-  @Test
-  public void hasErrors_withBlankEntityFromInitialQuestionFlow_returnsTrue() {
-    ApplicantData applicantData = new ApplicantData();
-    Block block =
-        makeUnrepeatedBlock(
-            "1", enumeratorBlockWithNameInitialQuestion(), new ApplicantModel(), applicantData);
+  /**
+   * Saves a single blank row the way the initial-question flow does: it writes metadata at the
+   * initial question's path, even for a blank row.
+   */
+  private static void answerEnumeratorWithBlankInitialQuestionRow(
+      ApplicantData applicantData, Block block) {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, block.getEnumeratorQuestion().getContextualizedPath(), ImmutableList.of(""));
-    // The initial-question flow writes metadata at the initial question's path, even for a blank
-    // row.
     QuestionAnswerer.addMetadata(
         applicantData,
         block.getContextualizedInitialQuestions().get(0).getContextualizedPath(),
         /* programId= */ 1L,
         /* timestamp= */ 1L);
-
-    assertThat(block.hasErrors()).isTrue();
   }
 
   @Test
@@ -1712,7 +1878,28 @@ public class BlockTest {
       BlockDefinition definition,
       ApplicantModel applicant,
       ApplicantData applicantData) {
-    return new Block(id, definition, applicant, applicantData, Optional.empty());
+    return new Block(
+        id,
+        definition,
+        applicant,
+        applicantData,
+        Optional.empty(),
+        /* enumeratorImprovementsEnabled= */ false);
+  }
+
+  /** Makes a block as it is built for a request that has the enumerator improvements flag on. */
+  private static Block makeUnrepeatedBlockWithEnumeratorImprovements(
+      String id,
+      BlockDefinition definition,
+      ApplicantModel applicant,
+      ApplicantData applicantData) {
+    return new Block(
+        id,
+        definition,
+        applicant,
+        applicantData,
+        Optional.empty(),
+        /* enumeratorImprovementsEnabled= */ true);
   }
 
   private static BlockDefinition setUpBlockWithQuestions() {

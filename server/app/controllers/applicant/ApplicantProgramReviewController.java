@@ -125,7 +125,9 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   .thenComposeAsync(
                       v ->
                           applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId),
+                              applicantId,
+                              programId,
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(
                       (roApplicantProgramService) -> {

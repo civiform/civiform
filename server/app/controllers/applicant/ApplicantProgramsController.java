@@ -263,7 +263,9 @@ public final class ApplicantProgramsController extends CiviFormController {
                   .thenComposeAsync(
                       v ->
                           applicantService.getReadOnlyApplicantProgramService(
-                              applicantId, programId))
+                              applicantId,
+                              programId,
+                              settingsManifest.getEnumeratorImprovementsEnabled(request)))
                   .thenApplyAsync(
                       roApplicantService -> {
                         Optional<Block> blockMaybe =

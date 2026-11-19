@@ -360,9 +360,12 @@ public final class AdminApplicationController extends CiviFormController {
                 application.getApplicant().getApplicantDisplayName(), messages),
             application.id);
 
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // admin application view only reads the blocks and their answers, so the value doesn't matter.
     ReadOnlyApplicantProgramService roApplicantService =
         applicantService
-            .getReadOnlyApplicantProgramService(application)
+            .getReadOnlyApplicantProgramService(
+                application, /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
     ImmutableList<Block> blocks = roApplicantService.getAllActiveBlocks();

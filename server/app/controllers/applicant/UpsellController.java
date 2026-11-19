@@ -130,7 +130,10 @@ public final class UpsellController extends CiviFormController {
 
               CompletableFuture<ReadOnlyApplicantProgramService> roApplicantProgramService =
                   applicantService
-                      .getReadOnlyApplicantProgramService(appApplicantId, programId)
+                      .getReadOnlyApplicantProgramService(
+                          appApplicantId,
+                          programId,
+                          settingsManifest.getEnumeratorImprovementsEnabled(request))
                       .toCompletableFuture();
 
               CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
