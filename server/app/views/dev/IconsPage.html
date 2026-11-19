@@ -1,0 +1,30 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.dev.IconsPageViewModel"*/-->
+<!--/*
+  Lists every icon in views.components.Icons. Useful for seeing which icons
+  exist and debugging SVG scaling and sizing.
+*/-->
+<th:block th:fragment="content">
+  <table>
+    <tr>
+      <th>Icon name</th>
+      <th>Icon</th>
+    </tr>
+    <tr th:each="icon : ${model.icons}">
+      <td th:text="${icon.name()}"></td>
+      <td>
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          fill="currentColor"
+          stroke="currentColor"
+          stroke-width="1%"
+          aria-hidden="true"
+          th:viewBox="${icon.viewBox()}"
+          class="height-3 width-3"
+        >
+          <path th:d="${icon.path()}"></path>
+        </svg>
+      </td>
+    </tr>
+  </table>
+</th:block>
