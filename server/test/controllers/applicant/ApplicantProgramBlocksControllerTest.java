@@ -15,6 +15,7 @@ import static play.mvc.Http.Status.SEE_OTHER;
 import static play.mvc.Http.Status.UNAUTHORIZED;
 import static play.test.Helpers.contentAsString;
 import static play.test.Helpers.stubMessagesApi;
+import static support.FakeRequestBuilder.createHandlerDef;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
@@ -46,6 +47,7 @@ import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Http.Request;
 import play.mvc.Http.RequestBuilder;
 import play.mvc.Result;
+import play.routing.Router;
 import repository.QuestionRepository;
 import repository.StoredFileRepository;
 import repository.VersionRepository;
@@ -1083,6 +1085,58 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("FirstName");
     assertThat(contentAsString(result)).contains("Please enter your last name.");
+  }
+
+  @Test
+  public void
+      updateWithApplicantId_withProgramSlugUrlsEnabledAndValidationErrors_rendersLanguageRedirectToBlockEdit() {
+    program =
+        ProgramBuilder.newActiveProgram("test-program")
+            .withBlock("block 1")
+            .withRequiredQuestion(testQuestionBank().nameApplicantName())
+            .build();
+    String programSlug = program.getSlug();
+    String routePattern =
+        "/applicants/$applicantId<[^/]+>/programs/$programParam<[^/]+>/blocks/$blockId<[^/]+>"
+            + "/$inReview<[^/]+>/$applicantRequestedActionWrapper<[^/]+>";
+    String path =
+        String.format(
+            "/applicants/%d/programs/%s/blocks/1/false/NEXT_BLOCK", applicant.id, programSlug);
+    Request request =
+        fakeRequestBuilder()
+            .location("POST", path)
+            .bodyForm(
+                ImmutableMap.of(
+                    Path.create("applicant.applicant_name").join(Scalar.FIRST_NAME).toString(),
+                    "FirstName",
+                    Path.create("applicant.applicant_name").join(Scalar.LAST_NAME).toString(),
+                    ""))
+            .build()
+            .addAttr(
+                Router.Attrs.HANDLER_DEF,
+                createHandlerDef(getClass().getClassLoader(), routePattern));
+    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+
+    Result result =
+        subject
+            .updateWithApplicantId(
+                request,
+                applicant.id,
+                programSlug,
+                /* blockId= */ "1",
+                /* inReview= */ false,
+                new ApplicantRequestedActionWrapper(NEXT_BLOCK))
+            .toCompletableFuture()
+            .join();
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Please enter your last name.");
+    String expectedRedirect =
+        routes.ApplicantProgramBlocksController.edit(
+                programSlug, /* blockId= */ "1", /* questionName= */ Optional.empty())
+            .url();
+    assertThat(contentAsString(result))
+        .contains(String.format("value=\"%s\" name=\"redirectLink\"", expectedRedirect));
   }
 
   // The question has 4 options 1-4, Options are 1 based so 0 is not valid.
