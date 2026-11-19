@@ -37,7 +37,7 @@ heading.informationAriaLabelPrefix=참고용: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=성공: {0}
 # Hidden text read by screen readers before a warning message, so users know the message is a warning.
-heading.warningPrefix=Warning:
+heading.warningPrefix=경고:
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=세션이 종료되었습니다.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -376,17 +376,17 @@ title.programOverview={0} - 프로그램 개요
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=신청 방법
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=신청 시작
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=신청할 준비가 되셨나요? 진행 상황을 저장하려면 로그인하세요.
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=신청 시작
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=신청 계속하기
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Log in to start application
+button.loginToStartApplication=로그인하고 신청 시작
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=계정을 사용하면 다시 로그인하여 신청 상태를 확인할 수 있고 다른 프로그램에 신청할 때도 시간을 절약할 수 있습니다.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview={0} 프로그램 신청
 # The text on the button that takes users to the account creation form.
@@ -608,11 +608,11 @@ content.adminProgramImage.cardPreviewError=카드 미리보기 생성 오류
 #--------------------------------------------------------------------------------------------------------------#
 
 # Message shown when alt text is required but missing.
-validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+validation.adminQuestionImage.altTextRequired=질문 이미지를 업로드한 경우 이미지 설명을 입력해야 합니다.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=이미지가 있어 설명을 삭제할 수 없습니다. 설명을 삭제하려면 먼저 이미지를 삭제하세요.
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=이미지 설명(대체 텍스트) 입력
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -786,13 +786,13 @@ validation.dateTooFarInFuture={0} 이전의 날짜여야 합니다.
 validation.dateNotInRange={0}에서 {1} 사이의 날짜여야 합니다.
 validation.currentDateRequired=오늘 날짜를 입력하세요.
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=4자리 연도를 입력하세요. (예: 1996)
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=월을 선택하세요.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=일을 입력하세요.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=1~31 사이의 유효한 일을 입력하세요.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1월
 # A month option when selecting a specific date from a dropdown menu.
@@ -1059,7 +1059,7 @@ adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = 이미지 확대
 
 # Label shown to indicate that an image will open in a new tab
 staticQuestion.enlargeImageScreenReaderText=새 탭에서 열림
@@ -1165,13 +1165,13 @@ banner.immigrationStatusInfoBanner.linkText=여기
 #------------------------------------------------------------------------------#
 
 # Header for demo banner alert
-label.demoBanner.heading=Demo: {0}
+label.demoBanner.heading=데모: {0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=데모 모드 정보
 # Count of remaining days for the demo environment (singular)
-banner.demoBanner.dayRemaining=1 day remaining
+banner.demoBanner.dayRemaining=1일 남음
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} days remaining
+banner.demoBanner.daysRemaining={0}일 남음
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1257,133 +1257,133 @@ session.length.warning.message.loggedIn=세션이 곧 만료됩니다. 작업을
 #------------------------------------------------------------------------------#
 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
-ariaLabel.indentedPage=Indented page
+ariaLabel.indentedPage=들여쓴 페이지
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=List set creation method
+heading.repeatedSet.creationMethod=목록 세트 생성 방식
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=새로 생성
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=기존 항목 선택
 # Label for the new list set form
-label.repeatedSet.newSetForm=Create new list set
+label.repeatedSet.newSetForm=새 목록 세트 생성
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=What is being listed?
+input.repeatedSet.listedEntity=목록에 어떤 대상을 추가하실 건가요?
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=List set admin ID
+input.repeatedSet.adminId=목록 세트 관리자 ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Prompt text
+input.repeatedSet.questionText=안내 문구
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion={0} 목록 세트
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=각 {0} 항목을 추가하세요.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=도움말 문구
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=목록의 최소 항목 수
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=목록의 최대 항목 수
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=최초 질문
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
-description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
+description.repeatedSet.initialQuestion=각 항목이나 사람을 식별할 질문을 추가하세요. 예를 들어 신청자가 가구 구성원을 목록에 추가하는 경우 각 구성원의 이름을 입력하는 질문을 추가하세요.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=기존 질문을 선택하면 시스템이 이 목록 세트용 사본을 질문 은행에 저장합니다. 원본은 변경되지 않습니다.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=참고: 신청자에게는 이 질문 자체의 안내 문구와 도움말 문구 대신 목록 세트의 안내 문구와 도움말 문구가 표시됩니다.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=관리자 ID:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=신청자는 이 질문을 통해 각 항목이나 사람을 목록 세트에 추가합니다.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
-alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
+alert.repeatedSet.backfillSaveWarning=저장된 최초 질문은 제거할 수 없습니다.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=이 목록 세트를 사용하는 {0}도 업데이트됩니다.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=이 목록 세트를 사용하는 {0}도 업데이트됩니다.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=프로그램 1개
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany=프로그램 {0}개
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=최초 질문 저장
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
+alert.repeatedSet.addQuestionDisabled=반복 질문을 추가하기 전에 목록 세트를 추가하세요. {0}에서 추가할 수 있습니다.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=이전 화면
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+alert.repeatedSet.initialQuestionArchived=최초 질문이 보관 처리되었습니다. 새 최초 질문을 선택하세요.
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=최초 질문을 찾을 수 없습니다. 새 최초 질문을 선택하세요.
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Please add an initial question
+alert.repeatedSet.initialQuestionRequired=최초 질문을 추가하세요
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
+alert.repeatedSet.newQuestion=이 목록 세트를 생성하면 시스템이 질문 은행에 저장합니다.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=다른 목록 세트에 속한 질문은 사용할 수 없습니다.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Create list set
+button.repeatedSet.submitNew=목록 세트 생성
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set screen
+button.repeatedSet.addNew=목록 세트 화면 추가
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=목록 세트 추가
 # Button on the new list set form that opens the question bank so admins can add the initial question
-button.repeatedSet.initialQuestion.add=Add initial question
+button.repeatedSet.initialQuestion.add=최초 질문 추가
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
-button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
+button.repeatedSet.initialQuestion.removeAriaLabel=최초 질문 {0} 제거
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=목록 세트
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested list set
+text.nestedRepeatedSet=중첩 목록 세트
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=신청자가 최초 질문에 대한 답변으로 목록에 추가한 대상이 화면 이름의 일부로 표시됩니다. 아래 첫 번째 입력란에 문구를 추가하여 더 자세히 설명할 수 있습니다. 예를 들어 최초 질문이 가구 구성원을 묻고 신청자가 "제니퍼"를 추가했다면 화면 이름을 "제니퍼 - 배경 정보"로 지정할 수 있습니다.
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=목록 세트는 신청자가 항목이나 사람을 목록에 추가하도록 하는 기능입니다.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
+text.repeatedQuestions.description=신청자가 목록에 추가한 각 항목이나 사람에 대해 답변할 질문을 추가하세요.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=질문 은행에서 기존 질문을 선택하면 시스템이 이 목록 세트용 사본을 저장합니다. 원본은 변경되지 않습니다.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=이 질문은 신청자가 추가하는 각 항목이나 사람마다 반복됩니다. 예를 들어 신청자는 목록에 추가한 가구 구성원마다 한 번씩 답변합니다.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=연결된 목록 세트
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=List set
+heading.repeatedSet.question=목록 세트
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=Previously used for this list set
+heading.repeatedSet.previouslyUsed=이 목록 세트에서 이전에 사용한 질문
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=목록 세트 추가
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=반복 질문
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity={0}마다 반복되는 질문
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity="가구 구성원"이나 "소득원"처럼 신청자가 목록에 추가할 항목이나 사람을 입력하세요.
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=위에 입력한 내용을 바탕으로 이 ID가 자동 입력됩니다. 필요에 따라 수정하세요.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=신청자에게 각 항목이나 사람을 추가하도록 안내하는 문구를 입력하세요.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=신청자가 무엇을 추가할지 판단하는 데 도움이 되는 문구를 입력하세요. (예: "본인은 포함하지 마세요.")
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=이 화면에서 새 목록 세트 질문을 생성하세요. 나중에 사용할 수 있도록 질문 은행에 저장됩니다.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=질문 은행에서 기존 목록 세트를 추가하세요.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=하위 화면 추가
 # A button for admins to add a nested list set to a program
-button.addNestedRepeatedSet=Add nested list set
+button.addNestedRepeatedSet=중첩 목록 세트 추가
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=하위 화면으로 이동
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=질문 추가
 # A button on a question card for admins to remove the question from the screen.
-button.removeQuestion=Remove
+button.removeQuestion=제거
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+tooltip.deleteScreenDisabled=연결된 반복 화면이 있어 이 화면을 삭제할 수 없습니다.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=연결된 후속 질문이 있어 이 질문을 제거할 수 없습니다.
 
