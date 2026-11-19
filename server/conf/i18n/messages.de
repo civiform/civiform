@@ -1377,15 +1377,15 @@ button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=
+button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=
+button.addQuestion=Add question
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=
+tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=
+tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
