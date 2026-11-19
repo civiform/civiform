@@ -1269,15 +1269,15 @@ label.repeatedSet.newSetForm=إنشاء مجموعة قوائم جديدة
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=ما الذي يتم إدراجه؟
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=List set admin ID
+input.repeatedSet.adminId=معرّف مسؤول مجموعة القوائم
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Prompt text
+input.repeatedSet.questionText=نص المطالبة
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion=مجموعة القوائم {0}
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=يُرجى إضافة كل {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=نص التلميح
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
@@ -1321,13 +1321,13 @@ alert.repeatedSet.initialQuestionNotFound=لم يتم العثور على الس
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=يُرجى إضافة سؤال أولي
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
+alert.repeatedSet.newQuestion=عند إنشاء مجموعة القوائم هذه، يحفظها النظام في بنك الأسئلة.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=الأسئلة التابعة لمجموعة قوائم أخرى غير متاحة.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Create list set
+button.repeatedSet.submitNew=إنشاء مجموعة قوائم
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set screen
+button.repeatedSet.addNew=شاشة إضافة مجموعة قوائم
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=إضافة مجموعة قوائم
 # Button on the new list set form that opens the question bank so admins can add the initial question
@@ -1335,9 +1335,9 @@ button.repeatedSet.initialQuestion.add=إضافة سؤال أولي
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=إزالة السؤال الأولي {0}
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=مجموعة قوائم
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested list set
+text.nestedRepeatedSet=مجموعة قوائم متداخلة
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=سيظهر للمتقدّمين الكيان الذي أدرجوه في إجابتهم عن السؤال الأولي كجزء من اسم الشاشة. يمكنك إضافة المزيد من النص في المربع الأول أدناه لتوفير سياق إضافي. على سبيل المثال، إذا كان السؤال الأولي يطلب ذكر أفراد الأسرة وأدرج المتقدّم "Jennifer،" فيمكن أن يكون اسم الشاشة: "Jennifer - المعلومات الأساسية".
 #An additional description explaining what the add question button does
@@ -1351,7 +1351,7 @@ text.repeatedQuestion.listSetInformation=يتكرر هذا السؤال لكل �
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
 label.repeatedQuestion.associatedListSet=مجموعة القوائم المرتبطة
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=List set
+heading.repeatedSet.question=مجموعة قوائم
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=تم استخدامه سابقاً لمجموعة القوائم هذه
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
