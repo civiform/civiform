@@ -1373,9 +1373,9 @@ description.repeatedSet.createNewQuestion=Create a new list set question from th
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=
+button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
-button.addNestedRepeatedSet=
+button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=
 # A button for admins to add a pre-existing enumerator question to a program
