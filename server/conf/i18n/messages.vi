@@ -1333,11 +1333,11 @@ button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
-button.repeatedSet.initialQuestion.removeAriaLabel=
+button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=
+text.repeatedSet=List set
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=
+text.nestedRepeatedSet=Nested list set
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=
 #An additional description explaining what the add question button does
@@ -1353,11 +1353,11 @@ label.repeatedQuestion.associatedListSet=Associated list set
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=
+heading.repeatedSet.previouslyUsed=Previously used for this list set
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
 heading.repeatedSet.questionBank=Add a list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=
+heading.repeatedQuestions=Repeated questions
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
