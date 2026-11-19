@@ -81,7 +81,7 @@ public abstract class StreamingMultipartBodyParser
               .mapError(
                   FileUploadTypeException.class,
                   e -> {
-                    validationErrorRef.set(e);
+                    validationErrorRef.compareAndSet(null, e);
                     return e;
                   });
 
