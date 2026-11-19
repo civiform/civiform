@@ -15,7 +15,6 @@ import * as adminPrograms from '@/admin_programs'
 import * as adminProgramStatusesView from '@/admin_program_statuses_view'
 import * as adminSettingsView from '@/admin_settings_view'
 import * as adminValidation from '@/admin_validation'
-import * as devIcons from '@/dev_icons'
 import * as map from '@/mapquestion/map'
 import * as modal from '@/modal'
 import * as northStarModal from '@/north_star_modal'
@@ -72,7 +71,6 @@ function initializeEverything(): void {
   adminProgramStatusesView.init()
   adminSettingsView.init()
   adminValidation.init()
-  devIcons.init()
   modal.init()
   northStarModal.init()
   questionBank.init()
