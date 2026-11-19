@@ -251,7 +251,8 @@ def collect(args, gh, ignores):
         f"Found {len(runs)} runs of {args.workflow} since {since}.",
         file=sys.stderr)
 
-    os.makedirs(args.cache_dir, exist_ok=True)
+    cache_dir = workflow_cache_dir(args)
+    os.makedirs(cache_dir, exist_ok=True)
     fetched = 0
     for run in runs:
         if is_ignored(ignores, run.get("run_number")):
@@ -266,7 +267,7 @@ def collect(args, gh, ignores):
             if is_ignored(ignores, run.get("run_number"), job.get("run_attempt",
                                                                   1)):
                 continue
-            cache_path = os.path.join(args.cache_dir, f"{job['id']}.json")
+            cache_path = os.path.join(cache_dir, f"{job['id']}.json")
             if os.path.exists(cache_path):
                 with open(cache_path) as f:
                     if json.load(f).get("cache_version") == CACHE_VERSION:
@@ -298,6 +299,19 @@ def collect(args, gh, ignores):
     print(f"Downloaded {fetched} new logs.", file=sys.stderr)
 
 
+def workflow_cache_dir(args):
+    """The cache folder for one repo and workflow, e.g.
+    <cache-dir>/civiform/civiform-staging-deploy/aws_deploy.yaml.
+
+    Keeping each workflow's records apart means a report only ever counts runs
+    of the --repo and --workflow it was asked about.
+    """
+    owner, sep, name = args.repo.partition("/")
+    if not (owner and sep and name) or "/" in name:
+        sys.exit(f"--repo must be owner/name, got {args.repo!r}")
+    return os.path.join(args.cache_dir, owner, name, args.workflow)
+
+
 def load_records(cache_dir, days, ignores):
     """Loads cached results, optionally limited to the last `days` days.
 
@@ -310,8 +324,9 @@ def load_records(cache_dir, days, ignores):
     if days:
         # A date string like "2026-11-11" sorts before every timestamp on that
         # day ("2026-11-11T06:13:59Z"), so comparing strings keeps that whole day.
-        cutoff = (dt.datetime.now(dt.timezone.utc).date() -
-                  dt.timedelta(days=days - 1)).isoformat()
+        cutoff = (
+            dt.datetime.now(dt.timezone.utc).date() -
+            dt.timedelta(days=days - 1)).isoformat()
     records = []
     skipped = 0
     for path in glob.glob(os.path.join(cache_dir, "*.json")):
@@ -450,7 +465,9 @@ def main():
         "--cache-dir",
         default=os.path.join(
             os.path.expanduser("~"), ".cache", "civiform-flakey-ci-tests"),
-        help="where parsed per-job results are kept (default: %(default)s)")
+        help="where parsed per-job results are kept, in a subfolder per repo"
+        " and workflow: <cache-dir>/<owner>/<name>/<workflow>"
+        " (default: %(default)s)")
     parser.add_argument(
         "--ignore",
         action="append",
@@ -482,7 +499,8 @@ def main():
     if not args.offline:
         collect(args, GitHub(args.repo, get_token()), ignores)
 
-    records, skipped = load_records(args.cache_dir, args.report_days, ignores)
+    records, skipped = load_records(
+        workflow_cache_dir(args), args.report_days, ignores)
     ranked, ignored = aggregate(
         records, None if args.max_failures < 0 else args.max_failures)
     print_report(ranked, records, ignored, skipped, args.top)
