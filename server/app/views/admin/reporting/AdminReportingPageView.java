@@ -3,10 +3,11 @@ package views.admin.reporting;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import views.admin.AdminLayout;
-import views.admin.AdminLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
-public final class AdminReportingPageView extends AdminLayoutBaseView<AdminReportingPageViewModel> {
+public final class AdminReportingPageView
+    extends TransitionalLayoutBaseView<AdminReportingPageViewModel> {
   @Inject
   public AdminReportingPageView(LayoutDeps layoutDeps) {
     super(layoutDeps);

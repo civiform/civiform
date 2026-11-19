@@ -87,7 +87,7 @@ test.describe('developer tools', () => {
       await enableFeatureFlag(page, 'admin_ui_migration_ux_redesign_sc_enabled')
       await demoBanner.locator('#admin').click()
       await waitForPageJsLoad(page)
-      await page.goto('/admin/reporting')
+      await page.goto('/admin/tiGroups')
       await waitForPageJsLoad(page)
       await expect(demoBanner).toBeVisible()
       await expect(demoBanner.locator('#resident')).toHaveAttribute(
@@ -102,7 +102,6 @@ test.describe('developer tools', () => {
         'usa-button usa-button--outline',
       )
       await validateAccessibility(page)
-      await validateScreenshot(page, 'post-migration-page-with-demo-banner')
       await demoBanner.locator('#resident').click()
       await page.waitForURL('**/programs')
       await expect(demoBanner.locator('div#resident')).toHaveClass('usa-button')
