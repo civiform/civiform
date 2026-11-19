@@ -24,3 +24,5 @@ When updating this file:
 # Glossary
 
 As a trial, transifex-glossary.csv contains a glossary of terms in Transifex's [import format](https://help.transifex.com/en/articles/6230893-upload-a-glossary). A point of friction is that Transifex requires the glossary to have at least one translation, but it doesn't need all of them to still show the definition of the term.
+
+The file must be manually imported into Transifex.
