@@ -1339,7 +1339,7 @@ text.repeatedSet=List set
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested list set
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=
+text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
@@ -1369,11 +1369,11 @@ description.repeatedSet.questionText=Enter the text that prompts applicants to a
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=
+description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=
+description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=
+button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
