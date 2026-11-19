@@ -1277,7 +1277,7 @@ input.repeatedSet.adminIdAutofillSuggestion={0} list set
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=
+input.repeatedSet.hintText=Hint text
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
@@ -1287,7 +1287,7 @@ input.repeatedSet.minListCount=Minimum list count
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
-label.repeatedSet.initialQuestion=
+label.repeatedSet.initialQuestion=Initial question
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
