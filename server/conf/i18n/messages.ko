@@ -380,7 +380,7 @@ heading.startApplication=Start application
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=Ready to apply? Log in to save your progress.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=신청 시작
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Continue application
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
@@ -1062,7 +1062,7 @@ adminValidation.multiOptionAdminError=관리자 이름에는 소문자, 숫자, 
 staticQuestion.imageEnlargeText = Enlarge image
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=새 탭에서 열림
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -1261,7 +1261,7 @@ ariaLabel.indentedPage=Indented page
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=List set creation method
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=새로 생성
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
@@ -1273,9 +1273,9 @@ input.repeatedSet.adminId=List set admin ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=Prompt text
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} list set
+input.repeatedSet.adminIdAutofillSuggestion={0} 목록 세트
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=각 {0} 항목을 추가하세요.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=Hint text
 # A form field where admins set the minimum number of entities that applicants must list
@@ -1287,7 +1287,7 @@ input.repeatedSet.minListCount=Minimum list count
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
-label.repeatedSet.initialQuestion=Initial question
+label.repeatedSet.initialQuestion=최초 질문
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
@@ -1313,7 +1313,7 @@ button.repeatedSet.initialQuestion.save=Save initial question
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=이전 화면
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
@@ -1379,13 +1379,13 @@ button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=질문 추가
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
+tooltip.removeEnumeratorQuestionDisabled=연결된 후속 질문이 있어 이 질문을 제거할 수 없습니다.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
