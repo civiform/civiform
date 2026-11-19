@@ -6,6 +6,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
 } from './support'
 import {Locator, Page} from '@playwright/test'
@@ -2493,6 +2494,69 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           'List the dates of your appointments.',
           '01/15/2020',
         )
+      })
+    })
+
+    test('blocks submit after the feature flag is turned on until the initial question is answered for entities entered with the flag off', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator flag turned on before submit program'
+      const blockForm = page.locator('#cf-block-form')
+
+      await test.step('Publish a program whose enumerator has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Turn the feature flag off and answer with the legacy input', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await applicantQuestions.applyProgram(programName)
+        await addRepeatedEntity(page, 'Pets', 'Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
+      })
+
+      await test.step('Turn the feature flag on and verify submit is blocked', async () => {
+        await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+        // The review page was rendered with the flag off, so it still offers to submit.
+        await applicantQuestions.submitFromReviewPage()
+        await validateToastMessage(
+          page,
+          "Error: There's been an update to the application",
+        )
+        await applicantQuestions.expectReviewPage()
+      })
+
+      await test.step('Continue the application and verify it returns to the enumerator screen', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.applyProgram(
+          programName,
+          /* showProgramOverviewPage= */ false,
+        )
+        // The initial question is now displayed and needs an answer.
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveCount(1)
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveValue('')
+      })
+
+      await test.step('Answer the initial question and submit', async () => {
+        await blockForm.getByRole('textbox', {name: 'First name'}).fill('Bugs')
+        await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Bunny')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 
