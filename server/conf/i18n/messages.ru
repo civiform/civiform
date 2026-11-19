@@ -37,7 +37,7 @@ heading.informationAriaLabelPrefix=Для справки: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=Готово: {0}
 # Hidden text read by screen readers before a warning message, so users know the message is a warning.
-heading.warningPrefix=Warning:
+heading.warningPrefix=Предупреждение:
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Сеанс завершен.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -378,13 +378,13 @@ heading.applicationSteps=Как подать заявку
 # Heading for the section of the program overview page where the applicant can start the application.
 heading.startApplication=Начать подачу заявления
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=Готовы подать заявление? Войдите, чтобы сохранить свой прогресс.
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Начать подачу заявления
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Продолжить подачу заявления
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Log in to start application
+button.loginToStartApplication=Войдите, чтобы начать подачу заявления
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
 alert.createAccountDescriptionOverview=Используйте учётную запись, чтобы снова войти и проверить статус заявления, а также сэкономить время при подаче заявлений на другие программы.
 # Top-level heading for the program overview page.  The {0} is the program name.
@@ -1283,9 +1283,9 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=Минимальное количество в списке
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=Максимальное количество в списке
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Начальный вопрос
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
@@ -1293,7 +1293,7 @@ description.repeatedSet.initialQuestion=Добавьте вопрос, кото�
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=Если вы выберете существующий вопрос, система сохранит его копию для этого набора списка в банке вопросов. Оригинал останется без изменений.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=Примечание: заявители видят текст запроса и подсказки набора списка вместо собственных текста запроса и подсказки этого вопроса.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Админ. идентификатор:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
@@ -1301,19 +1301,19 @@ description.repeatedSet.initialQuestionAdminId=Заявители использ
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=После сохранения начальный вопрос удалить будет нельзя.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=Это также обновит {0}, где используется этот набор списка.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=Это также обновит {0}, где используется этот набор списка.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
 text.repeatedSet.backfillProgramCountOne=1 программа
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany=Программ: {0}
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=Сохранить начальный вопрос
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Добавьте набор списка, прежде чем добавлять повторяющиеся вопросы. Для этого перейдите в раздел {0}.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=предыдущий экран
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Начальный вопрос архивирован. Выберите новый начальный вопрос
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
@@ -1329,7 +1329,7 @@ button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=Добавить набор списка
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Добавить начальный вопрос
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
@@ -1345,21 +1345,21 @@ text.repeatedSet.addQuestionDescription=A list set asks applicants to add items 
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Добавьте вопросы, на которые заявители должны ответить о каждом элементе или человеке из списка.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=Если вы выберете существующий вопрос из банка вопросов, система сохранит его копию для этого набора списка. Оригинал останется без изменений.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=Этот вопрос повторяется для каждого элемента или человека, добавленного заявителем. Например, заявители отвечают на него один раз для каждого указанного члена семьи.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=Связанный набор списка
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Ранее использовалось для этого набора списка
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=Добавить набор списка
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Повторяющиеся вопросы
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=Повторяющиеся вопросы о каждом: {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
