@@ -1,5 +1,5 @@
-import { Buffer } from 'buffer'
-import { test, expect } from '../support/civiform_fixtures'
+import {Buffer} from 'buffer'
+import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
   loginAsAdmin,
@@ -8,7 +8,7 @@ import {
 } from '../support'
 
 test.describe('Admin can manage question image', () => {
-  test.beforeEach(async ({ page }) => {
+  test.beforeEach(async ({page}) => {
     await loginAsAdmin(page)
     await enableFeatureFlag(
       page,
@@ -24,7 +24,7 @@ test.describe('Admin can manage question image', () => {
     const questionName = 'gate-dropzone-question'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -69,7 +69,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Preserved alt text'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -97,7 +97,7 @@ test.describe('Admin can manage question image', () => {
         'question-image-container',
       )
       await expect(imageContainer).toBeVisible()
-      const img = imageContainer.getByRole('img', { name: altText })
+      const img = imageContainer.getByRole('img', {name: altText})
       await expect(img).toBeVisible()
       await expect(img).toHaveAttribute('alt', altText)
       await expect(img).toHaveAttribute(
@@ -133,7 +133,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Alt text before delete'
 
     await test.step('Create question, upload image, and save', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
       await adminQuestionImage.setImageDescription(altText)
       await adminQuestionImage.uploadImageFile(
@@ -190,12 +190,12 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Roundtrip alt text'
 
     await test.step('Create question and add to program block', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'block description',
-        questions: [{ name: questionName }],
+        questions: [{name: questionName}],
       })
     })
 
@@ -251,7 +251,7 @@ test.describe('Admin can manage question image', () => {
     const updatedAltText = 'Updated second image alt text'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -292,7 +292,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Alt text added to active question'
 
     await test.step('Create static question, add to program, and publish so it is ACTIVE', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminPrograms.addAndPublishProgramWithQuestions(
         [questionName],
         programName,
@@ -327,7 +327,7 @@ test.describe('Admin can manage question image', () => {
     const replacementAltText = 'Replacement image alt text'
 
     await test.step('Create static question, add to program, and publish so it is ACTIVE', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminPrograms.addAndPublishProgramWithQuestions(
         [questionName],
         programName,
@@ -393,7 +393,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Sample tax form example'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -409,7 +409,7 @@ test.describe('Admin can manage question image', () => {
       await validateScreenshot(
         page.getByRole('main'),
         'question-preview-with-image',
-        { fullPage: false },
+        {fullPage: false},
       )
     })
   })
@@ -423,7 +423,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Accessible chart description'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -451,7 +451,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Sample alt text for enlarge preview image'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -481,7 +481,7 @@ test.describe('Admin can manage question image', () => {
     })
 
     await test.step('check if image itself is clicked whether a new tab containing the image is opened', async () => {
-      const image = previewContainer.getByRole('img', { name: altText })
+      const image = previewContainer.getByRole('img', {name: altText})
 
       const [newPage] = await Promise.all([
         page.context().waitForEvent('page'),
@@ -503,7 +503,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Sample alt text for too large image'
 
     await test.step('Create question and go to edit page', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
@@ -519,7 +519,7 @@ test.describe('Admin can manage question image', () => {
       await validateScreenshot(
         page.getByRole('main'),
         'question-image-file-too-large-error',
-        { fullPage: false },
+        {fullPage: false},
       )
       await validateAccessibility(page)
     })
@@ -533,7 +533,7 @@ test.describe('Admin can manage question image', () => {
     const altText = 'Valid question image alt text'
 
     await test.step('Create question with an existing valid image', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
       await adminQuestionImage.setImageDescription(altText)
       await adminQuestionImage.uploadImageFile(
@@ -579,7 +579,7 @@ test.describe('Admin can manage question image', () => {
     const spanishQuestionText = 'Spanish question text'
 
     await test.step('Create question, upload image with alt text, and save', async () => {
-      await adminQuestions.addStaticQuestion({ questionName })
+      await adminQuestions.addStaticQuestion({questionName})
       await adminQuestions.gotoQuestionEditPage(questionName)
       await adminQuestionImage.setImageDescription(defaultAltText)
       await adminQuestionImage.uploadImageFile(
@@ -594,7 +594,7 @@ test.describe('Admin can manage question image', () => {
       await adminTranslations.selectLanguage('Spanish')
       await adminTranslations.expectQuestionImageDescriptionTranslation('')
       await page
-        .getByRole('textbox', { name: 'Question text' })
+        .getByRole('textbox', {name: 'Question text'})
         .fill(spanishQuestionText)
       await adminTranslations.editQuestionImageDescription(spanishAltText)
     })

@@ -144,9 +144,9 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
     if (isQuestionImageUpload(request)) {
       logger.error("Server error during question image upload", exception);
-      String errorMessage = messagesApi.preferred(request).at("validation.fileUploadRequestFailed");
       return CompletableFuture.completedFuture(
-          Results.internalServerError(renderQuestionImageError(errorMessage))
+          Results.internalServerError(
+                  renderQuestionImageError("We couldn't upload your file. Please try again."))
               .as(play.mvc.Http.MimeTypes.HTML));
     }
 

@@ -50,9 +50,6 @@ public abstract class GenericMultipartUploadSinkProvider<T> {
     if (errorMessage == null && cause.getCause() != null) {
       errorMessage = cause.getCause().getMessage();
     }
-    if (errorMessage == null) {
-      errorMessage = throwable.getMessage();
-    }
 
     return StreamingMultipartUploadResult.builder()
         .setStatus(StreamingMultipartUploadResult.Status.FAILURE)

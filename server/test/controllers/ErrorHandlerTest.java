@@ -12,6 +12,7 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
 import java.util.concurrent.CompletionException;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
 import parsers.FileUploadTypeException;
@@ -213,6 +214,7 @@ public class ErrorHandlerTest extends ResetPostgres {
     String html = contentAsString(result);
     assertThat(html).contains("id=\"question-image-file-input-errors\"");
     assertThat(html).contains("role=\"alert\"");
-    assertThat(html).contains("We couldn&#x27;t upload your file. Please try again.");
+    assertThat(StringEscapeUtils.unescapeHtml4(html))
+        .contains("We couldn't upload your file. Please try again.");
   }
 }
