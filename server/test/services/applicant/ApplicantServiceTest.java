@@ -6,6 +6,7 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static support.FakeRequestBuilder.fakeRequest;
+import static support.FakeRequestBuilder.fakeRequestBuilder;
 import static support.TestProgramUtility.createProgramWithNongatingEligibility;
 
 import auth.CiviFormProfile;
@@ -52,6 +53,7 @@ import repository.AccountRepository;
 import repository.ApplicationEventRepository;
 import repository.ApplicationRepository;
 import repository.ApplicationStatusesRepository;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import repository.VersionRepository;
 import services.Address;
@@ -219,7 +221,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             ImmutableMap.of(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantData =
@@ -256,7 +259,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -277,7 +281,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -312,7 +317,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -329,7 +335,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -372,7 +379,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -393,7 +401,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -422,7 +431,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -438,7 +448,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             /* forceUpdate= */ true,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -485,7 +496,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 updates,
                 false,
                 false,
-                /* apiBridgeEnabled= */ false)
+                /* apiBridgeEnabled= */ false,
+                /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -539,7 +551,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataMiddle =
@@ -562,7 +575,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -593,7 +607,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfterDeletion =
@@ -632,7 +647,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataBefore =
@@ -661,7 +677,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicantData applicantDataAfter =
@@ -703,7 +720,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     // Guards against query count regressions when an applicant saves a block.
@@ -727,7 +745,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ true)
+            /* apiBridgeEnabled= */ true,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -749,7 +768,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -805,7 +825,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -831,7 +852,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -854,7 +876,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -894,7 +917,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -941,7 +965,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -994,7 +1019,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1302,7 +1328,8 @@ public class ApplicantServiceTest extends ResetPostgres {
     // code) so these are exercised for the initial question before staging.
     Block block =
         subject
-            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .getReadOnlyApplicantProgramService(
+                applicant.id, programDefinition.id(), /* enumeratorImprovementsEnabled= */ true)
             .toCompletableFuture()
             .join()
             .getActiveBlock("1")
@@ -1329,7 +1356,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                 cleanedUpdates,
                 false,
                 false,
-                /* apiBridgeEnabled= */ false)
+                /* apiBridgeEnabled= */ false,
+                /* enumeratorImprovementsEnabled= */ true)
             .toCompletableFuture()
             .join();
     Block postStagingBlock = postStagingService.getActiveBlock("1").orElseThrow();
@@ -1363,7 +1391,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1390,7 +1419,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(ApplicantNotFoundException.class)
@@ -1414,7 +1444,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1439,7 +1470,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1466,7 +1498,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join());
 
@@ -1491,7 +1524,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -1521,7 +1555,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -1548,7 +1583,8 @@ public class ApplicantServiceTest extends ResetPostgres {
                         updates,
                         false,
                         false,
-                        /* apiBridgeEnabled= */ false)
+                        /* apiBridgeEnabled= */ false,
+                        /* enumeratorImprovementsEnabled= */ false)
                     .toCompletableFuture()
                     .join())
         .withCauseInstanceOf(IllegalArgumentException.class)
@@ -1650,7 +1686,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
   }
@@ -1678,7 +1715,8 @@ public class ApplicantServiceTest extends ResetPostgres {
 
     ReadOnlyApplicantProgramService roApplicantProgramService =
         subject
-            .getReadOnlyApplicantProgramService(applicant.id, programDefinition.id())
+            .getReadOnlyApplicantProgramService(
+                applicant.id, programDefinition.id(), /* enumeratorImprovementsEnabled= */ false)
             .toCompletableFuture()
             .join();
 
@@ -1699,7 +1737,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     sqlStatementsSinceLastCount();
@@ -1737,7 +1776,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1767,7 +1807,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1832,7 +1873,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             /* addressServiceAreaValidationEnabled= */ false,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -1962,7 +2004,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             /* addressServiceAreaValidationEnabled= */ false,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2013,7 +2056,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blankUpdates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2094,7 +2138,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2204,7 +2249,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             /* addressServiceAreaValidationEnabled= */ false,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2241,7 +2287,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2265,7 +2312,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates("Bob", "Elisa"),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2309,7 +2357,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2361,7 +2410,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2460,7 +2510,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2546,7 +2597,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2615,7 +2667,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2669,7 +2722,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2712,7 +2766,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             applicationUpdates(),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2777,7 +2832,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             ImmutableMap.of(questionPath.join(Scalar.SELECTION).toString(), "1"),
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     return questionPath;
@@ -2911,7 +2967,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -2957,7 +3014,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3022,7 +3080,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             initialUpdates,
             /* addressServiceAreaValidationEnabled= */ true,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3057,7 +3116,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             correctedUpdates,
             true,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3124,7 +3184,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             initialUpdates,
             /* addressServiceAreaValidationEnabled= */ true,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3169,7 +3230,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             true,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3246,7 +3308,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             initialUpdates,
             /* addressServiceAreaValidationEnabled= */ true,
             /* forceUpdate= */ false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3273,7 +3336,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             correctedUpdates,
             true,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3306,7 +3370,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             unchangedUpdates,
             true,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -3339,6 +3404,88 @@ public class ApplicantServiceTest extends ResetPostgres {
                     .join())
         .withCauseInstanceOf(ApplicationOutOfDateException.class)
         .withMessageContaining("Application", "failed to save");
+  }
+
+  @Test
+  public void submitApplication_legacyEntitiesWithoutInitialQuestionAnswers_withFlagOn_fails() {
+    ApplicantModel applicant = createApplicantWithLegacyEntitiesInInitialQuestionProgram();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true").build();
+
+    assertThatExceptionOfType(CompletionException.class)
+        .isThrownBy(
+            () ->
+                subject
+                    .submitApplication(
+                        applicant.id,
+                        programDefinition.id(),
+                        trustedIntermediaryProfile,
+                        request,
+                        /* answerOptionScoringEnabled= */ false)
+                    .toCompletableFuture()
+                    .join())
+        .withCauseInstanceOf(ApplicationOutOfDateException.class);
+  }
+
+  @Test
+  public void submitApplication_legacyEntitiesWithoutInitialQuestionAnswers_withFlagOff_succeeds() {
+    ApplicantModel applicant = createApplicantWithLegacyEntitiesInInitialQuestionProgram();
+    Request request =
+        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false").build();
+
+    ApplicationModel application =
+        subject
+            .submitApplication(
+                applicant.id,
+                programDefinition.id(),
+                trustedIntermediaryProfile,
+                request,
+                /* answerOptionScoringEnabled= */ false)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(application.getLifecycleStage()).isEqualTo(LifecycleStage.ACTIVE);
+  }
+
+  /**
+   * Sets {@code programDefinition} to a program with an enumerator that has an initial question,
+   * and returns an applicant who entered the list items through the legacy free-text input (as with
+   * the enumerator improvements flag off), so the initial question has no answers.
+   */
+  private ApplicantModel createApplicantWithLegacyEntitiesInInitialQuestionProgram() {
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.TEXT).getQuestionDefinition();
+    QuestionDefinition initialQuestion =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(enumeratorQuestion.getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow()
+            .getQuestionDefinition();
+    programDefinition =
+        ProgramBuilder.newActiveProgram("initial question program", "desc")
+            .withBlock()
+            .withRequiredQuestionDefinitions(ImmutableList.of(enumeratorQuestion, initialQuestion))
+            .buildDefinition();
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    applicant.setAccount(resourceCreator.insertAccount());
+    applicant.save();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestion.getQuestionPathSegment());
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            /* blockId= */ "1",
+            ImmutableMap.of(
+                enumeratorPath.atIndex(0).toString(), "Alice",
+                enumeratorPath.atIndex(1).toString(), "Bob"),
+            /* addressServiceAreaValidationEnabled= */ false,
+            /* forceUpdate= */ false,
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
+        .toCompletableFuture()
+        .join();
+    return applicant;
   }
 
   @Test
@@ -3945,7 +4092,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicationRepository
@@ -3982,7 +4130,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -5153,7 +5302,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
   }
@@ -5632,7 +5782,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // Act
     ApplicantQuestion applicantQuestionNew =
@@ -5668,7 +5819,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // Act & Assert
     assertThatExceptionOfType(RuntimeException.class)
@@ -5719,7 +5871,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             blockDefinition,
             applicant,
             applicantData,
-            Optional.empty());
+            Optional.empty(),
+            /* enumeratorImprovementsEnabled= */ false);
 
     // update address so values aren't empty
     ImmutableMap<String, String> updates =
@@ -5738,7 +5891,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             true,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
 
@@ -5750,7 +5904,8 @@ public class ApplicantServiceTest extends ResetPostgres {
         blockDefinition,
         applicantAfter,
         applicantDataAfter,
-        Optional.empty());
+        Optional.empty(),
+        /* enumeratorImprovementsEnabled= */ false);
   }
 
   @Test
@@ -5814,7 +5969,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -5836,7 +5992,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     applicant = accountRepository.lookupApplicantSync(applicant.id).get();
@@ -5870,7 +6027,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     Request request = fakeRequest();
@@ -5900,7 +6058,8 @@ public class ApplicantServiceTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicationModel eligibleApplication =

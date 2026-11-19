@@ -185,6 +185,7 @@ public enum MessageKey {
   HEADER_CLIENT_LIST("header.clientList"),
   HEADER_SEARCH("header.search"),
   HEADING_INFORMATION_ARIA_LABEL_PREFIX("heading.informationAriaLabelPrefix"), // North Star only
+  HEADING_WARNING_PREFIX("heading.warningPrefix"),
   HEADING_REPEATED_SET_CREATION_METHOD("heading.repeatedSet.creationMethod"),
   HEADING_REPEATED_SET_PREVIOUSLY_USED("heading.repeatedSet.previouslyUsed"),
   HEADING_REPEATED_SET_QUESTION("heading.repeatedSet.question"),
@@ -218,6 +219,7 @@ public enum MessageKey {
   LINK_EDIT("link.edit"),
   LINK_OPENS_NEW_TAB_SR("link.opensNewTabSr"),
   LINK_PROGRAM_DETAILS("link.programDetails"),
+  LINK_REPEATED_SET_PREVIOUS_SCREEN("link.repeatedSet.previousScreen"),
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only

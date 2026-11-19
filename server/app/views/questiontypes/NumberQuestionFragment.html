@@ -55,7 +55,11 @@
   th:with="numberQuestion=${question.createNumberQuestion()},
              fieldErrors=${numberQuestion.getValidationErrors().get(numberQuestion.getNumberPath())},
              questionErrors=${numberQuestion.getValidationErrors().get(question.getContextualizedPath())},
-             hasErrors=${questionRendererParams.shouldShowErrors() && !numberQuestion.getValidationErrors().isEmpty()}"
+             hasErrors=${questionRendererParams.shouldShowErrors() && !numberQuestion.getValidationErrors().isEmpty()},
+             standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+             initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+               : ariaDescribedby == null ? errorAnchorId + '-error'
+               : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -81,7 +85,7 @@
     th:min="${min}"
     th:max="${max}"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+    th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusSingleField()}"

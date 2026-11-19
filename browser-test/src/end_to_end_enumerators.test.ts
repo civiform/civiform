@@ -7,6 +7,7 @@ import {
   logout,
   validateAccessibility,
   validateScreenshot,
+  validateToastMessage,
   waitForPageJsLoad,
 } from './support'
 import {Locator, Page} from '@playwright/test'
@@ -1436,10 +1437,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const addQuestionButton = blockPanel.getByRole('button', {
         name: 'Add question',
       })
-      const repeatedSetAlert = blockPanel.getByRole('alert').filter({
-        hasText:
-          'Add a list set before you add repeated questions. Go to the previous screen to add one.',
-      })
+      const repeatedSetAlert = blockPanel.getByText(
+        'Add a list set before you add repeated questions. Go to the previous screen to add one.',
+      )
 
       await test.step('Add a new repeated set and go to the repeated screen', async () => {
         await addRepeatedSetBlocks(page)
@@ -1480,8 +1480,15 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(repeatedSetAlert).toBeVisible()
       })
 
-      await test.step('Save an enumerator question on the parent repeated set screen', async () => {
-        await page.getByRole('link', {name: 'Screen 2'}).click()
+      await test.step('Follow the alert link and save an enumerator question on the parent repeated set screen', async () => {
+        await repeatedSetAlert
+          .getByRole('link', {name: 'previous screen'})
+          .click()
+        await expectCurrentBlockTitle(
+          /* isRepeatedBlock= */ false,
+          blockPanel,
+          /* expectedScreenNumber= */ 2,
+        )
         await fillAndSubmitEnumeratorQuestionForm(page, {
           initialQuestion: SAMPLE_QUESTIONS.number,
         })
@@ -2506,6 +2513,82 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('reads the field error first on a single-input row on continue and after a row is removed', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator single-input field error program'
+
+      await test.step('Publish a program whose list set has a phone initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          listedEntity: 'Phone number',
+          questionText: 'List the phone numbers where we can reach you.',
+          hintText: 'Include mobile, home, and work numbers.',
+          initialQuestion: SAMPLE_QUESTIONS.phone,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {
+        name: 'Add Phone number',
+      })
+      // The first row is labelled by the question title plus its entity label.
+      const firstRowInput = blockForm.getByRole('textbox', {
+        name: 'List the phone numbers where we can reach you. Phone number #1',
+      })
+      const secondRowInput = blockForm.getByRole('textbox', {
+        name: 'Phone number #2',
+        exact: true,
+      })
+
+      await test.step('Add two rows with invalid phone numbers and continue', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await firstRowInput.fill('1234567890')
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await secondRowInput.fill('5553231234')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Verify the first row has focus and its description starts with its error', async () => {
+        await expect(
+          blockForm.getByText('Error: This phone number is invalid'),
+        ).toHaveCount(2)
+        await expect(firstRowInput).toBeFocused()
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: This phone number is invalid.*Include mobile, home, and work numbers\.$/,
+        )
+        await expect(secondRowInput).toHaveAccessibleDescription(
+          'Error: This phone number is invalid',
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+
+      await test.step('Remove the first row and verify the remaining row still reads its error first', async () => {
+        page.once('dialog', (dialog) => void dialog.accept())
+        await blockForm
+          .getByRole('button', {name: 'Remove Phone number #1'})
+          .click()
+        await expect(blockForm.getByRole('textbox')).toHaveCount(1)
+        // The remaining row is now first, so it takes over the question title and help text and
+        // keeps its own error ahead of them.
+        await expect(firstRowInput).toHaveValue(/555/)
+        await expect(firstRowInput).toHaveAccessibleDescription(
+          /^Error: This phone number is invalid.*Include mobile, home, and work numbers\.$/,
+        )
+        await validateAccessibility(page, '#cf-block-form')
+      })
+    })
+
     test('moves focus to the first input of a grouped row and reads the list-level error first on continue', async ({
       page,
       adminPrograms,
@@ -2612,6 +2695,69 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           'List the dates of your appointments.',
           '01/15/2020',
         )
+      })
+    })
+
+    test('blocks submit after the feature flag is turned on until the initial question is answered for entities entered with the flag off', async ({
+      page,
+      adminPrograms,
+      applicantQuestions,
+    }) => {
+      const programName = 'Enumerator flag turned on before submit program'
+      const blockForm = page.locator('#cf-block-form')
+
+      await test.step('Publish a program whose enumerator has a name initial question', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.name,
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      await test.step('Turn the feature flag off and answer with the legacy input', async () => {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+        await applicantQuestions.applyProgram(programName)
+        await addRepeatedEntity(page, 'Pets', 'Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.expectReviewPage()
+      })
+
+      await test.step('Turn the feature flag on and verify submit is blocked', async () => {
+        await enableFeatureFlag(page, 'enumerator_improvements_enabled')
+        // The review page was rendered with the flag off, so it still offers to submit.
+        await applicantQuestions.submitFromReviewPage()
+        await validateToastMessage(
+          page,
+          "Error: There's been an update to the application",
+        )
+        await applicantQuestions.expectReviewPage()
+      })
+
+      await test.step('Continue the application and verify it returns to the enumerator screen', async () => {
+        await applicantQuestions.gotoApplicantHomePage()
+        await applicantQuestions.applyProgram(
+          programName,
+          /* showProgramOverviewPage= */ false,
+        )
+        // The initial question is now displayed and needs an answer.
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveCount(1)
+        await expect(
+          blockForm.getByRole('textbox', {name: 'First name'}),
+        ).toHaveValue('')
+      })
+
+      await test.step('Answer the initial question and submit', async () => {
+        await blockForm.getByRole('textbox', {name: 'First name'}).fill('Bugs')
+        await blockForm.getByRole('textbox', {name: 'Last name'}).fill('Bunny')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.submitFromReviewPage()
+        await applicantQuestions.expectConfirmationPage()
       })
     })
 

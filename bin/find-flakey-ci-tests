@@ -1,0 +1,510 @@
+#!/usr/bin/env python3
+
+# DOC: Scan the "AWS Staging Deploy" GitHub Action logs and rank flaky browser tests. Run with -h for more info.
+"""Collate flaky Playwright tests from the "AWS Staging Deploy" Action logs.
+
+The staging deploy (civiform/civiform-staging-deploy, aws_deploy.yaml) runs the
+browser tests against staging once a day, plus manual re-runs. Playwright runs
+with `retries: 1`, so a test that fails and then passes on retry does not fail
+the run. Those tests only show up in the summary at the end of the log:
+
+      2 failed
+        src/foo.test.ts:12:3 › Suite › some test ───
+      3 flaky
+        src/bar.test.ts:40:5 › Suite › other test ───
+      700 passed (25.3m)
+
+This script downloads each run's log, parses that summary, and ranks tests by
+how often they were flaky (passed on retry) or failed (failed both attempts).
+
+Parsed results are cached per job (see --cache-dir) and every cached result is
+included in the report, so history keeps building past GitHub's log retention
+as long as the script is run at least once a month.
+
+Ignoring runs: runs listed in DEFAULT_IGNORES below are always left out, e.g. a
+day staging was known to be broken; pass --ignore to leave out more. Entries use
+the run number GitHub shows (the "#1811" in the run title, written without the
+"#") and an optional attempt number:
+
+    1811        # every attempt of run #1811
+    1811:2      # only attempt 2 of run #1811
+
+Authentication: set GITHUB_TOKEN (or GH_TOKEN) to a token that can read Actions
+on the repo. A fine-grained token with "Actions: read" is enough.
+"""
+
+import argparse
+import datetime as dt
+import glob
+import json
+import os
+import re
+import sys
+import time
+import urllib.error
+import urllib.parse
+import urllib.request
+from collections import defaultdict
+
+API = "https://api.github.com"
+# Runs always left out of the report; --ignore values are added to these.
+# Each entry is "RUN" or "RUN:ATTEMPT"; note why it's here.
+DEFAULT_IGNORES = [
+    "1811:2",  # Someone used staging while the tests were running. Nov 11.
+]
+# Bump this when the parser changes so cached results are recomputed.
+CACHE_VERSION = 1
+
+# ANSI escape sequences (e.g. "\x1b[31m" for red, "\x1b[0m" to reset). Playwright
+# colors its output, and GitHub keeps those codes in the raw log, so they're
+# stripped before matching. A summary line can arrive as
+# "\x1b[33m  1 flaky\x1b[39m", which wouldn't match SECTION_RE otherwise.
+ANSI_RE = re.compile(r"\x1b\[[0-9;]*[A-Za-z]")
+# GitHub prefixes every log line with an ISO-8601 timestamp.
+TIMESTAMP_RE = re.compile(r"^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d(\.\d+)?Z ?")
+# Summary section headers, e.g. "  3 flaky", "  700 passed (25.3m)".
+SECTION_RE = re.compile(
+    r"^ {2}(\d+) (failed|flaky|skipped|passed|did not run|interrupted)\b")
+# Summary entries, e.g. "    [chromium] › src/a.test.ts:1:2 › Suite › title ───".
+ENTRY_RE = re.compile(
+    r"^ {4}(?:\[[^\]]+\] › )?(\S+?\.(?:test|spec)\.[jt]sx?):\d+:\d+ › (.*)$")
+# The run of box-drawing characters ("─", U+2500) that Playwright pads each
+# summary entry with, e.g. "src/a.test.ts:1:2 › Suite › title ─────". The
+# padding fills the terminal width, so its length varies. It's stripped so the
+# same test always gets the same name.
+TRAILING_RULE_RE = re.compile(r"\s*─+\s*$")
+
+# ---------------------------------------------------------------------------
+# GitHub API
+# ---------------------------------------------------------------------------
+
+
+class NoRedirect(urllib.request.HTTPRedirectHandler):
+    """Lets us follow redirects ourselves so the auth token isn't sent to secondary servers unecessarily."""
+
+    def redirect_request(self, req, fp, code, msg, headers, newurl):
+        return None
+
+
+_opener = urllib.request.build_opener(NoRedirect)
+
+
+def get_token():
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        return token
+    sys.exit(
+        "No GitHub token found. Set GITHUB_TOKEN (needs Actions read access).")
+
+
+class GitHub:
+
+    def __init__(self, repo, token):
+        self.repo = repo
+        self.token = token
+
+    def _request(self, url, auth=True):
+        headers = {
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "find-flakey-ci-tests",
+        }
+        if auth:
+            headers["Authorization"] = f"Bearer {self.token}"
+        for attempt in range(4):
+            try:
+                return _opener.open(
+                    urllib.request.Request(url, headers=headers), timeout=120)
+            except urllib.error.HTTPError as e:
+                if e.code in (301, 302, 303, 307, 308):
+                    return e  # caller follows Location
+                if (e.code >= 500 or e.code == 429) and attempt < 3:
+                    time.sleep(2**attempt)
+                    continue
+                raise
+            except (urllib.error.URLError, TimeoutError):
+                if attempt < 3:
+                    time.sleep(2**attempt)
+                    continue
+                raise
+
+    def get_json(self, path, params):
+        with self._request(
+                f"{API}{path}?{urllib.parse.urlencode(params)}") as resp:
+            return json.load(resp)
+
+    def paginate(self, path, key, params):
+        page = 1
+        while True:
+            items = self.get_json(path, dict(params, per_page=100,
+                                             page=page)).get(key, [])
+            yield from items
+            if len(items) < 100:
+                return
+            page += 1
+
+    def job_log(self, job_id):
+        """Returns the job's log text, or None if it has expired."""
+        try:
+            resp = self._request(
+                f"{API}/repos/{self.repo}/actions/jobs/{job_id}/logs")
+            if resp.status in (301, 302, 303, 307, 308):
+                location = resp.headers["Location"]
+                resp.close()
+                resp = self._request(location, auth=False)
+            with resp:
+                return resp.read().decode("utf-8", errors="replace")
+        except urllib.error.HTTPError as e:
+            if e.code in (404, 410):
+                return None
+            raise
+
+
+# ---------------------------------------------------------------------------
+# Log parsing
+# ---------------------------------------------------------------------------
+
+
+def parse_summary(log_text):
+    """Returns {"failed": [...], "flaky": [...], "has_test_results": bool}.
+
+  Tests are identified as "file › describe › title" without line/column, so a
+  test is still grouped with itself after its file is edited.
+  """
+    result = {"failed": set(), "flaky": set(), "has_test_results": False}
+    section = None
+    for raw in log_text.splitlines():
+        line = ANSI_RE.sub("", TIMESTAMP_RE.sub("", raw)).rstrip()
+        header = SECTION_RE.match(line)
+        if header:
+            section = header.group(2)
+            result["has_test_results"] = True
+            continue
+        entry = ENTRY_RE.match(line) if section in ("failed", "flaky") else None
+        if entry:
+            title = TRAILING_RULE_RE.sub("", entry.group(2))
+            result[section].add(f"{entry.group(1)} › {title}")
+        else:
+            section = None
+    result["failed"] = sorted(result["failed"])
+    result["flaky"] = sorted(result["flaky"])
+    return result
+
+
+# ---------------------------------------------------------------------------
+# Ignore list
+# ---------------------------------------------------------------------------
+
+
+def parse_ignore_entry(entry):
+    """Parses "1811" or "1811:2" into (run_number, attempt); attempt None means all."""
+    match = re.fullmatch(r"(\d+)(?::(\d+))?", entry.strip())
+    if not match:
+        sys.exit(
+            f"Can't parse ignore entry {entry!r}; expected RUN or RUN:ATTEMPT, e.g. 1811:2"
+        )
+    return int(match.group(1)), int(match.group(2)) if match.group(2) else None
+
+
+def load_ignores(args):
+    # args.ignore is DEFAULT_IGNORES plus any --ignore values.
+    return {parse_ignore_entry(e) for e in args.ignore}
+
+
+def is_ignored(ignores, run_number, attempt=None):
+    """With attempt=None, true only when every attempt of the run is ignored."""
+    if run_number is None:
+        return False
+    return (run_number, None) in ignores or (
+        attempt is not None and (run_number, attempt) in ignores)
+
+
+# ---------------------------------------------------------------------------
+# Collection
+# ---------------------------------------------------------------------------
+
+
+def collect(args, gh, ignores):
+    """Downloads logs for new jobs from GitHub and saves a parsed record of each in the cache.
+
+  Returns nothing; the report is built afterwards from the cache by load_records().
+
+  Runs and jobs from the last `args.days` days are listed from GitHub on every
+  call, but a job's log is only downloaded when the cache has no record for it,
+  or only one from an older CACHE_VERSION. Skipped (not downloaded or cached):
+  ignored runs/attempts, jobs that were skipped or never finished, and jobs whose
+  log has expired.
+  """
+    since = (dt.datetime.now(dt.timezone.utc) -
+             dt.timedelta(days=args.days)).date()
+    runs = list(
+        gh.paginate(
+            f"/repos/{gh.repo}/actions/workflows/{args.workflow}/runs",
+            # response data key
+            "workflow_runs",
+            {
+                "created": f">={since.isoformat()}",
+                "status": "completed"
+            },
+        ))
+    print(
+        f"Found {len(runs)} runs of {args.workflow} since {since}.",
+        file=sys.stderr)
+
+    cache_dir = workflow_cache_dir(args)
+    os.makedirs(cache_dir, exist_ok=True)
+    fetched = 0
+    for run in runs:
+        if is_ignored(ignores, run.get("run_number")):
+            continue
+        # filter=all includes jobs from earlier attempts of re-run runs.
+        jobs = gh.paginate(
+            f"/repos/{gh.repo}/actions/runs/{run['id']}/jobs", "jobs",
+            {"filter": "all"})
+        for job in jobs:
+            if job.get("conclusion") in ("skipped", None):
+                continue
+            if is_ignored(ignores, run.get("run_number"), job.get("run_attempt",
+                                                                  1)):
+                continue
+            cache_path = os.path.join(cache_dir, f"{job['id']}.json")
+            if os.path.exists(cache_path):
+                with open(cache_path) as f:
+                    if json.load(f).get("cache_version") == CACHE_VERSION:
+                        continue
+            log = gh.job_log(job["id"])
+            if log is None:
+                continue  # expired; nothing to learn
+            fetched += 1
+            record = {
+                "cache_version": CACHE_VERSION,
+                "job_id": job["id"],
+                "job_url": job["html_url"],
+                "run_id": run["id"],
+                "run_number": run.get("run_number"),
+                "run_attempt": job.get("run_attempt", 1),
+                "event": run.get("event"),
+                "conclusion": job.get("conclusion"),
+                "created_at": job.get("started_at") or run.get("created_at"),
+                **parse_summary(log),
+            }
+            with open(cache_path, "w") as f:
+                json.dump(record, f)
+            print(
+                f"  parsed #{record['run_number']}:{record['run_attempt']}"
+                f" {record['created_at'][:10]}"
+                f" ({record['conclusion']}): {len(record['flaky'])} flaky,"
+                f" {len(record['failed'])} failed",
+                file=sys.stderr)
+    print(f"Downloaded {fetched} new logs.", file=sys.stderr)
+
+
+def workflow_cache_dir(args):
+    """The cache folder for one repo and workflow, e.g.
+    <cache-dir>/civiform/civiform-staging-deploy/aws_deploy.yaml.
+
+    Keeping each workflow's records apart means a report only ever counts runs
+    of the --repo and --workflow it was asked about.
+    """
+    owner, sep, name = args.repo.partition("/")
+    if not (owner and sep and name) or "/" in name:
+        sys.exit(f"--repo must be owner/name, got {args.repo!r}")
+    return os.path.join(args.cache_dir, owner, name, args.workflow)
+
+
+def load_records(cache_dir, days, ignores):
+    """Loads cached results, optionally limited to the last `days` days.
+
+    The limit is in whole UTC calendar days counting today: 1 keeps only today,
+    7 keeps today and the 6 days before it, each from midnight.
+
+    Returns (records, number of cached records left out by the ignore list).
+    """
+    cutoff = None
+    if days:
+        # A date string like "2026-11-11" sorts before every timestamp on that
+        # day ("2026-11-11T06:13:59Z"), so comparing strings keeps that whole day.
+        cutoff = (
+            dt.datetime.now(dt.timezone.utc).date() -
+            dt.timedelta(days=days - 1)).isoformat()
+    records = []
+    skipped = 0
+    for path in glob.glob(os.path.join(cache_dir, "*.json")):
+        with open(path) as f:
+            rec = json.load(f)
+        if rec.get("cache_version") != CACHE_VERSION:
+            continue
+        if cutoff and (rec.get("created_at") or "") < cutoff:
+            continue
+        if is_ignored(ignores, rec.get("run_number"), rec.get("run_attempt",
+                                                              1)):
+            skipped += 1
+            continue
+        records.append(rec)
+    return records, skipped
+
+
+# ---------------------------------------------------------------------------
+# Reporting
+# ---------------------------------------------------------------------------
+
+
+def aggregate(records, max_failures):
+    stats = defaultdict(lambda: {"flaky": 0, "failed": 0, "last_seen": ""})
+    ignored = 0
+    for rec in records:
+        # Many hard failures in one run usually means staging was down or the
+        # deploy was broken, not flakiness, so those are left out.
+        failed = rec["failed"]
+        if max_failures is not None and len(failed) > max_failures:
+            ignored += 1
+            failed = []
+        for kind, tests in (("flaky", rec["flaky"]), ("failed", failed)):
+            for test in tests:
+                s = stats[test]
+                s[kind] += 1
+                if (rec["created_at"] or "") > s["last_seen"]:
+                    s["last_seen"] = rec["created_at"]
+    ranked = sorted(
+        stats.items(),
+        key=lambda kv: (kv[1]["flaky"] + kv[1]["failed"], kv[1]["last_seen"]),
+        reverse=True,
+    )
+    return ranked, ignored
+
+
+def print_report(ranked, records, ignored, skipped, top):
+    parsed = [r for r in records if r["has_test_results"]]
+    dates = sorted(r["created_at"] for r in parsed if r["created_at"])
+
+    print()
+    print("Staging browser test flakiness")
+    print("=" * 30)
+    if dates:
+        print(f"Window:      {dates[0][:10]} to {dates[-1][:10]}")
+    print(f"Test runs:   {len(parsed)}")
+    if len(records) > len(parsed):
+        print(
+            f"No results:  {len(records) - len(parsed)}  (deploy failed or tests didn't finish)"
+        )
+    if skipped:
+        print(f"Ignored:     {skipped} run attempt(s) on the ignore list")
+    if ignored:
+        print(
+            f"Outages:     hard failures dropped from {ignored} run(s) with more than --max-failures"
+        )
+    print()
+
+    if not ranked:
+        print("No flaky or failed tests found.")
+        return
+
+    header = f"{'Flaky':>5} {'Failed':>6} {'Rate%':>6}  {'Last seen':<10}  Test"
+    print(header)
+    print("-" * len(header))
+    # --top keeps the most frequent tests; those are shown most recently seen first,
+    # with ties going to the test with more occurrences.
+    rows = sorted(
+        ranked[:top or None],
+        key=lambda kv: (kv[1]["last_seen"], kv[1]["flaky"] + kv[1]["failed"]),
+        reverse=True,
+    )
+    for test, s in rows:
+        rate = 100.0 * (s["flaky"] + s["failed"]) / len(parsed) if parsed else 0
+        print(
+            f"{s['flaky']:>5} {s['failed']:>6} {rate:>6.1f}  {s['last_seen'][:10]:<10}  {test}"
+        )
+    print()
+    print("Flaky  = failed, then passed on retry (the run still passed)")
+    print("Failed = failed both attempts")
+    print("Rate%  = (flaky + failed) / test runs")
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=__doc__,
+        formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser.add_argument(
+        "--repo",
+        default="civiform/civiform-staging-deploy",
+        help="owner/name (default: %(default)s)")
+    parser.add_argument(
+        "--workflow",
+        default="aws_deploy.yaml",
+        help="workflow file (default: %(default)s)")
+    parser.add_argument(
+        "--days",
+        type=int,
+        default=30,
+        help="how far back to fetch logs (default: %(default)s)")
+    parser.add_argument(
+        "--report-days",
+        type=int,
+        default=10,
+        help="limit the report to the last N UTC calendar days, counting today"
+        " (1 = today only); 0 for all cached history (default: %(default)s)")
+    parser.add_argument(
+        "--max-failures",
+        type=int,
+        default=5,
+        help="ignore hard failures from runs with more than this many,"
+        " since those are usually outages rather than flakes; flaky"
+        " tests from those runs still count. -1 to disable."
+        " (default: %(default)s)")
+    parser.add_argument(
+        "--top",
+        type=int,
+        default=50,
+        help="rows to print; 0 for all (default: %(default)s)")
+    parser.add_argument(
+        "--cache-dir",
+        default=os.path.join(
+            os.path.expanduser("~"), ".cache", "civiform-flakey-ci-tests"),
+        help="where parsed per-job results are kept, in a subfolder per repo"
+        " and workflow: <cache-dir>/<owner>/<name>/<workflow>"
+        " (default: %(default)s)")
+    parser.add_argument(
+        "--ignore",
+        action="append",
+        metavar="RUN[:ATTEMPT]",
+        # A copy, because "append" adds the command line values to this list.
+        default=list(DEFAULT_IGNORES),
+        help="run number to leave out, e.g. 1811 for every attempt or"
+        " 1811:2 for only attempt 2. Repeatable; added to the defaults."
+        " (default: %(default)s)")
+    parser.add_argument(
+        "--offline",
+        action="store_true",
+        help="skip GitHub and report from cached results only")
+    parser.add_argument(
+        "--parse-file",
+        metavar="LOG",
+        help=
+        "parse one downloaded log file, print its flaky/failed tests, and exit")
+    args = parser.parse_args()
+
+    if args.parse_file:
+        with open(args.parse_file, encoding="utf-8", errors="replace") as f:
+            print(
+                json.dumps(
+                    parse_summary(f.read()), indent=2, ensure_ascii=False))
+        return
+
+    ignores = load_ignores(args)
+    if not args.offline:
+        collect(args, GitHub(args.repo, get_token()), ignores)
+
+    records, skipped = load_records(
+        workflow_cache_dir(args), args.report_days, ignores)
+    ranked, ignored = aggregate(
+        records, None if args.max_failures < 0 else args.max_failures)
+    print_report(ranked, records, ignored, skipped, args.top)
+
+
+if __name__ == "__main__":
+    main()

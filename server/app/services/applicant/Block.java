@@ -56,22 +56,31 @@ public final class Block {
   private final ApplicantModel applicant;
   private final ApplicantData applicantData;
   private final Optional<RepeatedEntity> repeatedEntity;
+  private final boolean enumeratorImprovementsEnabled;
 
   private Optional<ImmutableList<ApplicantQuestion>> questionsMemo = Optional.empty();
   private Optional<ImmutableMap<Path, ScalarType>> scalarsMemo = Optional.empty();
   private Optional<ApplicantQuestion> enumeratorQuestion = Optional.empty();
 
+  /**
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on for the
+   *     request this block is built for. It decides whether an enumerator's initial question takes
+   *     part in the block's answered, completion, and error checks; see {@link
+   *     #initialQuestionFlowIsActive}.
+   */
   Block(
       String id,
       BlockDefinition blockDefinition,
       ApplicantModel applicant,
       ApplicantData applicantData,
-      Optional<RepeatedEntity> repeatedEntity) {
+      Optional<RepeatedEntity> repeatedEntity,
+      boolean enumeratorImprovementsEnabled) {
     this.id = id;
     this.blockDefinition = checkNotNull(blockDefinition);
     this.applicant = checkNotNull(applicant);
     this.applicantData = checkNotNull(applicantData);
     this.repeatedEntity = checkNotNull(repeatedEntity);
+    this.enumeratorImprovementsEnabled = enumeratorImprovementsEnabled;
   }
 
   public String getId() {
@@ -222,26 +231,27 @@ public final class Block {
   }
 
   /**
-   * Returns true when the entities on this enumerator block were produced through the
-   * initial-question flow, rather than the legacy free-text entity-name input.
-   *
-   * <p>Detected from the data, not from configuration: an initial question can be configured on the
-   * block while the entities were still entered the legacy way (e.g. the enumerator-improvements
-   * flag is off). Each initial-question answer is stored with a {@code program_updated_in} marker
-   * at the question's own nested path. The legacy free-text input only stores an entity name and
-   * never writes to the initial question's path, so that marker is absent there. The mere presence
-   * of the marker is therefore the signal, independent of which program wrote it: an entity
-   * answered through the new flow in a different program still reads as the new flow here.
+   * Returns true when this enumerator block should use the initial-question flow.
    *
    * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
    * check in {@link services.applicant.question.EnumeratorQuestion}.
    */
   public boolean initialQuestionFlowIsActive() {
-    if (!isEnumerator()) {
-      return false;
+    return enumeratorImprovementsEnabled && getInitialQuestion().isPresent();
+  }
+
+  /**
+   * Returns the questions that should be used in determining if this block has been correctly
+   * filled out.
+   */
+  private ImmutableList<ApplicantQuestion> getQuestionsToValidate() {
+    if (!initialQuestionFlowIsActive()) {
+      return getVisibleQuestions();
     }
-    return getContextualizedInitialQuestions().stream()
-        .anyMatch(question -> question.getUpdatedInProgramMetadata().isPresent());
+    return ImmutableList.<ApplicantQuestion>builder()
+        .addAll(getVisibleQuestions())
+        .addAll(getContextualizedInitialQuestions())
+        .build();
   }
 
   /**
@@ -487,12 +497,7 @@ public final class Block {
    * failures to update the {@link ApplicantData}.
    */
   public boolean hasErrors() {
-    // Only check the initial question when the entities came through the initial-question flow.
-    // Entities entered through the legacy input (e.g. with the enumerator improvements flag off)
-    // have no initial question answers, so checking them would block the applicant.
-    return getVisibleQuestions().stream().anyMatch(ApplicantQuestion::hasErrors)
-        || (initialQuestionFlowIsActive()
-            && getContextualizedInitialQuestions().stream().anyMatch(ApplicantQuestion::hasErrors))
+    return getQuestionsToValidate().stream().anyMatch(ApplicantQuestion::hasErrors)
         || !applicantData.getFailedUpdates().isEmpty();
   }
 
@@ -512,7 +517,7 @@ public final class Block {
    * AbstractQuestion#isAnswered()}.
    */
   private boolean isAnswered() {
-    return getVisibleQuestions().stream().allMatch(ApplicantQuestion::isAnswered);
+    return getQuestionsToValidate().stream().allMatch(ApplicantQuestion::isAnswered);
   }
 
   public int answeredQuestionsCount() {
@@ -557,9 +562,8 @@ public final class Block {
    * AND each of its optional questions is answered or intentionally skipped.
    */
   private boolean isCompleteInProgram() {
-    return getVisibleQuestions().isEmpty()
-        || getVisibleQuestions().stream()
-            .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
+    return getQuestionsToValidate().stream()
+        .allMatch(ApplicantQuestion::isAnsweredOrSkippedOptionalInProgram);
   }
 
   /** Returns true if this block contains only optional questions and false otherwise. */
@@ -578,7 +582,7 @@ public final class Block {
    */
   public boolean wasAnsweredInProgram(long programId) {
     return isAnsweredWithoutErrors()
-        && getVisibleQuestions().stream()
+        && getQuestionsToValidate().stream()
             .anyMatch(
                 q -> {
                   Optional<Long> lastUpdatedInProgram = q.getUpdatedInProgramMetadata();
