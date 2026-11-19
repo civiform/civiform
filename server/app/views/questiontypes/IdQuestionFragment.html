@@ -54,7 +54,11 @@
   th:with="idQuestion=${question.createIdQuestion()},
               fieldErrors=${idQuestion.getValidationErrors().get(idQuestion.getIdPath())},
               questionErrors=${idQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${questionRendererParams.shouldShowErrors() && !idQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !idQuestion.getValidationErrors().isEmpty()},
+              standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+              initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+                : ariaDescribedby == null ? errorAnchorId + '-error'
+                : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -75,7 +79,7 @@
     th:value="${idQuestion.getIdValue().orElse('')}"
     maxlength="10000"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+    th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
     th:autofocus="${questionRendererParams.autofocusSingleField()}"
