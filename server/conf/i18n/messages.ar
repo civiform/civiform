@@ -788,9 +788,9 @@ validation.currentDateRequired=يُرجى إدخال تاريخ اليوم
 # Validation hint shown when the year field does not contain exactly 4 digits.
 validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=يُرجى تحديد شهر.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=يُرجى إدخال يوم.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
@@ -1315,9 +1315,9 @@ alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated que
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=previous screen
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+alert.repeatedSet.initialQuestionArchived=تمت أرشفة السؤال الأولي. يُرجى تحديد سؤال أولي جديد
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=لم يتم العثور على السؤال الأولي. يُرجى تحديد سؤال أولي جديد
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
@@ -1377,7 +1377,7 @@ button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=المتابعة إلى الشاشة الفرعية
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Add question
 # A button on a question card for admins to remove the question from the screen.
