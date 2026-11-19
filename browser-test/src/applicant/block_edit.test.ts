@@ -1,5 +1,6 @@
-import {test} from '../support/civiform_fixtures'
+import {expect, test} from '../support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -105,6 +106,33 @@ test.describe('Applicant block edit', () => {
     )
 
     await validateScreenshot(page, 'block-edit-page-theme')
+  })
+
+  test('switches language after a validation error with program slug URLs', async ({
+    page,
+    applicantQuestions,
+    applicantProgramOverview,
+  }) => {
+    await enableFeatureFlag(page, 'program_slug_urls_enabled')
+    await applicantQuestions.clickApplyProgramButton(programName)
+    await applicantProgramOverview.startApplicationFromProgramOverviewPage(
+      programName,
+    )
+
+    await test.step('Submit the block with required questions unanswered', async () => {
+      await applicantQuestions.clickContinue()
+      await expect(
+        page.getByText('This question is required').first(),
+      ).toBeVisible()
+    })
+
+    await test.step('Switch language from the error page', async () => {
+      await selectApplicantLanguage(page, 'es-US')
+      await expect(page).toHaveURL(
+        /\/programs\/test-program-for-block-edit-page\/blocks\/1\/edit/,
+      )
+      await expect(page.getByText(dateQuestionText)).toBeVisible()
+    })
   })
 
   test('renders right to left on block edit page', async ({
