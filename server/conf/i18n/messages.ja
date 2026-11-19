@@ -37,7 +37,7 @@ heading.informationAriaLabelPrefix=参考情報: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=成功: {0}
 # Hidden text read by screen readers before a warning message, so users know the message is a warning.
-heading.warningPrefix=Warning:
+heading.warningPrefix=警告：
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=セッションは終了しました。
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -376,17 +376,17 @@ title.programOverview={0} - プログラムの概要
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=申請方法
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=申請を開始
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=申請の準備はできましたか？これまでの入力内容を保存するには、ログインしてください。
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=申請を開始
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=申請を続ける
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=ログインして申請を開始
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=アカウントを使って再度ログインし、申請状況を確認したり、他のプログラムへ申請する時間を短縮したりしましょう。
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview={0} プログラムへの申請
 # The text on the button that takes users to the account creation form.
@@ -792,7 +792,7 @@ validation.monthRequired=月を選択してください。
 # Validation error shown when the day field was left blank.
 validation.dayRequired=日付を入力してください。
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=1から31までの有効な日付を入力してください。
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - 1 月
 # A month option when selecting a specific date from a dropdown menu.
@@ -1285,15 +1285,15 @@ input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
 input.repeatedSet.minListCount=最小リスト数
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=最大リスト数
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=最初の質問
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=各項目・人物を特定するための質問を追加してください。例えば、申請者が世帯員を記載している場合は、各世帯員の氏名を収集するための質問を追加してください。
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=既存の質問を選択すると、システムによってこのリストセット用のコピーが質問バンクに保存されます。元の質問は変更されません。
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=注：申請者には、この質問自体の指示やヒントではなく、あなたのリストセットの指示やヒントのテキストが表示されます。
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=管理者ID：
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
@@ -1301,19 +1301,19 @@ description.repeatedSet.initialQuestionAdminId=申請者はこの質問を使っ
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=最初の質問は、保存すると削除できなくなります。
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=これにより、このリストセットを使用している{0}も更新されます。
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=これにより、このリストセットを使用している{0}も更新されます。
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=1件のプログラム
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany={0}件のプログラム
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=最初の質問を保存
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=繰り返し使用する質問を追加する前に、リストセットを追加してください。{0}に移動して追加してください。
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=前の画面
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=最初の質問はアーカイブされました。新しい最初の質問を選択してください
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
@@ -1329,7 +1329,7 @@ button.repeatedSet.submitNew=リストセットを作成
 # Button for admins to add a new list set
 button.repeatedSet.addNew=リストセット画面を追加
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=リストセットを追加
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=最初の質問を追加
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
@@ -1345,21 +1345,21 @@ text.repeatedSet.addQuestionDescription=リストセットは申請者に対し�
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=申請者が記載した各項目・人物について、当該申請者に回答してほしい質問を追加してください。
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=質問バンクから既存の質問を選択した場合、システムによってこのリストセット用のコピーが保存されます。元の質問は変更されません。
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=この質問は、申請者が追加する各項目・人物に対して繰り返し使用されます。例えば、申請者はリストアップする世帯員ごとに一度ずつ、この質問に回答します。
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=関連付けられたリストセット
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=リストセット
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=このリストセットで以前使用された
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=リストセットを追加
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=繰り返しの質問
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=各{0}に関して繰り返し使用する質問
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=申請者がリストアップする項目・人物（「世帯員」や「収入源」など）を入力してください。
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
