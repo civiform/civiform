@@ -1259,11 +1259,11 @@ session.length.warning.message.loggedIn=Phiên làm việc của bạn sắp h�
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=
+heading.repeatedSet.creationMethod=List set creation method
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=
+option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=
+option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
 label.repeatedSet.newSetForm=
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
