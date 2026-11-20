@@ -37,7 +37,7 @@ heading.informationAriaLabelPrefix=Thông tin bạn cần biết: {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=Thành công: {0}
 # Hidden text read by screen readers before a warning message, so users know the message is a warning.
-heading.warningPrefix=Warning:
+heading.warningPrefix=Cảnh báo:
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Phiên của bạn đã kết thúc.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -386,7 +386,7 @@ button.continueApplication=Tiếp tục đơn đăng ký
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Đăng nhập để bắt đầu đơn đăng ký
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=Sử dụng tài khoản để đăng nhập lại nhằm kiểm tra trạng thái đơn đăng ký và tiết kiệm thời gian khi nộp đơn cho các chương trình khác.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Đăng ký chương trình {0}
 # The text on the button that takes users to the account creation form.
@@ -1283,15 +1283,15 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=Số lượng tối thiểu trong danh sách
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=Số lượng tối đa trong danh sách
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Câu hỏi ban đầu
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Thêm câu hỏi xác định từng mục hoặc từng người. Ví dụ: nếu người nộp đơn đang liệt kê các thành viên hộ gia đình, hãy thêm câu hỏi thu thập tên của từng thành viên.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=Nếu bạn chọn một câu hỏi có sẵn, hệ thống sẽ lưu một bản sao vào ngân hàng câu hỏi cho bộ danh sách này. Câu hỏi gốc vẫn giữ nguyên.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Lưu ý: Người nộp đơn sẽ thấy nội dung lời nhắc và nội dung gợi ý của bộ danh sách thay vì nội dung lời nhắc và nội dung gợi ý riêng của câu hỏi này.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
@@ -1329,7 +1329,7 @@ button.repeatedSet.submitNew=Tạo bộ danh sách
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Thêm màn hình bộ danh sách
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=Thêm bộ danh sách
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Thêm câu hỏi ban đầu
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
@@ -1339,47 +1339,47 @@ text.repeatedSet=Bộ danh sách
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Bộ danh sách lồng nhau
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=Người nộp đơn sẽ thấy đối tượng được liệt kê mà họ đã trả lời ở câu hỏi ban đầu hiển thị như một phần của tên màn hình. Bạn có thể thêm nội dung vào ô đầu tiên bên dưới để cung cấp thêm ngữ cảnh. Ví dụ: nếu câu hỏi ban đầu hỏi về thành viên hộ gia đình và người nộp đơn liệt kê "Jennifer", tên màn hình có thể là: "Jennifer - Thông tin cơ bản".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=Bộ danh sách yêu cầu người nộp đơn thêm các mục hoặc người vào danh sách.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Thêm các câu hỏi bạn muốn người nộp đơn trả lời về từng mục hoặc từng người họ liệt kê.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=Nếu bạn chọn một câu hỏi có sẵn từ ngân hàng câu hỏi, hệ thống sẽ lưu một bản sao cho bộ danh sách này. Câu hỏi gốc vẫn giữ nguyên.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=Câu hỏi này sẽ lặp lại cho từng mục hoặc từng người mà người nộp đơn thêm vào. Ví dụ: người nộp đơn sẽ trả lời câu hỏi này một lần cho mỗi thành viên hộ gia đình mà họ liệt kê.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=Bộ danh sách liên kết
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=Bộ danh sách
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Đã sử dụng trước đây cho bộ danh sách này
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=Thêm bộ danh sách
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Câu hỏi lặp lại
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=Câu hỏi lặp lại về từng {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity=Nhập các mục hoặc người mà người nộp đơn liệt kê, chẳng hạn như "thành viên hộ gia đình" hoặc "nguồn thu nhập".
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=Chúng tôi sẽ điền ID này dựa trên nội dung bạn nhập ở trên. Vui lòng tùy chỉnh nếu cần.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=Nhập nội dung nhắc người nộp đơn thêm từng mục hoặc từng người.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=Nhập gợi ý giúp người nộp đơn quyết định nên thêm gì. Ví dụ: "Không bao gồm bản thân bạn".
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=Từ màn hình này, hãy tạo câu hỏi mới cho bộ danh sách. Chúng tôi sẽ lưu câu hỏi đó vào ngân hàng câu hỏi để bạn sử dụng sau này.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=Thêm một bộ danh sách có sẵn từ ngân hàng câu hỏi.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=Thêm màn hình con
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Thêm bộ danh sách lồng nhau
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Tiếp tục đến màn hình con
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=Thêm câu hỏi
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Gỡ bỏ
 # A tooltip shown to admins when the delete screen button is disabled
