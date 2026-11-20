@@ -1323,7 +1323,7 @@ alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Cuando creas un conjunto de lista, el sistema lo guarda en el banco de preguntas.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=Las preguntas que pertenecen a otro conjunto de listas no están disponibles.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
