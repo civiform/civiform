@@ -1323,7 +1323,7 @@ alert.repeatedSet.initialQuestionRequired=እባክዎ የመነሻ ጥያቄ �
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=ይህንን ዝርዝር ስብስብ ሲፈጥሩ፣ ስርዓቱ ወደ ጥያቄ ስብስብ ያስቀምጠዋል።
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=በሌላ ዝርዝር ስብስብ ውስጥ የሆኑ ጥያቄዎች አይገኙም።
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
