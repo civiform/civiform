@@ -1367,7 +1367,7 @@ description.repeatedSet.adminId=Waxaanu ku buuxin doonaa Aqoonsigan diiwaankaaga
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=Geli qoraalka u tilmaama codsadayaasha inay ku daraan shay kasta ama qof.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=Geli tilmaanta caawisa codsadayaasha inay go'aansadaan waxa lagu darao. Tusaale ahaan, "Naftaada haku darin."
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
