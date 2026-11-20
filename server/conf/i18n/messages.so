@@ -1321,7 +1321,7 @@ alert.repeatedSet.initialQuestionNotFound=Su'aasha hore lama helin. Dooro su'aal
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Fadlan ku dar su'aasha hore
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Markaad samayso qaybtan liiska, nidaamku waxa uu ku kaydiyaa kaydka su'aasha.
+alert.repeatedSet.newQuestion=Markaad samayso qaybtan liiska, nidaamku waxa uu ku kaydiyaa kaydka su'aalaha.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Su'aalaha qaybta liiska kale ka mid ah lama heli karo.
 # Submission button for creating a new list set
