@@ -1379,7 +1379,7 @@ button.addNestedRepeatedSet=Agregar conjunto de listas anidadas
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Continuar a la pantalla secundaria
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=Agregar pregunta
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
