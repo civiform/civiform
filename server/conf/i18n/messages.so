@@ -1363,7 +1363,7 @@ heading.repeatedQuestionsAboutEntity=Su'aalaha lagu celceliyay ee ku saabsan mid
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=Geli sheeyada ama dadka codsadahu qoro, sida "xubinta qoyska" ama "isha dakhliga."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=Waxaanu ku buuxin doonaa Aqoonsigan diiwaankaaga sare. Fadlan ku habboonaysii sida loogu baahdo.
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
