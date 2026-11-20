@@ -1339,7 +1339,7 @@ text.repeatedSet=ዝርዝር ስብስብ
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=የታቀፈ ዝርዝር ስብስብ
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=አመልካቾች ከመነሻ ጥያቄ የመለሱትን ዝርዝር አካል እንደ ማያ ገጹ ስም አካል አድርገው ያያሉ። ተጨማሪ አውድ ለማቅረብ ከዚህ በታች ባለው የመጀመሪያ ሳጥን ውስጥ ተጨማሪ ጽሑፍ ማከል ይችላሉ። ለምሳሌ፣ የመነሻ ጥያቄው የቤተሰብ አባላትን የሚጠይቅ ከሆነ  እና አመልካቹ "ጄኒፈር"  ብሎ የሚዘረዝር ከሆነ፣ የማያ ገጹ ስም፦ "ጄኒፈር - የጀርባ የበስተኋላ ታሪክ መረጃ" ሊሆን ይችላል።
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
