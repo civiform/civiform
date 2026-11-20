@@ -792,7 +792,7 @@ validation.monthRequired=እባክዎ ወር ያስገቡ።
 # Validation error shown when the day field was left blank.
 validation.dayRequired=እባክዎ ቀን ያስገቡ።
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=እባክዎ ከ1 እስከ 31 ትክክለኛ ቀን ያስገቡ።
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - ጃኑዋሪ
 # A month option when selecting a specific date from a dropdown menu.
@@ -1059,7 +1059,7 @@ adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ 
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = ምስል ያሳድጉ
 
 # Label shown to indicate that an image will open in a new tab
 staticQuestion.enlargeImageScreenReaderText=opens in a new tab
