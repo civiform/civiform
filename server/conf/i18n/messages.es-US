@@ -790,7 +790,7 @@ validation.yearMustBeFourDigits=Introduce un año de 4 dígitos; por ejemplo, 19
 # Validation error shown when the month was not selected.
 validation.monthRequired=Selecciona un mes.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=Introduce un día.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
