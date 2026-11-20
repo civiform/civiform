@@ -1355,9 +1355,9 @@ heading.repeatedSet.question=ዝርዝር ስብስብ
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=ለዚህ ዝርዝር ስብስብ አስቀድሞ ጥቅም ላይ የዋለ
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=ዝርዝር ስብስብ ያክሉ
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=የተደጋገሙ ጥያቄዎች
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=ስለ {0} የተደጋገሙ ጥያቄዎች
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
