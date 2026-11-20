@@ -1381,7 +1381,7 @@ button.continueToChildScreen=Continuar a la pantalla secundaria
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Agregar pregunta
 # A button on a question card for admins to remove the question from the screen.
-button.removeQuestion=Quitar
+button.removeQuestion=Eliminar
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=Esta pantalla no se puede eliminar porque tiene pantallas repetidas vinculadas a ella.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
