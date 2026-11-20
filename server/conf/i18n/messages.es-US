@@ -1327,7 +1327,7 @@ alert.repeatedSet.previouslyUsed=Las preguntas que pertenecen a otro conjunto de
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Crear un conjunto de listas
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set screen
+button.repeatedSet.addNew=Agregar pantalla de conjunto de preguntas
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Add list set
 # Button on the new list set form that opens the question bank so admins can add the initial question
