@@ -1269,7 +1269,7 @@ label.repeatedSet.newSetForm=Samee qayb liis cusub ah
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=Maxaa liiska lagu darayaa?
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=Qor qaybta Aqoonsiga maamulka
+input.repeatedSet.adminId=Aqoonsiga maamulka qaybta liiska
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=Qoraal fariin ah
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
