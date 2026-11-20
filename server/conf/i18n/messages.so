@@ -1291,7 +1291,7 @@ label.repeatedSet.initialQuestion=Su'aasha hore
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Ku dar su'aal aqoonsata shay kasta ama qof, tusaale ahaan, haddi codsadayaashu ay qorayaan xubnaha qoyska, ku dar su'aal si loo soo urursho magaca xubin kasta.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=Haddii aad doorato su'aal jirta, nidaamku waxa uu kaydiyaa koobiiga qaybtan liiska gudaha kaydka su'aasha. Joogida asalka ah isma beddesho.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
