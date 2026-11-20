@@ -1062,7 +1062,7 @@ adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaa
 staticQuestion.imageEnlargeText = Waynee sawirka
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=ka furma taab cusub
 
 #----------------------------------#
 # ERRORS - various error messages  #
