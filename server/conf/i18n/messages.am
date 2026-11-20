@@ -1371,7 +1371,7 @@ description.repeatedSet.hintText=አመልካቾች ምን እንደሚያክሉ
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=ከዚህ የማያ ገጽ አዲስ ዝርዝር ስብስብ ጥያቄዎችን ይፍጠሩ። ለወደፊት አጠቃቀም በትያቄ ስብስቡ ውስጥ ለእርስዎ እናስቀምጠዋለን።
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=ከጥያቄ ስብስቡ ነባር የዝርዝር ስብስብ ያክሉ።
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
