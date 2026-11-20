@@ -1295,7 +1295,7 @@ description.repeatedSet.initialQuestionCopy=Si eliges una pregunta existente, el
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Nota: Los solicitantes ven el texto de indicación y de sugerencia de tu conjunto de listas, en lugar del texto de indicación y de sugerencia propios de esta pregunta.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=ID de administrador:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
 description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
