@@ -1,7 +1,9 @@
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
-import {hideError, showError} from '@/file_upload_util'
+import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 
 const FILE_INPUT_ID = 'question-image-input'
+const FILE_TOO_LARGE_MESSAGE_ATTR = 'data-file-too-large-message'
+const UPLOAD_ERRORS_ID = 'question-image-file-input-errors'
 const ALT_INPUT_ID = 'questionImageDescription'
 const ALT_ERROR_ID = 'error-message-questionImageDescription'
 const DELETE_BUTTON_ID = 'delete-question-image-button'
@@ -96,6 +98,25 @@ export function init() {
     if (!syncAndValidate()) {
       e.preventDefault()
       altInput.focus()
+    }
+  })
+
+  // Blocks the upload when the file is over the configured limit. The error goes in the
+  // same element the server's errors replace, so the next upload response clears it.
+  document.body.addEventListener('htmx:beforeRequest', (event) => {
+    const input = event.detail.elt
+    if (
+      input.id !== FILE_INPUT_ID ||
+      !isFileTooLarge(input as HTMLInputElement)
+    ) {
+      return
+    }
+    event.preventDefault()
+    const uploadErrors = document.getElementById(UPLOAD_ERRORS_ID)
+    if (uploadErrors) {
+      uploadErrors.textContent =
+        input.getAttribute(FILE_TOO_LARGE_MESSAGE_ATTR) ?? ''
+      uploadErrors.className = 'text-red-600 text-base py-2'
     }
   })
 

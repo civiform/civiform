@@ -10,6 +10,7 @@ import java.time.ZoneId;
 import java.util.Optional;
 import java.util.UUID;
 import javax.inject.Inject;
+import javax.inject.Singleton;
 import play.Environment;
 import services.cloud.PublicStorageClient;
 import services.cloud.StorageUploadRequest;
@@ -20,6 +21,7 @@ import services.cloud.StorageUploadRequest;
  * <p>TODO(#9213): Complete program card image upload for azure, as is, this is a no-op, test-only
  * implementation of the AzurePublicStorage class.
  */
+@Singleton
 public class AzurePublicStorage extends PublicStorageClient {
   @VisibleForTesting
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";

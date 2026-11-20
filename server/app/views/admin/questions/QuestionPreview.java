@@ -1,5 +1,7 @@
 package views.admin.questions;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import auth.CiviFormProfile;
 import com.google.auto.value.AutoValue;
 import com.google.common.collect.ImmutableList;
@@ -21,6 +23,7 @@ import services.applicant.ApplicantPersonalInfo;
 import services.applicant.RepeatedEntity;
 import services.applicant.question.AddressQuestion;
 import services.applicant.question.ApplicantQuestion;
+import services.cloud.ApplicantStorageClient;
 import services.program.ProgramQuestionDefinition;
 import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.EnumeratorQuestionDefinition;
@@ -33,6 +36,8 @@ import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
 public class QuestionPreview extends ApplicantBaseView {
 
+  private final ApplicantStorageClient applicantStorageClient;
+
   @Inject
   QuestionPreview(
       TemplateEngine templateEngine,
@@ -42,7 +47,8 @@ public class QuestionPreview extends ApplicantBaseView {
       SettingsManifest settingsManifest,
       LanguageUtils languageUtils,
       DeploymentType deploymentType,
-      Clock clock) {
+      Clock clock,
+      ApplicantStorageClient applicantStorageClient) {
     super(
         templateEngine,
         playThymeleafContextFactory,
@@ -52,6 +58,7 @@ public class QuestionPreview extends ApplicantBaseView {
         languageUtils,
         deploymentType,
         clock);
+    this.applicantStorageClient = checkNotNull(applicantStorageClient);
   }
 
   public String render(Params params) {
@@ -95,7 +102,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable(
         "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(params.request()));
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
-    context.setVariable("maxFileSizeMb", 100);
+    context.setVariable("maxFileSizeMb", applicantStorageClient.getFileLimitMb());
     context.setVariable(
         "fileUploadAllowedFileTypeSpecifiers",
         settingsManifest.getFileUploadAllowedFileTypeSpecifiers().orElse("image/*,.pdf"));
