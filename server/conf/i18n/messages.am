@@ -1277,7 +1277,7 @@ input.repeatedSet.adminIdAutofillSuggestion={0} የዝርዝር ስብስብ
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=እባክዎ እያንዳንዱን {0} ይጨምሩ።
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=የጥቆማ ጽሑፍ
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
