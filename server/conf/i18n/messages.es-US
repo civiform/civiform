@@ -786,9 +786,9 @@ validation.dateTooFarInFuture=La fecha debe ser anterior al {0}
 validation.dateNotInRange=La fecha debe ser entre el {0} y el {1}
 validation.currentDateRequired=Ingresa la fecha de hoy
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=Introduce un año de 4 dígitos; por ejemplo, 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=Selecciona un mes.
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Please enter a day.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
