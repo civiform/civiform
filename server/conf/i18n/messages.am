@@ -1383,9 +1383,9 @@ button.addQuestion=ጥያቄ ያክሉ
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=ያስወግዱ
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+tooltip.deleteScreenDisabled=ይህ ማያ ገጽ ሊሰረዝ አይችልም ምክንያቱም የተደጋገሙ የተያያዙ የገጽ እይታዎች አሉት።
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
+tooltip.removeEnumeratorQuestionDisabled=ይህ ጥያቄ ሊወገድ አይችልም ምክንያቱም የተያያዙ የክትትል ጥያቄዎች አሉት።
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
