@@ -1361,7 +1361,7 @@ heading.repeatedQuestions=Repeated questions
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=ስለ {0} የተደጋገሙ ጥያቄዎች
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity=እንደ "ቤተሰብ አባል" ወይም "የገቢ ምንጭ" ያሉ አንድ አመልካች የሚዘረዝራቸውን ንጥሎች ወይም ሰዎች ያስገቡ።
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
