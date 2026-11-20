@@ -1311,9 +1311,9 @@ text.repeatedSet.backfillProgramCountMany={0} programas
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=Guardar pregunta inicial
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Agrega un conjunto de listas antes de incluir preguntas repetidas. Para agregar uno, dirígete a: {0}.
+alert.repeatedSet.addQuestionDisabled=Agrega un conjunto de listas antes de incluir preguntas repetidas. Para agregar uno, dirígete a la {0}.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=pantalla anterior
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
