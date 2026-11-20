@@ -1319,7 +1319,7 @@ alert.repeatedSet.initialQuestionArchived=Se ha archivado la pregunta inicial. S
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
 alert.repeatedSet.initialQuestionNotFound=No se ha encontrado la pregunta inicial. Selecciona una nueva pregunta inicial
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Please add an initial question
+alert.repeatedSet.initialQuestionRequired=Agrega una pregunta inicial
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Cuando creas un conjunto de lista, el sistema lo guarda en el banco de preguntas.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
