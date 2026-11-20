@@ -1313,7 +1313,7 @@ button.repeatedSet.initialQuestion.save=Kaydi su'aasha hore
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Ku dar qaybta liiska ka hor inta aanad ku darin su'aalaha lagu soo celiyo. Tag ilaa {0} si mid loogu daro.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=shaashada hore
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
