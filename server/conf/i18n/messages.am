@@ -1365,7 +1365,7 @@ description.repeatedSet.listedEntity=እንደ "ቤተሰብ አባል" ወይ�
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=እርስዎ ከላይ ባስገቡት ላይ በመመስረት በዚህ መለያ ውስጥ እንሞላለን። እባክዎ እንደ አስፈላጊነቱ ያብጁ።
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=አመልካቾች እያንዳንዱን ንጥል ወይም ግለሰብ እንዲያክሉ የሚጠይቀውን ጽሑፍ ያስገቡ።
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
