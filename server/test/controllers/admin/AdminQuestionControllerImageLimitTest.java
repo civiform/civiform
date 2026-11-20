@@ -65,5 +65,7 @@ public class AdminQuestionControllerImageLimitTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("The maximum size for image upload is 6MB.");
     assertThat(contentAsString(result)).contains("data-file-limit-mb=\"6\"");
+    assertThat(contentAsString(result))
+        .contains("Your file is too large. Please choose a file less than 6 MB.");
   }
 }

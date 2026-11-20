@@ -134,6 +134,7 @@
             hx-include="#questionImageDescription, [name='csrfToken']"
             hx-swap="outerHTML"
             th:data-file-limit-mb="${questionImageMaxFileSizeMb}"
+            th:data-file-too-large-message="#{validation.fileTooLarge(${questionImageMaxFileSizeMb})}"
           />
           <div
             id="question-image-file-input-errors"
