@@ -1259,13 +1259,13 @@ session.length.warning.message.loggedIn=Tu sesión está por caducar. Guarda tu 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Página con sangría
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=Método de creación de conjuntos de listas
+heading.repeatedSet.creationMethod=Método de creación de conjuntos de lista
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Crear uno nuevo
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Elegir uno existente
 # Label for the new list set form
-label.repeatedSet.newSetForm=Crear un nuevo conjunto de listas
+label.repeatedSet.newSetForm=Crear un nuevo conjunto de lista
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=¿Qué se está incluyendo en la lista?
 # Label for the text input field asking for the admin identifier of the list set
