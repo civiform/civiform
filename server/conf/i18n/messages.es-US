@@ -792,7 +792,7 @@ validation.monthRequired=Selecciona un mes.
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Introduce un día.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=Introduce un día válido que sea entre el 1 y el 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Enero
 # A month option when selecting a specific date from a dropdown menu.
