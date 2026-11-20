@@ -1315,7 +1315,7 @@ alert.repeatedSet.addQuestionDisabled=Agrega un conjunto de listas antes de incl
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=pantalla anterior
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+alert.repeatedSet.initialQuestionArchived=Se ha archivado la pregunta inicial. Selecciona una nueva pregunta inicial
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
 alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
 # Alert shown when the admin submits the new list set form without selecting an initial question.
