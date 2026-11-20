@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
+    "@html-eslint/eslint-plugin": "0.68.0",
     "@tsconfig/recommended": "1.0.14",
     "@types/cleave.js": "1.4.12",
     "@types/node": "^24.0.0",
