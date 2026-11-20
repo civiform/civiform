@@ -1171,7 +1171,7 @@ label.demoBanner.label=Información sobre el modo de demostración
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=Queda 1 día
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining=Queda {0} días
+banner.demoBanner.daysRemaining=Quedan {0} días
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
