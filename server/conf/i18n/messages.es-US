@@ -380,7 +380,7 @@ heading.startApplication=Comenzar solicitud
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=¿Todo listo para hacer la solicitud? Inicia sesión y guarda tu progreso.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=Comenzar solicitud
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Continue application
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
