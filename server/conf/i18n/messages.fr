@@ -608,7 +608,7 @@ content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l''
 #--------------------------------------------------------------------------------------------------------------#
 
 # Message shown when alt text is required but missing.
-validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+validation.adminQuestionImage.altTextRequired=La description de l'image est obligatoire lorsqu'une image est téléchargée pour une question.
 # Error when alt text cannot be cleared while an image remains.
 validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
 # Label for the field where the admin enters alt text for the question image.
@@ -786,9 +786,9 @@ validation.dateTooFarInFuture=La date doit être antérieure au {0}
 validation.dateNotInRange=La date doit être entre le {0} et le {1}
 validation.currentDateRequired=Veuillez saisir la date du jour
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=Veuillez saisir une année à 4 chiffres, par exemple 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=Veuillez sélectionner un mois.
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Please enter a day.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
@@ -1059,10 +1059,10 @@ adminValidation.multiOptionAdminError=Les noms d''administrateur ne peuvent cont
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = Agrandir l'image
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=s'ouvre dans un nouvel onglet
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -1165,7 +1165,7 @@ banner.immigrationStatusInfoBanner.linkText=ici
 #------------------------------------------------------------------------------#
 
 # Header for demo banner alert
-label.demoBanner.heading=Demo: {0}
+label.demoBanner.heading=Démo : {0}
 # Aria-label for demo banner
 label.demoBanner.label=Demo mode information
 # Count of remaining days for the demo environment (singular)
@@ -1295,7 +1295,7 @@ description.repeatedSet.initialQuestionCopy=If you choose an existing question, 
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=Identifiant administrateur :
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
 description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
@@ -1373,13 +1373,13 @@ description.repeatedSet.createNewQuestion=Create a new list set question from th
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=Ajouter un écran enfant
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=Ajouter une question
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
