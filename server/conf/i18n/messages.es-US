@@ -1367,7 +1367,7 @@ description.repeatedSet.adminId=Completaremos este ID basándonos en lo que has 
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=Introduce el texto que indica a los solicitantes que agreguen cada elemento o persona.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=Introduce una sugerencia que ayude a los solicitantes a decidir qué agregar. Por ejemplo: "No te incluyas a ti mismo".
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Crea una nueva pregunta de conjunto de listas desde esta pantalla. La guardaremos en el banco de preguntas para que puedas usarla en el futuro.
 #An informative description below the option to choose an existing question
