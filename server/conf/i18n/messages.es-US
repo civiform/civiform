@@ -1375,7 +1375,7 @@ description.repeatedSet.chooseExistingQuestion=Add an existing list set from the
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
-button.addNestedRepeatedSet=Add nested list set
+button.addNestedRepeatedSet=Agregar conjunto de listas anidadas
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Continue to child screen
 # A button for admins to add a pre-existing enumerator question to a program
