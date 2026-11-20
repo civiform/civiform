@@ -1,10 +1,8 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.apikeys.ApiKeyNewOnePageViewModel"*/-->
 <th:block th:fragment="content">
-  <!--/* The layout's <main> supplies the legacy centered wrapper, so this div is
-         the direct child of <main> in the legacy j2html DOM. */-->
-  <div class="px-20">
-    <h1 class="my-4" th:text="${model.title}"></h1>
+  <div class="padding-x-4">
+    <h1 class="margin-y-2" th:text="${model.title}"></h1>
 
     <!--/* Empty state: the legacy view rendered this from renderNoPrograms. */-->
     <div th:unless="${model.showForm}">
@@ -48,7 +46,7 @@
           href="https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing"
           target="_blank"
           rel="noopener noreferrer"
-          class="text-blue-600 hover:text-blue-500 inline-flex items-center"
+          class="usa-link usa-link--external"
           >CIDR notation</a
         >
         that is allowed to call the API. The subnet may not be edited after the
@@ -65,22 +63,19 @@
 
       <h2>Allowed programs</h2>
       <p>Select the programs this key grants read access to.</p>
-      <p
-        th:if="${model.showProgramsError}"
-        class="text-red-600 text-xs mt-2 mb-2"
-      >
+      <span th:if="${model.showProgramsError}" class="usa-error-message">
         Error: You must select at least one program.
-      </p>
+      </span>
 
       <th:block th:each="program : ${model.programCheckboxes}">
-        <label
+        <div
           th:replace="~{admin/apikeys/fragments/ApiKeyFormFields :: programCheckbox(${program})}"
-        ></label>
+        ></div>
       </th:block>
 
       <button
         type="submit"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        class="usa-button margin-top-3"
         id="apikey-submit-button"
       >
         Save
