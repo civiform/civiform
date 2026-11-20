@@ -1343,7 +1343,7 @@ text.repeatedSet.screenNameDescription=Los solicitantes verán como parte del no
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=Un conjunto de listas demanda a los solicitantes que agreguen elementos o personas a una lista.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Agrega preguntas que desees que los solicitantes respondan sobre cada elemento o persona que enumeren en su lista.
+text.repeatedQuestions.description=Agrega preguntas que desees que los solicitantes respondan sobre cada elemento o persona que enumeren.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
 text.repeatedQuestions.copyDescription=Si eliges una pregunta existente del banco de preguntas, el sistema guarda una copia para este conjunto de listas. La original permanece sin cambios.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
