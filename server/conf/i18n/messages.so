@@ -380,7 +380,7 @@ heading.startApplication=Bilow codsiga
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=Diyaar u ah inuu codsado? Soo gal si aad u kaydiso horumarkaaga.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=Bilow codsiga
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Continue application
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
