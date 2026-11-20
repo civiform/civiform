@@ -1385,7 +1385,7 @@ button.removeQuestion=Quitar
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=Esta pantalla no se puede eliminar porque tiene pantallas repetidas vinculadas a ella.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
+tooltip.removeEnumeratorQuestionDisabled=Esta pregunta no se puede eliminar porque tiene preguntas de seguimiento vinculadas a ella.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
