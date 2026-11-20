@@ -27,4 +27,16 @@ public class AddressCheckerPageViewModel implements BaseViewModel {
   // Form action URLs
   private String correctAddressActionUrl;
   private String checkServiceAreaActionUrl;
+
+  /** Show the address correction form only when it is enabled and has endpoints */
+  public boolean showCorrectAddressForm() {
+    return addressCorrectionEnabled
+        && findAddressCandidatesUrls.map(urls -> !urls.isEmpty()).orElse(false);
+  }
+
+  /** Show the service area form only when it is enabled and has endpoints */
+  public boolean showCheckServiceAreaForm() {
+    return addressValidationEnabled
+        && addressServiceAreaValidationUrls.map(urls -> !urls.isEmpty()).orElse(false);
+  }
 }

@@ -44,7 +44,7 @@ test.describe('Address checker', () => {
       await test.step('Address correction result runs and loads service area validation', async () => {
         await page.getByRole('textbox', {name: 'Latitude/Y'}).fill('100')
         await page.getByRole('textbox', {name: 'Longitude/X'}).fill('-100')
-        await page.getByRole('textbox', {name: 'WellKnownId'}).fill('4326')
+        await page.getByRole('spinbutton', {name: 'Well Known ID'}).fill('4326')
 
         await page
           .getByTestId('address-correction-results')

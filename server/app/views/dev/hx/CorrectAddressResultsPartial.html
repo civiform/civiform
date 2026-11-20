@@ -1,0 +1,80 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.dev.hx.CorrectAddressResultsPartialViewModel"*/-->
+<div data-testid="address-correction-results">
+  <h2 class="margin-top-0">Address Correction Results</h2>
+  <p th:if="${model.addressSuggestions().isEmpty()}">No results found</p>
+
+  <form
+    th:each="suggestion, stat : ${model.addressSuggestions()}"
+    th:id="|correction-form-${stat.index}|"
+    th:attr="hx-post=${model.checkServiceAreaActionUrl()}"
+    hx-target="#checkServiceAreaDebugOutput"
+    hx-swap="innerHTML"
+    class="border-top border-base-lighter padding-top-2 margin-bottom-4"
+  >
+    <input
+      type="hidden"
+      name="csrfToken"
+      th:value="${templateGlobals.csrfToken()}"
+    />
+    <input
+      type="hidden"
+      name="latitude"
+      th:value="${suggestion.location.latitude}"
+    />
+    <input
+      type="hidden"
+      name="longitude"
+      th:value="${suggestion.location.longitude}"
+    />
+    <input
+      type="hidden"
+      name="wellKnownId"
+      th:value="${suggestion.location.wellKnownId}"
+    />
+
+    <h3 class="margin-y-0" th:text="${suggestion.address.street}"></h3>
+    <p
+      class="margin-top-05 margin-bottom-0"
+      th:text="|${suggestion.address.city}, ${suggestion.address.state}, ${suggestion.address.zip}|"
+    ></p>
+    <table class="usa-table usa-table--borderless usa-table--compact">
+      <tbody>
+        <tr>
+          <th scope="row">Latitude/Y</th>
+          <td th:text="${suggestion.location.latitude}"></td>
+        </tr>
+        <tr>
+          <th scope="row">Longitude/X</th>
+          <td th:text="${suggestion.location.longitude}"></td>
+        </tr>
+        <tr>
+          <th scope="row">WellKnownId</th>
+          <td th:text="${suggestion.location.wellKnownId}"></td>
+        </tr>
+        <tr>
+          <th scope="row">Score</th>
+          <td th:text="${suggestion.score}"></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <th:block th:if="${model.serviceAreaValidationEnabled()}">
+      <cf:select
+        th:id="|validationOption-${stat.index}|"
+        name="validationOption"
+        label="Validation"
+        help-text="Format: label (attribute=id)"
+      >
+        <option
+          th:each="entry : ${model.serviceAreaValidationOptions().entrySet()}"
+          th:value="${entry.key}"
+          th:text="${entry.value.label + ' (' + entry.value.attribute + '=' + entry.value.id + ')'}"
+        ></option>
+      </cf:select>
+      <div class="margin-top-2">
+        <cf:button type="submit" text="Check Service Area" />
+      </div>
+    </th:block>
+  </form>
+</div>
