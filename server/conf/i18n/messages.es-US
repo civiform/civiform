@@ -376,7 +376,7 @@ title.programOverview={0}: Descripción general del programa
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Cómo inscribirse
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=Comenzar solicitud
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=¿Todo listo para hacer la solicitud? Inicia sesión y guarda tu progreso.
 # Button text to start an application when the applicant has not started one yet.
