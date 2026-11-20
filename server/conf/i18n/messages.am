@@ -1367,7 +1367,7 @@ description.repeatedSet.adminId=እርስዎ ከላይ ባስገቡት ላይ �
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=አመልካቾች እያንዳንዱን ንጥል ወይም ግለሰብ እንዲያክሉ የሚጠይቀውን ጽሑፍ ያስገቡ።
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=አመልካቾች ምን እንደሚያክሉ ለመወሰን እንዲረዳቸው ጥቆማ ያስገቡ። ለምሳሌ፣ "እራስዎን አያካትቱ።"
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
