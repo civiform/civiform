@@ -788,9 +788,9 @@ validation.currentDateRequired=Fadlan gali taariikhda maanta
 # Validation hint shown when the year field does not contain exactly 4 digits.
 validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=Fadlan dooro bil
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=Fadlan gelin maalin.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
