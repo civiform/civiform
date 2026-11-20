@@ -10,9 +10,8 @@
       class="pointer-events-none text-gray-600 text-base px-1 py-2"
       ><th:block
         th:if="${model.enumeratorImprovementsEnabled}"
-        th:text="#{input.repeatedSet.listedEntity}"
-      ></th:block
-      ><th:block th:unless="${model.enumeratorImprovementsEnabled}"
+        th:text="#{input.repeatedSet.listedEntity}" /><th:block
+        th:unless="${model.enumeratorImprovementsEnabled}"
         >Repeated entity type (What are we enumerating?)</th:block
       ><span
         th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"

@@ -27,7 +27,7 @@
                   th:text="${isTrustedIntermediary} ?
                   #{title.preScreenerConfirmationTi} :
                   #{title.preScreenerConfirmation}"
-                ></th:block>
+                />
               </h2>
 
               <div th:if="${eligiblePrograms.size() eq 0}">
@@ -111,6 +111,6 @@
     ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
-    ></th:block>
+    />
   </body>
 </html>

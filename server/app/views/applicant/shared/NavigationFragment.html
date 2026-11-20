@@ -90,12 +90,12 @@
     <th:block th:if="${sessionTimeoutEnabled}">
       <th:div
         th:replace="~{applicant/shared/ModalFragment :: sessionInactivityTimeoutModal}"
-      ></th:div>
+      />
     </th:block>
     <th:block th:if="${sessionTimeoutEnabled}">
       <th:div
         th:replace="~{applicant/shared/ModalFragment :: sessionLengthTimeoutModal}"
-      ></th:div>
+      />
     </th:block>
     <th:block th:if="${sessionTimeoutEnabled}">
       <div id="session-timeout-messages" hidden>
@@ -174,7 +174,7 @@
               <strong th:text="#{banner.httpsSectionHeader}"></strong><br />
               <th:block
                 th:utext="#{banner.httpsSectionContent(~{this :: lockIcon})}"
-              ></th:block>
+              />
             </p>
           </div>
         </div>

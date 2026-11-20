@@ -6,8 +6,6 @@
        sync. */-->
 <th:block th:fragment="build(mapSettings)" xmlns:th="http://www.thymeleaf.org">
   <th:block th:with="model=${mapSettings}">
-    <th:block
-      th:replace="~{admin/questions/MapQuestionSettingsPartial}"
-    ></th:block>
+    <th:block th:replace="~{admin/questions/MapQuestionSettingsPartial}" />
   </th:block>
 </th:block>

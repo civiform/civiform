@@ -100,15 +100,15 @@
           <th:block
             th:case="'ALL_CLIENTS'"
             th:text="#{title.displayingAllClients}"
-          ></th:block>
+          />
           <th:block
             th:case="'ONE_CLIENT'"
             th:text="#{title.displayingOneClient}"
-          ></th:block>
+          />
           <th:block
             th:case="'MULTIPLE_CLIENTS'"
             th:text="#{title.displayingMultiClients(${model.clientCount})}"
-          ></th:block>
+          />
         </h3>
         <u class="text-sm"
           ><a

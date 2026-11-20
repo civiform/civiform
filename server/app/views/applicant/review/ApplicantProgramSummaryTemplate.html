@@ -103,13 +103,13 @@
       <div id="show-duplicate-submission-modal"></div>
       <th:block
         th:replace="~{applicant/shared/ModalFragment:: preventDuplicateSubmission(${programTitle}, ${exitHref})}"
-      ></th:block>
+      />
     </div>
     <footer
       th:replace="~{applicant/shared/NavigationFragment :: pageFooter}"
     ></footer>
     <th:block
       th:replace="~{components/GoogleTagManagerFragment :: tagManager(${optionalMeasurementId}, ${cspNonce})}"
-    ></th:block>
+    />
   </body>
 </html>

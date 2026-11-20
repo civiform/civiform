@@ -15,11 +15,11 @@
 
     <th:block
       th:insert="~{admin/apibridge/programbridge/fragments/QuestionGroup::group('Input', ${model.getRequestSchema()})}"
-    ></th:block>
+    />
 
     <th:block
       th:insert="~{admin/apibridge/programbridge/fragments/QuestionGroup::group('Output', ${model.getResponseSchema()})}"
-    ></th:block>
+    />
 
     <button type="submit" class="usa-button">Save</button>
   </form>

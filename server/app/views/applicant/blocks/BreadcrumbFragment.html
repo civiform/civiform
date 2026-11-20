@@ -17,7 +17,7 @@
               th:href="|${userIsAdmin ? '/admin' : ''}${programOverviewUrl}${userIsAdmin ? '/preview' : ''}|"
               class="usa-breadcrumb__link"
             >
-              <span><th:block th:text="${title}"></th:block></span>
+              <span><th:block th:text="${title}" /></span>
             </a>
           </li>
           <li class="usa-breadcrumb__list-item usa-current" aria-current="page">

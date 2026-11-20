@@ -84,7 +84,7 @@
     <!--/* Not-production banner, the first child of the body when enabled */-->
     <th:block
       th:replace="~{trustedintermediary/shared/TrustedIntermediaryCommonHeader :: notProductionBanner}"
-    ></th:block>
+    />
 
     <header>
       <!--/* Toast shown on all pages in dev and staging environments to warn
@@ -105,19 +105,17 @@
              toast at the top of the header. */-->
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: toasts} ?: ~{}"
-      ></th:block>
+      />
 
       <!--/* Header navigation */-->
       <th:block
         th:replace="~{trustedintermediary/shared/TrustedIntermediaryCommonHeader :: navBar}"
-      ></th:block>
+      />
     </header>
 
     <!--/* Main */-->
     <main class="bg-white">
-      <th:block
-        th:insert="~{${layoutParams.pageTemplate()} :: content}"
-      ></th:block>
+      <th:block th:insert="~{${layoutParams.pageTemplate()} :: content}" />
     </main>
 
     <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
@@ -127,20 +125,20 @@
       ></div>
       <th:block
         th:replace="~{trustedintermediary/shared/TrustedIntermediaryLayoutModals :: devToolsModal}"
-      ></th:block>
+      />
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: modals} ?: ~{}"
-      ></th:block>
+      />
     </div>
 
     <th:block
       th:replace="~{trustedintermediary/shared/TrustedIntermediaryLayoutModals :: sessionTimeoutModals}"
-    ></th:block>
+    />
 
     <!--/* Google Tag Manager */-->
     <th:block
       th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-    ></th:block>
+    />
 
     <!--/* Support contact, then the scripts to be added at the end, inside the
            footer as the legacy layout did */-->
@@ -177,8 +175,6 @@
     </footer>
 
     <!--/* Optional page specific scripts. These should be load last. */-->
-    <th:block
-      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-    ></th:block>
+    <th:block th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}" />
   </body>
 </html>

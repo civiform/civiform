@@ -62,18 +62,14 @@
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
-    <th:block
-      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
-    ></th:block>
+    <th:block th:insert="~{admin/shared/TransitionalAdminCommonHeader}" />
 
     <!--/* Main */-->
     <main
       class="bg-white border border-gray-200 mt-12 shadow-lg w-screen admin-responsive-main-padding"
       th:classappend="${layoutParams.isWidescreen() ? 'flex flex-row' : 'px-2 max-w-screen-2xl mx-auto'}"
     >
-      <th:block
-        th:insert="~{${layoutParams.pageTemplate()} :: content}"
-      ></th:block>
+      <th:block th:insert="~{${layoutParams.pageTemplate()} :: content}" />
     </main>
 
     <div id="modal-container" class="hidden fixed h-screen w-screen z-20">
@@ -83,13 +79,13 @@
       ></div>
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: modals} ?: ~{}"
-      ></th:block>
+      />
     </div>
 
     <!--/* Google Tag Manager */-->
     <th:block
       th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-    ></th:block>
+    />
 
     <!--/* Scripts to be added at the end, inside a footer as the legacy layout did */-->
     <footer>
@@ -106,8 +102,6 @@
     </footer>
 
     <!--/* Optional page specific scripts. These should be load last. */-->
-    <th:block
-      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-    ></th:block>
+    <th:block th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}" />
   </body>
 </html>

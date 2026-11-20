@@ -135,7 +135,7 @@
     <div class="flex items-center gap-1">
       <th:block
         th:text="${row.translationComplete} ? 'Translation complete' : 'Translation incomplete'"
-      ></th:block>
+      />
       <th:block th:if="${row.translationComplete}">
         <svg
           th:replace="~{admin/shared/LegacySvgFragments :: iconCheck('h-4 w-4')}"

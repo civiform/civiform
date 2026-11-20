@@ -86,9 +86,7 @@
         th:text="${templateGlobals.pageIntro().get()}"
       ></p>
 
-      <th:block
-        th:insert="~{${layoutParams.pageTemplate()} :: content}"
-      ></th:block>
+      <th:block th:insert="~{${layoutParams.pageTemplate()} :: content}" />
     </main>
 
     <!--/* Empty, but modal.ts only signals it has loaded when it exists. */-->
@@ -110,8 +108,6 @@
     ></script>
 
     <!--/* Optional page specific scripts. These should be load last. */-->
-    <th:block
-      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-    ></th:block>
+    <th:block th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}" />
   </body>
 </html>

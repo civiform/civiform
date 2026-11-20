@@ -57,24 +57,20 @@
     th:hx-headers='|{"CSRF-TOKEN":"${templateGlobals.csrfToken()}"}|'
   >
     <!--/* Header navigation */-->
-    <th:block
-      th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
-    ></th:block>
+    <th:block th:insert="~{admin/shared/TransitionalAdminCommonHeader}" />
 
     <!--/* Main */-->
     <main
       class="bg-white shadow-2 width-full margin-x-auto"
       th:classappend="${layoutParams.isWidescreen() ? 'admin-widescreen-main': 'admin-normal-main'}"
     >
-      <th:block
-        th:insert="~{${layoutParams.pageTemplate()} :: content}"
-      ></th:block>
+      <th:block th:insert="~{${layoutParams.pageTemplate()} :: content}" />
     </main>
 
     <!--/* Google Tag Manager */-->
     <th:block
       th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-    ></th:block>
+    />
 
     <!--/* Scripts to be added at the end */-->
     <script
@@ -89,8 +85,6 @@
     ></script>
 
     <!--/* Optional page specific scripts. These should be load last. */-->
-    <th:block
-      th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-    ></th:block>
+    <th:block th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}" />
   </body>
 </html>

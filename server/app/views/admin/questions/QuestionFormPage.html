@@ -227,9 +227,7 @@
           for="question-enumerator-select"
           class="pointer-events-none text-gray-600 text-base px-1 py-2"
           ><th:block
-            th:text="${model.enumeratorImprovementsEnabled} ? #{label.repeatedQuestion.associatedListSet} : 'Question enumerator'"
-          ></th:block
-          ><span
+            th:text="${model.enumeratorImprovementsEnabled} ? #{label.repeatedQuestion.associatedListSet} : 'Question enumerator'" /><span
             th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
           ></span
         ></label>
@@ -343,67 +341,67 @@
               <th:block th:case="'ADDRESS'">
                 <th:block
                   th:replace="~{admin/questions/fragments/AddressFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'CHECKBOX'">
                 <th:block
                   th:replace="~{admin/questions/fragments/CheckboxFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'DATE'">
                 <th:block
                   th:replace="~{admin/questions/fragments/DateFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'DROPDOWN'">
                 <th:block
                   th:replace="~{admin/questions/fragments/MultiOptionContainerFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'ENUMERATOR'">
                 <th:block
                   th:replace="~{admin/questions/fragments/EnumeratorFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'FILEUPLOAD'">
                 <th:block
                   th:replace="~{admin/questions/fragments/FileUploadFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'ID'">
                 <th:block
                   th:replace="~{admin/questions/fragments/IdFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'MAP'">
                 <th:block
                   th:replace="~{admin/questions/fragments/MapFragment :: build(${model.mapSettings})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'NUMBER'">
                 <th:block
                   th:replace="~{admin/questions/fragments/NumberFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'PHONE'">
                 <th:block
                   th:replace="~{admin/questions/fragments/PhoneFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'RADIO_BUTTON'">
                 <th:block
                   th:replace="~{admin/questions/fragments/MultiOptionContainerFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'TEXT'">
                 <th:block
                   th:replace="~{admin/questions/fragments/TextFragment :: build(${model.questionForm})}"
-                ></th:block>
+                />
               </th:block>
               <th:block th:case="'YES_NO'">
                 <th:block
                   th:replace="~{admin/questions/fragments/YesNoFragment :: build(${model.yesNoConfig})}"
-                ></th:block>
+                />
               </th:block>
             </th:block>
           </div>
@@ -424,7 +422,7 @@
               ></strong>
               <th:block
                 th:text="' ' + ${model.initialQuestionAdminName.get()}"
-              ></th:block>
+              />
             </p>
             <p
               class="mt-2 text-gray-600"

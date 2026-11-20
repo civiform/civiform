@@ -84,11 +84,11 @@
     <th:block
       th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/Banner}"
-    ></th:block>
+    />
     <th:block
       th:unless="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
       th:insert="~{admin/shared/TransitionalAdminCommonHeader}"
-    ></th:block>
+    />
 
     <div
       class="cf-admin-page-wrapper spacing-0 bg-white maxw-full margin-x-auto desktop-lg:maxw-desktop-lg"
@@ -98,7 +98,7 @@
       <th:block
         th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/AdminCommonHeader}"
-      ></th:block>
+      />
 
       <!--/* Heading */-->
       <section
@@ -120,7 +120,7 @@
               th:with="cta=~{${layoutParams.pageTemplate()} :: callToAction}"
             >
               <div th:if="${cta != null}" class="margin-top-2">
-                <th:block th:replace="${cta}"></th:block>
+                <th:block th:replace="${cta}" />
               </div>
             </th:block>
           </div>
@@ -145,7 +145,7 @@
           >
             <th:block
               th:insert="~{${layoutParams.pageTemplate()} :: content}"
-            ></th:block>
+            />
           </main>
 
           <!--/* Optional sidebar. */-->
@@ -156,7 +156,7 @@
           >
             <th:block
               th:insert="~{${layoutParams.pageTemplate()} :: sidebar} ?: ~{}"
-            ></th:block>
+            />
           </aside>
         </div>
       </div>
@@ -165,12 +165,12 @@
       <th:block
         th:if="${featureFlags.isAdminUiMigrationUxRedesignScEnabled()}"
         th:insert="~{admin/shared/Footer}"
-      ></th:block>
+      />
 
       <!--/* Google Tag Manager */-->
       <th:block
         th:insert="~{components/GoogleTagManagerFragment :: tagManager(${layoutParams.measurementId()}, ${templateGlobals.cspNonce()})}"
-      ></th:block>
+      />
 
       <!--/* Scripts to be added at the end */-->
       <script
@@ -188,7 +188,7 @@
       <!--/* Optional page specific scripts. These should be load last. */-->
       <th:block
         th:insert="~{${layoutParams.pageTemplate()} :: scripts} ?: ~{}"
-      ></th:block>
+      />
     </div>
   </body>
 </html>
