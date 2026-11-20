@@ -1325,7 +1325,7 @@ alert.repeatedSet.newQuestion=ይህንን ዝርዝር ስብስብ ሲፈጥ�
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=በሌላ ዝርዝር ስብስብ ውስጥ የሆኑ ጥያቄዎች አይገኙም።
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Create list set
+button.repeatedSet.submitNew=ዝርዝር ስብስብ ይፍጠሩ
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
