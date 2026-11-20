@@ -1385,7 +1385,7 @@ button.removeQuestion=Ka saar
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=Shaashadan lama tirtiri karo sababtoo ah waxaa jira shaashado la soo celceliyay oo ku lifaaqan.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
-tooltip.removeEnumeratorQuestionDisabled=Su'aashan lagama saari karo sababtoo ah waxaa jira su'aalaha la socodka ah ee ku lifaaqan.
+tooltip.removeEnumeratorQuestionDisabled=Su'aashan lagama saari karo sababtoo ah waxaa jira su'aalo la socda oo ku lifaaqan.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING                                                             #
