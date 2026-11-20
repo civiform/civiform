@@ -382,9 +382,9 @@ content.startApplicationPrompt=Diyaar u ah inuu codsado? Soo gal si aad u kaydis
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Bilow codsiga
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=Sii wad codsiga
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Log in to start application
+button.loginToStartApplication=Soo gal si loo bilaabo codsiga
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
 alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
 # Top-level heading for the program overview page.  The {0} is the program name.
