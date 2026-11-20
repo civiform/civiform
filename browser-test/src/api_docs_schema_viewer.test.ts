@@ -1,5 +1,5 @@
 import {test, expect} from './support/civiform_fixtures'
-import {enableFeatureFlag, loginAsAdmin} from './support'
+import {loginAsAdmin} from './support'
 import {ProgramVisibility} from './support/admin_programs'
 import {ApiSchemaViewerPage} from './page/admin/docs/api_schema_viewer_page'
 
@@ -7,8 +7,7 @@ test.describe('Viewing API schema', () => {
   const program1 = 'comprehensive-sample-program'
   const program2 = 'minimal-sample-program'
 
-  test.beforeEach(async ({page, seeding}) => {
-    await enableFeatureFlag(page, 'ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED')
+  test.beforeEach(async ({seeding}) => {
     await seeding.seedProgramsAndCategories()
   })
 
