@@ -1062,7 +1062,7 @@ adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at 
 staticQuestion.imageEnlargeText = Enlarge image
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=magbubukas sa bagong tab
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -1171,7 +1171,7 @@ label.demoBanner.label=Demo mode information
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=1 day remaining
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} days remaining
+banner.demoBanner.daysRemaining={0} (na) araw ang natitira
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1263,19 +1263,19 @@ heading.repeatedSet.creationMethod=List set creation method
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=Piliin ang umiiral
 # Label for the new list set form
-label.repeatedSet.newSetForm=Create new list set
+label.repeatedSet.newSetForm=Gumawa ng bagong grupo ng listahan
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
 input.repeatedSet.listedEntity=What is being listed?
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=List set admin ID
+input.repeatedSet.adminId=ID ng admin ng grupo ng listahan
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Prompt text
+input.repeatedSet.questionText=Teksto ng prompt
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion={0} list set
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=Mangyaring idagdag ang bawat {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=Hint text
 # A form field where admins set the minimum number of entities that applicants must list
@@ -1289,11 +1289,11 @@ input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Initial question
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
-description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
+description.repeatedSet.initialQuestion=Magdagdag ng tanong na tumutukoy sa bawat item o tao. Halimbawa, kung ang mga aplikante ay naglilista ng mga miyembro ng sambahayan, magdagdag ng tanong upang kolektahin ang pangalan ng bawat miyembro.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=Paalala: Makikita ng mga aplikante ang teksto ng prompt at pahiwatig para sa iyong grupo ng listahan sa halip na ang sariling teksto ng prompt at pahiwatig para sa tanong na ito.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Admin id:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
@@ -1335,7 +1335,7 @@ button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=Grupo ng listahan
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested list set
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
@@ -1383,7 +1383,7 @@ button.addQuestion=Add question
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=Remove
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+tooltip.deleteScreenDisabled=Ang screen na ito ay hindi maaaring tanggalin  dahil may mga inuulit na screen na nakakabit dito.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=This question cannot be removed because there are follow-up questions attached to it.
 
