@@ -786,7 +786,7 @@ validation.dateTooFarInFuture=Taariikhdu waa inay noqotaa ka hor {0}
 validation.dateNotInRange=Taariikhdu waa inay u dhaxaysaa {0} iyo {1}
 validation.currentDateRequired=Fadlan gali taariikhda maanta
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=Fadlan geli sanad 4 tiro ah, tusaale ahaan 1996.
 # Validation error shown when the month was not selected.
 validation.monthRequired=Fadlan dooro bil
 # Validation error shown when the day field was left blank.
