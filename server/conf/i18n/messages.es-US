@@ -1353,7 +1353,7 @@ label.repeatedQuestion.associatedListSet=Conjunto de listas asociado
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=Conjunto de listas
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=Previously used for this list set
+heading.repeatedSet.previouslyUsed=Anteriormente en uso para este conjunto de listas
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
 heading.repeatedSet.questionBank=Add a list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
