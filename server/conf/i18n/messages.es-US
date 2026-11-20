@@ -1339,7 +1339,7 @@ text.repeatedSet=Conjunto de listas
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Conjunto de listas anidadas
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=Los solicitantes verán como parte del nombre de pantalla la entidad que indicaron al responder a la pregunta inicial. Puedes agregar más texto en el primer cuadro a continuación para proporcionar un mayor contexto. Por ejemplo, si la pregunta inicial solicita los miembros del hogar y el solicitante indicó "Jennifer", el nombre en pantalla podría ser: "Jennifer - Información de antecedentes".
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=Un conjunto de listas demanda a los solicitantes que agreguen elementos o personas a una lista.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
