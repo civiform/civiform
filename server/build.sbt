@@ -50,7 +50,11 @@ lazy val errorproneChecks = (project in file("errorprone-checks"))
     Test / testOptions := Seq(
       Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
     ),
-    publish / skip := true
+    publish / skip := true,
+    // sbt dist packages this project's jars. Skip javadoc like root does, since
+    // javadoc rejects the javac-only flags above.
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty
   )
 
 lazy val root = (project in file("."))
