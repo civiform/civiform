@@ -1313,7 +1313,7 @@ button.repeatedSet.initialQuestion.save=የመነሻ ጥያቄውን ያስቀ�
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=ተደጋጋሚ ጥያቄዎን ከማከልዎ በፊት የዝርዝር ስብስብ ያክሉ። አንድ ለማከል ወደ {0} ይሂዱ።
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=የቀድሞ የገጽ ማያ
+link.repeatedSet.previousScreen=የቀድሞ ማያ ገጽ
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=የመነሻ ጥያቄ ወደ ማህደር ገብቷል። አዲስ የመነሻ ጥያቄ ይምረጡ
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
