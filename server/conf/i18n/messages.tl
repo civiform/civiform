@@ -376,13 +376,13 @@ title.programOverview={0} - Pangkalahatang-ideya sa Programa
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Paano mag-apply
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=Simulan ang aplikasyon
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=Handa nang mag-apply? Mag-log in upang i-save ang iyong pagsulong.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=Simulan ang aplikasyon
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=Ipagpatuloy ang aplikasyon
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Log in to start application
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
@@ -608,7 +608,7 @@ content.adminProgramImage.cardPreviewError=Error sa pagbuo ng preview ng card
 #--------------------------------------------------------------------------------------------------------------#
 
 # Message shown when alt text is required but missing.
-validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+validation.adminQuestionImage.altTextRequired=Ang paglalarawan ng larawan ay kinakailangan kapag nag-upload ng larawang pananong.
 # Error when alt text cannot be cleared while an image remains.
 validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
 # Label for the field where the admin enters alt text for the question image.
@@ -786,11 +786,11 @@ validation.dateTooFarInFuture=Dapat mauna ang petsang ito kaysa sa {0}
 validation.dateNotInRange=Nasa pagitan dapat ng {0} at {1} ang petsa
 validation.currentDateRequired=Ilagay ang petsa ngayon
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=Mangyaring maglagay ng taon na may 4 na tambilang, halimbawa 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=Mangyaring pumili ng buwan.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=Mangyaring maglagay ng araw.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Mangyaring maglagay ng balidong araw mula 1 hanggang 31.
 # A month option when selecting a specific date from a dropdown menu.
@@ -1059,7 +1059,7 @@ adminValidation.multiOptionAdminError=Maliliit na titik, numero, underscore, at 
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = Palakihin ang larawan
 
 # Label shown to indicate that an image will open in a new tab
 staticQuestion.enlargeImageScreenReaderText=magbubukas sa bagong tab
@@ -1169,7 +1169,7 @@ label.demoBanner.heading=Demo: {0}
 # Aria-label for demo banner
 label.demoBanner.label=Impormasyon tungkol sa demo na mode
 # Count of remaining days for the demo environment (singular)
-banner.demoBanner.dayRemaining=1 day remaining
+banner.demoBanner.dayRemaining=1 araw ang natitira
 # Count of remaining days for the demo environment (plural)
 banner.demoBanner.daysRemaining={0} (na) araw ang natitira
 
@@ -1259,15 +1259,15 @@ session.length.warning.message.loggedIn=Malapit nang matapos ang iyong sesyon. M
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Naka-indent na pahina
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=List set creation method
+heading.repeatedSet.creationMethod=Paraan ng paggawa ng grupo ng listahan
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=Gumawa ng bago
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Piliin ang umiiral
 # Label for the new list set form
 label.repeatedSet.newSetForm=Gumawa ng bagong grupo ng listahan
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=What is being listed?
+input.repeatedSet.listedEntity=Ano ang inililista?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=ID ng admin ng grupo ng listahan
 # A text input field asking admins for the text that will prompt applicants to list out the entity
@@ -1277,7 +1277,7 @@ input.repeatedSet.adminIdAutofillSuggestion=Grupo ng listahan ng {0}
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=Mangyaring idagdag ang bawat {0}.
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=Teksto ng pahiwatig
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
@@ -1285,7 +1285,7 @@ input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
 input.repeatedSet.minListCount=Minimum list count
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=Pinakamataas na bilang ng mga listahan
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Unang tanong
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
@@ -1325,7 +1325,7 @@ alert.repeatedSet.newQuestion=When you create this list set, the system saves it
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Create list set
+button.repeatedSet.submitNew=Gumawa ng grupo ng listahan
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
@@ -1341,7 +1341,7 @@ text.nestedRepeatedSet=Naka-nest na grupo ng listahan
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Makikita ng mga aplikante ang nakalistang entidad na isinagot nila sa unang tanong bilang bahagi ng pangalan ng screen. Maaari kang magdagdag ng mas marami pang teksto sa unang kahon sa ibaba upang magbigay ng karagdagang konteksto. Halimbawa, kung ang unang tanong ay humihingi ng mga miyembro ng sambahayan at ang aplikante ay naglista ng "Jennifer," ang pangalan ng screen ay maaaring: "Jennifer - Kaugnay na Impormasyon".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=Hinihiling ng isang grupo ng listahan sa mga aplikante na magdagdag ng mga item o tao sa isang listahan.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Magdagdag ng mga tanong na gusto mong sagutin ng mga aplikante tungkol sa bawat item o taong inililista nila.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
@@ -1349,13 +1349,13 @@ text.repeatedQuestions.copyDescription=If you choose an existing question from t
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
 text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=Kaugnay na grupo ng listahan
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=Previously used for this list set
+heading.repeatedSet.previouslyUsed=Dating nang ginamit para sa grupo ng listahan na ito
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=Magdagdag ng grupo ng listahan
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Repeated questions
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
@@ -1371,7 +1371,7 @@ description.repeatedSet.hintText=Enter a hint that helps applicants decide what 
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=Magdagdag ng isang umiiral na grupo ng listahan mula sa imbakan ng mga tanong.
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Add child screen
 # A button for admins to add a nested list set to a program
