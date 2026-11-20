@@ -109,9 +109,4 @@ public final class ReferenceClasses {
   public static final String BT_EMAIL = "cf-bt-email";
   public static final String BT_API_KEY_ID = "cf-bt-api-key-id";
   public static final String BT_API_KEY_CREATED_BY = "cf-bt-api-key-created-by";
-
-  // ///////////////////////////////////////////////////////////////////////////////////////////////
-  // Developer reference classes
-  // ///////////////////////////////////////////////////////////////////////////////////////////////
-  public static final String DEV_ICONS = "cf-dev-icons";
 }
