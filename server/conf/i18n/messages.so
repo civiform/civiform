@@ -384,7 +384,7 @@ button.startApplication=Bilow codsiga
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Sii wad codsiga
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Soo gal si loo bilaabo codsiga
+button.loginToStartApplication=Soo gal si aad u bilowdo codsiga
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
 alert.createAccountDescriptionOverview=Kootada isticmaalaha si dib loogu soo galo si loo hubiyo heerka codsigaaga oo wakhti loo kaydiyo codsiga barnaamijyada kale.
 # Top-level heading for the program overview page.  The {0} is the program name.
