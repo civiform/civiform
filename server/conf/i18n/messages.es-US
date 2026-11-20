@@ -1317,7 +1317,7 @@ link.repeatedSet.previousScreen=pantalla anterior
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Se ha archivado la pregunta inicial. Selecciona una nueva pregunta inicial
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=No se ha encontrado la pregunta inicial. Selecciona una nueva pregunta inicial
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
