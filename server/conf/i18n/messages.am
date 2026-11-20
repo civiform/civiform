@@ -1311,7 +1311,7 @@ text.repeatedSet.backfillProgramCountMany={0} ፕሮግራሞች
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=የመነሻ ጥያቄውን ያስቀምጡ
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
+alert.repeatedSet.addQuestionDisabled=ተደጋጋሚ ጥያቄዎን ከማከልዎ በፊት የዝርዝር ስብስብ ያክሉ። አንድ ለማከል ወደ {0} ይሂዱ።
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=previous screen
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
