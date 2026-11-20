@@ -1377,7 +1377,7 @@ button.addRepeatedScreen=Ku dar shaashada ilmaha
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Ku dar qaybta liiska qaybta kale la geliyay
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=U sii wad ilaa shaashada imaha
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Add question
 # A button on a question card for admins to remove the question from the screen.
