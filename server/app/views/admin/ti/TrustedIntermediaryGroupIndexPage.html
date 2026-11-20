@@ -1,16 +1,15 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.ti.TrustedIntermediaryGroupIndexPageViewModel"*/-->
 <th:block th:fragment="content">
-  <!--/* Flash error toast, consumed by toast.ts. The legacy layout rendered it
-         in the page header; it is a hidden data div, so position does not
-         matter. The id is the fixed one the legacy view passed to
-         addToastMessagesOnError. Error toasts are not dismissible: the
-         ToastMessage constructor overrides the canDismiss=true field default
-         for ERROR. */-->
+  <!--/* Flash error toast, consumed by toast.ts. It is a hidden data div, so
+         position does not matter. The id is the fixed one the legacy view
+         passed to addToastMessagesOnError. Error toasts are not dismissible:
+         the ToastMessage constructor overrides the canDismiss=true field
+         default for ERROR. */-->
   <div
     th:if="${model.errorMessage != null}"
     id="warning-message-ti-form-fill"
-    class="hidden cf-toast-data"
+    class="display-none cf-toast-data"
     canDismiss="false"
     canIgnore="false"
     toastDuration="0"
@@ -19,136 +18,135 @@
     th:text="${model.errorMessage}"
   ></div>
 
-  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
-         the direct children of <main> in the legacy j2html DOM. */-->
-  <h1 class="mt-8">Create new trusted intermediary</h1>
-  <div class="border border-gray-300 shadow-md w-1/2 mt-6">
+  <h1 class="margin-top-0">Create new trusted intermediary</h1>
+  <div
+    class="maxw-tablet margin-top-3 padding-x-2 padding-bottom-3 border-1px border-base-lighter shadow-2"
+  >
     <form method="POST" th:action="${model.createGroupUrl}">
-      <div
-        th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField('group-name-input', 'name', 'Name', ${model.providedName}, false, false, '10000', 'mb-2')}"
-      ></div>
-      <div
-        th:replace="~{admin/shared/LegacyFieldWithLabel/TextField :: textField('group-description-input', 'description', 'Description', ${model.providedDescription}, false, false, '10000', 'mb-2')}"
-      ></div>
+      <!--/* Built by hand instead of with cf:input, which does not escape the
+             value attribute. These values are user submitted text sent back
+             through the flash after a failed create. */-->
+      <div class="usa-form-group">
+        <label class="usa-label" for="group-name-input">Name</label>
+        <input
+          type="text"
+          id="group-name-input"
+          name="name"
+          class="usa-input"
+          maxlength="10000"
+          th:value="${model.providedName}"
+        />
+      </div>
+      <div class="usa-form-group">
+        <label class="usa-label" for="group-description-input"
+          >Description</label
+        >
+        <input
+          type="text"
+          id="group-description-input"
+          name="description"
+          class="usa-input"
+          maxlength="10000"
+          th:value="${model.providedDescription}"
+        />
+      </div>
       <input
         type="hidden"
         th:value="${templateGlobals.csrfToken()}"
         name="csrfToken"
       />
-      <button
-        type="submit"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base ml-2 mb-6"
-      >
-        Create
-      </button>
+      <button type="submit" class="usa-button margin-top-3">Create</button>
     </form>
   </div>
 
-  <div class="flex mb-2 items-end">
-    <h2 class="mt-8 flex-grow relative">Existing trusted intermediaries</h2>
+  <div
+    class="display-flex flex-align-end flex-justify flex-wrap margin-top-6 margin-bottom-1"
+  >
+    <h2 class="margin-0">Existing trusted intermediaries</h2>
     <!--/* Sort select, wired up by admin_trusted_intermediary_list.ts through
-         the cf-ti-list id and the cf-ti-sublist / cf-ti-element classes below.
-         The container class is only mb-0 because the legacy code's final
-         withClass call replaced the classes j2html's FieldWithLabel had set. */-->
-    <div class="mb-0">
-      <label
-        for="cf-ti-list"
-        class="pointer-events-none text-gray-600 text-base px-1 py-2"
-        >Sort by:<span class="usa-hint--required hidden" aria-hidden="true"
-          >&nbsp;*</span
-        ></label
-      >
-      <div class="flex flex-col">
-        <select
-          id="cf-ti-list"
-          name=""
-          maxlength="10000"
-          class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
-        >
-          <option value="" hidden></option>
-          <optgroup label="Sort by:">
-            <option
-              th:each="sortOption : ${model.sortOptions}"
-              class="cf-multi-option-question-option cf-multi-option-value"
-              th:value="${sortOption.value}"
-              th:selected="${sortOption.selected}"
-              th:text="${sortOption.label}"
-            ></option>
-          </optgroup>
-        </select>
-        <div
-          id="cf-ti-list-errors"
-          class="text-red-600 text-xs p-1 hidden"
-        ></div>
-      </div>
+         the cf-ti-list id and the cf-ti-sublist / cf-ti-element classes below. */-->
+    <div>
+      <label for="cf-ti-list" class="usa-label margin-top-0">Sort by:</label>
+      <select id="cf-ti-list" name="" class="usa-select">
+        <option value="" hidden></option>
+        <optgroup label="Sort by:">
+          <option
+            th:each="sortOption : ${model.sortOptions}"
+            class="cf-multi-option-question-option cf-multi-option-value"
+            th:value="${sortOption.value}"
+            th:selected="${sortOption.selected}"
+            th:text="${sortOption.label}"
+          ></option>
+        </optgroup>
+      </select>
     </div>
   </div>
 
-  <div>
-    <table class="border border-gray-300 shadow-md w-full cf-ti-sublist">
-      <thead>
-        <tr class="border-b bg-gray-200 text-left">
-          <th class="px-4 py-2 w-1/3">Name / Description</th>
-          <th class="px-4 py-2 w-1/3">Size</th>
-          <th class="px-4 py-2 text-right pr-8 w-1/3">Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!--/* data-tiname and data-nummember are the sort keys read by
-               admin_trusted_intermediary_list.ts (QuestionSortOption.TI_NAME
-               and TI_NUM_MEMBERS). */-->
-        <tr
-          th:each="group : ${model.groups}"
-          class="cf-ti-row cf-ti-element border-b border-gray-300 even:bg-gray-100"
-          th:data-tiname="${group.name}"
-          th:data-nummember="${group.memberCount}"
-        >
-          <td class="px-4 py-2 pr-12" data-testid="ti-info">
-            <div class="font-semibold" th:text="${group.name}"></div>
-            <div class="text-xs" th:text="${group.description}"></div>
-          </td>
-          <td class="px-4 py-2 pr-12" data-testid="ti-member">
-            <div
-              class="font-semibold"
-              th:text="|Members: ${group.memberCount}|"
-            ></div>
-            <div
-              class="text-sm"
-              th:text="|Clients: ${group.clientCount}|"
-            ></div>
-          </td>
-          <td>
-            <div class="flex items-center justify-end gap-3 pr-3">
-              <!--/* Not a link: main.ts navigates on click via data-redirect-to,
-                     as the legacy asRedirectElement button did. */-->
+  <table class="usa-table usa-table--striped width-full cf-ti-sublist">
+    <thead>
+      <tr>
+        <th scope="col">Name / Description</th>
+        <th scope="col">Size</th>
+        <th scope="col" class="text-right">Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!--/* data-tiname and data-nummember are the sort keys read by
+             admin_trusted_intermediary_list.ts (QuestionSortOption.TI_NAME
+             and TI_NUM_MEMBERS). */-->
+      <tr
+        th:each="group : ${model.groups}"
+        class="cf-ti-row cf-ti-element"
+        th:data-tiname="${group.name}"
+        th:data-nummember="${group.memberCount}"
+      >
+        <td data-testid="ti-info">
+          <div class="text-semibold" th:text="${group.name}"></div>
+          <div class="font-sans-3xs" th:text="${group.description}"></div>
+        </td>
+        <td data-testid="ti-member">
+          <div
+            class="text-semibold"
+            th:text="|Members: ${group.memberCount}|"
+          ></div>
+          <div
+            class="font-sans-xs"
+            th:text="|Clients: ${group.clientCount}|"
+          ></div>
+        </td>
+        <td>
+          <div class="display-flex flex-align-center flex-justify-end">
+            <!--/* Not a link: main.ts navigates on click via data-redirect-to,
+                   as the legacy asRedirectElement button did. */-->
+            <button
+              type="button"
+              class="usa-button usa-button--outline display-flex flex-align-center"
+              th:data-redirect-to="${group.editUrl}"
+            >
+              <svg
+                th:replace="~{admin/shared/LegacySvgFragments :: iconEdit('usa-icon margin-right-05')}"
+              ></svg>
+              <span>Edit members</span>
+            </button>
+            <form method="POST" th:action="${group.deleteUrl}">
+              <input
+                type="hidden"
+                th:value="${templateGlobals.csrfToken()}"
+                name="csrfToken"
+              />
               <button
-                class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
-                th:data-redirect-to="${group.editUrl}"
+                type="submit"
+                class="usa-button usa-button--outline display-flex flex-align-center margin-right-0"
               >
                 <svg
-                  th:replace="~{admin/shared/LegacySvgFragments :: iconEdit('inline-block h-4.5 w-4.5')}"
+                  th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('usa-icon margin-right-05')}"
                 ></svg>
-                <span class="text-left">Edit members</span>
+                <span>Delete</span>
               </button>
-              <form method="POST" th:action="${group.deleteUrl}">
-                <input
-                  type="hidden"
-                  th:value="${templateGlobals.csrfToken()}"
-                  name="csrfToken"
-                />
-                <button
-                  class="font-semibold block py-2 text-center rounded-full border text-civiform-blue border-civiform-blue hover:bg-blue-100 flex items-center font-medium space-x-2 bg-white hover:bg-gray-200"
-                >
-                  <svg
-                    th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
-                  ></svg>
-                  <span class="text-left">Delete</span>
-                </button>
-              </form>
-            </div>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+            </form>
+          </div>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </th:block>
