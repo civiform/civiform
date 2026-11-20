@@ -788,7 +788,7 @@ validation.currentDateRequired=እባክዎ የዛሬን ቀን ያስገቡ
 # Validation hint shown when the year field does not contain exactly 4 digits.
 validation.yearMustBeFourDigits=እባክዎ ባለ 4 አሃዝ ዓመት ያስገቡ፣ ለምሳሌ 1996።
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=እባክዎ ወር ያስገቡ።
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Please enter a day.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
