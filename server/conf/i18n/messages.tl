@@ -386,7 +386,7 @@ button.continueApplication=Ipagpatuloy ang aplikasyon
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Mag-log in upang simulan ang aplikasyon
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=Gumamit ng account upang mag-log in muli para tingnan ang katayuan ng iyong aplikasyon at makatipid ng oras sa pag-a-apply sa iba pang mga programa.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Mag-apply sa programang {0}
 # The text on the button that takes users to the account creation form.
@@ -1283,7 +1283,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=Pinakamababang bilang ng mga listahan
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=Pinakamataas na bilang ng mga listahan
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
@@ -1291,7 +1291,7 @@ label.repeatedSet.initialQuestion=Unang tanong
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Magdagdag ng tanong na tumutukoy sa bawat item o tao. Halimbawa, kung ang mga aplikante ay naglilista ng mga miyembro ng sambahayan, magdagdag ng tanong upang kolektahin ang pangalan ng bawat miyembro.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=Kung pipili ka ng isang umiiral na tanong, ise-save ng sistema ang isang kopya para sa grupo ng listahang ito sa imbakan ng mga tanong. Ang orihinal ay mananatiling hindi nagbabago.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Paalala: Makikita ng mga aplikante ang teksto ng prompt at pahiwatig para sa iyong grupo ng listahan sa halip na ang sariling teksto ng prompt at pahiwatig para sa tanong na ito.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
@@ -1345,9 +1345,9 @@ text.repeatedSet.addQuestionDescription=Hinihiling ng isang grupo ng listahan sa
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Magdagdag ng mga tanong na gusto mong sagutin ng mga aplikante tungkol sa bawat item o taong inililista nila.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=Kung pipili ka ng isang umiiral na tanong mula sa imbakan ng mga tanong, ise-save ng sistema ang isang kopya para sa grupo ng listahang ito. Ang orihinal ay mananatiling hindi nagbabago.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=Ang tanong na ito ay umuulit para sa bawat item o taong idinaragdag ng isang aplikante. Halimbawa, sinasagot ito ng mga aplikante nang isang beses para sa bawat miyembro ng sambahayan na kanilang inililista.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
 label.repeatedQuestion.associatedListSet=Kaugnay na grupo ng listahan
 # Heading above the list set question in the program block editor
@@ -1359,7 +1359,7 @@ heading.repeatedSet.questionBank=Magdagdag ng grupo ng listahan
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Mga inuulit na tanong
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=Mga inuulit na tanong tungkol sa bawat {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=Ilagay ang mga item o taong inililista ng aplikante, tulad ng "miyembro ng sambahayan" o "pinagmumulan ng kita."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
