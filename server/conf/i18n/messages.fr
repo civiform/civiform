@@ -37,7 +37,7 @@ heading.informationAriaLabelPrefix=Attention : {0}
 # Message for screen readers as part of the aria label to let user know they completed an action successfully.
 heading.successAriaLabelPrefix=Opération réussie : {0}
 # Hidden text read by screen readers before a warning message, so users know the message is a warning.
-heading.warningPrefix=Warning:
+heading.warningPrefix=Avertissement :
 # Toast message that tells the user their session has ended, to help indicate that they are no longer logged in to an account (but still as a guest).
 toast.sessionEnded=Votre session a été fermée.
 # Message for guest users, to avoid showing "Logged in as Guest" when they are really not logged in.
@@ -376,17 +376,17 @@ title.programOverview={0} - Présentation du programme
 # Heading for the section of the program overview page that contains the application steps.
 heading.applicationSteps=Comment envoyer une demande
 # Heading for the section of the program overview page where the applicant can start the application.
-heading.startApplication=Start application
+heading.startApplication=Lancer la candidature
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=Prêt à postuler ? Connectez-vous pour enregistrer votre progression.
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Lancer la candidature
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=Poursuivre la candidature
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Log in to start application
+button.loginToStartApplication=Se connecter pour lancer la candidature
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=Utilisez un compte pour vous reconnecter afin de vérifier l’état d’avancement de votre candidature et de gagner du temps lors de vos candidatures à d’autres programmes.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=S''inscrire au programme {0}
 # The text on the button that takes users to the account creation form.
@@ -610,9 +610,9 @@ content.adminProgramImage.cardPreviewError=Erreur lors de la génération de l''
 # Message shown when alt text is required but missing.
 validation.adminQuestionImage.altTextRequired=La description de l'image est obligatoire lorsqu'une image est téléchargée pour une question.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=La description ne peut pas être supprimée car une image est présente. Supprimez l'image avant de supprimer la description.
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=Saisissez la description de l'image (texte alternatif)
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -1261,15 +1261,15 @@ ariaLabel.indentedPage=Page en retrait
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=Méthode de création de l'ensemble de listes
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=Créer
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=Choisir un ensemble existant
 # Label for the new list set form
-label.repeatedSet.newSetForm=Create new list set
+label.repeatedSet.newSetForm=Créer un nouvel ensemble de listes
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=What is being listed?
+input.repeatedSet.listedEntity=Qu'est-ce qui est mis en vente ?
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=List set admin ID
+input.repeatedSet.adminId=Identifiant administrateur de l'ensemble de listes
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=Texte d'invite
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
@@ -1297,65 +1297,65 @@ description.repeatedSet.initialQuestionNote=Remarque : les candidats voient le t
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Identifiant administrateur :
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=Les candidats utilisent cette question pour ajouter chaque élément ou personne à la liste définie.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
-alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
+alert.repeatedSet.backfillSaveWarning=Vous ne pourrez plus supprimer la question initiale une fois que vous l'aurez enregistrée.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
 alert.repeatedSet.backfillSaveWarningOneProgram=Cela mettra également à jour {0} qui utilise cet ensemble de listes.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
 alert.repeatedSet.backfillSaveWarningPrograms=Cela mettra également à jour {0} qui utilisent cet ensemble de listes.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=1 programme
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
 text.repeatedSet.backfillProgramCountMany={0} programmes
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=Enregistrer la question initiale
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
+alert.repeatedSet.addQuestionDisabled=Ajoutez une liste avant d’ajouter des questions répétées. Rendez-vous à la section {0} pour en ajouter une.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
 link.repeatedSet.previousScreen=écran précédent
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
-alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
+alert.repeatedSet.initialQuestionArchived=La question initiale a été archivée. Veuillez sélectionner une nouvelle question initiale
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=Question initiale introuvable. Veuillez sélectionner une nouvelle question initiale
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Veuillez ajouter une question initiale
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Lorsque vous créez cet ensemble de listes, le système l'enregistre dans la banque de questions.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=Les questions appartenant à un autre ensemble de listes ne sont pas disponibles.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Créer un ensemble de listes
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Écran d'ajout d'un ensemble de listes
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=Ajouter un ensemble de listes
 # Button on the new list set form that opens the question bank so admins can add the initial question
-button.repeatedSet.initialQuestion.add=Add initial question
+button.repeatedSet.initialQuestion.add=Ajouter une question initiale
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=Ensemble de listes
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Ensemble de listes imbriqué
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=Les demandeurs verront apparaître, dans le nom d'écran, l'entité qu'ils ont mentionnée en réponse à la question initiale. Vous pouvez ajouter du texte supplémentaire dans le premier champ ci-dessous afin de fournir davantage de contexte. Par exemple, si la question initiale porte sur les membres du foyer et que le demandeur a indiqué « Jennifer », le nom d'écran pourrait être : « Jennifer : informations générales ».
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=Une liste demande aux demandeurs d'ajouter des éléments ou des personnes à une liste.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
+text.repeatedQuestions.description=Ajoutez les questions auxquelles vous souhaitez que les candidats répondent concernant chaque élément ou personne qu’ils mentionnent.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=Si vous choisissez une question existante dans la banque de questions, le système en enregistre une copie pour cet ensemble de listes. L'original reste inchangé.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=Cette question se répète pour chaque élément ou personne ajouté par un candidat. Par exemple, les candidats y répondent une fois pour chaque membre du foyer qu'ils mentionnent.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=Ensemble de listes associé
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=Ensemble de listes
 # Heading shown above repeated questions in the question bank that are already associated with this list set
-heading.repeatedSet.previouslyUsed=Previously used for this list set
+heading.repeatedSet.previouslyUsed=Précédemment utilisé pour cet ensemble de listes
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=Ajouter un ensemble de listes
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Questions répétées
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
@@ -1375,13 +1375,13 @@ description.repeatedSet.chooseExistingQuestion=Ajoutez une liste existante issue
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Ajouter un écran enfant
 # A button for admins to add a nested list set to a program
-button.addNestedRepeatedSet=Add nested list set
+button.addNestedRepeatedSet=Ajouter une liste imbriquée
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=Passer à l'écran enfant
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Ajouter une question
 # A button on a question card for admins to remove the question from the screen.
-button.removeQuestion=Remove
+button.removeQuestion=Supprimer
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=
 # A tooltip shown to admins when the remove question button is disabled for a list set question
