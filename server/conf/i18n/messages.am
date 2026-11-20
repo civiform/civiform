@@ -386,7 +386,7 @@ button.continueApplication=ማመልከቻ ይቀጥሉ
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=ማመልከቻ ለመጀመር በመለያ ይግቡ
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=የእርስዎን የማመልከቻ ሁኔታ ለማረጋገጥ ተመልሰው እንዲገቡ መለያዎን ይጠቀሙ እና ሌሎች ፕሮግራሞች ላይ በማመልከት ጊዜ ይቆጥቡ።
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=ለ{0} ፕሮግራም ያመልክቱ
 # The text on the button that takes users to the account creation form.
