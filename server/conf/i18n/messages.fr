@@ -380,7 +380,7 @@ heading.startApplication=Start application
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=Ready to apply? Log in to save your progress.
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=Lancer la candidature
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Continue application
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
@@ -790,7 +790,7 @@ validation.yearMustBeFourDigits=Veuillez saisir une année à 4 chiffres, par ex
 # Validation error shown when the month was not selected.
 validation.monthRequired=Veuillez sélectionner un mois.
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=Veuillez saisir un jour.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
@@ -1259,7 +1259,7 @@ session.length.warning.message.loggedIn=Votre session est sur le point d'expirer
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Indented page
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=List set creation method
+heading.repeatedSet.creationMethod=Méthode de création de l'ensemble de listes
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing list set
@@ -1371,7 +1371,7 @@ description.repeatedSet.hintText=Enter a hint that helps applicants decide what 
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=Ajoutez une liste existante issue de la banque de questions.
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Ajouter un écran enfant
 # A button for admins to add a nested list set to a program
