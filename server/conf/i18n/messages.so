@@ -1167,9 +1167,9 @@ banner.immigrationStatusInfoBanner.linkText=halkan
 # Header for demo banner alert
 label.demoBanner.heading=Bandhiga: {0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=Qaabka macluumaadka la soo bandhigo
 # Count of remaining days for the demo environment (singular)
-banner.demoBanner.dayRemaining=1 day remaining
+banner.demoBanner.dayRemaining=1 maalin ayaa hadhay
 # Count of remaining days for the demo environment (plural)
 banner.demoBanner.daysRemaining={0} days remaining
 
