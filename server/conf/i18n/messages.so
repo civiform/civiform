@@ -792,7 +792,7 @@ validation.monthRequired=Fadlan dooro bil
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Fadlan gelin maalin.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=Fadlan geli maalin ansax ah laga bilaabo 1 ilaa 31,
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - Janaayo
 # A month option when selecting a specific date from a dropdown menu.
