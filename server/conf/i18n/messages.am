@@ -786,7 +786,7 @@ validation.dateTooFarInFuture=ቀን ከ{0} በፊት መሆን አለበት
 validation.dateNotInRange=ቀን በ{0} እና {1} መካከል መሆን አለበት
 validation.currentDateRequired=እባክዎ የዛሬን ቀን ያስገቡ
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=እባክዎ ባለ 4 አሃዝ ዓመት ያስገቡ፣ ለምሳሌ 1996።
 # Validation error shown when the month was not selected.
 validation.monthRequired=Please select a month.
 # Validation error shown when the day field was left blank.
