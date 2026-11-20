@@ -792,7 +792,7 @@ validation.monthRequired=Veuillez sélectionner un mois.
 # Validation error shown when the day field was left blank.
 validation.dayRequired=Veuillez saisir un jour.
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
-validation.dayInvalid=Please enter a valid day from 1 to 31.
+validation.dayInvalid=Veuillez saisir un jour valide compris entre 1 et 31.
 # A month option when selecting a specific date from a dropdown menu.
 option.memorableDate.January=01 - janvier
 # A month option when selecting a specific date from a dropdown menu.
@@ -1167,11 +1167,11 @@ banner.immigrationStatusInfoBanner.linkText=ici
 # Header for demo banner alert
 label.demoBanner.heading=Démo : {0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=Informations sur le mode démo
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=Il reste 1 jour
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} days remaining
+banner.demoBanner.daysRemaining=Il reste {0} jours
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
@@ -1257,7 +1257,7 @@ session.length.warning.message.loggedIn=Votre session est sur le point d'expirer
 #------------------------------------------------------------------------------#
 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
-ariaLabel.indentedPage=Indented page
+ariaLabel.indentedPage=Page en retrait
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=Méthode de création de l'ensemble de listes
 # Option for allowing an admin to create a new list set
@@ -1303,7 +1303,7 @@ alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
 alert.repeatedSet.backfillSaveWarningOneProgram=Cela mettra également à jour {0} qui utilise cet ensemble de listes.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=Cela mettra également à jour {0} qui utilisent cet ensemble de listes.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
 text.repeatedSet.backfillProgramCountOne=1 program
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
@@ -1319,7 +1319,7 @@ alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Se
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
 alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Please add an initial question
+alert.repeatedSet.initialQuestionRequired=Veuillez ajouter une question initiale
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=Lorsque vous créez cet ensemble de listes, le système l'enregistre dans la banque de questions.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
@@ -1377,7 +1377,7 @@ button.addRepeatedScreen=Ajouter un écran enfant
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=Passer à l'écran enfant
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=Ajouter une question
 # A button on a question card for admins to remove the question from the screen.
