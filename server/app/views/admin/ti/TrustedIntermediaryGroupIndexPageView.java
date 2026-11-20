@@ -3,7 +3,7 @@ package views.admin.ti;
 import com.google.inject.Inject;
 import play.i18n.Messages;
 import views.admin.AdminLayout;
-import views.admin.LegacyTailwindLayoutBaseView;
+import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
 /**
@@ -12,7 +12,7 @@ import views.shared.LayoutDeps;
  * the redesigned page is {@link TrustedIntermediaryGroupListPageView}.
  */
 public final class TrustedIntermediaryGroupIndexPageView
-    extends LegacyTailwindLayoutBaseView<TrustedIntermediaryGroupIndexPageViewModel> {
+    extends TransitionalLayoutBaseView<TrustedIntermediaryGroupIndexPageViewModel> {
 
   @Inject
   public TrustedIntermediaryGroupIndexPageView(LayoutDeps layoutDeps) {
