@@ -1283,17 +1283,17 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=Nombre minimal d’éléments dans la liste
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
-input.repeatedSet.maxListCount=Maximum list count
+input.repeatedSet.maxListCount=Nombre maximal d’éléments dans la liste
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
 label.repeatedSet.initialQuestion=Question initiale
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=If you choose an existing question, the system saves a copy for this list set in the question bank. The original stays unchanged.
+description.repeatedSet.initialQuestionCopy=Si vous choisissez une question existante, le système enregistre une copie de celle-ci pour cet ensemble de listes dans la banque de questions. L’original reste inchangé.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=Remarque : les candidats voient le texte d’invite et l’indice de votre ensemble de listes à la place du texte d’invite et de l’indice propres à cette question.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Identifiant administrateur :
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
@@ -1307,13 +1307,13 @@ alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
 text.repeatedSet.backfillProgramCountOne=1 program
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany={0} programmes
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=Save initial question
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=écran précédent
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
@@ -1321,7 +1321,7 @@ alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a n
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
+alert.repeatedSet.newQuestion=Lorsque vous créez cet ensemble de listes, le système l'enregistre dans la banque de questions.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
 # Submission button for creating a new list set
@@ -1341,7 +1341,7 @@ text.nestedRepeatedSet=Ensemble de listes imbriqué
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=Une liste demande aux demandeurs d'ajouter des éléments ou des personnes à une liste.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
@@ -1359,17 +1359,17 @@ heading.repeatedSet.questionBank=Add a list set
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=Questions répétées
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=Questions répétées concernant chaque {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity=Saisissez les éléments ou les personnes qu’un candidat doit énumérer, tels que « membre du foyer » ou « source de revenus ».
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=Nous remplirons cet identifiant en fonction de votre saisie ci-dessus. Veuillez le personnaliser si nécessaire.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=Saisissez le texte invitant les candidats à ajouter chaque élément ou personne.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=Saisissez une indication aidant les candidats à déterminer ce qu’ils doivent ajouter. Par exemple : « Ne vous incluez pas vous-même. »
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=Créez une nouvelle question de type « liste » à partir de cet écran. Nous l’enregistrerons pour vous dans la banque de questions en vue d’une utilisation ultérieure.
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Ajoutez une liste existante issue de la banque de questions.
 # A button for admins to add a child screen (sub screen) to a program
