@@ -1329,13 +1329,13 @@ button.repeatedSet.submitNew=Crear conjunto de lista
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Agregar pantalla de conjunto de lista
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Agregar conjunto de listas
+button.repeatedSet.chooseExisting=Agregar conjunto de lista
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Agregar pregunta inicial
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Eliminar la pregunta inicial de {0}
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=Conjunto de listas
+text.repeatedSet=Conjunto de lista
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Conjunto de listas anidado
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
