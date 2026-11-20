@@ -1301,7 +1301,7 @@ description.repeatedSet.initialQuestionAdminId=Los solicitantes usan esta pregun
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=Esto también actualizará {0} que usa esta conjunto de listas.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
 alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
