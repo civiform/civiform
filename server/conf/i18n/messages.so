@@ -1345,7 +1345,7 @@ text.repeatedSet.addQuestionDescription=Qaybta liisku waxay codsadayaasha weydii
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Ku dar su'aalaha aad doonayso codsadayaasha inay ka jawaabaan wax ku saabsan shay kasta ama qofka ay qoraan.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=Haddii aad doorato su'aal ka jirto kaydka su'aasha, nidaamku waxa uu kaydiyaa koobiga qaybtan liiska. Joogida asalka ah isma beddesho.
+text.repeatedQuestions.copyDescription=Haddii aad doorato su'aal ka jirta kaydka su'aalaha, nidaamku wuxuu nuqul u kaydiyaa qaybtan liiska. Su'aasha asalka ah isma beddesho.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
 text.repeatedQuestion.listSetInformation=Su'aashan waxay ku celisaa shay kasta ama qofka codsadahu ku daro. Tusaale ahaan, codsadayaashu way ka jawaabaan mar xubin kasta oo qoyska ah oo ay qoraan.
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
