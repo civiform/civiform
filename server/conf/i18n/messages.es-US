@@ -1325,9 +1325,9 @@ alert.repeatedSet.newQuestion=Cuando creas este conjunto de lista, el sistema lo
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Las preguntas que pertenecen a otro conjunto de lista no están disponibles.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Crear conjunto de listas
+button.repeatedSet.submitNew=Crear conjunto de lista
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Agregar pantalla de conjunto de listas
+button.repeatedSet.addNew=Agregar pantalla de conjunto de lista
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Agregar conjunto de listas
 # Button on the new list set form that opens the question bank so admins can add the initial question
