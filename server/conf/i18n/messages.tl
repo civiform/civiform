@@ -384,7 +384,7 @@ button.startApplication=Simulan ang aplikasyon
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=Ipagpatuloy ang aplikasyon
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
-button.loginToStartApplication=Log in to start application
+button.loginToStartApplication=Mag-log in upang simulan ang aplikasyon
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
 alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
 # Top-level heading for the program overview page.  The {0} is the program name.
@@ -610,9 +610,9 @@ content.adminProgramImage.cardPreviewError=Error sa pagbuo ng preview ng card
 # Message shown when alt text is required but missing.
 validation.adminQuestionImage.altTextRequired=Ang paglalarawan ng larawan ay kinakailangan kapag nag-upload ng larawang pananong.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=Hindi maaaring alisin ang paglalarawan dahil may larawan. Tanggalin ang larawan bago tanggalin ang paglalarawan.
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=Ilagay ang paglalarawan ng larawan (Alt Text)
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -1297,19 +1297,19 @@ description.repeatedSet.initialQuestionNote=Paalala: Makikita ng mga aplikante a
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=ID ng Admin:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=Ginagamit ng mga aplikante ang tanong na ito upang idagdag ang bawat item o tao sa grupo ng listahan.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=Hindi mo magagawang alisin ang unang tanong pagkatapos mo itong i-save.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=Ia-update din nito ang {0} na gumagamit ng grupo ng listahang ito.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=Ia-update din nito ang {0} na gumagamit ng grupo ng listahang ito.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=1 programa
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
-text.repeatedSet.backfillProgramCountMany={0} programs
+text.repeatedSet.backfillProgramCountMany={0} (na) programa
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=I-save ang unang tanong
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Magdagdag ng grupo ng listahan bago ka magdagdag ng mga inuulit na tanong. Pumunta sa {0} upang magdagdag ng isa.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
@@ -1317,17 +1317,17 @@ link.repeatedSet.previousScreen=naunang screen
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Ang unang tanong ay nai-archive na. Pumili ng bagong unang tanong
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=Hindi nakita ang unang tanong. Pumili ng bagong unang tanong
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Mangyaring magdagdag ng unang tanong
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
+alert.repeatedSet.newQuestion=Kapag ginawa mo ang grupo ng listahang ito, ise-save ito ng sistema sa imbakan ng mga tanong.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Questions that belong to another list set are unavailable.
+alert.repeatedSet.previouslyUsed=Ang mga tanong na kabilang sa ibang grupo ng listahan ay hindi magagamit. 
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Gumawa ng grupo ng listahan
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set screen
+button.repeatedSet.addNew=Screen para magdagdag ng grupo ng listahan
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Magdagdag ng grupo ng listahan
 # Button on the new list set form that opens the question bank so admins can add the initial question
@@ -1351,29 +1351,29 @@ text.repeatedQuestion.listSetInformation=This question repeats for each item or 
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
 label.repeatedQuestion.associatedListSet=Kaugnay na grupo ng listahan
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=List set
+heading.repeatedSet.question=Grupo ng listahan
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Dating nang ginamit para sa grupo ng listahan na ito
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
 heading.repeatedSet.questionBank=Magdagdag ng grupo ng listahan
 # Heading above the questions section on repeated screens in the admin program screen editor.
-heading.repeatedQuestions=Repeated questions
+heading.repeatedQuestions=Mga inuulit na tanong
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity=Ilagay ang mga item o taong inililista ng aplikante, tulad ng "miyembro ng sambahayan" o "pinagmumulan ng kita."
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=Pupunan namin ang ID na ito batay sa iyong inilagay sa itaas. Mangyaring i-angkop ayon sa kinakailangan.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=Ilagay ang teksto na nagpa-prompt sa mga aplikante na idagdag ang bawat item o tao.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=Maglagay ng pahiwatig na tumutulong sa mga aplikante na magpasya kung ano ang idadagdag. Halimbawa, "Huwag isama ang iyong sarili."
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=Gumawa ng bagong tanong para sa grupo ng listahan mula sa screen na ito. Ise-save namin ito para sa iyo sa imbakan ng mga tanong upang magamit sa hinaharap.
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Magdagdag ng isang umiiral na grupo ng listahan mula sa imbakan ng mga tanong.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=Magdagdag ng maliit na pangalawahing screen
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Magdagdag ng naka-nest na grupo ng listahan
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
