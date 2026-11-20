@@ -3,6 +3,7 @@ package controllers.admin;
 import auth.Authorizers;
 import auth.ProfileUtils;
 import com.google.common.base.Preconditions;
+import com.typesafe.config.Config;
 import controllers.BadRequestException;
 import controllers.CiviFormController;
 import java.util.Locale;
@@ -33,6 +34,7 @@ public final class AdminReportingController extends CiviFormController {
   private final ProgramService programService;
   private final ReportingService reportingService;
   private final SettingsManifest settingsManifest;
+  private final boolean useDeterministicStats;
 
   @Inject
   public AdminReportingController(
@@ -44,7 +46,8 @@ public final class AdminReportingController extends CiviFormController {
       ProgramService programService,
       VersionRepository versionRepository,
       ReportingService reportingService,
-      SettingsManifest settingsManifest) {
+      SettingsManifest settingsManifest,
+      Config config) {
     super(profileUtils, versionRepository);
     this.adminReportingIndexView = Preconditions.checkNotNull(adminReportingIndexView);
     this.adminReportingPageView = Preconditions.checkNotNull(adminReportingPageView);
@@ -53,14 +56,16 @@ public final class AdminReportingController extends CiviFormController {
     this.programService = Preconditions.checkNotNull(programService);
     this.reportingService = Preconditions.checkNotNull(reportingService);
     this.settingsManifest = Preconditions.checkNotNull(settingsManifest);
+    this.useDeterministicStats = config.getBoolean("reporting_use_deterministic_stats");
   }
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       AdminReportingPageViewModel model =
           AdminReportingPageViewModel.builder()
               .monthlyStats(reportingService.getMonthlyStats())
+              .useDeterministicStats(useDeterministicStats)
               .build();
       return ok(adminReportingPageView.render(request, model)).as(Http.MimeTypes.HTML);
     }
@@ -75,7 +80,7 @@ public final class AdminReportingController extends CiviFormController {
 
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public CompletionStage<Result> show(Http.Request request, String programSlug) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
       return programService
           .getActiveFullProgramDefinitionAsync(programSlug)
           .thenApply(
@@ -89,6 +94,7 @@ public final class AdminReportingController extends CiviFormController {
                         .programSlug(programSlug)
                         .programName(programDefinition.adminName())
                         .enUSLocalizedProgramName(programDefinition.localizedName().getDefault())
+                        .useDeterministicStats(useDeterministicStats)
                         .build();
                 return ok(adminReportingProgramPageView.render(request, model))
                     .as(Http.MimeTypes.HTML);

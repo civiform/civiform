@@ -1,96 +1,220 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingPageViewModel"*/-->
 <th:block th:fragment="content">
-  <table class="usa-table">
-    <caption th:text="#{caption.submissionsByProgram}"></caption>
-    <thead>
-      <tr>
-        <th scope="col" th:text="#{content.program}"></th>
-        <th scope="col" th:text="#{content.submissions}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP25}"></th>
-        <th scope="col" th:text="#{content.medianTimeToComplete}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP75}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP99}"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <th:block
-        th:each="stat : ${model.monthlyStats.totalSubmissionsByProgram}"
-      >
-        <tr>
-          <th scope="row">
-            <a
-              class="usa-link"
-              th:href="${model.getDetailsUrl(stat.programName)}"
-              th:text="${stat.enUSLocalizedProgramName()}"
-            ></a>
-          </th>
-          <td th:text="${stat.applicationCount}"></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
-          ></td>
-        </tr>
-      </th:block>
-    </tbody>
-  </table>
-  <a
-    class="usa-button"
-    th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
-    th:text="#{button.downloadCsv}"
-  >
-  </a>
+  <div class="padding-4 spacing-4">
+    <div class="spacing-1">
+      <h1 th:text="${templateGlobals.pageTitle()}"></h1>
+      <p th:text="#{reportingProgram.dataDelay}"></p>
+    </div>
+    <section class="spacing-2">
+      <h2
+        id="by-program-heading"
+        th:text="#{caption.submissionsByProgram}"
+      ></h2>
 
-  <table class="usa-table">
-    <caption th:text="#{caption.submissionsByMonth}"></caption>
-    <thead>
-      <tr>
-        <th scope="col" th:text="#{content.month}"></th>
-        <th scope="col" th:text="#{content.submissions}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP25}"></th>
-        <th scope="col" th:text="#{content.medianTimeToComplete}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP75}"></th>
-        <th scope="col" th:text="#{content.timeToCompleteP99}"></th>
-      </tr>
-    </thead>
-    <tbody>
-      <th:block
-        th:each="stat : ${model.monthlyStats.monthlySubmissionsAggregated}"
-      >
-        <tr>
-          <th
-            scope="row"
-            th:text="${#dates.format(stat.timestamp.get(), 'MM/yy')}"
-          ></th>
-          <td th:text="${stat.applicationCount}"></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
-          ></td>
-          <td
-            th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
-          ></td>
-        </tr>
-      </th:block>
-    </tbody>
-  </table>
-  <a
-    class="usa-button"
-    th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
-    th:text="#{button.downloadCsv}"
-  >
-  </a>
+      <div class="usa-table-container--scrollable" tabindex="0">
+        <table
+          class="usa-table usa-table--striped usa-table--compact width-full"
+          aria-labelledby="by-program-heading"
+        >
+          <thead>
+            <tr>
+              <th scope="col" th:text="#{content.program}"></th>
+              <th scope="col" th:text="#{content.submissions}"></th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP25}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-program-note-1"
+                  aria-label="Note 1"
+                  >[1]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.medianTimeToComplete}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-program-note-2"
+                  aria-label="Note 2"
+                  >[2]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP75}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-program-note-3"
+                  aria-label="Note 3"
+                  >[3]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP99}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-program-note-4"
+                  aria-label="Note 4"
+                  >[4]</a
+                >
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="stat : ${model.monthlyStats.totalSubmissionsByProgram}"
+            >
+              <td>
+                <a
+                  class="usa-link"
+                  th:href="${model.getDetailsUrl(stat.programName)}"
+                  th:text="${stat.enUSLocalizedProgramName()}"
+                ></a>
+              </td>
+              <td class="text-right" th:text="${stat.applicationCount}"></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a
+        class="usa-button"
+        th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_PROGRAM')}"
+        th:text="#{button.downloadCsv}"
+      ></a>
+
+      <div class="spacing-1 padding-top-2">
+        <h3 class="font-body-xs">Notes</h3>
+        <ol class="usa-list font-body-xs">
+          <li id="by-program-note-1">
+            The fastest 25 percent of applicants finished in this time or less.
+          </li>
+          <li id="by-program-note-2">
+            Half of all applicants finished in this time or less.
+          </li>
+          <li id="by-program-note-3">
+            Most applicants (75 percent) finished in this time or less.
+          </li>
+          <li id="by-program-note-4">
+            Almost all applicants (99 percent) finished in this time or less.
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="spacing-2">
+      <h2 id="by-month-heading" th:text="#{caption.submissionsByMonth}"></h2>
+
+      <div class="usa-table-container--scrollable" tabindex="0">
+        <table
+          class="usa-table usa-table--striped usa-table--compact width-full"
+          aria-labelledby="by-month-heading"
+        >
+          <thead>
+            <tr>
+              <th scope="col" th:text="#{content.month}"></th>
+              <th scope="col" th:text="#{content.submissions}"></th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP25}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-month-note-1"
+                  aria-label="Note 1"
+                  >[1]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.medianTimeToComplete}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-month-note-2"
+                  aria-label="Note 2"
+                  >[2]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP75}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-month-note-3"
+                  aria-label="Note 3"
+                  >[3]</a
+                >
+              </th>
+              <th scope="col">
+                <th:block th:text="#{content.timeToCompleteP99}"></th:block>
+                <a
+                  class="usa-link text-normal"
+                  href="#by-month-note-4"
+                  aria-label="Note 4"
+                  >[4]</a
+                >
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              th:each="stat : ${model.monthlyStats.monthlySubmissionsAggregated}"
+            >
+              <td th:text="${model.formatMonth(stat.timestamp.get())}"></td>
+              <td class="text-right" th:text="${stat.applicationCount}"></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+              ></td>
+              <td
+                class="text-right"
+                th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+              ></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <a
+        class="usa-button"
+        th:href="${model.getDownloadCsvUrl('APPLICATION_COUNTS_BY_MONTH')}"
+        th:text="#{button.downloadCsv}"
+      ></a>
+
+      <div class="spacing-1 padding-top-2">
+        <h3 class="font-body-xs">Notes</h3>
+        <ol class="usa-list font-body-xs">
+          <li id="by-month-note-1">
+            The fastest 25 percent of applicants finished in this time or less.
+          </li>
+          <li id="by-month-note-2">
+            Half of all applicants finished in this time or less.
+          </li>
+          <li id="by-month-note-3">
+            Most applicants (75 percent) finished in this time or less.
+          </li>
+          <li id="by-month-note-4">
+            Almost all applicants (99 percent) finished in this time or less.
+          </li>
+        </ol>
+      </div>
+    </section>
+  </div>
 </th:block>
