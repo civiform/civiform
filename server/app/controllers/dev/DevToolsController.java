@@ -40,7 +40,6 @@ import services.settings.SettingsManifest;
 import services.settings.SettingsService;
 import views.dev.DevToolsPageView;
 import views.dev.DevToolsPageViewModel;
-import views.dev.DevToolsView;
 
 /** Controller for dev tools. */
 @With(DemoModeDisabledAction.class)
@@ -48,7 +47,6 @@ public class DevToolsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;
-  private final DevToolsView view;
   private final Database database;
   private final SettingsService settingsService;
   private final SettingsManifest settingsManifest;
@@ -69,7 +67,6 @@ public class DevToolsController extends Controller {
   @Inject
   public DevToolsController(
       DevDatabaseSeedTask devDatabaseSeedTask,
-      DevToolsView view,
       DevToolsPageView devToolsPageView,
       SettingsService settingsService,
       SettingsManifest settingsManifest,
@@ -85,7 +82,6 @@ public class DevToolsController extends Controller {
       @NamedCache("api-keys") AsyncCacheApi apikeysCache,
       @NamedCache("monthly-reporting-data") AsyncCacheApi reportingCache) {
     this.devDatabaseSeedTask = checkNotNull(devDatabaseSeedTask);
-    this.view = checkNotNull(view);
     this.database = DB.getDefault();
     this.settingsService = checkNotNull(settingsService);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -108,31 +104,31 @@ public class DevToolsController extends Controller {
    * database content and another to clear the database.
    */
   public Result index(Request request) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
-      ImmutableList<String> durableJobOptions =
-          ImmutableList.copyOf(DurableJobName.values()).stream()
-              .map(DurableJobName::toString)
-              .collect(ImmutableList.toImmutableList());
-      String csrfToken = play.filters.csrf.CSRF.getToken(request).map(t -> t.value()).orElse("");
-      DevToolsPageViewModel model =
-          DevToolsPageViewModel.builder()
-              .seedProgramsUrl(routes.DevToolsController.seedPrograms().url())
-              .seedQuestionsUrl(routes.DevToolsController.seedQuestions().url())
-              .clearUrl(routes.DevToolsController.clear().url())
-              .clearCacheUrl(routes.DevToolsController.clearCache().url())
-              .runDurableJobUrl(routes.DevToolsController.runDurableJob().url())
-              .iconsUrl(controllers.dev.routes.IconsController.index().url())
-              .homeUrl(controllers.routes.HomeController.index().url())
-              .addressToolsUrl(controllers.dev.routes.AddressCheckerController.index().url())
-              .sessionProfileUrl(controllers.dev.routes.ProfileController.index().url())
-              .sessionDisplayUrl(controllers.dev.routes.SessionDisplayController.index().url())
-              .durableJobOptions(durableJobOptions)
-              .isDev(deploymentType.isDev())
-              .csrfToken(csrfToken)
-              .build();
-      return ok(devToolsPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-    return ok(view.render(request, request.flash().get(FlashKey.SUCCESS)));
+    ImmutableList<String> durableJobOptions =
+        ImmutableList.copyOf(DurableJobName.values()).stream()
+            .map(DurableJobName::toString)
+            .collect(ImmutableList.toImmutableList());
+
+    DevToolsPageViewModel model =
+        DevToolsPageViewModel.builder()
+            .seedProgramsUrl(routes.DevToolsController.seedPrograms().url())
+            .seedQuestionsUrl(routes.DevToolsController.seedQuestions().url())
+            .clearUrl(routes.DevToolsController.clear().url())
+            .clearCacheUrl(routes.DevToolsController.clearCache().url())
+            .runDurableJobUrl(routes.DevToolsController.runDurableJob().url())
+            .iconsUrl(controllers.dev.routes.IconsController.index().url())
+            .homeUrl(controllers.routes.HomeController.index().url())
+            .addressToolsUrl(controllers.dev.routes.AddressCheckerController.index().url())
+            .sessionProfileUrl(controllers.dev.routes.ProfileController.index().url())
+            .sessionDisplayUrl(controllers.dev.routes.SessionDisplayController.index().url())
+            .durableJobOptions(durableJobOptions)
+            .isDev(deploymentType.isDev())
+            .flashSuccess(request.flash().get(FlashKey.SUCCESS))
+            .flashError(request.flash().get(FlashKey.ERROR))
+            .flashWarning(request.flash().get(FlashKey.WARNING))
+            .build();
+
+    return ok(devToolsPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   public Result seedQuestions() {
@@ -283,7 +279,7 @@ public class DevToolsController extends Controller {
     if (!settingsManifest.getVersionCacheEnabled() && !settingsManifest.getProgramCacheEnabled()) {
       return redirect(routes.DevToolsController.index().url())
           .flashing(
-              "warning",
+              FlashKey.WARNING,
               "The cache is not enabled, so no cache was cleared. To enable caching, set"
                   + " VERSION_CACHE_ENABLED or PROGRAM_CACHE_ENABLED to true.");
     }

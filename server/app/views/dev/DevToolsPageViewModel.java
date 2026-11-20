@@ -1,6 +1,7 @@
 package views.dev;
 
 import com.google.common.collect.ImmutableList;
+import java.util.Optional;
 import lombok.Builder;
 import lombok.Data;
 import views.BaseViewModel;
@@ -20,5 +21,7 @@ public class DevToolsPageViewModel implements BaseViewModel {
   private final String sessionDisplayUrl;
   private final boolean isDev;
   private final ImmutableList<String> durableJobOptions;
-  private final String csrfToken;
+  @Builder.Default private final Optional<String> flashSuccess = Optional.empty();
+  @Builder.Default private final Optional<String> flashError = Optional.empty();
+  @Builder.Default private final Optional<String> flashWarning = Optional.empty();
 }
