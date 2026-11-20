@@ -378,11 +378,11 @@ heading.applicationSteps=እንዴት ማመልከት እንደሚቻል
 # Heading for the section of the program overview page where the applicant can start the application.
 heading.startApplication=ማመልከቻ ይጀምሩ
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=ለማመልከት ዝግጁ ነዎት? ሂደትዎን ለማስቀመጥ በመለያ ይግቡ።
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=ማመልከቻ ይጀምሩ
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=ማመልከቻ ይቀጥሉ
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Log in to start application
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
