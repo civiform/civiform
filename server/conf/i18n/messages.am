@@ -1341,7 +1341,7 @@ text.nestedRepeatedSet=የታቀፈ ዝርዝር ስብስብ
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=አመልካቾች ከመነሻ ጥያቄ የመለሱትን ዝርዝር አካል እንደ ማያ ገጹ ስም አካል አድርገው ያያሉ። ተጨማሪ አውድ ለማቅረብ ከዚህ በታች ባለው የመጀመሪያ ሳጥን ውስጥ ተጨማሪ ጽሑፍ ማከል ይችላሉ። ለምሳሌ፣ የመነሻ ጥያቄው የቤተሰብ አባላትን የሚጠይቅ ከሆነ  እና አመልካቹ "ጄኒፈር"  ብሎ የሚዘረዝር ከሆነ፣ የማያ ገጹ ስም፦ "ጄኒፈር - የጀርባ የበስተኋላ ታሪክ መረጃ" ሊሆን ይችላል።
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=አንድ የዝርዝር ስብስብ ንጥሎች ወይም ሰዎችን ወደ ዝርዝር ለማከል ይጠይቃል።
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
