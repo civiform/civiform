@@ -221,6 +221,10 @@ public enum MessageKey {
   LINK_PROGRAM_DETAILS("link.programDetails"),
   LINK_REPEATED_SET_PREVIOUS_SCREEN("link.repeatedSet.previousScreen"),
   MAP_VALIDATION_TOO_MANY("map.validation.tooManySelections"),
+  MEMORABLE_DATE_HINT("hint.memorableDate"),
+  MEMORABLE_DATE_HINT_DAY("hint.memorableDate.day"),
+  MEMORABLE_DATE_HINT_MONTH("hint.memorableDate.month"),
+  MEMORABLE_DATE_HINT_YEAR("hint.memorableDate.year"),
   MEMORABLE_DATE_PLACEHOLDER("placeholder.memorableDate"),
   MODAL_ERROR_SAVING_CONTENT_REVIEW("modal.errorSaving.content.review"), // North Star only
   MODAL_ERROR_SAVING_CONTENT_PREVIOUS("modal.errorSaving.content.previous"), // North Star only

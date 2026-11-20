@@ -66,13 +66,14 @@
            monthHasError=${hasErrors && dateQuestion.hasMonthError()},
            dayHasError=${hasErrors && dateQuestion.hasDayError()},
            yearHasError=${hasErrors && dateQuestion.hasYearError()},
-           errorId=${questionId + '-error'},
+           errorId=|${questionId}-error|,
+           monthHintId=|${questionId}-month-hint|,
+           dayHintId=|${questionId}-day-hint|,
+           yearHintId=|${questionId}-year-hint|,
            descriptionId=${isInitialQuestion ? null : questionId + '-description'},
-           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
-           monthOwnDescribedBy=${monthHasError ? describedByPrefix + errorId : descriptionId},
-           monthDescribedBy=${listErrorsId == null ? monthOwnDescribedBy : listErrorsId + (monthOwnDescribedBy != null ? ' ' + monthOwnDescribedBy : '')},
-           dayDescribedBy=${dayHasError ? describedByPrefix + errorId : descriptionId},
-           yearDescribedBy=${yearHasError ? describedByPrefix + errorId : descriptionId}"
+           monthDescribedBy=|${listErrorsId} ${descriptionId} ${monthHintId} ${monthHasError ? errorId : null}|,
+           dayDescribedBy=|${descriptionId} ${dayHintId} ${dayHasError ? errorId : null}|,
+           yearDescribedBy=|${descriptionId} ${yearHintId} ${yearHasError ? errorId : null}|"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -85,6 +86,11 @@
   <div
     th:replace="~{questiontypes/QuestionBaseFragment :: validationErrors(${fieldErrors}, ${questionRendererParams}, ${questionId})}"
   ></div>
+  <span
+    class="usa-hint"
+    aria-hidden="true"
+    th:text="#{hint.memorableDate}"
+  ></span>
 
   <div class="usa-memorable-date">
     <!--/* Month Input */-->
@@ -102,6 +108,11 @@
           *</span
         >
       </label>
+      <span
+        class="usa-hint usa-sr-only"
+        th:id="${monthHintId}"
+        th:text="#{hint.memorableDate.month}"
+      ></span>
       <select
         class="usa-select"
         th:classappend="${monthHasError ? 'usa-input--error' : ''}"
@@ -191,6 +202,11 @@
           *</span
         >
       </label>
+      <span
+        class="usa-hint usa-sr-only"
+        th:id="${dayHintId}"
+        th:text="#{hint.memorableDate.day}"
+      ></span>
       <input
         class="usa-input"
         th:classappend="${dayHasError ? 'usa-input--error' : ''}"
@@ -221,6 +237,11 @@
           *</span
         >
       </label>
+      <span
+        class="usa-hint usa-sr-only"
+        th:id="${yearHintId}"
+        th:text="#{hint.memorableDate.year}"
+      ></span>
       <input
         class="usa-input"
         th:classappend="${yearHasError ? 'usa-input--error' : ''}"
@@ -229,6 +250,7 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && yearHasError && !monthHasError && !dayHasError}"
         th:id="${yearId}"
         th:name="${dateQuestion.getYearPath()}"
+        minlength="4"
         maxlength="4"
         pattern="[0-9]*"
         inputmode="numeric"
