@@ -63,8 +63,8 @@ export const dismissModal = async (page: Page | Frame) => {
  * The CSS classes in the locator are added automatically by HTMX when it beings running an action. This
  * list may not be exhaustive.
  */
-export const waitForHtmxReady = async (page: Page) => {
+export const waitForHtmxReady = async (page: Page, timeout?: number) => {
   await expect(
     page.locator('.htmx-request, .htmx-settling, .htmx-swapping, .htmx-added'),
-  ).toHaveCount(0)
+  ).toHaveCount(0, {timeout})
 }
