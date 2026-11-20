@@ -1259,7 +1259,7 @@ session.length.warning.message.loggedIn=Kullankaaga wuu dhici rabaa. Fadlan keyd
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Bogga dib loo dhaqaajiyay
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=Qaybta liiska qaabka samaynta
+heading.repeatedSet.creationMethod=Habka samaynta qaybta liiska
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Samee mid cusub
 # Option for allowing an admin to choose an existing list set
