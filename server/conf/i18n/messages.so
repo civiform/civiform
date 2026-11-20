@@ -386,7 +386,7 @@ button.continueApplication=Sii wad codsiga
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Soo gal si aad u bilowdo codsiga
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Kootada isticmaalaha si dib loogu soo galo si loo hubiyo heerka codsigaaga oo wakhti loo kaydiyo codsiga barnaamijyada kale.
+alert.createAccountDescriptionOverview=Isticmaal koonto si aad dib ugu soo gasho, u hubiso xaaladda codsigaaga oo aad wakhti u kaydiso markaad codsanayso barnaamijyada kale.
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=Codso barnaamijka {0}
 # The text on the button that takes users to the account creation form.
