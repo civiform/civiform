@@ -1373,7 +1373,7 @@ description.repeatedSet.createNewQuestion=Ka samee shaashaddan su'aal cusub oo q
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Ku dar qaybta liiska jirta ee kaydka su'aalaha.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen= Ku dar shaashad hoosaad
+button.addRepeatedScreen=Ku dar shaashad hoosaad
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Ku dar qaybta liiska qaybta kale la geliyay
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
