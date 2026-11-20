@@ -11,7 +11,7 @@ import services.program.predicate.Operator;
 
 /** Form for updating visibility configurations of a screen (block) of a program. */
 @Validate
-public class BlockVisibilityPredicateForm implements Validatable<List<ValidationError>> {
+public final class BlockVisibilityPredicateForm implements Validatable<List<ValidationError>> {
   @Constraints.Required(message = "Must select 'hidden if' or 'shown if'.")
   private String predicateAction;
 

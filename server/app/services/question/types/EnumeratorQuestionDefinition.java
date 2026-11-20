@@ -22,7 +22,7 @@ import services.LocalizedStrings;
  * vehicles may ask the user to identify each of their vehicles, with other questions referencing it
  * that ask about each vehicle's make, model, and year.
  */
-public class EnumeratorQuestionDefinition extends QuestionDefinition {
+public final class EnumeratorQuestionDefinition extends QuestionDefinition {
 
   static final String DEFAULT_ENTITY_TYPE = "Item";
 

@@ -19,7 +19,7 @@ import services.question.QuestionSetting;
  * <p>In normal operation this shouldn't ever be reached, but an occasional gremlin has resulted in
  * the rare instance of a program pointing at an old version of a question.
  */
-public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
+public final class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   private final long id;
 
   public NullQuestionDefinitionConfig(long id) {
@@ -111,7 +111,7 @@ public class NullQuestionDefinitionConfig extends QuestionDefinitionConfig {
   }
 
   /** Used to create a new {@link Builder} based on an existing one. */
-  public static class Builder extends QuestionDefinitionConfig.Builder {
+  public static final class Builder extends QuestionDefinitionConfig.Builder {
 
     private final NullQuestionDefinitionConfig _nullQuestionDefinitionConfig;
 

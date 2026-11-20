@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import repository.GeoJsonDataRepository;
 import services.geojson.GeoJsonClient;
 
-public class MapRefreshJob extends DurableJob {
+public final class MapRefreshJob extends DurableJob {
   private static final Logger logger = LoggerFactory.getLogger(MapRefreshJob.class);
 
   private final PersistedDurableJobModel persistedDurableJobModel;

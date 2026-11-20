@@ -14,7 +14,7 @@ import services.UrlUtils;
  * our callbacks there. We also want programmatic access to the URLs which include client_name
  * parameters.
  */
-public class CallbackController extends Controller {
+public final class CallbackController extends Controller {
   @Inject private org.pac4j.play.CallbackController wrappedController;
 
   public static final String REDIRECT_TO_SESSION_KEY = "redirectTo";

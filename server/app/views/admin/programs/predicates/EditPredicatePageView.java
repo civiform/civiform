@@ -9,7 +9,8 @@ import views.shared.LayoutDeps;
  * Page view for rendering EditPredicatePageView.html. This page is used for editing predicates of a
  * block in a program.
  */
-public class EditPredicatePageView extends TransitionalLayoutBaseView<EditPredicatePageViewModel> {
+public final class EditPredicatePageView
+    extends TransitionalLayoutBaseView<EditPredicatePageViewModel> {
   @Inject
   public EditPredicatePageView(LayoutDeps layoutDeps) {
     super(layoutDeps);

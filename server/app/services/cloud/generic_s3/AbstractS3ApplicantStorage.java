@@ -132,7 +132,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     void close();
   }
 
-  static class NullClient implements Client {
+  static final class NullClient implements Client {
 
     private final S3Presigner presigner;
 
@@ -165,7 +165,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     public void close() {}
   }
 
-  class S3Client implements Client {
+  final class S3Client implements Client {
     private final AbstractS3StorageUtils s3StorageUtils;
     private final S3Presigner presigner;
 
@@ -190,7 +190,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     }
   }
 
-  class LocalStackClient implements Client {
+  final class LocalStackClient implements Client {
     private final Config config;
     private final AbstractS3StorageUtils s3StorageUtils;
     private final S3Presigner presigner;

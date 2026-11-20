@@ -80,7 +80,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
     }
   }
 
-  private static class CredentialedResourceRetriever extends DefaultResourceRetriever {
+  private static final class CredentialedResourceRetriever extends DefaultResourceRetriever {
     private final Credentials cred;
 
     CredentialedResourceRetriever(OidcConfiguration configuration, Credentials cred) {
@@ -101,7 +101,7 @@ public final class IdcsApplicantProfileCreator extends ApplicantProfileCreator {
     }
   }
 
-  private static class CachedResourceRetriever extends DefaultResourceRetriever {
+  private static final class CachedResourceRetriever extends DefaultResourceRetriever {
     private final ImmutableMap<URI, Resource> resources;
 
     CachedResourceRetriever(

@@ -19,7 +19,7 @@ import play.Environment;
  *
  * <p>Customize the OIDC provider to handle Keycloak specific settings for the applicant provider
  */
-public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
+public final class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
   private static final StandardClaimsAttributeNames standardClaimsAttributeNames =
       StandardClaimsAttributeNames.builder()
           .setEmail("email")
@@ -53,11 +53,11 @@ public class KeycloakApplicantClientProvider extends GenericOidcClientProvider {
     return "id_token token";
   }
 
-  protected String getRealm() {
+  String getRealm() {
     return getConfigurationValueOrThrow("realm");
   }
 
-  protected String getBaseUri() {
+  String getBaseUri() {
     return getConfigurationValueOrThrow("base_uri");
   }
 

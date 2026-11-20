@@ -8,7 +8,7 @@ import views.BaseViewModel;
 
 @Data
 @Builder
-public class AdminReportingProgramPageViewModel implements BaseViewModel {
+public final class AdminReportingProgramPageViewModel implements BaseViewModel {
   private final ImmutableList<ApplicationSubmissionsStat> monthlySubmissionsForProgram;
   private final String programSlug;
   private final String programName;

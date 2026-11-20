@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
  * This class extends the default pac4j logout logic to include removing the active session from the
  * database after logout is successful.
  */
-class CiviFormLogoutLogic extends DefaultLogoutLogic {
+final class CiviFormLogoutLogic extends DefaultLogoutLogic {
   private static final Logger logger = LoggerFactory.getLogger(CiviFormLogoutLogic.class);
   private final ProfileUtils profileUtils;
 

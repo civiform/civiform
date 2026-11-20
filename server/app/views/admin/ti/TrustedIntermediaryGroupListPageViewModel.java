@@ -9,7 +9,7 @@ import views.components.QuestionSortOption;
 
 @Data
 @Builder
-public class TrustedIntermediaryGroupListPageViewModel implements BaseViewModel {
+public final class TrustedIntermediaryGroupListPageViewModel implements BaseViewModel {
   // List of all TI groups.
   private final ImmutableList<models.TrustedIntermediaryGroupModel> tiGroups;
 

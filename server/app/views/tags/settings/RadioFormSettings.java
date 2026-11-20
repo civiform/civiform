@@ -14,7 +14,7 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @Accessors(fluent = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class RadioFormSettings extends FormSettings {
+public final class RadioFormSettings extends FormSettings {
   private final AttributeInfo tiled;
 
   @Builder

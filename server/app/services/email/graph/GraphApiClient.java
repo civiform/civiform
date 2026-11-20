@@ -6,7 +6,7 @@ import com.microsoft.graph.serviceclient.GraphServiceClient;
 import services.cloud.azure.Credentials;
 
 /** Client to use for non-test graph API email sends. */
-class GraphApiClient implements GraphApiClientInterface {
+final class GraphApiClient implements GraphApiClientInterface {
   private static final String[] SCOPES = new String[] {"https://graph.microsoft.com/.default"};
   private final GraphServiceClient graphClient;
 

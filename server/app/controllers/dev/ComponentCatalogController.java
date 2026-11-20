@@ -11,7 +11,7 @@ import views.dev.componentcatalog.CatalogPageView;
 import views.dev.componentcatalog.CatalogPageViewModel;
 
 @Slf4j
-public class ComponentCatalogController extends Controller {
+public final class ComponentCatalogController extends Controller {
   private final CatalogPageView catalogPageView;
 
   @Inject

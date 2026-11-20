@@ -88,7 +88,7 @@ import views.html.helper.form;
  * Controller for admins editing and viewing program predicates for eligibility and visibility
  * logic.
  */
-public class AdminProgramBlockPredicatesController extends CiviFormController {
+public final class AdminProgramBlockPredicatesController extends CiviFormController {
   // List of operator types for which we expect two input fields
   private static final ImmutableList<Operator> INPUT_PAIR_OPERATOR_TYPES =
       ImmutableList.of(Operator.BETWEEN, Operator.AGE_BETWEEN);

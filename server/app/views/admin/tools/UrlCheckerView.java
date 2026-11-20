@@ -5,7 +5,7 @@ import play.i18n.Messages;
 import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
-public class UrlCheckerView extends TransitionalLayoutBaseView<UrlCheckerViewModel> {
+public final class UrlCheckerView extends TransitionalLayoutBaseView<UrlCheckerViewModel> {
   @Inject
   public UrlCheckerView(LayoutDeps layoutDeps) {
     super(layoutDeps);

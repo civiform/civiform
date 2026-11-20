@@ -9,7 +9,7 @@ import views.admin.programs.ProgramBlocksView;
  * related to the program creation and editing flow for civiform admins. The Guice
  * module is created when the Play application starts.
  **/
-public class ProgramCreationModule extends AbstractModule {
+public final class ProgramCreationModule extends AbstractModule {
 
   @Override
   protected void configure() {

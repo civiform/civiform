@@ -21,7 +21,7 @@ import views.admin.AdminLayout;
 import views.admin.AdminLayoutFactory;
 
 /** Displays reporting statistics about applications to a specific program. */
-public class AdminReportingShowView extends BaseHtmlView {
+public final class AdminReportingShowView extends BaseHtmlView {
   private final AdminLayout layout;
   private final ReportingTableRenderer reportingTableRenderer;
 

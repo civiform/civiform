@@ -26,7 +26,7 @@ import views.applicant.ApplicantBaseView;
  * two sections: one for programs that match the filters and another for programs that do not match
  * the filters.
  */
-public class FilteredProgramsViewPartial extends ApplicantBaseView {
+public final class FilteredProgramsViewPartial extends ApplicantBaseView {
 
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 

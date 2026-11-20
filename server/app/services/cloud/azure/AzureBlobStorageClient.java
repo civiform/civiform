@@ -18,7 +18,7 @@ import java.util.Optional;
 import services.cloud.ApplicantFileNameFormatter;
 
 /** Class to use for deployed file uploads to Azure blob storage. */
-class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
+final class AzureBlobStorageClient extends BaseAzureBlobStorageClient {
 
   private final BlobServiceClient blobServiceClient;
   private UserDelegationKey userDelegationKey;

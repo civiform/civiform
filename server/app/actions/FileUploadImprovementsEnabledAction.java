@@ -14,7 +14,7 @@ import services.settings.SettingsManifest;
  * Returns a 404 unless the file upload question improvements feature is enabled. Apply it with
  * {@code deferBodyParsing} so the check runs before any of the upload is read.
  */
-public class FileUploadImprovementsEnabledAction extends Action.Simple {
+public final class FileUploadImprovementsEnabledAction extends Action.Simple {
   private final SettingsManifest settingsManifest;
 
   @Inject

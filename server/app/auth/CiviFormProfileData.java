@@ -22,7 +22,7 @@ import repository.DatabaseExecutionContext;
  *
  * <p>It is wrapped by CiviFormProfile, which is what we should use server-side.
  */
-public class CiviFormProfileData extends CommonProfile {
+public final class CiviFormProfileData extends CommonProfile {
   public static final String SESSION_ID = "sessionId";
 
   public static final String LAST_SESSION_ACTIVITY_TIME = "lastSessionActivityTime";

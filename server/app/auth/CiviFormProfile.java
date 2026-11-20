@@ -18,13 +18,12 @@ import repository.AccountRepository;
 import repository.DatabaseExecutionContext;
 import services.settings.SettingsManifest;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CiviFormProfile
-
 /**
  * This is a "pure" wrapper of CiviFormProfileData. Since CiviFormProfileData is the serialized data
  * about a profile, this class should not store any data that should be serialized. It should
  * contain only server-local information, like execution contexts, database connections, etc.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class CiviFormProfile {
   private final DatabaseExecutionContext dbContext;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;

@@ -24,7 +24,7 @@ import services.settings.SettingsManifest;
  * a user resets their password, the government can choose to send a back channel logout request to
  * CiviForm.
  */
-public class LogoutAllSessionsController extends Controller {
+public final class LogoutAllSessionsController extends Controller {
 
   private static final Logger logger = LoggerFactory.getLogger(LogoutAllSessionsController.class);
   private final ProfileUtils profileUtils;

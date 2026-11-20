@@ -6,7 +6,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a number question. */
-public class NumberQuestionForm extends QuestionForm {
+public final class NumberQuestionForm extends QuestionForm {
   private OptionalLong min;
   private OptionalLong max;
 

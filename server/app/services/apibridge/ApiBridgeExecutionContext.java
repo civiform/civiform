@@ -13,7 +13,7 @@ import play.libs.concurrent.CustomExecutionContext;
  * <p>This is only to be used with the API Bridge
  */
 @Singleton
-public class ApiBridgeExecutionContext extends CustomExecutionContext {
+public final class ApiBridgeExecutionContext extends CustomExecutionContext {
   @Inject
   public ApiBridgeExecutionContext(ActorSystem actorSystem) {
     super(checkNotNull(actorSystem), "api-bridge.dispatcher");

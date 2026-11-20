@@ -1,7 +1,7 @@
 package services.program;
 
 /** Thrown when a question cannot be found in a program. */
-public class ProgramQuestionDefinitionNotFoundException extends Exception {
+public final class ProgramQuestionDefinitionNotFoundException extends Exception {
   public ProgramQuestionDefinitionNotFoundException(
       long programId, long blockDefinitionId, long questionDefinitionId) {
     super(

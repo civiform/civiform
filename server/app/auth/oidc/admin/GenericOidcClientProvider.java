@@ -14,6 +14,7 @@ import org.pac4j.oidc.config.OidcConfiguration;
  * This class implements a `Provider` of a generic `OidcClient` for use in authenticating and
  * authorizing admins.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class GenericOidcClientProvider extends OidcClientProvider {
 
   private static final String ATTRIBUTE_PREFIX = "admin_generic_oidc_";

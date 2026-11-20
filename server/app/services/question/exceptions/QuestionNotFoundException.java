@@ -1,7 +1,7 @@
 package services.question.exceptions;
 
 /** QuestionNotFoundException is thrown when a question definition cannot be found. */
-public class QuestionNotFoundException extends Exception {
+public final class QuestionNotFoundException extends Exception {
   public QuestionNotFoundException(long questionId) {
     super(String.format("Question not found for ID: %d", questionId));
   }

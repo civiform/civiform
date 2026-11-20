@@ -9,7 +9,7 @@ import play.libs.concurrent.CustomExecutionContext;
 
 /** Custom execution context wired to "database.dispatcher" thread pool */
 @Singleton
-public class DatabaseExecutionContext extends CustomExecutionContext {
+public final class DatabaseExecutionContext extends CustomExecutionContext {
   @Inject
   public DatabaseExecutionContext(ActorSystem actorSystem) {
     super(checkNotNull(actorSystem), "database.dispatcher");

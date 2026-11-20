@@ -46,7 +46,7 @@ import views.admin.apibridge.programbridge.fragments.ProgramBridgeEditPartialVie
  * This controller handles working with configuring the api bridge settings for a specified program.
  */
 @Slf4j
-public class ProgramBridgeController extends Controller {
+public final class ProgramBridgeController extends Controller {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
   private final ProgramService programService;
@@ -249,7 +249,7 @@ public class ProgramBridgeController extends Controller {
               mapNewBridgeDefinitions(programDefinition.bridgeDefinitions(), viewModel));
 
       if (errors.isError()) {
-        log.error(errors.toString());
+        log.error("Failed to update bridge configuration: {}", errors.getErrors());
         return createErrorResponse(
             request,
             errors.getErrors().stream().map(CiviFormError::message).toArray(String[]::new));

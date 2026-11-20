@@ -7,7 +7,7 @@ import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
 /** View object for rendering the program bridge edit page */
-public class EditPageView extends TransitionalLayoutBaseView<EditPageViewModel> {
+public final class EditPageView extends TransitionalLayoutBaseView<EditPageViewModel> {
   @Inject
   public EditPageView(LayoutDeps layoutDeps) {
     super(layoutDeps);

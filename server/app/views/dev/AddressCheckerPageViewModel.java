@@ -10,7 +10,7 @@ import views.BaseViewModel;
 
 @Data
 @Builder
-public class AddressCheckerPageViewModel implements BaseViewModel {
+public final class AddressCheckerPageViewModel implements BaseViewModel {
   // Link to go back to dev tools
   private String backLinkUrl;
   // Address Correction feature enabled

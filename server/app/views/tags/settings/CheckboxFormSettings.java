@@ -18,7 +18,7 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @Accessors(fluent = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class CheckboxFormSettings extends FormSettings {
+public final class CheckboxFormSettings extends FormSettings {
   private static final ImmutableList<String> ALLOWED_COLUMNS = ImmutableList.of("2", "3", "4");
 
   private final AttributeInfo tiled;

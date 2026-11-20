@@ -146,7 +146,7 @@ public final class SimpleEmail implements EmailSendClient {
     void close();
   }
 
-  static class AwsClient implements Client {
+  static final class AwsClient implements Client {
     private final SesClient client;
 
     AwsClient(AwsRegion region) {
@@ -164,7 +164,7 @@ public final class SimpleEmail implements EmailSendClient {
     }
   }
 
-  static class LocalStackClient implements Client {
+  static final class LocalStackClient implements Client {
     private String LOCALSTACK_ENDPOINT_CONF_PATH = "localstack.endpoint";
 
     private final String localEndpoint;
@@ -192,7 +192,7 @@ public final class SimpleEmail implements EmailSendClient {
     }
   }
 
-  static class NullClient implements Client {
+  static final class NullClient implements Client {
     private final SesClient client;
 
     NullClient() {

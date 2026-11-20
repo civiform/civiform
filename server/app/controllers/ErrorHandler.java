@@ -47,7 +47,7 @@ import views.errors.NotFound;
  * <p>https://www.playframework.com/documentation/2.8.x/JavaErrorHandling#Extending-the-default-error-handler
  */
 @Singleton
-public class ErrorHandler extends DefaultHttpErrorHandler {
+public final class ErrorHandler extends DefaultHttpErrorHandler {
 
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;

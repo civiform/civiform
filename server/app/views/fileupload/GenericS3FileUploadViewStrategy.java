@@ -11,7 +11,7 @@ import java.util.Optional;
 import services.cloud.StorageUploadRequest;
 import services.cloud.aws.SignedS3UploadRequest;
 
-public class GenericS3FileUploadViewStrategy extends FileUploadViewStrategy {
+public final class GenericS3FileUploadViewStrategy extends FileUploadViewStrategy {
 
   @Override
   public ImmutableList<InputTag> additionalFileUploadFormInputs(

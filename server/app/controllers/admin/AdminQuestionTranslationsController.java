@@ -34,7 +34,7 @@ import views.admin.questions.QuestionTranslationPageView;
 import views.admin.questions.QuestionTranslationPageViewModel;
 
 /** Provides controller methods for editing and updating question translations. */
-public class AdminQuestionTranslationsController extends CiviFormController {
+public final class AdminQuestionTranslationsController extends CiviFormController {
 
   private final QuestionService questionService;
   private final QuestionTranslationPageView translationPageView;
