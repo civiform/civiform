@@ -165,6 +165,8 @@ class GetterMethodSpec:
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
+            if self.variable.enum_class:
+                return "getEnum"
             return "getString"
         elif self.variable.type == "bool":
             return "getBool"
@@ -177,6 +179,9 @@ class GetterMethodSpec:
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045
         if self.variable.type == "string":
+            if self.variable.enum_class:
+                simple_name = self.variable.enum_class.rsplit(".", 1)[-1]
+                return f"Optional<{simple_name}>"
             return "Optional<String>"
         elif self.variable.type == "bool":
             return "boolean"
@@ -184,6 +189,23 @@ class GetterMethodSpec:
             return "Optional<Integer>"
         elif self.variable.type == "index-list":
             return "Optional<ImmutableList<String>>"
+
+    def enum_class_arg(self):
+        if self.variable.enum_class:
+            simple_name = self.variable.enum_class.rsplit(".", 1)[-1]
+            return f", {simple_name}.class"
+        return ""
+
+
+def enum_imports(getter_method_specs: List[GetterMethodSpec]) -> List[str]:
+    """Collects unique enum class imports from all getter specs."""
+    seen = set()
+    imports = []
+    for spec in getter_method_specs:
+        if spec.variable.enum_class and spec.variable.enum_class not in seen:
+            seen.add(spec.variable.enum_class)
+            imports.append(spec.variable.enum_class)
+    return imports
 
 
 def generate_manifest(
@@ -224,6 +246,7 @@ def generate_manifest(
             sections=sections,
             getter_method_specs=getter_method_specs,
             writeable_mode=Mode.ADMIN_WRITEABLE,
+            enum_imports=enum_imports(getter_method_specs),
         ),
         [],
     )
