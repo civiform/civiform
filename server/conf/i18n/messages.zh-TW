@@ -382,7 +382,7 @@ content.startApplicationPrompt=Ready to apply? Log in to save your progress.
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Start application
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=繼續申請
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Log in to start application
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
@@ -788,9 +788,9 @@ validation.currentDateRequired=請輸入今天的日期
 # Validation hint shown when the year field does not contain exactly 4 digits.
 validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
 # Validation error shown when the month was not selected.
-validation.monthRequired=Please select a month.
+validation.monthRequired=請選擇月份。
 # Validation error shown when the day field was left blank.
-validation.dayRequired=Please enter a day.
+validation.dayRequired=請輸入日期。
 # Validation error shown when the day is outside 1-31 or is not a real day for the selected month.
 validation.dayInvalid=Please enter a valid day from 1 to 31.
 # A month option when selecting a specific date from a dropdown menu.
@@ -1059,7 +1059,7 @@ adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = 放大圖片
 
 # Label shown to indicate that an image will open in a new tab
 staticQuestion.enlargeImageScreenReaderText=opens in a new tab
@@ -1165,11 +1165,11 @@ banner.immigrationStatusInfoBanner.linkText=此處
 #------------------------------------------------------------------------------#
 
 # Header for demo banner alert
-label.demoBanner.heading=Demo: {0}
+label.demoBanner.heading=示範：{0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=示範模式資訊
 # Count of remaining days for the demo environment (singular)
-banner.demoBanner.dayRemaining=1 day remaining
+banner.demoBanner.dayRemaining=剩 1 天
 # Count of remaining days for the demo environment (plural)
 banner.demoBanner.daysRemaining={0} days remaining
 
@@ -1257,13 +1257,13 @@ session.length.warning.message.loggedIn=您的工作階段即將結束。請儲�
 #------------------------------------------------------------------------------#
 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
-ariaLabel.indentedPage=Indented page
+ariaLabel.indentedPage=縮排頁面
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=List set creation method
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=選擇現有
 # Label for the new list set form
 label.repeatedSet.newSetForm=Create new list set
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
@@ -1309,7 +1309,7 @@ text.repeatedSet.backfillProgramCountOne=1 program
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
 text.repeatedSet.backfillProgramCountMany={0} programs
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=儲存初始問題
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
@@ -1317,7 +1317,7 @@ link.repeatedSet.previousScreen=previous screen
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=Initial question has been archived. Select a new initial question
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
-alert.repeatedSet.initialQuestionNotFound=Initial question not found. Select a new initial question
+alert.repeatedSet.initialQuestionNotFound=找不到初始問題，請重新選擇。
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Please add an initial question
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
@@ -1329,7 +1329,7 @@ button.repeatedSet.submitNew=Create list set
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Add list set screen
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Add list set
+button.repeatedSet.chooseExisting=新增清單集
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
@@ -1343,11 +1343,11 @@ text.repeatedSet.screenNameDescription=Applicants will see the listed entity the
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
+text.repeatedQuestions.description=新增問題，請申請人回答關於所填寫的項目/人的相關問題。
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
-text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
+text.repeatedQuestions.copyDescription=如果從問題庫選擇現有問題，系統會儲存清單集副本，原始資料不會變動。
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
-text.repeatedQuestion.listSetInformation=This question repeats for each item or person an applicant adds. For example, applicants answer it once for each household member they list.
+text.repeatedQuestion.listSetInformation=在申請人新增項目或人後，該問題會重複出現。例如：申請人會針對每位所填家庭成員進行答覆。
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
 label.repeatedQuestion.associatedListSet=Associated list set
 # Heading above the list set question in the program block editor
@@ -1355,7 +1355,7 @@ heading.repeatedSet.question=List set
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Previously used for this list set
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
-heading.repeatedSet.questionBank=Add a list set
+heading.repeatedSet.questionBank=新增清單集
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=重複的問題
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
@@ -1365,7 +1365,7 @@ description.repeatedSet.listedEntity=Enter the items or people an applicant list
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
 description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=輸入文字，請申請人新增項目或人。
 # An informative description above the hint text input field to help admins understand what to enter in that field.
 description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
 #An informative description below the option to create a new list set question
@@ -1373,7 +1373,7 @@ description.repeatedSet.createNewQuestion=Create a new list set question from th
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=新增孩童畫面
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
