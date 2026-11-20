@@ -1373,7 +1373,7 @@ description.repeatedSet.createNewQuestion=ከዚህ የማያ ገጽ አዲስ �
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=ከጥያቄ ስብስቡ ነባር የዝርዝር ስብስብ ያክሉ።
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=የልጅ ማያ ገጽ ያክሉ
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Add nested list set
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
