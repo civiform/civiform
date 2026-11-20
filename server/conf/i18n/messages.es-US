@@ -1059,10 +1059,10 @@ adminValidation.multiOptionAdminError=Los nombres de administrador solo pueden i
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = Agrandar imagen
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=se abre en una pestaña nueva
 
 #----------------------------------#
 # ERRORS - various error messages  #
