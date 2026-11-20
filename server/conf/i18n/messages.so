@@ -378,7 +378,7 @@ heading.applicationSteps=Sida loo codsado
 # Heading for the section of the program overview page where the applicant can start the application.
 heading.startApplication=Bilow codsiga
 # Prompt text in the start application card encouraging guests to log in to save their progress.
-content.startApplicationPrompt=Ready to apply? Log in to save your progress.
+content.startApplicationPrompt=Diyaar u ah inuu codsado? Soo gal si aad u kaydiso horumarkaaga.
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Start application
 # Button text to continue an application when the applicant has already started or submitted one.
