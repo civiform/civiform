@@ -1329,7 +1329,7 @@ button.repeatedSet.submitNew=Crear conjunto de listas
 # Button for admins to add a new list set
 button.repeatedSet.addNew=Agregar pantalla de conjunto de listas
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
-button.repeatedSet.chooseExisting=Agregar conjunto de preguntas
+button.repeatedSet.chooseExisting=Agregar conjunto de listas
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
