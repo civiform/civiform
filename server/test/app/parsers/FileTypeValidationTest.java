@@ -4,7 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 import com.google.common.collect.ImmutableList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.util.ByteString;
 import org.junit.Before;
@@ -89,9 +92,10 @@ public class FileTypeValidationTest extends ResetPostgres {
   }
 
   @Test
-  public void sniffingFlow_fileSmallerThanHeaderSize_throws() {
+  public void sniffingFlow_fileSmallerThanHeaderSize_throwsAndEmitsNoBytes() {
     ByteString tinyBytes = ByteString.fromArray(new byte[] {0x00, 0x01, 0x02, 0x03});
     AtomicReference<String> detectedRef = new AtomicReference<>(null);
+    AtomicInteger downstreamBytes = new AtomicInteger(0);
 
     assertThatThrownBy(
             () ->
@@ -101,12 +105,94 @@ public class FileTypeValidationTest extends ResetPostgres {
                             "photo.png",
                             detectedRef,
                             FileTypeSpecifier.parseCommaSeparated("image/*,.pdf")))
-                    .runWith(org.apache.pekko.stream.javadsl.Sink.ignore(), mat)
+                    .runWith(Sink.foreach(chunk -> downstreamBytes.addAndGet(chunk.size())), mat)
                     .toCompletableFuture()
                     .join())
         .hasCauseInstanceOf(FileUploadTypeException.class)
         .hasMessageContaining("too small");
     assertThat(detectedRef.get()).isNull();
+    assertThat(downstreamBytes.get()).isZero();
+  }
+
+  @Test
+  public void sniffingFlow_mismatchedContentInSmallChunks_throwsAndEmitsNoBytes() {
+    // 18-byte PDF header split into 4-byte chunks, renamed as .png
+    byte[] pdfHeader = {
+      0x25, 0x50, 0x44, 0x46, 0x2D, 0x31, 0x2E, 0x34,
+      0x0A, 0x25, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06,
+      0x07, 0x08
+    };
+    List<ByteString> chunks =
+        List.of(
+            ByteString.fromArray(pdfHeader, 0, 4),
+            ByteString.fromArray(pdfHeader, 4, 4),
+            ByteString.fromArray(pdfHeader, 8, 4),
+            ByteString.fromArray(pdfHeader, 12, 6));
+    AtomicReference<String> detectedRef = new AtomicReference<>(null);
+    AtomicInteger downstreamBytes = new AtomicInteger(0);
+
+    assertThatThrownBy(
+            () ->
+                Source.from(chunks)
+                    .via(
+                        validator.sniffingFlow(
+                            "pdf-renamed.png",
+                            detectedRef,
+                            FileTypeSpecifier.parseCommaSeparated("image/*,.pdf")))
+                    .runWith(Sink.foreach(chunk -> downstreamBytes.addAndGet(chunk.size())), mat)
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(FileUploadTypeException.class)
+        .hasMessageContaining("do not match extension");
+    assertThat(detectedRef.get()).isNull();
+    assertThat(downstreamBytes.get()).isZero();
+  }
+
+  @Test
+  public void sniffingFlow_validFileInSmallChunks_buffersHeaderAndEmitsAllBytesIntact() {
+    byte[] pngBytes = {
+      (byte) 0x89,
+      0x50,
+      0x4E,
+      0x47,
+      0x0D,
+      0x0A,
+      0x1A,
+      0x0A,
+      0x00,
+      0x00,
+      0x00,
+      0x0D,
+      0x49,
+      0x48,
+      0x44,
+      0x52,
+      0x01,
+      0x02,
+      0x03,
+      0x04
+    };
+    List<ByteString> chunks =
+        List.of(
+            ByteString.fromArray(pngBytes, 0, 5),
+            ByteString.fromArray(pngBytes, 5, 5),
+            ByteString.fromArray(pngBytes, 10, 6),
+            ByteString.fromArray(pngBytes, 16, 4));
+    AtomicReference<String> detectedRef = new AtomicReference<>(null);
+
+    ByteString received =
+        Source.from(chunks)
+            .via(
+                validator.sniffingFlow(
+                    "photo.png",
+                    detectedRef,
+                    FileTypeSpecifier.parseCommaSeparated("image/*,.pdf")))
+            .runWith(Sink.fold(ByteString.emptyByteString(), ByteString::concat), mat)
+            .toCompletableFuture()
+            .join();
+
+    assertThat(detectedRef.get()).isEqualTo("image/png");
+    assertThat(received.toArray()).isEqualTo(pngBytes);
   }
 
   @Test

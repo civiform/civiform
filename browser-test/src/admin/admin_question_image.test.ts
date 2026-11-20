@@ -1,3 +1,4 @@
+import {Buffer} from 'buffer'
 import {test, expect} from '../support/civiform_fixtures'
 import {
   enableFeatureFlag,
@@ -521,6 +522,48 @@ test.describe('Admin can manage question image', () => {
         {fullPage: false},
       )
       await validateAccessibility(page)
+    })
+  })
+
+  test('uploading mismatched file content displays error and preserves existing image', async ({
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'mismatched-content-image-question'
+    const altText = 'Valid question image alt text'
+
+    await test.step('Create question with an existing valid image', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
+
+    await test.step('Re-open edit page and upload a PDF renamed to .png', async () => {
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.expectHasExistingImageAlert()
+      await adminQuestionImage.expectExistingImageFileName(
+        'program-summary-image-wide.png',
+      )
+
+      const pdfBytes = Buffer.from(
+        '%PDF-1.4\n1 0 obj<</Type/Catalog>>endobj\n%%EOF\n',
+        'ascii',
+      )
+      const response = await adminQuestionImage.uploadImageBuffer({
+        name: 'pdf-renamed.png',
+        mimeType: 'image/png',
+        buffer: pdfBytes,
+      })
+
+      expect(response.status()).toBe(400)
+      await adminQuestionImage.expectUploadError(
+        'Content bytes do not match extension .png (detected application/pdf).',
+      )
     })
   })
 

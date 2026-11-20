@@ -85,7 +85,25 @@ public class GcpMultipartUploadSinkProviderTest {
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.FAILURE);
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.GCP_S3);
     assertThat(result.getErrorMessage().get()).contains(gcpException.getMessage());
+    assertThat(result.getCause()).contains(gcpException);
     assertThat(result.getStoredFilePath()).isEmpty();
+  }
+
+  @Test
+  public void getUploadSink_uploadFailsWithNullMessage_returnsFailureWithCause() throws Exception {
+    RuntimeException exceptionWithNullMessage = new RuntimeException();
+    Sink<ByteString, CompletionStage<StorageObject>> failingBaseSink =
+        Sink.<ByteString>cancelled()
+            .mapMaterializedValue(_ -> CompletableFuture.failedFuture(exceptionWithNullMessage));
+    doReturn(failingBaseSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
+
+    StreamingMultipartUploadResult result = runSink();
+
+    assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.FAILURE);
+    assertThat(result.getErrorMessage()).isEmpty();
+    assertThat(result.getCause()).contains(exceptionWithNullMessage);
   }
 
   @Test

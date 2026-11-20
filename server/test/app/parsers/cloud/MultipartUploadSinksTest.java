@@ -2,6 +2,7 @@ package parsers.cloud;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.Assert.assertThrows;
 
 import com.google.common.collect.ImmutableMap;
@@ -16,6 +17,7 @@ import org.apache.pekko.util.ByteString;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import parsers.FileUploadTypeException;
 import parsers.StreamingMultipartUploadResult;
 import parsers.cloud.aws.AwsS3MultipartUploadSinkProvider;
 import parsers.cloud.gcp.GcpMultipartUploadSinkProvider;
@@ -65,6 +67,22 @@ public class MultipartUploadSinksTest {
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.NOT_IMPLEMENTED);
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.AZURE_BLOB);
     assertThat(result.getStoredFilePath()).isEmpty();
+  }
+
+  @Test
+  public void getSinkForCloudProvider_azure_propagatesUpstreamFailure() {
+    createUploadSink(StorageServiceName.AZURE_BLOB.getString());
+    Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> sink =
+        checkNotNull(uploadSinks)
+            .getSinkForCloudProvider(BucketType.PRIVATE_BUCKET, FILE_KEY, CHUNK_SIZE);
+
+    CompletionStage<StreamingMultipartUploadResult> completionStage =
+        Source.<ByteString>failed(new FileUploadTypeException("Invalid file type"))
+            .runWith(sink, system);
+
+    assertThatThrownBy(() -> completionStage.toCompletableFuture().join())
+        .hasCauseInstanceOf(FileUploadTypeException.class)
+        .hasMessageContaining("Invalid file type");
   }
 
   @Test

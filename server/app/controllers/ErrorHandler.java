@@ -2,6 +2,8 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
+import static j2html.TagCreator.span;
+import static j2html.TagCreator.text;
 
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
@@ -15,6 +17,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.exceptions.TemplateInputException;
 import parsers.FileUploadTypeException;
 import play.Environment;
@@ -48,6 +52,7 @@ import views.errors.NotFound;
  */
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
+  private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
@@ -88,7 +93,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     this.messagesApi = checkNotNull(messagesApi);
     this.environment = checkNotNull(environment);
 
-    // Provides extra support to the thymeleaf custom error page if we ever configure it. Standard
+    // Provides extra support to the thymeleaf custom error page if we ever
+    // configure it. Standard
     // requirement of the Play error page.
     this.playEditor =
         scala.Option.apply(config.hasPath("play.editor") ? config.getString("play.editor") : null);
@@ -102,21 +108,17 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       exception = exception.getCause();
     }
 
-    // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
-    // visible states. Note: there are methods on the parent that handle dev and prod separately.
+    // Exceptions that reach here will generate 500s. Here we convert certain ones
+    // to different user visible states. Note: there are methods on the parent that
+    // handle dev and
+    // prod separately.
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
 
     if (match.isPresent()) {
       String errorMessage = match.get().getMessage();
       if (isQuestionImageUpload(request)) {
         return CompletableFuture.completedFuture(
-            Results.badRequest(
-                    div(errorMessage)
-                        .withClasses("text-red-600", "text-base", "py-2")
-                        .withId("question-image-file-input-errors")
-                        .attr("role", "alert")
-                        .attr("aria-label", "Image upload error")
-                        .render())
+            Results.badRequest(renderQuestionImageError(errorMessage))
                 .as(play.mvc.Http.MimeTypes.HTML));
       }
       return CompletableFuture.completedFuture(Results.badRequest(errorMessage));
@@ -140,6 +142,14 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
                   request.asScala())));
     }
 
+    if (isQuestionImageUpload(request)) {
+      logger.error("Server error during question image upload", exception);
+      return CompletableFuture.completedFuture(
+          Results.internalServerError(
+                  renderQuestionImageError("We couldn't upload your file. Please try again."))
+              .as(play.mvc.Http.MimeTypes.HTML));
+    }
+
     return super.onServerError(request, exception);
   }
 
@@ -152,17 +162,19 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       RequestHeader request, int statusCode, String message) {
     if (isQuestionImageUpload(request)) {
       return CompletableFuture.completedFuture(
-          Results.status(
-                  statusCode,
-                  div(message)
-                      .withClasses("text-red-600", "text-base", "py-2")
-                      .withId("question-image-file-input-errors")
-                      .attr("role", "alert")
-                      .attr("aria-label", "Image upload error")
-                      .render())
+          Results.status(statusCode, renderQuestionImageError(message))
               .as(play.mvc.Http.MimeTypes.HTML));
     }
     return super.onClientError(request, statusCode, message);
+  }
+
+  private static String renderQuestionImageError(String message) {
+    return div(span("Image upload error: ").withClass("usa-sr-only"), text(message))
+        .withClasses("text-red-600", "text-base", "py-2")
+        .withId("question-image-file-input-errors")
+        .attr("role", "alert")
+        .attr("aria-label", "Image upload error")
+        .render();
   }
 
   private static boolean isQuestionImageUpload(RequestHeader request) {

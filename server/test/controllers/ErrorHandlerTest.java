@@ -12,8 +12,10 @@ import com.google.common.collect.ImmutableSet;
 import com.typesafe.config.Config;
 import controllers.admin.NotChangeableException;
 import java.util.concurrent.CompletionException;
+import org.apache.commons.text.StringEscapeUtils;
 import org.junit.Before;
 import org.junit.Test;
+import parsers.FileUploadTypeException;
 import play.Environment;
 import play.Mode;
 import play.api.OptionalSourceMapper;
@@ -174,5 +176,45 @@ public class ErrorHandlerTest extends ResetPostgres {
     assertThat(html).contains("id=\"question-image-file-input-errors\"");
     assertThat(html).contains("role=\"alert\"");
     assertThat(html).contains("Request entity too large");
+  }
+
+  @Test
+  public void onServerError_questionImageUpload_fileUploadTypeException_returnsErrorAlertSnippet() {
+    Http.RequestHeader request =
+        fakeRequestBuilder()
+            .path("/admin/questions/1/hx/image/upload")
+            .header("HX-Target", "question-image-file-input-errors")
+            .build();
+    Throwable exception =
+        new FileUploadTypeException(
+            "Content bytes do not match extension .png (detected application/pdf).");
+
+    Result result = handler.onServerError(request, exception).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(BAD_REQUEST);
+    String html = contentAsString(result);
+    assertThat(html).contains("id=\"question-image-file-input-errors\"");
+    assertThat(html).contains("role=\"alert\"");
+    assertThat(html)
+        .contains("Content bytes do not match extension .png (detected application/pdf).");
+  }
+
+  @Test
+  public void onServerError_questionImageUpload_storageFailure_returnsErrorAlertSnippet() {
+    Http.RequestHeader request =
+        fakeRequestBuilder()
+            .path("/admin/questions/1/hx/image/upload")
+            .header("HX-Target", "question-image-file-input-errors")
+            .build();
+    Throwable exception = new RuntimeException("S3 upload failed");
+
+    Result result = handler.onServerError(request, exception).toCompletableFuture().join();
+
+    assertThat(result.status()).isEqualTo(INTERNAL_SERVER_ERROR);
+    String html = contentAsString(result);
+    assertThat(html).contains("id=\"question-image-file-input-errors\"");
+    assertThat(html).contains("role=\"alert\"");
+    assertThat(StringEscapeUtils.unescapeHtml4(html))
+        .contains("We couldn't upload your file. Please try again.");
   }
 }
