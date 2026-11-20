@@ -1321,9 +1321,9 @@ alert.repeatedSet.initialQuestionNotFound=No se ha encontrado la pregunta inicia
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Agrega una pregunta inicial
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=Cuando creas este conjunto de listas, el sistema lo guarda en el banco de preguntas.
+alert.repeatedSet.newQuestion=Cuando creas este conjunto de lista, el sistema lo guarda en el banco de preguntas.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
-alert.repeatedSet.previouslyUsed=Las preguntas que pertenecen a otro conjunto de listas no están disponibles.
+alert.repeatedSet.previouslyUsed=Las preguntas que pertenecen a otro conjunto de lista no están disponibles.
 # Submission button for creating a new list set
 button.repeatedSet.submitNew=Crear conjunto de listas
 # Button for admins to add a new list set
