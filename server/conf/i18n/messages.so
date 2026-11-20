@@ -1335,7 +1335,7 @@ button.repeatedSet.initialQuestion.add=Ku dar su'aasha hore
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Ka saar {0} su'aasha hore
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=Qaybta liiska
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Nested list set
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
