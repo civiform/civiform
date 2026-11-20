@@ -1293,7 +1293,7 @@ description.repeatedSet.initialQuestion=እያንዳንዱን እቃ ወይም �
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=ነባር ጥያቄ ከመረጡ፣ ስርዓቱ በጥያቄ ስብስቡ ውስጥ የተቀመጠውን የዚህን ዝርዝር ቅጂ ያስቀምጣል።
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=ማስታወሻ፦ አመልካቾች የእርስዎን ዝርዝር የማስቀመጥ መጠይቅ ይመለከታሉ እና ከዚህ ጥያቄ የራሱ መጠይቅ እና የጥቆማ ጽሑፍ ይልቅ ጽሑፍን ይጠቁማሉ።
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Admin id:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
