@@ -1343,7 +1343,7 @@ text.repeatedSet.screenNameDescription=Codsadayaashu waxay arki doonaan cida qor
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=Qaybta liisku waxay waydiisaa in lagu daro sheeyada ama dadka liiska.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
-text.repeatedQuestions.description=Add questions you want applicants to answer about each item or person they list.
+text.repeatedQuestions.description=Ku dar su'aalaha aad doonayso codsadayaasha inay ka jawaabaan wax ku saabsan shay kasta ama qofka ay qoraan.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
 text.repeatedQuestions.copyDescription=If you choose an existing question from the question bank, the system saves a copy for this list set. The original stays unchanged.
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
