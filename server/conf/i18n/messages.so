@@ -610,7 +610,7 @@ content.adminProgramImage.cardPreviewError=Waa qalad soo saarida fiirinta kaarka
 # Message shown when alt text is required but missing.
 validation.adminQuestionImage.altTextRequired=Faahfaahinta sawirka ayaa loo baahan yahay marka su'aasha sawirka la soo geliyo.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Faahfaahinta lagama saari karo sababtoo ah sawir ayaa yaala. Tirtir sawirka ka hor tirtirida faahfaahinta.
+validation.adminQuestionImage.descriptionNotRemovable=Faahfaahinta lagama saari karo sababtoo ah sawir ayaa yaalla. Tirtir sawirka ka hor tirtiridda faahfaahinta.
 # Label for the field where the admin enters alt text for the question image.
 label.adminQuestionImage.altText=Geli faahfaahinta sawirka (Alt Text)
 
