@@ -1259,9 +1259,9 @@ session.length.warning.message.loggedIn=Tu sesión está por caducar. Guarda tu 
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Página con sangría
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=List set creation method
+heading.repeatedSet.creationMethod=Método de creación de conjuntos de listas
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=Crear nuevo
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
