@@ -1259,25 +1259,25 @@ session.length.warning.message.loggedIn=Ваш сеанс скоро закон�
 # A screen reader label for the arrow icon shown on child screens in the block order panel, indicating the screen is indented under its parent screen.
 ariaLabel.indentedPage=Страница с отступом
 # Heading for the list set creation method radio buttons
-heading.repeatedSet.creationMethod=List set creation method
+heading.repeatedSet.creationMethod=Способ создания набора списка
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=Create new
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
-label.repeatedSet.newSetForm=Create new list set
+label.repeatedSet.newSetForm=Создать новый набор списка
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=What is being listed?
+input.repeatedSet.listedEntity=Что перечисляется?
 # Label for the text input field asking for the admin identifier of the list set
-input.repeatedSet.adminId=List set admin ID
+input.repeatedSet.adminId=Административный идентификатор набора списка
 # A text input field asking admins for the text that will prompt applicants to list out the entity
-input.repeatedSet.questionText=Prompt text
+input.repeatedSet.questionText=Текст запроса
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.adminIdAutofillSuggestion=Набор списка {0}
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
 input.repeatedSet.questionTextAutofillSuggestion=Добавьте каждый элемент ({0}).
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
-input.repeatedSet.hintText=Hint text
+input.repeatedSet.hintText=Текст подсказки
 # A form field where admins set the minimum number of entities that applicants must list
 input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
