@@ -1339,7 +1339,7 @@ text.repeatedSet=Qaybta liiska
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Qaybta liiska qaybaha kale la geliyay
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=Codsadayaashu waxay arki doonaan cida qoran ee ay uga jawaabeen su'aasha hore iyaddoo qayb ka ah magaca shaashada. Waxaad ku dari kartaa qoraal dheeraad ah bogoska koowaad hoos si loo bixiyo nuxur dheeraad ah. Tusaale ahaan, haddii su'aasha hore ay waydiiso xubnaha qoyska oo codsadahu qoray  "Jennifer," magaca shaashacu waxa uu noqon karaa: "Jennifer - Macluumaadka Hore".
 #An additional description explaining what the add question button does
 text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
