@@ -380,13 +380,13 @@ heading.startApplication=開始申請
 # Prompt text in the start application card encouraging guests to log in to save their progress.
 content.startApplicationPrompt=要開始申請了嗎？登入儲存操作進度。
 # Button text to start an application when the applicant has not started one yet.
-button.startApplication=Start application
+button.startApplication=開始申請
 # Button text to continue an application when the applicant has already started or submitted one.
 button.continueApplication=繼續申請
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=登入開始申請
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
-alert.createAccountDescriptionOverview=Use an account to log back in to check on your application status and save time applying to other programs.
+alert.createAccountDescriptionOverview=使用帳戶日後即可登入確認申請狀態，申請其他計畫也能更省時。
 # Top-level heading for the program overview page.  The {0} is the program name.
 heading.programOverview=申請「{0}」計畫
 # The text on the button that takes users to the account creation form.
@@ -608,11 +608,11 @@ content.adminProgramImage.cardPreviewError=生成卡片預覽時發生錯誤
 #--------------------------------------------------------------------------------------------------------------#
 
 # Message shown when alt text is required but missing.
-validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
+validation.adminQuestionImage.altTextRequired=若有上傳問題圖片，圖片說明即為必填。
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=有圖片就無法移除說明。如要移除說明，請先刪除圖片。
 # Label for the field where the admin enters alt text for the question image.
-label.adminQuestionImage.altText=Enter image description (Alt Text)
+label.adminQuestionImage.altText=輸入圖片說明（替代文字）
 
 #--------------------------------------------------------------------------------------------------------------#
 # ADMIN PREDICATE EDIT - admin-facing text for editing eligibility / visibility predicates in draft programs #
@@ -786,7 +786,7 @@ validation.dateTooFarInFuture=必須輸入 {0}以前的日期
 validation.dateNotInRange=必須輸入介於 {0}到 {1}之間的日期
 validation.currentDateRequired=請輸入今天的日期
 # Validation hint shown when the year field does not contain exactly 4 digits.
-validation.yearMustBeFourDigits=Please enter a 4-digit year, for example 1996.
+validation.yearMustBeFourDigits=請輸入 4 位數年分，例如：1996。
 # Validation error shown when the month was not selected.
 validation.monthRequired=請選擇月份。
 # Validation error shown when the day field was left blank.
@@ -1062,7 +1062,7 @@ adminValidation.multiOptionAdminError=管理員名稱只能使用小寫英文字
 staticQuestion.imageEnlargeText = 放大圖片
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=在新分頁開啟
 
 #----------------------------------#
 # ERRORS - various error messages  #
@@ -1273,9 +1273,9 @@ input.repeatedSet.adminId=清單集管理 ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
 input.repeatedSet.questionText=提示文字
 # Autofill suggestion template shown in the admin ID field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.adminIdAutofillSuggestion={0} list set
+input.repeatedSet.adminIdAutofillSuggestion={0} 清單集
 # Autofill suggestion template shown in the question text field when applicant selects a listed entity. {0} is the listed entity name.
-input.repeatedSet.questionTextAutofillSuggestion=Please add each {0}.
+input.repeatedSet.questionTextAutofillSuggestion=請新增各 {0}。
 # A text input field for admins to add a hint that will help applicants decide what entities to list out
 input.repeatedSet.hintText=提示文字
 # A form field where admins set the minimum number of entities that applicants must list
@@ -1287,39 +1287,39 @@ input.repeatedSet.minListCount=最低清單數
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=最高清單數
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
-label.repeatedSet.initialQuestion=Initial question
+label.repeatedSet.initialQuestion=初始問題
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
-description.repeatedSet.initialQuestion=Add a question that identifies each item or person. For example, if applicants are listing household members, add a question to collect each member''s name.
+description.repeatedSet.initialQuestion=新增問題，先瞭解項目/人物身分。例如：如果要申請人填寫家庭成員，請新增問題蒐集成員姓名。
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
 description.repeatedSet.initialQuestionCopy=如果選擇現有問題，系統會在問題庫中儲存清單集副本，原始資料不會變動。
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
-description.repeatedSet.initialQuestionNote=Note: Applicants see your list set prompt and hint text instead of this question''s own prompt and hint text.
+description.repeatedSet.initialQuestionNote=注意：申請人不會看到問題本身的提示文字，而會看到清單集提示文字。
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
-label.repeatedSet.initialQuestionAdminId=Admin id:
+label.repeatedSet.initialQuestionAdminId=管理 ID：
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=申請人會使用此問題將項目或人新增至清單集。
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=初始問題儲存後即無法刪除。
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=This will also update {0} that uses this list set.
+alert.repeatedSet.backfillSaveWarningOneProgram=這也會更新使用此清單集的 {0}。
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
-alert.repeatedSet.backfillSaveWarningPrograms=This will also update {0} that use this list set.
+alert.repeatedSet.backfillSaveWarningPrograms=這也會更新使用此清單集的 {0}。
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
-text.repeatedSet.backfillProgramCountOne=1 program
+text.repeatedSet.backfillProgramCountOne=1 個計畫
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
 text.repeatedSet.backfillProgramCountMany={0} 個計畫
 # Button that saves the picked initial question onto an existing list set
 button.repeatedSet.initialQuestion.save=儲存初始問題
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
-alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
+alert.repeatedSet.addQuestionDisabled=請先新增清單集，再新增重複問題。前往 {0} 新增。
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
-link.repeatedSet.previousScreen=previous screen
+link.repeatedSet.previousScreen=前一個畫面
 # Alert shown when the admin submits the new list set form but selected an initial question that is now archived.
 alert.repeatedSet.initialQuestionArchived=初始問題已封存，請重新選擇。
 # Alert shown when the admin submits the new list set form but selected an initial question that can not be found.
 alert.repeatedSet.initialQuestionNotFound=找不到初始問題，請重新選擇。
 # Alert shown when the admin submits the new list set form without selecting an initial question.
-alert.repeatedSet.initialQuestionRequired=Please add an initial question
+alert.repeatedSet.initialQuestionRequired=請新增初始問題
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
 alert.repeatedSet.newQuestion=建立清單集後，系統會儲存至問題庫。
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
@@ -1331,7 +1331,7 @@ button.repeatedSet.addNew=新增清單集畫面
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=新增清單集
 # Button on the new list set form that opens the question bank so admins can add the initial question
-button.repeatedSet.initialQuestion.add=Add initial question
+button.repeatedSet.initialQuestion.add=新增初始問題
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=移除 {0} 初始問題
 # Text letting admins know which block represents the group of screens for repeating questions
@@ -1339,9 +1339,9 @@ text.repeatedSet=清單集
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=巢狀清單集
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=申請人在回答初時問題後，答覆會帶入成為畫面名稱的一部分。您可以在下方第一個空格新增文字，提供畫面名稱資訊。例如：如果初始問題詢問家庭成員，申請人答覆「珍妮佛」，螢幕名稱即會顯示：「珍妮佛 - 背景資訊」。
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=請申請人在清單新增項目或人的清單集。
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=新增問題，請申請人回答關於所填寫的項目/人的相關問題。
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
@@ -1349,7 +1349,7 @@ text.repeatedQuestions.copyDescription=如果從問題庫選擇現有問題，�
 # Information shown on the question create and edit form after an admin selects an initial question, explaining that the question will be repeated
 text.repeatedQuestion.listSetInformation=在申請人新增項目或人後，該問題會重複出現。例如：申請人會針對每位所填家庭成員進行答覆。
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
-label.repeatedQuestion.associatedListSet=Associated list set
+label.repeatedQuestion.associatedListSet=相關清單集
 # Heading above the list set question in the program block editor
 heading.repeatedSet.question=清單集
 # Heading shown above repeated questions in the question bank that are already associated with this list set
@@ -1359,31 +1359,31 @@ heading.repeatedSet.questionBank=新增清單集
 # Heading above the questions section on repeated screens in the admin program screen editor.
 heading.repeatedQuestions=重複的問題
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
-heading.repeatedQuestionsAboutEntity=Repeated questions about each {0}
+heading.repeatedQuestionsAboutEntity=關於各 {0} 的重複問題
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=輸入申請人填寫的項目或人，例如「家庭成員」或「收入來源」。
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=我們會根據上方填寫內容填入此 ID，請依需求設定。
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=輸入文字，請申請人新增項目或人。
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=輸入提示，告訴申請人該填入的正確資料。例如：「不包含自己。」
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=由此畫面建立新清單集問題，我們會儲存於問題庫，供您未來使用。
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Add an existing list set from the question bank.
+description.repeatedSet.chooseExistingQuestion=從問題庫新增現有清單集。
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=新增孩童畫面
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=新增巢狀清單集
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
-button.continueToChildScreen=Continue to child screen
+button.continueToChildScreen=繼續前往孩童畫面
 # A button for admins to add a pre-existing enumerator question to a program
 button.addQuestion=新增問題
 # A button on a question card for admins to remove the question from the screen.
 button.removeQuestion=移除
 # A tooltip shown to admins when the delete screen button is disabled
-tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
+tooltip.deleteScreenDisabled=這個畫面與其他重複畫面有所關聯，因此無法移除。
 # A tooltip shown to admins when the remove question button is disabled for a list set question
 tooltip.removeEnumeratorQuestionDisabled=這個問題與之前問題有所關聯，因此無法移除。
 
