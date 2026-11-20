@@ -1337,7 +1337,7 @@ button.repeatedSet.initialQuestion.removeAriaLabel=Ka saar {0} su'aasha hore
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=Qaybta liiska
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested list set
+text.nestedRepeatedSet=Qaybta liiska qaybaha kale la geliyay
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
 #An additional description explaining what the add question button does
