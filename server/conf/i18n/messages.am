@@ -1333,7 +1333,7 @@ button.repeatedSet.chooseExisting=የዝርዝር ስብስብ ያክሉ
 # Button on the new list set form that opens the question bank so admins can add the initial question
 button.repeatedSet.initialQuestion.add=የመነሻ ጥያቄ ያክሉ
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
-button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
+button.repeatedSet.initialQuestion.removeAriaLabel={0} የመነሻ ጥያቄን ያስወግዱ
 # Text letting admins know which block represents the group of screens for repeating questions
 text.repeatedSet=List set
 # Text letting admins know which block represents the group of screens for nested repeating questions
