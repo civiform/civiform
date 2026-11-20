@@ -1363,7 +1363,7 @@ heading.repeatedQuestionsAboutEntity=ስለ {0} የተደጋገሙ ጥያቄዎ�
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
 description.repeatedSet.listedEntity=እንደ "ቤተሰብ አባል" ወይም "የገቢ ምንጭ" ያሉ አንድ አመልካች የሚዘረዝራቸውን ንጥሎች ወይም ሰዎች ያስገቡ።
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=እርስዎ ከላይ ባስገቡት ላይ በመመስረት በዚህ መለያ ውስጥ እንሞላለን። እባክዎ እንደ አስፈላጊነቱ ያብጁ።
 # An informative description above the question text input field to help admins understand what to enter in that field.
 description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
