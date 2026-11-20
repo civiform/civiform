@@ -1291,7 +1291,7 @@ label.repeatedSet.initialQuestion=Pregunta inicial
 # First paragraph of the description explaining what the initial question is, shown on the new list set form and on the card for adding an initial question to an existing list set
 description.repeatedSet.initialQuestion=Agrega una pregunta que identifique cada elemento o persona. Por ejemplo, si los solicitantes enumeran a los miembros de su hogar, agrega una pregunta para recopilar el nombre de cada uno de ellos.
 # Second paragraph explaining what the initial question is. Questions are data items that can be reused. A list set is a collection of answers to the same initial question.
-description.repeatedSet.initialQuestionCopy=Si eliges una pregunta existente, el sistema guarda una copia para este conjunto de lista en el banco de preguntas. La original permanece sin cambios.
+description.repeatedSet.initialQuestionCopy=Si eliges una pregunta existente, el sistema guarda una copia para este conjunto de listas en el banco de preguntas. La original permanece sin cambios.
 # Third paragraph explaining what the initial question is, shown in italics, explaining which prompt and hint text applicants see
 description.repeatedSet.initialQuestionNote=Nota: Los solicitantes ven el texto de indicación y de sugerencia de tu conjunto de lista, en lugar del texto de indicación y de sugerencia propios de esta pregunta.
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
