@@ -1283,7 +1283,7 @@ input.repeatedSet.minEntities=
 # A form field where admins set the maximum number of entities that applicants can list
 input.repeatedSet.maxEntities=
 # A form field where admins set the minimum number of items or people that applicants must add to a list set
-input.repeatedSet.minListCount=Minimum list count
+input.repeatedSet.minListCount=Liiska tirada ugu yar
 # A form field where admins set the maximum number of items or people that applicants can add to a list set
 input.repeatedSet.maxListCount=Maximum list count
 # Label for the field on the new list set form where an admin will select the question that the user will complete first in the enumerator flow
