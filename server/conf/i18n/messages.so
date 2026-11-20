@@ -1171,7 +1171,7 @@ label.demoBanner.label=Macluumaadka qaabka bandhigga
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=1 maalin ayaa hadhay
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} maalmood oo hadhay
+banner.demoBanner.daysRemaining={0} maalmood oo haray
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
