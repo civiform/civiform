@@ -1059,7 +1059,7 @@ adminValidation.multiOptionAdminError=Magacyada maamulka keliya waxay ka koobnaa
 #---------------------------------------------------------------------#
 
 #Label shown to enlarge an image in the questions screen
-staticQuestion.imageEnlargeText = Enlarge image
+staticQuestion.imageEnlargeText = Waynee sawirka
 
 # Label shown to indicate that an image will open in a new tab
 staticQuestion.enlargeImageScreenReaderText=opens in a new tab
