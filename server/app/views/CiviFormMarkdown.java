@@ -34,7 +34,7 @@ public final class CiviFormMarkdown {
           .build();
 
   /** Customizes HTML element attributes for the CiviForm UI. */
-  private static class CiviFormAttributeProvider implements AttributeProvider {
+  private static final class CiviFormAttributeProvider implements AttributeProvider {
 
     @Override
     public void setAttributes(Node node, String tagName, Map<String, String> attributes) {

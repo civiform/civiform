@@ -23,7 +23,7 @@ import views.admin.programs.ProgramAdminIndexPageViewModel;
 import views.admin.programs.ProgramAdministratorProgramListView;
 
 /** Controller for program admins to view programs. */
-public class ProgramAdminController extends CiviFormController {
+public final class ProgramAdminController extends CiviFormController {
   private final ProgramAdministratorProgramListView listView;
   private final ProgramAdminIndexPageView indexPageView;
   private final ProgramService programService;

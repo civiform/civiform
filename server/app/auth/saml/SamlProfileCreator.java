@@ -31,17 +31,17 @@ import org.slf4j.LoggerFactory;
 import repository.AccountRepository;
 import repository.StoredFileRepository;
 
-public class SamlProfileCreator extends AuthenticatorProfileCreator {
+public final class SamlProfileCreator extends AuthenticatorProfileCreator {
 
   private static final Logger logger = LoggerFactory.getLogger(SamlProfileCreator.class);
-  protected final CiviFormProfileMerger civiFormProfileMerger;
-  protected final ProfileFactory profileFactory;
-  protected final Provider<AccountRepository> applicantRepositoryProvider;
-  protected final SAML2Configuration saml2Configuration;
+  final CiviFormProfileMerger civiFormProfileMerger;
+  final ProfileFactory profileFactory;
+  final Provider<AccountRepository> applicantRepositoryProvider;
+  final SAML2Configuration saml2Configuration;
 
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
-  protected final SAML2Client saml2Client;
+  final SAML2Client saml2Client;
 
   // TODO(#3856): Update with a non deprecated saml impl.
   @SuppressWarnings("deprecation")
@@ -116,7 +116,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
         .join();
   }
 
-  protected Optional<String> getAuthorityId(SAML2Profile profile) {
+  Optional<String> getAuthorityId(SAML2Profile profile) {
     // In SAML the user is uniquely identified by the issuer and subject claims.
     // https://docs.oasis-open.org/security/saml-subject-id-attr/v1.0/cs01/saml-subject-id-attr-v1.0-cs01.html#_Toc536097226
     //
@@ -210,7 +210,7 @@ public class SamlProfileCreator extends AuthenticatorProfileCreator {
     return sj.toString();
   }
 
-  protected ImmutableSet<Role> roles(CiviFormProfile profile) {
+  ImmutableSet<Role> roles(CiviFormProfile profile) {
     if (profile.getAccount().join().getMemberOfGroup().isPresent()) {
       return ImmutableSet.of(Role.ROLE_TI);
     }

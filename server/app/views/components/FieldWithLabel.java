@@ -37,9 +37,8 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING FieldWithLabel
-
 /** Utility class for rendering an input field with an optional label. */
+@SuppressWarnings("FinalOrAbstractClass")
 public class FieldWithLabel {
 
   private static final ImmutableSet<String> STRING_TYPES =

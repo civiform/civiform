@@ -16,7 +16,7 @@ import play.mvc.Result;
  * applicantId}: the applicant, or a trusted intermediary who manages them. See {@link
  * FileUploadImprovementsEnabledAction}.
  */
-public class ApplicantAccessAction extends Action.Simple {
+public final class ApplicantAccessAction extends Action.Simple {
   private final ProfileUtils profileUtils;
 
   @Inject

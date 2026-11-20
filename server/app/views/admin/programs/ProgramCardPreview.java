@@ -23,7 +23,7 @@ import views.applicant.ApplicantBaseView;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramCardParams;
 
-public class ProgramCardPreview extends ApplicantBaseView {
+public final class ProgramCardPreview extends ApplicantBaseView {
   ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject

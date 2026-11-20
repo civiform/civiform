@@ -4,7 +4,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating a checkbox question. */
-public class CheckboxQuestionForm extends MultiOptionQuestionForm {
+public final class CheckboxQuestionForm extends MultiOptionQuestionForm {
 
   public CheckboxQuestionForm() {
     super();

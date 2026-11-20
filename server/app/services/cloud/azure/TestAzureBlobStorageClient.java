@@ -3,7 +3,7 @@ package services.cloud.azure;
 import java.util.Optional;
 
 /** Class to use for BlobStorage unit tests. */
-class TestAzureBlobStorageClient implements AzureBlobStorageClientInterface {
+final class TestAzureBlobStorageClient implements AzureBlobStorageClientInterface {
 
   TestAzureBlobStorageClient() {}
 

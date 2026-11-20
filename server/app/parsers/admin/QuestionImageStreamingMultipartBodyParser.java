@@ -26,7 +26,7 @@ import services.cloud.PublicFileNameFormatter;
  * <p>Streams a question image file upload to the public applicant bucket. The cloud-storage file
  * key is generated server-side using {@link services.cloud.PublicFileNameFormatter}.
  */
-public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
+public final class QuestionImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
   public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
 
   // Matches /admin/questions/questionId/hx/image/upload in the request path.

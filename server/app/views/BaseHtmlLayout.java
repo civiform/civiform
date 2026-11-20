@@ -39,8 +39,6 @@ import views.components.ToastMessage;
 import views.shared.FeatureFlags;
 import views.trustedintermediary.ApplicantLayout;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING BaseHtmlLayout
-
 /**
  * Base class for all layout classes.
  *
@@ -48,6 +46,7 @@ import views.trustedintermediary.ApplicantLayout;
  * on an HtmlBundle and returns {@link Content} for rendered page using the {@link
  * #render(HtmlBundle)} method.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class BaseHtmlLayout {
   private final String civiformImageTag;
 

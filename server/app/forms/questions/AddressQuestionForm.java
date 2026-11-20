@@ -5,7 +5,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an address question. */
-public class AddressQuestionForm extends QuestionForm {
+public final class AddressQuestionForm extends QuestionForm {
   private boolean disallowPoBox;
 
   public AddressQuestionForm() {

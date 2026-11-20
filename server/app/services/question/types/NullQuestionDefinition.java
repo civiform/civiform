@@ -10,9 +10,10 @@ import com.google.auto.value.AutoValue;
  * <p>In normal operation this shouldn't ever be reached, but an occasional gremlin has resulted in
  * the rare instance of a program pointing at an old version of a question.
  */
-public class NullQuestionDefinition extends QuestionDefinition {
+public final class NullQuestionDefinition extends QuestionDefinition {
 
   @AutoValue
+  @SuppressWarnings("FinalOrAbstractClass")
   public static class NullValidationPredicates extends ValidationPredicates {
 
     public static NullQuestionDefinition.NullValidationPredicates parse(String jsonString) {

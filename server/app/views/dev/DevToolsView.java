@@ -29,7 +29,7 @@ import views.HtmlBundle;
 import views.components.SelectWithLabel;
 
 /** Renders a page with various dev tools. This is only available in non-prod environments. */
-public class DevToolsView extends BaseHtmlView {
+public final class DevToolsView extends BaseHtmlView {
   private final BaseHtmlLayout layout;
   private final ObjectMapper objectMapper;
   private final DeploymentType deploymentType;

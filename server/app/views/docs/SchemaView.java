@@ -43,7 +43,7 @@ import views.admin.AdminLayoutFactory;
 import views.style.AdminStyles;
 import views.style.BaseStyles;
 
-public class SchemaView extends BaseHtmlView {
+public final class SchemaView extends BaseHtmlView {
   public record Form(String programSlug, Optional<String> stage, Optional<String> openApiVersion) {}
 
   private final ProfileUtils profileUtils;

@@ -14,7 +14,7 @@ import services.settings.SettingsManifest;
  * Returns a 404 unless the images in questions feature is enabled. See {@link
  * FileUploadImprovementsEnabledAction}.
  */
-public class QuestionImagesEnabledAction extends Action.Simple {
+public final class QuestionImagesEnabledAction extends Action.Simple {
   private final SettingsManifest settingsManifest;
 
   @Inject

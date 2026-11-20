@@ -1,6 +1,6 @@
 package services.applications;
 
-public class ApplicationAlreadyInStatusException extends Exception {
+public final class ApplicationAlreadyInStatusException extends Exception {
   ApplicationAlreadyInStatusException(Long applicationId, String status) {
     super(
         String.format(

@@ -3,7 +3,7 @@ package services.pagination;
 import com.google.common.collect.ImmutableList;
 
 /** PaginationInfo is a generic class for pagination. */
-public class PaginationInfo<T> {
+public final class PaginationInfo<T> {
   public ImmutableList<T> getAllItems() {
     return allItems;
   }

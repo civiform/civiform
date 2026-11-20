@@ -9,7 +9,7 @@ import play.mvc.Result;
 import services.settings.SettingsManifest;
 
 /** Controller for managing user's session. */
-public class SessionController extends Controller {
+public final class SessionController extends Controller {
   private final ProfileUtils profileUtils;
   private final SettingsManifest settingsManifest;
   private final Clock clock;

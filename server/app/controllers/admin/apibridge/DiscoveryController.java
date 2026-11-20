@@ -37,7 +37,7 @@ import views.admin.apibridge.discovery.DiscoverySearchCommand;
 
 /** This controller deals with the discovery and adding of api bridge endpoints. */
 @Slf4j
-public class DiscoveryController extends Controller {
+public final class DiscoveryController extends Controller {
   private final ClassLoaderExecutionContext classLoaderExecutionContext;
   private final SettingsManifest settingsManifest;
   private final Environment environment;

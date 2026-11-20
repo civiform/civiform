@@ -222,7 +222,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class EnumeratorJsonSampler implements QuestionJsonSampler<EnumeratorQuestion> {
+  final class EnumeratorJsonSampler implements QuestionJsonSampler<EnumeratorQuestion> {
 
     private final QuestionJsonPresenter enumeratorJsonPresenter;
 
@@ -273,7 +273,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class AddressJsonSampler implements QuestionJsonSampler<AddressQuestion> {
+  final class AddressJsonSampler implements QuestionJsonSampler<AddressQuestion> {
     private final QuestionJsonPresenter addressJsonPresenter;
 
     @Inject
@@ -313,7 +313,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class CurrencyJsonSampler implements QuestionJsonSampler<CurrencyQuestion> {
+  final class CurrencyJsonSampler implements QuestionJsonSampler<CurrencyQuestion> {
 
     private final QuestionJsonPresenter currencyJsonPresenter;
 
@@ -342,7 +342,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class DateJsonSampler implements QuestionJsonSampler<DateQuestion> {
+  final class DateJsonSampler implements QuestionJsonSampler<DateQuestion> {
     private final QuestionJsonPresenter dateJsonPresenter;
 
     @Inject
@@ -370,7 +370,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class EmailJsonSampler implements QuestionJsonSampler<EmailQuestion> {
+  final class EmailJsonSampler implements QuestionJsonSampler<EmailQuestion> {
     private final QuestionJsonPresenter emailJsonPresenter;
 
     @Inject
@@ -398,7 +398,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class EmptyJsonSampler implements QuestionJsonSampler<AbstractQuestion> {
+  final class EmptyJsonSampler implements QuestionJsonSampler<AbstractQuestion> {
 
     @Override
     public ImmutableMap<Path, Optional<?>> getSampleJsonEntries(
@@ -423,7 +423,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class FileUploadJsonSampler implements QuestionJsonSampler<FileUploadQuestion> {
+  final class FileUploadJsonSampler implements QuestionJsonSampler<FileUploadQuestion> {
     private final QuestionJsonPresenter fileUploadJsonPresenter;
 
     @Inject
@@ -451,7 +451,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class IdJsonSampler implements QuestionJsonSampler<IdQuestion> {
+  final class IdJsonSampler implements QuestionJsonSampler<IdQuestion> {
     private final QuestionJsonPresenter idJsonPresenter;
 
     @Inject
@@ -477,7 +477,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class MultiSelectJsonSampler implements QuestionJsonSampler<MultiSelectQuestion> {
+  final class MultiSelectJsonSampler implements QuestionJsonSampler<MultiSelectQuestion> {
 
     private final QuestionJsonPresenter multiSelectJsonPresenter;
 
@@ -522,7 +522,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
+  final class MapJsonSampler implements QuestionJsonSampler<MapQuestion> {
     private final QuestionJsonPresenter mapJsonPresenter;
 
     @Inject
@@ -553,7 +553,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class NameJsonSampler implements QuestionJsonSampler<NameQuestion> {
+  final class NameJsonSampler implements QuestionJsonSampler<NameQuestion> {
     private final QuestionJsonPresenter nameJsonPresenter;
 
     @Inject
@@ -584,7 +584,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class NumberJsonSampler implements QuestionJsonSampler<NumberQuestion> {
+  final class NumberJsonSampler implements QuestionJsonSampler<NumberQuestion> {
 
     private final QuestionJsonPresenter numberJsonPresenter;
 
@@ -611,7 +611,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class PhoneJsonSampler implements QuestionJsonSampler<PhoneQuestion> {
+  final class PhoneJsonSampler implements QuestionJsonSampler<PhoneQuestion> {
     private final QuestionJsonPresenter phoneJsonPresenter;
 
     @Inject
@@ -640,7 +640,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class SingleSelectJsonSampler implements QuestionJsonSampler<SingleSelectQuestion> {
+  final class SingleSelectJsonSampler implements QuestionJsonSampler<SingleSelectQuestion> {
 
     private final QuestionJsonPresenter singleSelectJsonPresenter;
 
@@ -677,7 +677,7 @@ public interface QuestionJsonSampler<Q extends AbstractQuestion> {
     }
   }
 
-  class TextJsonSampler implements QuestionJsonSampler<TextQuestion> {
+  final class TextJsonSampler implements QuestionJsonSampler<TextQuestion> {
     private final QuestionJsonPresenter emailJsonPresenter;
 
     @Inject

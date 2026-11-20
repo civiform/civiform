@@ -19,7 +19,7 @@ import repository.StoredFileRepository;
 
 // TODO(#3856): Update with a non deprecated saml impl.
 @SuppressWarnings("deprecation")
-public class LoginRadiusClientProvider implements Provider<SAML2Client> {
+public final class LoginRadiusClientProvider implements Provider<SAML2Client> {
 
   private static final Logger logger = LoggerFactory.getLogger(LoginRadiusClientProvider.class);
 

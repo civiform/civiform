@@ -26,7 +26,7 @@ import services.apikey.ApiKeyService;
  * inconsistent. This is acceptable since it's not critical that the call count be perfectly
  * accurate.
  */
-public class ApiKeyUsageFilter extends EssentialFilter {
+public final class ApiKeyUsageFilter extends EssentialFilter {
 
   private final PekkoSchedulerProvider pekkoSchedulerProvider;
   private final Provider<ApiKeyService> apiKeyServiceProvider;

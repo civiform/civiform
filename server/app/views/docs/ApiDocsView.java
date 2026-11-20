@@ -64,7 +64,7 @@ import views.style.StyleUtils;
 // ExportServiceRepository should be brokered by an ApiDocsService, instead of accessed directly
 // from the view.
 
-public class ApiDocsView extends BaseHtmlView {
+public final class ApiDocsView extends BaseHtmlView {
   private static final Logger logger = LoggerFactory.getLogger(ApiDocsView.class);
   private static final String CODE_STYLES =
       StyleUtils.joinStyles("bg-slate-200", "p-0.5", "rounded-md");

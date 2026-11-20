@@ -24,7 +24,7 @@ import services.program.ProgramService;
  *
  * <p>
  */
-public class ProgramDisabledAction extends Action.Simple {
+public final class ProgramDisabledAction extends Action.Simple {
   private final ProgramService programService;
 
   @Inject

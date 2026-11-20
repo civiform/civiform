@@ -172,7 +172,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class AddressJsonPresenter implements QuestionJsonPresenter<AddressQuestion> {
+  final class AddressJsonPresenter implements QuestionJsonPresenter<AddressQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(AddressQuestion question) {
 
@@ -206,7 +206,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
+  final class CurrencyJsonPresenter implements QuestionJsonPresenter<CurrencyQuestion> {
 
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(CurrencyQuestion question) {
@@ -219,7 +219,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
+  final class DateJsonPresenter implements QuestionJsonPresenter<DateQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(DateQuestion question) {
       Path path = question.getDatePath().asNestedEntitiesPath();
@@ -228,7 +228,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class EmailJsonPresenter implements QuestionJsonPresenter<EmailQuestion> {
+  final class EmailJsonPresenter implements QuestionJsonPresenter<EmailQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EmailQuestion question) {
       Path path = question.getEmailPath().asNestedEntitiesPath();
@@ -237,14 +237,14 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class EmptyJsonPresenter implements QuestionJsonPresenter<AbstractQuestion> {
+  final class EmptyJsonPresenter implements QuestionJsonPresenter<AbstractQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(AbstractQuestion question) {
       return ImmutableMap.of();
     }
   }
 
-  class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion> {
+  final class EnumeratorJsonPresenter implements QuestionJsonPresenter<EnumeratorQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(EnumeratorQuestion question) {
       Path path =
@@ -271,7 +271,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
+  final class FileUploadJsonPresenter implements QuestionJsonPresenter<FileUploadQuestion> {
     private final String baseUrl;
 
     @Inject
@@ -304,7 +304,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class IdJsonPresenter implements QuestionJsonPresenter<IdQuestion> {
+  final class IdJsonPresenter implements QuestionJsonPresenter<IdQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(IdQuestion question) {
       Path path = question.getIdPath().asNestedEntitiesPath();
@@ -313,7 +313,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class MapJsonPresenter implements QuestionJsonPresenter<MapQuestion> {
+  final class MapJsonPresenter implements QuestionJsonPresenter<MapQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MapQuestion question) {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
@@ -324,7 +324,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
+  final class MultiSelectJsonPresenter implements QuestionJsonPresenter<MultiSelectQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(MultiSelectQuestion question) {
       Path path = question.getSelectionPath().asNestedEntitiesPath();
@@ -336,7 +336,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class NameJsonPresenter implements QuestionJsonPresenter<NameQuestion> {
+  final class NameJsonPresenter implements QuestionJsonPresenter<NameQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NameQuestion question) {
       // We could be clever and loop through question.getAllPaths(), but we want
@@ -356,7 +356,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
+  final class NumberJsonPresenter implements QuestionJsonPresenter<NumberQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(NumberQuestion question) {
       Path path = question.getNumberPath().asNestedEntitiesPath();
@@ -364,7 +364,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
+  final class PhoneJsonPresenter implements QuestionJsonPresenter<PhoneQuestion> {
     private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();
 
     @Override
@@ -398,7 +398,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
+  final class SingleSelectJsonPresenter implements QuestionJsonPresenter<SingleSelectQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(SingleSelectQuestion question) {
       return ImmutableMap.of(
@@ -410,7 +410,7 @@ public interface QuestionJsonPresenter<Q extends AbstractQuestion> {
     }
   }
 
-  class TextJsonPresenter implements QuestionJsonPresenter<TextQuestion> {
+  final class TextJsonPresenter implements QuestionJsonPresenter<TextQuestion> {
     @Override
     public ImmutableMap<Path, Optional<?>> getAnswerJsonEntries(TextQuestion question) {
       Path path = question.getTextPath().asNestedEntitiesPath();

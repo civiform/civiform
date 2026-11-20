@@ -55,7 +55,7 @@ import views.admin.migration.AdminProgramImportForm;
  * <p>Typically, admins will export from one environment (e.g. staging) and import to another
  * environment (e.g. production).
  */
-public class AdminImportController extends CiviFormController {
+public final class AdminImportController extends CiviFormController {
   private final Logger logger = LoggerFactory.getLogger(AdminImportController.class);
   private final AdminImportPageView adminImportPageView;
   private final PartialView<AdminImportErrorPartialViewModel> adminImportErrorPartialView;

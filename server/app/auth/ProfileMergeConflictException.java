@@ -2,7 +2,7 @@ package auth;
 
 import org.pac4j.core.exception.TechnicalException;
 
-public class ProfileMergeConflictException extends TechnicalException {
+public final class ProfileMergeConflictException extends TechnicalException {
 
   /**
    * When this exception is thrown in a controller, the resulting response will be a 400 and the

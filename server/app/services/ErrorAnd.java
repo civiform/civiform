@@ -10,7 +10,7 @@ import java.util.Optional;
  * of error objects while result is the result of an action. If the action was successful only
  * result need be provided.
  */
-public class ErrorAnd<T, E> {
+public final class ErrorAnd<T, E> {
   public static <T, E> ErrorAnd<T, E> error(ImmutableSet<E> errors) {
     return new ErrorAnd<>(errors);
   }

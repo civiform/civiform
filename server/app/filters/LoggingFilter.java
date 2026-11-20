@@ -18,7 +18,7 @@ import play.mvc.Result;
 
 /** This is a simple filter that produces an apache-style access log. */
 @Singleton
-public class LoggingFilter extends EssentialFilter {
+public final class LoggingFilter extends EssentialFilter {
 
   private final Executor exec;
   private final Clock clock;

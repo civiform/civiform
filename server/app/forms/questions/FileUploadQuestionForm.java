@@ -6,7 +6,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a file upload question. */
-public class FileUploadQuestionForm extends QuestionForm {
+public final class FileUploadQuestionForm extends QuestionForm {
   private OptionalInt maxFiles;
 
   public FileUploadQuestionForm() {

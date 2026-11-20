@@ -18,6 +18,7 @@ import repository.VersionRepository;
  * been authenticated, but they have not yet been authorized. It is the responsibility of every
  * controller action to authorize its own requests, e.g. by calling assertHasProgramReadPermission.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class CiviFormApiController extends CiviFormController {
 
   protected final ApiPaginationTokenSerializer apiPaginationTokenSerializer;

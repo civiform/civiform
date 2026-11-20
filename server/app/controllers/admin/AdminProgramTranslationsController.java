@@ -35,7 +35,7 @@ import views.admin.programs.ProgramTranslationPageView;
 import views.admin.programs.ProgramTranslationPageViewModel;
 
 /** Provides methods for updating localizations for a given program. */
-public class AdminProgramTranslationsController extends CiviFormController {
+public final class AdminProgramTranslationsController extends CiviFormController {
 
   private final ProgramService service;
   private final ProgramRepository programRepository;

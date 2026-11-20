@@ -11,7 +11,7 @@ import play.mvc.EssentialFilter;
 import services.DeploymentType;
 
 /** Ensure that all /dev routes are only accessible in dev and staging. */
-public class DevRoutesFilter extends EssentialFilter {
+public final class DevRoutesFilter extends EssentialFilter {
   private boolean isDevOrStaging;
 
   @Inject

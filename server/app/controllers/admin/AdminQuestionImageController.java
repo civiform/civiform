@@ -33,7 +33,7 @@ import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
 import services.settings.SettingsManifest;
 
-public class AdminQuestionImageController extends CiviFormController {
+public final class AdminQuestionImageController extends CiviFormController {
   private final SettingsManifest settingsManifest;
   private final QuestionService questionService;
   private final Messages messages;

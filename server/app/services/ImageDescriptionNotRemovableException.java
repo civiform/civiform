@@ -5,7 +5,7 @@ package services;
  *
  * <p>The message provided will be shown to the admin as an error.
  */
-public class ImageDescriptionNotRemovableException extends RuntimeException {
+public final class ImageDescriptionNotRemovableException extends RuntimeException {
   public ImageDescriptionNotRemovableException(String message) {
     super(message);
   }

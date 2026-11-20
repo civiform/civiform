@@ -8,7 +8,7 @@ import org.slf4j.LoggerFactory;
 import play.api.db.evolutions.ApplicationEvolutions;
 import repository.SettingsCacheMaintainer;
 
-public class SettingsCacheModule extends AbstractModule {
+public final class SettingsCacheModule extends AbstractModule {
   private static final Logger logger = LoggerFactory.getLogger(SettingsCacheModule.class);
 
   @Override

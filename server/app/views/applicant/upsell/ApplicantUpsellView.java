@@ -22,7 +22,7 @@ import views.applicant.programindex.ProgramCardsSectionParamsFactory;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 import views.components.TextFormatter;
 
-public class ApplicantUpsellView extends ApplicantBaseView {
+public final class ApplicantUpsellView extends ApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject

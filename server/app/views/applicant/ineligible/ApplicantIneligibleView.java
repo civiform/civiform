@@ -27,7 +27,7 @@ import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
 
-public class ApplicantIneligibleView extends ApplicantBaseView {
+public final class ApplicantIneligibleView extends ApplicantBaseView {
   private final EligibilityAlertSettingsCalculator eligibilityAlertSettingsCalculator;
 
   @Inject

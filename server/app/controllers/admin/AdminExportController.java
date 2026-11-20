@@ -34,7 +34,7 @@ import views.admin.migration.AdminProgramExportForm;
  * <p>Typically, admins will export from one environment (e.g. staging) and import to another
  * environment (e.g. production).
  */
-public class AdminExportController extends CiviFormController {
+public final class AdminExportController extends CiviFormController {
   private final AdminExportPageView adminExportPageView;
   private final FormFactory formFactory;
   private final ProgramMigrationService programMigrationService;
