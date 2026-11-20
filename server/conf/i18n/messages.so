@@ -1261,7 +1261,7 @@ ariaLabel.indentedPage=Bogga dib loo dhaqaajiyay
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=Qaybta liiska qaabka samaynta
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=Samee mid cusub
 # Option for allowing an admin to choose an existing list set
 option.repeatedSet.chooseExisting=Choose existing
 # Label for the new list set form
