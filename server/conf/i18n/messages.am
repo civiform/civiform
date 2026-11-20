@@ -1167,7 +1167,7 @@ banner.immigrationStatusInfoBanner.linkText=እዚህ
 # Header for demo banner alert
 label.demoBanner.heading=ማሳያ፦ {0}
 # Aria-label for demo banner
-label.demoBanner.label=Demo mode information
+label.demoBanner.label=የማሳያ ሁነታ መረጃ
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=1 day remaining
 # Count of remaining days for the demo environment (plural)
