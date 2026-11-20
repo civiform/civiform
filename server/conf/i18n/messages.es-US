@@ -382,7 +382,7 @@ content.startApplicationPrompt=¿Todo listo para hacer la solicitud? Inicia sesi
 # Button text to start an application when the applicant has not started one yet.
 button.startApplication=Comenzar solicitud
 # Button text to continue an application when the applicant has already started or submitted one.
-button.continueApplication=Continue application
+button.continueApplication=Continuar solicitud
 # Button text in the start application section and create account alert that takes users to log in before starting an application.
 button.loginToStartApplication=Log in to start application
 # Description text in the create account alert on the program overview page explaining how an account helps the user.
