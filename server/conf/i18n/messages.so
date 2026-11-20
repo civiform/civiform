@@ -1309,7 +1309,7 @@ text.repeatedSet.backfillProgramCountOne=1 barnaamij
 # The number of other programs that use a list set, shown in bold inside the save warning when several programs do. {0} is the number of programs
 text.repeatedSet.backfillProgramCountMany={0} barnaamijyada
 # Button that saves the picked initial question onto an existing list set
-button.repeatedSet.initialQuestion.save=Save initial question
+button.repeatedSet.initialQuestion.save=Kaydi su'aasha hore
 # Alert shown to notify admins that repeated-screen questions are blocked until an enumerator question is saved.
 alert.repeatedSet.addQuestionDisabled=Add a list set before you add repeated questions. Go to the {0} to add one.
 # Clickable link text. It replaces {0} in the sentence "Add a list set before you add repeated questions. Go to the {0} to add one." Clicking it takes the user back to the screen where they set up the list.
