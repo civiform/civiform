@@ -171,6 +171,47 @@
       description: "Ensures Docker images use SHA256 digests for security and reproducibility.",
     },
 
+    // Auto-merge patch updates to tooling that never ships to users. main requires
+    // a review, so .github/workflows/renovate_approve.yaml approves these PRs. That
+    // workflow keys off the renovate-automerge label and only approves changes to
+    // the files listed here, so keep the two in sync.
+    //
+    // server/package.json is left out on purpose: some of its devDependencies
+    // (htmx.org, vite, sass, tailwindcss) build or ship in the applicant bundle.
+    // A branch only auto-merges if every update in it qualifies, and monorepo
+    // groups span package files. additionalBranchPrefix splits the qualifying
+    // updates into their own branch so server/ doesn't hold them back.
+    {
+      description: "Auto-merge patch updates to npm devDependencies outside server/.",
+      matchManagers: ["npm"],
+      matchFileNames: [
+        "browser-test/package.json",
+        "formatter/package.json",
+        "mock-web-services/package.json",
+        "test-support/package.json",
+      ],
+      matchDepTypes: ["devDependencies"],
+      matchUpdateTypes: ["patch"],
+      // Prettier changes formatting output in patch releases, and 0.x packages
+      // don't follow semver for patch numbers.
+      matchPackageNames: ["!prettier"],
+      matchCurrentVersion: "!/^[\\^~]?0\\./",
+      automerge: true,
+      minimumReleaseAge: "7 days",
+      addLabels: ["renovate-automerge"],
+      additionalBranchPrefix: "dev-tooling-",
+      commitMessageSuffix: "(dev tooling)",
+    },
+    {
+      description: "Auto-merge patch updates to sbt-scalafmt.",
+      matchManagers: ["sbt"],
+      matchPackageNames: ["org.scalameta:sbt-scalafmt"],
+      matchUpdateTypes: ["patch"],
+      automerge: true,
+      minimumReleaseAge: "7 days",
+      addLabels: ["renovate-automerge"],
+    },
+
     // prHeader-only rules below here. They add noise masking actual config settings.
     {
       matchPackageNames: ["aws-actions/configure-aws-credentials"],
