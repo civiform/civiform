@@ -1171,7 +1171,7 @@ label.demoBanner.label=የማሳያ ሁነታ መረጃ
 # Count of remaining days for the demo environment (singular)
 banner.demoBanner.dayRemaining=1 ቀን ይቀራል
 # Count of remaining days for the demo environment (plural)
-banner.demoBanner.daysRemaining={0} days remaining
+banner.demoBanner.daysRemaining={0} ቀናት ይቀራሉ
 
 #------------------------------------------------------------------------------#
 # CATEGORIES - tags that admins can choose to specify the type of program #
