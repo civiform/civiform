@@ -1301,7 +1301,7 @@ description.repeatedSet.initialQuestionAdminId=Codsadayaashu waxay isticmaalaan 
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=Ma awoodi doontid inaad ka saarto su'aasha hore ka dib markaad kaydiso.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
-alert.repeatedSet.backfillSaveWarningOneProgram=Tani sidoo kale waxay cusboonaysiin doontaa {0} ee isticmaasha qaybtan liiska.
+alert.repeatedSet.backfillSaveWarningOneProgram=Tani sidoo kale waxay cusboonaysiin doontaa {0} ee isticmaala qaybtan liiska.
 # Shown before the save warning when several other programs also use this list set. {0} is the number of programs with the word "programs", shown in bold
 alert.repeatedSet.backfillSaveWarningPrograms=Tani sidoo kale waxay cusboonaysiin doontaa {0} ee isticmaala qaybtan liiska.
 # The number of other programs that use a list set, shown in bold inside the save warning when exactly one program does
