@@ -1379,9 +1379,9 @@ button.addNestedRepeatedSet=የታቀፈ ዝርዝር ስብስብ ያክሉ
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
 button.continueToChildScreen=ወደ ልጅ ማያ ገጽ ይቀጥሉ
 # A button for admins to add a pre-existing enumerator question to a program
-button.addQuestion=Add question
+button.addQuestion=ጥያቄ ያክሉ
 # A button on a question card for admins to remove the question from the screen.
-button.removeQuestion=Remove
+button.removeQuestion=ያስወግዱ
 # A tooltip shown to admins when the delete screen button is disabled
 tooltip.deleteScreenDisabled=This screen cannot be deleted because there are repeated screens attached to it.
 # A tooltip shown to admins when the remove question button is disabled for a list set question
