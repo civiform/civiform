@@ -1297,7 +1297,7 @@ description.repeatedSet.initialQuestionNote=Fiiro: Codsiyadayaashu waxay arkaan 
 # Label shown before the initial question's admin ID in the "Initial question" section of the enumerator question edit form
 label.repeatedSet.initialQuestionAdminId=Aqoonsiga maamulka:
 # Description in the "Initial question" section of the enumerator question edit form, explaining what the initial question is
-description.repeatedSet.initialQuestionAdminId=Applicants use this question to add each item or person to the list set.
+description.repeatedSet.initialQuestionAdminId=Codsadayaashu waxay isticmaalaan su'aashan si loogu daro shay kasta ama qof qaybta liiska.
 # Warning shown on the list set screen after an admin picks an initial question for a list set that does not have one yet, before they save it
 alert.repeatedSet.backfillSaveWarning=You will not be able to remove the initial question after you save it.
 # Shown before the save warning when exactly one other program also uses this list set. {0} is "1 program", shown in bold
