@@ -1371,7 +1371,7 @@ description.repeatedSet.hintText=Geli tilmaanta caawisa codsadayaasha inay go'aa
 #An informative description below the option to create a new list set question
 description.repeatedSet.createNewQuestion=Ka samee shaashaddan su'aal cusub oo qaybta liiska ah. Waxaan kuugu kaydin doonnaa kaydka su'aalaha si mustaqbalka loo isticmaalo.
 #An informative description below the option to choose an existing question
-description.repeatedSet.chooseExistingQuestion=Ku dar qaybta liiska jira ee kaydka su'aasha.
+description.repeatedSet.chooseExistingQuestion=Ku dar qaybta liiska jirta ee kaydka su'aalaha.
 # A button for admins to add a child screen (sub screen) to a program
 button.addRepeatedScreen=Ku dar shaashada ilmaha
 # A button for admins to add a nested list set to a program
