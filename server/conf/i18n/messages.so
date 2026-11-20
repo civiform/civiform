@@ -610,7 +610,7 @@ content.adminProgramImage.cardPreviewError=Waa qalad soo saarida fiirinta kaarka
 # Message shown when alt text is required but missing.
 validation.adminQuestionImage.altTextRequired=Image description is required when a question image is uploaded.
 # Error when alt text cannot be cleared while an image remains.
-validation.adminQuestionImage.descriptionNotRemovable=Description can''t be removed because an image is present. Delete the image before deleting the description.
+validation.adminQuestionImage.descriptionNotRemovable=Faahfaahinta lagama saari karo sababtoo ah sawir ayaa yaala. Tirtir sawirka ka hor tirtirida faahfaahinta.
 # Label for the field where the admin enters alt text for the question image.
 label.adminQuestionImage.altText=Enter image description (Alt Text)
 
