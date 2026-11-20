@@ -1335,7 +1335,7 @@ button.repeatedSet.initialQuestion.add=Add initial question
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Remove the {0} initial question
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=Conjunto de listas
 # Text letting admins know which block represents the group of screens for nested repeating questions
 text.nestedRepeatedSet=Conjunto de listas anidadas
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
