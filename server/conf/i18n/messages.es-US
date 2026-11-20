@@ -1341,7 +1341,7 @@ text.nestedRepeatedSet=Conjunto de listas anidado
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
 text.repeatedSet.screenNameDescription=Los solicitantes verán como parte del nombre de pantalla la entidad que indicaron al responder a la pregunta inicial. Puedes agregar más texto en el primer cuadro a continuación para proporcionar un mayor contexto. Por ejemplo, si la pregunta inicial solicita los miembros del hogar y el solicitante indicó "Jennifer", el nombre en pantalla podría ser: "Jennifer - Información de antecedentes".
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=Un conjunto de listas demanda a los solicitantes que agreguen elementos o personas a una lista.
+text.repeatedSet.addQuestionDescription=Un conjunto de listas pide a los solicitantes que agreguen elementos o personas a una lista.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Agrega preguntas que desees que los solicitantes respondan sobre cada elemento o persona que enumeren.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
