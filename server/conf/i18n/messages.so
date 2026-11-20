@@ -1267,7 +1267,7 @@ option.repeatedSet.chooseExisting=Dooro mid jirta
 # Label for the new list set form
 label.repeatedSet.newSetForm=Samee qayb liis cusub ah
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=What is being listed?
+input.repeatedSet.listedEntity=Maxaa la qorayaa?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=List set admin ID
 # A text input field asking admins for the text that will prompt applicants to list out the entity
