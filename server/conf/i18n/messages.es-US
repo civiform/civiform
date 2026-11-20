@@ -1267,7 +1267,7 @@ option.repeatedSet.chooseExisting=Elegir uno existente
 # Label for the new list set form
 label.repeatedSet.newSetForm=Crear un nuevo conjunto de listas
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
-input.repeatedSet.listedEntity=¿Qué se está incluyendo en la lista?
+input.repeatedSet.listedEntity=¿Qué se está enumerando?
 # Label for the text input field asking for the admin identifier of the list set
 input.repeatedSet.adminId=ID de administrador del conjunto de listas
 # A text input field asking admins for the text that will prompt applicants to list out the entity
