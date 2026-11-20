@@ -1062,7 +1062,7 @@ adminValidation.multiOptionAdminError=የአስተዳዳሪ ስሞች መያዝ 
 staticQuestion.imageEnlargeText = ምስል ያሳድጉ
 
 # Label shown to indicate that an image will open in a new tab
-staticQuestion.enlargeImageScreenReaderText=opens in a new tab
+staticQuestion.enlargeImageScreenReaderText=በአዲስ ትር ይከፍታል
 
 #----------------------------------#
 # ERRORS - various error messages  #
