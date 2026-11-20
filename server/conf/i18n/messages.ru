@@ -1261,9 +1261,9 @@ ariaLabel.indentedPage=Страница с отступом
 # Heading for the list set creation method radio buttons
 heading.repeatedSet.creationMethod=Способ создания набора списка
 # Option for allowing an admin to create a new list set
-option.repeatedSet.createNew=Create new
+option.repeatedSet.createNew=Создать новый
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=Выбрать существующий
 # Label for the new list set form
 label.repeatedSet.newSetForm=Создать новый набор списка
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
@@ -1321,13 +1321,13 @@ alert.repeatedSet.initialQuestionNotFound=Начальный вопрос не �
 # Alert shown when the admin submits the new list set form without selecting an initial question.
 alert.repeatedSet.initialQuestionRequired=Добавьте начальный вопрос
 # Alert shown to notify admin that creating a new list set will add a new question to the question bank
-alert.repeatedSet.newQuestion=When you create this list set, the system saves it to the question bank.
+alert.repeatedSet.newQuestion=При создании этого набора списка система сохранит его в банке вопросов.
 # Alert shown in the question bank section listing repeated questions that are already associated with this list set
 alert.repeatedSet.previouslyUsed=Вопросы, относящиеся к другому набору списка, недоступны.
 # Submission button for creating a new list set
-button.repeatedSet.submitNew=Create list set
+button.repeatedSet.submitNew=Создать набор списка
 # Button for admins to add a new list set
-button.repeatedSet.addNew=Add list set screen
+button.repeatedSet.addNew=Экран добавления набора списка
 # Button on the "Choose existing" option of the list set screen that opens the question bank so admins can pick an existing list set
 button.repeatedSet.chooseExisting=Добавить набор списка
 # Button on the new list set form that opens the question bank so admins can add the initial question
@@ -1335,13 +1335,13 @@ button.repeatedSet.initialQuestion.add=Добавить начальный во�
 # Screen-reader-only aria-label for the Remove button on the initial question card. {0} is the question's admin identifier.
 button.repeatedSet.initialQuestion.removeAriaLabel=Удалить начальный вопрос {0}
 # Text letting admins know which block represents the group of screens for repeating questions
-text.repeatedSet=List set
+text.repeatedSet=Набор списка
 # Text letting admins know which block represents the group of screens for nested repeating questions
-text.nestedRepeatedSet=Nested list set
+text.nestedRepeatedSet=Вложенный набор списка
 # Description shown beneath the screen name field in the screen editing modal, explaining that the applicant's listed entity appears in the screen name
-text.repeatedSet.screenNameDescription=Applicants will see the listed entity they answered from the initial question as part of the screen name. You can add more text in the first box below to provide further context. For example, if the initial question asks for household members and the applicant listed "Jennifer," the screen name could be: "Jennifer - Background Information".
+text.repeatedSet.screenNameDescription=Заявители увидят в названии экрана объект списка, указанный в ответе на начальный вопрос. Вы можете добавить пояснение в первом поле ниже. Например, если начальный вопрос предполагает перечисление членов семьи, а заявитель указал «Дженнифер», название экрана может выглядеть так: «Дженнифер — Основные сведения».
 #An additional description explaining what the add question button does
-text.repeatedSet.addQuestionDescription=A list set asks applicants to add items or people to a list.
+text.repeatedSet.addQuestionDescription=Набор списка предлагает заявителям добавить элементы или людей в список.
 # First paragraph of the information shown to admins when they are adding a question to a repeated screen.
 text.repeatedQuestions.description=Добавьте вопросы, на которые заявители должны ответить о каждом элементе или человеке из списка.
 # Second paragraph of the information shown to admins when they are adding a question to a repeated screen, explaining that choosing an existing question saves a copy of it
@@ -1351,7 +1351,7 @@ text.repeatedQuestion.listSetInformation=Этот вопрос повторяе�
 # Label for the dropdown on the question create and edit form where an admin selects the list set a repeated question belongs to
 label.repeatedQuestion.associatedListSet=Связанный набор списка
 # Heading above the list set question in the program block editor
-heading.repeatedSet.question=List set
+heading.repeatedSet.question=Набор списка
 # Heading shown above repeated questions in the question bank that are already associated with this list set
 heading.repeatedSet.previouslyUsed=Ранее использовалось для этого набора списка
 # Heading for the question bank drawer when an admin adds an existing list set to a list set screen
@@ -1361,19 +1361,19 @@ heading.repeatedQuestions=Повторяющиеся вопросы
 # Heading above the questions section on a repeated screen, naming what the applicant lists on the parent list set screen. {0} is that item, and will be a singular noun,for example "household member".
 heading.repeatedQuestionsAboutEntity=Повторяющиеся вопросы о каждом: {0}
 # Informative text above the listed entity input field to help admins understand what to enter in that field.
-description.repeatedSet.listedEntity=Enter the items or people an applicant lists out, such as "household member" or "income source."
+description.repeatedSet.listedEntity=Введите элементы или людей, которых заявитель перечисляет в списке, например «член семьи» или «источник дохода».
 # Informative text above the admin ID input field telling admins that an ID will be auto-generated based on the wording they entered in the preview field.
-description.repeatedSet.adminId=We''ll fill in this ID based on your entry above. Please customize as needed.
+description.repeatedSet.adminId=Мы заполним этот идентификатор на основе введённых выше данных. При необходимости измените его.
 # An informative description above the question text input field to help admins understand what to enter in that field.
-description.repeatedSet.questionText=Enter the text that prompts applicants to add each item or person.
+description.repeatedSet.questionText=Введите текст, предлагающий заявителям добавить каждый элемент или человека.
 # An informative description above the hint text input field to help admins understand what to enter in that field.
-description.repeatedSet.hintText=Enter a hint that helps applicants decide what to add. For example, "Do not include yourself."
+description.repeatedSet.hintText=Введите подсказку, которая поможет заявителям решить, что добавить. Например: «Не включайте себя».
 #An informative description below the option to create a new list set question
-description.repeatedSet.createNewQuestion=Create a new list set question from this screen. We''ll save it for you in the question bank for future use.
+description.repeatedSet.createNewQuestion=Создайте новый вопрос набора списка на этом экране. Мы сохраним его в банке вопросов для будущего использования.
 #An informative description below the option to choose an existing question
 description.repeatedSet.chooseExistingQuestion=Добавить существующий набор списка из банка вопросов.
 # A button for admins to add a child screen (sub screen) to a program
-button.addRepeatedScreen=Add child screen
+button.addRepeatedScreen=Добавить дочерний экран
 # A button for admins to add a nested list set to a program
 button.addNestedRepeatedSet=Добавить вложенный набор списка
 # A button for admins to navigate from a parent screen to its first child screen (sub screen)
