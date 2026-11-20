@@ -306,13 +306,75 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
     assertThat(content).contains("<title>test program - Program Overview</title>");
+    assertThat(content).contains("Ready to apply? Log in to save your progress.");
+    assertThat(content).contains("Log in to start application");
+    assertThat(content).contains("Start application as a guest");
+    assertThat(content)
+        .contains(
+            "Use an account to log back in to check on your application status and save time"
+                + " applying to other programs.");
   }
 
   @Test
-  public void showProgram_whenNoApplication_loadsProgramOverview() {
+  public void showProgram_whenLoggedInAndApplicationStarted_showsContinueApplication() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
-    createApplicantWithMockedProfile();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getAccount().setAuthorityId("test-authority-id");
+    applicant.getAccount().save();
+
+    Langs mockLangs = mock(Langs.class);
+    when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
+
+    SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
+
+    ApplicationModel app =
+        new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.DRAFT);
+    app.save();
+
+    LanguageUtils languageUtils =
+        new LanguageUtils(
+            instanceOf(AccountRepository.class),
+            mockLangs,
+            mockSettingsManifest,
+            instanceOf(MessagesApi.class));
+    CiviFormController controller = instanceOf(CiviFormController.class);
+    ApplicantRoutes applicantRoutes = instanceOf(ApplicantRoutes.class);
+
+    ProgramSlugHandler handler =
+        new ProgramSlugHandler(
+            instanceOf(ClassLoaderExecutionContext.class),
+            instanceOf(ApplicantService.class),
+            instanceOf(ProfileUtils.class),
+            instanceOf(ProgramService.class),
+            languageUtils,
+            applicantRoutes,
+            instanceOf(ProgramOverviewView.class),
+            instanceOf(MessagesApi.class),
+            instanceOf(SettingsManifest.class),
+            instanceOf(ProgramRepository.class));
+    Result result =
+        handler
+            .showProgram(controller, fakeRequest(), programDefinition.slug())
+            .toCompletableFuture()
+            .join();
+
+    String content = contentAsString(result);
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(result.contentType()).hasValue("text/html");
+    assertThat(content).contains("Continue application");
+    assertThat(content).doesNotContain("Ready to apply? Log in to save your progress.");
+  }
+
+  @Test
+  public void showProgram_whenLoggedInAndNoApplication_showsStartApplication() {
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
+
+    ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getAccount().setAuthorityId("test-authority-id");
+    applicant.getAccount().save();
 
     Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
@@ -349,15 +411,19 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(content).contains("<title>test program - Program Overview</title>");
+    assertThat(content).contains("Start application");
+    assertThat(content).doesNotContain("Continue application");
+    assertThat(content).doesNotContain("Ready to apply? Log in to save your progress.");
   }
 
   @Test
-  public void showProgram_whenApplicationSubmitted_loadsProgramOverview() {
+  public void showProgram_whenLoggedInAndApplicationSubmitted_showsContinueApplication() {
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
 
     ApplicantModel applicant = createApplicantWithMockedProfile();
+    applicant.getAccount().setAuthorityId("test-authority-id");
+    applicant.getAccount().save();
 
     Langs mockLangs = mock(Langs.class);
     when(mockLangs.availables()).thenReturn(ImmutableList.of(Lang.forCode("en-US")));
@@ -398,7 +464,8 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
     String content = contentAsString(result);
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
-    assertThat(content).contains("<title>test program - Program Overview</title>");
+    assertThat(content).contains("Continue application");
+    assertThat(content).doesNotContain("Ready to apply? Log in to save your progress.");
   }
 
   @Test

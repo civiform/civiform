@@ -271,10 +271,10 @@ public final class ProgramSlugHandler {
     Optional<ApplicantProgramData> optionalProgramData = Optional.empty();
 
     if (relevantPrograms != null) {
-      // If the program doesn't have any applications yet, find the program data
-      // for the program that we're trying to show so that we can check isProgramMaybeEligible.
+      // Find the program data for the program that we're trying to show so that we can check
+      // isProgramMaybeEligible and whether an application has already been started or submitted.
       optionalProgramData =
-          relevantPrograms.unapplied().stream()
+          relevantPrograms.allPrograms().stream()
               .filter(
                   (ApplicantProgramData applicantProgramData) ->
                       applicantProgramData.programId() == activeProgramDefinition.id())
