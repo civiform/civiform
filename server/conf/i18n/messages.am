@@ -1263,7 +1263,7 @@ heading.repeatedSet.creationMethod=የዝርዝር ስብስብ የፈጠራ ዘ
 # Option for allowing an admin to create a new list set
 option.repeatedSet.createNew=አዲስ ይፍጠሩ
 # Option for allowing an admin to choose an existing list set
-option.repeatedSet.chooseExisting=Choose existing
+option.repeatedSet.chooseExisting=ነባር ይምረጡ
 # Label for the new list set form
 label.repeatedSet.newSetForm=Create new list set
 # Label for the text input field asking what type of entity users will be listing (e.g., household members)
