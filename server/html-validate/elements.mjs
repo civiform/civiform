@@ -7,6 +7,7 @@
 // exception on the page. A `th:` attribute counts as its plain form, and its
 // value isn't checked because it is only known at render time.
 import {readdirSync} from 'node:fs'
+import {join} from 'node:path'
 import {defineMetadata, metadataHelper} from 'html-validate'
 import html5 from 'html-validate/elements/html5'
 
@@ -59,7 +60,7 @@ const optionGroup = {permittedContent: ['item']}
 // IconElementTagProcessor looks the icon up by file name and throws outside
 // of prod when the file isn't there.
 const ICONS = readdirSync(
-  new URL('../app/assets/Images/uswds', import.meta.url),
+  join(import.meta.dirname, '../app/assets/Images/uswds'),
 )
   .filter((file) => file.endsWith('.svg'))
   .map((file) => file.slice(0, -'.svg'.length))
