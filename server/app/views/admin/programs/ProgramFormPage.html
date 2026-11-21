@@ -82,12 +82,10 @@
       </fieldset>
       <label
         class="hidden px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option w-min"
-        for="confirmed-change-pre-screener-checkbox"
       >
         <input
           type="checkbox"
           value="false"
-          maxlength="10000"
           id="confirmed-change-pre-screener-checkbox"
           name="confirmedChangePreScreenerForm"
           class="h-4 w-4 mr-4 align-middle self-center flex-none"
@@ -177,6 +175,7 @@
                the controller strips, and th:* processors drop empty
                attributes. */-->
           <div class="hidden">
+            <!--/* [html-validate-disable-next attribute-allowed-values, valid-id -- must render empty, see above] */-->
             <input
               id=""
               class="usa-checkbox__input usa-checkbox__input--tile"
@@ -185,6 +184,7 @@
               value=""
               checked="checked"
             />
+            <!--/* [html-validate-disable-next attribute-allowed-values -- must render empty, see above] */-->
             <label for="" class="usa-checkbox__label"></label>
           </div>
           <th:block th:each="tiGroup : ${model.tiGroups}">
@@ -277,7 +277,7 @@
       <button
         type="submit"
         id="program-update-button"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base mt-6"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base mt-6"
         th:text="${model.saveAndContinue} ? 'Save and continue to next step' : 'Save'"
       ></button>
       <input
@@ -342,7 +342,7 @@
             type="submit"
             form="program-details-form"
             id="confirm-pre-screener-change-button"
-            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base cursor-pointer"
+            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base cursor-pointer"
           >
             Confirm
           </button>

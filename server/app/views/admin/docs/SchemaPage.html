@@ -77,6 +77,7 @@
     <input type="hidden" id="api-url" th:value="${model.apiUrl}" />
 
     <!--/* Inlining this css because it is only used to modify the swagger-ui and is never useful elsewhere */-->
+    <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <style> is not allowed in <div>] */-->
     <style th:attr="nonce=${templateGlobals.cspNonce()}">
       .swagger-ui {
         > .topbar,

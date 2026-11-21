@@ -69,6 +69,7 @@
                   id="another-program"
                   th:text="#{button.applyToPrograms}"
                 ></a>
+                <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
                 <a
                   th:if="${isGuest}"
                   href="#login-dialog-upsell"

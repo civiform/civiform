@@ -46,6 +46,7 @@
   th:fragment="inputField(type, id, name, label, required, field, inputmode, placeholder, tooltip)"
   class="mb-2"
 >
+  <!--/* [html-validate-disable-block element-permitted-content -- existing markup, the tooltip <div> is not allowed in <span>] */-->
   <label th:for="${id}" class="usa-label mt-0"
     >[[${tooltip == null ? label : label + ' '}]]<span
       th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(${required})}"

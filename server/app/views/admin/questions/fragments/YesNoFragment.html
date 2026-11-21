@@ -52,6 +52,7 @@
         th:aria-label="${row.ariaLabel()}"
         class="usa-checkbox__label margin-top-0 flex flex-align-center"
       >
+        <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <div> is not allowed in <label>] */-->
         <div class="flex-column">
           <div><strong>Admin ID: </strong>[[${row.adminName()}]]</div>
           <div><strong>Option text: </strong>[[${row.optionText()}]]</div>
