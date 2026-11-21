@@ -17,7 +17,7 @@
 >
   <!--/* Question title */-->
   <legend th:id="${questionId} + '-title'" class="usa-legend display-flex">
-    <div th:replace="~{this :: titleContent(${question})}"></div>
+    <th:block th:replace="~{this :: titleContent(${question})}"></th:block>
   </legend>
 
   <!--/* Question help text */-->
@@ -41,7 +41,7 @@
 >
   <!--/* Question title */-->
   <div th:id="${questionId} + '-title'" class="usa-legend display-flex">
-    <div th:replace="~{this :: titleContent(${question})}"></div>
+    <th:block th:replace="~{this :: titleContent(${question})}"></th:block>
   </div>
 
   <!--/* Question help text */-->
@@ -64,7 +64,7 @@
     th:id="${questionId} + '-title'"
     th:for="${inputId}"
   >
-    <div th:replace="~{this :: titleContent(${question})}"></div>
+    <th:block th:replace="~{this :: titleContent(${question})}"></th:block>
   </label>
 
   <!--/* Question help text */-->

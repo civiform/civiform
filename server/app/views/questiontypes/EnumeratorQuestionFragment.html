@@ -111,6 +111,7 @@
       >
         <div th:replace="~{this :: deleteInputTemplate}"></div>
         <!--/* Render each existing enumerator field, including remove button */-->
+        <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
         <div id="enumerator-fields">
           <div
             th:each="option,iterator: ${enumeratorQuestion.getEntityNames()}"
@@ -137,6 +138,7 @@
                                                 hidden=true)}"
         ></div>
         <!--/* Add entity button */-->
+        <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
         <button
           th:text="#{button.addEntity(${enumeratorQuestion.getEntityType()})}"
           id="enumerator-field-add-button"

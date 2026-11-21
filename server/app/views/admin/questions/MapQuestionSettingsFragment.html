@@ -11,6 +11,7 @@
       th:for="${fieldName + '.key'}"
       th:inline="text"
     >
+      <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <div> is not allowed in <label>] */-->
       <div class="font-body-sm">
         [[#{${labelKey}}]]
         <span title="required" class="usa-hint usa-hint--required">*</span>

@@ -81,6 +81,7 @@
                     th:if="${suggestions.size() == 1}"
                     th:text="#{content.suggestedAddress}"
                   ></h4>
+                  <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
                   <h4
                     id="suggested-address-heading"
                     th:if="${suggestions.size() > 1}"

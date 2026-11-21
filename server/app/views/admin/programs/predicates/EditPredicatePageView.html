@@ -72,6 +72,7 @@
             <p>
               <th:block th:case="'VISIBILITY'">
                 [[#{content.predicateScreenIs}]]
+                <!--/* [html-validate-disable-next form-dup-name -- only one th:case renders] */-->
                 <select
                   class="usa-select width-15 display-inline-block font-body-xs margin-left-1"
                   id="visibility-predicate-action-select"
@@ -228,11 +229,7 @@
 
 <th:block th:fragment="scripts">
   <!--/* Store the operator scalar map for use on the client */-->
-  <script
-    type="text/javascript"
-    th:nonce="${templateGlobals.cspNonce()}"
-    th:inline="javascript"
-  >
+  <script th:nonce="${templateGlobals.cspNonce()}" th:inline="javascript">
     window.app = window.app || {}
     window.app.data = window.app.data || {}
     window.app.data.predicate = window.app.data.predicate || {}

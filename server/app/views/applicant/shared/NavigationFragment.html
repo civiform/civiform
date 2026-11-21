@@ -320,7 +320,7 @@
         aria-controls="select-login"
         th:text="#{button.login}"
       ></button>
-      <ul id="select-login" class="usa-language__submenu" hidden="true">
+      <ul id="select-login" class="usa-language__submenu" hidden>
         <li class="usa-language__submenu-item">
           <a
             th:text="#{button.applicantLogin}"
@@ -390,7 +390,7 @@
           th:aria-label="#{label.languageSr}"
           id="select-language"
           class="usa-language__submenu"
-          hidden="true"
+          hidden
         >
           <li
             th:each="language: ${enabledLanguages}"

@@ -7,14 +7,13 @@
 >
   <script
     async
-    type="text/javascript"
     th:src="|https://www.googletagmanager.com/gtag/js?id=${measurementId}|"
     th:nonce="${cspNonce}"
   ></script>
 
   <!--/* Do not remove the prettier-ignore. This is keeping prettier from breaking the js. */-->
   <!-- prettier-ignore -->
-  <script type="text/javascript" th:inline="javascript" th:nonce="${cspNonce}">
+  <script th:inline="javascript" th:nonce="${cspNonce}">
     window.dataLayer = window.dataLayer || [];
     function gtag() {
       dataLayer.push(arguments);

@@ -38,6 +38,7 @@
        OOB-swapped by the server after every upload/remove, this text updates
        automatically without any JavaScript. When no files are uploaded the span
        is absent so the browser-native "No file selected" text is used instead. */-->
+  <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <span> is not allowed in <ul>] */-->
   <span
     th:if="${fileUploadQuestion.getFileKeyListValue().isPresent() and !fileUploadQuestion.getFileKeyListValue().get().isEmpty()}"
     th:id="'cf-fileupload-sr-status-' + ${fileUploadQuestion.getQuestionDefinition().getId()}"
