@@ -60,11 +60,13 @@
       ></span
     ></label>
     <div class="display-flex flex-column">
+      <!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */-->
       <input
         type="number"
         inputmode="decimal"
         step="any"
         th:attr="value=${value}"
+        maxlength="10000"
         th:id="${id}"
         th:name="${name}"
         placeholder="empty"
@@ -134,9 +136,11 @@
       th:data-testid="|enable-${name}|"
       class="usa-radio flex-fill margin-right-2"
     >
+      <!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */-->
       <input
         type="radio"
         value="true"
+        maxlength="10000"
         th:id="${trueId}"
         th:name="${name}"
         th:disabled="${readOnly}"
@@ -146,9 +150,11 @@
       <label th:for="${trueId}" class="usa-radio__label">True</label>
     </div>
     <div th:data-testid="|disable-${name}|" class="usa-radio flex-fill">
+      <!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */-->
       <input
         type="radio"
         value="false"
+        maxlength="10000"
         th:id="${falseId}"
         th:name="${name}"
         th:disabled="${readOnly}"

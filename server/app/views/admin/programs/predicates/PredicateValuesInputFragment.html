@@ -195,11 +195,13 @@
   ></div>
   <div th:id="${firstValueInputGroupId}">
     <div data-default-input-type data-first-input>
+      <!--/* [html-validate-disable-next input-attributes -- maxlength is kept on purpose] */-->
       <input
         class="usa-input"
         th:classappend="${firstInputInvalid} ? 'usa-input--error'"
         type="date"
         inputmode="numeric"
+        maxlength="8"
         th:id="${valueInputId}"
         th:name="${valueInputId}"
         th:value="${model.userEnteredValue}"
@@ -244,11 +246,13 @@
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
     <span class="margin-left-1" th:text="#{content.and}"></span>
     <div data-default-input-type>
+      <!--/* [html-validate-disable-next input-attributes -- maxlength is kept on purpose] */-->
       <input
         class="usa-input"
         th:classappend="${secondInputInvalid} ? 'usa-input--error'"
         type="date"
         inputmode="numeric"
+        maxlength="8"
         th:id="${secondValueInputId}"
         th:name="${secondValueInputId}"
         th:value="${model.secondUserEnteredValue}"
