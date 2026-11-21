@@ -22,6 +22,10 @@ export default {
     // htmx ignores an attribute or swap style it doesn't know.
     'civiform/htmx-attributes': 'error',
 
+    // conf/application.conf puts a nonce in script-src, so the browser never
+    // runs an inline event handler or a javascript: URL.
+    'civiform/no-inline-script': 'error',
+
     // Style only. `required="required"` and `hidden=""` behave the same as
     // the bare attribute, and browsers add the <tbody> themselves.
     'attribute-boolean-style': 'off',
