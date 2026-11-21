@@ -1,0 +1,131 @@
+// @vitest-environment node
+import {HtmlValidate} from 'html-validate'
+import {describe, expect, it} from 'vitest'
+import config from '../.htmlvalidate.mjs'
+
+const htmlvalidate = new HtmlValidate(config)
+
+/** Lints a template with the project config and returns the rules it broke. */
+async function lint(markup) {
+  const report = await htmlvalidate.validateString(markup, 'template.html')
+
+  return report.results.flatMap((result) =>
+    result.messages.map((message) => message.ruleId),
+  )
+}
+
+describe('thymeleaf attributes', () => {
+  it('treats th:* as the attribute it renders', async () => {
+    expect(await lint('<img src="a.png" />')).toEqual(['wcag/h37'])
+    expect(await lint('<img src="a.png" th:alt="${alt}" />')).toEqual([])
+  })
+
+  it('reads the attribute names out of th:attr', async () => {
+    const markup = '<img th:attr="src=${url},alt=${alt}" />'
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('reads both attributes out of th:alt-title', async () => {
+    expect(await lint('<img src="a.png" th:alt-title="${alt}" />')).toEqual([])
+  })
+
+  it('does not treat th:if as an html attribute', async () => {
+    // `if` is not a valid attribute, so mapping it would be reported.
+    expect(await lint('<p th:if="${show}">text</p>')).toEqual([])
+  })
+})
+
+describe('thymeleaf content', () => {
+  it('counts th:text as content', async () => {
+    expect(await lint('<h2></h2>')).toEqual(['empty-heading'])
+    expect(await lint('<h2 th:text="${title}"></h2>')).toEqual([])
+  })
+
+  it('counts a th:replace fragment as content', async () => {
+    const markup = '<h2><th:block th:replace="~{a :: b}"></th:block></h2>'
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('does not check the content of a th:replace host', async () => {
+    const page = (head) =>
+      `<!doctype html><html lang="en">${head}<body></body></html>`
+
+    expect(await lint(page('<head></head>'))).toEqual([
+      'element-required-content',
+    ])
+    expect(await lint(page('<head th:replace="~{a :: b}"></head>'))).toEqual([])
+  })
+
+  it('does not give a th:replace host a landmark role', async () => {
+    const page = (nav) => `<main>${nav}${nav}</main>`
+
+    expect(await lint(page('<nav>a</nav>'))).toContain('unique-landmark')
+    expect(await lint(page('<nav th:replace="~{a :: b}"></nav>'))).toEqual([])
+  })
+
+  it('still checks where a th:replace host is placed', async () => {
+    const markup = '<ul><div th:replace="~{a :: b}"></div></ul>'
+
+    expect(await lint(markup)).toEqual(['element-permitted-content'])
+  })
+})
+
+describe('th:block', () => {
+  it('is allowed where only specific children are', async () => {
+    const markup = `
+      <ul>
+        <th:block th:each="item : \${items}">
+          <li th:text="\${item}"></li>
+        </th:block>
+      </ul>`
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('checks its children against its parent', async () => {
+    const markup = '<ul><th:block th:if="${show}"><div>a</div></th:block></ul>'
+
+    expect(await lint(markup)).toEqual(['element-permitted-content'])
+  })
+
+  it('can be the root of a fragment of list items', async () => {
+    expect(await lint('<div><li>a</li></div>')).toContain(
+      'element-permitted-parent',
+    )
+    expect(
+      await lint('<th:block th:fragment="item"><li>a</li></th:block>'),
+    ).toEqual([])
+  })
+})
+
+describe('cf tags', () => {
+  it('knows the cf:* tags and their items', async () => {
+    const markup = `
+      <cf:checkbox th:id="\${id}" th:label="\${label}">
+        <item th:each="item : \${items}" th:value="\${item}"></item>
+      </cf:checkbox>
+      <cf:button type="submit"><cf:icon type="icon-add" />Save</cf:button>`
+
+    expect(await lint(markup)).toEqual([])
+  })
+})
+
+describe('directives', () => {
+  it('reads a directive from a thymeleaf parser-level comment', async () => {
+    const markup = `
+      <!--/* [html-validate-disable-next empty-heading -- filled in by script] */-->
+      <h2></h2>`
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('reports a directive that suppresses nothing', async () => {
+    const markup = `
+      <!--/* [html-validate-disable-next empty-heading -- stale] */-->
+      <h2>Title</h2>`
+
+    expect(await lint(markup)).toEqual(['no-unused-disable'])
+  })
+})
