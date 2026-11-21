@@ -24,6 +24,39 @@ describe('thymeleaf attributes', () => {
   })
 })
 
+describe('data-th-* attributes', () => {
+  it('treats data-th-* as the attribute it renders', async () => {
+    expect(await lint('<img src="x" data-th-alt="x" />')).toEqual([])
+    expect(await lint('<img data-th-attr="src=${url},alt=${alt}" />')).toEqual(
+      [],
+    )
+  })
+
+  it('counts data-th-text as content', async () => {
+    expect(await lint('<h2 data-th-text="${title}"></h2>')).toEqual([])
+  })
+
+  it('treats a data-th-replace host like a th:replace host', async () => {
+    const markup = `
+      <!doctype html>
+      <html lang="en">
+        <head data-th-replace="~{a :: b}"></head>
+        <body></body>
+      </html>`
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('passes data-th-* names on to the other rules', async () => {
+    expect(await lint('<div data-th-hx-swaap="${swap}"></div>')).toEqual([
+      'civiform/htmx-attributes',
+    ])
+    expect(
+      await lint('<button type="button" data-th-onclick="${go}">Go</button>'),
+    ).toEqual(['civiform/no-inline-script'])
+  })
+})
+
 describe('thymeleaf content', () => {
   it('counts th:text as content', async () => {
     expect(await lint('<h2></h2>')).toEqual(['empty-heading'])

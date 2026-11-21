@@ -53,16 +53,27 @@ function renderedAttributeNames(processor, value) {
   return LOGIC_PROCESSORS.has(processor) ? [] : [processor]
 }
 
+// Thymeleaf reads `data-th-text` the same as `th:text`.
+const THYMELEAF_ATTRIBUTE = /^(?:th:|data-th-)(.+)$/
+
 function* processAttribute(attr) {
   yield attr
 
-  const match = /^th:(.+)$/.exec(attr.key)
+  const match = THYMELEAF_ATTRIBUTE.exec(attr.key)
 
   if (!match || typeof attr.value !== 'string') {
     return
   }
 
-  for (const key of renderedAttributeNames(match[1], attr.value)) {
+  const processor = match[1]
+
+  // Yield the data-th-* spelling as th:* as well, so the rest of this plugin
+  // and the rules only have to look for one of them.
+  if (!attr.key.startsWith('th:')) {
+    yield {...attr, key: `th:${processor}`, originalAttribute: attr.key}
+  }
+
+  for (const key of renderedAttributeNames(processor, attr.value)) {
     yield {
       key,
       value: new DynamicValue(attr.value),
