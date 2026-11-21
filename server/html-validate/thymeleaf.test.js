@@ -195,6 +195,19 @@ describe('cf tags', () => {
     ).toEqual([])
   })
 
+  it('only takes "true" or "false" for a flag', async () => {
+    const input = (attributes) =>
+      `<cf:input id="email" name="email" label="Email" ${attributes} />`
+
+    expect(await lint(input('required="true" is-valid="false"'))).toEqual([])
+    expect(await lint(input('th:required="${required}"'))).toEqual([])
+    // The dialect reads both of these as false, so the input isn't required.
+    expect(await lint(input('required'))).toEqual(['attribute-allowed-values'])
+    expect(await lint(input('required="required"'))).toEqual([
+      'attribute-allowed-values',
+    ])
+  })
+
   it('rejects button attributes the dialect would reject', async () => {
     expect(await lint('<cf:button type="sumbit">Save</cf:button>')).toEqual([
       'attribute-allowed-values',

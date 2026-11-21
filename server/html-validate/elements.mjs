@@ -6,6 +6,10 @@
 // app/views/tags/settings), so a mistake is reported here instead of as an
 // exception on the page. A `th:` attribute counts as its plain form, and its
 // value isn't checked because it is only known at render time.
+//
+// The XSD files in schemas/ describe the same tags for editor completion.
+// Where they disagree with the Java, this file follows the Java, because
+// that is what runs.
 import {readdirSync} from 'node:fs'
 import {join} from 'node:path'
 import {defineMetadata, metadataHelper} from 'html-validate'
@@ -28,6 +32,11 @@ const container = {
 const VALID_NAME = /^[a-zA-Z0-9_.-]+(?:\[[a-zA-Z0-9_.-]*\])*$/
 const NOT_BLANK = /\S/
 
+// AbstractElementModelProcessor reads these with Boolean.parseBoolean, so
+// only "true" turns one on. A bare `required` or `required="required"` is
+// read as false and the attribute is left off the rendered control.
+const flag = {enum: ['true', 'false']}
+
 // FormSettings.validate: every form control needs an id, a name and a label,
 // and validation-class and validation-field only work as a pair.
 const formControlAttributes = {
@@ -41,6 +50,10 @@ const formControlAttributes = {
   'validation-field': {
     allowed: allowedIfAttributeIsPresent('validation-class'),
   },
+  required: flag,
+  readonly: flag,
+  disabled: flag,
+  'is-valid': flag,
 }
 
 /** A cf:* tag that renders a form control with its label and error message. */
@@ -91,11 +104,14 @@ export default defineMetadata({
       ],
     },
   }),
-  'cf:textarea': formControl(),
+  'cf:textarea': formControl({'markdown-enabled': flag}),
   'cf:select': formControl(),
   // CheckboxFormSettings.ALLOWED_COLUMNS
-  'cf:checkbox': formControl({columns: {enum: ['2', '3', '4']}}, optionGroup),
-  'cf:radio': formControl({}, optionGroup),
+  'cf:checkbox': formControl(
+    {columns: {enum: ['2', '3', '4']}, tiled: flag},
+    optionGroup,
+  ),
+  'cf:radio': formControl({tiled: flag}, optionGroup),
 
   // ItemFormSettings.validate. An <item> is in no content category, so it is
   // reported anywhere an element only takes flow or phrasing content, which
@@ -105,6 +121,8 @@ export default defineMetadata({
       id: {required: true, enum: [NOT_BLANK]},
       label: {required: true, enum: [NOT_BLANK]},
       value: {required: true, enum: [NOT_BLANK]},
+      selected: flag,
+      disabled: flag,
     },
   },
 
@@ -116,6 +134,8 @@ export default defineMetadata({
     attributes: {
       type: {enum: ['button', 'reset', 'submit']},
       size: {enum: ['big']},
+      disabled: flag,
+      inverse: flag,
       variant: {
         enum: [
           'secondary',
