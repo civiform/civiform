@@ -1,7 +1,16 @@
 // Element metadata for the tags html-validate doesn't know: Thymeleaf's
-// `<th:block>` and the CiviForm `cf:*` tags (see app/views/tags).
-import {defineMetadata} from 'html-validate'
+// `<th:block>` and the CiviForm `cf:*` tags.
+//
+// The cf:* entries mirror what the dialect in app/views/tags checks when it
+// renders a tag (CiviFormProcessorDialect and the classes in
+// app/views/tags/settings), so a mistake is reported here instead of as an
+// exception on the page. A `th:` attribute counts as its plain form, and its
+// value isn't checked because it is only known at render time.
+import {readdirSync} from 'node:fs'
+import {defineMetadata, metadataHelper} from 'html-validate'
 import html5 from 'html-validate/elements/html5'
+
+const {allowedIfAttributeIsPresent} = metadataHelper
 
 // `<th:block>` never reaches the browser, only its children do. Allow it
 // wherever any element can go, and check its children against its parent.
@@ -13,26 +22,117 @@ const container = {
   transparent: true,
 }
 
-// The cf:* tags render a form control together with its USWDS wrapper, label
-// and error message.
-const component = {flow: true, phrasing: true}
+// FormSettings.isValidName. The built-in valid-id rule already covers what
+// FormSettings.isValidId checks.
+const VALID_NAME = /^[a-zA-Z0-9_.-]+(?:\[[a-zA-Z0-9_.-]*\])*$/
+const NOT_BLANK = /\S/
 
-// <cf:button> renders a <button>.
-const button = {...component, interactive: true}
+// FormSettings.validate: every form control needs an id, a name and a label,
+// and validation-class and validation-field only work as a pair.
+const formControlAttributes = {
+  id: {required: true},
+  name: {required: true, enum: [VALID_NAME]},
+  label: {required: true, enum: [NOT_BLANK]},
+  size: {enum: ['2xs', 'xs', 'sm', 'small', 'md', 'medium', 'lg', 'xl', '2xl']},
+  'validation-class': {
+    allowed: allowedIfAttributeIsPresent('validation-field'),
+  },
+  'validation-field': {
+    allowed: allowedIfAttributeIsPresent('validation-class'),
+  },
+}
+
+/** A cf:* tag that renders a form control with its label and error message. */
+function formControl(attributes = {}, extra = {}) {
+  return {
+    flow: true,
+    phrasing: true,
+    attributes: {...formControlAttributes, ...attributes},
+    ...extra,
+  }
+}
+
+// CheckboxElementTagModelProcessor and RadioElementTagModelProcessor skip
+// every child that isn't an <item>.
+const optionGroup = {permittedContent: ['item']}
+
+// IconElementTagProcessor looks the icon up by file name and throws outside
+// of prod when the file isn't there.
+const ICONS = readdirSync(
+  new URL('../app/assets/Images/uswds', import.meta.url),
+)
+  .filter((file) => file.endsWith('.svg'))
+  .map((file) => file.slice(0, -'.svg'.length))
 
 export default defineMetadata({
   'th:block': container,
   'th:div': container,
 
-  'cf:button': button,
-  'cf:checkbox': component,
-  'cf:icon': component,
-  'cf:input': component,
-  'cf:radio': component,
-  'cf:select': component,
-  'cf:textarea': component,
-  // Options of a <cf:checkbox> or <cf:radio> group.
-  item: {},
+  // InputFormSettings.ALLOWED_TYPES
+  'cf:input': formControl({
+    type: {
+      enum: [
+        'color',
+        'date',
+        'datetime-local',
+        'email',
+        'hidden',
+        'month',
+        'number',
+        'password',
+        'range',
+        'search',
+        'tel',
+        'text',
+        'time',
+        'url',
+        'week',
+      ],
+    },
+  }),
+  'cf:textarea': formControl(),
+  'cf:select': formControl(),
+  // CheckboxFormSettings.ALLOWED_COLUMNS
+  'cf:checkbox': formControl({columns: {enum: ['2', '3', '4']}}, optionGroup),
+  'cf:radio': formControl({}, optionGroup),
+
+  // ItemFormSettings.validate. An <item> is in no content category, so it is
+  // reported anywhere an element only takes flow or phrasing content, which
+  // leaves the two option groups above as the places it can go.
+  item: {
+    attributes: {
+      id: {required: true, enum: [NOT_BLANK]},
+      label: {required: true, enum: [NOT_BLANK]},
+      value: {required: true, enum: [NOT_BLANK]},
+    },
+  },
+
+  // ButtonFormSettings. A <cf:button> renders a <button>.
+  'cf:button': {
+    flow: true,
+    phrasing: true,
+    interactive: true,
+    attributes: {
+      type: {enum: ['button', 'reset', 'submit']},
+      size: {enum: ['big']},
+      variant: {
+        enum: [
+          'secondary',
+          'outline',
+          'accent-cool',
+          'accent-warm',
+          'base',
+          'unstyled',
+        ],
+      },
+    },
+  },
+
+  'cf:icon': {
+    flow: true,
+    phrasing: true,
+    attributes: {type: {required: true, enum: ICONS}},
+  },
 
   // Elements that are only valid under a specific parent are often wrapped in
   // a <th:block>, or sit at the root of a fragment that is one. html-validate

@@ -101,14 +101,124 @@ describe('th:block', () => {
 })
 
 describe('cf tags', () => {
-  it('knows the cf:* tags and their items', async () => {
+  it('accepts valid cf:* tags', async () => {
     const markup = `
-      <cf:checkbox th:id="\${id}" th:label="\${label}">
-        <item th:each="item : \${items}" th:value="\${item}"></item>
+      <cf:input id="email" name="email" label="Email" type="email" size="md" />
+      <cf:checkbox id="colors" name="colors" label="Colors" columns="2">
+        <item id="red" label="Red" value="red"></item>
       </cf:checkbox>
-      <cf:button type="submit"><cf:icon type="icon-add" />Save</cf:button>`
+      <cf:button type="submit" variant="outline"
+        ><cf:icon type="icon-add" />Save</cf:button
+      >`
 
     expect(await lint(markup)).toEqual([])
+  })
+
+  it('takes th:* for the required attributes', async () => {
+    const markup = `
+      <cf:radio th:id="\${id}" th:name="\${name}" th:label="#{label}">
+        <item
+          th:each="item : \${items}"
+          th:id="\${item.id()}"
+          th:label="\${item.label()}"
+          th:value="\${item.value()}"
+        ></item>
+      </cf:radio>
+      <cf:icon th:type="\${icon}" />`
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('requires id, name and label on a form control', async () => {
+    expect(await lint('<cf:input id="email" label="Email" />')).toEqual([
+      'element-required-attributes',
+    ])
+    expect(
+      await lint('<cf:select name="state" label="State"></cf:select>'),
+    ).toEqual(['element-required-attributes'])
+    expect(
+      await lint('<cf:textarea id="notes" name="notes"></cf:textarea>'),
+    ).toEqual(['element-required-attributes'])
+  })
+
+  it('rejects a name or label the dialect would reject', async () => {
+    expect(
+      await lint('<cf:input id="first" name="first name" label="First" />'),
+    ).toEqual(['attribute-allowed-values'])
+    expect(
+      await lint('<cf:input id="first" name="first" label=" " />'),
+    ).toEqual(['attribute-allowed-values'])
+  })
+
+  it('rejects an input type the dialect does not render', async () => {
+    const markup =
+      '<cf:input id="agree" name="agree" label="Agree" type="checkbox" />'
+
+    expect(await lint(markup)).toEqual(['attribute-allowed-values'])
+  })
+
+  it('needs validation-class and validation-field together', async () => {
+    const input = (attributes) =>
+      `<cf:input id="email" name="email" label="Email" ${attributes} />`
+
+    expect(await lint(input('validation-class="forms.EmailForm"'))).toEqual([
+      'attribute-misuse',
+    ])
+    expect(await lint(input('validation-field="email"'))).toEqual([
+      'attribute-misuse',
+    ])
+    expect(
+      await lint(
+        input('validation-class="forms.EmailForm" validation-field="email"'),
+      ),
+    ).toEqual([])
+  })
+
+  it('rejects button attributes the dialect would reject', async () => {
+    expect(await lint('<cf:button type="sumbit">Save</cf:button>')).toEqual([
+      'attribute-allowed-values',
+    ])
+    expect(await lint('<cf:button variant="primary">Save</cf:button>')).toEqual(
+      ['attribute-allowed-values'],
+    )
+    expect(await lint('<cf:button size="small">Save</cf:button>')).toEqual([
+      'attribute-allowed-values',
+    ])
+  })
+
+  it('requires an icon type that has a file', async () => {
+    expect(await lint('<cf:icon />')).toEqual(['element-required-attributes'])
+    expect(await lint('<cf:icon type="icon-missing" />')).toEqual([
+      'attribute-allowed-values',
+    ])
+  })
+
+  it('requires id, label and value on an item', async () => {
+    const markup = `
+      <cf:radio id="size" name="size" label="Size">
+        <item id="small" label="Small"></item>
+      </cf:radio>`
+
+    expect(await lint(markup)).toEqual(['element-required-attributes'])
+  })
+
+  it('only allows items inside an option group', async () => {
+    const markup = `
+      <cf:checkbox id="colors" name="colors" label="Colors">
+        <option value="red">Red</option>
+      </cf:checkbox>`
+
+    expect(await lint(markup)).toEqual(['element-permitted-content'])
+  })
+
+  it('only allows an item inside an option group', async () => {
+    const markup = '<div><item id="red" label="Red" value="red"></item></div>'
+
+    expect(await lint(markup)).toEqual(['element-permitted-content'])
+  })
+
+  it('reports a tag the dialect does not have', async () => {
+    expect(await lint('<cf:typo />')).toEqual(['no-unknown-elements'])
   })
 })
 
