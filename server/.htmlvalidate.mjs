@@ -14,6 +14,9 @@ export default {
   elements: ['html5', elements],
   transform: {'\\.html$': 'thymeleaf'},
   rules: {
+    // Every tag has to be html, <th:block>, or a cf:* tag the dialect knows.
+    'no-unknown-elements': 'error',
+
     // Style only. `required="required"` and `hidden=""` behave the same as
     // the bare attribute, and browsers add the <tbody> themselves.
     'attribute-boolean-style': 'off',
