@@ -1,0 +1,24 @@
+#! /usr/bin/env bash
+
+# DOC: Lints the Thymeleaf templates in server/app with HTMLHint.
+# DOC: Rules live in server/.htmlhintrc; custom rules in server/htmlhint/rules.
+
+source bin/lib.sh
+docker::set_project_name_dev
+
+bin/pull-image
+
+interactive_flag="$(docker::interactive_flags)"
+
+# HTMLHint prints color codes even without a terminal, which clutters logs.
+# Turn color off when stdout isn't a terminal (piped, redirected, CI, agents).
+nocolor_flag=""
+if [[ ! -t 1 ]]; then
+  nocolor_flag="-- --nocolor"
+fi
+
+docker run --rm $interactive_flag \
+  -v "$(pwd)/server:/usr/src/server" \
+  --entrypoint /bin/bash \
+  civiform/civiform-dev \
+  -c "npm ci && npm run lint:html ${nocolor_flag}"

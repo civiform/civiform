@@ -63,6 +63,11 @@ jobs:
       - name: Run tests
         run: bin/run-ts-tests
 
+      - name: Lint Thymeleaf templates
+        # Run even when the unit tests fail, so one PR run reports both.
+        if: ${{ !cancelled() }}
+        run: bin/run-html-lint
+
   # Dynamically builds the matrix for the next job. Defaults to only aws. If the
   # branch name contains azure we'll run against both aws and azure.
   setup-browser-test-matrix:

@@ -9,7 +9,7 @@
 <th:block th:fragment="build(yesNoConfig)" xmlns:th="http://www.thymeleaf.org">
   <div th:if="${yesNoConfig.showLabel()}">
     <label
-      data-testId="yes-no-options-label"
+      data-testid="yes-no-options-label"
       class="text-sm font-medium text-gray-700"
       >Select answer options<span
         th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"

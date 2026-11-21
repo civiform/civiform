@@ -1,0 +1,56 @@
+// HTMLHint config for the Thymeleaf templates under app/. Run it with
+// `bin/run-html-lint`, or `npm run lint:html` from server/.
+//
+// Rules prefixed th- are ours, in htmlhint/rules/. They replace built-in rules
+// that misread Thymeleaf (th:alt, th:replace, th:href, and friends).
+//
+// Built-in rules left off on purpose:
+//   alt-require, inline-script-disabled, inline-style-disabled
+//       Replaced by the th- versions below.
+//   button-type-require
+//       Wanted, but ~30 existing buttons need a button-vs-submit decision.
+//   id-unique
+//       Flags the same id in mutually exclusive th:if / th:unless branches.
+//   attr-value-double-quotes
+//       th:hx-vals and similar hold JSON, which needs single quotes.
+//   attr-value-not-empty
+//       Boolean attributes (hidden, checked) and toast data attributes.
+//   form-method-require
+//       Many forms submit through hx-post / th:hx-post instead of method.
+//   head-script-disabled, style-disabled
+//       Layouts load nonce'd <script> and <style> elements in <head>.
+//   href-abs-or-rel
+//       Style preference, not a correctness check.
+//   doctype-first, html-lang-require, title-require, h1-require,
+//   meta-*-require, main-require, link-rel-canonical-require
+//       Most templates are fragments, not full documents.
+//   input-requires-label
+//       Labels often come from a different fragment than the input.
+//   attr-sorted, attr-whitespace, attr-no-unnecessary-whitespace,
+//   empty-tag-not-self-closed, tag-self-close, space-tab-mixed-disabled
+//       Formatting is Prettier's job (bin/fmt).
+{
+  "attr-lowercase": [
+    // Toast data attributes read by toast.ts.
+    "canDismiss",
+    "canIgnore",
+    "condOnStorageKey",
+    "toastDuration",
+    "toastType"
+  ],
+  "attr-no-duplication": true,
+  "attr-unsafe-chars": true,
+  "attr-value-no-duplication": true,
+  "doctype-html5": true,
+  "frame-title-require": true,
+  "spec-char-escape": true,
+  "src-not-empty": true,
+  "tag-no-obsolete": true,
+  "tag-pair": true,
+  "tagname-lowercase": true,
+  "tagname-specialchars": true,
+
+  "th-alt-require": true,
+  "th-inline-script-disabled": true,
+  "th-inline-style-disabled": true
+}

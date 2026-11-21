@@ -17,7 +17,7 @@ yesNoConfig = new views.admin.questions.YesNoConfig(true, \
 # ----------------------------------------------------------------------
 %OUTPUT
 <div>
-  <label data-testId="yes-no-options-label" class="text-sm font-medium text-gray-700"
+  <label data-testid="yes-no-options-label" class="text-sm font-medium text-gray-700"
     >Select answer options<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
   >
 </div>
