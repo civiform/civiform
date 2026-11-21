@@ -3,9 +3,10 @@
   th:fragment="radioOption(id, name, label, value, checked)"
   class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
   th:for="${id}"
-  ><input
+  ><!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */--><input
     type="radio"
     th:value="${value}"
+    maxlength="10000"
     aria-required="true"
     th:id="${id}"
     th:name="${name}"

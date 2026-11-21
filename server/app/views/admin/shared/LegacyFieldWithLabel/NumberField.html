@@ -11,12 +11,14 @@
     ></span
   ></label>
   <div class="flex flex-col">
+    <!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */-->
     <input
       type="number"
       inputmode="decimal"
       step="any"
       th:min="${min}"
       th:attr="value=${value}"
+      maxlength="10000"
       th:id="${id}"
       th:name="${name}"
       class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500"
