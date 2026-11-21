@@ -52,6 +52,7 @@
               method="POST"
               class="usa-form usa-form--large cf-block-form"
             >
+              <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
               <input hidden th:value="${csrfToken}" name="csrfToken" />
 
               <div class="section-external">

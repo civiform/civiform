@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-input-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="yesNoConfig" type="views.admin.questions.YesNoConfig"*/-->
 <!--/*
   Type-specific question config for YES_NO questions. New questions (no
@@ -52,6 +53,7 @@
         th:aria-label="${row.ariaLabel()}"
         class="usa-checkbox__label margin-top-0 flex flex-align-center"
       >
+        <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <div> is not allowed in <label>] */-->
         <div class="flex-column">
           <div><strong>Admin ID: </strong>[[${row.adminName()}]]</div>
           <div><strong>Option text: </strong>[[${row.optionText()}]]</div>

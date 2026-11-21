@@ -195,6 +195,7 @@
   ></div>
   <div th:id="${firstValueInputGroupId}">
     <div data-default-input-type data-first-input>
+      <!--/* [html-validate-disable-next input-attributes -- maxlength is kept on purpose] */-->
       <input
         class="usa-input"
         th:classappend="${firstInputInvalid} ? 'usa-input--error'"
@@ -245,6 +246,7 @@
   <div th:id="${secondValueInputGroupId}" class="margin-top-1">
     <span class="margin-left-1" th:text="#{content.and}"></span>
     <div data-default-input-type>
+      <!--/* [html-validate-disable-next input-attributes -- maxlength is kept on purpose] */-->
       <input
         class="usa-input"
         th:classappend="${secondInputInvalid} ? 'usa-input--error'"

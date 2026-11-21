@@ -28,6 +28,7 @@
     <p th:text="#{adminSchemaViewer.intro2}"></p>
 
     <!--/* Form with selects */-->
+    <!--/* [html-validate-disable-next civiform/form-submit -- a script submits this form when a select changes] */-->
     <form
       id="selectionForm"
       th:action="${model.formActionUrl}"
@@ -77,6 +78,7 @@
     <input type="hidden" id="api-url" th:value="${model.apiUrl}" />
 
     <!--/* Inlining this css because it is only used to modify the swagger-ui and is never useful elsewhere */-->
+    <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <style> is not allowed in <div>] */-->
     <style th:attr="nonce=${templateGlobals.cspNonce()}">
       .swagger-ui {
         > .topbar,

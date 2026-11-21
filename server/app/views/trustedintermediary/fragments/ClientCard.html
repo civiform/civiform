@@ -44,6 +44,7 @@
     </div>
     <div class="usa-card__body flex">
       <div th:if="${client.hasApplicant}" class="w-2/5">
+        <!--/* [html-validate-disable-next valid-for -- existing markup, the target is not a form control] */-->
         <label
           for="card_contact_info"
           class="whitespace-nowrap"
@@ -66,6 +67,7 @@
       </div>
       <div th:unless="${client.hasApplicant}" class="w-2/5"></div>
       <div th:if="${client.hasApplicant}" class="ml-10 w-2/5">
+        <!--/* [html-validate-disable-next valid-for -- existing markup, the target is not a form control] */-->
         <label
           for="card_applications"
           class="whitespace-nowrap"
@@ -79,6 +81,7 @@
       </div>
       <div th:unless="${client.hasApplicant}" class="ml-10 w-2/5"></div>
       <div class="ml-10 w-3/5">
+        <!--/* [html-validate-disable-next valid-for -- existing markup, the target is not a form control] */-->
         <label for="card_notes" th:text="#{label.notes}"></label>
         <p class="text-xs" id="card_notes" th:text="${client.notes}"></p>
       </div>

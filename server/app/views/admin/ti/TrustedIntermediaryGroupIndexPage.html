@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-button-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.ti.TrustedIntermediaryGroupIndexPageViewModel"*/-->
 <th:block th:fragment="content">
@@ -37,7 +38,7 @@
       />
       <button
         type="submit"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base ml-2 mb-6"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base ml-2 mb-6"
       >
         Create
       </button>
@@ -61,7 +62,6 @@
       <div class="flex flex-col">
         <select
           id="cf-ti-list"
-          name=""
           maxlength="10000"
           class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
         >

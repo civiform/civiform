@@ -14,9 +14,9 @@
     th:aria-describedby="${questionId} + '-description'"
   >
     <!--/* Title and Help Text */-->
-    <div
+    <legend
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+    ></legend>
 
     <div
       th:replace="~{this :: radioFields(

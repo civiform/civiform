@@ -183,6 +183,7 @@
               th:for="${locationId}"
               th:data-testid="location-checkbox-label"
             >
+              <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <div> is not allowed in <label>] */-->
               <div
                 class="text-bold cf-location-checkbox-name"
                 th:text="${locationName}"
@@ -287,6 +288,7 @@
           <li
             class="usa-pagination__item usa-pagination__page-no cf-pagination-item"
           >
+            <!--/* [html-validate-disable-next text-content -- template, the page number is filled in by script] */-->
             <button
               type="button"
               class="usa-button--unstyled usa-pagination__button cf-map-question-pagination-button"
@@ -388,6 +390,7 @@
         class="text-bold font-serif-sm padding-bottom-2"
       ></div>
       <div id="cf-popup-content-location-address" class="font-sans-sm"></div>
+      <!--/* [html-validate-disable-next attribute-misuse -- href is set by script] */-->
       <a
         id="cf-popup-content-location-link"
         class="font-sans-sm usa-link usa-link--external"
@@ -467,6 +470,7 @@
   <div th:unless="${isPreview || questionRendererParams.geoJson().isPresent()}">
     <div class="usa-alert usa-alert--warning">
       <div class="usa-alert__body">
+        <!--/* [html-validate-disable-next empty-heading -- existing markup, this alert has no heading text] */-->
         <h4 class="usa-alert__heading"></h4>
         <p
           class="usa-alert__text"

@@ -7,6 +7,7 @@
   id="modal-container"
   class="display-none position-fixed height-viewport width-full z-100"
 >
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal cf-ns-modal"
     id="debug-content-modal"
@@ -70,6 +71,7 @@
   </div>
 </div>
 
+<!--/* [html-validate-disable-next no-dup-id -- id shared by separate modal fragments] */-->
 <div
   th:fragment="reviewLogin"
   id="modal-container"
@@ -97,6 +99,7 @@
   >
 </div>
 
+<!--/* [html-validate-disable-next no-dup-id -- id shared by separate modal fragments] */-->
 <div
   th:fragment="upsellLogin"
   id="modal-container"
@@ -113,6 +116,7 @@
   ></div>
 </div>
 
+<!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
 <div
   th:fragment="loginPromptModal(dialogId, bypassUrl, loginLink, descriptionText, bypassButtonText, onlyShowOnceGroup, showOnLoad)"
   class="usa-modal cf-modal cf-ns-modal"
@@ -174,6 +178,7 @@
 </div>
 
 <div th:fragment="blockValidation">
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal cf-modal"
     id="validation-modal"
@@ -233,6 +238,7 @@
 
 <!-- TODO(#8707): Modal sometimes flashes in incorrect position -->
 <div th:fragment="preventDuplicateSubmission (programTitle, exitHref)">
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal cf-modal is-hidden"
     id="duplicate-submission-modal"
@@ -298,6 +304,7 @@
 </div>
 
 <th:block th:fragment="sessionInactivityTimeoutModal">
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal"
     id="session-inactivity-warning-modal"
@@ -361,6 +368,7 @@
 </th:block>
 
 <th:block th:fragment="sessionLengthTimeoutModal">
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal"
     id="session-length-warning-modal"
@@ -424,6 +432,7 @@
   th:id="${'modal-container-' + modalId}"
   class="display-none position-fixed height-viewport width-full z-100"
 >
+  <!--/* [html-validate-disable-next aria-label-misuse -- USWDS modal markup, uswds.js adds role="dialog"] */-->
   <div
     class="usa-modal cf-ns-modal"
     th:id="${'external-program-modal-' + modalId}"

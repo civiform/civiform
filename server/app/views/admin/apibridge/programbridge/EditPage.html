@@ -41,11 +41,7 @@
 
 <th:block th:fragment="scripts">
   <!--/* Store the question scalar map for use on the client */-->
-  <script
-    type="text/javascript"
-    th:nonce="${templateGlobals.cspNonce()}"
-    th:inline="javascript"
-  >
+  <script th:nonce="${templateGlobals.cspNonce()}" th:inline="javascript">
     window.app = window.app || {}
     window.app.data = window.app.data || {}
     window.app.data.bridge = window.app.data.bridge || {}

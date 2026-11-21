@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-button-type, no-implicit-input-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.questions.QuestionsListPageViewModel"*/-->
 <th:block th:fragment="content">
@@ -25,7 +26,7 @@
         <button
           id="create-question-button"
           type="button"
-          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
         >
           Create new question
         </button>
@@ -83,7 +84,6 @@
         <div class="flex flex-col">
           <select
             id="question-bank-sort"
-            name=""
             maxlength="10000"
             class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 h-11.5"
           >
@@ -278,13 +278,14 @@
   <p>Are you sure you want to discard this draft?</p>
   <button
     id="discard-button"
-    class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+    class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
     th:attr="form=${modal.discardFormId}"
   >
     <svg
       th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('inline-block h-4.5 w-4.5')}"
     ></svg
     ><span class="text-left">Discard</span>
+    <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <form> is not allowed in <button>] */-->
     <form
       th:id="${modal.discardFormId}"
       class="hidden"
@@ -476,6 +477,7 @@
                   th:replace="~{admin/shared/LegacySvgFragments :: iconArchive('inline-block h-4.5 w-4.5')}"
                 ></svg
                 ><span class="text-left">Archive</span>
+                <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <form> is not allowed in <button>] */-->
                 <form
                   th:id="${action.formId}"
                   class="hidden"
@@ -499,6 +501,7 @@
                   th:replace="~{admin/shared/LegacySvgFragments :: iconUnarchive('inline-block h-4.5 w-4.5')}"
                 ></svg
                 ><span class="text-left">Restore archived</span>
+                <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <form> is not allowed in <button>] */-->
                 <form
                   th:id="${action.formId}"
                   class="hidden"

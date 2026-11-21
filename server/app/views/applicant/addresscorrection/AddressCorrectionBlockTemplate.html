@@ -44,6 +44,7 @@
               method="POST"
               th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()}"
             >
+              <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
               <input hidden th:value="${csrfToken}" name="csrfToken" />
               <input
                 type="hidden"
@@ -81,6 +82,7 @@
                     th:if="${suggestions.size() == 1}"
                     th:text="#{content.suggestedAddress}"
                   ></h4>
+                  <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
                   <h4
                     id="suggested-address-heading"
                     th:if="${suggestions.size() > 1}"

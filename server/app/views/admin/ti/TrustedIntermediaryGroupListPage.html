@@ -9,6 +9,7 @@
       name="csrfToken"
       th:value="${templateGlobals.csrfToken}"
     />
+    <!--/* [html-validate-disable-next attribute-allowed-values -- only required="true" makes the field required, so it is not required today] */-->
     <cf:input
       id="group-name-input"
       name="name"
@@ -18,6 +19,7 @@
       required="required"
       label="Name"
     />
+    <!--/* [html-validate-disable-next attribute-allowed-values -- only required="true" makes the field required, so it is not required today] */-->
     <cf:input
       id="group-description-input"
       name="description"
@@ -41,12 +43,7 @@
     name="sortForm"
   >
     <label for="cf-ti-list">Sort by:</label>
-    <select
-      id="cf-ti-list"
-      name="sort"
-      class="usa-select"
-      onchange="this.form.submit()"
-    >
+    <select id="cf-ti-list" name="sort" class="usa-select">
       <option value="" disabled hidden>-- Select sort --</option>
       <th:block th:each="opt : ${model.sortOptions}">
         <th:block th:each="optionValue : ${opt.selectOptions}">

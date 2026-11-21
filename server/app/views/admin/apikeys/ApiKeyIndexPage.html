@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-button-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.apikeys.ApiKeyIndexPageViewModel"*/-->
 <th:block th:fragment="content">
@@ -10,7 +11,7 @@
              BaseHtmlView.asRedirectElement intended. */-->
       <button
         id="new-api-key-button"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
         th:data-redirect-to="${model.newKeyUrl}"
       >
         <!--/* No whitespace between the svg and the span: this button is `block`,
