@@ -1,39 +1,43 @@
-// @vitest-environment node
-import {describe, expect, it} from 'vitest'
-import {lint} from './testing.js'
+import assert from 'node:assert/strict'
+import {describe, it} from 'node:test'
+import {lint} from './testing.mjs'
 
 describe('thymeleaf attributes', () => {
   it('treats th:* as the attribute it renders', async () => {
-    expect(await lint('<img src="a.png" />')).toEqual(['wcag/h37'])
-    expect(await lint('<img src="a.png" th:alt="${alt}" />')).toEqual([])
+    assert.deepEqual(await lint('<img src="a.png" />'), ['wcag/h37'])
+    assert.deepEqual(await lint('<img src="a.png" th:alt="${alt}" />'), [])
   })
 
   it('reads the attribute names out of th:attr', async () => {
     const markup = '<img th:attr="src=${url},alt=${alt}" />'
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('reads both attributes out of th:alt-title', async () => {
-    expect(await lint('<img src="a.png" th:alt-title="${alt}" />')).toEqual([])
+    assert.deepEqual(
+      await lint('<img src="a.png" th:alt-title="${alt}" />'),
+      [],
+    )
   })
 
   it('does not treat th:if as an html attribute', async () => {
     // `if` is not a valid attribute, so mapping it would be reported.
-    expect(await lint('<p th:if="${show}">text</p>')).toEqual([])
+    assert.deepEqual(await lint('<p th:if="${show}">text</p>'), [])
   })
 })
 
 describe('data-th-* attributes', () => {
   it('treats data-th-* as the attribute it renders', async () => {
-    expect(await lint('<img src="x" data-th-alt="x" />')).toEqual([])
-    expect(await lint('<img data-th-attr="src=${url},alt=${alt}" />')).toEqual(
+    assert.deepEqual(await lint('<img src="x" data-th-alt="x" />'), [])
+    assert.deepEqual(
+      await lint('<img data-th-attr="src=${url},alt=${alt}" />'),
       [],
     )
   })
 
   it('counts data-th-text as content', async () => {
-    expect(await lint('<h2 data-th-text="${title}"></h2>')).toEqual([])
+    assert.deepEqual(await lint('<h2 data-th-text="${title}"></h2>'), [])
   })
 
   it('treats a data-th-replace host like a th:replace host', async () => {
@@ -44,52 +48,56 @@ describe('data-th-* attributes', () => {
         <body></body>
       </html>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('passes data-th-* names on to the other rules', async () => {
-    expect(await lint('<div data-th-hx-swaap="${swap}"></div>')).toEqual([
+    assert.deepEqual(await lint('<div data-th-hx-swaap="${swap}"></div>'), [
       'civiform/htmx-attributes',
     ])
-    expect(
+    assert.deepEqual(
       await lint('<button type="button" data-th-onclick="${go}">Go</button>'),
-    ).toEqual(['civiform/no-inline-script'])
+      ['civiform/no-inline-script'],
+    )
   })
 })
 
 describe('thymeleaf content', () => {
   it('counts th:text as content', async () => {
-    expect(await lint('<h2></h2>')).toEqual(['empty-heading'])
-    expect(await lint('<h2 th:text="${title}"></h2>')).toEqual([])
+    assert.deepEqual(await lint('<h2></h2>'), ['empty-heading'])
+    assert.deepEqual(await lint('<h2 th:text="${title}"></h2>'), [])
   })
 
   it('counts a th:replace fragment as content', async () => {
     const markup = '<h2><th:block th:replace="~{a :: b}"></th:block></h2>'
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('does not check the content of a th:replace host', async () => {
     const page = (head) =>
       `<!doctype html><html lang="en">${head}<body></body></html>`
 
-    expect(await lint(page('<head></head>'))).toEqual([
+    assert.deepEqual(await lint(page('<head></head>')), [
       'element-required-content',
     ])
-    expect(await lint(page('<head th:replace="~{a :: b}"></head>'))).toEqual([])
+    assert.deepEqual(
+      await lint(page('<head th:replace="~{a :: b}"></head>')),
+      [],
+    )
   })
 
   it('does not give a th:replace host a landmark role', async () => {
     const page = (nav) => `<main>${nav}${nav}</main>`
 
-    expect(await lint(page('<nav>a</nav>'))).toContain('unique-landmark')
-    expect(await lint(page('<nav th:replace="~{a :: b}"></nav>'))).toEqual([])
+    assert.ok((await lint(page('<nav>a</nav>'))).includes('unique-landmark'))
+    assert.deepEqual(await lint(page('<nav th:replace="~{a :: b}"></nav>')), [])
   })
 
   it('still checks where a th:replace host is placed', async () => {
     const markup = '<ul><div th:replace="~{a :: b}"></div></ul>'
 
-    expect(await lint(markup)).toEqual(['element-permitted-content'])
+    assert.deepEqual(await lint(markup), ['element-permitted-content'])
   })
 })
 
@@ -102,22 +110,25 @@ describe('th:block', () => {
         </th:block>
       </ul>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('checks its children against its parent', async () => {
     const markup = '<ul><th:block th:if="${show}"><div>a</div></th:block></ul>'
 
-    expect(await lint(markup)).toEqual(['element-permitted-content'])
+    assert.deepEqual(await lint(markup), ['element-permitted-content'])
   })
 
   it('can be the root of a fragment of list items', async () => {
-    expect(await lint('<div><li>a</li></div>')).toContain(
-      'element-permitted-parent',
+    assert.ok(
+      (await lint('<div><li>a</li></div>')).includes(
+        'element-permitted-parent',
+      ),
     )
-    expect(
+    assert.deepEqual(
       await lint('<th:block th:fragment="item"><li>a</li></th:block>'),
-    ).toEqual([])
+      [],
+    )
   })
 })
 
@@ -132,7 +143,7 @@ describe('cf tags', () => {
         ><cf:icon type="icon-add" />Save</cf:button
       >`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('takes th:* for the required attributes', async () => {
@@ -147,82 +158,90 @@ describe('cf tags', () => {
       </cf:radio>
       <cf:icon th:type="\${icon}" />`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('requires id, name and label on a form control', async () => {
-    expect(await lint('<cf:input id="email" label="Email" />')).toEqual([
+    assert.deepEqual(await lint('<cf:input id="email" label="Email" />'), [
       'element-required-attributes',
     ])
-    expect(
+    assert.deepEqual(
       await lint('<cf:select name="state" label="State"></cf:select>'),
-    ).toEqual(['element-required-attributes'])
-    expect(
+      ['element-required-attributes'],
+    )
+    assert.deepEqual(
       await lint('<cf:textarea id="notes" name="notes"></cf:textarea>'),
-    ).toEqual(['element-required-attributes'])
+      ['element-required-attributes'],
+    )
   })
 
   it('rejects a name or label the dialect would reject', async () => {
-    expect(
+    assert.deepEqual(
       await lint('<cf:input id="first" name="first name" label="First" />'),
-    ).toEqual(['attribute-allowed-values'])
-    expect(
+      ['attribute-allowed-values'],
+    )
+    assert.deepEqual(
       await lint('<cf:input id="first" name="first" label=" " />'),
-    ).toEqual(['attribute-allowed-values'])
+      ['attribute-allowed-values'],
+    )
   })
 
   it('rejects an input type the dialect does not render', async () => {
     const markup =
       '<cf:input id="agree" name="agree" label="Agree" type="checkbox" />'
 
-    expect(await lint(markup)).toEqual(['attribute-allowed-values'])
+    assert.deepEqual(await lint(markup), ['attribute-allowed-values'])
   })
 
   it('needs validation-class and validation-field together', async () => {
     const input = (attributes) =>
       `<cf:input id="email" name="email" label="Email" ${attributes} />`
 
-    expect(await lint(input('validation-class="forms.EmailForm"'))).toEqual([
+    assert.deepEqual(await lint(input('validation-class="forms.EmailForm"')), [
       'attribute-misuse',
     ])
-    expect(await lint(input('validation-field="email"'))).toEqual([
+    assert.deepEqual(await lint(input('validation-field="email"')), [
       'attribute-misuse',
     ])
-    expect(
+    assert.deepEqual(
       await lint(
         input('validation-class="forms.EmailForm" validation-field="email"'),
       ),
-    ).toEqual([])
+      [],
+    )
   })
 
   it('only takes "true" or "false" for a flag', async () => {
     const input = (attributes) =>
       `<cf:input id="email" name="email" label="Email" ${attributes} />`
 
-    expect(await lint(input('required="true" is-valid="false"'))).toEqual([])
-    expect(await lint(input('th:required="${required}"'))).toEqual([])
+    assert.deepEqual(await lint(input('required="true" is-valid="false"')), [])
+    assert.deepEqual(await lint(input('th:required="${required}"')), [])
     // The dialect reads both of these as false, so the input isn't required.
-    expect(await lint(input('required'))).toEqual(['attribute-allowed-values'])
-    expect(await lint(input('required="required"'))).toEqual([
+    assert.deepEqual(await lint(input('required')), [
+      'attribute-allowed-values',
+    ])
+    assert.deepEqual(await lint(input('required="required"')), [
       'attribute-allowed-values',
     ])
   })
 
   it('rejects button attributes the dialect would reject', async () => {
-    expect(await lint('<cf:button type="sumbit">Save</cf:button>')).toEqual([
+    assert.deepEqual(await lint('<cf:button type="sumbit">Save</cf:button>'), [
       'attribute-allowed-values',
     ])
-    expect(await lint('<cf:button variant="primary">Save</cf:button>')).toEqual(
+    assert.deepEqual(
+      await lint('<cf:button variant="primary">Save</cf:button>'),
       ['attribute-allowed-values'],
     )
-    expect(await lint('<cf:button size="small">Save</cf:button>')).toEqual([
+    assert.deepEqual(await lint('<cf:button size="small">Save</cf:button>'), [
       'attribute-allowed-values',
     ])
   })
 
   it('requires an icon type that has a file', async () => {
-    expect(await lint('<cf:icon />')).toEqual(['element-required-attributes'])
-    expect(await lint('<cf:icon type="icon-missing" />')).toEqual([
+    assert.deepEqual(await lint('<cf:icon />'), ['element-required-attributes'])
+    assert.deepEqual(await lint('<cf:icon type="icon-missing" />'), [
       'attribute-allowed-values',
     ])
   })
@@ -233,7 +252,7 @@ describe('cf tags', () => {
         <item id="small" label="Small"></item>
       </cf:radio>`
 
-    expect(await lint(markup)).toEqual(['element-required-attributes'])
+    assert.deepEqual(await lint(markup), ['element-required-attributes'])
   })
 
   it('only allows items inside an option group', async () => {
@@ -242,17 +261,17 @@ describe('cf tags', () => {
         <option value="red">Red</option>
       </cf:checkbox>`
 
-    expect(await lint(markup)).toEqual(['element-permitted-content'])
+    assert.deepEqual(await lint(markup), ['element-permitted-content'])
   })
 
   it('only allows an item inside an option group', async () => {
     const markup = '<div><item id="red" label="Red" value="red"></item></div>'
 
-    expect(await lint(markup)).toEqual(['element-permitted-content'])
+    assert.deepEqual(await lint(markup), ['element-permitted-content'])
   })
 
   it('reports a tag the dialect does not have', async () => {
-    expect(await lint('<cf:typo />')).toEqual(['no-unknown-elements'])
+    assert.deepEqual(await lint('<cf:typo />'), ['no-unknown-elements'])
   })
 })
 
@@ -262,7 +281,7 @@ describe('directives', () => {
       <!--/* [html-validate-disable-next empty-heading -- filled in by script] */-->
       <h2></h2>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('reports a directive that suppresses nothing', async () => {
@@ -270,6 +289,6 @@ describe('directives', () => {
       <!--/* [html-validate-disable-next empty-heading -- stale] */-->
       <h2>Title</h2>`
 
-    expect(await lint(markup)).toEqual(['no-unused-disable'])
+    assert.deepEqual(await lint(markup), ['no-unused-disable'])
   })
 })

@@ -1,4 +1,5 @@
-// Lints the Thymeleaf templates in app/views. Run with `npm run lint:html`.
+// Lints the Thymeleaf templates in server/app/views. formatter/fmt runs it, so
+// use `bin/fmt`.
 //
 // html-validate/thymeleaf.mjs maps th:* attributes onto the HTML they render,
 // html-validate/elements.mjs describes <th:block> and the cf:* tags, and

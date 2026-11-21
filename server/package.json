@@ -10,7 +10,6 @@
     "build": "tsc --noEmit && vite build --base=/assets/dist/",
     "build:watch": "vite build --base=/assets/dist/ --watch",
     "preview": "vite preview",
-    "lint:html": "html-validate app/views",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
@@ -34,7 +33,6 @@
     "eslint-config-prettier": "10.1.8",
     "eslint-plugin-no-unsanitized": "^4.0.2",
     "globals": "17.13.0",
-    "html-validate": "11.21.1",
     "htmx-ext-response-targets": "2.0.4",
     "htmx.org": "2.0.11",
     "jsdom": "^30.0.0",

@@ -1,6 +1,8 @@
 #! /usr/bin/env bash
 
 # DOC: Autoformat Java and TypeScript source files. Usually good to run before committing.
+# DOC: Also lints the Thymeleaf templates in server/app/views with html-validate; the
+# DOC: rules live in formatter/.htmlvalidate.mjs and formatter/html-validate.
 #
 # Run with -d <diffbase: branch or commit> flag to customize the diffbase. By default, the
 # diffbase is origin/main
