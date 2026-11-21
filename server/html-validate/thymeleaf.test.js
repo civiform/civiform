@@ -1,18 +1,6 @@
 // @vitest-environment node
-import {HtmlValidate} from 'html-validate'
 import {describe, expect, it} from 'vitest'
-import config from '../.htmlvalidate.mjs'
-
-const htmlvalidate = new HtmlValidate(config)
-
-/** Lints a template with the project config and returns the rules it broke. */
-async function lint(markup) {
-  const report = await htmlvalidate.validateString(markup, 'template.html')
-
-  return report.results.flatMap((result) =>
-    result.messages.map((message) => message.ruleId),
-  )
-}
+import {lint} from './testing.js'
 
 describe('thymeleaf attributes', () => {
   it('treats th:* as the attribute it renders', async () => {

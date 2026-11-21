@@ -1,13 +1,15 @@
 // Lints the Thymeleaf templates in app/views. Run with `npm run lint:html`.
 //
 // html-validate/thymeleaf.mjs maps th:* attributes onto the HTML they render,
-// and html-validate/elements.mjs describes <th:block> and the cf:* tags.
+// html-validate/elements.mjs describes <th:block> and the cf:* tags, and
+// html-validate/civiform.mjs has the rules written for this project.
+import civiform from './html-validate/civiform.mjs'
 import elements from './html-validate/elements.mjs'
 import thymeleaf from './html-validate/thymeleaf.mjs'
 
 export default {
   root: true,
-  plugins: [thymeleaf],
+  plugins: [thymeleaf, civiform],
   // The prettier preset turns off the rules that would fight the formatter
   // (see formatter/fmt).
   extends: ['html-validate:recommended', 'html-validate:prettier'],
@@ -16,6 +18,9 @@ export default {
   rules: {
     // Every tag has to be html, <th:block>, or a cf:* tag the dialect knows.
     'no-unknown-elements': 'error',
+
+    // htmx ignores an attribute or swap style it doesn't know.
+    'civiform/htmx-attributes': 'error',
 
     // Style only. `required="required"` and `hidden=""` behave the same as
     // the bare attribute, and browsers add the <tbody> themselves.
