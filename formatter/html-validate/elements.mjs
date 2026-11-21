@@ -1,13 +1,13 @@
 // Element metadata for the tags html-validate doesn't know: Thymeleaf's
 // `<th:block>` and the CiviForm `cf:*` tags.
 //
-// The cf:* entries mirror what the dialect in app/views/tags checks when it
-// renders a tag (CiviFormProcessorDialect and the classes in
-// app/views/tags/settings), so a mistake is reported here instead of as an
+// The cf:* entries mirror what the dialect in server/app/views/tags checks when
+// it renders a tag (CiviFormProcessorDialect and the classes in
+// server/app/views/tags/settings), so a mistake is reported here instead of as an
 // exception on the page. A `th:` attribute counts as its plain form, and its
 // value isn't checked because it is only known at render time.
 //
-// The XSD files in schemas/ describe the same tags for editor completion.
+// The XSD files in server/schemas/ describe the same tags for editor completion.
 // Where they disagree with the Java, this file follows the Java, because
 // that is what runs.
 import {readdirSync} from 'node:fs'
@@ -73,7 +73,7 @@ const optionGroup = {permittedContent: ['item']}
 // IconElementTagProcessor looks the icon up by file name and throws outside
 // of prod when the file isn't there.
 const ICONS = readdirSync(
-  join(import.meta.dirname, '../app/assets/Images/uswds'),
+  join(import.meta.dirname, '../../server/app/assets/Images/uswds'),
 )
   .filter((file) => file.endsWith('.svg'))
   .map((file) => file.slice(0, -'.svg'.length))

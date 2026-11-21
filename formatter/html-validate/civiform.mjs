@@ -1,5 +1,5 @@
 // html-validate plugin with the lint rules written for CiviForm templates.
-// A rule only runs once it is turned on in .htmlvalidate.mjs.
+// A rule only runs once it is turned on in formatter/.htmlvalidate.mjs.
 import {definePlugin} from 'html-validate'
 import FormSubmit from './rules/form-submit.mjs'
 import HtmxAttributes from './rules/htmx-attributes.mjs'

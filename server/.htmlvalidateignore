@@ -1,2 +1,0 @@
-# Twirl templates embed Scala that the HTML parser can't read.
-*.scala.html

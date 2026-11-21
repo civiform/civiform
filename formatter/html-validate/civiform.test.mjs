@@ -1,6 +1,6 @@
-// @vitest-environment node
-import {describe, expect, it} from 'vitest'
-import {lint, lintMessages} from './testing.js'
+import assert from 'node:assert/strict'
+import {describe, it} from 'node:test'
+import {lint, lintMessages} from './testing.mjs'
 
 describe('civiform/form-submit', () => {
   const RULE = 'civiform/form-submit'
@@ -12,33 +12,39 @@ describe('civiform/form-submit', () => {
         <cf:button>Also not a submit button</cf:button>
       </form>`
 
-    expect(await lint(markup)).toEqual([RULE])
+    assert.deepEqual(await lint(markup), [RULE])
   })
 
   it('accepts a cf:button that submits', async () => {
     const form = (button) =>
       `<form method="post" action="/save">${button}</form>`
 
-    expect(
+    assert.deepEqual(
       await lint(form('<cf:button type="submit">Save</cf:button>')),
-    ).toEqual([])
-    expect(
+      [],
+    )
+    assert.deepEqual(
       await lint(form('<cf:button th:type="${type}">Save</cf:button>')),
-    ).toEqual([])
+      [],
+    )
   })
 
   it('accepts a native submit control', async () => {
     const form = (button) =>
       `<form method="post" action="/save">${button}</form>`
 
-    expect(await lint(form('<button type="submit">Save</button>'))).toEqual([])
-    expect(
+    assert.deepEqual(
+      await lint(form('<button type="submit">Save</button>')),
+      [],
+    )
+    assert.deepEqual(
       await lint(
         form(
           '<!--/* [html-validate-disable-next prefer-button -- test] */--><input type="submit" value="Save" />',
         ),
       ),
-    ).toEqual([])
+      [],
+    )
   })
 
   it('accepts a submit button that names the form', async () => {
@@ -46,7 +52,7 @@ describe('civiform/form-submit', () => {
       <form id="save-form" method="post" action="/save"></form>
       <cf:button type="submit" form="save-form">Save</cf:button>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('accepts a form that includes a fragment', async () => {
@@ -55,8 +61,9 @@ describe('civiform/form-submit', () => {
         <th:block th:replace="~{buttons :: save}"></th:block>
       </form>`
 
-    expect(await lint(markup)).toEqual([])
-    expect(await lint('<form th:replace="~{forms :: save}"></form>')).toEqual(
+    assert.deepEqual(await lint(markup), [])
+    assert.deepEqual(
+      await lint('<form th:replace="~{forms :: save}"></form>'),
       [],
     )
   })
@@ -79,7 +86,7 @@ describe('civiform/htmx-attributes', () => {
         <button type="submit">Save</button>
       </form>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('accepts th:hx-* and attributes set through th:attr', async () => {
@@ -90,45 +97,56 @@ describe('civiform/htmx-attributes', () => {
         th:attr="hx-vals=\${vals},hx-target=\${target}"
       ></div>`
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('reports a misspelled attribute', async () => {
     const messages = await lintMessages('<div hx-swaap="outerHTML"></div>')
 
-    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
-    expect(messages[0].message).toBe('Unknown htmx attribute "hx-swaap"')
+    assert.deepEqual(
+      messages.map((message) => message.ruleId),
+      [RULE],
+    )
+    assert.equal(messages[0].message, 'Unknown htmx attribute "hx-swaap"')
   })
 
   it('reports a misspelled th:hx-* attribute', async () => {
     const messages = await lintMessages('<div th:hx-swaap="${swap}"></div>')
 
-    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
-    expect(messages[0].message).toBe('Unknown htmx attribute "th:hx-swaap"')
+    assert.deepEqual(
+      messages.map((message) => message.ruleId),
+      [RULE],
+    )
+    assert.equal(messages[0].message, 'Unknown htmx attribute "th:hx-swaap"')
   })
 
   it('reports a misspelled attribute set through th:attr', async () => {
-    expect(await lint('<div th:attr="hx-psot=${url}"></div>')).toEqual([RULE])
+    assert.deepEqual(await lint('<div th:attr="hx-psot=${url}"></div>'), [RULE])
   })
 
   it('reports a misspelled swap style', async () => {
     const messages = await lintMessages('<div hx-swap="outerHTLM"></div>')
 
-    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
-    expect(messages[0].message).toContain('"outerHTLM" is not a valid hx-swap')
+    assert.deepEqual(
+      messages.map((message) => message.ruleId),
+      [RULE],
+    )
+    assert.ok(
+      messages[0].message.includes('"outerHTLM" is not a valid hx-swap'),
+    )
   })
 
   it('reports a swap style that is not first, and unknown modifiers', async () => {
-    expect(await lint('<div hx-swap="show:top innerHTML"></div>')).toEqual([
+    assert.deepEqual(await lint('<div hx-swap="show:top innerHTML"></div>'), [
       RULE,
     ])
-    expect(await lint('<div hx-swap="innerHTML sroll:top"></div>')).toEqual([
+    assert.deepEqual(await lint('<div hx-swap="innerHTML sroll:top"></div>'), [
       RULE,
     ])
   })
 
   it('accepts modifiers without a swap style', async () => {
-    expect(await lint('<div hx-swap="swap:1s"></div>')).toEqual([])
+    assert.deepEqual(await lint('<div hx-swap="swap:1s"></div>'), [])
   })
 })
 
@@ -140,8 +158,11 @@ describe('civiform/no-inline-script', () => {
       '<select name="sort" onchange="this.form.submit()"></select>',
     )
 
-    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
-    expect(messages[0].message).toContain('Inline event handler "onchange"')
+    assert.deepEqual(
+      messages.map((message) => message.ruleId),
+      [RULE],
+    )
+    assert.ok(messages[0].message.includes('Inline event handler "onchange"'))
   })
 
   it('reports a th:on* handler once, under the name it was written with', async () => {
@@ -149,26 +170,29 @@ describe('civiform/no-inline-script', () => {
       '<button type="button" th:onclick="|go(${id})|">Go</button>',
     )
 
-    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
-    expect(messages[0].message).toContain('Inline event handler "th:onclick"')
+    assert.deepEqual(
+      messages.map((message) => message.ruleId),
+      [RULE],
+    )
+    assert.ok(messages[0].message.includes('Inline event handler "th:onclick"'))
   })
 
   it('reports a handler set through th:attr', async () => {
     const markup =
       '<button type="button" th:attr="onclick=${handler}">Go</button>'
 
-    expect(await lint(markup)).toEqual([RULE])
+    assert.deepEqual(await lint(markup), [RULE])
   })
 
   it('reports an htmx hx-on handler', async () => {
     const markup = '<button type="button" hx-on:click="go()">Go</button>'
 
-    expect(await lint(markup)).toEqual([RULE])
+    assert.deepEqual(await lint(markup), [RULE])
   })
 
   it('reports a javascript: URL', async () => {
-    expect(await lint('<a href="javascript:void(0)">Go</a>')).toEqual([RULE])
-    expect(await lint('<a th:href="|javascript:go(${id})|">Go</a>')).toEqual([
+    assert.deepEqual(await lint('<a href="javascript:void(0)">Go</a>'), [RULE])
+    assert.deepEqual(await lint('<a th:href="|javascript:go(${id})|">Go</a>'), [
       RULE,
     ])
   })
@@ -176,19 +200,19 @@ describe('civiform/no-inline-script', () => {
   it('accepts a javascript: placeholder that th:href overwrites', async () => {
     const markup = '<a href="javascript:void(0);" th:href="${url}">Go</a>'
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('skips an element that th:replace swaps out', async () => {
     const markup = '<div onclick="go()" th:replace="~{a :: b}"></div>'
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 
   it('accepts ordinary attributes and URLs', async () => {
     const markup =
       '<a href="/programs" th:href="${url}" data-on-load="x">Go</a>'
 
-    expect(await lint(markup)).toEqual([])
+    assert.deepEqual(await lint(markup), [])
   })
 })

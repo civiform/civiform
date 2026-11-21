@@ -234,10 +234,7 @@ export default defineConfig({
 
   test: {
     environment: 'jsdom',
-    include: [
-      'app/assets/javascripts/**/*.{test,spec}.{js,ts,jsx,tsx}',
-      'html-validate/**/*.test.js',
-    ],
+    include: ['app/assets/javascripts/**/*.{test,spec}.{js,ts,jsx,tsx}'],
     exclude: [...configDefaults.exclude, 'e2e/*', 'target/**'],
     coverage: {
       provider: 'v8',

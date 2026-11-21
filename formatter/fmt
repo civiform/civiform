@@ -108,6 +108,32 @@ function get_modified_workflow_script_files() {
   ) | grep -E "^\.github/scripts/.+\.js$" || true
 }
 
+function get_modified_template_files() {
+  # The Thymeleaf templates, which html-validate lints.
+  #
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  get_modified_html_files | grep -E "^server/app/views/" || true
+}
+
+function get_all_template_files() {
+  (
+    git ls-files -- server/app/views
+    get_untracked_files
+  ) | grep -E "^server/app/views/.+\.html$" | grep -E -v ".+\.scala.html$" || true
+}
+
+function get_modified_template_lint_files() {
+  # The html-validate config, plugin and rules that lint the templates.
+  #
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E "^formatter/(\.htmlvalidate\.mjs|html-validate/)" || true
+}
+
 # Returns list of files that should be formatted by prettier
 function get_modified_prettier_files() {
   (
@@ -222,6 +248,45 @@ else
   fi
 
   echo 'Done formatting with eslint'
+fi
+
+if [[ -z "$(get_modified_template_lint_files)" ]]; then
+  templates_to_lint="$(get_modified_template_files)"
+else
+  # A change to the lint rules can affect any template, so run the tests for
+  # the rules and then lint every template.
+  echo 'Start testing html-validate rules'
+  node --test --test-reporter=dot formatter/html-validate/*.test.mjs
+  echo 'Done testing html-validate rules'
+
+  templates_to_lint="$(get_all_template_files)"
+fi
+
+if [[ -z "${templates_to_lint}" ]]; then
+  echo 'No modified Thymeleaf templates found'
+else
+  echo 'Start linting Thymeleaf templates with html-validate'
+  # html-validate is installed as node module in `formatter` directory
+  cd formatter
+
+  # Prefix each file with ../ and remove newlines. The newlines prevent printf from
+  # prefixing each line itself which is why this sed command is needed.
+  template_file_list="$(printf "%s" "${templates_to_lint}" | sed 's/^/ ..\//' | tr -d '\n')"
+
+  # The template_file_list array should not be surrounded by quotes, in this case
+  # we want word splitting to occur so html-validate will operate in each file. If
+  # quoted it gets treated as a single path.
+  #
+  # --fix rewrites what html-validate can fix by itself. Anything left over fails
+  # the run, the same as eslint.
+  npx --silent \
+    html-validate \
+    --config ./.htmlvalidate.mjs \
+    --fix \
+    -- ${template_file_list[@]}
+
+  cd ..
+  echo 'Done linting Thymeleaf templates'
 fi
 
 echo 'Start format shell'
