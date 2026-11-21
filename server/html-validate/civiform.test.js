@@ -71,3 +71,64 @@ describe('civiform/htmx-attributes', () => {
     expect(await lint('<div hx-swap="swap:1s"></div>')).toEqual([])
   })
 })
+
+describe('civiform/no-inline-script', () => {
+  const RULE = 'civiform/no-inline-script'
+
+  it('reports an inline event handler', async () => {
+    const messages = await lintMessages(
+      '<select name="sort" onchange="this.form.submit()"></select>',
+    )
+
+    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
+    expect(messages[0].message).toContain('Inline event handler "onchange"')
+  })
+
+  it('reports a th:on* handler once, under the name it was written with', async () => {
+    const messages = await lintMessages(
+      '<button type="button" th:onclick="|go(${id})|">Go</button>',
+    )
+
+    expect(messages.map((message) => message.ruleId)).toEqual([RULE])
+    expect(messages[0].message).toContain('Inline event handler "th:onclick"')
+  })
+
+  it('reports a handler set through th:attr', async () => {
+    const markup =
+      '<button type="button" th:attr="onclick=${handler}">Go</button>'
+
+    expect(await lint(markup)).toEqual([RULE])
+  })
+
+  it('reports an htmx hx-on handler', async () => {
+    const markup = '<button type="button" hx-on:click="go()">Go</button>'
+
+    expect(await lint(markup)).toEqual([RULE])
+  })
+
+  it('reports a javascript: URL', async () => {
+    expect(await lint('<a href="javascript:void(0)">Go</a>')).toEqual([RULE])
+    expect(await lint('<a th:href="|javascript:go(${id})|">Go</a>')).toEqual([
+      RULE,
+    ])
+  })
+
+  it('accepts a javascript: placeholder that th:href overwrites', async () => {
+    const markup = '<a href="javascript:void(0);" th:href="${url}">Go</a>'
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('skips an element that th:replace swaps out', async () => {
+    const markup = '<div onclick="go()" th:replace="~{a :: b}"></div>'
+
+    expect(await lint(markup)).toEqual([])
+  })
+
+  it('accepts ordinary attributes and URLs', async () => {
+    const markup =
+      '<a href="/programs" th:href="${url}" data-on-load="x">Go</a>'
+
+    expect(await lint(markup)).toEqual([])
+  })
+})
