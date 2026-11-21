@@ -13,9 +13,9 @@
     th:aria-labelledby="|${questionId}-title ${questionId}-description|"
   >
     <!--/* Title and Help Text */-->
-    <div
+    <legend
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+    ></legend>
 
     <div
       th:replace="~{this :: nameFields(

@@ -20,7 +20,6 @@
       th:if="${!applicationParams.loginOnly() or (applicationParams.loginOnly() and !isGuest)}"
       id="main-content"
       tabindex="-1"
-      role="main"
       th:with="question=${applicationParams.block().getVisibleQuestions().get(0)},
       questionParams=${questionRendererParams.get(question.getQuestionDefinition().getId())},
       fileUploadQuestion=${question.createFileUploadQuestion()}"
@@ -121,6 +120,7 @@
                 method="POST"
                 th:action="${submitFormAction}"
               >
+                <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
                 <input hidden th:value="${csrfToken}" name="csrfToken" />
                 <div
                   th:replace="~{questiontypes/LegacyFileUploadQuestionFragment :: file-key-field(${fileUploadQuestion}, false)}"

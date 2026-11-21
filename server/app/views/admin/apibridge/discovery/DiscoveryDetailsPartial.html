@@ -43,6 +43,7 @@
           <form th:hx-post="${model.hxAddUrl()}">
             <input type="hidden" name="hostUrl" th:value="${model.hostUrl}" />
             <input type="hidden" name="urlPath" th:value="${urlPath}" />
+            <!--/* [html-validate-disable-next prefer-button -- existing markup] */-->
             <input class="usa-button" type="submit" value="Add Endpoint" />
           </form>
         </div>

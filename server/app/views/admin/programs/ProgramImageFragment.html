@@ -34,6 +34,7 @@
           novalidate
           th:action="${model.submitNavigationUrl + '?csrfToken=' + #uris.escapeQueryParam(templateGlobals.csrfToken())}"
         >
+          <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
           <input
             hidden
             name="csrfToken"
@@ -109,6 +110,7 @@
             th:action="${model.deleteNavigationUrl}"
             th:if="${model.hasSummaryImage()}"
           >
+            <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
             <input
               hidden
               name="csrfToken"

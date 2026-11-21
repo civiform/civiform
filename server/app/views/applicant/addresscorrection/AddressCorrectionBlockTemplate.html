@@ -44,6 +44,7 @@
               method="POST"
               th:with="suggestions=${addressSuggestionGroup.getAddressSuggestions()}"
             >
+              <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
               <input hidden th:value="${csrfToken}" name="csrfToken" />
               <input
                 type="hidden"

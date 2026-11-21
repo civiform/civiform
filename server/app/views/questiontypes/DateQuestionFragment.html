@@ -13,9 +13,9 @@
     th:aria-labelledby="|${questionId}-title ${questionId}-description|"
   >
     <!--/* Title and Help Text */-->
-    <div
+    <legend
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+    ></legend>
 
     <div
       th:replace="~{this :: dateFields(
@@ -191,6 +191,7 @@
           *</span
         >
       </label>
+      <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
       <input
         class="usa-input"
         th:classappend="${dayHasError ? 'usa-input--error' : ''}"
@@ -221,6 +222,7 @@
           *</span
         >
       </label>
+      <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
       <input
         class="usa-input"
         th:classappend="${yearHasError ? 'usa-input--error' : ''}"

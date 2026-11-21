@@ -136,6 +136,7 @@
           th:replace="~{admin/programs/predicates/PredicateValuesInputFragment :: predicateValues(${model.predicateValuesInputModel(conditionId, subconditionId)})}"
         ></div>
         <div class="width-full display-inline-block">
+          <!--/* [html-validate-disable-next no-implicit-button-type -- existing markup, the button defaults to submit] */-->
           <button
             th:hx-post="${model.hxDeleteSubconditionEndpoint()}"
             th:hx-vals='|{"conditionId": "${conditionId}", "subconditionId": "${subconditionId}"}|'

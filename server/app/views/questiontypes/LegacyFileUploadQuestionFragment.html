@@ -89,6 +89,7 @@
 
 <!--/* Fragment for rendering file key fields within hidden inputs */-->
 <div th:fragment="file-key-field(fileUploadQuestion, clearData)">
+  <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
   <input
     th:name="${fileUploadQuestion.getFileKeyPath()}"
     th:value="${clearData ? '' : fileUploadQuestion.getFileKeyValue().orElse('')}"

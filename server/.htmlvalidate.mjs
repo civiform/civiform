@@ -3,6 +3,16 @@
 // html-validate/thymeleaf.mjs maps th:* attributes onto the HTML they render,
 // html-validate/elements.mjs describes <th:block> and the cf:* tags, and
 // html-validate/civiform.mjs has the rules written for this project.
+//
+// To silence a finding, put a directive in a Thymeleaf parser-level comment so
+// it isn't sent to the browser, and say why:
+//
+//   <!--/* [html-validate-disable-next no-dup-id -- only one branch renders] */-->
+//
+// The templates ported from j2html keep the legacy markup until their page is
+// rewritten. They share directories with new templates, so each one opts out
+// of the rules it breaks with a `html-validate-disable` comment on its first
+// line. Every other template is checked against all of the rules below.
 import civiform from './html-validate/civiform.mjs'
 import elements from './html-validate/elements.mjs'
 import thymeleaf from './html-validate/thymeleaf.mjs'
@@ -42,26 +52,16 @@ export default {
     // template is the length of the expression.
     'long-title': 'off',
 
-    // USWDS markup puts aria-label and aria-labelledby on elements that get
-    // their role from uswds.js at runtime (modals, step indicators), and
-    // repeats implicit roles such as `<img role="img">`.
-    'aria-label-misuse': 'off',
-    'no-redundant-role': 'off',
+    // aria-label on any element that can take an accessible name is fine.
+    'aria-label-misuse': ['error', {allowAnyNamable: true}],
 
-    // Question fieldsets are named with aria-labelledby instead of a <legend>.
-    'wcag/h71': 'off',
+    // A link that is styled as a button keeps role="button". The rule still
+    // reports every other role that has a native element.
+    'prefer-native-element': ['error', {exclude: ['button']}],
 
-    // Forms usually submit through <cf:button type="submit">. html-validate
-    // looks up submit buttons with a selector, and its selectors can't match
-    // a tag name that has a colon in it.
+    // civiform/form-submit checks the same thing and also understands
+    // <cf:button type="submit">.
     'wcag/h32': 'off',
-
-    // Off until the existing templates are cleaned up. Each fix needs a look
-    // at the page: an explicit type can change which CSS applies, and several
-    // buttons that default to submit were probably meant to be type="button".
-    'no-implicit-button-type': 'off',
-    'no-implicit-input-type': 'off',
-    'prefer-button': 'off',
-    'prefer-native-element': 'off',
+    'civiform/form-submit': 'error',
   },
 }
