@@ -72,10 +72,10 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
 
   private SettingsManifest createDemoSettingsManifest() {
     SettingsManifest mockSettingsManifest = spy(instanceOf(SettingsManifest.class));
-    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType(any());
+    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType();
     doReturn(Optional.of("TestCity"))
         .when(mockSettingsManifest)
-        .getWhitelabelCivicEntityShortName(any());
+        .getWhitelabelCivicEntityShortName();
     return mockSettingsManifest;
   }
 
@@ -125,7 +125,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   public void render_demo_banner_highlights_active_civiform_admin_role() {
     // AdminLayout only shows the demo banner on post migration pages.
     SettingsManifest mockSettingsManifest = createDemoSettingsManifest();
-    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled(any());
+    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled();
 
     LayoutDeps layoutDeps =
         createLayoutDeps(mockSettingsManifest, instanceOf(ProfileUtils.class), true);
@@ -162,7 +162,7 @@ public class AdminLayoutBaseViewTest extends WithMockedProfiles {
   public void render_demo_banner_highlights_active_program_admin_role() {
     // AdminLayout only shows the demo banner on post migration pages.
     SettingsManifest mockSettingsManifest = createDemoSettingsManifest();
-    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled(any());
+    doReturn(true).when(mockSettingsManifest).getAdminUiMigrationUxRedesignScEnabled();
 
     ProfileFactory profileFactory = instanceOf(ProfileFactory.class);
     CiviFormProfile programAdminProfile =

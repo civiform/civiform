@@ -56,6 +56,8 @@ public class WithMockedProfiles {
   @AfterClass
   public static void stopApp() {
     if (app != null) {
+      // Stop settings a test stored from leaking into the next test class.
+      resourceCreator.clearCiviFormSettings();
       Helpers.stop(app);
       app = null;
     }

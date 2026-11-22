@@ -110,7 +110,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -139,7 +139,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -169,7 +169,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
     String redirectLocation = "someUrl";
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -409,7 +409,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void download_authenticatedApplicant_flagOn_doesNotIncludeScores() throws Exception {
-    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+    when(settingsManifest.getAnswerOptionScoringEnabled()).thenReturn(true);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel applicant = createApplicantWithMockedProfile();
@@ -426,7 +426,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void download_tiUser_flagOn_includesScores() throws Exception {
-    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+    when(settingsManifest.getAnswerOptionScoringEnabled()).thenReturn(true);
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();
     ApplicantModel managedApplicant = createApplicant();
@@ -449,7 +449,7 @@ public class UpsellControllerTest extends WithMockedProfiles {
 
   @Test
   public void download_tiSubmitter_applicantUser_doesNotIncludeScores() throws Exception {
-    when(settingsManifest.getAnswerOptionScoringEnabled(any())).thenReturn(true);
+    when(settingsManifest.getAnswerOptionScoringEnabled()).thenReturn(true);
 
     ProgramDefinition programDefinition =
         ProgramBuilder.newActiveProgram("test program", "desc").buildDefinition();

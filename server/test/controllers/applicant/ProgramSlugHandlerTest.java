@@ -514,7 +514,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);
@@ -567,7 +567,7 @@ public class ProgramSlugHandlerTest extends WithMockedProfiles {
 
     SettingsManifest mockSettingsManifest = mock(SettingsManifest.class);
     Request request = fakeRequestBuilder().build();
-    when(mockSettingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(mockSettingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     ApplicationModel app =
         new ApplicationModel(applicant, programDefinition.toProgram(), LifecycleStage.ACTIVE);

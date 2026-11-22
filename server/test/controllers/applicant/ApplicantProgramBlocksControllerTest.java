@@ -5,7 +5,6 @@ import static controllers.applicant.ApplicantRequestedAction.PREVIOUS_BLOCK;
 import static controllers.applicant.ApplicantRequestedAction.REVIEW_PAGE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static play.mvc.Http.Status.BAD_REQUEST;
@@ -126,7 +125,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -171,7 +170,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void edit_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -185,7 +184,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -239,7 +238,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void editWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -288,7 +287,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxAddEnumeratorEntityWithApplicantId_whenBlockIsNotEnumerator_returnsNotFound() {
-    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(true);
 
     // Block "1" holds a name question, not an enumerator.
     Result result =
@@ -303,7 +302,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxAddEnumeratorEntityWithApplicantId_usesClientEntityCountForRowIndex() {
-    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(true);
     ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
 
     // No entities are saved, but the client reports two visible rows, so the new row takes index 2
@@ -324,7 +323,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxAddEnumeratorEntityWithApplicantId_forFirstEntity_referencesEnumeratorTitle() {
-    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(true);
     ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
 
     // The client adds the first entity (no saved entities, entityCount 0) and sends the enumerator
@@ -348,7 +347,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxAddEnumeratorEntityWithApplicantId_withMalformedQuestionId_omitsTitleReference() {
-    when(settingsManifest.getEnumeratorImprovementsEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEnumeratorImprovementsEnabled()).thenReturn(true);
     ProgramModel enumeratorProgram = programWithEnumeratorInitialQuestion();
 
     // A malformed enumerator question id is dropped, so even the first entity row falls back to no
@@ -546,7 +545,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -595,7 +594,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void review_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -609,7 +608,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -665,7 +664,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
       reviewWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -683,7 +682,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   @Test
   public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -730,7 +729,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void previous_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -744,7 +743,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
   public void
       previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -800,7 +799,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
       previousWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -1115,7 +1114,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
             .addAttr(
                 Router.Attrs.HANDLER_DEF,
                 createHandlerDef(getClass().getClassLoader(), routePattern));
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -1520,7 +1519,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "LastName"))
             .build();
 
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram("test-program")
@@ -1563,7 +1562,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "LastName"))
             .build();
 
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram("test-program")
@@ -1603,7 +1602,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "LastName"))
             .build();
 
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram("test-program")
@@ -1908,7 +1907,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "92373"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -1984,7 +1983,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     "LastName"))
             .build();
 
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram()
@@ -3046,7 +3045,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     Result result =
         subject
             .updateWithApplicantId(
@@ -3217,7 +3216,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     addressSuggestionString))
             .build();
 
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram()
@@ -3366,7 +3365,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     createAddressSuggestionsJson()))
             .build();
 
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     program =
         ProgramBuilder.newActiveProgram()
@@ -3427,7 +3426,7 @@ public class ApplicantProgramBlocksControllerTest extends WithMockedProfiles {
                     Path.create("applicant.applicant_address").join(Scalar.ZIP).toString(),
                     "02111"))
             .build();
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     subject
         .updateWithApplicantId(
             answerAddressQuestionRequest,

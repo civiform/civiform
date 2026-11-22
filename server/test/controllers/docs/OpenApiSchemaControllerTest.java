@@ -55,8 +55,8 @@ public class OpenApiSchemaControllerTest extends ResetPostgres {
     ProgramBuilder.newObsoleteProgram("Scored Then Off").withUsesScoring(true).buildDefinition();
     ProgramBuilder.newActiveProgram("Scored Then Off").buildDefinition();
 
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true").build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().build();
     Result result =
         instanceOf(OpenApiSchemaController.class)
             .getSchemaByProgramSlug(

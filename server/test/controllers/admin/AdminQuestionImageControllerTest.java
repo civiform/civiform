@@ -132,20 +132,16 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   public void hxUploadQuestionImage_nullBody_returnsBadRequest() {
     QuestionModel question = testQuestionBank.staticContent();
 
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Result result =
-        controller.hxUploadQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-                .method("POST")
-                .build(),
-            question.id);
+        controller.hxUploadQuestionImage(fakeRequestBuilder().method("POST").build(), question.id);
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
   }
 
   private Http.Request createUploadRequest(String fileKey, String description) {
-    FakeRequestBuilder requestBuilder =
-        fakeRequestBuilder().addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    FakeRequestBuilder requestBuilder = fakeRequestBuilder();
     if (fileKey == null) {
       return requestBuilder
           .method("POST")
@@ -272,26 +268,19 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
   public void hxDeleteQuestionImage_featureFlagDisabled_returnsNotFound() {
     QuestionModel question = testQuestionBank.staticContent();
 
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false");
     Result result =
-        controller.hxDeleteQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
-                .method("POST")
-                .build(),
-            question.id);
+        controller.hxDeleteQuestionImage(fakeRequestBuilder().method("POST").build(), question.id);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
 
   @Test
   public void hxDeleteQuestionImage_missingQuestion_returnsNotFound() {
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Result result =
         controller.hxDeleteQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-                .method("POST")
-                .build(),
-            /* questionId= */ Long.MAX_VALUE);
+            fakeRequestBuilder().method("POST").build(), /* questionId= */ Long.MAX_VALUE);
 
     assertThat(result.status()).isEqualTo(NOT_FOUND);
   }
@@ -304,13 +293,9 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
         .deleteImageFromQuestion(anyLong());
 
     AdminQuestionImageController customController = createControllerWithCustomService(spyService);
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Result result =
-        customController.hxDeleteQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-                .method("POST")
-                .build(),
-            1L);
+        customController.hxDeleteQuestionImage(fakeRequestBuilder().method("POST").build(), 1L);
 
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
     String htmlContent = contentAsString(result);
@@ -329,13 +314,9 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(questionService.getQuestionDefinition(id).getImageFileKey()).isPresent();
 
     // Now delete the image
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Result result =
-        controller.hxDeleteQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-                .method("POST")
-                .build(),
-            id);
+        controller.hxDeleteQuestionImage(fakeRequestBuilder().method("POST").build(), id);
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.headers()).containsEntry("HX-Trigger", "question-image-changed");
@@ -373,13 +354,9 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(uploadResult2.status()).isEqualTo(OK);
 
     // 3. "Delete image" using the active question ID (clears image on existing draft)
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Result deleteResult =
-        controller.hxDeleteQuestionImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-                .method("POST")
-                .build(),
-            activeId);
+        controller.hxDeleteQuestionImage(fakeRequestBuilder().method("POST").build(), activeId);
     assertThat(deleteResult.status()).isEqualTo(OK);
   }
 }

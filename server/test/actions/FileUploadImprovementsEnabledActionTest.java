@@ -34,7 +34,7 @@ public class FileUploadImprovementsEnabledActionTest {
   @Test
   public void call_featureEnabled_callsDelegate() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled()).thenReturn(true);
     when(delegate.call(request)).thenReturn(CompletableFuture.completedFuture(Results.ok()));
 
     Result result = action.call(request).toCompletableFuture().join();
@@ -45,7 +45,7 @@ public class FileUploadImprovementsEnabledActionTest {
   @Test
   public void call_featureDisabled_returnsNotFoundWithoutCallingDelegate() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getFileUploadQuestionImprovementsEnabled(request)).thenReturn(false);
+    when(settingsManifest.getFileUploadQuestionImprovementsEnabled()).thenReturn(false);
 
     Result result = action.call(request).toCompletableFuture().join();
 

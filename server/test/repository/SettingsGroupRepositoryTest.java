@@ -20,6 +20,7 @@ public class SettingsGroupRepositoryTest extends ResetPostgres {
   @Test
   public void getCurrentSettings_returnsTheMostRecentGroup() {
     DB.getDefault().truncate(SettingsGroupModel.class);
+    settingsGroupRepository.clearCurrentSettingsCache();
 
     var groupA = new SettingsGroupModel(ImmutableMap.of("TEST", "true"), "test");
     groupA.save();
@@ -34,5 +35,31 @@ public class SettingsGroupRepositoryTest extends ResetPostgres {
         settingsGroupRepository.getCurrentSettings().toCompletableFuture().join().get();
 
     assertThat(result.getSettings()).isEqualTo(groupB.getSettings());
+  }
+
+  @Test
+  public void getCurrentSettingsSync_returnsTheMostRecentGroup() {
+    DB.getDefault().truncate(SettingsGroupModel.class);
+    settingsGroupRepository.clearCurrentSettingsCache();
+
+    var groupA = new SettingsGroupModel(ImmutableMap.of("TEST", "true"), "test");
+    groupA.save();
+    groupA.setCreateTimeForTest("2040-01-01T00:00:00Z").save();
+
+    var groupB = new SettingsGroupModel(ImmutableMap.of("TEST", "false"), "test");
+    groupB.save();
+    groupB.setCreateTimeForTest("2041-01-01T00:00:00Z").save();
+
+    SettingsGroupModel result = settingsGroupRepository.getCurrentSettingsSync().get();
+
+    assertThat(result.getSettings()).isEqualTo(groupB.getSettings());
+  }
+
+  @Test
+  public void getCurrentSettingsSync_noSettingsGroups_returnsEmpty() {
+    DB.getDefault().truncate(SettingsGroupModel.class);
+    settingsGroupRepository.clearCurrentSettingsCache();
+
+    assertThat(settingsGroupRepository.getCurrentSettingsSync()).isEmpty();
   }
 }

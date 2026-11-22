@@ -172,10 +172,8 @@ public class CiviFormProfileTest extends ResetPostgres {
   public void checkProgramAuthorization_CiviformAdminAllowed_success() {
     CiviFormProfileData data = profileFactory.createNewAdmin();
     CiviFormProfile profile = profileFactory.wrapProfileData(data);
-    Request civiformAdminAllowedRequest =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", "true");
+    Request civiformAdminAllowedRequest = fakeRequestBuilder().build();
 
     assertThat(profile.checkProgramAuthorization("program1", civiformAdminAllowedRequest).join())
         .isEqualTo(null);

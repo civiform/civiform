@@ -70,10 +70,10 @@ public class UnauthenticatedLayoutBaseViewTest extends WithMockedProfiles {
 
   private SettingsManifest createDemoSettingsManifest() {
     SettingsManifest mockSettingsManifest = spy(instanceOf(SettingsManifest.class));
-    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType(any());
+    doReturn(Optional.of("demo")).when(mockSettingsManifest).getBannerType();
     doReturn(Optional.of("TestCity"))
         .when(mockSettingsManifest)
-        .getWhitelabelCivicEntityShortName(any());
+        .getWhitelabelCivicEntityShortName();
     return mockSettingsManifest;
   }
 

@@ -2,13 +2,10 @@ package repository;
 
 import static play.test.Helpers.fakeApplication;
 
-import io.ebean.DB;
-import io.ebean.Database;
 import java.time.Clock;
 import java.time.Instant;
 import java.time.ZoneId;
 import models.LifecycleStage;
-import models.Models;
 import models.VersionModel;
 import org.apache.pekko.stream.Materializer;
 import org.junit.After;
@@ -51,6 +48,8 @@ public class ResetPostgres {
   @AfterClass
   public static void stopPlay() {
     if (app != null) {
+      // Stop settings a test stored from leaking into the next test class.
+      resourceCreator.clearCiviFormSettings();
       Helpers.stop(app);
       app = null;
     }
@@ -83,11 +82,14 @@ public class ResetPostgres {
 
   @Before
   public void resetTables() {
-    Database database = DB.getDefault();
-    Models.truncate(database);
+    resourceCreator.truncateTables();
     VersionModel newActiveVersion = new VersionModel(LifecycleStage.ACTIVE);
     newActiveVersion.save();
-    instanceOf(SettingsService.class).migrateConfigValuesToSettingsGroup();
+    SettingsService settingsService = instanceOf(SettingsService.class);
+    settingsService.migrateConfigValuesToSettingsGroup();
+    // Cache the settings, as they are once a server has started, so that loading them doesn't
+    // count towards the SQL statements of the code under test.
+    settingsService.loadSettings().toCompletableFuture().join();
   }
 
   @Before

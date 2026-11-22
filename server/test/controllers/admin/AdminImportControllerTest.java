@@ -233,10 +233,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxImportProgram_repeatedQuestionsWithoutThis_enumeratorImprovementsEnabled_noError() {
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", programJsonWithEnumeratorsWithoutThis()))
                 .build());
@@ -248,10 +248,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
 
   @Test
   public void hxImportProgram_repeatedQuestionsWithoutThis_enumeratorImprovementsDisabled_error() {
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
     Result result =
         controller.hxImportProgram(
             fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
                 .method("POST")
                 .bodyForm(ImmutableMap.of("programJson", programJsonWithEnumeratorsWithoutThis()))
                 .build());

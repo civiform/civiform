@@ -3409,8 +3409,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_legacyEntitiesWithoutInitialQuestionAnswers_withFlagOn_fails() {
     ApplicantModel applicant = createApplicantWithLegacyEntitiesInInitialQuestionProgram();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true").build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    Request request = fakeRequestBuilder().build();
 
     assertThatExceptionOfType(CompletionException.class)
         .isThrownBy(
@@ -3430,8 +3430,8 @@ public class ApplicantServiceTest extends ResetPostgres {
   @Test
   public void submitApplication_legacyEntitiesWithoutInitialQuestionAnswers_withFlagOff_succeeds() {
     ApplicantModel applicant = createApplicantWithLegacyEntitiesInInitialQuestionProgram();
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false").build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
+    Request request = fakeRequestBuilder().build();
 
     ApplicationModel application =
         subject

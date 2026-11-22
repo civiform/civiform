@@ -99,7 +99,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   @Test
   public void addressCorrection_whenProgramSlugUrlsEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -134,7 +134,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   @Test
   public void addressCorrection_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     answerAddressQuestion();
 
     Result result =
@@ -189,7 +189,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   public void
       addressCorrectionWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -229,7 +229,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   public void
       addressCorrectionWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     answerAddressQuestion();
 
     Result result =

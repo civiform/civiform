@@ -1,17 +1,17 @@
 package services.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
-import static support.FakeRequestBuilder.fakeRequest;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import java.util.Optional;
+import models.SettingsGroupModel;
 import org.junit.Test;
-import play.libs.typedmap.TypedMap;
-import play.mvc.Http;
+import repository.SettingsGroupRepository;
 
 public class SettingsManifestTest {
 
@@ -85,24 +85,6 @@ public class SettingsManifestTest {
               .put("feature_flag_variable", true)
               .build());
 
-  private static Http.Request REQUEST =
-      fakeRequest()
-          .withAttrs(
-              TypedMap.empty()
-                  .put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, ImmutableMap.of("BOOL_VARIABLE", "true")));
-
-  private static Http.Request REQUEST_WITH_OVERRIDES =
-      fakeRequest()
-          .withAttrs(
-              TypedMap.empty()
-                  .put(
-                      CIVIFORM_SETTINGS_ATTRIBUTE_KEY,
-                      ImmutableMap.of(
-                          "BOOL_VARIABLE", "true",
-                          "STRING_VARIABLE", "overridden-var",
-                          "INT_VARIABLE", "42",
-                          "LIST_OF_STRINGS_VARIABLE", "a,b,c")));
-
   private static ImmutableMap<String, SettingsSection> SECTIONS =
       ImmutableMap.of(
           "TEST_SECTION",
@@ -131,6 +113,29 @@ public class SettingsManifestTest {
               ImmutableList.of(FEATURE_FLAG_VARIABLE)));
   private SettingsManifest testManifest = new SettingsManifest(SECTIONS, CONFIG);
 
+  private SettingsManifest manifestWithStoredBool =
+      manifestWithStoredSettings(
+          Optional.of(new SettingsGroupModel(ImmutableMap.of("BOOL_VARIABLE", "true"), "test")));
+
+  private SettingsManifest manifestWithStoredOverrides =
+      manifestWithStoredSettings(
+          Optional.of(
+              new SettingsGroupModel(
+                  ImmutableMap.of(
+                      "BOOL_VARIABLE", "true",
+                      "STRING_VARIABLE", "overridden-var",
+                      "INT_VARIABLE", "42",
+                      "LIST_OF_STRINGS_VARIABLE", "a,b,c"),
+                  "test")));
+
+  private static SettingsManifest manifestWithStoredSettings(
+      Optional<SettingsGroupModel> settingsGroup) {
+    SettingsGroupRepository repository = mock(SettingsGroupRepository.class);
+    when(repository.getCurrentSettingsSync()).thenReturn(settingsGroup);
+
+    return new SettingsManifest(SECTIONS, CONFIG, () -> repository);
+  }
+
   @Test
   public void gettingSections() {
     assertThat(testManifest.getSections()).isEqualTo(SECTIONS);
@@ -138,33 +143,45 @@ public class SettingsManifestTest {
 
   @Test
   public void getSettingDisplayValue() {
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, STRING_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(STRING_VARIABLE))
         .isEqualTo(Optional.of("my-var"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, INT_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(INT_VARIABLE))
         .isEqualTo(Optional.of("11"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, LIST_OF_STRINGS_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("one, two, three"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, BOOL_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(BOOL_VARIABLE))
         .isEqualTo(Optional.of("TRUE"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, ENUM_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(ENUM_VARIABLE))
         .isEqualTo(Optional.of("foo"));
-    assertThat(testManifest.getSettingDisplayValue(REQUEST, UNSET_STRING_VARIABLE))
+    assertThat(manifestWithStoredBool.getSettingDisplayValue(UNSET_STRING_VARIABLE))
         .isEqualTo(Optional.empty());
   }
 
   @Test
-  public void getBool_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getBool("BOOL_VARIABLE", fakeRequest())).isFalse();
+  public void getWriteableBool_configOnlyManifest_returnsHoconValue() {
+    assertThat(testManifest.getWriteableBool("BOOL_VARIABLE")).isFalse();
   }
 
   @Test
-  public void getBool_withWritableSettingsOverride_returnsOverriddenValue() {
-    assertThat(testManifest.getBool("BOOL_VARIABLE", REQUEST)).isTrue();
+  public void getWriteableBool_noStoredSettingsGroup_returnsHoconValue() {
+    SettingsManifest manifest = manifestWithStoredSettings(Optional.empty());
+
+    assertThat(manifest.getWriteableBool("BOOL_VARIABLE")).isFalse();
   }
 
   @Test
-  public void getBool_withNoRequest_returnsHoconValue() {
-    assertThat(testManifest.getBool("BOOL_VARIABLE")).isFalse();
+  public void getWriteableBool_settingNotInStoredSettings_returnsHoconValue() {
+    assertThat(manifestWithStoredBool.getWriteableBool("FEATURE_FLAG_VARIABLE")).isTrue();
+  }
+
+  @Test
+  public void getWriteableBool_withStoredSetting_returnsStoredValue() {
+    assertThat(manifestWithStoredBool.getWriteableBool("BOOL_VARIABLE")).isTrue();
+  }
+
+  @Test
+  public void getBool_withStoredSetting_returnsHoconValue() {
+    assertThat(manifestWithStoredBool.getBool("BOOL_VARIABLE")).isFalse();
   }
 
   @Test
@@ -173,40 +190,52 @@ public class SettingsManifestTest {
   }
 
   @Test
-  public void getString_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getSettingDisplayValue(fakeRequest(), STRING_VARIABLE))
+  public void getString_noStoredSettings_returnsHoconValue() {
+    assertThat(testManifest.getSettingDisplayValue(STRING_VARIABLE))
         .isEqualTo(Optional.of("my-var"));
   }
 
   @Test
-  public void getString_withWritableSettingsOverride_returnsOverriddenValue() {
-    assertThat(testManifest.getSettingDisplayValue(REQUEST_WITH_OVERRIDES, STRING_VARIABLE))
+  public void getString_withStoredSetting_returnsStoredValue() {
+    assertThat(manifestWithStoredOverrides.getSettingDisplayValue(STRING_VARIABLE))
         .isEqualTo(Optional.of("overridden-var"));
   }
 
   @Test
-  public void getInt_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getSettingDisplayValue(fakeRequest(), INT_VARIABLE))
-        .isEqualTo(Optional.of("11"));
+  public void getInt_noStoredSettings_returnsHoconValue() {
+    assertThat(testManifest.getSettingDisplayValue(INT_VARIABLE)).isEqualTo(Optional.of("11"));
   }
 
   @Test
-  public void getInt_withWritableSettingsOverride_returnsOverriddenValue() {
-    assertThat(testManifest.getSettingDisplayValue(REQUEST_WITH_OVERRIDES, INT_VARIABLE))
+  public void getInt_withStoredSetting_returnsStoredValue() {
+    assertThat(manifestWithStoredOverrides.getSettingDisplayValue(INT_VARIABLE))
         .isEqualTo(Optional.of("42"));
   }
 
   @Test
-  public void getListOfStrings_noAttrsInRequest_returnsHoconValue() {
-    assertThat(testManifest.getSettingDisplayValue(fakeRequest(), LIST_OF_STRINGS_VARIABLE))
+  public void getListOfStrings_noStoredSettings_returnsHoconValue() {
+    assertThat(testManifest.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("one, two, three"));
   }
 
   @Test
-  public void getListOfStrings_withWritableSettingsOverride_returnsOverriddenValue() {
-    assertThat(
-            testManifest.getSettingDisplayValue(REQUEST_WITH_OVERRIDES, LIST_OF_STRINGS_VARIABLE))
+  public void getListOfStrings_withStoredSetting_returnsStoredValue() {
+    assertThat(manifestWithStoredOverrides.getSettingDisplayValue(LIST_OF_STRINGS_VARIABLE))
         .isEqualTo(Optional.of("a, b, c"));
+  }
+
+  @Test
+  public void storedSettings_areReadOnEachCall() {
+    SettingsGroupRepository repository = mock(SettingsGroupRepository.class);
+    when(repository.getCurrentSettingsSync())
+        .thenReturn(
+            Optional.of(new SettingsGroupModel(ImmutableMap.of("BOOL_VARIABLE", "true"), "test")))
+        .thenReturn(
+            Optional.of(new SettingsGroupModel(ImmutableMap.of("BOOL_VARIABLE", "false"), "test")));
+    SettingsManifest manifest = new SettingsManifest(SECTIONS, CONFIG, () -> repository);
+
+    assertThat(manifest.getWriteableBool("BOOL_VARIABLE")).isTrue();
+    assertThat(manifest.getWriteableBool("BOOL_VARIABLE")).isFalse();
   }
 
   @Test
@@ -247,7 +276,7 @@ public class SettingsManifestTest {
 
   @Test
   public void getAllFeatureFlagsSorted_returnsFeatureFlagsOnly() {
-    var flags = testManifest.getAllFeatureFlagsSorted(REQUEST);
+    var flags = testManifest.getAllFeatureFlagsSorted();
     assertThat(flags).containsKey("FEATURE_FLAG_VARIABLE");
     assertThat(flags.get("FEATURE_FLAG_VARIABLE")).isTrue();
     assertThat(flags).doesNotContainKey("BOOL_VARIABLE");
@@ -266,7 +295,7 @@ public class SettingsManifestTest {
                     ImmutableList.of(),
                     ImmutableList.of(BOOL_VARIABLE))),
             CONFIG);
-    assertThat(manifestWithoutFlags.getAllFeatureFlagsSorted(REQUEST)).isEmpty();
+    assertThat(manifestWithoutFlags.getAllFeatureFlagsSorted()).isEmpty();
   }
 
   @Test

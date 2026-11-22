@@ -34,7 +34,7 @@ public class QuestionImagesEnabledActionTest {
   @Test
   public void call_featureEnabled_callsDelegate() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getImagesInQuestionFeatureEnabled(request)).thenReturn(true);
+    when(settingsManifest.getImagesInQuestionFeatureEnabled()).thenReturn(true);
     when(delegate.call(request)).thenReturn(CompletableFuture.completedFuture(Results.ok()));
 
     Result result = action.call(request).toCompletableFuture().join();
@@ -45,7 +45,7 @@ public class QuestionImagesEnabledActionTest {
   @Test
   public void call_featureDisabled_returnsNotFoundWithoutCallingDelegate() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getImagesInQuestionFeatureEnabled(request)).thenReturn(false);
+    when(settingsManifest.getImagesInQuestionFeatureEnabled()).thenReturn(false);
 
     Result result = action.call(request).toCompletableFuture().join();
 

@@ -238,11 +238,8 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("usesScoring", "true");
 
-    controller.create(
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build());
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    controller.create(fakeRequestBuilder().bodyForm(formData).build());
 
     assertThat(getDraftProgram().getProgramDefinition().usesScoring()).isTrue();
   }
@@ -263,13 +260,9 @@ public class AdminProgramControllerTest extends ResetPostgres {
     Map<String, String> formData = new HashMap<>(DEFAULT_FORM_FIELDS);
     formData.put("usesScoring", "true");
 
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
     controller.update(
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build(),
-        program.id,
-        ProgramEditStatus.EDIT.name());
+        fakeRequestBuilder().bodyForm(formData).build(), program.id, ProgramEditStatus.EDIT.name());
 
     ProgramModel found =
         programRepository.lookupProgram(program.id).toCompletableFuture().join().get();

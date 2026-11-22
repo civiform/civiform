@@ -189,9 +189,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     var initialBlockDefinitions = program.getProgramDefinition().blockDefinitions();
     long parentEnumeratorId = initialBlockDefinitions.get(0).id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "enumeratorId", String.valueOf(parentEnumeratorId), "blockType", "ENUMERATOR"))
@@ -357,9 +357,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     program.refresh();
     long parentEnumeratorId = program.getProgramDefinition().blockDefinitions().get(0).id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     controller.create(
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "enumeratorId", String.valueOf(parentEnumeratorId), "blockType", "ENUMERATOR"))
@@ -407,41 +407,25 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
 
     Result parentEnumeratorResult =
         controller.edit(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
-            program.id,
-            /* blockId= */ parentEnumeratorId);
+            fakeRequestBuilder().build(), program.id, /* blockId= */ parentEnumeratorId);
     String parentEnumeratorHtml = Helpers.contentAsString(parentEnumeratorResult);
     assertThat(parentEnumeratorHtml).contains("id=\"create-nested-set-button\"");
 
     Result repeatedUnderParentResult =
         controller.edit(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
-            program.id,
-            /* blockId= */ repeatedUnderParentId);
+            fakeRequestBuilder().build(), program.id, /* blockId= */ repeatedUnderParentId);
     String repeatedUnderParentHtml = Helpers.contentAsString(repeatedUnderParentResult);
     assertThat(repeatedUnderParentHtml).contains("id=\"create-nested-set-button\"");
 
     Result nestedEnumeratorResult =
         controller.edit(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
-            program.id,
-            /* blockId= */ nestedEnumeratorId);
+            fakeRequestBuilder().build(), program.id, /* blockId= */ nestedEnumeratorId);
     String nestedEnumeratorHtml = Helpers.contentAsString(nestedEnumeratorResult);
     assertThat(nestedEnumeratorHtml).doesNotContain("id=\"create-nested-set-button\"");
 
     Result repeatedUnderNestedResult =
         controller.edit(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
-            program.id,
-            /* blockId= */ repeatedUnderNestedId);
+            fakeRequestBuilder().build(), program.id, /* blockId= */ repeatedUnderNestedId);
     String repeatedUnderNestedHtml = Helpers.contentAsString(repeatedUnderNestedResult);
     assertThat(repeatedUnderNestedHtml).doesNotContain("id=\"create-nested-set-button\"");
   }
@@ -473,13 +457,10 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .orElseThrow()
             .id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.edit(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
-            program.id,
-            /* blockId= */ repeatedUnderParentId);
+            fakeRequestBuilder().build(), program.id, /* blockId= */ repeatedUnderParentId);
 
     assertThat(result.status()).isEqualTo(OK);
     String html = Helpers.contentAsString(result);
@@ -574,9 +555,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.nameApplicantName();
     question.save();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .uri(
                 routes.AdminProgramBlocksController.edit(program.id, blockId).url()
                     + "?"
@@ -610,9 +591,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.nameApplicantName();
     question.save();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .uri(
                 routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
                         .url()
@@ -645,9 +626,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     QuestionModel question = testQuestionBank.nameApplicantName();
     question.save();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
             .uri(
                 routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
                         .url()
@@ -686,9 +667,9 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
     QuestionDefinition question = testQuestionBank.nameApplicantName().getQuestionDefinition();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .uri(
                 routes.AdminProgramBlocksController.edit(program.id, /* blockDefinitionId= */ 1L)
                         .url()
@@ -856,11 +837,10 @@ public class AdminProgramBlocksControllerTest extends ResetPostgres {
             .build();
     long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.hxQuestionBankPartial(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-                .build(),
+            fakeRequestBuilder().build(),
             program.id,
             blockId,
             ProgramQuestionBank.Mode.INITIAL_QUESTION.name());
