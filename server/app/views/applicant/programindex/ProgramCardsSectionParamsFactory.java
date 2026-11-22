@@ -121,7 +121,7 @@ public final class ProgramCardsSectionParamsFactory {
       ApplicantPersonalInfo personalInfo) {
     ProgramCardParams.Builder cardBuilder = ProgramCardParams.builder();
     ProgramDefinition program = programDatum.program();
-    Boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    Boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     String actionUrl =
         getActionUrl(

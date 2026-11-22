@@ -142,7 +142,7 @@ public final class TrustedIntermediaryController {
     PaginationInfo<AccountModel> pageInfo =
         PaginationInfo.paginate(trustedIntermediarySearchResult.accounts(), PAGE_SIZE, page.get());
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       TrustedIntermediaryClientListPageViewModel model =
           new TrustedIntermediaryClientListPageMapper()
               .map(
@@ -185,7 +185,7 @@ public final class TrustedIntermediaryController {
       return notFound();
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       TrustedIntermediaryAccountSettingsPageViewModel model =
           new TrustedIntermediaryAccountSettingsPageMapper()
               .map(
@@ -220,7 +220,7 @@ public final class TrustedIntermediaryController {
       return unauthorized();
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderAddClientPage(
           request,
           trustedIntermediaryGroup.get(),
@@ -258,7 +258,7 @@ public final class TrustedIntermediaryController {
       return forbidden();
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderEditClientPage(
           request,
           trustedIntermediaryGroup.get(),
@@ -299,7 +299,7 @@ public final class TrustedIntermediaryController {
             messagesApi.preferred(request));
     Form<TiClientInfoForm> form = addNewApplicantReturnObject.getForm();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderAddClientPage(
           request,
           trustedIntermediaryGroup.get(),
@@ -337,7 +337,7 @@ public final class TrustedIntermediaryController {
         tiService.updateClientInfo(
             form, trustedIntermediaryGroup.get(), id, messagesApi.preferred(request));
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderEditClientPage(request, trustedIntermediaryGroup.get(), id, Optional.of(form));
     }
 
@@ -369,7 +369,7 @@ public final class TrustedIntermediaryController {
                 tiGroup,
                 submittedForm,
                 newClientApplicantId,
-                settingsManifest.getNameSuffixDropdownEnabled(request),
+                settingsManifest.getNameSuffixDropdownEnabled(),
                 settingsManifest.getBaseUrl().orElse(""),
                 dateConverter,
                 messagesApi.preferred(request));
@@ -392,7 +392,7 @@ public final class TrustedIntermediaryController {
                 tiGroup,
                 account,
                 submittedForm,
-                settingsManifest.getNameSuffixDropdownEnabled(request),
+                settingsManifest.getNameSuffixDropdownEnabled(),
                 settingsManifest.getBaseUrl().orElse(""),
                 dateConverter,
                 messagesApi.preferred(request));

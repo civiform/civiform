@@ -197,7 +197,7 @@ public class ApiDocsView extends BaseHtmlView {
       rightSide.with(
           apiResponseSampleDiv(
               programDefinition.get(),
-              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request)));
+              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled()));
 
       fullProgramDiv.with(leftSide);
       fullProgramDiv.with(rightSide);

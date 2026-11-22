@@ -76,7 +76,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
       Request request, String programParam, Optional<String> blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -104,7 +104,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
       Request request, long applicantId, String programParam, Optional<String> blockId) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -119,7 +119,7 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
 
   private CompletionStage<Result> ineligibleInternal(
       Request request, long applicantId, String programParam, Optional<String> blockId) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
@@ -135,8 +135,8 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                                               .getReadOnlyApplicantProgramService(
                                                   applicantId,
                                                   programId,
-                                                  settingsManifest.getEnumeratorImprovementsEnabled(
-                                                      request))
+                                                  settingsManifest
+                                                      .getEnumeratorImprovementsEnabled())
                                               .toCompletableFuture()
                                               .join();
                                       CiviFormProfile profile =

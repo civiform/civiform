@@ -126,8 +126,7 @@ public final class ProgramApplicationsApiController extends CiviFormApiControlle
                   jsonExporterService.exportPage(
                       programDefinition,
                       paginationResult,
-                      /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(
-                          request));
+                      /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled());
 
               String responseJson =
                   apiPayloadWrapper.wrapPayload(

@@ -191,7 +191,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         controllers.admin.routes.AdminProgramBlocksController.update(programId, blockId).url();
     Modal blockDescriptionEditModal =
         renderBlockDescriptionModal(
-            csrfTag, blockForm, blockUpdateAction, blockDefinition, request, messages);
+            csrfTag, blockForm, blockUpdateAction, blockDefinition, messages);
 
     String blockDeleteAction =
         controllers.admin.routes.AdminProgramBlocksController.delete(programId, blockId).url();
@@ -203,8 +203,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .anyMatch(BlockDefinition::hasNullQuestion);
 
     ArrayList<ProgramHeaderButton> headerButtons =
-        new ArrayList<>(
-            getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram(), request));
+        new ArrayList<>(getEditHeaderButtons(/* isEditingAllowed= */ viewAllowsEditingProgram()));
 
     // External programs applications are hosted outside of Civiform. Therefore, we shouldn't show
     // buttons to preview or download the application.
@@ -277,7 +276,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
                   request))
           .addMainContent(
               addFormEndpoints(
-                  request,
                   csrfTag,
                   programDefinition.id(),
                   blockDefinition.isEnumerator().isPresent()
@@ -307,10 +305,9 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * @param isEditingAllowed true if the view allows editing and false otherwise. (Typically, a view
    *     only allows editing if a program is in draft mode.)
    */
-  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(
-      boolean isEditingAllowed, Request request) {
+  private ImmutableList<ProgramHeaderButton> getEditHeaderButtons(boolean isEditingAllowed) {
     if (isEditingAllowed) {
-      if (settingsManifest.getApiBridgeEnabled(request)) {
+      if (settingsManifest.getApiBridgeEnabled()) {
         return ImmutableList.of(
             ProgramHeaderButton.EDIT_PROGRAM_DETAILS,
             ProgramHeaderButton.EDIT_PROGRAM_IMAGE,
@@ -325,7 +322,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag addFormEndpoints(
-      Request request, InputTag csrfTag, long programId, OptionalLong optionalEnumeratorId) {
+      InputTag csrfTag, long programId, OptionalLong optionalEnumeratorId) {
     String blockCreateAction =
         controllers.admin.routes.AdminProgramBlocksController.create(programId).url();
     FormTag createBlockForm =
@@ -371,7 +368,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
         div(createBlockForm, createRepeatedBlockForm, createRepeatedSetForm).withClasses("hidden");
 
     // Only include nested repeated set form when enumerator improvements are enabled
-    if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+    if (settingsManifest.getEnumeratorImprovementsEnabled()) {
       FormTag createNestedRepeatedSetForm =
           form(csrfTag)
               .withId(CREATE_NESTED_REPEATED_SET_FORM_ID)
@@ -418,7 +415,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
               .withId("add-block-button")
               .withForm(CREATE_BLOCK_FORM_ID));
       ret.condWith(
-          settingsManifest.getEnumeratorImprovementsEnabled(request),
+          settingsManifest.getEnumeratorImprovementsEnabled(),
           ViewUtils.makeSvgTextButton(
                   messages.at(MessageKey.BUTTON_REPEATED_SET_ADD_NEW.getKeyName()), Icons.ADD)
               .withClasses(ButtonStyles.OUTLINED_WHITE_WITH_ICON, "m-4")
@@ -443,8 +440,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     DivTag container = div();
     String genericBlockDivId = "block_list_item_";
     for (BlockDefinition blockDefinition : blockDefinitions) {
-      boolean enumeratorImprovementsEnabled =
-          settingsManifest.getEnumeratorImprovementsEnabled(request);
+      boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
       // Repeated screens get the subdirectory-arrow treatment when the flag is
       // on: an arrow at the start of the row and collapsed (rather than reserved) empty
       // visibility-icon space.
@@ -636,8 +632,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Request request,
       Messages messages) {
 
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
 
     boolean isEnumeratorBlock = enumeratorImprovementsEnabled && blockDefinition.getIsEnumerator();
 
@@ -893,8 +888,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
 
   boolean canDeleteBlock(
       ProgramDefinition program, BlockDefinition blockDefinition, Request request) {
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
 
     // An enumerator block (or its enumerator question) can be removed only when
     // it has no repeated child blocks. With enumeratorImprovementsEnabled, empty
@@ -1799,7 +1793,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
     ImmutableList.Builder<DomContent> rowContent = ImmutableList.builder();
     Optional<FormTag> maybeAddressCorrectionEnabledToggle =
         renderAddressCorrectionEnabledToggle(
-            request,
             csrfTag,
             programDefinition,
             blockDefinition,
@@ -1841,7 +1834,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                       blockDefinition.id(),
                       questionDefinition,
                       canDeleteBlock(programDefinition, blockDefinition, request),
-                      settingsManifest.getEnumeratorImprovementsEnabled(request),
+                      settingsManifest.getEnumeratorImprovementsEnabled(),
                       messages))
               .withClasses("flex", "flex-column"));
     } else {
@@ -2012,7 +2005,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
    * for address related questions.
    */
   private Optional<FormTag> renderAddressCorrectionEnabledToggle(
-      Request request,
       InputTag csrfTag,
       ProgramDefinition programDefinition,
       BlockDefinition blockDefinition,
@@ -2042,7 +2034,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
     }
 
     DivTag toolTip;
-    if (!settingsManifest.getEsriAddressCorrectionEnabled(request)) {
+    if (!settingsManifest.getEsriAddressCorrectionEnabled()) {
       // Leave the space at the end, because we will add a "Learn more" link. This
       // should always be the last string added to toolTipText for this reason.
       toolTipText +=
@@ -2377,7 +2369,6 @@ public final class ProgramBlocksView extends ProgramBaseView {
       BlockForm blockForm,
       String blockUpdateAction,
       BlockDefinition blockDefinition,
-      Request request,
       Messages messages) {
     String modalTitle = "Screen name and description";
     FormTag blockDescriptionForm =
@@ -2388,7 +2379,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .setFieldName("name")
             .setLabelText("Screen name")
             .setValue(blockDefinition.name());
-    if (settingsManifest.getEnumeratorImprovementsEnabled(request) && blockForm.isRepeated()) {
+    if (settingsManifest.getEnumeratorImprovementsEnabled() && blockForm.isRepeated()) {
       screenNameField.setSubLabelText(
           messages.at(MessageKey.TEXT_REPEATED_SET_SCREEN_NAME_DESCRIPTION.getKeyName()));
     }

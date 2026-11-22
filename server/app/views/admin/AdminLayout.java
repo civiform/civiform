@@ -183,8 +183,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     HeaderTag headerAccordion =
         header()
             .withClasses("usa-header", "usa-header--basic", "display-inline-block", "width-full")
-            .with(
-                nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl(request)));
+            .with(nav().attr("aria-label", "Primary navigation").with(createAdminHeaderUl()));
 
     DivTag adminHeader =
         div()
@@ -201,7 +200,7 @@ public final class AdminLayout extends BaseHtmlLayout {
     return navBar.with(adminHeader);
   }
 
-  private UlTag createAdminHeaderUl(Http.RequestHeader request) {
+  private UlTag createAdminHeaderUl() {
 
     UlTag adminHeaderUl =
         ul().withClasses(
@@ -277,7 +276,7 @@ public final class AdminLayout extends BaseHtmlLayout {
                         createDropdownSubItem(
                             "Documentation", apiDocsLink, NavPage.API_DOCS.equals(activeNavPage)))
                     .condWith(
-                        getSettingsManifest().getApiBridgeEnabled(request),
+                        getSettingsManifest().getApiBridgeEnabled(),
                         createDropdownSubItem(
                             "Bridge Discovery",
                             apiBridgeDiscoveryLink,

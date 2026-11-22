@@ -214,7 +214,7 @@ public class AdminImportController extends CiviFormController {
               program,
               questions,
               existingAdminNames,
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled());
       if (!questionErrors.isEmpty()) {
         return ok(adminImportErrorPartialView.render(
                 request,

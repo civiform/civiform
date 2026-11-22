@@ -127,7 +127,7 @@ public final class AdminQuestionController extends CiviFormController {
         .getReadOnlyQuestionService()
         .thenApplyAsync(
             readOnlyService -> {
-              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+              if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
                 QuestionsListPageViewModel model =
                     new QuestionsListPageMapper()
                         .map(
@@ -136,11 +136,11 @@ public final class AdminQuestionController extends CiviFormController {
                             translationLocales,
                             question -> service.isTranslationComplete(translationLocales, question),
                             dateConverter,
-                            settingsManifest.getEnumeratorImprovementsEnabled(request),
+                            settingsManifest.getEnumeratorImprovementsEnabled(),
                             request.flash().get(FlashKey.SUCCESS),
                             request.flash().get(FlashKey.ERROR),
                             publicStorageClient,
-                            settingsManifest.getImagesInQuestionFeatureEnabled(request));
+                            settingsManifest.getImagesInQuestionFeatureEnabled());
                 return ok(questionsListPageView.render(request, model)).as(Http.MimeTypes.HTML);
               }
               return ok(
@@ -237,10 +237,10 @@ public final class AdminQuestionController extends CiviFormController {
                   questionForm,
                   enumeratorQuestionDefinitions,
                   mapSettings,
-                  settingsManifest.getApiBridgeEnabled(request),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request),
-                  settingsManifest.getAnswerOptionScoringEnabled(request),
-                  settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                  settingsManifest.getApiBridgeEnabled(),
+                  settingsManifest.getEnumeratorImprovementsEnabled(),
+                  settingsManifest.getAnswerOptionScoringEnabled(),
+                  settingsManifest.getImagesInQuestionFeatureEnabled(),
                   roService,
                   Optional.empty());
       return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
@@ -261,7 +261,7 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(invalidQuestionTypeMessage(questionType));
     }
 
-    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled();
 
     // Invalid scores surface as form validation errors and re-render the form, rather than being
     // silently dropped by the builder below.
@@ -278,8 +278,7 @@ public final class AdminQuestionController extends CiviFormController {
       return badRequest(e.getMessage());
     }
 
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
 
     ErrorAnd<QuestionDefinition, CiviFormError> result =
         service.create(questionDefinition, enumeratorImprovementsEnabled);
@@ -365,7 +364,7 @@ public final class AdminQuestionController extends CiviFormController {
               Optional<QuestionDefinition> maybeEnumerationQuestion =
                   maybeGetEnumerationQuestion(readOnlyService, questionDefinition);
               Optional<String> initialQuestionAdminName =
-                  getInitialQuestionAdminName(request, readOnlyService, questionDefinition);
+                  getInitialQuestionAdminName(readOnlyService, questionDefinition);
 
               try {
                 QuestionForm questionForm = QuestionFormBuilder.create(questionDefinition);
@@ -380,7 +379,6 @@ public final class AdminQuestionController extends CiviFormController {
                         questionForm,
                         maybeEnumerationQuestion,
                         readOnlyService,
-                        request,
                         errorMessage,
                         existingImageFileKey,
                         initialQuestionAdminName);
@@ -428,7 +426,7 @@ public final class AdminQuestionController extends CiviFormController {
     Optional<QuestionDefinition> maybeExisting =
         maybeDraft.isPresent() ? maybeDraft : Optional.of(questionDefinitionForUrlId);
 
-    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled(request);
+    boolean scoringEnabled = settingsManifest.getAnswerOptionScoringEnabled();
     // Invalid scores surface as form validation errors and re-render the form, rather than being
     // silently dropped by the builder below.
     ImmutableSet<CiviFormError> scoreErrors = getOptionScoreErrors(questionForm, scoringEnabled);
@@ -454,8 +452,7 @@ public final class AdminQuestionController extends CiviFormController {
 
     ErrorAnd<QuestionDefinition, CiviFormError> errorAndUpdatedQuestionDefinition;
     try {
-      boolean enumeratorImprovementsEnabled =
-          settingsManifest.getEnumeratorImprovementsEnabled(request);
+      boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
       errorAndUpdatedQuestionDefinition =
           service.update(maybeExisting, questionDefinition, enumeratorImprovementsEnabled);
     } catch (InvalidUpdateException e) {
@@ -524,10 +521,10 @@ public final class AdminQuestionController extends CiviFormController {
                 questionForm,
                 enumeratorQuestionDefinitions,
                 mapSettings,
-                settingsManifest.getApiBridgeEnabled(request),
-                settingsManifest.getEnumeratorImprovementsEnabled(request),
-                settingsManifest.getAnswerOptionScoringEnabled(request),
-                settingsManifest.getImagesInQuestionFeatureEnabled(request),
+                settingsManifest.getApiBridgeEnabled(),
+                settingsManifest.getEnumeratorImprovementsEnabled(),
+                settingsManifest.getAnswerOptionScoringEnabled(),
+                settingsManifest.getImagesInQuestionFeatureEnabled(),
                 roService,
                 Optional.of(errorText));
     return ok(questionFormPageView.render(request, model)).as(Http.MimeTypes.HTML);
@@ -544,7 +541,7 @@ public final class AdminQuestionController extends CiviFormController {
     QuestionDefinition questionDefinition = roService.getQuestionDefinition(id);
     // The submitted form doesn't carry the initial question, so read it from the stored question.
     Optional<String> initialQuestionAdminName =
-        getInitialQuestionAdminName(request, roService, questionDefinition);
+        getInitialQuestionAdminName(roService, questionDefinition);
 
     Optional<String> existingImageFileKey = questionDefinition.getImageFileKey();
 
@@ -554,7 +551,6 @@ public final class AdminQuestionController extends CiviFormController {
             questionForm,
             maybeEnumerationQuestion,
             roService,
-            request,
             Optional.of(errorText),
             existingImageFileKey,
             initialQuestionAdminName);
@@ -861,7 +857,6 @@ public final class AdminQuestionController extends CiviFormController {
       QuestionForm questionForm,
       Optional<QuestionDefinition> maybeEnumerationQuestion,
       ReadOnlyQuestionService readOnlyQuestionService,
-      Request request,
       Optional<String> errorMessage,
       Optional<String> existingImageFileKey,
       Optional<String> initialQuestionAdminName) {
@@ -872,10 +867,10 @@ public final class AdminQuestionController extends CiviFormController {
             questionForm,
             maybeEnumerationQuestion,
             mapSettings,
-            settingsManifest.getApiBridgeEnabled(request),
-            settingsManifest.getEnumeratorImprovementsEnabled(request),
-            settingsManifest.getAnswerOptionScoringEnabled(request),
-            settingsManifest.getImagesInQuestionFeatureEnabled(request),
+            settingsManifest.getApiBridgeEnabled(),
+            settingsManifest.getEnumeratorImprovementsEnabled(),
+            settingsManifest.getAnswerOptionScoringEnabled(),
+            settingsManifest.getImagesInQuestionFeatureEnabled(),
             readOnlyQuestionService,
             errorMessage,
             existingImageFileKey,
@@ -925,10 +920,8 @@ public final class AdminQuestionController extends CiviFormController {
    * no initial question (e.g. one created before initial questions existed).
    */
   private Optional<String> getInitialQuestionAdminName(
-      Request request,
-      ReadOnlyQuestionService readOnlyQuestionService,
-      QuestionDefinition questionDefinition) {
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+      ReadOnlyQuestionService readOnlyQuestionService, QuestionDefinition questionDefinition) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()) {
       return Optional.empty();
     }
     return questionDefinition

@@ -65,7 +65,7 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
             .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
 
     // Set values for the footer
@@ -73,9 +73,7 @@ public abstract class AdminLayoutBaseView<TModel extends BaseViewModel> extends 
         "footer",
         Footer.builder()
             .technicalSupportEmail(
-                settingsManifest
-                    .getSupportEmailAddress(request)
-                    .orElse("SUPPORT EMAIL ADDRESS MISSING"))
+                settingsManifest.getSupportEmailAddress().orElse("SUPPORT EMAIL ADDRESS MISSING"))
             .build());
   }
 

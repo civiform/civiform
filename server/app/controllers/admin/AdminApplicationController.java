@@ -154,7 +154,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }
@@ -191,7 +191,7 @@ public final class AdminApplicationController extends CiviFormController {
             program,
             SubmitTimeSequentialAccessPaginationSpec.APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC,
             filters,
-            /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
+            /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled());
     return ok(json)
         .as(Http.MimeTypes.JSON)
         .withHeader("Content-Disposition", String.format("attachment; filename=\"%s\"", filename));
@@ -208,7 +208,7 @@ public final class AdminApplicationController extends CiviFormController {
       Optional<String> applicationStatus,
       Optional<String> ignoreFilters)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }
@@ -239,7 +239,7 @@ public final class AdminApplicationController extends CiviFormController {
           exporterService.getProgramAllVersionsCsv(
               programId,
               filters,
-              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(request));
+              /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled());
       return ok(csv)
           .as(Http.MimeTypes.BINARY)
           .withHeader(
@@ -297,7 +297,7 @@ public final class AdminApplicationController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.ANY_ADMIN)
   public Result download(Http.Request request, long programId, long applicationId)
       throws ProgramNotFoundException {
-    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+    if (settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
         && profileUtils.currentUserProfile(request).isOnlyProgramAdmin()) {
       return unauthorized();
     }
@@ -317,7 +317,7 @@ public final class AdminApplicationController extends CiviFormController {
         pdfExporterService.generateApplicationPdf(
             application,
             /* isAdmin= */ true,
-            /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request));
+            /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled());
     return ok(pdf.getByteArray())
         .as("application/pdf")
         .withHeader(
@@ -372,10 +372,10 @@ public final class AdminApplicationController extends CiviFormController {
     ImmutableList<AnswerData> answers = roApplicantService.getSummaryDataOnlyActiveForAdmin();
     Optional<String> noteMaybe = programAdminApplicationService.getNote(application);
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
       boolean showDownloadButton =
-          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
               && profile.isOnlyProgramAdmin());
 
       ProgramApplicationPageViewModel model =
@@ -594,9 +594,9 @@ public final class AdminApplicationController extends CiviFormController {
             .setSelectedApplicationStatus(applicationStatus)
             .build();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       boolean showDownloadButton =
-          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+          !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
               && profile.isOnlyProgramAdmin());
       Messages enUsMessages = messagesApi.preferred(ImmutableList.of(Lang.forCode("en-US")));
 

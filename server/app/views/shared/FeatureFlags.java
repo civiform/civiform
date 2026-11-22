@@ -25,9 +25,9 @@ public record FeatureFlags(
       SettingsManifest settingsManifest, Http.RequestHeader request) {
     return FeatureFlags.builder()
         .isAdminUiMigrationUxRedesignScEnabled(
-            settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request))
+            settingsManifest.getAdminUiMigrationUxRedesignScEnabled())
         .isFileUploadQuestionImprovementsEnabled(
-            settingsManifest.getFileUploadQuestionImprovementsEnabled(request))
+            settingsManifest.getFileUploadQuestionImprovementsEnabled())
         .build();
   }
 

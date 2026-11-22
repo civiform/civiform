@@ -103,7 +103,7 @@ public final class ProgramApplicationView extends BaseHtmlView {
       Optional<Integer> page,
       Optional<String> selectedApplicationStatus) {
     boolean showDownloadButton =
-        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled(request)
+        !(settingsManifest.getRemoveDownloadForProgramAdminsEnabled()
             && profile.isOnlyProgramAdmin());
     ListMultimap<Block, AnswerData> blockToAnswers = ArrayListMultimap.create();
     for (AnswerData answer : answers) {

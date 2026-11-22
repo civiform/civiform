@@ -214,7 +214,7 @@ public final class ProgramQuestionBank {
             .collect(ImmutableList.toImmutableList());
 
     boolean shouldShowPreviouslyUsedSection =
-        settingsManifest.getEnumeratorImprovementsEnabled(request)
+        settingsManifest.getEnumeratorImprovementsEnabled()
             && params.blockDefinition().isRepeated();
 
     ImmutableList<QuestionDefinition> previouslyUsedForRepeatedSetQuestions =
@@ -396,7 +396,7 @@ public final class ProgramQuestionBank {
    * If this is a repeated question, return the id of the enumerator question for the parent block.
    */
   private Optional<String> getParentEnumeratorId() {
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()
         || !params.blockDefinition().isRepeated()) {
       return Optional.empty();
     }
@@ -431,8 +431,8 @@ public final class ProgramQuestionBank {
                         params.program(),
                         params.blockDefinition(),
                         q,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request),
-                        settingsManifest.getFileUploadQuestionImprovementsEnabled(request),
+                        settingsManifest.getEnumeratorImprovementsEnabled(),
+                        settingsManifest.getFileUploadQuestionImprovementsEnabled(),
                         /* isInitialQuestion= */ params.mode() == Mode.INITIAL_QUESTION)
                     == AddQuestionResult.ELIGIBLE);
   }

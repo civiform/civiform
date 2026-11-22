@@ -120,7 +120,7 @@ public final class ProgramAdminManagementController {
         ProgramDefinition programDefinition =
             programRepository.getShallowProgramDefinition(program.get());
 
-        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
           ManageProgramAdminsPageViewModel model =
               new ManageProgramAdminsPageMapper()
                   .map(programDefinition, programAdmins, errorMessage);

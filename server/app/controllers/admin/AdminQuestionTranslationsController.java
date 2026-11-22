@@ -105,7 +105,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
             definition,
             localeToEdit,
             request.flash().get(FlashKey.CONCURRENT_UPDATE),
-            settingsManifest.getImagesInQuestionFeatureEnabled(request));
+            settingsManifest.getImagesInQuestionFeatureEnabled());
     return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
@@ -137,7 +137,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
           questionService.update(
               /* previousDefinition= */ Optional.empty(),
               definitionWithUpdates,
-              settingsManifest.getEnumeratorImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled());
 
       Optional<String> errorMessage =
           result.isError() ? Optional.of(joinErrors(result.getErrors())) : Optional.empty();
@@ -146,7 +146,7 @@ public class AdminQuestionTranslationsController extends CiviFormController {
               definitionWithUpdates,
               localeToUpdate,
               errorMessage,
-              settingsManifest.getImagesInQuestionFeatureEnabled(request));
+              settingsManifest.getImagesInQuestionFeatureEnabled());
       return ok(translationPageView.render(request, model)).as(Http.MimeTypes.HTML);
 
     } catch (UnsupportedQuestionTypeException e) {

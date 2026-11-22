@@ -156,7 +156,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -174,7 +174,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String programParam,
       String blockId,
       Optional<String> questionName) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
@@ -201,7 +201,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program slug URL feature is enabled and the program param could be
     // a program slug but it is actually a program id (numeric).
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -234,7 +234,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -254,7 +254,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       Optional<String> questionName) {
 
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
@@ -288,7 +288,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, String blockId, Optional<String> questionName) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -387,10 +387,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     programId,
                     blockId,
                     cleanForm(questionPathToValueMap),
-                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                    settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                     false,
-                    settingsManifest.getApiBridgeEnabled(request),
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    settingsManifest.getApiBridgeEnabled(),
+                    settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -434,7 +434,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -470,7 +470,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                                   applicantService.getReadOnlyApplicantProgramService(
                                       applicantId,
                                       programId,
-                                      settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                                      settingsManifest.getEnumeratorImprovementsEnabled()),
                               classLoaderExecutionContext.current())
                           .toCompletableFuture();
 
@@ -555,7 +555,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       Request request, String programParam, int previousBlockIndex, boolean inReview) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -596,9 +596,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.getReadOnlyApplicantProgramService(
-                    applicantId,
-                    programId,
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             (roApplicantProgramService) -> {
@@ -609,7 +607,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       applicantId,
                       programId,
                       profile,
-                      settingsManifest.getProgramSlugUrlsEnabled(request),
+                      settingsManifest.getProgramSlugUrlsEnabled(),
                       roApplicantProgramService);
               if (applicationUpdatedOptional.isPresent()) {
                 return applicationUpdatedOptional.get();
@@ -694,7 +692,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       String blockId,
       String fileKeyToRemove,
       boolean inReview) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         this.applicantService.getPersonalInfo(applicantId);
@@ -709,9 +707,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.getReadOnlyApplicantProgramService(
-                    applicantId,
-                    programId,
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
@@ -773,10 +769,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                   programId,
                   blockId,
                   fileUploadQuestionFormData.build(),
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(),
+                  settingsManifest.getEnumeratorImprovementsEnabled());
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -850,7 +846,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> hxAddEnumeratorEntityWithApplicantId(
       Request request, long applicantId, Long programId, String blockId) {
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -861,9 +857,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.getReadOnlyApplicantProgramService(
-                    applicantId,
-                    programId,
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenApplyAsync(
             roApplicantProgramService -> {
@@ -963,7 +957,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFile(
       Request request, long programId, String blockId, boolean inReview) {
-    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    // boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     Optional<Long> optionalApplicantId = getApplicantId(request);
     if (optionalApplicantId.isEmpty()) {
@@ -979,7 +973,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
   @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> addFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId, boolean inReview) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     CompletionStage<ApplicantPersonalInfo> applicantStage =
         applicantService.getPersonalInfo(applicantId);
@@ -994,9 +988,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.getReadOnlyApplicantProgramService(
-                    applicantId,
-                    programId,
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             (roApplicantProgramService) -> {
@@ -1126,10 +1118,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                               programId,
                               blockId,
                               fileUploadQuestionFormData.build(),
-                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                               false,
-                              settingsManifest.getApiBridgeEnabled(request),
-                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(),
+                              settingsManifest.getEnumeratorImprovementsEnabled()));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -1195,7 +1187,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
 
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
@@ -1226,7 +1218,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                     applicantService.getReadOnlyApplicantProgramService(
                         applicantId,
                         programId,
-                        settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                        settingsManifest.getEnumeratorImprovementsEnabled()),
                 classLoaderExecutionContext.current())
             .toCompletableFuture();
 
@@ -1322,10 +1314,10 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
                       programId,
                       blockId,
                       formData,
-                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                      settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                       false,
-                      settingsManifest.getApiBridgeEnabled(request),
-                      settingsManifest.getEnumeratorImprovementsEnabled(request))
+                      settingsManifest.getApiBridgeEnabled(),
+                      settingsManifest.getEnumeratorImprovementsEnabled())
                   .thenComposeAsync(
                       newReadOnlyApplicantProgramService ->
                           renderErrorOrRedirectToRequestedPage(
@@ -1388,8 +1380,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)
-        && StringUtils.isNumeric(programParam)) {
+    if (settingsManifest.getProgramSlugUrlsEnabled() && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
           .labels(
@@ -1471,7 +1462,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
 
     // TODO(#7893): When you enter an address that requires correction but then click "Previous",
     // you're still taken forward to the address correction screen which is unexpected.
-    if (settingsManifest.getEsriAddressCorrectionEnabled(request)
+    if (settingsManifest.getEsriAddressCorrectionEnabled()
         && thisBlockUpdated.hasAddressWithCorrectionEnabled()) {
 
       AddressQuestion addressQuestion =
@@ -1500,7 +1491,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     try {
       ProgramDefinition programDefinition = programService.getFullProgramDefinition(programId);
       if (shouldRenderIneligibleBlockView(roApplicantProgramService, programDefinition, blockId)) {
-        if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+        if (settingsManifest.getProgramSlugUrlsEnabled()) {
           return supplyAsync(
               () ->
                   redirect(
@@ -1531,7 +1522,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
         applicantRequestedAction,
         roApplicantProgramService,
         flashingMap,
-        settingsManifest.getProgramSlugUrlsEnabled(request));
+        settingsManifest.getProgramSlugUrlsEnabled());
   }
 
   /** Returns the correct page based on the given {@code applicantRequestedAction}. */
@@ -1655,7 +1646,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
     } else {
       CiviFormProfile profile = profileUtils.currentUserProfile(request);
 
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      if (settingsManifest.getProgramSlugUrlsEnabled()) {
         return CompletableFuture.completedFuture(
             redirect(
                 applicantRoutes.showAddressCorrection(

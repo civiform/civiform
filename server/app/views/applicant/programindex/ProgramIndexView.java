@@ -70,11 +70,11 @@ public class ProgramIndexView extends ApplicantBaseView {
     context.setVariable("showImmigrationStatusInfoBanner", true);
     context.setVariable(
         "immigrationStatusInfoBannerEnabled",
-        settingsManifest.getImmigrationStatusInfoBannerEnabled(request));
-    if (settingsManifest.getImmigrationStatusInfoBannerEnabled(request)) {
+        settingsManifest.getImmigrationStatusInfoBannerEnabled());
+    if (settingsManifest.getImmigrationStatusInfoBannerEnabled()) {
       context.setVariable(
           "immigrationStatusInfoBannerLearnMoreUrl",
-          settingsManifest.getImmigrationStatusInfoBannerLearnMoreUrl(request).orElse(""));
+          settingsManifest.getImmigrationStatusInfoBannerLearnMoreUrl().orElse(""));
     }
     Optional<ProgramSectionParams> myApplicationsSection = Optional.empty();
     Optional<ProgramSectionParams> preScreenerSection = Optional.empty();
@@ -158,7 +158,7 @@ public class ProgramIndexView extends ApplicantBaseView {
         "authProviderName",
         // The applicant portal name should always be set (there is a
         // default setting as well).
-        settingsManifest.getApplicantPortalName(request).get());
+        settingsManifest.getApplicantPortalName().get());
     context.setVariable("isGuest", personalInfo.getType() == GUEST);
     context.setVariable("hasProfile", profile.isPresent());
     context.setVariable("categoryOptions", relevantCategories);

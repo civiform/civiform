@@ -96,7 +96,7 @@ public final class UpsellController extends CiviFormController {
 
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters.getUrlWithProgramIdCall().labels("/considerSignIn", programParam).inc();
       return CompletableFuture.completedFuture(redirectToHome());
@@ -133,7 +133,7 @@ public final class UpsellController extends CiviFormController {
                       .getReadOnlyApplicantProgramService(
                           appApplicantId,
                           programId,
-                          settingsManifest.getEnumeratorImprovementsEnabled(request))
+                          settingsManifest.getEnumeratorImprovementsEnabled())
                       .toCompletableFuture();
 
               CompletableFuture<ApplicantService.ApplicationPrograms> relevantProgramsFuture =
@@ -248,8 +248,7 @@ public final class UpsellController extends CiviFormController {
               // Only TIs should see scores in the pdf download
               boolean isTi = profileUtils.currentUserProfile(request).isTrustedIntermediary();
 
-              boolean includeScores =
-                  isTi && settingsManifest.getAnswerOptionScoringEnabled(request);
+              boolean includeScores = isTi && settingsManifest.getAnswerOptionScoringEnabled();
               PdfExporter.InMemoryPdf pdf =
                   pdfExporterService.generateApplicationPdf(
                       application, /* isAdmin= */ false, /* includeScores= */ includeScores);

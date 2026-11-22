@@ -51,7 +51,7 @@ public abstract class LegacyTailwindLayoutBaseView<TModel extends BaseViewModel>
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
             .isOnlyProgramAdmin(profile.isOnlyProgramAdmin())
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
   }
 

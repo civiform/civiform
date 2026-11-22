@@ -82,7 +82,7 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -121,7 +121,7 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -143,7 +143,7 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
       boolean inReview,
       ApplicantRequestedActionWrapper applicantRequestedActionWrapper) {
 
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
@@ -159,8 +159,8 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                                               .getReadOnlyApplicantProgramService(
                                                   applicantId,
                                                   programId,
-                                                  settingsManifest.getEnumeratorImprovementsEnabled(
-                                                      request))
+                                                  settingsManifest
+                                                      .getEnumeratorImprovementsEnabled())
                                               .toCompletableFuture()
                                               .join();
                                       Block thisBlockUpdated =

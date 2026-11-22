@@ -70,7 +70,7 @@ public class TrustedIntermediaryManagementController extends Controller {
     LoggerFactory.getLogger(TrustedIntermediaryManagementController.class)
         .info("flash: {} sort: {}", request.flash().data(), request.queryString().get("sort"));
 
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled()) {
       // Gather flash values for sticky form and messages
       String providedName = request.flash().get(FlashKey.PROVIDED_NAME).orElse("");
       String providedDescription = request.flash().get(FlashKey.PROVIDED_DESCRIPTION).orElse("");
@@ -154,7 +154,7 @@ public class TrustedIntermediaryManagementController extends Controller {
           .as(Http.MimeTypes.HTML);
     }
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       TrustedIntermediaryGroupIndexPageViewModel model =
           new TrustedIntermediaryGroupIndexPageMapper()
               .map(

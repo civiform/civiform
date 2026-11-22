@@ -26,11 +26,11 @@ public final class BannerUtils {
    */
   public static boolean isNotProductionBannerEnabled(
       SettingsManifest settingsManifest, Http.RequestHeader request) {
-    Optional<String> bannerType = settingsManifest.getBannerType(request);
+    Optional<String> bannerType = settingsManifest.getBannerType();
     if (bannerType.isPresent() && !bannerType.get().isBlank() && !bannerType.get().equals("none")) {
       return bannerType.get().equals("not_production");
     }
-    if (settingsManifest.getShowNotProductionBannerEnabled(request)) {
+    if (settingsManifest.getShowNotProductionBannerEnabled()) {
       if (hasLoggedDeprecationWarning.compareAndSet(false, true)) {
         logger.warn(
             "The not-production banner is enabled, but configured with the environment value"
@@ -46,7 +46,7 @@ public final class BannerUtils {
   /** Returns true if the demo banner should be displayed ({@code BANNER_TYPE == "demo"}). */
   public static boolean isDemoBannerEnabled(
       SettingsManifest settingsManifest, Http.RequestHeader request) {
-    return settingsManifest.getBannerType(request).map(type -> type.equals("demo")).orElse(false);
+    return settingsManifest.getBannerType().map(type -> type.equals("demo")).orElse(false);
   }
 
   /**

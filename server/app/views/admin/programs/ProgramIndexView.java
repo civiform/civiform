@@ -97,7 +97,7 @@ public final class ProgramIndexView extends BaseHtmlView {
     // languages.
     String pageExplanation =
         "Create, edit and publish programs in "
-            + settingsManifest.getWhitelabelCivicEntityShortName(request).get();
+            + settingsManifest.getWhitelabelCivicEntityShortName().get();
 
     // TODO: Figure out how to simplify logic so getUpToDateQuestions() can be used in place of
     // getActiveAndDraftQuestions()

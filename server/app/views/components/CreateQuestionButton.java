@@ -33,7 +33,6 @@ public final class CreateQuestionButton {
         /* enumeratorQuestion= */ Optional.empty(),
         /* isRepeatingBlock= */ true,
         settingsManifest,
-        request,
         /* isEmptyBlock= */ true,
         /* isProgramPage= */ false,
         /* isInitialQuestion= */ false);
@@ -57,7 +56,6 @@ public final class CreateQuestionButton {
         enumeratorQuestion,
         isRepeatingBlock,
         settingsManifest,
-        request,
         isEmptyBlock,
         /* isProgramPage= */ true,
         isInitialQuestion);
@@ -73,7 +71,6 @@ public final class CreateQuestionButton {
       Optional<String> enumeratorQuestion,
       boolean isRepeatingBlock,
       SettingsManifest settingsManifest,
-      Http.Request request,
       boolean isEmptyBlock,
       boolean isProgramPage,
       boolean isInitialQuestion) {
@@ -109,7 +106,7 @@ public final class CreateQuestionButton {
       }
       if (type == QuestionType.ENUMERATOR) {
         // Hide Enumerator from every dropdown when the enumerator improvements flag is enabled.
-        if (settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+        if (settingsManifest.getEnumeratorImprovementsEnabled()) {
           continue;
         }
         // On a program block page, hide Enumerator once the block already contains a question.
