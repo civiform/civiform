@@ -23,7 +23,7 @@ import repository.HealthCheckRepository;
 import services.applicant.ApplicantData;
 
 /** Controller for handling methods for the landing pages. */
-public class HomeController extends Controller {
+public final class HomeController extends Controller {
 
   private final ProfileUtils profileUtils;
   private final MessagesApi messagesApi;

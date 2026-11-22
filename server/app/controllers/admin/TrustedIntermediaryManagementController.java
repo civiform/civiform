@@ -36,7 +36,7 @@ import views.admin.ti.TrustedIntermediaryGroupListView;
 import views.components.QuestionSortOption;
 
 /** Controller for admins to manage trusted intermediaries of programs. */
-public class TrustedIntermediaryManagementController extends Controller {
+public final class TrustedIntermediaryManagementController extends Controller {
   private final TrustedIntermediaryGroupListView listView;
   private final AccountRepository accountRepository;
   private final FormFactory formFactory;

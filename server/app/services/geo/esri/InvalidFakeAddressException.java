@@ -1,7 +1,7 @@
 package services.geo.esri;
 
 /** Raised when an invalid address is passed to FakeEsriClient */
-public class InvalidFakeAddressException extends RuntimeException {
+public final class InvalidFakeAddressException extends RuntimeException {
   InvalidFakeAddressException(String address) {
     super(
         String.format(

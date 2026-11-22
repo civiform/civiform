@@ -5,7 +5,7 @@ import services.applicant.question.FileUploadQuestion;
 import views.BaseViewModel;
 
 @Builder(toBuilder = true)
-public class FileUploadQuestionPartialViewModel implements BaseViewModel {
+public final class FileUploadQuestionPartialViewModel implements BaseViewModel {
   private final FileUploadQuestion fileUploadQuestion;
   private final String hxRemoveFileUrl;
 

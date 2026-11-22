@@ -44,7 +44,7 @@ import views.components.SelectWithLabel;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to edit a client */
-public class EditTiClientView extends TrustedIntermediaryDashboardView {
+public final class EditTiClientView extends TrustedIntermediaryDashboardView {
   private final DateConverter dateConverter;
   private AccountRepository accountRepository;
   private final SettingsManifest settingsManifest;

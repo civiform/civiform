@@ -16,7 +16,7 @@ import services.ObjectMapperProvider;
  * href="https://www.playframework.com/documentation/3.0.x/JavaJsonActions#Custom-binding-for-ObjectMapper">on
  * Custom binding for ObjectMapper</a>.
  */
-public class ObjectMapperModule extends AbstractModule {
+public final class ObjectMapperModule extends AbstractModule {
 
   @Override
   protected void configure() {

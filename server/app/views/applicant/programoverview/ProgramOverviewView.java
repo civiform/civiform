@@ -31,7 +31,7 @@ import views.components.TextFormatter;
  * Renders the program overview page for applicants, which describes the program to the applicant
  * before they start an application.
  */
-public class ProgramOverviewView extends ApplicantBaseView {
+public final class ProgramOverviewView extends ApplicantBaseView {
 
   @Inject
   ProgramOverviewView(

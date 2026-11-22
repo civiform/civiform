@@ -14,7 +14,7 @@ import play.mvc.Results;
 import views.errors.InternalServerError;
 
 /** Controller for handling server errors. */
-public class InternalServerErrorController extends Controller {
+public final class InternalServerErrorController extends Controller {
   private final Provider<InternalServerError> internalServerErrorPageProvider;
   private final MessagesApi messagesApi;
 

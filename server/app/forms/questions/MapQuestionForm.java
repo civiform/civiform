@@ -18,7 +18,7 @@ import services.question.types.QuestionType;
 
 /** Form for {@link QuestionType#MAP} question configuration and settings. */
 @Getter
-public class MapQuestionForm extends QuestionForm {
+public final class MapQuestionForm extends QuestionForm {
 
   @Setter private String geoJsonEndpoint;
   private OptionalInt maxLocationSelections;

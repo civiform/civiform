@@ -17,7 +17,7 @@ import services.settings.SettingsManifest;
  *
  * <p>
  */
-public class DemoModeDisabledAction extends Action.Simple {
+public final class DemoModeDisabledAction extends Action.Simple {
   private static final Logger logger = LoggerFactory.getLogger(DemoModeDisabledAction.class);
   private final SettingsManifest settingsManifest;
 

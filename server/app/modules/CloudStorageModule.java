@@ -25,7 +25,7 @@ import views.fileupload.FileUploadViewStrategy;
 import views.fileupload.GenericS3FileUploadViewStrategy;
 
 /** Configures and initializes the classes for interacting with file storage backends. */
-public class CloudStorageModule extends AbstractModule {
+public final class CloudStorageModule extends AbstractModule {
   private final Config config;
 
   // Environment must always be provided as a param, even if it's unused.

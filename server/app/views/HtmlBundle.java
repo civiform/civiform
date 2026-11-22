@@ -312,7 +312,7 @@ public final class HtmlBundle {
     return new HtmlBundleContent(getContent());
   }
 
-  private static class HtmlBundleContent implements Content {
+  private static final class HtmlBundleContent implements Content {
     HtmlTag bundleContent;
 
     HtmlBundleContent(HtmlTag bundleContent) {

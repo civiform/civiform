@@ -6,7 +6,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an id question. */
-public class IdQuestionForm extends QuestionForm {
+public final class IdQuestionForm extends QuestionForm {
   private OptionalInt minLength;
   private OptionalInt maxLength;
 

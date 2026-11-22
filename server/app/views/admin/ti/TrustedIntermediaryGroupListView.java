@@ -41,7 +41,7 @@ import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
 /** Renders a page for viewing trusted intermediary groups. */
-public class TrustedIntermediaryGroupListView extends BaseHtmlView {
+public final class TrustedIntermediaryGroupListView extends BaseHtmlView {
   private final AdminLayout layout;
   // Keep in sync with admin_trusted_intermediary_list.ts
   private static final String SORT_SELECT_ID = "cf-ti-list";

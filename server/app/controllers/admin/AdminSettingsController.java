@@ -25,7 +25,7 @@ import views.admin.settings.AdminSettingsIndexPageView;
 import views.admin.settings.AdminSettingsIndexPageViewModel;
 
 /** Provides access to application settings to the CiviForm Admin role. */
-public class AdminSettingsController extends CiviFormController {
+public final class AdminSettingsController extends CiviFormController {
 
   private final AdminSettingsIndexPageView indexPageView;
   private final FormFactory formFactory;

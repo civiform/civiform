@@ -34,7 +34,7 @@ import views.admin.apikeys.ApiKeyNewOnePageView;
 import views.admin.apikeys.ApiKeyNewOnePageViewModel;
 
 /** Controller for admins managing ApiKeys. */
-public class AdminApiKeysController extends CiviFormController {
+public final class AdminApiKeysController extends CiviFormController {
 
   private final ApiKeyService apiKeyService;
   private final ApiKeyIndexPageView indexPageView;

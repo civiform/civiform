@@ -43,7 +43,7 @@ import views.dev.DevToolsPageViewModel;
 
 /** Controller for dev tools. */
 @With(DemoModeDisabledAction.class)
-public class DevToolsController extends Controller {
+public final class DevToolsController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(DevToolsController.class);
 
   private final DevDatabaseSeedTask devDatabaseSeedTask;

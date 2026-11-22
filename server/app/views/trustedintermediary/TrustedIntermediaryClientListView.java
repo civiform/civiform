@@ -56,7 +56,7 @@ import views.components.LinkElement;
 import views.style.BaseStyles;
 
 /** Renders a page for a trusted intermediary to manage their clients. */
-public class TrustedIntermediaryClientListView extends TrustedIntermediaryDashboardView {
+public final class TrustedIntermediaryClientListView extends TrustedIntermediaryDashboardView {
   private static final Logger logger =
       LoggerFactory.getLogger(TrustedIntermediaryClientListView.class);
   private final DateConverter dateConverter;

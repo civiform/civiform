@@ -26,7 +26,7 @@ import services.cloud.ApplicantFileNameFormatter;
  *
  * <p>This client communicates with the Azurite simulator.
  */
-class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
+final class DevAzureBlobStorageClient extends BaseAzureBlobStorageClient {
   // Using Account SAS because Azurite emulator does not support User Delegation
   // SAS yet See https://github.com/Azure/Azurite/issues/656
 

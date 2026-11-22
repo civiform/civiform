@@ -17,7 +17,7 @@ import services.cloud.StorageServiceName;
 
 /** An Azure Blob Storage implementation of {@link ApplicantStorageClient}. */
 @Singleton
-public class AzureApplicantStorage implements ApplicantStorageClient {
+public final class AzureApplicantStorage implements ApplicantStorageClient {
   @VisibleForTesting static final String AZURE_FILE_LIMIT_MB_CONF_PATH = "azure.blob.file_limit_mb";
 
   public static final String AZURE_STORAGE_ACCT_CONF_PATH = "azure.blob.account";

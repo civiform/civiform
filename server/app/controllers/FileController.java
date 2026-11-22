@@ -27,7 +27,7 @@ import services.cloud.ApplicantStorageClient;
 import services.settings.SettingsManifest;
 
 /** Controller for handling methods for admins and applicants accessing uploaded files. */
-public class FileController extends CiviFormController {
+public final class FileController extends CiviFormController {
   private static final Logger logger = LoggerFactory.getLogger(FileController.class);
 
   private final ClassLoaderExecutionContext classLoaderExecutionContext;

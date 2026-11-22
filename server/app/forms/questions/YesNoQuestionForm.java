@@ -4,7 +4,7 @@ import services.question.types.MultiOptionQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating a yes/no question. */
-public class YesNoQuestionForm extends MultiOptionQuestionForm {
+public final class YesNoQuestionForm extends MultiOptionQuestionForm {
 
   public YesNoQuestionForm() {
     super();

@@ -16,7 +16,7 @@ import org.pac4j.oidc.profile.OidcProfile;
  * profile. Right now this is only extracting the email address, since that is all that AD provides
  * right now.
  */
-public class AdfsProfileCreator extends CiviformOidcProfileCreator {
+public final class AdfsProfileCreator extends CiviformOidcProfileCreator {
   private final String adminGroupName;
   private final String adGroupsAttributeName;
 

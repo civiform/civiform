@@ -14,7 +14,7 @@ import io.ebean.Query;
  * will be accessed in a sequential manner. Access performance to every page is constant. No items
  * will be missed by this paging spec.
  */
-public class RowIdSequentialAccessPaginationSpec extends BasePaginationSpec {
+public final class RowIdSequentialAccessPaginationSpec extends BasePaginationSpec {
 
   // Static object helper definitions.
   public static RowIdSequentialAccessPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =

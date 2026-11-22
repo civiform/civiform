@@ -8,7 +8,7 @@ import views.BaseViewModel;
 
 @Data
 @Builder
-public class AdminReportingPageViewModel implements BaseViewModel {
+public final class AdminReportingPageViewModel implements BaseViewModel {
   private final MonthlyStats monthlyStats;
 
   public String getDetailsUrl(String programName) {

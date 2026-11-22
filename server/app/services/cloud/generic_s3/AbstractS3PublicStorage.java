@@ -168,7 +168,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   /** A null client implementation used for tests. */
-  static class NullClient implements Client {
+  static final class NullClient implements Client {
     @Override
     public URI endpoint() {
       return URI.create("http://fake-endpoint.com");
@@ -181,7 +181,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   /** A real client implementation used for deployments. */
-  class AwsClient implements Client {
+  final class AwsClient implements Client {
     @Override
     public URI endpoint() {
       return s3StorageUtils.prodEndpoint(region);
@@ -194,7 +194,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
   }
 
   /** A LocalStack client implementation used for local development. */
-  class LocalStackClient implements Client {
+  final class LocalStackClient implements Client {
     private final Config config;
     private final AbstractS3StorageUtils s3StorageUtils1;
 

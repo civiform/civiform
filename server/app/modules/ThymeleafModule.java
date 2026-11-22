@@ -75,7 +75,7 @@ public final class ThymeleafModule extends AbstractModule {
 
   // Allow using Message Keys in Thymeleaf HTML and resolving them into the appropriate Strings
   // so they can be rendered in the user's locale.
-  static class PlayMessageResolver implements IMessageResolver {
+  static final class PlayMessageResolver implements IMessageResolver {
 
     private final MessagesApi messagesApi;
 
@@ -202,7 +202,8 @@ public final class ThymeleafModule extends AbstractModule {
     }
   }
 
-  public static class HtmxAttributeProcessor extends AbstractStandardExpressionAttributeTagProcessor
+  public static final class HtmxAttributeProcessor
+      extends AbstractStandardExpressionAttributeTagProcessor
       implements IAttributeDefinitionsAware {
 
     public static final int ATTRIBUTE_PRECEDENCE = 1000;

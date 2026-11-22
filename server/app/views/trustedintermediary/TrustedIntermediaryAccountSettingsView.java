@@ -36,7 +36,7 @@ import views.style.ReferenceClasses;
  * Renders a page where trusted intermediaries can view a table with information on the members of
  * their organization.
  */
-public class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryDashboardView {
+public final class TrustedIntermediaryAccountSettingsView extends TrustedIntermediaryDashboardView {
 
   @Inject
   public TrustedIntermediaryAccountSettingsView(ApplicantLayout layout, Config configuration) {

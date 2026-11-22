@@ -25,7 +25,7 @@ import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
 import views.applicant.blocks.ProgressBar;
 
-public class AddressCorrectionBlockView extends ApplicantBaseView {
+public final class AddressCorrectionBlockView extends ApplicantBaseView {
 
   // Constants used by ApplicantProgramBlocksController and ApplicantService
   // to process address correction form submissions

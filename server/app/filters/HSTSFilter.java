@@ -11,7 +11,7 @@ import play.mvc.EssentialFilter;
  * A filter to add the HSTS header to every request. Ensures that all requests to the server have
  * HTTPS enabled for at least the next year - 31536000 seconds.
  */
-public class HSTSFilter extends EssentialFilter {
+public final class HSTSFilter extends EssentialFilter {
   private final Executor exec;
 
   @Inject

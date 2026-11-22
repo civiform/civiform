@@ -1,7 +1,7 @@
 package modules;
 
 /** Exception representing an error in service configuration. */
-public class ConfigurationException extends RuntimeException {
+public final class ConfigurationException extends RuntimeException {
   public ConfigurationException(String errorMessage) {
     super(errorMessage);
   }

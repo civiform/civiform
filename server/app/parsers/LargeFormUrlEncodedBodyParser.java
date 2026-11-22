@@ -9,7 +9,7 @@ import play.mvc.BodyParser;
  * MiB. All other requests use the default Play buffer limit which is 100KB. For more information
  * see: https://www.playframework.com/documentation/3.0.x/JavaBodyParsers
  */
-public class LargeFormUrlEncodedBodyParser extends BodyParser.FormUrlEncoded {
+public final class LargeFormUrlEncodedBodyParser extends BodyParser.FormUrlEncoded {
   @Inject
   public LargeFormUrlEncodedBodyParser(DefaultHttpErrorHandler errorHandler) {
     super(1024 * 1024, errorHandler);

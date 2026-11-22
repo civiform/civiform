@@ -10,7 +10,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating a date question. */
-public class DateQuestionForm extends QuestionForm {
+public final class DateQuestionForm extends QuestionForm {
   private Optional<DateType> minDateType;
   private Optional<String> minCustomDay;
   private Optional<String> minCustomMonth;

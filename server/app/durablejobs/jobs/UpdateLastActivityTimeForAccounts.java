@@ -11,7 +11,7 @@ import models.PersistedDurableJobModel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class UpdateLastActivityTimeForAccounts extends DurableJob {
+public final class UpdateLastActivityTimeForAccounts extends DurableJob {
   private static final Logger logger =
       LoggerFactory.getLogger(UpdateLastActivityTimeForAccounts.class);
   private final Database database;

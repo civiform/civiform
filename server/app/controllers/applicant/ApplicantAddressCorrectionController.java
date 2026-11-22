@@ -41,7 +41,7 @@ import views.applicant.addresscorrection.AddressCorrectionBlockView;
  * question for which address correction is enabled
  */
 @With(ProgramDisabledAction.class)
-public class ApplicantAddressCorrectionController extends CiviFormController {
+public final class ApplicantAddressCorrectionController extends CiviFormController {
 
   private final ApplicantService applicantService;
   private final MessagesApi messagesApi;

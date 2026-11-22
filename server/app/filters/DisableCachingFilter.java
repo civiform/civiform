@@ -10,7 +10,7 @@ import play.mvc.EssentialAction;
 import play.mvc.EssentialFilter;
 
 /** A filter to disable caching our responses. */
-public class DisableCachingFilter extends EssentialFilter {
+public final class DisableCachingFilter extends EssentialFilter {
   private final Executor exec;
 
   // Only cache items processed by the asset pipeline.

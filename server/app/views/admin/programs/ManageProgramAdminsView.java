@@ -41,7 +41,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** Renders a form for adding and removing program admins via email for a given program. */
-public class ManageProgramAdminsView extends BaseHtmlView {
+public final class ManageProgramAdminsView extends BaseHtmlView {
 
   private static final String PAGE_TITLE = "Manage admins for program: ";
   private static final String EMAIL_FIELD_NAME = "adminEmail";
