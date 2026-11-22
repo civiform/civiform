@@ -11,6 +11,7 @@ import org.pac4j.core.profile.creator.ProfileCreator;
 import org.pac4j.oidc.client.OidcClient;
 import org.pac4j.oidc.config.OidcConfiguration;
 
+@SuppressWarnings("FinalOrAbstractClass")
 public class GenericOidcClientProvider extends OidcClientProvider {
 
   private static final String ATTRIBUTE_PREFIX = "applicant_generic_oidc.";

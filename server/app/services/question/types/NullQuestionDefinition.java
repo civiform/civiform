@@ -13,6 +13,7 @@ import com.google.auto.value.AutoValue;
 public class NullQuestionDefinition extends QuestionDefinition {
 
   @AutoValue
+  @SuppressWarnings("FinalOrAbstractClass")
   public static class NullValidationPredicates extends ValidationPredicates {
 
     public static NullQuestionDefinition.NullValidationPredicates parse(String jsonString) {

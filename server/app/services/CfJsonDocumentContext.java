@@ -30,8 +30,7 @@ import services.applicant.predicate.JsonPathPredicate;
 import services.applicant.question.Scalar;
 import services.export.JsonPrettifier;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING CfJsonDocumentContext
-
+@SuppressWarnings("FinalOrAbstractClass")
 public class CfJsonDocumentContext {
   private static final TypeRef<List<Object>> LIST_OF_OBJECTS_TYPE = new TypeRef<>() {};
   private static final PhoneNumberUtil PHONE_NUMBER_UTIL = PhoneNumberUtil.getInstance();

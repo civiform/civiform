@@ -19,6 +19,7 @@ import services.CiviFormError;
  * Base Controller providing useful helper functions that can be utilized by all CiviForm
  * controllers.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class CiviFormController extends Controller {
 
   protected final ProfileUtils profileUtils;

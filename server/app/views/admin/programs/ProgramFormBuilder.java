@@ -60,6 +60,7 @@ import views.style.BaseStyles;
  * Builds a program form for rendering. If the program was previously created, the {@code adminName}
  * field is disabled, since it cannot be edited once set.
  */
+@SuppressWarnings("FinalOrAbstractClass")
 public class ProgramFormBuilder extends BaseHtmlView {
   // TODO(#9218): remove this custom spacing when we update the page to match the new mocks
   private static final String SPACE_BETWEEN_FORM_ELEMENTS = "mb-4";
