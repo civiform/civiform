@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
 import play.Environment;
 
 /** SecurityModule configures and initializes all authentication and authorization classes. */
-public class SecurityModule extends AbstractModule {
+public final class SecurityModule extends AbstractModule {
 
   private static final Logger logger = LoggerFactory.getLogger(SecurityModule.class);
   private final com.typesafe.config.Config configuration;
@@ -180,19 +180,19 @@ public class SecurityModule extends AbstractModule {
 
   @Provides
   @Singleton
-  protected CiviFormLogoutLogic civiFormLogoutLogic(ProfileUtils profileUtils) {
+  CiviFormLogoutLogic civiFormLogoutLogic(ProfileUtils profileUtils) {
     return new CiviFormLogoutLogic(checkNotNull(profileUtils));
   }
 
   @Provides
   @Singleton
-  protected GuestClient guestClient(ProfileFactory profileFactory) {
+  GuestClient guestClient(ProfileFactory profileFactory) {
     return new GuestClient(profileFactory);
   }
 
   @Provides
   @Singleton
-  protected FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
+  FakeAdminClient fakeAdminClient(ProfileFactory profileFactory) {
     return new FakeAdminClient(profileFactory, this.configuration);
   }
 
@@ -200,7 +200,7 @@ public class SecurityModule extends AbstractModule {
   // credentials is the API key ID, and the password is the API key secret.
   @Provides
   @Singleton
-  protected DirectBasicAuthClient apiAuthClient(ApiAuthenticator apiAuthenticator) {
+  DirectBasicAuthClient apiAuthClient(ApiAuthenticator apiAuthenticator) {
     DirectBasicAuthClient client =
         new DirectBasicAuthClient(
             apiAuthenticator,
@@ -226,7 +226,7 @@ public class SecurityModule extends AbstractModule {
   // unauthorized instead of showing them an error page.
   @Provides
   @Singleton
-  protected CiviFormHttpActionAdapter provideCiviFormHttpActionAdapter() {
+  CiviFormHttpActionAdapter provideCiviFormHttpActionAdapter() {
     var actionAdapter = new CiviFormHttpActionAdapter();
 
     actionAdapter
@@ -250,7 +250,7 @@ public class SecurityModule extends AbstractModule {
   // Docs: https://www.pac4j.org/docs/clients.html
   @Provides
   @Singleton
-  protected Clients provideClients(
+  Clients provideClients(
       GuestClient guestClient,
       @ApplicantAuthClient @Nullable IndirectClient applicantAuthClient,
       @AdminAuthClient @Nullable IndirectClient adminAuthClient,
@@ -286,7 +286,7 @@ public class SecurityModule extends AbstractModule {
   // Docs: https://www.pac4j.org/docs/authorizers.html
   @Provides
   @Singleton
-  protected ImmutableMap<String, Authorizer> provideAuthorizers() {
+  ImmutableMap<String, Authorizer> provideAuthorizers() {
     return ImmutableMap.of(
         // Having either ROLE_CIVIFORM_ADMIN or ROLE_PROGRAM_ADMIN authorizes a profile as
         // ANY_ADMIN.
@@ -317,7 +317,7 @@ public class SecurityModule extends AbstractModule {
   // Docs: https://www.pac4j.org/docs/config.html
   @Provides
   @Singleton
-  protected Config provideConfig(
+  Config provideConfig(
       Clients clients,
       ImmutableMap<String, Authorizer> authorizors,
       CiviFormHttpActionAdapter civiFormHttpActionAdapter,
