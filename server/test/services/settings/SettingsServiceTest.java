@@ -145,6 +145,10 @@ public class SettingsServiceTest extends ResetPostgres {
     when(testProfile.getAuthorityId())
         .thenReturn(CompletableFuture.completedFuture(TEST_AUTHORITY_ID));
     programService = mock(ProgramService.class);
+    // Changing FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED checks the programs, so default to none.
+    ActiveAndDraftPrograms noPrograms = mock(ActiveAndDraftPrograms.class);
+    when(noPrograms.getMostRecentProgramDefinitions()).thenReturn(ImmutableList.of());
+    when(programService.getActiveAndDraftPrograms()).thenReturn(noPrograms);
 
     repo = instanceOf(SettingsGroupRepository.class);
     repo.clearCurrentSettingsCache();
