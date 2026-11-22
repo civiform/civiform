@@ -38,11 +38,16 @@ public final class SettingsGroupRepository {
 
   /** Get the most recently created {@link SettingsGroupModel}. */
   public CompletionStage<Optional<SettingsGroupModel>> getCurrentSettings() {
-    return supplyAsync(
-        () ->
-            settingsCache.getOrElseUpdate(
-                CURRENT_SETTINGS_CACHE_KEY, this::findCurrentSettingsFromDb),
-        databaseExecutionContext);
+    return supplyAsync(this::getCurrentSettingsSync, databaseExecutionContext);
+  }
+
+  /**
+   * Get the most recently created {@link SettingsGroupModel} on the calling thread. This only
+   * queries the database when the settings are not in the cache.
+   */
+  public Optional<SettingsGroupModel> getCurrentSettingsSync() {
+    return settingsCache.getOrElseUpdate(
+        CURRENT_SETTINGS_CACHE_KEY, this::findCurrentSettingsFromDb);
   }
 
   private Optional<SettingsGroupModel> findCurrentSettingsFromDb() {

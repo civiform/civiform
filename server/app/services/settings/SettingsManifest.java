@@ -16,7 +16,8 @@ import com.typesafe.config.Config;
 import java.util.Optional;
 import java.util.regex.Pattern;
 import javax.inject.Inject;
-import play.mvc.Http.RequestHeader;
+import javax.inject.Provider;
+import repository.SettingsGroupRepository;
 
 /** Data class providing access to server settings. */
 public final class SettingsManifest extends AbstractSettingsManifest {
@@ -24,6 +25,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   private final ImmutableMap<String, SettingsSection> settingsSections;
 
   @Inject
+  public SettingsManifest(
+      Config config, Provider<SettingsGroupRepository> settingsGroupRepositoryProvider) {
+    super(config, settingsGroupRepositoryProvider);
+    this.settingsSections = GENERATED_SECTIONS;
+  }
+
+  /**
+   * Creates a manifest that only reads from the application {@link Config}. Settings an admin has
+   * stored in the database are ignored.
+   */
   public SettingsManifest(Config config) {
     super(config);
     this.settingsSections = GENERATED_SECTIONS;
@@ -32,6 +43,15 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   @VisibleForTesting
   public SettingsManifest(ImmutableMap<String, SettingsSection> settingsSections, Config config) {
     super(config);
+    this.settingsSections = checkNotNull(settingsSections);
+  }
+
+  @VisibleForTesting
+  public SettingsManifest(
+      ImmutableMap<String, SettingsSection> settingsSections,
+      Config config,
+      Provider<SettingsGroupRepository> settingsGroupRepositoryProvider) {
+    super(config, settingsGroupRepositoryProvider);
     this.settingsSections = checkNotNull(settingsSections);
   }
 
@@ -55,8 +75,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** The short display name of the civic entity, will use 'TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityShortName(RequestHeader request) {
-    return getString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME", request);
+  public Optional<String> getWhitelabelCivicEntityShortName() {
+    return getWriteableString("WHITELABEL_CIVIC_ENTITY_SHORT_NAME");
   }
 
   /**
@@ -64,18 +84,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * may be desired if the government name is included in the logo. The logo is hidden on smaller
    * screens, so this will only hide the name if the logo is showing.
    */
-  public boolean getHideCivicEntityNameInHeader(RequestHeader request) {
-    return getBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER", request);
+  public boolean getHideCivicEntityNameInHeader() {
+    return getWriteableBool("HIDE_CIVIC_ENTITY_NAME_IN_HEADER");
   }
 
   /** The full display name of the civic entity, will use 'City of TestCity' if not set. */
-  public Optional<String> getWhitelabelCivicEntityFullName(RequestHeader request) {
-    return getString("WHITELABEL_CIVIC_ENTITY_FULL_NAME", request);
+  public Optional<String> getWhitelabelCivicEntityFullName() {
+    return getWriteableString("WHITELABEL_CIVIC_ENTITY_FULL_NAME");
   }
 
   /** The URL to the civic entity's production CiviForm site. */
-  public Optional<String> getCivicEntityProductionUrl(RequestHeader request) {
-    return getString("CIVIC_ENTITY_PRODUCTION_URL", request);
+  public Optional<String> getCivicEntityProductionUrl() {
+    return getWriteableString("CIVIC_ENTITY_PRODUCTION_URL");
   }
 
   /**
@@ -91,16 +111,16 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * A primary color is the color displayed most prominently across your website. Enter the hex code
    * for this color.
    */
-  public Optional<String> getThemeColorPrimary(RequestHeader request) {
-    return getString("THEME_COLOR_PRIMARY", request);
+  public Optional<String> getThemeColorPrimary() {
+    return getWriteableString("THEME_COLOR_PRIMARY");
   }
 
   /**
    * A darker version of your primary color can be applied to your website for some purposes. Enter
    * the hex code for this color.
    */
-  public Optional<String> getThemeColorPrimaryDark(RequestHeader request) {
-    return getString("THEME_COLOR_PRIMARY_DARK", request);
+  public Optional<String> getThemeColorPrimaryDark() {
+    return getWriteableString("THEME_COLOR_PRIMARY_DARK");
   }
 
   /** What identity provider to use for applicants. */
@@ -117,8 +137,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The name of the portal that applicants log into, used in sentences like 'Log into your
    * APPLICANT_PORTAL_NAME account.'
    */
-  public Optional<String> getApplicantPortalName(RequestHeader request) {
-    return getString("APPLICANT_PORTAL_NAME", request);
+  public Optional<String> getApplicantPortalName() {
+    return getWriteableString("APPLICANT_PORTAL_NAME");
   }
 
   /**
@@ -638,8 +658,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** Enables the feature that allows address correction for address questions. */
-  public boolean getEsriAddressCorrectionEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_CORRECTION_ENABLED", request);
+  public boolean getEsriAddressCorrectionEnabled() {
+    return getWriteableBool("ESRI_ADDRESS_CORRECTION_ENABLED");
   }
 
   /**
@@ -665,8 +685,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Enables the feature that allows for service area validation of a corrected address.
    * ESRI_ADDRESS_CORRECTION_ENABLED needs to be enabled.
    */
-  public boolean getEsriAddressServiceAreaValidationEnabled(RequestHeader request) {
-    return getBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED", request);
+  public boolean getEsriAddressServiceAreaValidationEnabled() {
+    return getWriteableBool("ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED");
   }
 
   /**
@@ -725,8 +745,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** This email address is listed in the footer for applicants to contact support. */
-  public Optional<String> getSupportEmailAddress(RequestHeader request) {
-    return getString("SUPPORT_EMAIL_ADDRESS", request);
+  public Optional<String> getSupportEmailAddress() {
+    return getWriteableString("SUPPORT_EMAIL_ADDRESS");
   }
 
   /**
@@ -765,21 +785,21 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * The text for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkText(RequestHeader request) {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT", request);
+  public Optional<String> getCommonIntakeMoreResourcesLinkText() {
+    return getWriteableString("COMMON_INTAKE_MORE_RESOURCES_LINK_TEXT");
   }
 
   /**
    * The HREF for a link on the Pre-Screener confirmation page that links to more resources. Shown
    * when the applicant is not eligible for any programs in CiviForm.
    */
-  public Optional<String> getCommonIntakeMoreResourcesLinkHref(RequestHeader request) {
-    return getString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF", request);
+  public Optional<String> getCommonIntakeMoreResourcesLinkHref() {
+    return getWriteableString("COMMON_INTAKE_MORE_RESOURCES_LINK_HREF");
   }
 
   /** The HREF for providing more information for the immigration status informational banner. */
-  public Optional<String> getImmigrationStatusInfoBannerLearnMoreUrl(RequestHeader request) {
-    return getString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL", request);
+  public Optional<String> getImmigrationStatusInfoBannerLearnMoreUrl() {
+    return getWriteableString("IMMIGRATION_STATUS_INFO_BANNER_LEARN_MORE_URL");
   }
 
   /** The expiration date for the demo instance formatted as yyyy-mm-dd. */
@@ -997,8 +1017,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * If enabled, CiviForm Admins are able to see all applications for all programs. Is disabled by
    * default.
    */
-  public boolean getAllowCiviformAdminAccessPrograms(RequestHeader request) {
-    return getBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS", request);
+  public boolean getAllowCiviformAdminAccessPrograms() {
+    return getWriteableBool("ALLOW_CIVIFORM_ADMIN_ACCESS_PROGRAMS");
   }
 
   /**
@@ -1016,8 +1036,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * AS:' buttons are not shown on the login page. Warning: if you turn on this flag, you will need
    * to log in through the admin authenticator to get back to this settings page
    */
-  public boolean getStagingDisableDemoModeLogins(RequestHeader request) {
-    return getBool("STAGING_DISABLE_DEMO_MODE_LOGINS", request);
+  public boolean getStagingDisableDemoModeLogins() {
+    return getWriteableBool("STAGING_DISABLE_DEMO_MODE_LOGINS");
   }
 
   /** Enables caching for versions and their associated data. */
@@ -1049,8 +1069,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
-  public boolean getSuggestProgramsOnApplicationConfirmationPage(RequestHeader request) {
-    return getBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE", request);
+  public boolean getSuggestProgramsOnApplicationConfirmationPage() {
+    return getWriteableBool("SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE");
   }
 
   /**
@@ -1058,36 +1078,36 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * applicants this is not Production and that they shouldn't submit real applications. Configure
    * the CIVIC_ENTITY_PRODUCTION_URL setting to also include a link to your production site.
    */
-  public boolean getShowNotProductionBannerEnabled(RequestHeader request) {
-    return getBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED", request);
+  public boolean getShowNotProductionBannerEnabled() {
+    return getWriteableBool("SHOW_NOT_PRODUCTION_BANNER_ENABLED");
   }
 
   /**
    * Specifies the type of banner to display at the top of the site ('none', 'not_production', or
    * 'demo').
    */
-  public Optional<String> getBannerType(RequestHeader request) {
-    return getString("BANNER_TYPE", request);
+  public Optional<String> getBannerType() {
+    return getWriteableString("BANNER_TYPE");
   }
 
   /** Enables suffix dropdown field in name question. */
-  public boolean getNameSuffixDropdownEnabled(RequestHeader request) {
-    return getBool("NAME_SUFFIX_DROPDOWN_ENABLED", request);
+  public boolean getNameSuffixDropdownEnabled() {
+    return getWriteableBool("NAME_SUFFIX_DROPDOWN_ENABLED");
   }
 
   /** Remove the CSV/JSON/PDF download capability for Program Admins. */
-  public boolean getRemoveDownloadForProgramAdminsEnabled(RequestHeader request) {
-    return getBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED", request);
+  public boolean getRemoveDownloadForProgramAdminsEnabled() {
+    return getWriteableBool("REMOVE_DOWNLOAD_FOR_PROGRAM_ADMINS_ENABLED");
   }
 
   /** Enables a dropdown for login that has both applicant and admin login. */
-  public boolean getLoginDropdownEnabled(RequestHeader request) {
-    return getBool("LOGIN_DROPDOWN_ENABLED", request);
+  public boolean getLoginDropdownEnabled() {
+    return getWriteableBool("LOGIN_DROPDOWN_ENABLED");
   }
 
   /** Enable showing an immigration status informational banner to applicants. */
-  public boolean getImmigrationStatusInfoBannerEnabled(RequestHeader request) {
-    return getBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED", request);
+  public boolean getImmigrationStatusInfoBannerEnabled() {
+    return getWriteableBool("IMMIGRATION_STATUS_INFO_BANNER_ENABLED");
   }
 
   /** Enable session timeout based on inactivity and maximum duration. */
@@ -1100,26 +1120,26 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * downloads, csv exports, and JSON exports of submitted applications for admins and TIs on
    * programs that opt in.
    */
-  public boolean getAnswerOptionScoringEnabled(RequestHeader request) {
-    return getBool("ANSWER_OPTION_SCORING_ENABLED", request);
+  public boolean getAnswerOptionScoringEnabled() {
+    return getWriteableBool("ANSWER_OPTION_SCORING_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Use program slugs instead of program IDs in URLs. */
-  public boolean getProgramSlugUrlsEnabled(RequestHeader request) {
-    return getBool("PROGRAM_SLUG_URLS_ENABLED", request);
+  public boolean getProgramSlugUrlsEnabled() {
+    return getWriteableBool("PROGRAM_SLUG_URLS_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enables changes to support API Bridge */
-  public boolean getApiBridgeEnabled(RequestHeader request) {
-    return getBool("API_BRIDGE_ENABLED", request);
+  public boolean getApiBridgeEnabled() {
+    return getWriteableBool("API_BRIDGE_ENABLED");
   }
 
   /**
    * (NOT FOR PRODUCTION USE) Enables improvements which make it easier for admins to work with
    * enumerators.
    */
-  public boolean getEnumeratorImprovementsEnabled(RequestHeader request) {
-    return getBool("ENUMERATOR_IMPROVEMENTS_ENABLED", request);
+  public boolean getEnumeratorImprovementsEnabled() {
+    return getWriteableBool("ENUMERATOR_IMPROVEMENTS_ENABLED");
   }
 
   /**
@@ -1127,18 +1147,18 @@ public final class SettingsManifest extends AbstractSettingsManifest {
    * page as other question types. Uses a new file upload method that uploads applicant files
    * through CiviForm servers.
    */
-  public boolean getFileUploadQuestionImprovementsEnabled(RequestHeader request) {
-    return getBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", request);
+  public boolean getFileUploadQuestionImprovementsEnabled() {
+    return getWriteableBool("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the admin UI direct migration of j2html to Thymeleaf. */
-  public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", request);
+  public boolean getAdminUiMigrationJ2htmlToThymeleafScEnabled() {
+    return getWriteableBool("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the admin UI migration of pages using new UX Designs. */
-  public boolean getAdminUiMigrationUxRedesignScEnabled(RequestHeader request) {
-    return getBool("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", request);
+  public boolean getAdminUiMigrationUxRedesignScEnabled() {
+    return getWriteableBool("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED");
   }
 
   /** (NOT FOR PRODUCTION USE) Enable the new applicant-guest merging strategy. */
@@ -1154,8 +1174,8 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /** (NOT FOR PRODUCTION USE) Enables an image to be shown in a static question. */
-  public boolean getImagesInQuestionFeatureEnabled(RequestHeader request) {
-    return getBool("IMAGES_IN_QUESTION_FEATURE_ENABLED", request);
+  public boolean getImagesInQuestionFeatureEnabled() {
+    return getWriteableBool("IMAGES_IN_QUESTION_FEATURE_ENABLED");
   }
 
   private static final ImmutableMap<String, SettingsSection> GENERATED_SECTIONS =

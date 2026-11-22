@@ -24,9 +24,6 @@ import org.apache.commons.lang3.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.Environment;
-import play.libs.typedmap.TypedKey;
-import play.libs.typedmap.TypedMap;
-import play.mvc.Http;
 import repository.SettingsGroupRepository;
 import services.ColorUtil;
 import services.program.ProgramService;
@@ -37,15 +34,10 @@ import services.program.ProgramService;
  * <p>Each time an admin updates the server settings using the admin UI, a SettingsGroup is saved.
  * The latest snapshot is used to provide settings for a given request to the server.
  *
- * <p>On each incoming request, the most recent SettingsGroup is loaded and its settings map stored
- * in the attributes of the incoming {@link play.mvc.Http.Request} object for ease of access
- * throughout the request lifecycle.
+ * <p>The most recent SettingsGroup is cached, and {@link SettingsManifest} reads the admin
+ * writeable settings from it.
  */
 public final class SettingsService {
-
-  /** The key used in {@link play.mvc.Http.Request} attributes to store system settings. */
-  public static final TypedKey<ImmutableMap<String, String>> CIVIFORM_SETTINGS_ATTRIBUTE_KEY =
-      TypedKey.create("CIVIFORM_SETTINGS");
 
   private static final Logger logger = LoggerFactory.getLogger(SettingsService.class);
 
@@ -74,27 +66,6 @@ public final class SettingsService {
     return settingsGroupRepository
         .getCurrentSettings()
         .thenApply(maybeSettingsGroup -> maybeSettingsGroup.map(SettingsGroupModel::getSettings));
-  }
-
-  /**
-   * Loads the server settings from the database and returns a new request that has the settings in
-   * the request attributes. If no settings are found an error is logged and the request argument is
-   * returned.
-   */
-  public CompletionStage<Http.RequestHeader> applySettingsToRequest(Http.RequestHeader request) {
-    return loadSettings()
-        .thenApply(
-            maybeSettings -> {
-              if (maybeSettings.isEmpty()) {
-                logger.error("No settings found when serving request.");
-                return request;
-              }
-
-              TypedMap newAttrs =
-                  request.attrs().put(CIVIFORM_SETTINGS_ATTRIBUTE_KEY, maybeSettings.get());
-
-              return request.withAttrs(newAttrs);
-            });
   }
 
   /** Update settings stored in the database. */
