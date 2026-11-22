@@ -13,8 +13,57 @@ val heapOpts = IO
   .readLines(file(".jvmopts"))
   .filter(l => l.startsWith("-Xmx") || l.startsWith("-Xms"))
 
+val errorProneVersion = "2.50.0"
+
+// JVM flags errorprone needs to reach javac internals on Java 16+. Mirrors .jvmopts.
+val errorProneJvmFlags = Seq(
+  "--add-exports=jdk.compiler/com.sun.tools.javac.api=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.file=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.main=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.model=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.parser=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.processing=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.tree=ALL-UNNAMED",
+  "--add-exports=jdk.compiler/com.sun.tools.javac.util=ALL-UNNAMED",
+  "--add-opens=jdk.compiler/com.sun.tools.javac.code=ALL-UNNAMED",
+  "--add-opens=jdk.compiler/com.sun.tools.javac.comp=ALL-UNNAMED"
+)
+
+// Custom errorprone checks for the server code. Each check is a BugChecker
+// registered in META-INF/services. See errorprone-checks/README.md.
+lazy val errorproneChecks = (project in file("errorprone-checks"))
+  .settings(
+    name := "civiform-errorprone-checks",
+    autoScalaLibrary := false,
+    crossPaths := false,
+    libraryDependencies ++= Seq(
+      "com.google.errorprone" % "error_prone_check_api" % errorProneVersion % "provided",
+      "com.google.errorprone" % "error_prone_test_helpers" % errorProneVersion % Test,
+      "junit" % "junit" % "4.13.2" % Test,
+      "com.github.sbt" % "junit-interface" % "0.13.3" % Test
+    ),
+    javacOptions ++= Seq("-encoding", "UTF-8", "-Xlint:unchecked", "-Werror") ++
+      // javac only accepts --add-exports; the checks compile against both sets of packages.
+      errorProneJvmFlags.map(_.replace("--add-opens=", "--add-exports=")),
+    Test / fork := true,
+    Test / javaOptions ++= errorProneJvmFlags,
+    Test / testOptions := Seq(
+      Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q")
+    ),
+    publish / skip := true,
+    // sbt dist packages this project's jars. Skip javadoc like root does, since
+    // javadoc rejects the javac-only flags above.
+    Compile / packageDoc / publishArtifact := false,
+    Compile / doc / sources := Seq.empty
+  )
+
 lazy val root = (project in file("."))
   .enablePlugins(PlayJava, PlayEbean, SbtWeb)
+  // Builds the custom checks first and puts them on the compile classpath,
+  // which errorProneCompilerOptions passes as the annotation processor path.
+  // "provided" keeps them out of the runtime classpath and sbt dist.
+  .dependsOn(errorproneChecks % "provided")
+  .aggregate(errorproneChecks)
   .settings(
     name := """civiform-server""",
     version := "0.0.1",
@@ -112,7 +161,7 @@ lazy val root = (project in file("."))
         "auto-value-shaded"
       ),
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.50.0",
+      "com.google.errorprone" % "error_prone_core" % errorProneVersion,
       "org.checkerframework" % "dataflow-errorprone" % "4.4.0",
 
       // Apache libraries for export
@@ -187,25 +236,19 @@ lazy val root = (project in file("."))
         "-s",
         generateSourcePath(scalaVersion = scalaVersion.value)
       )
-
-      // Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
-      // is set to true
-      val errorProneCompilerOptions =
-        Option(sys.env.getOrElse("DISABLE_ERRORPRONE", "false"))
-          .filter(_ != "true")
-          .map(_ =>
-            Seq(
-              // Turn off the AutoValueSubclassLeaked error since the generated
-              // code contains it - we can't control that.
-              "-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR",
-              "--should-stop=ifError=FLOW",
-              "-Werror"
-            )
-          )
-          .getOrElse(Seq.empty)
-
-      defaultCompilerOptions ++ errorProneCompilerOptions
+      defaultCompilerOptions
     },
+    // Errorprone options are set per configuration because the custom checks in
+    // errorproneChecks only apply to app/ code. They're scoped to the compile
+    // task so Test can't inherit Compile's errorprone options.
+    Compile / compile / javacOptions ++= errorProneCompilerOptions(
+      customChecks = "-Xep:FinalOrAbstractClass:ERROR",
+      processorPath = (Compile / dependencyClasspath).value.files
+    ),
+    Test / compile / javacOptions := (Test / javacOptions).value ++ errorProneCompilerOptions(
+      customChecks = "-Xep:FinalOrAbstractClass:OFF",
+      processorPath = (Test / dependencyClasspath).value.files
+    ),
 
     // Documented at https://github.com/sbt/zinc/blob/c18637c1b30f8ab7d1f702bb98301689ec75854b/internal/compiler-interface/src/main/contraband/incremental.contra
     // Recompile everything if >30% files have changed, to help avoid infinite
@@ -396,4 +439,30 @@ addCommandAlias(
 def generateSourcePath(scalaVersion: String): String = {
   val version = scalaVersion.split("\\.").take(2).mkString(".")
   s"target/scala-$version/src_managed/main"
+}
+
+// Errorprone javac options. Errorprone loads plugin checks (errorproneChecks)
+// only from the annotation processor path, so it's set explicitly. Without
+// -processorpath javac falls back to the classpath, so pass the same classpath
+// to keep AutoValue and Lombok working.
+//
+// Disable errorprone checking if the DISABLE_ERRORPRONE environment variable
+// is set to true.
+def errorProneCompilerOptions(
+  customChecks: String,
+  processorPath: Seq[File]
+): Seq[String] = {
+  if (sys.env.getOrElse("DISABLE_ERRORPRONE", "false") == "true") {
+    Seq.empty
+  } else {
+    Seq(
+      // Turn off the AutoValueSubclassLeaked error since the generated
+      // code contains it - we can't control that.
+      s"-Xplugin:ErrorProne -Xep:AutoValueSubclassLeaked:OFF -Xep:CanIgnoreReturnValueSuggester:OFF -XepDisableWarningsInGeneratedCode -Xep:WildcardImport:ERROR -Xep:CatchingUnchecked:ERROR -Xep:ThrowsUncheckedException:ERROR $customChecks",
+      "--should-stop=ifError=FLOW",
+      "-Werror",
+      "-processorpath",
+      processorPath.mkString(java.io.File.pathSeparator)
+    )
+  }
 }

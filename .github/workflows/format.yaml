@@ -90,10 +90,5 @@ jobs:
         id: check_bin_script_docs
         run: bin/help
 
-      - name: Run validate_java_classes_marked_final
-        run: bin/validate_java_classes_marked_final
-      - name: show bin/validate_java_classes_marked_final diff
-        run: git add .; git diff --exit-code HEAD
-
       - name: Run validate_filters_inject_providers
         run: bin/validate_filters_inject_providers
