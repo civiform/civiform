@@ -2,6 +2,7 @@ package controllers.dev;
 
 import static com.google.gdata.util.common.base.Preconditions.checkNotNull;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -75,7 +76,7 @@ public final class AddressCheckerController extends Controller {
             .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
             .addressServiceAreaValidationUrls(
                 settingsManifest.getEsriAddressServiceAreaValidationUrls())
-            .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
+            .serviceAreaValidationConfigMap(serviceAreaValidationOptions(request))
             .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
             .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
             .build();
@@ -114,13 +115,14 @@ public final class AddressCheckerController extends Controller {
         .getAddressSuggestions(address)
         .thenApplyAsync(
             addressSuggestionGroup -> {
+              ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions =
+                  serviceAreaValidationOptions(request);
+
               CorrectAddressResultsPartialViewModel model =
                   CorrectAddressResultsPartialViewModel.builder()
                       .addressSuggestions(addressSuggestionGroup.getAddressSuggestions())
-                      .serviceAreaValidationEnabled(
-                          settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
-                      .serviceAreaValidationOptions(
-                          esriServiceAreaValidationConfig.getImmutableMap())
+                      .serviceAreaValidationEnabled(!serviceAreaValidationOptions.isEmpty())
+                      .serviceAreaValidationOptions(serviceAreaValidationOptions)
                       .checkServiceAreaActionUrl(
                           routes.AddressCheckerController.hxCheckServiceArea().url())
                       .build();
@@ -187,6 +189,24 @@ public final class AddressCheckerController extends Controller {
 
               return errorView(request, "An error occurred trying to check the service area");
             });
+  }
+
+  /**
+   * Service area options to offer, or an empty map when validation is off or not configured. {@link
+   * EsriServiceAreaValidationConfig#getImmutableMap()} throws when the settings are missing, so
+   * only call it once validation is enabled, has URLs, and has a valid config.
+   */
+  private ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions(
+      Http.Request request) {
+    boolean available =
+        settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)
+            && settingsManifest
+                .getEsriAddressServiceAreaValidationUrls()
+                .map(urls -> !urls.isEmpty())
+                .orElse(false)
+            && esriServiceAreaValidationConfig.isConfigurationValid();
+
+    return available ? esriServiceAreaValidationConfig.getImmutableMap() : ImmutableMap.of();
   }
 
   private Result errorView(Http.Request request, String message) {
