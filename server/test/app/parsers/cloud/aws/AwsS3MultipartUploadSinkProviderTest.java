@@ -85,7 +85,25 @@ public class AwsS3MultipartUploadSinkProviderTest {
     assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.FAILURE);
     assertThat(result.getStorageServiceName()).isEqualTo(StorageServiceName.AWS_S3);
     assertThat(result.getErrorMessage().get()).contains(s3Exception.getMessage());
+    assertThat(result.getCause()).contains(s3Exception);
     assertThat(result.getStoredFilePath()).isEmpty();
+  }
+
+  @Test
+  public void getUploadSink_uploadFailsWithNullMessage_returnsFailureWithCause() throws Exception {
+    RuntimeException exceptionWithNullMessage = new RuntimeException();
+    Sink<ByteString, CompletionStage<MultipartUploadResult>> failingBaseSink =
+        Sink.<ByteString>cancelled()
+            .mapMaterializedValue(_ -> CompletableFuture.failedFuture(exceptionWithNullMessage));
+    doReturn(failingBaseSink)
+        .when(uploadSinkProvider)
+        .getBaseSink(any(BucketType.class), anyString(), anyInt());
+
+    StreamingMultipartUploadResult result = runSink();
+
+    assertThat(result.getStatus()).isEqualTo(StreamingMultipartUploadResult.Status.FAILURE);
+    assertThat(result.getErrorMessage()).isEmpty();
+    assertThat(result.getCause()).contains(exceptionWithNullMessage);
   }
 
   @Test

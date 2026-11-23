@@ -15,6 +15,8 @@ import java.util.concurrent.CompletionStage;
 import javax.inject.Inject;
 import javax.inject.Provider;
 import javax.inject.Singleton;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.thymeleaf.exceptions.TemplateInputException;
 import parsers.FileUploadTypeException;
 import play.Environment;
@@ -48,6 +50,7 @@ import views.errors.NotFound;
  */
 @Singleton
 public class ErrorHandler extends DefaultHttpErrorHandler {
+  private static final Logger logger = LoggerFactory.getLogger(ErrorHandler.class);
 
   private final Provider<NotFound> notFoundPageProvider;
   private final MessagesApi messagesApi;
@@ -96,8 +99,8 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
-    // Unwrap exceptions thrown within a CompletableFuture, to handle the
-    // original error stack trace.
+    // Unwrap exceptions thrown within a CompletableFuture, to handle the original error stack
+    // trace.
     if (exception instanceof CompletionException) {
       exception = exception.getCause();
     }
@@ -110,13 +113,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       String errorMessage = match.get().getMessage();
       if (isQuestionImageUpload(request)) {
         return CompletableFuture.completedFuture(
-            Results.badRequest(
-                    div(errorMessage)
-                        .withClasses("text-red-600", "text-base", "py-2")
-                        .withId("question-image-file-input-errors")
-                        .attr("role", "alert")
-                        .attr("aria-label", "Image upload error")
-                        .render())
+            Results.badRequest(renderQuestionImageError(errorMessage))
                 .as(play.mvc.Http.MimeTypes.HTML));
       }
       return CompletableFuture.completedFuture(Results.badRequest(errorMessage));
@@ -140,6 +137,14 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
                   request.asScala())));
     }
 
+    if (isQuestionImageUpload(request)) {
+      logger.error("Server error during question image upload", exception);
+      return CompletableFuture.completedFuture(
+          Results.internalServerError(
+                  renderQuestionImageError("We couldn't upload your file. Please try again."))
+              .as(play.mvc.Http.MimeTypes.HTML));
+    }
+
     return super.onServerError(request, exception);
   }
 
@@ -152,17 +157,19 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
       RequestHeader request, int statusCode, String message) {
     if (isQuestionImageUpload(request)) {
       return CompletableFuture.completedFuture(
-          Results.status(
-                  statusCode,
-                  div(message)
-                      .withClasses("text-red-600", "text-base", "py-2")
-                      .withId("question-image-file-input-errors")
-                      .attr("role", "alert")
-                      .attr("aria-label", "Image upload error")
-                      .render())
+          Results.status(statusCode, renderQuestionImageError(message))
               .as(play.mvc.Http.MimeTypes.HTML));
     }
     return super.onClientError(request, statusCode, message);
+  }
+
+  private static String renderQuestionImageError(String message) {
+    return div(message)
+        .withClasses("text-red-600", "text-base", "py-2")
+        .withId("question-image-file-input-errors")
+        .attr("role", "alert")
+        .attr("aria-label", "Image upload error")
+        .render();
   }
 
   private static boolean isQuestionImageUpload(RequestHeader request) {
