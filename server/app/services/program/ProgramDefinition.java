@@ -787,8 +787,10 @@ public abstract class ProgramDefinition {
     Predicate<ProgramQuestionDefinition> isAllowedType =
         pqd -> {
           QuestionType questionType = pqd.getQuestionDefinition().getQuestionType();
-          return !NON_PREDICATE_QUESTION_TYPES.contains(questionType)
-              && !(questionType.equals(QuestionType.ADDRESS) && !pqd.addressCorrectionEnabled());
+          boolean allowedType = !NON_PREDICATE_QUESTION_TYPES.contains(questionType);
+          boolean addressWithoutCorrection =
+              questionType.equals(QuestionType.ADDRESS) && !pqd.addressCorrectionEnabled();
+          return allowedType && !addressWithoutCorrection;
         };
     Optional<Long> initialQuestionId =
         blockDefinition.hasEnumeratorQuestion()
