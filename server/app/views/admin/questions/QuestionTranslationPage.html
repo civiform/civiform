@@ -1,8 +1,7 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.questions.QuestionTranslationPageViewModel"*/-->
 <th:block th:fragment="content">
-  <!--/* The layout's <main> supplies the legacy centered wrapper, so these are
-         the direct children of <main> in the legacy j2html DOM. */-->
+  <!--/* The layout's <main> supplies the centered wrapper. */-->
   <h1 class="mb-4" th:text="${model.title}"></h1>
 
   <!--/* Language picker. The currently selected locale is underlined. */-->
@@ -71,17 +70,16 @@
       </fieldset>
     </th:block>
 
-    <!--/* Enumerator entity type is not wrapped in a fieldset, matching the
-           legacy view. */-->
+    <!--/* Enumerator entity type is not wrapped in a fieldset. */-->
     <th:block th:if="${model.showEntityType}">
       <div
         th:replace="~{admin/questions/fragments/TranslationField :: translationField(${model.entityTypeField})}"
       ></div>
     </th:block>
 
-    <!--/* Map settings. The legacy view rendered the fieldset whenever the
-           question had any settings, even if none of them were translatable,
-           which leaves the inner div empty. */-->
+    <!--/* Map settings. The fieldset is rendered whenever the question has
+           any settings, even if none of them are translatable, which leaves
+           the inner div empty. */-->
     <th:block th:if="${model.showMapSettings}">
       <fieldset class="my-4 pt-1 pb-2 px-2 border border-gray-200">
         <legend>Settings</legend>

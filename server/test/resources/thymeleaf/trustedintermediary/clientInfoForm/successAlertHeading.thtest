@@ -1,0 +1,17 @@
+%NAME successAlert - with a heading
+%TEMPLATE_MODE HTML
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{trustedintermediary/fragments/ClientInfoForm :: successAlert('New client successfully created.', 'Your new client Ada Lovelace has been added.')}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div
+  class="usa-alert usa-alert--success mb-4 w-3/5"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <h4 class="usa-alert__heading">New client successfully created.</h4>
+    <p class="usa-alert__text">Your new client Ada Lovelace has been added.</p>
+  </div>
+</div>

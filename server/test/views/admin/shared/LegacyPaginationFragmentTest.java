@@ -31,4 +31,10 @@ public class LegacyPaginationFragmentTest {
   public void pagination_lastPage_hasPreviousArrowOnly() {
     ThymeleafFragmentTester.run(DIR + "lastPage.thtest");
   }
+
+  /** Legacy source: BaseHtmlView.renderPagination when it was handed Messages. */
+  @Test
+  public void localizedPagination_usesMessagesForArrowLabels() {
+    ThymeleafFragmentTester.run(DIR + "localizedLabels.thtest");
+  }
 }

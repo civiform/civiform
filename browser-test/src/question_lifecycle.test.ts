@@ -47,6 +47,9 @@ test.describe('normal question lifecycle', () => {
       if (type === QuestionType.MAP && !isLocalDevEnvironment()) {
         test.skip()
       }
+      if (type === QuestionType.ENUMERATOR) {
+        await disableFeatureFlag(page, 'enumerator_improvements_enabled')
+      }
       await loginAsAdmin(page)
 
       const questionName = `qlc-${type}`
@@ -568,6 +571,8 @@ test.describe('normal question lifecycle', () => {
     const enumeratorOne = 'enumerator-q-one'
     const enumeratorTwo = 'enumerator-q-two'
     const textQuestion = 'text-q'
+
+    await disableFeatureFlag(page, 'enumerator_improvements_enabled')
 
     await test.step('create enumerator parent questions', async () => {
       await loginAsAdmin(page)

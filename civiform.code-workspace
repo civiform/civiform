@@ -21,7 +21,6 @@
   },
   "extensions": {
     "recommendations": [
-      "bradlc.vscode-tailwindcss",
       "dbaeumer.vscode-eslint",
       "github.vscode-pull-request-github",
       "ms-azuretools.vscode-docker",

@@ -23,11 +23,17 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 import junitparams.JUnitParamsRunner;
+import junitparams.Parameters;
+import models.ApplicantModel;
+import models.ApplicationModel;
+import models.LifecycleStage;
+import models.ProgramModel;
 import models.QuestionModel;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import repository.QuestionRepository;
 import services.Path;
 import services.applicant.ApplicantData;
 import services.applicant.ApplicationScores;
@@ -456,6 +462,54 @@ public class PdfExporterTest extends AbstractExporterTest {
     assertThat(linesFromPDF.get(0)).isEqualTo(applicantNameWithApplicationId);
     assertThat(linesFromPDF.get(1)).isEqualTo("Program Name : " + programName);
     assertThat(textFromPDF).contains("Hidden Questions");
+  }
+
+  @Test
+  @Parameters({"true", "false"})
+  public void exportApplication_enumeratorWithInitialQuestion_omitsInitialQuestion(boolean isAdmin)
+      throws IOException, DocumentException {
+    ProgramModel program = createFakeProgramWithEnumeratorAndInitialQuestion();
+    QuestionDefinition enumerator =
+        testQuestionBank
+            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .getQuestionDefinition();
+    QuestionModel initialQuestion =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(enumerator.getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow();
+    ApplicantModel applicant = resourceCreator.insertApplicantWithAccount();
+    Path enumeratorPath = ApplicantData.APPLICANT_PATH.join(enumerator.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicant.getApplicantData(), enumeratorPath, ImmutableList.of("Sarah Brown"));
+    QuestionAnswerer.answerTextQuestion(
+        applicant.getApplicantData(),
+        enumeratorPath
+            .atIndex(0)
+            .join(initialQuestion.getQuestionDefinition().getQuestionPathSegment()),
+        "Sarah Brown ");
+    applicant.save();
+    ApplicationModel application = new ApplicationModel(applicant, program, LifecycleStage.ACTIVE);
+    application.setApplicantData(applicant.getApplicantData());
+    application.save();
+
+    String pdfText =
+        extractAllPdfText(
+            instanceOf(PdfExporter.class)
+                .exportApplication(application, isAdmin, /* includeScores= */ false));
+
+    // The initial question's answers are shown under the enumerator, so only the enumerator is
+    // listed, with a single "Answered on" date.
+    // We don't care about the Submit time for this test, it just serves to
+    // show we're checking all the questions.
+    assertThat(pdfText)
+        .endsWith(
+            """
+            Submit Time: Application submitted without submission time marked.
+            \s
+            applicant household members
+            Sarah Brown
+            Answered on : 1969-12-31\
+            """);
   }
 
   @Test

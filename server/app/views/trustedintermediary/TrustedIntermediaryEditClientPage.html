@@ -1,0 +1,34 @@
+<!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
+<!--/*@thymesVar id="model" type="views.trustedintermediary.TrustedIntermediaryEditClientPageViewModel"*/-->
+<th:block th:fragment="content">
+  <!--/* The layout's <main> supplies the legacy wrapper, so these are the
+         direct children of <main> in the legacy j2html DOM. */-->
+  <h1 class="py-16 px-20 ti-header-band" th:text="${model.tiGroupName}"></h1>
+  <nav
+    th:replace="~{trustedintermediary/fragments/TabButtons :: tabButtons(${model.clientListUrl}, ${model.accountSettingsUrl}, 'CLIENT_LIST')}"
+  ></nav>
+  <!--/* renderSubHeader's "mb-4" was replaced by the later withClasses call,
+         so only the header band classes remain. */-->
+  <h2
+    class="flex items-center h-24 px-20 ti-header-band mb-10"
+    id="edit-client"
+    th:text="#{title.editClient}"
+  ></h2>
+  <div class="px-20">
+    <a
+      th:replace="~{trustedintermediary/fragments/ClientInfoForm :: backLink(${model.clientListUrl})}"
+    ></a>
+    <!--/* th:replace nests inside the conditional: fragment inclusion is
+           evaluated before th:if on the same element. Without a successful
+           save the legacy view rendered an empty div in the alert's place. */-->
+    <th:block th:if="${model.showSuccessAlert}">
+      <div
+        th:replace="~{trustedintermediary/fragments/ClientInfoForm :: successAlert(null, #{banner.clientInfoUpdated})}"
+      ></div>
+    </th:block>
+    <div th:unless="${model.showSuccessAlert}"></div>
+    <div
+      th:replace="~{trustedintermediary/fragments/ClientInfoForm :: clientInfoForm(${model.form}, ${model.clientListUrl}, ${templateGlobals.csrfToken()})}"
+    ></div>
+  </div>
+</th:block>

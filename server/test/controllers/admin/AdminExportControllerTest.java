@@ -30,7 +30,7 @@ public class AdminExportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_migrationEnabled_ok_displaysJsonForTheSelectedProgram() {
+  public void index_ok_displaysJsonForTheSelectedProgram() {
     String draftProgramA = "a-program-draft";
 
     ProgramModel draftProgram = ProgramBuilder.newDraftProgram(draftProgramA).build();
@@ -46,15 +46,10 @@ public class AdminExportControllerTest extends WithMockedProfiles {
   }
 
   @Test
-  public void index_thymeleafEnabled_rendersPageWithUrls() {
+  public void index_rendersPageWithUrls() {
     ProgramModel activeProgram = ProgramBuilder.newActiveProgram("active-program-1").build();
 
-    Result result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .build(),
-            activeProgram.id);
+    Result result = controller.index(fakeRequest(), activeProgram.id);
     String stringResult = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);

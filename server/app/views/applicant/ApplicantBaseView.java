@@ -13,6 +13,7 @@ import controllers.routes;
 import java.time.Clock;
 import java.util.Optional;
 import modules.ThymeleafModule;
+import org.apache.commons.lang3.StringUtils;
 import org.thymeleaf.TemplateEngine;
 import play.i18n.Lang;
 import play.i18n.Messages;
@@ -305,28 +306,38 @@ public abstract class ApplicantBaseView {
     if (!(routeContainsProgramId || routeContainsProgramParam)) {
       return request.uri();
     }
-    final long programId;
-    if (routeContainsProgramId) {
-      programId = routeExtractor.getParamLongValue("programId");
-    } else {
-      programId = Long.parseLong(routeExtractor.getParamStringValue("programParam"));
-    }
 
     // If the language was changed during a block update, redirect to /block/edit or /block/review
-    if (routeExtractor.containsKey("blockId") && profile.isPresent() && applicantId.isPresent()) {
-      boolean inReview =
-          routeExtractor.containsKey("inReview")
-              && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+    if (!routeExtractor.containsKey("blockId") || profile.isEmpty() || applicantId.isEmpty()) {
+      return request.uri();
+    }
+    String blockId = routeExtractor.getParamStringValue("blockId");
+    boolean inReview =
+        routeExtractor.containsKey("inReview")
+            && Boolean.valueOf(routeExtractor.getParamStringValue("inReview"));
+
+    if (routeContainsProgramId) {
       return applicantRoutes
           .blockEditOrBlockReview(
               profile.get(),
               applicantId.get(),
-              programId,
-              routeExtractor.getParamStringValue("blockId"),
+              routeExtractor.getParamLongValue("programId"),
+              blockId,
               inReview)
           .url();
     }
-    return request.uri();
+    // programParam is a program slug when program slug URLs are enabled, and a program ID
+    // otherwise.
+    String programParam = routeExtractor.getParamStringValue("programParam");
+    if (StringUtils.isNumeric(programParam)) {
+      return applicantRoutes
+          .blockEditOrBlockReview(
+              profile.get(), applicantId.get(), Long.parseLong(programParam), blockId, inReview)
+          .url();
+    }
+    return applicantRoutes
+        .blockEditOrBlockReview(profile.get(), applicantId.get(), programParam, blockId, inReview)
+        .url();
   }
 
   private void maybeSetUpNotProductionBanner(

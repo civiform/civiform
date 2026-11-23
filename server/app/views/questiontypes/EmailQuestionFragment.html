@@ -53,7 +53,11 @@
   th:fragment="emailField(question, questionRendererParams, inputId, isInitialQuestion, ariaLabelledby, ariaDescribedby, errorAnchorId)"
   th:with="emailQuestion=${question.createEmailQuestion()},
               questionErrors=${emailQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${questionRendererParams.shouldShowErrors() && !emailQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !emailQuestion.getValidationErrors().isEmpty()},
+              standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+              initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+                : ariaDescribedby == null ? errorAnchorId + '-error'
+                : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <div
@@ -71,9 +75,9 @@
     th:name="${emailQuestion.getEmailPath()}"
     th:value="${emailQuestion.getEmailValue().orElse('')}"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+    th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
-    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    th:autofocus="${questionRendererParams.autofocusSingleField()}"
   />
 </th:block>

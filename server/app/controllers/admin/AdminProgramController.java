@@ -15,8 +15,10 @@ import forms.ProgramForm;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import javax.inject.Inject;
 import mapping.admin.programs.ProgramFormPageMapper;
+import mapping.admin.programs.ProgramIndexPageMapper;
 import models.ApplicationStep;
 import models.ProgramModel;
 import models.ProgramNotificationPreference;
@@ -33,9 +35,13 @@ import repository.AccountRepository;
 import repository.CategoryRepository;
 import repository.VersionRepository;
 import services.CiviFormError;
+import services.DateConverter;
 import services.ErrorAnd;
 import services.LocalizedStrings;
 import services.MessageKey;
+import services.TranslationLocales;
+import services.cloud.PublicStorageClient;
+import services.program.ActiveAndDraftPrograms;
 import services.program.CantPublishProgramWithSharedQuestionsException;
 import services.program.ProgramDefinition;
 import services.program.ProgramNotFoundException;
@@ -47,6 +53,8 @@ import services.settings.SettingsManifest;
 import views.admin.programs.ProgramEditStatus;
 import views.admin.programs.ProgramFormPageView;
 import views.admin.programs.ProgramFormPageViewModel;
+import views.admin.programs.ProgramIndexPageView;
+import views.admin.programs.ProgramIndexPageViewModel;
 import views.admin.programs.ProgramIndexView;
 import views.admin.programs.ProgramMetaDataEditView;
 import views.admin.programs.ProgramNewOneView;
@@ -61,6 +69,10 @@ public final class AdminProgramController extends CiviFormController {
   private final ProgramNewOneView newOneView;
   private final ProgramMetaDataEditView editView;
   private final ProgramFormPageView programFormPageView;
+  private final ProgramIndexPageView programIndexPageView;
+  private final PublicStorageClient publicStorageClient;
+  private final TranslationLocales translationLocales;
+  private final DateConverter dateConverter;
   private final FormFactory formFactory;
   private final RequestChecker requestChecker;
   private final SettingsManifest settingsManifest;
@@ -77,6 +89,10 @@ public final class AdminProgramController extends CiviFormController {
       ProgramNewOneView newOneView,
       ProgramMetaDataEditView editView,
       ProgramFormPageView programFormPageView,
+      ProgramIndexPageView programIndexPageView,
+      PublicStorageClient publicStorageClient,
+      TranslationLocales translationLocales,
+      DateConverter dateConverter,
       VersionRepository versionRepository,
       ProfileUtils profileUtils,
       FormFactory formFactory,
@@ -93,6 +109,10 @@ public final class AdminProgramController extends CiviFormController {
     this.newOneView = checkNotNull(newOneView);
     this.editView = checkNotNull(editView);
     this.programFormPageView = checkNotNull(programFormPageView);
+    this.programIndexPageView = checkNotNull(programIndexPageView);
+    this.publicStorageClient = checkNotNull(publicStorageClient);
+    this.translationLocales = checkNotNull(translationLocales);
+    this.dateConverter = checkNotNull(dateConverter);
     this.formFactory = checkNotNull(formFactory);
     this.requestChecker = checkNotNull(requestChecker);
     this.settingsManifest = checkNotNull(settingsManifest);
@@ -116,6 +136,15 @@ public final class AdminProgramController extends CiviFormController {
   public Result index(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     ReadOnlyQuestionService roService = questionService.getReadOnlyQuestionServiceSync();
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderProgramIndexPage(
+          request,
+          programService.getInUseActiveAndDraftPrograms(roService),
+          roService,
+          ProgramTab.IN_USE);
+    }
+
     return ok(
         listView.render(
             programService.getInUseActiveAndDraftPrograms(roService),
@@ -132,6 +161,15 @@ public final class AdminProgramController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result indexDisabled(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
+
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      return renderProgramIndexPage(
+          request,
+          programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
+          questionService.getReadOnlyQuestionServiceSync(),
+          ProgramTab.DISABLED);
+    }
+
     return ok(
         listView.render(
             programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
@@ -139,6 +177,60 @@ public final class AdminProgramController extends CiviFormController {
             request,
             ProgramTab.DISABLED,
             profileMaybe));
+  }
+
+  private Result renderProgramIndexPage(
+      Request request,
+      ActiveAndDraftPrograms programs,
+      ReadOnlyQuestionService roService,
+      ProgramTab selectedTab) {
+    CiviFormProfile profile = profileUtils.currentUserProfile(request);
+
+    ProgramIndexPageViewModel model =
+        new ProgramIndexPageMapper()
+            .map(
+                ProgramIndexPageMapper.Params.builder()
+                    .programs(programs)
+                    .allDraftPrograms(
+                        () ->
+                            programService
+                                .getActiveAndDraftProgramsWithoutQuestionLoad()
+                                .getDraftPrograms())
+                    .questions(roService.getActiveAndDraftQuestions())
+                    .upToDateQuestions(roService.getUpToDateQuestions())
+                    .selectedTab(selectedTab)
+                    .anyDisabledPrograms(programService.anyDisabledPrograms())
+                    .civicEntityShortName(
+                        settingsManifest.getWhitelabelCivicEntityShortName(request).get())
+                    .baseUrl(baseUrl)
+                    .hasTranslatableLocales(!translationLocales.translatableLocales().isEmpty())
+                    .canViewApplications(program -> canViewApplications(profile, program, request))
+                    .isTranslationComplete(this::isTranslationComplete)
+                    .publicImageUrl(publicStorageClient::getPublicDisplayUrl)
+                    .dateConverter(dateConverter)
+                    .successMessage(request.flash().get(FlashKey.SUCCESS))
+                    .errorMessage(request.flash().get(FlashKey.ERROR))
+                    .build());
+
+    return ok(programIndexPageView.render(request, model)).as(Http.MimeTypes.HTML);
+  }
+
+  private static boolean canViewApplications(
+      CiviFormProfile profile, ProgramDefinition program, Request request) {
+    try {
+      profile.checkProgramAuthorization(program.adminName(), request).join();
+      return true;
+    } catch (CompletionException e) {
+      return false;
+    }
+  }
+
+  private boolean isTranslationComplete(ProgramDefinition program) {
+    try {
+      return programService.isTranslationComplete(program);
+    } catch (ProgramNotFoundException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /** Returns an HTML page containing a form to create a new program in the draft version. */

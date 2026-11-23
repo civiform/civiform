@@ -1,8 +1,7 @@
 <!--/*@thymesVar id="model" type="views.admin.migration.AdminImportProgramDataPartialViewModel"*/-->
 <!--/* One imported question: badges, type icon, question and help text,
-     admin ID, multi-option list, and duplicate-handling options
-     (QuestionCard.renderForImport). data-enumerator is only rendered for
-     repeated questions. */-->
+     admin ID, multi-option list, and duplicate-handling options.
+     data-enumerator is only rendered for repeated questions. */-->
 <div
   th:fragment="questionCard(card)"
   th:attr="data-testid=|question-admin-name-${card.adminName}|, data-enumerator=${card.enumeratorName}"

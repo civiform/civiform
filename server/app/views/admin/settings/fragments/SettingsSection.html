@@ -7,7 +7,7 @@
 <div th:fragment="topSection(section)">
   <h2
     th:id="${section.slug}"
-    class="text-xl font-bold mt-4 mb-2 leading-8 pt-4 border-b-2"
+    class="font-sans-lg text-bold margin-top-2 margin-bottom-1 line-height-sans-4 padding-top-2 border-bottom-2px border-base-lighter"
     th:text="${section.name}"
   ></h2>
   <div th:replace="~{:: sectionContents(${section})}"></div>
@@ -15,7 +15,7 @@
 
 <div th:fragment="subSection(section)">
   <h3
-    class="text-l font-bold py-2 mt-4 underline underline-offset-2"
+    class="font-sans-sm text-bold padding-y-1 margin-top-2 margin-bottom-0 text-underline"
     th:text="${section.name}"
   ></h3>
   <div th:replace="~{:: sectionContents(${section})}"></div>
@@ -27,7 +27,7 @@
   the legacy DOM.
 */-->
 <th:block th:fragment="sectionContents(section)">
-  <div class="grid grid-flow-row-dense lg:grid-cols-2 grid-cols-1 gap-8">
+  <div class="grid-row grid-gap-4">
     <th:block th:each="setting : ${section.settings}">
       <div
         th:replace="~{admin/settings/fragments/Setting :: setting(${setting})}"

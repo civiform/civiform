@@ -42,7 +42,7 @@
         class="hidden text-blue-600 text-sm p-2 font-mono border-4 border-blue-400 space-y-4"
       >
         <p
-          th:text="'By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.'"
+          th:text="${model.enumeratorImprovementsEnabled} ? #{text.repeatedQuestion.listSetInformation} : 'By selecting an enumerator, you are creating a repeated question - a question that is asked for each repeated entity enumerated by the applicant.'"
         ></p>
         <th:block th:unless="${model.enumeratorImprovementsEnabled}">
           <p>
@@ -229,7 +229,10 @@
         <label
           for="question-enumerator-select"
           class="pointer-events-none text-gray-600 text-base px-1 py-2"
-          >Question enumerator<span
+          ><th:block
+            th:text="${model.enumeratorImprovementsEnabled} ? #{label.repeatedQuestion.associatedListSet} : 'Question enumerator'"
+          ></th:block
+          ><span
             th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"
           ></span
         ></label>

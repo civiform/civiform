@@ -188,7 +188,8 @@ public class CalculateEligibilityDeterminationTest extends ResetPostgres {
             updates,
             false,
             false,
-            /* apiBridgeEnabled= */ false)
+            /* apiBridgeEnabled= */ false,
+            /* enumeratorImprovementsEnabled= */ false)
         .toCompletableFuture()
         .join();
     ApplicationModel application =

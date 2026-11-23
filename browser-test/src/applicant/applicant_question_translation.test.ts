@@ -1,5 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
+  disableFeatureFlag,
   loginAsAdmin,
   logout,
   selectApplicantLanguage,
@@ -161,6 +162,7 @@ test.describe('Admin can manage translations', () => {
     adminTranslations,
     applicantQuestions,
   }) => {
+    await disableFeatureFlag(page, 'enumerator_improvements_enabled')
     await loginAsAdmin(page)
 
     // Add a new question to be translated

@@ -133,7 +133,10 @@ public class ApplicantProgramIneligibleController extends CiviFormController {
                                       ReadOnlyApplicantProgramService roApplicantProgramService =
                                           applicantService
                                               .getReadOnlyApplicantProgramService(
-                                                  applicantId, programId)
+                                                  applicantId,
+                                                  programId,
+                                                  settingsManifest.getEnumeratorImprovementsEnabled(
+                                                      request))
                                               .toCompletableFuture()
                                               .join();
                                       CiviFormProfile profile =

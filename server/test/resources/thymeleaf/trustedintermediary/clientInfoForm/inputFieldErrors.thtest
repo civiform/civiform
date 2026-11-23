@@ -1,0 +1,34 @@
+%NAME inputField - field errors outline the input and fill the errors div
+%TEMPLATE_MODE HTML
+%CONTEXT
+field = new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("", \
+    @com.google.common.collect.ImmutableList@of("Date of birth required", "Second error"))
+%MESSAGES
+toast.errorMessageOutline=Error: {0}
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{trustedintermediary/fragments/ClientInfoForm :: inputField('date', 'date-of-birth-input', 'dob', 'Date of birth', true, ${field}, null, null, null)}"></div>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="mb-2">
+  <label for="date-of-birth-input" class="usa-label mt-0"
+    >Date of birth<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+  >
+  <div class="flex flex-col">
+    <input
+      type="date"
+      value=""
+      aria-describedby="date-of-birth-input-errors"
+      aria-invalid="true"
+      maxlength="10000"
+      aria-required="true"
+      id="date-of-birth-input"
+      name="dob"
+      class="usa-input usa-input--error"
+    />
+    <div id="date-of-birth-input-errors" class="text-red-600 text-xs p-1">
+      <div>Error: Date of birth required</div>
+      <div>Error: Second error</div>
+    </div>
+  </div>
+</div>

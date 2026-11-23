@@ -157,7 +157,10 @@ public class ApplicantAddressCorrectionController extends CiviFormController {
                                       ReadOnlyApplicantProgramService roApplicantProgramService =
                                           applicantService
                                               .getReadOnlyApplicantProgramService(
-                                                  applicantId, programId)
+                                                  applicantId,
+                                                  programId,
+                                                  settingsManifest.getEnumeratorImprovementsEnabled(
+                                                      request))
                                               .toCompletableFuture()
                                               .join();
                                       Block thisBlockUpdated =

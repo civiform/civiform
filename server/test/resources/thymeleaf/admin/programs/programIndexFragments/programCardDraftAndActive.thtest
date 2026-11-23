@@ -1,0 +1,169 @@
+%NAME programCard - draft row above a bordered active row
+%TEMPLATE_MODE HTML
+%CONTEXT
+templateGlobals = @views.shared.TemplateGlobals@builder().csrfToken("token").build()
+card = @views.admin.programs.ProgramIndexPageViewModel$ProgramCard@builder() \
+    .title("Utility Discount").shortDescription("Help with utilities") \
+    .programType(@services.program.ProgramType@DEFAULT) \
+    .adminNote("Internal note").visibilityState("Public").categoriesText("Food, Housing") \
+    .draftRow(@views.admin.programs.ProgramIndexPageViewModel$ProgramRow@builder() \
+        .id(2L).active(false).secondRow(false) \
+        .updatedDateTime("2024/02/02 at 9:00 AM PST").updatedDate("2024/02/02") \
+        .blockCount(1).questionCount(1) \
+        .universalQuestionsText("Contains all universal questions ") \
+        .translationComplete(true) \
+        .rowActions(@com.google.common.collect.ImmutableList@of( \
+            @views.admin.programs.ProgramIndexPageViewModel$Action@builder() \
+                .id("publish-modal-utility-discount-button").label("Publish") \
+                .iconFragment("iconPublish").build())) \
+        .extraActions(@com.google.common.collect.ImmutableList@of( \
+            @views.admin.programs.ProgramIndexPageViewModel$Action@builder() \
+                .label("Export program").iconFragment("iconDownload") \
+                .dropdownStyle(true).redirectUrl("/export").build())) \
+        .build()) \
+    .activeRow(@views.admin.programs.ProgramIndexPageViewModel$ProgramRow@builder() \
+        .id(1L).active(true).secondRow(true) \
+        .updatedDateTime("2024/01/01 at 9:00 AM PST").updatedDate("2024/01/01") \
+        .blockCount(3).questionCount(5) \
+        .translationComplete(true) \
+        .rowActions(@com.google.common.collect.ImmutableList@of( \
+            @views.admin.programs.ProgramIndexPageViewModel$Action@builder() \
+                .label("Share link").iconFragment("iconContentCopy") \
+                .copyableLink("https://example.com/programs/utility-discount").build())) \
+        .extraActions(@com.google.common.collect.ImmutableList@of()) \
+        .build()) \
+    .build()
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{admin/programs/fragments/ProgramIndexProgramCard :: programCard(${card})}"></div>
+# ----------------------------------------------------------------------
+# The icons are faked so these tests stay about the card; each icon has its
+# own thtests under admin/shared/legacySvgFragments/.
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconCheck(classes)" th:text="|iconCheck(${classes})|"></svg>
+<svg th:fragment="iconClose(classes)" th:text="|iconClose(${classes})|"></svg>
+<svg th:fragment="iconImage(classes)" th:text="|iconImage(${classes})|"></svg>
+<svg th:fragment="iconNoiseControlOff(classes)" th:text="|iconNoiseControlOff(${classes})|"></svg>
+<svg th:fragment="iconMoreVert(classes)" th:text="|iconMoreVert(${classes})|"></svg>
+<svg th:fragment="iconPublish(classes)" th:text="|iconPublish(${classes})|"></svg>
+<svg th:fragment="iconDownload(classes)" th:text="|iconDownload(${classes})|"></svg>
+<svg th:fragment="iconContentCopy(classes)" th:text="|iconContentCopy(${classes})|"></svg>
+# ----------------------------------------------------------------------
+%OUTPUT
+<div class="cf-admin-program-card w-full my-4 pl-6 border border-gray-300 rounded-lg">
+  <div class="flex">
+    <div class="w-1/4 py-7 pr-2">
+      <p class="cf-program-title text-black font-bold text-xl">Utility Discount</p>
+      <div class="cf-program-description line-clamp-2 text-sm lg:text-base mb-4">
+        <span>Help with utilities</span>
+      </div>
+      <p class="line-clamp-3 text-sm lg:text-base">
+        <span class="font-semibold">Admin note: </span><span>Internal note</span>
+      </p>
+      <p class="text-sm lg:text-base mb-4">
+        <span class="font-semibold">Visibility state: </span><span>Public</span>
+      </p>
+      <p class="text-sm lg:text-base">
+        <span class="font-semibold">Categories:  </span><span>Food, Housing</span>
+      </p>
+    </div>
+    <div class="flex-grow text-sm lg:text-base">
+      <div data-lifecycle-stage="draft" class="py-7 flex flex-row hover:bg-gray-100">
+        <div>
+          <svg>iconImage(w-16 h-9 text-gray-300)</svg>
+        </div>
+        <p class="font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8 bg-civiform-purple-light text-civiform-purple">
+          <svg>iconNoiseControlOff(inline-block w-5 h-5)</svg><span class="mr-1">Draft</span>
+        </p>
+        <div class="ml-4 xl:ml-10">
+          <p>
+            <span>Edited on </span><span class="cf-bt-date font-semibold hidden lg:inline">2024/02/02 at 9:00 AM PST</span><span class="cf-bt-date font-semibold lg:hidden">2024/02/02</span>
+          </p>
+          <p>
+            <span class="font-semibold">1</span><span> screen, </span><span class="font-semibold">1</span><span> question</span>
+          </p>
+          <p>Contains all universal questions </p>
+          <div class="flex items-center gap-1">
+            Translation complete
+            <svg>iconCheck(h-4 w-4)</svg>
+          </div>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex space-x-2 pr-6 font-medium">
+          <button
+            id="publish-modal-utility-discount-button"
+            class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200 rounded-full"
+          >
+            <svg>iconPublish(inline-block h-4.5 w-4.5)</svg>
+            <span class="text-left">Publish</span>
+          </button>
+          <div class="relative">
+            <button
+              id="extra-actions-2"
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12"
+            >
+              <svg>iconMoreVert(inline-block h-4.5 w-4.5)</svg>
+              <span class="text-left"></span>
+            </button>
+            <div
+              id="extra-actions-2-dropdown"
+              class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+            >
+              <button
+                data-redirect-to="/export"
+                class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200"
+              >
+                <svg>iconDownload(inline-block h-4.5 w-4.5)</svg>
+                <span class="text-left">Export program</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div data-lifecycle-stage="active" class="py-7 flex flex-row hover:bg-gray-100 border-t">
+        <div>
+          <svg>iconImage(w-16 h-9 text-gray-300)</svg>
+        </div>
+        <p class="font-medium rounded-full flex flex-row gap-x-2 place-items-center justify-center h-10 w-32 ml-2 xl:ml-8 bg-civiform-green-light text-civiform-green">
+          <svg>iconNoiseControlOff(inline-block w-5 h-5)</svg><span class="mr-1">Active</span>
+        </p>
+        <div class="ml-4 xl:ml-10">
+          <p>
+            <span>Published on </span><span class="cf-bt-date font-semibold hidden lg:inline">2024/01/01 at 9:00 AM PST</span><span class="cf-bt-date font-semibold lg:hidden">2024/01/01</span>
+          </p>
+          <p>
+            <span class="font-semibold">3</span><span> screens, </span><span class="font-semibold">5</span><span> questions</span>
+          </p>
+          <div class="flex items-center gap-1">
+            Translation complete
+            <svg>iconCheck(h-4 w-4)</svg>
+          </div>
+        </div>
+        <div class="flex-grow"></div>
+        <div class="flex space-x-2 pr-6 font-medium">
+          <button
+            data-copyable-program-link="https://example.com/programs/utility-discount"
+            class="flex items-center font-medium space-x-2 border-none bg-transparent text-civiform-blue hover:bg-gray-200 rounded-full"
+          >
+            <svg>iconContentCopy(inline-block h-4.5 w-4.5)</svg>
+            <span class="text-left">Share link</span>
+          </button>
+          <div class="relative">
+            <button
+              id="extra-actions-1"
+              class="flex items-center font-medium space-x-2 border-none rounded-full bg-transparent text-civiform-blue hover:bg-gray-200 cf-with-dropdown h-12 invisible"
+            >
+              <svg>iconMoreVert(inline-block h-4.5 w-4.5)</svg>
+              <span class="text-left"></span>
+            </button>
+            <div
+              id="extra-actions-1-dropdown"
+              class="hidden flex flex-col border bg-white absolute right-0 w-56 z-50 border-gray-200"
+            >
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

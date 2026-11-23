@@ -97,6 +97,7 @@ import services.question.exceptions.UnsupportedScalarTypeException;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 import services.question.types.ScalarType;
+import services.settings.SettingsManifest;
 import services.statuses.StatusDefinitions;
 import views.applicant.addresscorrection.AddressCorrectionBlockView;
 
@@ -133,6 +134,7 @@ public final class ApplicantService {
   private final MessagesApi messagesApi;
   private final Database database;
   private final ApiBridgeProcessor apiBridgeProcessor;
+  private final SettingsManifest settingsManifest;
 
   @Inject
   public ApplicantService(
@@ -154,7 +156,8 @@ public final class ApplicantService {
       ServiceAreaUpdateResolver serviceAreaUpdateResolver,
       EsriClient esriClient,
       MessagesApi messagesApi,
-      ApiBridgeProcessor apiBridgeProcessor) {
+      ApiBridgeProcessor apiBridgeProcessor,
+      SettingsManifest settingsManifest) {
     this.applicationEventRepository = checkNotNull(applicationEventRepository);
     this.applicationRepository = checkNotNull(applicationRepository);
     this.accountRepository = checkNotNull(accountRepository);
@@ -182,6 +185,7 @@ public final class ApplicantService {
     this.esriClient = checkNotNull(esriClient);
     this.database = DB.getDefault();
     this.apiBridgeProcessor = checkNotNull(apiBridgeProcessor);
+    this.settingsManifest = checkNotNull(settingsManifest);
   }
 
   /** Create a new {@link ApplicantModel}. */
@@ -197,9 +201,13 @@ public final class ApplicantService {
    *
    * <p>A ProgramNotFoundException may be thrown when the future completes if the programId does not
    * correspond to a real Program.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on for the
+   *     current request. With it on, an enumerator's initial question must be answered for every
+   *     entity before its block counts as complete.
    */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
-      long applicantId, long programId) {
+      long applicantId, long programId, boolean enumeratorImprovementsEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
     CompletableFuture<ProgramDefinition> programDefinitionCompletableFuture =
@@ -215,43 +223,76 @@ public final class ApplicantService {
                   jsonPathPredicateGeneratorFactory,
                   applicant,
                   applicant.getApplicantData(),
-                  programDefinition);
+                  programDefinition,
+                  /* failedUpdates= */ ImmutableMap.of(),
+                  enumeratorImprovementsEnabled);
             },
             classLoaderExecutionContext.current());
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from an application. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from an application.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
+   */
   public CompletionStage<ReadOnlyApplicantProgramService> getReadOnlyApplicantProgramService(
-      ApplicationModel application) {
+      ApplicationModel application, boolean enumeratorImprovementsEnabled) {
     try {
       return CompletableFuture.completedFuture(
           new ReadOnlyApplicantProgramService(
               jsonPathPredicateGeneratorFactory,
               application.getApplicant(),
               application.getApplicantData(),
-              programService.getFullProgramDefinition(application.getProgram().id)));
+              programService.getFullProgramDefinition(application.getProgram().id),
+              /* failedUpdates= */ ImmutableMap.of(),
+              enumeratorImprovementsEnabled));
     } catch (ProgramNotFoundException e) {
       throw new RuntimeException("Cannot find a program that has applications for it.", e);
     }
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from an application and program definition. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from an application and program definition.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
+   */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
-      ApplicationModel application, ProgramDefinition programDefinition) {
+      ApplicationModel application,
+      ProgramDefinition programDefinition,
+      boolean enumeratorImprovementsEnabled) {
     return new ReadOnlyApplicantProgramService(
         jsonPathPredicateGeneratorFactory,
         application.getApplicant(),
         application.getApplicantData(),
-        programDefinition);
+        programDefinition,
+        /* failedUpdates= */ ImmutableMap.of(),
+        enumeratorImprovementsEnabled);
   }
 
-  /** Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition. */
+  /**
+   * Get a {@link ReadOnlyApplicantProgramService} from applicant data and a program definition.
+   *
+   * @param enumeratorImprovementsEnabled whether the enumerator improvements flag is on. With it
+   *     on, an enumerator's initial question must be answered for every entity before its block
+   *     counts as complete.
+   */
   public ReadOnlyApplicantProgramService getReadOnlyApplicantProgramService(
-      ApplicantData applicantData, ProgramDefinition programDefinition) {
+      ApplicantData applicantData,
+      ProgramDefinition programDefinition,
+      boolean enumeratorImprovementsEnabled) {
     ApplicantModel applicant = new ApplicantModel();
     applicant.setApplicantData(applicantData);
     return new ReadOnlyApplicantProgramService(
-        jsonPathPredicateGeneratorFactory, applicant, applicantData, programDefinition);
+        jsonPathPredicateGeneratorFactory,
+        applicant,
+        applicantData,
+        programDefinition,
+        /* failedUpdates= */ ImmutableMap.of(),
+        enumeratorImprovementsEnabled);
   }
 
   /**
@@ -286,7 +327,8 @@ public final class ApplicantService {
       ImmutableMap<String, String> updateMap,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -321,7 +363,8 @@ public final class ApplicantService {
         updates,
         addressServiceAreaValidationEnabled,
         forceUpdate,
-        apiBridgeEnabled);
+        apiBridgeEnabled,
+        enumeratorImprovementsEnabled);
   }
 
   /**
@@ -367,7 +410,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       boolean addressServiceAreaValidationEnabled,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     CompletableFuture<Optional<ApplicantModel>> applicantCompletableFuture =
         accountRepository.lookupApplicant(applicantId).toCompletableFuture();
 
@@ -390,7 +434,9 @@ public final class ApplicantService {
                       jsonPathPredicateGeneratorFactory,
                       applicant,
                       applicant.getApplicantData(),
-                      programDefinition);
+                      programDefinition,
+                      /* failedUpdates= */ ImmutableMap.of(),
+                      enumeratorImprovementsEnabled);
               Optional<Block> maybeBlockBeforeUpdate =
                   readOnlyApplicantProgramServiceBeforeUpdate.getActiveBlock(blockId);
               if (maybeBlockBeforeUpdate.isEmpty()) {
@@ -433,7 +479,8 @@ public final class ApplicantService {
                               updates,
                               serviceAreaUpdate,
                               forceUpdate,
-                              apiBridgeEnabled);
+                              apiBridgeEnabled,
+                              enumeratorImprovementsEnabled);
                         },
                         classLoaderExecutionContext.current());
               }
@@ -445,7 +492,8 @@ public final class ApplicantService {
                   updates,
                   Optional.empty(),
                   forceUpdate,
-                  apiBridgeEnabled);
+                  apiBridgeEnabled,
+                  enumeratorImprovementsEnabled);
             },
             classLoaderExecutionContext.current())
         .thenCompose(
@@ -462,7 +510,8 @@ public final class ApplicantService {
       ImmutableSet<Update> updates,
       Optional<ServiceAreaUpdate> serviceAreaUpdate,
       boolean forceUpdate,
-      boolean apiBridgeEnabled) {
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
     UpdateMetadata updateMetadata = UpdateMetadata.create(programDefinition.id(), clock.millis());
     ImmutableMap<Path, String> failedUpdates;
     try {
@@ -483,7 +532,8 @@ public final class ApplicantService {
             applicant,
             applicant.getApplicantData(),
             programDefinition,
-            failedUpdates);
+            failedUpdates,
+            enumeratorImprovementsEnabled);
 
     Optional<Block> blockMaybe =
         roApplicantProgramService.getActiveBlock(blockBeforeUpdate.getId());
@@ -535,10 +585,13 @@ public final class ApplicantService {
       CiviFormProfile submitterProfile,
       Request request,
       boolean answerOptionScoringEnabled) {
+    boolean enumeratorImprovementsEnabled =
+        settingsManifest.getEnumeratorImprovementsEnabled(request);
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {
-        return getReadOnlyApplicantProgramService(applicantId, programId)
+        return getReadOnlyApplicantProgramService(
+                applicantId, programId, enumeratorImprovementsEnabled)
             .thenCompose(
                 ro ->
                     validateApplicationForSubmission(ro, programId)
@@ -566,7 +619,8 @@ public final class ApplicantService {
                             classLoaderExecutionContext.current()));
       }
 
-      return getReadOnlyApplicantProgramService(applicantId, programId)
+      return getReadOnlyApplicantProgramService(
+              applicantId, programId, enumeratorImprovementsEnabled)
           .thenCompose(
               ro ->
                   validateApplicationForSubmission(ro, programId)
@@ -876,7 +930,11 @@ public final class ApplicantService {
         programService.getFullProgramDefinitionAsync(programId).toCompletableFuture();
 
     CompletableFuture<List<StoredFileModel>> storedFilesFuture =
-        getReadOnlyApplicantProgramService(applicantId, programId)
+        // The enumerator improvements flag only changes block completion and validation checks.
+        // The stored file keys come from the answers to file upload questions, so the value
+        // doesn't matter.
+        getReadOnlyApplicantProgramService(
+                applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
             .thenApplyAsync(
                 applicantService -> applicantService.getStoredFileKeys(),
                 classLoaderExecutionContext.current())
@@ -1269,8 +1327,14 @@ public final class ApplicantService {
    */
   public Optional<Boolean> getApplicantMayBeEligibleStatus(
       ApplicantModel applicant, ProgramDefinition programDefinition) {
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // eligibility check only looks at eligibility conditions and whether their questions are
+    // answered, so the value doesn't matter.
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(applicant.getApplicantData(), programDefinition);
+        getReadOnlyApplicantProgramService(
+            applicant.getApplicantData(),
+            programDefinition,
+            /* enumeratorImprovementsEnabled= */ false);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
@@ -1283,8 +1347,12 @@ public final class ApplicantService {
    */
   public Optional<Boolean> getApplicationEligibilityStatus(
       ApplicationModel application, ProgramDefinition programDefinition) {
+    // The enumerator improvements flag only changes block completion and validation checks. The
+    // eligibility check only looks at eligibility conditions and whether their questions are
+    // answered, so the value doesn't matter.
     ReadOnlyApplicantProgramService roAppProgramService =
-        getReadOnlyApplicantProgramService(application, programDefinition);
+        getReadOnlyApplicantProgramService(
+            application, programDefinition, /* enumeratorImprovementsEnabled= */ false);
     return programDefinition.hasEligibilityEnabled()
         ? Optional.of(!roAppProgramService.isApplicationNotEligible())
         : Optional.empty();
@@ -1779,6 +1847,11 @@ public final class ApplicantService {
 
     // Write each field value using the setter for its scalar type.
     for (Update update : initialQuestionUpdates) {
+      if (isEntityRowMarker(update.path(), enumeratorPath)) {
+        // The row's marker only says the entity exists, so it's counted in entityIndices below
+        // but not stored. The entity name is derived from the answer.
+        continue;
+      }
       ScalarType type = scalarTypesByFieldName.get(update.path().keyName());
       if (type == null) {
         // The update was classified as an initial-question field, so its final segment should match
@@ -1815,6 +1888,21 @@ public final class ApplicantService {
           applicantData,
           updateMetadata);
     }
+  }
+
+  /**
+   * Returns true if the update path is the blank row marker that each initial question row submits
+   * (e.g. {@code household_members[0].entity_row}). It makes the server create the entity even when
+   * the row's answer submits no value, such as an unselected radio button or an empty date. See
+   * {@link RepeatedEntity#ENTITY_ROW_MARKER}.
+   */
+  private boolean isEntityRowMarker(Path updatePath, Path enumeratorPath) {
+    int enumeratorDepth = enumeratorPath.segments().size();
+    return updatePath.segments().size() == enumeratorDepth + 1
+        && updatePath.equals(
+            enumeratorPath
+                .atIndex(getEntityIndexFromPath(updatePath, enumeratorDepth))
+                .join(RepeatedEntity.ENTITY_ROW_MARKER));
   }
 
   /**
@@ -2102,7 +2190,10 @@ public final class ApplicantService {
       String blockId,
       Optional<String> selectedAddress,
       ImmutableList<AddressSuggestion> addressSuggestions) {
-    return getReadOnlyApplicantProgramService(applicantId, programId)
+    // The enumerator improvements flag only changes block completion and validation checks. This
+    // only looks up the block's address question, so the value doesn't matter.
+    return getReadOnlyApplicantProgramService(
+            applicantId, programId, /* enumeratorImprovementsEnabled= */ false)
         .thenComposeAsync(
             roApplicantProgramService -> {
               Optional<Block> blockMaybe = roApplicantProgramService.getActiveBlock(blockId);

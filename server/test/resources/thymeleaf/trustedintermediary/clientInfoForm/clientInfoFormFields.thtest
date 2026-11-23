@@ -1,0 +1,128 @@
+%NAME clientInfoForm - note, fields in legacy order, CSRF token and buttons; no suffix select
+%TEMPLATE_MODE HTML
+%CONTEXT
+form = @views.trustedintermediary.TrustedIntermediaryClientInfoForm@builder() \
+    .formId("edit-ti") \
+    .actionUrl("/admin/tiDash/editClient/7") \
+    .showNameSuffix(false) \
+    .firstName(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("Ada", @com.google.common.collect.ImmutableList@of())) \
+    .middleName(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("", @com.google.common.collect.ImmutableList@of())) \
+    .lastName(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("Lovelace", @com.google.common.collect.ImmutableList@of())) \
+    .nameSuffix(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("", @com.google.common.collect.ImmutableList@of())) \
+    .phoneNumber(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("2065550123", @com.google.common.collect.ImmutableList@of())) \
+    .emailAddress(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("ada@example.com", @com.google.common.collect.ImmutableList@of())) \
+    .dateOfBirth(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("1815-12-10", @com.google.common.collect.ImmutableList@of())) \
+    .tiNote(new views.trustedintermediary.TrustedIntermediaryClientInfoForm$Field("Note", @com.google.common.collect.ImmutableList@of())) \
+    .suffixOptions(@com.google.common.collect.ImmutableList@of()) \
+    .build()
+%MESSAGES
+content.requiredFieldsNote=Note: Fields marked with a {0} are required.
+content.optional=(optional)
+content.emailTooltip=Add an email address.
+label.firstName=First name
+label.middleName=Middle name
+label.lastName=Last name
+label.phoneNum=Phone number
+label.email=Email
+label.dob=Date of birth
+label.notes=Notes
+button.save=Save
+button.cancel=Cancel
+# ----------------------------------------------------------------------
+%INPUT
+<div th:replace="~{trustedintermediary/fragments/ClientInfoForm :: clientInfoForm(${form}, 'https://civiform.example.com/admin/tiDash?page=1', 'csrf-token')}"></div>
+%INPUT[admin/shared/LegacySvgFragments]
+<svg th:fragment="iconInfo(classes)" th:text="|iconInfo(${classes})|"></svg>
+# ----------------------------------------------------------------------
+# No whitespace between the CSRF input and the buttons: the buttons are
+# inline-block, and j2html put no text node between them.
+%OUTPUT
+<div>
+  <p class="text-sm text-gray-600 mb-2">Note: Fields marked with a <span class="text-red-600">*</span> are required.</p>
+  <div>
+    <form
+      id="edit-ti"
+      method="POST"
+      action="/admin/tiDash/editClient/7"
+      class="w-1/2 mt-6"
+    >
+      <div class="mb-2">
+        <label for="first-name-input" class="usa-label mt-0"
+          >First name<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input type="text" value="Ada" maxlength="10000" aria-required="true" id="first-name-input" name="firstName" class="usa-input" />
+          <div id="first-name-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="middle-name-input" class="usa-label mt-0"
+          >Middle name (optional)<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input type="text" value="" maxlength="10000" id="middle-name-input" name="middleName" class="usa-input" />
+          <div id="middle-name-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="last-name-input" class="usa-label mt-0"
+          >Last name<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input type="text" value="Lovelace" maxlength="10000" aria-required="true" id="last-name-input" name="lastName" class="usa-input" />
+          <div id="last-name-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="phone-number-input" class="usa-label mt-0"
+          >Phone number (optional)<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input type="text" inputmode="tel" value="2065550123" maxlength="10000" id="phone-number-input" name="phoneNumber" placeholder="(xxx) xxx-xxxx" class="usa-input" />
+          <div id="phone-number-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="email-input" class="usa-label mt-0">Email (optional) <span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span><span><div class="group inline"><svg>iconInfo(inline-block w-5 relative)</svg><span class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5">Add an email address.</span></div></span></label>
+        <div class="flex flex-col">
+          <input type="email" value="ada@example.com" maxlength="10000" id="email-input" name="emailAddress" class="usa-input" />
+          <div id="email-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="date-of-birth-input" class="usa-label mt-0"
+          >Date of birth<span class="usa-hint--required" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <input type="date" value="1815-12-10" maxlength="10000" aria-required="true" id="date-of-birth-input" name="dob" class="usa-input" />
+          <div id="date-of-birth-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <div class="mb-2">
+        <label for="ti-note-input" class="usa-label mt-0"
+          >Notes (optional)<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+        >
+        <div class="flex flex-col">
+          <textarea maxlength="10000" id="ti-note-input" name="tiNote" class="usa-textarea">Note</textarea>
+          <div id="ti-note-input-errors" class="text-red-600 text-xs p-1 hidden">
+          </div>
+        </div>
+      </div>
+      <input hidden value="csrf-token" name="csrfToken" /><button
+        type="submit"
+        class="usa-button"
+      >Save</button
+      ><button
+        type="button"
+        class="usa-button usa-button--outline m-2"
+        data-redirect-to="https://civiform.example.com/admin/tiDash?page=1"
+      >Cancel</button>
+    </form>
+  </div>
+</div>

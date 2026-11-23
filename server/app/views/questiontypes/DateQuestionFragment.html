@@ -22,7 +22,8 @@
         question=${question},
         questionRendererParams=${questionRendererParams},
         questionId=${questionId},
-        isInitialQuestion=false)}"
+        isInitialQuestion=false,
+        listErrorsId=null)}"
     ></div>
   </fieldset>
 </div>
@@ -32,7 +33,7 @@
      role="group" wrapper and the group label, so the title, help text, and standalone fieldset are
      omitted here. */-->
 <div
-  th:fragment="dateForInitialQuestion(question, questionRendererParams)"
+  th:fragment="dateForInitialQuestion(question, questionRendererParams, listErrorsId)"
   th:with="dateQuestion=${question.createDateQuestion()},
            hasErrors=${questionRendererParams.shouldShowErrors() && !dateQuestion.getValidationErrors().isEmpty()},
            questionId=${'id-' + #strings.randomAlphanumeric(8)}"
@@ -45,15 +46,19 @@
       question=${question},
       questionRendererParams=${questionRendererParams},
       questionId=${questionId},
-      isInitialQuestion=true)}"
+      isInitialQuestion=true,
+      listErrorsId=${listErrorsId})}"
   ></div>
 </div>
 
 <!--/* The date input fields (month, day, year), shared by the standalone and initial-question
      fragments. When isInitialQuestion is true there is no title/help text, so each
-     input's aria-describedby omits the "-description" reference. */-->
+     input's aria-describedby omits the "-description" reference. listErrorsId is the enumerator's
+     list-level errors id when this is the first entity row of a list with such an error (otherwise
+     null); the month input's aria-describedby starts with it, and month takes FIRST_FIELD
+     autofocus. */-->
 <th:block
-  th:fragment="dateFields(question, questionRendererParams, questionId, isInitialQuestion)"
+  th:fragment="dateFields(question, questionRendererParams, questionId, isInitialQuestion, listErrorsId)"
   th:with="dateQuestion=${question.createDateQuestion()},
            fieldErrors=${dateQuestion.getValidationErrors().get(dateQuestion.getDatePath())},
            questionErrors=${dateQuestion.getValidationErrors().get(question.getContextualizedPath())},
@@ -64,7 +69,8 @@
            errorId=${questionId + '-error'},
            descriptionId=${isInitialQuestion ? null : questionId + '-description'},
            describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
-           monthDescribedBy=${monthHasError ? describedByPrefix + errorId : descriptionId},
+           monthOwnDescribedBy=${monthHasError ? describedByPrefix + errorId : descriptionId},
+           monthDescribedBy=${listErrorsId == null ? monthOwnDescribedBy : listErrorsId + (monthOwnDescribedBy != null ? ' ' + monthOwnDescribedBy : '')},
            dayDescribedBy=${dayHasError ? describedByPrefix + errorId : descriptionId},
            yearDescribedBy=${yearHasError ? describedByPrefix + errorId : descriptionId}"
 >
@@ -104,7 +110,7 @@
         th:name="${dateQuestion.getMonthPath()}"
         th:with="value=${dateQuestion.getMonthValue().orElse('')}"
         th:aria-describedby="${monthDescribedBy}"
-        th:autofocus="${questionRendererParams.autofocusFirstError() && monthHasError}"
+        th:autofocus="${(questionRendererParams.autofocusFirstError() && monthHasError) || questionRendererParams.autofocusFirstField()}"
         th:aria-required="${!question.isOptional()}"
       >
         <option value th:text="#{placeholder.memorableDate}"></option>

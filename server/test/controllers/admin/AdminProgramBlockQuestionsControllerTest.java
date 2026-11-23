@@ -408,7 +408,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     assertThat(contentAsString(result))
         .contains("<div id=\"enumerator-setup\" class=\"maxw-mobile-lg\">");
     assertThat(contentAsString(result))
-        .contains("Error: Question text cannot be blank. Initial question must be added.");
+        .contains("Error: Enter prompt text. Please add an initial question.");
   }
 
   @Test
@@ -445,7 +445,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     Result result = controller.hxCreateEnumerator(request, program.id, nestedBlockId);
 
     assertThat(result.status()).isEqualTo(OK);
-    assertThat(contentAsString(result)).contains("Error: Initial question must be added.");
+    assertThat(contentAsString(result)).contains("Error: Please add an initial question.");
     assertThat(contentAsString(result)).doesNotContain("Repeated questions must reference");
   }
 

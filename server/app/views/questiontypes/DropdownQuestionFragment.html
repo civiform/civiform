@@ -55,7 +55,11 @@
   th:fragment="dropdownField(question, questionRendererParams, inputId, isInitialQuestion, ariaLabelledby, ariaDescribedby, errorAnchorId)"
   th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
               questionErrors=${singleSelectQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && questionErrors != null && !questionErrors.isEmpty()},
+              standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+              initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+                : ariaDescribedby == null ? errorAnchorId + '-error'
+                : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <div
@@ -70,8 +74,8 @@
     th:name="${singleSelectQuestion.getSelectionPath()}"
     th:aria-required="${!question.isOptional()}"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
-    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
+    th:autofocus="${questionRendererParams.autofocusSingleField()}"
   >
     <option
       value

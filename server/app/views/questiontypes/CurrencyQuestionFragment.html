@@ -55,7 +55,11 @@
   th:with="currencyQuestion=${question.createCurrencyQuestion()},
              fieldErrors=${currencyQuestion.getValidationErrors().get(currencyQuestion.getCurrencyPath())},
              questionErrors=${currencyQuestion.getValidationErrors().get(question.getContextualizedPath())},
-             hasErrors=${questionRendererParams.shouldShowErrors() && !currencyQuestion.getValidationErrors().isEmpty()}"
+             hasErrors=${questionRendererParams.shouldShowErrors() && !currencyQuestion.getValidationErrors().isEmpty()},
+             standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+             initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+               : ariaDescribedby == null ? errorAnchorId + '-error'
+               : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -83,10 +87,10 @@
       th:name="${currencyQuestion.getCurrencyPath()}"
       th:value="${value}"
       th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-      th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+      th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
       th:aria-required="${!question.isOptional()}"
       th:aria-invalid="${hasErrors}"
-      th:autofocus="${questionRendererParams.autofocusFirstError()}"
+      th:autofocus="${questionRendererParams.autofocusSingleField()}"
     />
   </div>
 </th:block>

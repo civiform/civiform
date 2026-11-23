@@ -211,6 +211,6 @@ if (unknown > tests.length * 0.05) {
   console.error(
     `::warning::${unknown} of ${tests.length} browser tests have no recorded duration, so shards ` +
       'may be unbalanced. Refresh browser-test/shard-durations.json with ' +
-      'bin/update_shard_durations.mjs --from-github',
+      'browser-test/bin/update_shard_durations.mjs --from-github',
   )
 }

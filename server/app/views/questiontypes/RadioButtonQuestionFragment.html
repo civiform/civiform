@@ -22,7 +22,8 @@
       th:replace="~{this :: radioFields(
         question=${question},
         questionRendererParams=${questionRendererParams},
-        questionId=${questionId})}"
+        questionId=${questionId},
+        listErrorsId=null)}"
     ></div>
   </fieldset>
 </div>
@@ -32,7 +33,7 @@
      role="group" wrapper and the group label, so the title, help text, and standalone fieldset are
      omitted here. */-->
 <div
-  th:fragment="radioForInitialQuestion(question, questionRendererParams)"
+  th:fragment="radioForInitialQuestion(question, questionRendererParams, listErrorsId)"
   th:with="questionId=${'id-' + #strings.randomAlphanumeric(8)},
   singleSelectQuestion=${question.createSingleSelectQuestion()},
   hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
@@ -44,14 +45,17 @@
     th:replace="~{this :: radioFields(
       question=${question},
       questionRendererParams=${questionRendererParams},
-      questionId=${questionId})}"
+      questionId=${questionId},
+      listErrorsId=${listErrorsId})}"
   ></div>
 </div>
 
 <!--/* The radio option inputs and question-level errors, shared by the standalone and
-     initial-question fragments. */-->
+     initial-question fragments. listErrorsId is the enumerator's list-level errors id when this is
+     the first entity row of a list with such an error (otherwise null); the first option's
+     aria-describedby starts with it, and the first option takes FIRST_FIELD autofocus. */-->
 <th:block
-  th:fragment="radioFields(question, questionRendererParams, questionId)"
+  th:fragment="radioFields(question, questionRendererParams, questionId, listErrorsId)"
   th:with="singleSelectQuestion=${question.createSingleSelectQuestion()},
   hasErrors=${questionRendererParams.shouldShowErrors() && !singleSelectQuestion.getValidationErrors().isEmpty()}"
 >
@@ -73,10 +77,11 @@
           ${singleSelectQuestion.getSelectionPath()},
           ${singleSelectQuestion.optionIsSelected(option)},
           ${!question.isOptional()},
-          ${questionRendererParams.autofocusFirstError() && iterator.index == 0},
+          ${questionRendererParams.autofocusSingleField() && iterator.index == 0},
           ${option.formattedOptionText(ariaLabelForNewTabs)},
           ${hasErrors},
-          ${questionId})}"
+          ${questionId},
+          ${iterator.index == 0 ? listErrorsId : null})}"
     ></div>
   </div>
 </th:block>

@@ -16,6 +16,7 @@ import static j2html.TagCreator.label;
 import static j2html.TagCreator.legend;
 import static j2html.TagCreator.li;
 import static j2html.TagCreator.p;
+import static j2html.TagCreator.rawHtml;
 import static j2html.TagCreator.span;
 import static j2html.TagCreator.text;
 import static j2html.TagCreator.ul;
@@ -685,17 +686,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
             .withClasses("my-4")
             .with(
                 div(showRepeatedQuestionsSectionStyling
-                        ? messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName())
+                        ? getRepeatedQuestionsHeading(messages, optionalParentEnumeratorBlock)
                         : "Questions")
                     .withClasses("text-lg", "font-bold", "py-2"),
                 iff(
                     showRepeatedQuestionsSectionStyling,
-                    p(messages.at(MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
-                        .withClasses(
-                            "text-gray-cool-50",
-                            "font-ui-sm",
-                            "margin-bottom-1",
-                            "maxw-mobile-lg")));
+                    div(
+                            p(messages.at(
+                                    MessageKey.TEXT_REPEATED_QUESTIONS_DESCRIPTION.getKeyName()))
+                                .withClass("margin-bottom-1"),
+                            p(messages.at(
+                                    MessageKey.TEXT_REPEATED_QUESTIONS_COPY_DESCRIPTION
+                                        .getKeyName()))
+                                .withClass("margin-bottom-1"))
+                        .withClasses("text-gray-cool-50", "font-ui-sm", "maxw-mobile-lg")));
 
     ImmutableList.Builder<DivTag> questionCardsBuilder = ImmutableList.builder();
 
@@ -819,10 +823,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
       if (showRepeatedQuestionsSectionStyling) {
         if (!isEnumeratorBlockComplete) {
           programQuestions.with(
-              AlertComponent.renderSlimInfoAlert(
-                  messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName()),
-                  "maxw-mobile-lg",
-                  "margin-bottom-1"));
+              renderAddQuestionDisabledAlert(
+                  messages, program.id(), optionalParentEnumeratorBlock));
         }
         programQuestions.with(addQuestion);
 
@@ -852,6 +854,25 @@ public final class ProgramBlocksView extends ProgramBaseView {
     div.with(blockInfoDisplay, visibilityPredicateDisplay);
     maybeEligibilityPredicateDisplay.ifPresent(div::with);
     return div.with(programQuestions);
+  }
+
+  /**
+   * Returns the heading for the questions section of a repeated screen. Names the item listed on
+   * the parent list set screen, for example "Repeated questions about each household member". Falls
+   * back to "Repeated questions" when the parent screen has no list set yet.
+   */
+  private String getRepeatedQuestionsHeading(
+      Messages messages, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    return optionalParentEnumeratorBlock
+        .filter(BlockDefinition::hasEnumeratorQuestion)
+        .map(block -> block.getEnumeratorQuestionDefinition().getEntityType())
+        .filter(entityType -> !entityType.isEmpty())
+        .map(
+            entityType ->
+                messages.at(
+                    MessageKey.HEADING_REPEATED_QUESTIONS_ABOUT_ENTITY.getKeyName(),
+                    entityType.getDefault()))
+        .orElseGet(() -> messages.at(MessageKey.HEADING_REPEATED_QUESTIONS.getKeyName()));
   }
 
   private Optional<BlockDefinition> optionallyGetParentEnumeratorBlock(
@@ -1022,12 +1043,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                             .with(ViewUtils.requiredQuestionIndicator()))
                         .withId("backfill-initial-question-label")
                         .withClasses("usa-label", "margin-top-0"),
-                    p(messages.at(
-                            MessageKey.DESCRIPTION_REPEATED_SET_BACKFILL_INITIAL_QUESTION
-                                .getKeyName()))
-                        .withId("initial-question-description")
-                        .withClasses(
-                            "font-ui-sm", "text-base", "margin-top-105", "margin-bottom-0"),
+                    div(renderInitialQuestionDescription(messages)).withClass("margin-top-105"),
                     // Wrapper keeps the 12px gap to the description when the slot is swapped.
                     div(optionalStagedInitialQuestion
                             .map(
@@ -1064,6 +1080,58 @@ public final class ProgramBlocksView extends ProgramBaseView {
         .withClasses("usa-button", "margin-top-2")
         .withText(messages.at(MessageKey.BUTTON_CONTINUE_TO_CHILD_SCREEN.getKeyName()))
         .with(Icons.svg(Icons.ARROW_FORWARD).withClasses("height-205", "width-205"));
+  }
+
+  /**
+   * Renders the warning shown on a repeated screen whose parent list set has no list set question
+   * yet. Built here instead of with {@link AlertComponent}, which adds {@code role="alert"} and
+   * {@code aria-live}. This warning is already on the page when it loads, and {@code role="alert"}
+   * makes VoiceOver split the sentence around the link. A hidden "Warning:" prefix tells screen
+   * reader users what kind of message it is.
+   */
+  // TODO(#14535): Move this static alert into AlertComponent so other pages can use it.
+  private DivTag renderAddQuestionDisabledAlert(
+      Messages messages, long programId, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    return div()
+        .withClasses(
+            "usa-alert",
+            BaseStyles.ALERT_WARNING,
+            BaseStyles.ALERT_SLIM,
+            "maxw-mobile-lg",
+            "margin-bottom-1")
+        .with(
+            div()
+                .withClass("usa-alert__body")
+                .with(
+                    p(messages.at(MessageKey.HEADING_WARNING_PREFIX.getKeyName()))
+                        .withClass("usa-sr-only"),
+                    p().withClass("usa-alert__text")
+                        .with(
+                            renderAddQuestionDisabledAlertText(
+                                messages, programId, optionalParentEnumeratorBlock))));
+  }
+
+  /**
+   * Renders the text of the alert shown on a repeated screen whose parent list set has no list set
+   * question yet. "previous screen" links to the parent screen when it's known.
+   */
+  private DomContent renderAddQuestionDisabledAlertText(
+      Messages messages, long programId, Optional<BlockDefinition> optionalParentEnumeratorBlock) {
+    String linkText = messages.at(MessageKey.LINK_REPEATED_SET_PREVIOUS_SCREEN.getKeyName());
+    String linkHtml =
+        optionalParentEnumeratorBlock
+            .map(
+                parent ->
+                    a(linkText)
+                        .withHref(
+                            controllers.admin.routes.AdminProgramBlocksController.edit(
+                                    programId, parent.id())
+                                .url())
+                        .withClass("usa-link")
+                        .render())
+            .orElse(text(linkText).render());
+    return rawHtml(
+        messages.at(MessageKey.ALERT_REPEATED_SET_ADD_QUESTION_DISABLED.getKeyName(), linkHtml));
   }
 
   private DivTag renderEnumeratorQuestionCardSection(
@@ -1139,6 +1207,16 @@ public final class ProgramBlocksView extends ProgramBaseView {
       Optional<QuestionDefinition> optionalInitialQuestion,
       boolean initialQuestionWasNewlyCreated) {
     return div(
+            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
+                .withId("repeated-set-question-section-heading")
+                .withClasses("font-bold", "margin-bottom-05", "text-black-700")
+                .with(ViewUtils.requiredQuestionIndicator()),
+            div()
+                .withClasses("font-ui-sm", "text-base", "margin-bottom-1")
+                .with(
+                    span(
+                        messages.at(
+                            MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
             renderCreationMethodRadioButtons(messages),
             renderNewEnumeratorQuestionForm(
                 request,
@@ -1282,6 +1360,23 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   /**
+   * Renders the three-paragraph initial question description. The wrapper carries the id that the
+   * "Add initial question" button references with {@code aria-describedby}, so screen readers
+   * announce all three paragraphs.
+   */
+  private DivTag renderInitialQuestionDescription(Messages messages) {
+    return div(
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
+                .withClass("margin-bottom-1"),
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_COPY.getKeyName()))
+                .withClass("margin-bottom-1"),
+            p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION_NOTE.getKeyName()))
+                .withClasses("text-italic", "margin-bottom-0"))
+        .withId("initial-question-description")
+        .withClasses("font-ui-sm", "text-base");
+  }
+
+  /**
    * Renders the empty {@code #initial-question-slot} containing the "Add initial question" button.
    * Used both for the initial render when no initial question is selected and as the HTMX response
    * when the admin clicks Remove on the initial question card to clear the selection.
@@ -1334,31 +1429,20 @@ public final class ProgramBlocksView extends ProgramBaseView {
   }
 
   private DivTag renderChooseExistingQuestion(Messages messages, Long programId, Long blockId) {
-    return div(
-            h2(messages.at(MessageKey.HEADING_REPEATED_SET_QUESTION.getKeyName()))
-                .withId("repeated-set-question-section-heading")
-                .withClasses("font-bold", "margin-bottom-05", "text-black-700")
-                .with(ViewUtils.requiredQuestionIndicator()),
-            div()
-                .withClasses("font-ui-sm", "text-base", "margin-bottom-1")
-                .with(
-                    span(
-                        messages.at(
-                            MessageKey.TEXT_REPEATED_SET_ADD_QUESTION_DESCRIPTION.getKeyName()))),
-            button("")
-                .withId("add-question")
-                .withClasses("usa-button", "usa-button--outline")
-                .attr(
-                    "hx-get",
-                    controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
-                            programId,
-                            blockId,
-                            ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())
-                        .url())
-                .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
-                .attr("hx-swap", "outerHTML")
-                .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
-                .withText(messages.at(MessageKey.BUTTON_ADD_QUESTION.getKeyName())))
+    return div(button("")
+            .withId("add-question")
+            .withClass("usa-button")
+            .attr(
+                "hx-get",
+                controllers.admin.routes.AdminProgramBlocksController.hxQuestionBankPartial(
+                        programId,
+                        blockId,
+                        ProgramQuestionBank.Mode.EXISTING_ENUMERATOR_ONLY.name())
+                    .url())
+            .attr("hx-target", "#" + ProgramQuestionBank.PANEL_FORM_ID)
+            .attr("hx-swap", "outerHTML")
+            .with(Icons.svg(Icons.ADD).withClasses("height-205", "width-205"))
+            .withText(messages.at(MessageKey.BUTTON_REPEATED_SET_CHOOSE_EXISTING.getKeyName())))
         .withId("add-question-section")
         .withClass("hidden");
   }
@@ -1502,7 +1586,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             FieldWithLabel.number()
                 .setId("min-entity-count-input")
                 .setFieldName("minEntities")
-                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MIN_ENTITIES.getKeyName()))
+                .setLabelText(
+                    messages.at(MessageKey.INPUT_REPEATED_SET_MIN_LIST_COUNT.getKeyName()))
                 .setValue(
                     optionalQuestionForm
                         .map(EnumeratorQuestionForm::getMinEntities)
@@ -1511,7 +1596,8 @@ public final class ProgramBlocksView extends ProgramBaseView {
             FieldWithLabel.number()
                 .setId("max-entity-count-input")
                 .setFieldName("maxEntities")
-                .setLabelText(messages.at(MessageKey.INPUT_REPEATED_SET_MAX_ENTITIES.getKeyName()))
+                .setLabelText(
+                    messages.at(MessageKey.INPUT_REPEATED_SET_MAX_LIST_COUNT.getKeyName()))
                 .setValue(
                     optionalQuestionForm
                         .map(EnumeratorQuestionForm::getMaxEntities)
@@ -1522,9 +1608,7 @@ public final class ProgramBlocksView extends ProgramBaseView {
                         .with(ViewUtils.requiredQuestionIndicator()))
                     .withId("initial-question-label")
                     .withClasses("usa-label"),
-                p(messages.at(MessageKey.DESCRIPTION_REPEATED_SET_INITIAL_QUESTION.getKeyName()))
-                    .withId("initial-question-description")
-                    .withClasses("font-ui-sm", "text-base"),
+                renderInitialQuestionDescription(messages),
                 optionalInitialQuestion
                     .map(
                         q ->

@@ -16,6 +16,12 @@ const ADD_BUTTON_GATING_INPUTS_SELECTOR = [
 const VISIBLE_ENTITY_FIELDS_SELECTOR =
   '.cf-question-enumerator .cf-enumerator-field:not(.display-none)'
 
+// Every entity row, including saved rows hidden by the remove button. A removed saved row keeps its
+// position (and its delete marker points at that position), so input names are numbered against
+// this list rather than the visible one.
+const ALL_ENTITY_FIELDS_SELECTOR =
+  '.cf-question-enumerator .cf-enumerator-field'
+
 export function init() {
   updateListeners()
 
@@ -24,6 +30,10 @@ export function init() {
   document.addEventListener('htmx:afterSettle', (event) => {
     if (event.detail.target.id === 'enumerator-fields') {
       updateListeners()
+      // The server numbers the new row by its position among all rows, including hidden removed
+      // rows, so relabel it by its visible position before the Add button's aria is synced.
+      repaintAllLabelsAndButtons()
+      syncAddButtonAria()
       focusFirstInputInLastEntity()
     }
   })
@@ -36,6 +46,13 @@ export function updateListeners() {
   addEventListenerToElements(
     ADD_BUTTON_GATING_INPUTS_SELECTOR,
     'input',
+    refreshAddButtonStatus,
+  )
+  // Picking a radio option changes whether its row is empty. This also covers optional radios,
+  // which aren't in the gating selector above.
+  addEventListenerToElements(
+    '.cf-question-enumerator .cf-enumerator-field input[type="radio"]',
+    'change',
     refreshAddButtonStatus,
   )
 
@@ -153,7 +170,39 @@ function removeEnumeratorField(event: Event) {
   // Need to re-index all enumerator entities when one is removed so labels are consistent
   repaintAllLabelsAndButtons()
   refreshAddButtonStatus()
+  syncAddButtonAria()
   setFocusAfterEnumeratorRemoval()
+}
+
+/**
+ * Keep the initial-question add button's aria in step with the rows on the page. With no rows,
+ * the button is labelled by the question title and described by the list-level errors (when
+ * shown) and help text, as the server renders it. With rows, the first row carries those, so the
+ * button drops them to avoid a screen reader hearing them twice. Legacy add buttons are skipped.
+ */
+function syncAddButtonAria() {
+  const addButton = document.getElementById('enumerator-field-add-button')
+  if (addButton === null || !isInitialQuestionAddButton(addButton)) return
+
+  const root = addButton.closest('.cf-question-enumerator')
+  if (root === null || root.id === '') return
+
+  if (document.querySelectorAll(VISIBLE_ENTITY_FIELDS_SELECTOR).length > 0) {
+    addButton.removeAttribute('aria-labelledby')
+    addButton.removeAttribute('aria-describedby')
+    return
+  }
+
+  addButton.setAttribute(
+    'aria-labelledby',
+    `${root.id}-title enumerator-field-add-button`,
+  )
+  const errors = document.getElementById(`${root.id}-errors`)
+  const hasErrors = errors !== null && errors.textContent?.trim() !== ''
+  addButton.setAttribute(
+    'aria-describedby',
+    `${hasErrors ? `${root.id}-errors ` : ''}${root.id}-description`,
+  )
 }
 
 /**
@@ -199,8 +248,10 @@ function focusFirstInputInLastEntity() {
  */
 function refreshAddButtonStatus() {
   const hasEmptyGatingInput = Array.from(
-    document.querySelectorAll(ADD_BUTTON_GATING_INPUTS_SELECTOR),
-  ).some((item) => (item as HTMLInputElement).value === '')
+    document.querySelectorAll<HTMLInputElement>(
+      ADD_BUTTON_GATING_INPUTS_SELECTOR,
+    ),
+  ).some(isInputEmpty)
 
   const addButton = document.getElementById(
     'enumerator-field-add-button',
@@ -209,8 +260,13 @@ function refreshAddButtonStatus() {
 
   const isInitialQuestion = isInitialQuestionAddButton(addButton)
 
-  const entityCount = document.querySelectorAll(
+  const visibleEntityCount = document.querySelectorAll(
     VISIBLE_ENTITY_FIELDS_SELECTOR,
+  ).length
+  // The server numbers the new row from this count, so it includes hidden removed rows to avoid
+  // reusing their positions.
+  const entityCount = document.querySelectorAll(
+    ALL_ENTITY_FIELDS_SELECTOR,
   ).length
 
   // Initial-question rows may be fully optional, so the gating-input check alone wouldn't stop the
@@ -222,7 +278,7 @@ function refreshAddButtonStatus() {
   addButton.disabled =
     hasEmptyGatingInput ||
     lastRowEmpty ||
-    (maxEntities > 0 && entityCount >= maxEntities)
+    (maxEntities > 0 && visibleEntityCount >= maxEntities)
 
   // For the initial-question (HTMX) button, pass the current entityCount so the server assigns the
   // next entity the correct index, plus the enumerator question's root id so the server can render
@@ -250,7 +306,22 @@ function isLastEntityRowEmpty(): boolean {
   const valueInputs = lastField.querySelectorAll<HTMLInputElement>(
     'input:not([type=hidden]), select, textarea',
   )
-  return Array.from(valueInputs).every((input) => input.value === '')
+  return Array.from(valueInputs).every(isInputEmpty)
+}
+
+/**
+ * Returns true if the input has no answer yet. A radio input's value is its option value whether
+ * or not it is selected, so a radio counts as empty when no radio in its group (same name, in the
+ * same entity row) is checked. Everything else is empty when its value is blank.
+ */
+function isInputEmpty(input: HTMLInputElement): boolean {
+  if (input.type !== 'radio') {
+    return input.value === ''
+  }
+  const row = input.closest('.cf-enumerator-field') ?? document
+  return !Array.from(
+    row.querySelectorAll<HTMLInputElement>('input[type="radio"]'),
+  ).some((radio) => radio.name === input.name && radio.checked)
 }
 
 /**
@@ -264,18 +335,21 @@ function repaintAllLabelsAndButtons() {
   enumeratorFields.forEach((field, index) => {
     addIndexToLabelAndButton(field, index)
     repointEntityAria(field, index)
-    renumberEntityInputNames(field, index)
   })
+  document
+    .querySelectorAll(ALL_ENTITY_FIELDS_SELECTOR)
+    .forEach(renumberEntityInputNames)
 }
 
 /**
- * Rewrite the enumerator entity index in every input name in a row so it matches the row's current
- * position. Initial-question inputs bake a concrete index into their name (e.g.
- * applicant.pets[2].pet_name.text); after a non-last row is removed these must be renumbered to stay
- * contiguous 0..N-1, which is what the server requires for enumerator updates. Legacy rows don't
- * need this (Play assigns indices by submission order via the "[]" suffix) and are skipped.
+ * Rewrite the enumerator entity index in every input name in a row so it matches the row's position
+ * among all rows, including saved rows hidden by the remove button. Initial-question inputs bake a
+ * concrete index into their name (e.g. applicant.pets[2].pet_name.text). Saved rows keep their
+ * position because the server deletes them by that position, so only rows after a removed unsaved
+ * row move, keeping the indices contiguous 0..N-1. Legacy rows don't need this (Play assigns indices
+ * by submission order via the "[]" suffix) and are skipped.
  * @param {Element} field The entity row.
- * @param {number} index The zero-based position of the entity in the visible list.
+ * @param {number} index The zero-based position of the entity among all rows.
  */
 function renumberEntityInputNames(field: Element, index: number) {
   // Only initial-question rows; a legacy row has no concrete index of its own to renumber.
@@ -365,15 +439,31 @@ function repointEntityAria(field: Element, index: number) {
     : field.querySelector<HTMLElement>('input, select, textarea')
   if (ariaTarget === null) return
 
+  // A single-input control keeps its own field error (rendered server-side with the control's id
+  // plus "-error"), read before the help text. Grouped rows attach their errors to the inputs inside
+  // the group, which aren't touched here.
+  const fieldErrorId = `${ariaTarget.id}-error`
+  const errorPrefix =
+    !isGroup && document.getElementById(fieldErrorId) !== null
+      ? fieldErrorId
+      : null
+
   if (index === 0) {
     ariaTarget.setAttribute('aria-labelledby', `${titleId} ${labelId}`)
-    ariaTarget.setAttribute('aria-describedby', descriptionId)
+    ariaTarget.setAttribute(
+      'aria-describedby',
+      errorPrefix === null ? descriptionId : `${errorPrefix} ${descriptionId}`,
+    )
   } else if (isGroup) {
     ariaTarget.setAttribute('aria-labelledby', labelId)
     ariaTarget.removeAttribute('aria-describedby')
   } else {
     ariaTarget.removeAttribute('aria-labelledby')
-    ariaTarget.removeAttribute('aria-describedby')
+    if (errorPrefix === null) {
+      ariaTarget.removeAttribute('aria-describedby')
+    } else {
+      ariaTarget.setAttribute('aria-describedby', errorPrefix)
+    }
   }
 }
 

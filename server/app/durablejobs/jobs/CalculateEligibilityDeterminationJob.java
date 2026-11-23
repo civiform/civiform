@@ -83,9 +83,13 @@ public final class CalculateEligibilityDeterminationJob extends DurableJob {
               ProgramDefinition programDefinition =
                   programService.getFullProgramDefinition(programId);
 
+              // This job is disabled so the enumeratorImprovementsEnabled
+              // value doesn't really matter. However, otherwise we can't
+              // read the system value because there is no request object, so
+              // we have to set it to something here.
               ReadOnlyApplicantProgramService roAppProgramService =
                   applicantService.getReadOnlyApplicantProgramService(
-                      application, programDefinition);
+                      application, programDefinition, /* enumeratorImprovementsEnabled= */ false);
 
               EligibilityDetermination eligibilityDetermination =
                   applicantService.calculateEligibilityDetermination(

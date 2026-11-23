@@ -1,11 +1,19 @@
 import {test, expect} from './support/civiform_fixtures'
 import {
+  enableFeatureFlag,
   loginAsTrustedIntermediary,
   waitForPageJsLoad,
   validateScreenshot,
 } from './support'
 
 test.describe('Pagination', () => {
+  test.beforeEach(async ({page}) => {
+    await enableFeatureFlag(
+      page,
+      'ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED',
+    )
+  })
+
   test('shows 1 page and no previous or next buttons when there are 10 clients', async ({
     page,
     tiDashboard,

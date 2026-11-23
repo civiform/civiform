@@ -1,0 +1,276 @@
+<!--/*
+  Fragments of the trusted intermediary add client and edit client pages
+  (legacy EditTiClientView). The form fields reproduce the USWDS variants of
+  the legacy FieldWithLabel / SelectWithLabel markup
+  (getUSWDSInputTag, getUSWDSTextareaTag, getUSWDSSelectTag), which the
+  admin LegacyFieldWithLabel fragments do not cover.
+*/-->
+
+<!--/*
+  Validation errors under a field, legacy FieldWithLabel.buildFieldErrorsTag.
+  Hidden when the field has no errors.
+
+  Parameters:
+    id    - id of the field; the errors div is <id>-errors
+    field - TrustedIntermediaryClientInfoForm.Field
+*/-->
+<div
+  th:fragment="fieldErrors(id, field)"
+  th:id="|${id}-errors|"
+  class="text-red-600 text-xs p-1"
+  th:classappend="${field.hasErrors()} ? '' : 'hidden'"
+>
+  <div
+    th:each="error : ${field.errors()}"
+    th:text="#{toast.errorMessageOutline(${error})}"
+  ></div>
+</div>
+
+<!--/*
+  Labeled USWDS input, legacy FieldWithLabel.getUSWDSInputTag.
+
+  Parameters:
+    type        - 'text', 'email' or 'date'
+    id          - id of the input
+    name        - name of the input
+    label       - label text
+    required    - show the required indicator and set aria-required
+    field       - TrustedIntermediaryClientInfoForm.Field
+    inputmode   - inputmode attribute, or null for none
+    placeholder - placeholder attribute, or null for none
+    tooltip     - text of the info tooltip after the label, or null for none.
+                  The legacy label added a space after its text when it had
+                  a tooltip.
+*/-->
+<div
+  th:fragment="inputField(type, id, name, label, required, field, inputmode, placeholder, tooltip)"
+  class="mb-2"
+>
+  <label th:for="${id}" class="usa-label mt-0"
+    >[[${tooltip == null ? label : label + ' '}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(${required})}"
+    ></span
+    ><th:block th:if="${tooltip != null}"
+      ><span><div th:replace="~{:: tooltip(${tooltip})}"></div></span></th:block
+  ></label>
+  <div class="flex flex-col">
+    <!--/* Attributes in the order j2html emitted them. */-->
+    <input
+      th:type="${type}"
+      th:inputmode="${inputmode}"
+      th:value="${field.value()}"
+      th:aria-describedby="${field.hasErrors()} ? |${id}-errors|"
+      th:aria-invalid="${field.hasErrors()} ? 'true'"
+      maxlength="10000"
+      th:aria-required="${required} ? 'true'"
+      th:id="${id}"
+      th:name="${name}"
+      th:placeholder="${placeholder}"
+      th:class="${field.hasErrors()} ? 'usa-input usa-input--error' : 'usa-input'"
+    />
+    <div th:replace="~{:: fieldErrors(${id}, ${field})}"></div>
+  </div>
+</div>
+
+<!--/*
+  Labeled USWDS textarea, legacy FieldWithLabel.getUSWDSTextareaTag. Never
+  required on these pages.
+
+  Parameters:
+    id    - id of the textarea
+    name  - name of the textarea
+    label - label text
+    field - TrustedIntermediaryClientInfoForm.Field
+*/-->
+<div th:fragment="textareaField(id, name, label, field)" class="mb-2">
+  <label th:for="${id}" class="usa-label mt-0"
+    >[[${label}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <textarea
+      th:aria-describedby="${field.hasErrors()} ? |${id}-errors|"
+      th:aria-invalid="${field.hasErrors()} ? 'true'"
+      maxlength="10000"
+      th:id="${id}"
+      th:name="${name}"
+      th:class="${field.hasErrors()} ? 'usa-textarea usa-input--error' : 'usa-textarea'"
+      th:text="${field.value()}"
+    ></textarea>
+    <div th:replace="~{:: fieldErrors(${id}, ${field})}"></div>
+  </div>
+</div>
+
+<!--/*
+  Name suffix select, legacy SelectWithLabel.getUSWDSSelectTag: a hidden
+  empty placeholder option, selected when no suffix is, then the options in
+  one unlabeled option group. j2html put the maxlength attribute on the
+  select too. With errors the select took the non-USWDS
+  BaseStyles.SELECT_WITH_ERROR classes.
+
+  Parameters:
+    form - TrustedIntermediaryClientInfoForm
+*/-->
+<div
+  th:fragment="nameSuffixSelect(form)"
+  th:with="field=${form.nameSuffix}"
+  class="mb-2"
+>
+  <label for="name-suffix-select" class="usa-label mt-0"
+    >[[#{label.nameSuffix}]]<span
+      th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(false)}"
+    ></span
+  ></label>
+  <div class="flex flex-col">
+    <select
+      th:aria-describedby="${field.hasErrors()} ? 'name-suffix-select-errors'"
+      th:aria-invalid="${field.hasErrors()} ? 'true'"
+      maxlength="10000"
+      id="name-suffix-select"
+      name="nameSuffix"
+      th:class="${field.hasErrors()} ? 'px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600 h-11.5' : 'usa-select'"
+    >
+      <option
+        value=""
+        hidden
+        th:selected="${#strings.isEmpty(field.value())}"
+      ></option>
+      <optgroup label="">
+        <option
+          th:each="option : ${form.suffixOptions}"
+          class="cf-multi-option-question-option cf-multi-option-value"
+          th:value="${option.value()}"
+          th:selected="${option.selected()}"
+          th:text="${option.label()}"
+        ></option>
+      </optgroup>
+    </select>
+    <div th:replace="~{:: fieldErrors('name-suffix-select', ${field})}"></div>
+  </div>
+</div>
+
+<!--/*
+  Info icon with a tooltip shown on hover, legacy ViewUtils.makeSvgToolTip.
+  No whitespace between the elements: the div is display inline, so a text
+  node would render as a visible space. The prettier-ignore comment sits
+  outside the fragment, so it is not part of the output.
+
+  Parameters:
+    text - tooltip text
+*/-->
+<!-- prettier-ignore -->
+<div th:fragment="tooltip(text)" class="group inline"><svg th:replace="~{admin/shared/LegacySvgFragments :: iconInfo('inline-block w-5 relative')}"></svg><span class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5" th:text="${text}"></span></div>
+
+<!--/*
+  The client information form with the required fields note above it, legacy
+  EditTiClientView.renderAddOrEditClientForm and
+  requiredFieldsExplanationContent.
+
+  Parameters:
+    form      - TrustedIntermediaryClientInfoForm
+    cancelUrl - where the Cancel button goes, the client list
+    csrfToken - value of the hidden csrfToken input
+*/-->
+<div th:fragment="clientInfoForm(form, cancelUrl, csrfToken)">
+  <!--/* utext: the message argument is the red asterisk markup, which the
+         legacy view also rendered raw into the localized note. A string,
+         not a fragment expression: a fragment argument renders its own
+         unprocessed th: markup. */-->
+  <p
+    class="text-sm text-gray-600 mb-2"
+    th:with="redAsterisk='&lt;span class=&quot;text-red-600&quot;&gt;*&lt;/span&gt;'"
+    th:utext="#{content.requiredFieldsNote(${redAsterisk})}"
+  ></p>
+  <div>
+    <form
+      th:id="${form.formId}"
+      method="POST"
+      th:action="${form.actionUrl}"
+      class="w-1/2 mt-6"
+    >
+      <div
+        th:replace="~{:: inputField('text', 'first-name-input', 'firstName', #{label.firstName}, true, ${form.firstName}, null, null, null)}"
+      ></div>
+      <div
+        th:replace="~{:: inputField('text', 'middle-name-input', 'middleName', |#{label.middleName} #{content.optional}|, false, ${form.middleName}, null, null, null)}"
+      ></div>
+      <div
+        th:replace="~{:: inputField('text', 'last-name-input', 'lastName', #{label.lastName}, true, ${form.lastName}, null, null, null)}"
+      ></div>
+      <th:block th:if="${form.showNameSuffix}">
+        <div th:replace="~{:: nameSuffixSelect(${form})}"></div>
+      </th:block>
+      <div
+        th:replace="~{:: inputField('text', 'phone-number-input', 'phoneNumber', |#{label.phoneNum} #{content.optional}|, false, ${form.phoneNumber}, 'tel', '(xxx) xxx-xxxx', null)}"
+      ></div>
+      <div
+        th:replace="~{:: inputField('email', 'email-input', 'emailAddress', |#{label.email} #{content.optional}|, false, ${form.emailAddress}, null, null, #{content.emailTooltip})}"
+      ></div>
+      <div
+        th:replace="~{:: inputField('date', 'date-of-birth-input', 'dob', #{label.dob}, true, ${form.dateOfBirth}, null, null, null)}"
+      ></div>
+      <div
+        th:replace="~{:: textareaField('ti-note-input', 'tiNote', |#{label.notes} #{content.optional}|, ${form.tiNote})}"
+      ></div>
+      <!--/* The CSRF input is hidden through the hidden attribute, as j2html's
+             isHidden() did. No whitespace between it and the buttons: the
+             buttons are inline-block, so a text node would render as a gap
+             j2html never had. data-redirect-to is handled by main.ts. */-->
+      <input hidden th:value="${csrfToken}" name="csrfToken" /><button
+        type="submit"
+        class="usa-button"
+        th:text="#{button.save}"
+      ></button
+      ><button
+        type="button"
+        class="usa-button usa-button--outline m-2"
+        th:data-redirect-to="${cancelUrl}"
+        th:text="#{button.cancel}"
+      ></button>
+    </form>
+  </div>
+</div>
+
+<!--/*
+  Success alert above the form, legacy AlertComponent.renderFullAlert with the
+  SUCCESS type and the "mb-4", "w-3/5" classes.
+
+  Parameters:
+    heading - alert heading, or null for none
+    text    - alert text
+*/-->
+<div
+  th:fragment="successAlert(heading, text)"
+  class="usa-alert usa-alert--success mb-4 w-3/5"
+  aria-live="polite"
+  role="alert"
+>
+  <div class="usa-alert__body">
+    <h4
+      th:if="${heading != null}"
+      class="usa-alert__heading"
+      th:text="${heading}"
+    ></h4>
+    <p class="usa-alert__text" th:text="${text}"></p>
+  </div>
+</div>
+
+<!--/*
+  "Back to client list" link above the form, legacy LinkElement.asAnchorText
+  with the left arrow icon at the start. No whitespace between the icon and
+  the text: the link is inline-flex, which would drop it, but j2html had none.
+
+  Parameters:
+    url - the client list
+*/-->
+<a
+  th:fragment="backLink(url)"
+  id="ti-dashboard-link"
+  th:href="${url}"
+  class="text-blue-600 hover:text-blue-500 inline-flex items-center underline"
+  ><svg
+    th:replace="~{admin/shared/LegacySvgFragments :: iconArrowLeft('mr-2 w-5 h-5')}"
+  ></svg
+  >[[#{button.backToClientList}]]</a
+>

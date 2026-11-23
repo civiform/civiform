@@ -1,0 +1,90 @@
+%NAME memorableDate - incomplete date shows the error and outlines the empty month and year
+%TEMPLATE_MODE HTML
+%MESSAGES
+label.month=Month
+label.day=Day
+label.year=Year
+placeholder.memorableDate=Select
+error.incompleteDate=Error: Please enter month, day and year.
+option.memorableDate.January=01 - January
+option.memorableDate.February=02 - February
+option.memorableDate.March=03 - March
+option.memorableDate.April=04 - April
+option.memorableDate.May=05 - May
+option.memorableDate.June=06 - June
+option.memorableDate.July=07 - July
+option.memorableDate.August=08 - August
+option.memorableDate.September=09 - September
+option.memorableDate.October=10 - October
+option.memorableDate.November=11 - November
+option.memorableDate.December=12 - December
+# ----------------------------------------------------------------------
+%INPUT
+<fieldset th:replace="~{trustedintermediary/fragments/MemorableDate :: memorableDate('date-of-birth', 'monthQuery', '', 'dayQuery', '28', 'yearQuery', '', true)}"></fieldset>
+# ----------------------------------------------------------------------
+# The outlined month and year lose their usa-select / usa-input class: the
+# legacy withCondClass call replaced the class attribute.
+%OUTPUT
+<fieldset id="date-of-birth-fieldset" class="usa-fieldset">
+  <div class="text-red-600 text-xs" id="memorable_date_error">
+    <span>Error: Please enter month, day and year.</span>
+  </div>
+  <div class="usa-memorable-date">
+    <div class="usa-form-group usa-form-group--month usa-form-group--select">
+      <label class="usa-label" for="date-of-birth-month"
+        >Month<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+      >
+      <select
+        class="usa-input--error mt-2.5 py-1"
+        id="date-of-birth-month"
+        name="monthQuery"
+        aria-describedby="mdHint"
+      >
+        <option value="" selected="selected">- Select -</option>
+        <option value="1">01 - January</option>
+        <option value="2">02 - February</option>
+        <option value="3">03 - March</option>
+        <option value="4">04 - April</option>
+        <option value="5">05 - May</option>
+        <option value="6">06 - June</option>
+        <option value="7">07 - July</option>
+        <option value="8">08 - August</option>
+        <option value="9">09 - September</option>
+        <option value="10">10 - October</option>
+        <option value="11">11 - November</option>
+        <option value="12">12 - December</option>
+      </select>
+    </div>
+    <div class="usa-form-group usa-form-group--day">
+      <label class="usa-label" for="date-of-birth-day"
+        >Day<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+      >
+      <input
+        class="usa-input"
+        id="date-of-birth-day"
+        name="dayQuery"
+        aria-describedby="mdHint"
+        inputmode="numeric"
+        maxlength="2"
+        pattern="[0-9]*"
+        value="28"
+      />
+    </div>
+    <div class="usa-form-group usa-form-group--year">
+      <label class="usa-label" for="date-of-birth-year"
+        >Year<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
+      >
+      <input
+        class="usa-input--error mt-2.5"
+        id="date-of-birth-year"
+        name="yearQuery"
+        aria-describedby="mdHint"
+        minlength="4"
+        inputmode="numeric"
+        maxlength="4"
+        pattern="[0-9]*"
+        value=""
+      />
+    </div>
+  </div>
+</fieldset>

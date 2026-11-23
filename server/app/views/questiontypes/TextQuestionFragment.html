@@ -54,7 +54,11 @@
   th:with="textQuestion=${question.createTextQuestion()},
               fieldErrors=${textQuestion.getValidationErrors().get(textQuestion.getTextPath())},
               questionErrors=${textQuestion.getValidationErrors().get(question.getContextualizedPath())},
-              hasErrors=${questionRendererParams.shouldShowErrors() && !textQuestion.getValidationErrors().isEmpty()}"
+              hasErrors=${questionRendererParams.shouldShowErrors() && !textQuestion.getValidationErrors().isEmpty()},
+              standaloneDescribedby=${errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')},
+              initialQuestionDescribedby=${!hasErrors ? ariaDescribedby
+                : ariaDescribedby == null ? errorAnchorId + '-error'
+                : errorAnchorId + '-error ' + ariaDescribedby}"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -75,9 +79,9 @@
     th:name="${textQuestion.getTextPath()}"
     th:value="${textQuestion.getTextValue().orElse('')}"
     th:aria-labelledby="${isInitialQuestion} ? ${ariaLabelledby}"
-    th:aria-describedby="${isInitialQuestion ? ariaDescribedby : errorAnchorId + '-description' + (hasErrors ? ' ' + errorAnchorId + '-error' : '')}"
+    th:aria-describedby="${isInitialQuestion ? initialQuestionDescribedby : standaloneDescribedby}"
     th:aria-required="${!question.isOptional()}"
     th:aria-invalid="${hasErrors}"
-    th:autofocus="${questionRendererParams.autofocusFirstError()}"
+    th:autofocus="${questionRendererParams.autofocusSingleField()}"
   />
 </th:block>
