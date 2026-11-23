@@ -773,12 +773,14 @@ public abstract class ProgramDefinition {
   /**
    * Returns the questions in {@code blockDefinition} that may be used in predicates.
    *
-   * <p>A question may be used if it is of an allowable question type and, if it is an address
-   * question, it is configured for correction.
+   * <p>A question may be used if it satisfies all of the following:
    *
-   * <p>An enumerator's initial question is never available: its answers are stored per entity under
-   * the enumerator, so a block-level predicate can't read them. This matches legacy enumerator
-   * screens, which only hold the enumerator question.
+   * <ul>
+   *   <li>Is of an allowable question type.
+   *   <li>If it is an address question, is configured for correction.
+   *   <li>Is not an enumerator's initial question. Its answers are stored per entity under the
+   *       enumerator, so a block-level predicate can't read them.
+   * </ul>
    */
   private static ImmutableList<QuestionDefinition> getAllowedPredicateQuestionDefinitions(
       BlockDefinition blockDefinition) {
