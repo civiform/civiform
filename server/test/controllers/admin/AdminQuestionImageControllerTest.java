@@ -73,6 +73,8 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(htmlContent).contains("hx-swap-oob=\"true\"");
     assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
     assertThat(htmlContent).contains("hidden");
+    assertThat(htmlContent).doesNotContain("role=\"alert\"");
+    assertThat(htmlContent).doesNotContain("aria-label=\"Image upload error\"");
 
     QuestionDefinition updatedQuestion = questionService.getQuestionDefinition(id);
     assertThat(updatedQuestion.getImageFileKey()).contains(fileKey);
@@ -111,6 +113,8 @@ public class AdminQuestionImageControllerTest extends ResetPostgres {
     assertThat(result.status()).isEqualTo(BAD_REQUEST);
     String htmlContent = contentAsString(result);
     assertThat(htmlContent).contains("id=\"question-image-file-input-errors\"");
+    assertThat(htmlContent).contains("role=\"alert\"");
+    assertThat(htmlContent).doesNotContain("aria-label=\"Image upload error\"");
     assertThat(htmlContent).contains(messages.at("validation.adminQuestionImage.altTextRequired"));
     assertThat(htmlContent).doesNotContain("hidden");
 
