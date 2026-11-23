@@ -525,7 +525,7 @@ test.describe('Admin can manage question image', () => {
     })
   })
 
-  test('uploading mismatched file content displays error and preserves existing image', async ({
+  test('uploading mismatched file content displays error', async ({
     adminQuestions,
     adminQuestionImage,
   }) => {

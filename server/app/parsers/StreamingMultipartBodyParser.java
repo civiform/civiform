@@ -8,7 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
-import org.apache.pekko.stream.connectors.s3.FailedUpload;
 import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.stream.javadsl.Keep;
 import org.apache.pekko.stream.javadsl.Sink;
@@ -93,14 +92,18 @@ public abstract class StreamingMultipartBodyParser
                   completionStage ->
                       completionStage.handle(
                           (uploadResult, throwable) -> {
+                            FileUploadTypeException validationError = validationErrorRef.get();
+                            if (validationError != null) {
+                              logger.warn("Streaming upload rejected by file type validation.");
+                              throw validationError;
+                            }
                             if (throwable != null) {
-                              throw handleUploadFailure(throwable, validationErrorRef.get());
+                              throw handleUploadFailure(throwable);
                             }
                             if (uploadResult == null
                                 || uploadResult.getStatus()
                                     != StreamingMultipartUploadResult.Status.SUCCESS) {
-                              throw handleFailedUploadResult(
-                                  uploadResult, validationErrorRef.get());
+                              throw handleFailedUploadResult(uploadResult);
                             }
                             return new FilePart<String>(
                                 fileInfo.partName(), fileName, detectedMimeTypeRef.get(), fileKey);
@@ -111,24 +114,8 @@ public abstract class StreamingMultipartBodyParser
     };
   }
 
-  private static RuntimeException handleUploadFailure(
-      Throwable throwable, FileUploadTypeException capturedValidationError) {
-    if (capturedValidationError != null) {
-      logger.warn(
-          "Streaming upload rejected by file type validation: {}",
-          capturedValidationError.getMessage());
-      return capturedValidationError;
-    }
-
+  private static RuntimeException handleUploadFailure(Throwable throwable) {
     Throwable rootCause = unwrapAsyncWrapper(throwable);
-    Optional<FileUploadTypeException> typeException = findFileUploadTypeException(rootCause);
-    if (typeException.isPresent()) {
-      logger.warn(
-          "Streaming upload rejected by file type validation: {}",
-          typeException.get().getMessage());
-      return typeException.get();
-    }
-
     logger.error("Streaming upload failed", rootCause);
     if (rootCause instanceof RuntimeException runtimeException) {
       return runtimeException;
@@ -137,32 +124,22 @@ public abstract class StreamingMultipartBodyParser
   }
 
   private static RuntimeException handleFailedUploadResult(
-      StreamingMultipartUploadResult uploadResult,
-      FileUploadTypeException capturedValidationError) {
-    if (capturedValidationError != null) {
-      logger.warn(
-          "Streaming upload rejected by file type validation: {}",
-          capturedValidationError.getMessage());
-      return capturedValidationError;
-    }
-
+      StreamingMultipartUploadResult uploadResult) {
     if (uploadResult == null) {
       logger.error("Streaming upload failed: upload sink returned null result");
       return new RuntimeException("Streaming upload failed: missing upload result");
     }
 
     if (uploadResult.getCause().isPresent()) {
-      return handleUploadFailure(
-          uploadResult.getCause().get(), /* capturedValidationError= */ null);
+      return handleUploadFailure(uploadResult.getCause().get());
     }
 
     String errorDetail =
         uploadResult.getErrorMessage().orElse("status=" + uploadResult.getStatus());
     logger.error(
-        "Streaming upload failed (storage={}, status={}): {}",
+        "Streaming upload failed (storage={}, status={})",
         uploadResult.getStorageServiceName(),
-        uploadResult.getStatus(),
-        errorDetail);
+        uploadResult.getStatus());
     return new RuntimeException(
         String.format(
             "Streaming upload failed (%s, %s): %s",
@@ -176,26 +153,6 @@ public abstract class StreamingMultipartBodyParser
       current = current.getCause();
     }
     return current;
-  }
-
-  private static Optional<FileUploadTypeException> findFileUploadTypeException(
-      Throwable throwable) {
-    Throwable current = throwable;
-    for (int depth = 0; depth < 10 && current != null; depth++) {
-      if (current instanceof FileUploadTypeException typeException) {
-        return Optional.of(typeException);
-      }
-      if (current instanceof FailedUpload failedUpload) {
-        for (Throwable reason : failedUpload.getReasons()) {
-          Optional<FileUploadTypeException> nested = findFileUploadTypeException(reason);
-          if (nested.isPresent()) {
-            return nested;
-          }
-        }
-      }
-      current = current.getCause();
-    }
-    return Optional.empty();
   }
 
   // Chooses between Pekko connector sinks based on the configured storage provider.

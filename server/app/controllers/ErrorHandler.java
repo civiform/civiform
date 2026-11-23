@@ -93,8 +93,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
     this.messagesApi = checkNotNull(messagesApi);
     this.environment = checkNotNull(environment);
 
-    // Provides extra support to the thymeleaf custom error page if we ever
-    // configure it. Standard
+    // Provides extra support to the thymeleaf custom error page if we ever configure it. Standard
     // requirement of the Play error page.
     this.playEditor =
         scala.Option.apply(config.hasPath("play.editor") ? config.getString("play.editor") : null);
@@ -102,16 +101,14 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
 
   @Override
   public CompletionStage<Result> onServerError(RequestHeader request, Throwable exception) {
-    // Unwrap exceptions thrown within a CompletableFuture, to handle the
-    // original error stack trace.
+    // Unwrap exceptions thrown within a CompletableFuture, to handle the original error stack
+    // trace.
     if (exception instanceof CompletionException) {
       exception = exception.getCause();
     }
 
-    // Exceptions that reach here will generate 500s. Here we convert certain ones
-    // to different user visible states. Note: there are methods on the parent that
-    // handle dev and
-    // prod separately.
+    // Exceptions that reach here will generate 500s. Here we convert certain ones to different user
+    // visible states. Note: there are methods on the parent that handle dev and prod separately.
     Optional<Throwable> match = findThrowableByTypes(exception, BAD_REQUEST_EXCEPTION_TYPES);
 
     if (match.isPresent()) {
