@@ -216,7 +216,7 @@ public class TestQuestionBank {
    * Returns a sample ENUMERATOR question with an initial question listing the applicant's household
    * members.
    */
-  public QuestionModel enumeratorWithInitialQuestionApplicantHouseholdPlantNames() {
+  public QuestionModel enumeratorWithInitialQuestionApplicantHouseholdMembers() {
     return questionCache.computeIfAbsent(
         QuestionEnum.ENUMERATOR_APPLICANT_HOUSEHOLD_MEMBERS_WITH_INITIAL,
         this::enumeratorNewFlowApplicantHouseholdMembers);

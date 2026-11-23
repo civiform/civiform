@@ -88,7 +88,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   public void create_addEnumeratorWithInitialQuestion_addsInitialQuestionToBlock()
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
     var enumeratorQuestionModel =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     long enumeratorId = enumeratorQuestionModel.id;
     long initialQuestionId =
         enumeratorQuestionModel
@@ -693,7 +693,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   @Test
   public void hxBackfillInitialQuestion_whenEnumeratorAlreadyHasInitialQuestion_isBadRequest() {
     QuestionModel enumeratorQuestion =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     QuestionDefinition nameQuestion = testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramModel program =
         ProgramBuilder.newDraftProgram()
@@ -952,7 +952,7 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   public void delete_enumeratorWithInitialQuestion_removesBothFromBlock()
       throws ProgramBlockDefinitionNotFoundException, ProgramNotFoundException {
     var enumeratorQuestionModel =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     long enumeratorId = enumeratorQuestionModel.id;
 
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
