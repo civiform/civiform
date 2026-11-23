@@ -1038,4 +1038,85 @@ public class InputElementTagModelProcessorTest extends BaseElementTagModelProces
         """,
         IllegalStateException.class);
   }
+
+  @Test
+  public void input_escapes_html_special_characters() {
+    // Thymeleaf attributes with double quotes and other HTML special characters
+    assertHtml(
+        Model.builder()
+            .id("questionImageDescription")
+            .name("questionImageDescription")
+            .label("Alt text <required> & 'helpful'")
+            .value("Bill with \"Account number\" circled & <highlighted>")
+            .placeholder("e.g. \"Account number\" on top-right")
+            .helpText("Describe \"what's shown\" & <key details>")
+            .isValid("false")
+            .validationMessage("Field \"Alt text\" can't be empty & must be < 200 chars")
+            .build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:value="${model.value()}"
+            th:placeholder="${model.placeholder()}"
+            th:help-text="${model.helpText()}"
+            th:is-valid="${model.isValid()}"
+            th:validation-message="${model.validationMessage()}" />
+        """,
+"""
+<div class="usa-form-group usa-form-group--error">
+  <label class="usa-label" for="questionImageDescription">Alt text &lt;required&gt; &amp; &#39;helpful&#39;</label>
+  <div id="help-text-questionImageDescription" class="usa-hint">Describe &quot;what&#39;s shown&quot; &amp; &lt;key details&gt;</div>
+  <span id="error-message-questionImageDescription" class="usa-error-message" role="alert">Field &quot;Alt text&quot; can&#39;t be empty &amp; must be &lt; 200 chars</span>
+  <input type="text" class="usa-input" id="questionImageDescription" name="questionImageDescription" value="Bill with &quot;Account number&quot; circled &amp; &lt;highlighted&gt;" placeholder="e.g. &quot;Account number&quot; on top-right" aria-describedby="error-message-questionImageDescription help-text-questionImageDescription" aria-invalid="true"/>
+</div>
+""");
+
+    // Plain HTML attributes with already-escaped entities must not be double-escaped,
+    // and single-quoted attributes containing double quotes must be escaped for double-quoted
+    // output
+    assertHtml(
+        """
+        <cf:input
+            id="plainInput"
+            name="plainInput"
+            label="Terms &amp; Conditions"
+            value="Bill with &quot;Account number&quot; circled"
+            placeholder='Example "placeholder"'
+            data-note='Contains "quotes" &amp; stuff' />
+        """,
+"""
+<div class="usa-form-group">
+  <label class="usa-label" for="plainInput">Terms &amp; Conditions</label>
+  <span id="error-message-plainInput" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="plainInput" name="plainInput" value="Bill with &quot;Account number&quot; circled" placeholder="Example &quot;placeholder&quot;" data-note="Contains &quot;quotes&quot; &amp; stuff"/>
+</div>
+""");
+
+    // Dynamic th:value containing literal entity-like text must be escaped as literal text,
+    // and th:data-* expressions containing HTML entities must still evaluate properly
+    assertHtml(
+        Model.builder()
+            .id("entityInput")
+            .name("entityInput")
+            .label("Entity Test")
+            .value("Literal &quot;text&quot;")
+            .build(),
+        """
+        <cf:input
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:value="${model.value()}"
+            th:data-check="${1 &lt; 2}" />
+        """,
+"""
+<div class="usa-form-group">
+  <label class="usa-label" for="entityInput">Entity Test</label>
+  <span id="error-message-entityInput" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <input type="text" class="usa-input" id="entityInput" name="entityInput" value="Literal &amp;quot;text&amp;quot;" data-check="true"/>
+</div>
+""");
+  }
 }

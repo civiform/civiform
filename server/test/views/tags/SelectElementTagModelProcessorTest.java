@@ -1002,4 +1002,39 @@ public class SelectElementTagModelProcessorTest extends BaseElementTagModelProce
         """,
         IllegalStateException.class);
   }
+
+  @Test
+  public void select_escapes_html_special_characters() {
+    assertHtml(
+        Model.builder()
+            .id("country")
+            .name("country")
+            .label("Country \"name\" & <region>")
+            .helpText("Pick \"your\" country")
+            .isValid("false")
+            .validationMessage("Country \"required\" & <valid>")
+            .build(),
+        """
+        <cf:select
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:help-text="${model.helpText()}"
+            th:is-valid="${model.isValid()}"
+            th:validation-message="${model.validationMessage()}"
+            aria-label='Select "country"'>
+          <option value="">Select</option>
+        </cf:select>
+        """,
+"""
+<div class="usa-form-group usa-form-group--error">
+  <label class="usa-label" for="country">Country &quot;name&quot; &amp; &lt;region&gt;</label>
+  <div id="help-text-country" class="usa-hint">Pick &quot;your&quot; country</div>
+  <span id="error-message-country" class="usa-error-message" role="alert">Country &quot;required&quot; &amp; &lt;valid&gt;</span>
+  <select class="usa-select" id="country" name="country" aria-describedby="error-message-country help-text-country" aria-invalid="true" aria-label="Select &quot;country&quot;">
+    <option value="">Select</option>
+  </select>
+</div>
+""");
+  }
 }

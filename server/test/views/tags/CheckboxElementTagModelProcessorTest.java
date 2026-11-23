@@ -933,4 +933,38 @@ public class CheckboxElementTagModelProcessorTest extends BaseElementTagModelPro
         // expected
         IllegalStateException.class);
   }
+
+  @Test
+  public void checkbox_escapes_html_special_characters() {
+    assertHtml(
+        Model.builder()
+            .id("choices")
+            .name("choices")
+            .label("Select \"options\" & <more>")
+            .validationMessage("Pick \"one\" option")
+            .build(),
+        """
+        <cf:checkbox
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:validation-message="${model.validationMessage()}">
+          <item id="opt1" value='val "1" &amp; more' label="Option &quot;1&quot; &amp; &lt;a&gt;" description='Desc "1" &amp; more'/>
+        </cf:checkbox>
+        """,
+"""
+<div class="usa-form-group">
+  <fieldset class="usa-fieldset" data-required-message="Pick &quot;one&quot; option">
+    <legend class="usa-legend">Select &quot;options&quot; &amp; &lt;more&gt;</legend>
+    <span id="error-message-choices" class="usa-error-message" role="alert" hidden="hidden">Pick &quot;one&quot; option</span>
+    <div class="checkbox-group">
+      <div class="usa-checkbox">
+        <input type="checkbox" class="usa-checkbox__input usa-checkbox__input--tile" id="opt1" name="choices" value="val &quot;1&quot; &amp; more"/>
+        <label class="usa-checkbox__label" for="opt1">Option &quot;1&quot; &amp; &lt;a&gt;<span class="usa-checkbox__label-description">Desc &quot;1&quot; &amp; more</span></label>
+      </div>
+    </div>
+  </fieldset>
+</div>
+""");
+  }
 }

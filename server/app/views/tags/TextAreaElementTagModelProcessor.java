@@ -91,7 +91,7 @@ public final class TextAreaElementTagModelProcessor extends AbstractElementModel
     var divAttrs = new BetterLinkedHashMap<String, String>();
     divAttrs.put("class", divCssClasses.toString());
 
-    targetModel.add(modelFactory.createOpenElementTag("div", divAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", divAttrs));
 
     addLabelElement(elementSettings, targetModel, modelFactory);
     addHelpTextDivElement(elementSettings, targetModel, modelFactory);
@@ -170,11 +170,11 @@ public final class TextAreaElementTagModelProcessor extends AbstractElementModel
       textareaAttrs.putAll(getValidationDataBindingAttributes(elementSettings));
     }
 
-    targetModel.add(modelFactory.createOpenElementTag("textarea", textareaAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "textarea", textareaAttrs));
 
     // Set value
     if (isNotBlank(elementSettings.value().value())) {
-      targetModel.add(modelFactory.createText(elementSettings.value().value()));
+      targetModel.add(createText(modelFactory, elementSettings.value().value()));
     }
 
     targetModel.add(modelFactory.createCloseElementTag("textarea"));

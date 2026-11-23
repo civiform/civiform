@@ -145,7 +145,7 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
     var divAttrs = new BetterLinkedHashMap<String, String>();
     divAttrs.put("class", divCssClasses.toString());
 
-    targetModel.add(modelFactory.createOpenElementTag("div", divAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", divAttrs));
 
     // Add fieldset
     var fieldsetAttrs = new BetterLinkedHashMap<String, String>();
@@ -157,7 +157,7 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
         elementSettings.validationMessage().value());
 
     // Add wrapping fieldset
-    targetModel.add(modelFactory.createOpenElementTag("fieldset", fieldsetAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "fieldset", fieldsetAttrs));
 
     addLegendElement(elementSettings, targetModel, modelFactory);
     addHelpTextDivElement(elementSettings, targetModel, modelFactory);
@@ -173,7 +173,7 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
     checkboxGroupAttrs.put("class", checkboxGroupCssClasses);
 
     // Add checkbox-group div
-    targetModel.add(modelFactory.createOpenElementTag("div", checkboxGroupAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", checkboxGroupAttrs));
 
     // Process each item (checkbox)
     for (var itemSettings : itemSettingsList) {
@@ -183,7 +183,7 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
           isNotBlank(itemSettings.thEach().value()), "th:each", itemSettings.thEach().value());
 
       // Add usa-checkbox div
-      targetModel.add(modelFactory.createOpenElementTag("div", checkboxDivAttrs, null, false));
+      targetModel.add(createOpenElementTag(modelFactory, "div", checkboxDivAttrs));
 
       addCheckboxInputElement(itemSettings, elementSettings, targetModel, modelFactory);
       addCheckboxLabelElement(itemSettings, targetModel, modelFactory);
@@ -261,8 +261,7 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
     inputAttrs.putAll(getDataAndAriaAttributes(itemSettings.attributeMap()));
 
     // Add checkbox input (self-closing)
-    targetModel.add(
-        modelFactory.createStandaloneElementTag("input", inputAttrs, null, false, true));
+    targetModel.add(createStandaloneElementTag(modelFactory, "input", inputAttrs, true));
   }
 
   private static void addCheckboxLabelElement(
@@ -276,14 +275,13 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
         itemSettings.id().value());
 
     // Add label
-    targetModel.add(modelFactory.createOpenElementTag("label", labelAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "label", labelAttrs));
 
     if (itemSettings.label().isThymeleafAttribute()) {
       var spanAttrs = Map.of("th:text", itemSettings.label().value());
-      targetModel.add(
-          modelFactory.createStandaloneElementTag("th:block", spanAttrs, null, false, false));
+      targetModel.add(createStandaloneElementTag(modelFactory, "th:block", spanAttrs, false));
     } else {
-      targetModel.add(modelFactory.createText(itemSettings.label().value()));
+      targetModel.add(createText(modelFactory, itemSettings.label().value()));
     }
 
     // Add description span if provided
@@ -300,14 +298,13 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
     }
 
     var descAttrs = Map.of("class", "usa-checkbox__label-description");
-    targetModel.add(modelFactory.createOpenElementTag("span", descAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "span", descAttrs));
 
     if (itemSettings.description().isThymeleafAttribute()) {
       var descTextAttrs = Map.of("th:text", itemSettings.description().value());
-      targetModel.add(
-          modelFactory.createStandaloneElementTag("th:block", descTextAttrs, null, false, false));
+      targetModel.add(createStandaloneElementTag(modelFactory, "th:block", descTextAttrs, false));
     } else {
-      targetModel.add(modelFactory.createText(itemSettings.description().value()));
+      targetModel.add(createText(modelFactory, itemSettings.description().value()));
     }
 
     targetModel.add(modelFactory.createCloseElementTag("span"));
@@ -317,8 +314,8 @@ public final class CheckboxElementTagModelProcessor extends AbstractElementModel
       FormSettings elementSettings, IModel targetModel, IModelFactory modelFactory) {
     // Add legend if labelText is provided
     var legendAttrs = Map.of("class", "usa-legend");
-    targetModel.add(modelFactory.createOpenElementTag("legend", legendAttrs, null, false));
-    targetModel.add(modelFactory.createText(elementSettings.label().value()));
+    targetModel.add(createOpenElementTag(modelFactory, "legend", legendAttrs));
+    targetModel.add(createText(modelFactory, elementSettings.label().value()));
     targetModel.add(modelFactory.createCloseElementTag("legend"));
   }
 }

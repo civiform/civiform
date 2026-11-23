@@ -564,4 +564,37 @@ test.describe('Admin can manage question image', () => {
       )
     })
   })
+
+  test('alt text with double quotes survives reload and subsequent save', async ({
+    adminQuestions,
+    adminQuestionImage,
+  }) => {
+    const questionName = 'quoted-alt-text-question'
+    const altText = 'Bill with "Account number" circled'
+
+    await test.step('Create question, upload image with quoted alt text, and save', async () => {
+      await adminQuestions.addStaticQuestion({questionName})
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.setImageDescription(altText)
+      await adminQuestionImage.uploadImageFile(
+        'src/assets/program-summary-image-wide.png',
+      )
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
+
+    await test.step('Re-open edit page, verify full alt text loads, and save again without editing', async () => {
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.expectDescription(altText)
+      await adminQuestionImage.expectPreviewImageWithAltText(altText)
+      await adminQuestionImage.submitUpdate()
+      await adminQuestions.expectAdminQuestionsPageWithUpdateSuccessToast()
+    })
+
+    await test.step('Re-open edit page again and verify alt text is still intact', async () => {
+      await adminQuestions.gotoQuestionEditPage(questionName)
+      await adminQuestionImage.expectDescription(altText)
+      await adminQuestionImage.expectPreviewImageWithAltText(altText)
+    })
+  })
 })

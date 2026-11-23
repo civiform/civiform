@@ -99,7 +99,7 @@ public final class SelectElementTagModelProcessor extends AbstractElementModelPr
     var divAttrs = new BetterLinkedHashMap<String, String>();
     divAttrs.put("class", divCssClasses.toString());
 
-    targetModel.add(modelFactory.createOpenElementTag("div", divAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", divAttrs));
 
     addLabelElement(elementSettings, targetModel, modelFactory);
     addHelpTextDivElement(elementSettings, targetModel, modelFactory);
@@ -164,7 +164,7 @@ public final class SelectElementTagModelProcessor extends AbstractElementModelPr
     }
 
     // Add opening select tag
-    targetModel.add(modelFactory.createOpenElementTag("select", selectAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "select", selectAttrs));
 
     // Extract and preserve the body content (option elements, etc.)
     // Skip the first (opening tag) and last (closing tag) events
