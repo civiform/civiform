@@ -82,7 +82,7 @@
     </div>
   </div>
 
-  <table class="usa-table usa-table--striped width-full cf-ti-sublist">
+  <table class="usa-table usa-table--striped width-full">
     <thead>
       <tr>
         <th scope="col">Name / Description</th>
@@ -90,7 +90,10 @@
         <th scope="col" class="text-right">Actions</th>
       </tr>
     </thead>
-    <tbody>
+    <!--/* cf-ti-sublist goes on tbody, not table. The sort script appends the
+           sorted rows to this element, and rows appended to the table itself
+           land outside tbody and lose the USWDS table styles. */-->
+    <tbody class="cf-ti-sublist">
       <!--/* data-tiname and data-nummember are the sort keys read by
              admin_trusted_intermediary_list.ts (QuestionSortOption.TI_NAME
              and TI_NUM_MEMBERS). */-->
