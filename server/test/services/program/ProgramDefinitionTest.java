@@ -852,12 +852,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(blockA, blockEnum, blockAfter))
             .build();
 
-    // The initial question's answers are stored per entity, so it can't be used in a block-level
-    // eligibility condition on the list set screen, matching legacy enumerator-only screens.
     assertThat(
             programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockEnum.id()))
         .isEmpty();
-    // Nor can it be used in visibility conditions on later screens.
     assertThat(
             programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockAfter.id()))
         .containsExactly(questionA);
