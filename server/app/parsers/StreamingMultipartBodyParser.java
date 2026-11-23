@@ -2,7 +2,9 @@ package parsers;
 
 import com.google.common.collect.ImmutableList;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import org.apache.pekko.stream.Materializer;
@@ -10,6 +12,8 @@ import org.apache.pekko.stream.javadsl.Flow;
 import org.apache.pekko.stream.javadsl.Keep;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.util.ByteString;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import parsers.cloud.MultipartUploadSinks;
 import play.core.parsers.Multipart;
 import play.http.DefaultHttpErrorHandler;
@@ -31,6 +35,7 @@ import services.cloud.BucketType;
  */
 public abstract class StreamingMultipartBodyParser
     extends BodyParser.DelegatingMultipartFormDataBodyParser<String> {
+  private static final Logger logger = LoggerFactory.getLogger(StreamingMultipartBodyParser.class);
   private static final int CHUNK_SIZE = 1024 * 1024; // 1 MiB
   private final MultipartUploadSinks uploadSinks;
   private final FileTypeValidation fileTypeValidation;
@@ -50,47 +55,104 @@ public abstract class StreamingMultipartBodyParser
   public Function<Multipart.FileInfo, Accumulator<ByteString, FilePart<String>>>
       createFilePartHandler() {
     return fileInfo -> {
-      String fileKey = getFileKey(fileInfo);
-
       String fileName = fileInfo.fileName();
       if (fileName == null || fileName.isBlank()) {
+        logger.warn("Rejecting streaming upload: uploaded file has no filename.");
         throw new FileUploadTypeException("Uploaded file has no filename.");
       }
 
+      ImmutableList<FileTypeSpecifier> allowed = getAllowedFileTypeSpecifiers();
+      if (allowed.isEmpty()) {
+        throw new IllegalArgumentException("At least one FileTypeSpecifier is required");
+      }
+
+      String fileKey = getFileKey(fileInfo);
       Optional<String> contentType = FileTypeValidation.determineMimeType(fileName);
 
       Sink<ByteString, CompletionStage<StreamingMultipartUploadResult>> uploadSink =
           createUploadSink(getBucketType(), fileKey, contentType, getContentDisposition());
 
       AtomicReference<String> detectedMimeTypeRef = new AtomicReference<>(null);
-      ImmutableList<FileTypeSpecifier> allowed = getAllowedFileTypeSpecifiers();
-      if (allowed.isEmpty()) {
-        throw new IllegalArgumentException("At least one FileTypeSpecifier is required");
-      }
-
+      AtomicReference<FileUploadTypeException> validationErrorRef = new AtomicReference<>(null);
       Flow<ByteString, ByteString, ?> sniffingFlow =
-          fileTypeValidation.sniffingFlow(fileName, detectedMimeTypeRef, allowed);
+          fileTypeValidation
+              .sniffingFlow(fileName, detectedMimeTypeRef, allowed)
+              .mapError(
+                  FileUploadTypeException.class,
+                  e -> {
+                    validationErrorRef.compareAndSet(null, e);
+                    return e;
+                  });
 
       // Map upload sink to an output value, prepending the sniffing flow
       Sink<ByteString, CompletionStage<FilePart<String>>> mappedSink =
           sniffingFlow
               .toMat(uploadSink, Keep.right())
               .mapMaterializedValue(
-                  completionStage -> {
-                    // Map the completion stage to a FilePart with the appropriate metadata
-                    return completionStage.thenApply(
-                        uploadResult -> {
-                          // Here we can construct a FilePart with the metadata and the result of
-                          // the
-                          // upload
-                          return new FilePart<String>(
-                              fileInfo.partName(), fileName, detectedMimeTypeRef.get(), fileKey);
-                        });
-                  });
+                  completionStage ->
+                      completionStage.handle(
+                          (uploadResult, throwable) -> {
+                            FileUploadTypeException validationError = validationErrorRef.get();
+                            if (validationError != null) {
+                              logger.warn("Streaming upload rejected by file type validation.");
+                              throw validationError;
+                            }
+                            if (throwable != null) {
+                              throw handleUploadFailure(throwable);
+                            }
+                            if (uploadResult == null
+                                || uploadResult.getStatus()
+                                    != StreamingMultipartUploadResult.Status.SUCCESS) {
+                              throw handleFailedUploadResult(uploadResult);
+                            }
+                            return new FilePart<String>(
+                                fileInfo.partName(), fileName, detectedMimeTypeRef.get(), fileKey);
+                          }));
 
       // Create an accumulator that streams the file data to the mapped upload sink
       return Accumulator.fromSink(mappedSink);
     };
+  }
+
+  private static RuntimeException handleUploadFailure(Throwable throwable) {
+    Throwable rootCause = unwrapAsyncWrapper(throwable);
+    logger.error("Streaming upload failed", rootCause);
+    if (rootCause instanceof RuntimeException runtimeException) {
+      return runtimeException;
+    }
+    return new RuntimeException("Streaming upload failed", rootCause);
+  }
+
+  private static RuntimeException handleFailedUploadResult(
+      StreamingMultipartUploadResult uploadResult) {
+    if (uploadResult == null) {
+      logger.error("Streaming upload failed: upload sink returned null result");
+      return new RuntimeException("Streaming upload failed: missing upload result");
+    }
+
+    if (uploadResult.getCause().isPresent()) {
+      return handleUploadFailure(uploadResult.getCause().get());
+    }
+
+    String errorDetail =
+        uploadResult.getErrorMessage().orElse("status=" + uploadResult.getStatus());
+    logger.error(
+        "Streaming upload failed (storage={}, status={})",
+        uploadResult.getStorageServiceName(),
+        uploadResult.getStatus());
+    return new RuntimeException(
+        String.format(
+            "Streaming upload failed (%s, %s): %s",
+            uploadResult.getStorageServiceName(), uploadResult.getStatus(), errorDetail));
+  }
+
+  private static Throwable unwrapAsyncWrapper(Throwable throwable) {
+    Throwable current = throwable;
+    while ((current instanceof CompletionException || current instanceof ExecutionException)
+        && current.getCause() != null) {
+      current = current.getCause();
+    }
+    return current;
   }
 
   // Chooses between Pekko connector sinks based on the configured storage provider.

@@ -82,6 +82,20 @@ export class AdminQuestionImage {
     await this.expectDeleteButtonVisible()
   }
 
+  async uploadImageBuffer(file: {
+    name: string
+    mimeType: string
+    buffer: Buffer
+  }) {
+    const uploadResponse = this.page.waitForResponse(
+      (response) =>
+        response.request().method() === 'POST' &&
+        response.url().includes('/image/upload'),
+    )
+    await this.getImageUploadInput().setInputFiles(file)
+    return await uploadResponse
+  }
+
   async selectImageFileWithMbSize(mbSize: number) {
     const filePath = `image-size-${mbSize}-mb.png`
     const baseImage = readFileSync('src/assets/program-summary-image-wide.png')

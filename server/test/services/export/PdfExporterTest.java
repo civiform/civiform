@@ -471,7 +471,7 @@ public class PdfExporterTest extends AbstractExporterTest {
     ProgramModel program = createFakeProgramWithEnumeratorAndInitialQuestion();
     QuestionDefinition enumerator =
         testQuestionBank
-            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .enumeratorWithInitialQuestionApplicantHouseholdMembers()
             .getQuestionDefinition();
     QuestionModel initialQuestion =
         instanceOf(QuestionRepository.class)

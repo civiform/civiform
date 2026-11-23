@@ -484,7 +484,7 @@ public abstract class AbstractExporterTest extends ResetPostgres {
   /** Creates a program whose enumerator block holds an enumerator and its initial question. */
   protected ProgramModel createFakeProgramWithEnumeratorAndInitialQuestion() {
     QuestionModel enumerator =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     QuestionModel initialQuestion =
         instanceOf(QuestionRepository.class)
             .lookupQuestionSync(
