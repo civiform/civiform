@@ -57,6 +57,21 @@ jobs:
         if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.sbt') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.scala') || contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/format.yaml') || contains(toJSON(steps.file_changes.outputs.all_changed_files), 'fmt-sbt')
         run: bin/fmt-sbt
 
+      - name: Lint workflows with actionlint
+        if: contains(toJSON(steps.file_changes.outputs.all_changed_files), '.github/workflows/')
+        # actionlint has no fix mode, so it runs here as a check rather than
+        # in bin/fmt. Shellcheck info and style notes are left out so only
+        # likely bugs fail the build.
+        env:
+          SHELLCHECK_OPTS: -S warning
+        run: >-
+          docker run --rm
+          -v "${GITHUB_WORKSPACE}:/repo"
+          --workdir /repo
+          -e SHELLCHECK_OPTS
+          rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667
+          -color
+
       - name: Test workflow scripts
         # The shell expands the glob; handing node the directory instead
         # works on some Node versions and not others.
