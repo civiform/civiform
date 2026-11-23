@@ -121,6 +121,7 @@ public class DevToolsController extends Controller {
             .addressToolsUrl(controllers.dev.routes.AddressCheckerController.index().url())
             .sessionProfileUrl(controllers.dev.routes.ProfileController.index().url())
             .sessionDisplayUrl(controllers.dev.routes.SessionDisplayController.index().url())
+            .logBlankLinesUrl(routes.DevToolsController.logBlankLines().url())
             .durableJobOptions(durableJobOptions)
             .isDev(deploymentType.isDev())
             .flashSuccess(request.flash().get(FlashKey.SUCCESS))

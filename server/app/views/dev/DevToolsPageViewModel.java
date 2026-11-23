@@ -19,6 +19,7 @@ public class DevToolsPageViewModel implements BaseViewModel {
   private final String addressToolsUrl;
   private final String sessionProfileUrl;
   private final String sessionDisplayUrl;
+  private final String logBlankLinesUrl;
   private final boolean isDev;
   private final ImmutableList<String> durableJobOptions;
   @Builder.Default private final Optional<String> flashSuccess = Optional.empty();
