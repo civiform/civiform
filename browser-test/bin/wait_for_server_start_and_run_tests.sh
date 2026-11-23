@@ -30,10 +30,24 @@ if [ ! -d "image_snapshots" ]; then
   exit 1
 fi
 
-# Install any new packages not built into the image
-# Also saves any package-lock.json changes back to your local filesystem.
-npm ci --quiet
-npx playwright install --with-deps chromium
+# `npm ci` deletes and reinstalls node_modules, and `playwright install` checks for
+# the browser, so both are slow to repeat. Only run them when the package files
+# differ from the ones node_modules was last installed from. The Playwright
+# version is pinned in package-lock.json, so the same checksum covers the browser.
+# The checksum file lives inside node_modules so it shares the lifetime of the
+# install. System deps for chromium are baked into the browser test image, so
+# `--with-deps` (which runs apt-get) isn't needed here.
+readonly LOCKFILE_CHECKSUM_FILE="node_modules/.package-files.sha256"
+
+package_files_checksum="$(cat package.json package-lock.json | sha256sum | cut -d ' ' -f 1)"
+
+if [[ "$(cat "${LOCKFILE_CHECKSUM_FILE}" 2>/dev/null)" != "${package_files_checksum}" ]]; then
+  npm ci --quiet
+  npx playwright install chromium
+  echo "${package_files_checksum}" >"${LOCKFILE_CHECKSUM_FILE}"
+else
+  echo "package.json and package-lock.json unchanged, skipping npm ci and playwright install"
+fi
 
 echo "Polling to check server start. Server url: ${BASE_URL}"
 
