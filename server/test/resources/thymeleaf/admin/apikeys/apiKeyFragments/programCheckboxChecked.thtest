@@ -16,7 +16,7 @@ program = @views.admin.apikeys.ApiKeyNewOnePageViewModel$ProgramCheckbox@builder
     value="true"
     id="utility-discount"
     name="grant-program-read[utility-discount]"
-    class="usa-checkbox__input"
+    class="usa-checkbox__input usa-checkbox__input--tile"
     checked="checked"
   />
   <label class="usa-checkbox__label" for="utility-discount">Utility Discount</label>

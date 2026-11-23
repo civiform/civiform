@@ -16,7 +16,7 @@ program = @views.admin.apikeys.ApiKeyNewOnePageViewModel$ProgramCheckbox@builder
     value="true"
     id="housing-voucher"
     name="grant-program-read[housing-voucher]"
-    class="usa-checkbox__input"
+    class="usa-checkbox__input usa-checkbox__input--tile"
   />
   <label class="usa-checkbox__label" for="housing-voucher">Housing Voucher</label>
 </div>
