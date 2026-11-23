@@ -3,28 +3,20 @@
 %INPUT
 <div th:replace="~{admin/apikeys/fragments/ApiKeyFormFields :: inputField('expiration', 'Expiration date', 'date', '', 'Error: Expiration cannot be blank.')}"></div>
 # ----------------------------------------------------------------------
-# An error adds the a11y attributes ahead of maxlength, swaps the gray border
-# for the red one and unhides the error container, as FieldWithLabel did.
+# An error adds the a11y attributes ahead of maxlength, the USWDS error
+# modifiers, and the error message between the label and the input.
 %OUTPUT
-<div class="mb-2">
-  <label
-    for="expiration"
-    class="pointer-events-none text-gray-600 text-base px-1 py-2"
-    >Expiration date<span class="usa-hint--required hidden" aria-hidden="true">&nbsp;*</span></label
-  >
-  <div class="flex flex-col">
-    <input
-      type="date"
-      value=""
-      aria-describedby="expiration-errors"
-      aria-invalid="true"
-      maxlength="10000"
-      id="expiration"
-      name="expiration"
-      class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border rounded-lg w-full focus:border-civiform-blue placeholder-gray-500 border-red-600"
-    />
-    <div id="expiration-errors" class="text-red-600 text-xs p-1">
-      <div>Error: Expiration cannot be blank.</div>
-    </div>
-  </div>
+<div class="usa-form-group usa-form-group--error">
+  <label for="expiration" class="usa-label usa-label--error">Expiration date</label>
+  <span id="expiration-errors" class="usa-error-message">Error: Expiration cannot be blank.</span>
+  <input
+    type="date"
+    value=""
+    aria-describedby="expiration-errors"
+    aria-invalid="true"
+    maxlength="10000"
+    id="expiration"
+    name="expiration"
+    class="usa-input usa-input--error"
+  />
 </div>
