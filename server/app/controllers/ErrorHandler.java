@@ -2,8 +2,6 @@ package controllers;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static j2html.TagCreator.div;
-import static j2html.TagCreator.span;
-import static j2html.TagCreator.text;
 
 import auth.UnauthorizedApiRequestException;
 import com.google.common.collect.ImmutableSet;
@@ -166,7 +164,7 @@ public class ErrorHandler extends DefaultHttpErrorHandler {
   }
 
   private static String renderQuestionImageError(String message) {
-    return div(span("Image upload error: ").withClass("usa-sr-only"), text(message))
+    return div(message)
         .withClasses("text-red-600", "text-base", "py-2")
         .withId("question-image-file-input-errors")
         .attr("role", "alert")
