@@ -18,7 +18,7 @@
     th:text="${model.errorMessage}"
   ></div>
 
-  <h1 class="margin-top-0">Create new trusted intermediary</h1>
+  <h1>Create new trusted intermediary</h1>
   <div
     class="maxw-tablet margin-top-3 padding-x-2 padding-bottom-3 border-1px border-base-lighter shadow-2"
   >
@@ -120,7 +120,7 @@
                    as the legacy asRedirectElement button did. */-->
             <button
               type="button"
-              class="usa-button usa-button--outline display-flex flex-align-center"
+              class="usa-button display-flex flex-align-center"
               th:data-redirect-to="${group.editUrl}"
             >
               <svg
@@ -136,7 +136,7 @@
               />
               <button
                 type="submit"
-                class="usa-button usa-button--outline display-flex flex-align-center margin-right-0"
+                class="usa-button usa-button--secondary display-flex flex-align-center margin-right-0"
               >
                 <svg
                   th:replace="~{admin/shared/LegacySvgFragments :: iconDelete('usa-icon margin-right-05')}"
