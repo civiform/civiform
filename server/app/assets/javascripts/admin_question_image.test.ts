@@ -1,4 +1,4 @@
-import {beforeEach, describe, expect, it, vi} from 'vitest'
+import {beforeEach, describe, expect, it, Mock, vi} from 'vitest'
 import {init} from '@/admin_question_image'
 
 vi.mock('@uswds/uswds/js/usa-file-input', () => ({
@@ -8,11 +8,13 @@ vi.mock('@uswds/uswds/js/usa-file-input', () => ({
 const TOO_LARGE_MESSAGE =
   'Your file is too large. Please choose a file less than 1 MB.'
 
-/** Selects a file of `sizeBytes` in the question image input. */
+function getInput(): HTMLInputElement {
+  return document.getElementById('question-image-input') as HTMLInputElement
+}
+
+/** Selects a file of `sizeBytes` in the question image input and fires `change`. */
 function selectFile(sizeBytes: number) {
-  const input = document.getElementById(
-    'question-image-input',
-  ) as HTMLInputElement
+  const input = getInput()
   const file = new File([new Uint8Array(sizeBytes)], 'image.png', {
     type: 'image/png',
   })
@@ -20,21 +22,21 @@ function selectFile(sizeBytes: number) {
   Object.defineProperty(input, 'value', {
     value: 'C:\\fakepath\\image.png',
     configurable: true,
+    writable: true,
   })
-}
-
-/** Dispatches the htmx:beforeRequest event for the upload and returns it. */
-function dispatchBeforeRequest(): CustomEvent {
-  const event = new CustomEvent('htmx:beforeRequest', {
-    cancelable: true,
-    detail: {elt: document.getElementById('question-image-input')},
-  })
-  document.body.dispatchEvent(event)
-  return event
+  input.dispatchEvent(new Event('change', {bubbles: true}))
 }
 
 describe('question image upload size check', () => {
+  // Stands in for the USWDS and htmx change listeners on the input.
+  let inputChangeListener: Mock<(event: Event) => void>
+
   beforeEach(() => {
+    // A fresh body drops the listeners init() added to the previous one.
+    document.documentElement.replaceChild(
+      document.createElement('body'),
+      document.body,
+    )
     document.body.innerHTML = `
       <form>
         <div class="usa-form-group">
@@ -53,26 +55,36 @@ describe('question image upload size check', () => {
         ></div>
       </form>`
     init()
+    inputChangeListener = vi.fn<(event: Event) => void>()
+    getInput().addEventListener('change', inputChangeListener)
   })
 
-  it('blocks the upload and shows the error when the file is over the limit', () => {
+  it('stops a file over the limit and shows the error', () => {
     selectFile(1024 * 1024 + 1)
 
-    const event = dispatchBeforeRequest()
-
-    expect(event.defaultPrevented).toBe(true)
+    expect(inputChangeListener).not.toHaveBeenCalled()
     const errors = document.getElementById('question-image-file-input-errors')
     expect(errors?.textContent).toBe(TOO_LARGE_MESSAGE)
     expect(errors?.classList.contains('hidden')).toBe(false)
+    expect(getInput().value).toBe('')
+    expect(getInput().getAttribute('aria-invalid')).toBe('true')
   })
 
-  it('lets the upload through when the file is at the limit', () => {
+  it('lets a file at the limit through', () => {
     selectFile(1024 * 1024)
 
-    const event = dispatchBeforeRequest()
-
-    expect(event.defaultPrevented).toBe(false)
+    expect(inputChangeListener).toHaveBeenCalledOnce()
     const errors = document.getElementById('question-image-file-input-errors')
     expect(errors?.classList.contains('hidden')).toBe(true)
+  })
+
+  it('clears the invalid state when the next file is within the limit', () => {
+    selectFile(1024 * 1024 + 1)
+    expect(getInput().getAttribute('aria-invalid')).toBe('true')
+
+    selectFile(1024)
+
+    expect(inputChangeListener).toHaveBeenCalledOnce()
+    expect(getInput().hasAttribute('aria-invalid')).toBe(false)
   })
 })

@@ -101,24 +101,33 @@ export function init() {
     }
   })
 
-  // Blocks the upload when the file is over the configured limit. The error goes in the
-  // same element the server's errors replace, so the next upload response clears it.
-  document.body.addEventListener('htmx:beforeRequest', (event) => {
-    const input = event.detail.elt
-    if (
-      input.id !== FILE_INPUT_ID ||
-      !isFileTooLarge(input as HTMLInputElement)
-    ) {
-      return
-    }
-    event.preventDefault()
-    const uploadErrors = document.getElementById(UPLOAD_ERRORS_ID)
-    if (uploadErrors) {
-      uploadErrors.textContent =
-        input.getAttribute(FILE_TOO_LARGE_MESSAGE_ATTR) ?? ''
-      uploadErrors.className = 'text-red-600 text-base py-2'
-    }
-  })
+  // Checks the size in the capture phase, before USWDS builds a preview or htmx sends the
+  // upload, so an oversized file is never shown as selected and never uploaded. The error
+  // goes in the element the server's errors replace, so the next upload response clears it.
+  document.body.addEventListener(
+    'change',
+    (event) => {
+      const input = event.target as HTMLInputElement
+      if (input.id !== FILE_INPUT_ID) {
+        return
+      }
+      if (!isFileTooLarge(input)) {
+        input.removeAttribute('aria-invalid')
+        return
+      }
+      event.stopImmediatePropagation()
+      input.value = ''
+      input.setAttribute('aria-invalid', 'true')
+      const uploadErrors = document.getElementById(UPLOAD_ERRORS_ID)
+      if (uploadErrors) {
+        uploadErrors.textContent =
+          input.getAttribute(FILE_TOO_LARGE_MESSAGE_ATTR) ?? ''
+        uploadErrors.className = 'text-red-600 text-base py-2'
+      }
+      syncAndValidate()
+    },
+    {capture: true},
+  )
 
   document.body.addEventListener('htmx:afterRequest', (event) => {
     const target = event.detail.elt
