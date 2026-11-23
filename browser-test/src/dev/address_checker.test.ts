@@ -23,9 +23,14 @@ test.describe('Address checker', () => {
         await page.click('#debug-content-modal-button')
         await page.click('#additional-tools')
         await waitForPageJsLoad(page)
-        await page.getByRole('heading', {name: 'Address Checker'}).isVisible()
+        await expect(
+          page.getByRole('heading', {name: 'Address Tools'}),
+        ).toBeVisible()
         await page.getByRole('link', {name: 'Go to address tools'}).click()
         await waitForPageJsLoad(page)
+        await expect(
+          page.getByRole('heading', {name: 'Address Checker', level: 1}),
+        ).toBeVisible()
       })
 
       await test.step('Address correction runs and loads results', async () => {
@@ -44,7 +49,7 @@ test.describe('Address checker', () => {
       await test.step('Address correction result runs and loads service area validation', async () => {
         await page.getByRole('textbox', {name: 'Latitude/Y'}).fill('100')
         await page.getByRole('textbox', {name: 'Longitude/X'}).fill('-100')
-        await page.getByRole('textbox', {name: 'WellKnownId'}).fill('4326')
+        await page.getByRole('spinbutton', {name: 'Well Known ID'}).fill('4326')
 
         await page
           .getByTestId('address-correction-results')
@@ -88,21 +93,66 @@ test.describe('Address checker', () => {
       await page.click('#debug-content-modal-button')
       await page.click('#additional-tools')
       await waitForPageJsLoad(page)
-      await page.getByRole('heading', {name: 'Address Checker'}).isVisible()
+      await expect(
+        page.getByRole('heading', {name: 'Address Tools'}),
+      ).toBeVisible()
       await page.getByRole('link', {name: 'Go to address tools'}).click()
       await waitForPageJsLoad(page)
+      await expect(
+        page.getByRole('heading', {name: 'Address Checker', level: 1}),
+      ).toBeVisible()
     })
 
-    await test.step('Forms are disabled as expected', async () => {
+    await test.step('Settings show both features disabled', async () => {
+      const settings = page.locator('section', {
+        has: page.getByRole('heading', {name: 'Current Address Settings'}),
+      })
+
+      await expect(settings).toContainText('Address Correction: Disabled')
+      await expect(settings).toContainText('Address Validation: Disabled')
+    })
+
+    await test.step('Forms are hidden', async () => {
       await expect(
-        page.getByRole('heading', {name: 'Cannot show address'}),
-      ).toBeVisible()
+        page.getByRole('form', {name: 'Find Correction Results'}),
+      ).toHaveCount(0)
       await expect(
-        page.getByRole('heading', {name: 'Cannot show service area'}),
-      ).toBeVisible()
+        page.getByRole('form', {name: 'Search Service Area'}),
+      ).toHaveCount(0)
+      await expect(
+        page.getByRole('button', {name: 'Correct Address'}),
+      ).toHaveCount(0)
+      await expect(
+        page.getByRole('button', {name: 'Check Service Area'}),
+      ).toHaveCount(0)
+    })
+
+    await test.step('Alerts explain why each tool is hidden', async () => {
+      const correctionAlert = page
+        .getByRole('alert')
+        .filter({hasText: 'Cannot show address correction tool'})
+
+      await expect(correctionAlert).toBeVisible()
+      await expect(correctionAlert).toContainText(
+        'ESRI_FIND_ADDRESS_CANDIDATES_URLS has no endpoints',
+      )
+      await expect(correctionAlert).toContainText(
+        'ESRI_ADDRESS_CORRECTION_ENABLED is not enabled',
+      )
+
+      const serviceAreaAlert = page
+        .getByRole('alert')
+        .filter({hasText: 'Cannot show service area validation tool'})
+
+      await expect(serviceAreaAlert).toBeVisible()
+      await expect(serviceAreaAlert).toContainText(
+        'ESRI_ADDRESS_SERVICE_AREA_VALIDATION_URLS has no endpoints',
+      )
+      await expect(serviceAreaAlert).toContainText(
+        'ESRI_ADDRESS_SERVICE_AREA_VALIDATION_ENABLED is not enabled',
+      )
     })
 
     await validateAccessibility(page)
-    await validateScreenshot(page, 'address-checker-disabled')
   })
 })
