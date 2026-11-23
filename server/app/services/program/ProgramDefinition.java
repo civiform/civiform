@@ -24,7 +24,7 @@ import java.util.Locale;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import javax.annotation.Nullable;
@@ -709,10 +709,7 @@ public abstract class ProgramDefinition {
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Only questions in the block are available.
-    return getBlockDefinition(blockId).programQuestionDefinitions().stream()
-        .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
-        .map(ProgramQuestionDefinition::getQuestionDefinition)
-        .collect(ImmutableList.toImmutableList());
+    return getAllowedPredicateQuestionDefinitions(getBlockDefinition(blockId));
   }
 
   /** True if the give question definition ID is found in any of the program's predicates. */
@@ -760,14 +757,48 @@ public abstract class ProgramDefinition {
     ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
     for (BlockDefinition blockDefinition :
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
-      builder.addAll(
-          blockDefinition.programQuestionDefinitions().stream()
-              .filter(ProgramDefinition::isPotentialPredicateQuestionDefinition)
-              .map(ProgramQuestionDefinition::getQuestionDefinition)
-              .collect(Collectors.toList()));
+      builder.addAll(getAllowedPredicateQuestionDefinitions(blockDefinition));
     }
 
     return builder.build();
+  }
+
+  private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
+      ImmutableSet.of(
+          QuestionType.ENUMERATOR,
+          QuestionType.FILEUPLOAD,
+          QuestionType.STATIC,
+          QuestionType.PHONE);
+
+  /**
+   * Returns the questions in {@code blockDefinition} that may be used in predicates.
+   *
+   * <p>A question may be used if it is of an allowable question type and, if it is an address
+   * question, it is configured for correction.
+   *
+   * <p>An enumerator's initial question is never available: its answers are stored per entity under
+   * the enumerator, so a block-level predicate can't read them. This matches legacy enumerator
+   * screens, which only hold the enumerator question.
+   */
+  private static ImmutableList<QuestionDefinition> getAllowedPredicateQuestionDefinitions(
+      BlockDefinition blockDefinition) {
+    Predicate<ProgramQuestionDefinition> isAllowedType =
+        pqd -> {
+          QuestionType questionType = pqd.getQuestionDefinition().getQuestionType();
+          return !NON_PREDICATE_QUESTION_TYPES.contains(questionType)
+              && !(questionType.equals(QuestionType.ADDRESS) && !pqd.addressCorrectionEnabled());
+        };
+    Optional<Long> initialQuestionId =
+        blockDefinition.hasEnumeratorQuestion()
+            ? blockDefinition.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId()
+            : Optional.empty();
+    Predicate<ProgramQuestionDefinition> isNotInitialQuestion =
+        pqd -> initialQuestionId.map(id -> id != pqd.id()).orElse(true);
+    return blockDefinition.programQuestionDefinitions().stream()
+        .filter(isAllowedType)
+        .filter(isNotInitialQuestion)
+        .map(ProgramQuestionDefinition::getQuestionDefinition)
+        .collect(ImmutableList.toImmutableList());
   }
 
   private ImmutableList<BlockDefinition> getAvailablePredicateBlockDefinitions(
@@ -796,23 +827,6 @@ public abstract class ProgramDefinition {
     }
 
     return builder.build();
-  }
-
-  private static final ImmutableSet<QuestionType> NON_PREDICATE_QUESTION_TYPES =
-      ImmutableSet.of(
-          QuestionType.ENUMERATOR,
-          QuestionType.FILEUPLOAD,
-          QuestionType.STATIC,
-          QuestionType.PHONE);
-
-  /**
-   * A question definition is eligible for predicates if it is of an allowable question type and, if
-   * it is an address question, it must be configured for correction.
-   */
-  private static boolean isPotentialPredicateQuestionDefinition(ProgramQuestionDefinition pqd) {
-    return !NON_PREDICATE_QUESTION_TYPES.contains(pqd.getQuestionDefinition().getQuestionType())
-        && !(pqd.getQuestionDefinition().getQuestionType().equals(QuestionType.ADDRESS)
-            && !pqd.addressCorrectionEnabled());
   }
 
   public ProgramModel toProgram() {

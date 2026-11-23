@@ -1236,6 +1236,47 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('initial question is not available for eligibility or visibility conditions', async ({
+      page,
+      adminPrograms,
+      adminPredicates,
+    }) => {
+      await test.step('Add a list set with a number initial question', async () => {
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+      })
+
+      await test.step('The list set screen has no questions for an eligibility condition', async () => {
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          'Enumerator test program',
+          'Screen 2',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on this screen with which to set an eligibility condition.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+        await expect(page.locator('#submit-predicate')).toBeDisabled()
+      })
+
+      await test.step('The repeated screen has no questions for a visibility condition', async () => {
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          'Enumerator test program',
+          'Screen 3',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on preceding screens with which to set a visibility condition for this screen.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+        await expect(page.locator('#submit-predicate')).toBeDisabled()
+      })
+    })
+
     test('"Add nested list set" button appears only on parent enumerator and direct repeated screens', async ({
       page,
     }) => {

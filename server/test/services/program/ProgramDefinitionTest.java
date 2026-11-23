@@ -24,6 +24,7 @@ import models.DisplayMode;
 import models.ProgramNotificationPreference;
 import models.QuestionModel;
 import org.junit.Test;
+import repository.QuestionRepository;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
 import services.TranslationNotFoundException;
@@ -36,6 +37,7 @@ import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionType;
 import support.CfTestHelpers;
 import support.ProgramBuilder;
 import support.TestQuestionBank;
@@ -794,6 +796,71 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .containsExactly(questionA, questionC);
     assertThat(programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockE.id()))
         .containsExactly(questionE);
+  }
+
+  @Test
+  public void getAvailablePredicateQuestionDefinitions_excludesEnumeratorInitialQuestion()
+      throws ProgramBlockDefinitionNotFoundException {
+    long programDefinitionId = 123L;
+    QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorWithInitialQuestion(QuestionType.NUMBER).getQuestionDefinition();
+    QuestionDefinition initialQuestion =
+        instanceOf(QuestionRepository.class)
+            .lookupQuestionSync(enumeratorQuestion.getEnumeratorInitialQuestionId().orElseThrow())
+            .orElseThrow()
+            .getQuestionDefinition();
+
+    BlockDefinition blockA =
+        BlockDefinition.builder()
+            .setId(1L)
+            .setName("Screen A")
+            .setDescription("Screen A")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen A"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen A"))
+            .addQuestion(
+                ProgramQuestionDefinition.create(questionA, Optional.of(programDefinitionId)))
+            .build();
+    BlockDefinition blockEnum =
+        BlockDefinition.builder()
+            .setId(2L)
+            .setName("List set")
+            .setDescription("List set")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("List set"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("List set"))
+            .setIsEnumerator(Optional.of(true))
+            .addQuestion(
+                ProgramQuestionDefinition.create(initialQuestion, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    enumeratorQuestion, Optional.of(programDefinitionId)))
+            .build();
+    BlockDefinition blockAfter =
+        BlockDefinition.builder()
+            .setId(3L)
+            .setName("Screen after")
+            .setDescription("Screen after")
+            .setLocalizedName(LocalizedStrings.withDefaultValue("Screen after"))
+            .setLocalizedDescription(LocalizedStrings.withDefaultValue("Screen after"))
+            .addQuestion(
+                ProgramQuestionDefinition.create(
+                    testQuestionBank.addressApplicantAddress().getQuestionDefinition(),
+                    Optional.of(programDefinitionId)))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newDraftProgram("program").buildDefinition().toBuilder()
+            .setBlockDefinitions(ImmutableList.of(blockA, blockEnum, blockAfter))
+            .build();
+
+    // The initial question's answers are stored per entity, so it can't be used in a block-level
+    // eligibility condition on the list set screen, matching legacy enumerator-only screens.
+    assertThat(
+            programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockEnum.id()))
+        .isEmpty();
+    // Nor can it be used in visibility conditions on later screens.
+    assertThat(
+            programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockAfter.id()))
+        .containsExactly(questionA);
   }
 
   @Test
