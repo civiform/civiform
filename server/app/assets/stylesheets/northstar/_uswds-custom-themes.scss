@@ -41,6 +41,17 @@
   background-color: var(--primary-dark);
 }
 
+// The rules above force every button to the primary color, which hides
+// usa-button--secondary. The dev tools clear-database button opts back into
+// the secondary color.
+.usa-button.usa-button--secondary.cf-dev-tools-clear-button {
+  background-color: color('secondary');
+}
+
+.usa-button.usa-button--secondary.cf-dev-tools-clear-button:hover {
+  background-color: color('secondary-dark');
+}
+
 .usa-button.usa-button--outline {
   box-shadow: inset 0 0 0 2px var(--primary);
   background-color: color('white');
