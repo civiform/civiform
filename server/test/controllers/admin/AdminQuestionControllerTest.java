@@ -760,7 +760,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   @Test
   public void edit_enumerator_withImprovementsDisabled_hidesInitialQuestion() {
     QuestionModel enumeratorQuestion =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     Request request =
         fakeRequestBuilder()
             .addCSRFToken()
@@ -804,7 +804,7 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   @Test
   public void update_enumerator_withError_showsInitialQuestion() {
     QuestionModel enumeratorQuestion =
-        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
     // An empty entity type fails validation and re-renders the edit form.
     ImmutableMap.Builder<String, String> formData = ImmutableMap.builder();
     formData

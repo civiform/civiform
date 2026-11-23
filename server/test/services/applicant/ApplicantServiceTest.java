@@ -933,7 +933,7 @@ public class ApplicantServiceTest extends ResetPostgres {
       stageAndUpdateIfValid_enumeratorWithTextInitialQuestion_savesPerEntityAnswerAndDerivesEntityName() {
     QuestionDefinition enumeratorDefinition =
         testQuestionBank
-            .enumeratorWithInitialQuestionApplicantHouseholdPlantNames()
+            .enumeratorWithInitialQuestionApplicantHouseholdMembers()
             .getQuestionDefinition();
     QuestionDefinition initialQuestionDefinition = initialQuestionDefinition(enumeratorDefinition);
     createProgram(enumeratorDefinition, initialQuestionDefinition);

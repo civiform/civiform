@@ -148,7 +148,7 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   @Test
   public void hxAddEnumeratorEntity_withFlagOff_isNotFound() throws Exception {
     QuestionModel enumerator =
-        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdMembers();
 
     Result result =
         controller.hxAddEnumeratorEntity(
@@ -174,7 +174,7 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   public void hxAddEnumeratorEntity_withUnexpectedEnumeratorQuestionId_doesNotEchoIt()
       throws Exception {
     QuestionModel enumerator =
-        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdMembers();
 
     Result result =
         controller.hxAddEnumeratorEntity(
@@ -192,7 +192,7 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   public void hxAddEnumeratorEntity_applicantProfile_rejected() {
     createApplicantWithMockedProfile();
     QuestionModel enumerator =
-        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdPlantNames();
+        testQuestionBank().enumeratorWithInitialQuestionApplicantHouseholdMembers();
 
     Http.RequestBuilder request =
         fakeRequestBuilder()
