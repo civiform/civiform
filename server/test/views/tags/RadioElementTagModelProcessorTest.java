@@ -869,4 +869,36 @@ public class RadioElementTagModelProcessorTest extends BaseElementTagModelProces
         // expected
         IllegalStateException.class);
   }
+
+  @Test
+  public void radio_escapes_html_special_characters() {
+    assertHtml(
+        Model.builder()
+            .id("contact")
+            .name("contact")
+            .label("Preferred \"contact\" & <method>")
+            .validationMessage("Choose \"one\" method")
+            .build(),
+        """
+        <cf:radio
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:validation-message="${model.validationMessage()}">
+          <item id="opt1" value='val "1" &amp; more' label="Option &quot;1&quot; &amp; &lt;a&gt;" description='Desc "1" &amp; more'/>
+        </cf:radio>
+        """,
+"""
+<div class="usa-form-group">
+  <fieldset class="usa-fieldset" data-required-message="Choose &quot;one&quot; method">
+    <legend class="usa-legend">Preferred &quot;contact&quot; &amp; &lt;method&gt;</legend>
+    <span id="error-message-contact" class="usa-error-message" role="alert" hidden="hidden">Choose &quot;one&quot; method</span>
+    <div class="usa-radio">
+      <input type="radio" class="usa-radio__input usa-radio__input--tile" id="opt1" name="contact" value="val &quot;1&quot; &amp; more"/>
+      <label class="usa-radio__label" for="opt1">Option &quot;1&quot; &amp; &lt;a&gt;<span class="usa-radio__label-description">Desc &quot;1&quot; &amp; more</span></label>
+    </div>
+  </fieldset>
+</div>
+""");
+  }
 }

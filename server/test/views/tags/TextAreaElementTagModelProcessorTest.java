@@ -862,4 +862,31 @@ public class TextAreaElementTagModelProcessorTest extends BaseElementTagModelPro
         """,
         IllegalStateException.class);
   }
+
+  @Test
+  public void textarea_escapes_html_special_characters() {
+    assertHtml(
+        Model.builder()
+            .id("notes")
+            .name("notes")
+            .label("Notes & <comments>")
+            .value("Text with \"quotes\" & </textarea><script>alert(1)</script>")
+            .placeholder("Enter \"notes\"")
+            .build(),
+        """
+        <cf:textarea
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:label="${model.label()}"
+            th:value="${model.value()}"
+            th:placeholder="${model.placeholder()}" />
+        """,
+"""
+<div class="usa-form-group">
+  <label class="usa-label" for="notes">Notes &amp; &lt;comments&gt;</label>
+  <span id="error-message-notes" class="usa-error-message" role="alert" hidden="hidden"></span>
+  <textarea class="usa-textarea" id="notes" name="notes" placeholder="Enter &quot;notes&quot;">Text with &quot;quotes&quot; &amp; &lt;/textarea&gt;&lt;script&gt;alert(1)&lt;/script&gt;</textarea>
+</div>
+""");
+  }
 }

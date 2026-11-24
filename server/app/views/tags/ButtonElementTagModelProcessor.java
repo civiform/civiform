@@ -115,13 +115,11 @@ public final class ButtonElementTagModelProcessor extends AbstractElementModelPr
     buttonAttrs.putAll(getDataAndAriaAttributes(elementSettings.attributeMap()));
 
     // Add opening button tag
-    targetModel.add(
-        modelFactory.createOpenElementTag(
-            "button", buttonAttrs, /* attributeValueQuotes= */ null, /* synthetic= */ false));
+    targetModel.add(createOpenElementTag(modelFactory, "button", buttonAttrs));
 
     // Add text content, otherwise pass through child elements from the source to the new target
     if (isNotBlank(elementSettings.text().value())) {
-      targetModel.add(modelFactory.createText(elementSettings.text().value()));
+      targetModel.add(createText(modelFactory, elementSettings.text().value()));
     } else {
       // The starting and end numbers are such so that the opening and closing tags of
       // the source element are skipped.

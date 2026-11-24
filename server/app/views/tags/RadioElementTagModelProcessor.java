@@ -142,7 +142,7 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
     var divAttrs = new BetterLinkedHashMap<String, String>();
     divAttrs.put("class", divCssClasses.toString());
 
-    targetModel.add(modelFactory.createOpenElementTag("div", divAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", divAttrs));
 
     // Add fieldset
     var fieldsetAttrs = new BetterLinkedHashMap<String, String>();
@@ -154,7 +154,7 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
         elementSettings.validationMessage().value());
 
     // Add wrapping fieldset
-    targetModel.add(modelFactory.createOpenElementTag("fieldset", fieldsetAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "fieldset", fieldsetAttrs));
 
     addLegendElement(elementSettings, targetModel, modelFactory);
     addHelpTextDivElement(elementSettings, targetModel, modelFactory);
@@ -168,7 +168,7 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
           isNotBlank(itemSettings.thEach().value()), "th:each", itemSettings.thEach().value());
 
       // Add usa-radio div
-      targetModel.add(modelFactory.createOpenElementTag("div", radioDivAttrs, null, false));
+      targetModel.add(createOpenElementTag(modelFactory, "div", radioDivAttrs));
 
       addRadioInputElement(itemSettings, elementSettings, targetModel, modelFactory);
       addRadioLabelElement(itemSettings, targetModel, modelFactory);
@@ -242,8 +242,7 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
     inputAttrs.putAll(getDataAndAriaAttributes(itemSettings.attributeMap()));
 
     // Add radio input (self-closing)
-    targetModel.add(
-        modelFactory.createStandaloneElementTag("input", inputAttrs, null, false, true));
+    targetModel.add(createStandaloneElementTag(modelFactory, "input", inputAttrs, true));
   }
 
   private static void addRadioLabelElement(
@@ -258,14 +257,13 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
         itemSettings.id().value());
 
     // Add label
-    targetModel.add(modelFactory.createOpenElementTag("label", labelAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "label", labelAttrs));
 
     if (itemSettings.label().isThymeleafAttribute()) {
       var spanAttrs = Map.of("th:text", itemSettings.label().value());
-      targetModel.add(
-          modelFactory.createStandaloneElementTag("th:block", spanAttrs, null, false, false));
+      targetModel.add(createStandaloneElementTag(modelFactory, "th:block", spanAttrs, false));
     } else {
-      targetModel.add(modelFactory.createText(itemSettings.label().value()));
+      targetModel.add(createText(modelFactory, itemSettings.label().value()));
     }
 
     // Add description span if provided
@@ -282,14 +280,13 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
     }
 
     var descAttrs = Map.of("class", "usa-radio__label-description");
-    targetModel.add(modelFactory.createOpenElementTag("span", descAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "span", descAttrs));
 
     if (itemSettings.description().isThymeleafAttribute()) {
       var descTextAttrs = Map.of("th:text", itemSettings.description().value());
-      targetModel.add(
-          modelFactory.createStandaloneElementTag("th:block", descTextAttrs, null, false, false));
+      targetModel.add(createStandaloneElementTag(modelFactory, "th:block", descTextAttrs, false));
     } else {
-      targetModel.add(modelFactory.createText(itemSettings.description().value()));
+      targetModel.add(createText(modelFactory, itemSettings.description().value()));
     }
 
     targetModel.add(modelFactory.createCloseElementTag("span"));
@@ -299,8 +296,8 @@ public final class RadioElementTagModelProcessor extends AbstractElementModelPro
       FormSettings elementSettings, IModel targetModel, IModelFactory modelFactory) {
     // Add legend if labelText is provided
     var legendAttrs = Map.of("class", "usa-legend");
-    targetModel.add(modelFactory.createOpenElementTag("legend", legendAttrs, null, false));
-    targetModel.add(modelFactory.createText(elementSettings.label().value()));
+    targetModel.add(createOpenElementTag(modelFactory, "legend", legendAttrs));
+    targetModel.add(createText(modelFactory, elementSettings.label().value()));
     targetModel.add(modelFactory.createCloseElementTag("legend"));
   }
 }

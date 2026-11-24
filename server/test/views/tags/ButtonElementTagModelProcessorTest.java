@@ -305,4 +305,25 @@ public class ButtonElementTagModelProcessorTest extends BaseElementTagModelProce
         """,
         IllegalArgumentException.class);
   }
+
+  @Test
+  public void button_escapes_html_special_characters() {
+    assertHtml(
+        Model.builder()
+            .id("saveBtn")
+            .name("action")
+            .value("save \"draft\" & close")
+            .text("Save \"Draft\" & <Continue>")
+            .build(),
+        """
+        <cf:button
+            th:id="${model.id()}"
+            th:name="${model.name()}"
+            th:value="${model.value()}"
+            th:text="${model.text()}" />
+        """,
+"""
+<button type="button" class="usa-button" id="saveBtn" name="action" value="save &quot;draft&quot; &amp; close">Save &quot;Draft&quot; &amp; &lt;Continue&gt;</button>
+""");
+  }
 }
