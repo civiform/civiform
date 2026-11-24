@@ -1,8 +1,8 @@
 package controllers.dev;
 
 import static com.google.gdata.util.common.base.Preconditions.checkNotNull;
-import static j2html.TagCreator.h2;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.inject.Inject;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
@@ -11,6 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import play.data.DynamicForm;
 import play.data.FormFactory;
+import play.libs.concurrent.ClassLoaderExecutionContext;
 import play.mvc.Controller;
 import play.mvc.Http;
 import play.mvc.Result;
@@ -20,12 +21,13 @@ import services.geo.esri.EsriClient;
 import services.geo.esri.EsriServiceAreaValidationConfig;
 import services.geo.esri.EsriServiceAreaValidationOption;
 import services.settings.SettingsManifest;
+import views.PartialView;
 import views.components.TextFormatter;
 import views.dev.AddressCheckerPageView;
 import views.dev.AddressCheckerPageViewModel;
-import views.dev.AddressCheckerView;
-import views.dev.hx.CorrectAddressViewPartial;
-import views.dev.hx.ServiceAreaCheckViewPartial;
+import views.dev.hx.AddressCheckerErrorPartialViewModel;
+import views.dev.hx.CorrectAddressResultsPartialViewModel;
+import views.dev.hx.ServiceAreaResultsPartialViewModel;
 
 /** Dev tools controller for test address correction and service area eligibility validation */
 public final class AddressCheckerController extends Controller {
@@ -33,52 +35,53 @@ public final class AddressCheckerController extends Controller {
   private static final Logger logger = LoggerFactory.getLogger(AddressCheckerController.class);
 
   private final SettingsManifest settingsManifest;
-  private final AddressCheckerView addressCheckerView;
   private final AddressCheckerPageView addressCheckerPageView;
-  private final CorrectAddressViewPartial correctAddressViewPartial;
-  private final ServiceAreaCheckViewPartial checkServiceAreaViewPartial;
+  private final PartialView<CorrectAddressResultsPartialViewModel> correctAddressResultsPartialView;
+  private final PartialView<ServiceAreaResultsPartialViewModel> serviceAreaResultsPartialView;
+  private final PartialView<AddressCheckerErrorPartialViewModel> errorPartialView;
   private final EsriClient esriClient;
   private final EsriServiceAreaValidationConfig esriServiceAreaValidationConfig;
   private final FormFactory formFactory;
+  private final ClassLoaderExecutionContext classLoaderExecutionContext;
 
   @Inject
   AddressCheckerController(
       SettingsManifest settingsManifest,
-      AddressCheckerView addressCheckerView,
-      CorrectAddressViewPartial correctAddressViewPartial,
-      ServiceAreaCheckViewPartial checkServiceAreaViewPartial,
+      PartialView<CorrectAddressResultsPartialViewModel> correctAddressResultsPartialView,
+      PartialView<ServiceAreaResultsPartialViewModel> serviceAreaResultsPartialView,
+      PartialView<AddressCheckerErrorPartialViewModel> errorPartialView,
       EsriClient esriClient,
       EsriServiceAreaValidationConfig esriServiceAreaValidationConfig,
       FormFactory formFactory,
+      ClassLoaderExecutionContext classLoaderExecutionContext,
       AddressCheckerPageView addressCheckerPageView) {
     this.settingsManifest = checkNotNull(settingsManifest);
-    this.addressCheckerView = checkNotNull(addressCheckerView);
-    this.correctAddressViewPartial = checkNotNull(correctAddressViewPartial);
-    this.checkServiceAreaViewPartial = checkServiceAreaViewPartial;
+    this.correctAddressResultsPartialView = checkNotNull(correctAddressResultsPartialView);
+    this.serviceAreaResultsPartialView = checkNotNull(serviceAreaResultsPartialView);
+    this.errorPartialView = checkNotNull(errorPartialView);
     this.esriClient = checkNotNull(esriClient);
     this.esriServiceAreaValidationConfig = checkNotNull(esriServiceAreaValidationConfig);
     this.formFactory = checkNotNull(formFactory);
+    this.classLoaderExecutionContext = checkNotNull(classLoaderExecutionContext);
     this.addressCheckerPageView = checkNotNull(addressCheckerPageView);
   }
 
   public Result index(Http.Request request) {
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
-      AddressCheckerPageViewModel model =
-          AddressCheckerPageViewModel.builder()
-              .backLinkUrl(routes.DevToolsController.index().url())
-              .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
-              .addressValidationEnabled(
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
-              .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
-              .addressServiceAreaValidationUrls(
-                  settingsManifest.getEsriAddressServiceAreaValidationUrls())
-              .serviceAreaValidationConfigMap(esriServiceAreaValidationConfig.getImmutableMap())
-              .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
-              .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
-              .build();
-      return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
-    }
-    return ok(addressCheckerView.render(request));
+    AddressCheckerPageViewModel model =
+        AddressCheckerPageViewModel.builder()
+            .backLinkUrl(routes.DevToolsController.index().url())
+            .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
+            .addressValidationEnabled(
+                settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+            .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
+            .addressServiceAreaValidationUrls(
+                settingsManifest.getEsriAddressServiceAreaValidationUrls())
+            .serviceAreaValidationConfigMap(serviceAreaValidationOptions(request))
+            .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
+            .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
+            .build();
+
+    return ok(addressCheckerPageView.render(request, model)).as(Http.MimeTypes.HTML);
   }
 
   /** Performs address correction and returns the results */
@@ -105,31 +108,33 @@ public final class AddressCheckerController extends Controller {
     } catch (RuntimeException ex) {
       logger.error("An error occurred trying to correct an address", ex);
       return CompletableFuture.completedFuture(
-          ok(
-              h2("An error occurred trying to correct an address")
-                  .withClass("text-red-500")
-                  .toString()));
+          errorView(request, "An error occurred trying to correct an address"));
     }
 
     return esriClient
         .getAddressSuggestions(address)
-        .thenApply(
-            addressSuggestionGroup ->
-                ok(
-                    correctAddressViewPartial
-                        .render(
-                            request,
-                            settingsManifest,
-                            addressSuggestionGroup,
-                            esriServiceAreaValidationConfig)
-                        .toString()))
+        .thenApplyAsync(
+            addressSuggestionGroup -> {
+              ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions =
+                  serviceAreaValidationOptions(request);
+
+              CorrectAddressResultsPartialViewModel model =
+                  CorrectAddressResultsPartialViewModel.builder()
+                      .addressSuggestions(addressSuggestionGroup.getAddressSuggestions())
+                      .serviceAreaValidationEnabled(!serviceAreaValidationOptions.isEmpty())
+                      .serviceAreaValidationOptions(serviceAreaValidationOptions)
+                      .checkServiceAreaActionUrl(
+                          routes.AddressCheckerController.hxCheckServiceArea().url())
+                      .build();
+
+              return ok(correctAddressResultsPartialView.render(request, model))
+                  .as(Http.MimeTypes.HTML);
+            },
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               logger.error("An error occurred trying to correct an address", ex);
-              return ok(
-                  h2("An error occurred trying to correct an address")
-                      .withClass("text-red-500")
-                      .toString());
+              return errorView(request, "An error occurred trying to correct an address");
             });
   }
 
@@ -163,28 +168,49 @@ public final class AddressCheckerController extends Controller {
       logger.error(ex.getMessage());
 
       return CompletableFuture.completedFuture(
-          ok(
-              h2("Invalid form parameters submitted when attempting service area validation")
-                  .withClass("text-red-500")
-                  .toString()));
+          errorView(
+              request,
+              "Invalid form parameters submitted when attempting service area validation"));
     }
 
     return esriClient
         .getServiceAreaInclusionGroup(esriServiceAreaValidationOption, addressLocation)
-        .thenApply(
+        .thenApplyAsync(
             serviceAreaInclusions ->
-                ok(
-                    checkServiceAreaViewPartial
-                        .render(validationOption, serviceAreaInclusions)
-                        .toString()))
+                ok(serviceAreaResultsPartialView.render(
+                        request,
+                        new ServiceAreaResultsPartialViewModel(
+                            validationOption, serviceAreaInclusions)))
+                    .as(Http.MimeTypes.HTML),
+            classLoaderExecutionContext.current())
         .exceptionally(
             ex -> {
               logger.error(ex.getMessage());
 
-              return ok(
-                  h2("An error occurred trying to correct an address")
-                      .withClass("text-red-500")
-                      .toString());
+              return errorView(request, "An error occurred trying to check the service area");
             });
+  }
+
+  /**
+   * Service area options to offer, or an empty map when validation is off or not configured. {@link
+   * EsriServiceAreaValidationConfig#getImmutableMap()} throws when the settings are missing, so
+   * only call it once validation is enabled, has URLs, and has a valid config.
+   */
+  private ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions(
+      Http.Request request) {
+    boolean available =
+        settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)
+            && settingsManifest
+                .getEsriAddressServiceAreaValidationUrls()
+                .map(urls -> !urls.isEmpty())
+                .orElse(false)
+            && esriServiceAreaValidationConfig.isConfigurationValid();
+
+    return available ? esriServiceAreaValidationConfig.getImmutableMap() : ImmutableMap.of();
+  }
+
+  private Result errorView(Http.Request request, String message) {
+    return ok(errorPartialView.render(request, new AddressCheckerErrorPartialViewModel(message)))
+        .as(Http.MimeTypes.HTML);
   }
 }

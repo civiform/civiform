@@ -1,0 +1,33 @@
+<!--/*@thymesVar id="model" type="views.dev.hx.ServiceAreaResultsPartialViewModel"*/-->
+<div>
+  <h2
+    class="margin-top-0"
+    th:if="${model.selectedResult().isPresent()}"
+    th:with="result=${model.selectedResult().get()}"
+  >
+    Validation Result:
+    <span
+      th:text="${result.state.serializationFormat}"
+      th:class="${model.isInArea(result)} ? 'text-success-dark' : 'text-error-dark'"
+    ></span>
+  </h2>
+
+  <h3 class="margin-bottom-0">Result Details</h3>
+  <table class="usa-table">
+    <thead>
+      <tr>
+        <th scope="col">ServiceAreaId</th>
+        <th scope="col">State</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        th:each="inclusion : ${model.serviceAreaInclusions()}"
+        th:class="${model.isSelected(inclusion)} ? null : 'text-base'"
+      >
+        <td th:text="${inclusion.serviceAreaId}"></td>
+        <td th:text="${inclusion.state.serializationFormat}"></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
