@@ -2090,6 +2090,106 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('applies a visibility condition on the initial question to repeated screens but not to a regular screen after the list set', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      adminPredicates,
+      applicantQuestions,
+    }) => {
+      const programName = 'Initial question visibility program'
+      const repeatedQuestionText = 'Repeated question shown for big numbers'
+      const regularQuestionText = 'Regular question after the list set'
+      // Picking an existing question as the initial question saves a copy with a suffixed admin
+      // name.
+      const initialQuestionAdminName = `${SAMPLE_QUESTIONS.number} -_- a`
+
+      await test.step('Publish a program whose repeated screen is shown only when the initial question is over 5', async () => {
+        await loginAsAdmin(page)
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-visibility-repeated',
+          questionText: repeatedQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-visibility-regular',
+          questionText: regularQuestionText,
+        })
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(
+          'initial-visibility-repeated',
+        )
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 3',
+        )
+        await adminPredicates.addPredicates({
+          questionName: initialQuestionAdminName,
+          action: 'shown if',
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '5',
+        })
+      })
+
+      await test.step('Add a regular screen after the list set with the same condition', async () => {
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          questions: [{name: 'initial-visibility-regular'}],
+        })
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 4',
+        )
+        await adminPredicates.addPredicates({
+          questionName: initialQuestionAdminName,
+          action: 'shown if',
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '5',
+        })
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
+
+      await test.step('Add one entity over 5 and one under', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('spinbutton', {name: 'Pets #1'}).fill('10')
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('spinbutton', {name: 'Pets #2'}).fill('1')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('The repeated screen is shown for the entity over 5', async () => {
+        await applicantQuestions.validateQuestionIsOnPage(repeatedQuestionText)
+        await applicantQuestions.answerTextQuestion('first')
+        await applicantQuestions.clickContinue()
+      })
+
+      // BUG: the regular screen after the list set should be shown, since one entity is over 5.
+      // Instead its condition never matches and the screen is silently hidden: the initial
+      // question's answers are stored per entity under the enumerator, so a condition on a
+      // non-repeated screen can't read them. When this is fixed, expect the regular question to be
+      // on the page here before the review page.
+      await test.step('The repeated screen is skipped for the entity under 5, and the regular screen is incorrectly skipped', async () => {
+        await applicantQuestions.expectReviewPage()
+        await expect(page.getByText(repeatedQuestionText)).toHaveCount(1)
+        await expect(page.getByText(regularQuestionText)).toHaveCount(0)
+      })
+    })
+
     test('derives the listed entity name from the name initial question and uses it in $this text, the repeated and nested-repeated screen names, and the review summary', async ({
       page,
       adminPrograms,
