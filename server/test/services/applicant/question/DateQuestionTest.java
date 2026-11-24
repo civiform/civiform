@@ -21,6 +21,7 @@ import services.LocalizedStrings;
 import services.MessageKey;
 import services.Path;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
 import services.applicant.ValidationErrorMessage;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
@@ -28,6 +29,7 @@ import services.question.types.DateQuestionDefinition;
 import services.question.types.DateQuestionDefinition.DateValidationOption;
 import services.question.types.DateQuestionDefinition.DateValidationOption.DateType;
 import services.question.types.DateQuestionDefinition.DateValidationPredicates;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
 @RunWith(JUnitParamsRunner.class)
@@ -255,6 +257,46 @@ public class DateQuestionTest extends ResetPostgres {
     assertThat(dateQuestion.hasYearError()).isTrue();
     assertThat(dateQuestion.hasMonthError()).isTrue();
     assertThat(dateQuestion.hasDayError()).isTrue();
+  }
+
+  @Test
+  public void getValidationErrors_initialQuestionOfListSet_addsListItemAfterTheDates() {
+    EnumeratorQuestionDefinition enumerator =
+        new EnumeratorQuestionDefinition(
+            QuestionDefinitionConfig.builder()
+                .setName("household members")
+                .setDescription("description")
+                .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+                .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+                .setId(OptionalLong.of(10))
+                .setEnumeratorInitialQuestionId(1L)
+                .setLastModifiedTime(Optional.empty())
+                .build(),
+            LocalizedStrings.of(Locale.US, "household member"));
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            createDateQuestionDefinition(MIN_DATE_CUSTOM_YESTERDAY, MAX_DATE_CUSTOM_TOMORROW),
+            new ApplicantModel(),
+            new ApplicantData(),
+            Optional.of(RepeatedEntity.createForPreview(enumerator, /* index= */ 0)));
+    QuestionAnswerer.answerDateQuestion(
+        applicantQuestion.getApplicantData(),
+        applicantQuestion.getContextualizedPath(),
+        TODAY.plusDays(2).format(DateTimeFormatter.ISO_LOCAL_DATE));
+
+    DateQuestion dateQuestion = new DateQuestion(applicantQuestion);
+
+    assertThat(dateQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                dateQuestion.getDatePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.DATE_VALIDATION_DATE_NOT_IN_RANGE_FOR_LIST_ITEM,
+                        YESTERDAY.toString(),
+                        TOMORROW.toString(),
+                        "household member",
+                        1))));
   }
 
   @Test

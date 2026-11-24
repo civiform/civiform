@@ -630,7 +630,7 @@ public class TestQuestionBank {
                     LocalizedStrings.of(Locale.US, "This is sample enumerator help text."))
                 .setEnumeratorInitialQuestionId(initialQuestionModel.id)
                 .build(),
-            LocalizedStrings.empty());
+            LocalizedStrings.of(Locale.US, "household member"));
     var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
 
     try {
@@ -682,7 +682,7 @@ public class TestQuestionBank {
                   .setQuestionHelpText(LocalizedStrings.of(Locale.US, "This is sample help text."))
                   .setEnumeratorInitialQuestionId(initialQuestionModel.id)
                   .build(),
-              LocalizedStrings.empty());
+              LocalizedStrings.of(Locale.US, "household member"));
       var enumeratorQuestionModel = maybeSave(enumeratorQuestion);
 
       QuestionModel updatedInitial =

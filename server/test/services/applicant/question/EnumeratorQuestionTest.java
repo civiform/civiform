@@ -27,6 +27,7 @@ import services.question.QuestionAnswerer;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
+import services.question.types.QuestionType;
 import support.TestQuestionBank;
 
 @RunWith(JUnitParamsRunner.class)
@@ -155,7 +156,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Sarah", ""));
 
     EnumeratorQuestion enumeratorQuestion =
-        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+        new EnumeratorQuestion(applicantQuestion, Optional.of(QuestionType.TEXT));
 
     assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
   }
@@ -169,7 +170,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("", ""));
 
     EnumeratorQuestion enumeratorQuestion =
-        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+        new EnumeratorQuestion(applicantQuestion, Optional.of(QuestionType.TEXT));
 
     // Two unanswered entries are not a duplicate-answer problem; the initial question reports each.
     assertThat(enumeratorQuestion.getValidationErrors()).isEmpty();
@@ -186,7 +187,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
         ImmutableList.of("Sarah", "Sarah"));
 
     EnumeratorQuestion enumeratorQuestion =
-        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ true);
+        new EnumeratorQuestion(applicantQuestion, Optional.of(QuestionType.TEXT));
 
     // Real duplicate (non-blank) derived names are still flagged.
     assertThat(enumeratorQuestion.getValidationErrors())
@@ -195,7 +196,27 @@ public class EnumeratorQuestionTest extends ResetPostgres {
                 applicantQuestion.getContextualizedPath(),
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
-                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTITY_NAME))));
+                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_ENTRY))));
+  }
+
+  @Test
+  public void getValidationErrors_dropdownInitialQuestionWithDuplicates_hasDuplicateOptionError() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            enumeratorQuestionDefinition, applicant, applicantData, Optional.empty());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Tips", "Tips"));
+
+    EnumeratorQuestion enumeratorQuestion =
+        new EnumeratorQuestion(applicantQuestion, Optional.of(QuestionType.DROPDOWN));
+
+    assertThat(enumeratorQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                applicantQuestion.getContextualizedPath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.ENUMERATOR_VALIDATION_DUPLICATE_OPTION))));
   }
 
   @Test
@@ -209,7 +230,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Sarah", ""));
 
     EnumeratorQuestion enumeratorQuestion =
-        new EnumeratorQuestion(applicantQuestion, /* initialQuestionFlowIsActive= */ false);
+        new EnumeratorQuestion(applicantQuestion, /* initialQuestionType= */ Optional.empty());
 
     assertThat(enumeratorQuestion.getValidationErrors())
         .isEqualTo(

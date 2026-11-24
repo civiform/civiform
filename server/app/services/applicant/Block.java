@@ -241,6 +241,18 @@ public final class Block {
   }
 
   /**
+   * Returns the initial question's type when this enumerator block uses the initial-question flow,
+   * or empty otherwise.
+   *
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal.
+   */
+  public Optional<QuestionType> initialQuestionTypeIfFlowIsActive() {
+    return initialQuestionFlowIsActive()
+        ? getInitialQuestion().map(ApplicantQuestion::getType)
+        : Optional.empty();
+  }
+
+  /**
    * Returns the questions that should be used in determining if this block has been correctly
    * filled out.
    */

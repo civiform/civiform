@@ -6,9 +6,11 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import services.MessageKey;
 import services.Path;
+import services.applicant.RepeatedEntity;
 import services.applicant.ValidationErrorMessage;
 import services.question.types.QuestionType;
 
@@ -25,6 +27,76 @@ import services.question.types.QuestionType;
  * </ul>
  */
 public abstract class AbstractQuestion {
+
+  /**
+   * Field errors from the name, address and date questions, mapped to the version shown when the
+   * question is a list set's initial question. Each list item version takes the original arguments
+   * followed by the item type and the row number.
+   */
+  private static final ImmutableMap<MessageKey, MessageKey> LIST_ITEM_ERROR_KEYS =
+      ImmutableMap.<MessageKey, MessageKey>builder()
+          .put(
+              MessageKey.NAME_VALIDATION_FIRST_REQUIRED,
+              MessageKey.NAME_VALIDATION_FIRST_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.NAME_VALIDATION_LAST_REQUIRED,
+              MessageKey.NAME_VALIDATION_LAST_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED,
+              MessageKey.ADDRESS_VALIDATION_STREET_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED,
+              MessageKey.ADDRESS_VALIDATION_CITY_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED,
+              MessageKey.ADDRESS_VALIDATION_STATE_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE,
+              MessageKey.ADDRESS_VALIDATION_INVALID_ZIPCODE_FOR_LIST_ITEM)
+          .put(
+              MessageKey.ADDRESS_VALIDATION_NO_PO_BOX,
+              MessageKey.ADDRESS_VALIDATION_NO_PO_BOX_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_MONTH_REQUIRED,
+              MessageKey.DATE_VALIDATION_MONTH_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DAY_REQUIRED,
+              MessageKey.DATE_VALIDATION_DAY_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DAY_INVALID,
+              MessageKey.DATE_VALIDATION_DAY_INVALID_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS,
+              MessageKey.DATE_VALIDATION_YEAR_MUST_BE_FOUR_DIGITS_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT,
+              MessageKey.DATE_VALIDATION_INVALID_DATE_FORMAT_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_CURRENT_DATE_REQUIRED,
+              MessageKey.DATE_VALIDATION_CURRENT_DATE_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST,
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_PAST_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE,
+              MessageKey.DATE_VALIDATION_DATE_BEYOND_ALLOWABLE_YEARS_IN_FUTURE_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_FUTURE_DATE_REQUIRED,
+              MessageKey.DATE_VALIDATION_FUTURE_DATE_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_PAST_DATE_REQUIRED,
+              MessageKey.DATE_VALIDATION_PAST_DATE_REQUIRED_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_PAST,
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_PAST_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE,
+              MessageKey.DATE_VALIDATION_DATE_TOO_FAR_IN_FUTURE_FOR_LIST_ITEM)
+          .put(
+              MessageKey.DATE_VALIDATION_DATE_NOT_IN_RANGE,
+              MessageKey.DATE_VALIDATION_DATE_NOT_IN_RANGE_FOR_LIST_ITEM)
+          .build();
+
   protected final ApplicantQuestion applicantQuestion;
 
   public AbstractQuestion(ApplicantQuestion applicantQuestion) {
@@ -85,9 +157,45 @@ public abstract class AbstractQuestion {
       errorMap.put(keyPath, valueErrors.build());
     }
 
-    return new ImmutableMap.Builder<Path, ImmutableSet<ValidationErrorMessage>>()
-        .putAll(errorMap)
-        .build();
+    ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors = ImmutableMap.copyOf(errorMap);
+    return applicantQuestion
+        .getInitialQuestionEntity()
+        .map(entity -> nameListItemInErrors(errors, entity))
+        .orElse(errors);
+  }
+
+  /**
+   * Swaps each field error that has a list item version for that version, which names the item type
+   * and row number (for example "Enter the last name for household member #1") instead of saying
+   * "your". A list set screen can show the same field error on several rows.
+   */
+  private ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> nameListItemInErrors(
+      ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors, RepeatedEntity entity) {
+    String entityType =
+        entity
+            .enumeratorQuestionDefinition()
+            .getEntityType()
+            .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
+    int rowNumber = entity.index() + 1;
+    return errors.entrySet().stream()
+        .collect(
+            ImmutableMap.toImmutableMap(
+                Map.Entry::getKey,
+                entry ->
+                    entry.getValue().stream()
+                        .map(error -> forListItem(error, entityType, rowNumber))
+                        .collect(ImmutableSet.toImmutableSet())));
+  }
+
+  private static ValidationErrorMessage forListItem(
+      ValidationErrorMessage error, String entityType, int rowNumber) {
+    MessageKey listItemKey = LIST_ITEM_ERROR_KEYS.get(error.key());
+    if (listItemKey == null) {
+      return error;
+    }
+    return ValidationErrorMessage.create(
+        listItemKey,
+        ImmutableList.builder().addAll(error.args()).add(entityType, rowNumber).build().toArray());
   }
 
   /**
