@@ -799,8 +799,9 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
-  public void getAvailablePredicateQuestionDefinitions_excludesEnumeratorInitialQuestion()
-      throws ProgramBlockDefinitionNotFoundException {
+  public void
+      getAvailablePredicateQuestionDefinitions_onlyEligibilityExcludesEnumeratorInitialQuestion()
+          throws ProgramBlockDefinitionNotFoundException {
     long programDefinitionId = 123L;
     QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition enumeratorQuestion =
@@ -857,7 +858,7 @@ public class ProgramDefinitionTest extends ResetPostgres {
         .isEmpty();
     assertThat(
             programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockAfter.id()))
-        .containsExactly(questionA);
+        .containsExactly(questionA, initialQuestion);
   }
 
   @Test

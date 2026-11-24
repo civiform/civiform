@@ -704,12 +704,15 @@ public abstract class ProgramDefinition {
    * Returns a list of the question definitions that may be used to define eligibility predicates on
    * the block definition with the id {@code blockId}.
    *
-   * <p>The questions will be the valid predicate questions in the block {@code blockId}.
+   * <p>The questions will be the valid predicate questions in the block {@code blockId}, excluding
+   * an enumerator's initial question. Its answers are stored per entity under the enumerator, so a
+   * block-level eligibility predicate can't read them.
    */
   public ImmutableList<QuestionDefinition> getAvailableEligibilityPredicateQuestionDefinitions(
       long blockId) throws ProgramBlockDefinitionNotFoundException {
     // Only questions in the block are available.
-    return getAllowedPredicateQuestionDefinitions(getBlockDefinition(blockId));
+    return getAllowedPredicateQuestionDefinitions(
+        getBlockDefinition(blockId), /* excludeInitialQuestion= */ true);
   }
 
   /** True if the give question definition ID is found in any of the program's predicates. */
@@ -757,7 +760,9 @@ public abstract class ProgramDefinition {
     ImmutableList.Builder<QuestionDefinition> builder = ImmutableList.builder();
     for (BlockDefinition blockDefinition :
         getAvailablePredicateBlockDefinitions(this.getBlockDefinition(blockId))) {
-      builder.addAll(getAllowedPredicateQuestionDefinitions(blockDefinition));
+      builder.addAll(
+          getAllowedPredicateQuestionDefinitions(
+              blockDefinition, /* excludeInitialQuestion= */ false));
     }
 
     return builder.build();
@@ -778,12 +783,11 @@ public abstract class ProgramDefinition {
    * <ul>
    *   <li>Is of an allowable question type.
    *   <li>If it is an address question, is configured for correction.
-   *   <li>Is not an enumerator's initial question. Its answers are stored per entity under the
-   *       enumerator, so a block-level predicate can't read them.
+   *   <li>If {@code excludeInitialQuestion} is true, is not an enumerator's initial question.
    * </ul>
    */
   private static ImmutableList<QuestionDefinition> getAllowedPredicateQuestionDefinitions(
-      BlockDefinition blockDefinition) {
+      BlockDefinition blockDefinition, boolean excludeInitialQuestion) {
     Predicate<ProgramQuestionDefinition> isAllowedType =
         pqd -> {
           QuestionType questionType = pqd.getQuestionDefinition().getQuestionType();
@@ -793,7 +797,7 @@ public abstract class ProgramDefinition {
           return allowedType && !addressWithoutCorrection;
         };
     Optional<Long> initialQuestionId =
-        blockDefinition.hasEnumeratorQuestion()
+        excludeInitialQuestion && blockDefinition.hasEnumeratorQuestion()
             ? blockDefinition.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId()
             : Optional.empty();
     Predicate<ProgramQuestionDefinition> isNotInitialQuestion =

@@ -1236,7 +1236,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('initial question is not available for eligibility or visibility conditions', async ({
+    test('initial question is not available for eligibility conditions but is for visibility conditions', async ({
       page,
       adminPrograms,
       adminPredicates,
@@ -1262,7 +1262,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await expect(page.locator('#submit-predicate')).toBeDisabled()
       })
 
-      await test.step('The repeated screen has no questions for a visibility condition', async () => {
+      await test.step('The repeated screen can use the initial question for a visibility condition', async () => {
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           'Enumerator test program',
           'Screen 3',
@@ -1271,9 +1271,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page.getByText(
             'There are no available questions on preceding screens with which to set a visibility condition for this screen.',
           ),
-        ).toBeVisible()
-        await adminPredicates.expectNoAddConditionButton()
-        await expect(page.locator('#submit-predicate')).toBeDisabled()
+        ).toBeHidden()
+        await adminPredicates.expectAddConditionButton()
       })
     })
 
