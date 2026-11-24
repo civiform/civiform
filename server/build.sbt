@@ -152,7 +152,7 @@ lazy val root = (project in file("."))
       "ch.qos.logback" % "logback-classic" % "1.6.7",
 
       // Swagger 2.0 Dependencies
-      "io.swagger" % "swagger-core" % "1.6.16" exclude (
+      "io.swagger" % "swagger-core" % "1.6.17" exclude (
         "javax.validation",
         "validation-api"
       ),
