@@ -1,153 +1,270 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.dev.DevToolsPageViewModel"*/-->
 <th:block th:fragment="content">
-  <div class="usa-section">
-    <!-- Home Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12">
-        <a class="usa-button usa-button--outline" th:href="${model.homeUrl}"
-          >🏠 [[#{devtools.homepage}]]</a
-        >
-      </div>
-    </div>
-
-    <!-- Seed Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.seed.title}]]</h2>
-        <p>[[#{devtools.seed.description}]]</p>
-        <form th:action="${model.seedProgramsUrl}" method="post">
-          <button class="usa-button" type="submit">
-            [[#{devtools.seed.programs}]]
-          </button>
-        </form>
-        <form th:action="${model.seedQuestionsUrl}" method="post">
-          <button class="usa-button" type="submit">
-            [[#{devtools.seed.questions}]]
-          </button>
-        </form>
-        <form th:action="${model.clearUrl}" method="post">
-          <button class="usa-button usa-button--secondary" type="submit">
-            [[#{devtools.seed.clear}]]
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Caching Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.cache.title}]]</h2>
-        <p>[[#{devtools.cache.description}]]</p>
-        <form th:action="${model.clearCacheUrl}" method="post">
-          <input
-            type="hidden"
-            name="csrfToken"
-            th:value="${templateGlobals.csrfToken()}"
-          />
-          <button class="usa-button" type="submit">
-            💵 [[#{devtools.cache.clear}]]
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Durable Jobs Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.jobs.title}]]</h2>
-        <p>[[#{devtools.jobs.description}]]</p>
-        <form th:action="${model.runDurableJobUrl}" method="post">
-          <input
-            type="hidden"
-            name="csrfToken"
-            th:value="${templateGlobals.csrfToken()}"
-          />
-          <label for="durable-job-select">[[#{devtools.jobs.select}]]</label>
-          <select
-            id="durable-job-select"
-            name="durableJobSelect"
-            class="usa-select"
-          >
-            <option
-              th:each="option : ${model.durableJobOptions}"
-              th:value="${option}"
-              th:text="${option}"
-            ></option>
-          </select>
-          <button class="usa-button" type="submit">
-            [[#{devtools.jobs.run}]]
-          </button>
-        </form>
-      </div>
-    </div>
-
-    <!-- Icons Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.icons.title}]]</h2>
-        <p>[[#{devtools.icons.description}]]</p>
-        <a class="usa-button usa-button--outline" th:href="${model.iconsUrl}"
-          >[[#{devtools.icons.view}]]</a
-        >
-      </div>
-    </div>
-
-    <!-- Email/Localstack Section (Dev only) -->
-    <div th:if="${model.isDev}" class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.localstack.title}]]</h2>
-        <p>[[#{devtools.localstack.description}]]</p>
-        <a
-          class="usa-button usa-button--outline"
-          href="http://localhost.localstack.cloud:4566/_aws/ses/"
-          target="_blank"
-          >✉️ [[#{devtools.localstack.ses}]]</a
-        >
-        <a
-          class="usa-button usa-button--outline"
-          href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3"
-          target="_blank"
-          >📁 [[#{devtools.localstack.private}]]</a
-        >
-        <a
-          class="usa-button usa-button--outline"
-          href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public"
-          target="_blank"
-          >📁 [[#{devtools.localstack.public}]]</a
-        >
-      </div>
-    </div>
-
-    <!-- Address Tools Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.address.title}]]</h2>
-        <p>[[#{devtools.address.description}]]</p>
-        <a
-          class="usa-button usa-button--outline"
-          th:href="${model.addressToolsUrl}"
-          >🗺️ [[#{devtools.address.go}]]</a
-        >
-      </div>
-    </div>
-
-    <!-- Session Tools Section -->
-    <div class="grid-row grid-gap">
-      <div class="grid-col-12 border border-base-lighter">
-        <h2>[[#{devtools.session.title}]]</h2>
-        <p>[[#{devtools.session.description}]]</p>
-        <a
-          class="usa-button usa-button--outline"
-          th:href="${model.sessionProfileUrl}"
-          >👤 [[#{devtools.session.pac4j}]]</a
-        >
-        <a
-          class="usa-button usa-button--outline"
-          th:href="${model.sessionDisplayUrl}"
-          >📜 [[#{devtools.session.play}]]</a
-        >
-      </div>
-    </div>
+  <!--/* Flash toasts, consumed by toast.ts. */-->
+  <div
+    th:replace="~{components/ToastFragment :: success(${model.flashSuccess})}"
+  ></div>
+  <div
+    th:replace="~{components/ToastFragment :: error(${model.flashError})}"
+  ></div>
+  <div th:if="${model.flashWarning.isPresent()}">
+    <div
+      th:replace="~{components/ToastFragment :: toast(${'id-' + #strings.randomAlphanumeric(8)}, ${model.flashWarning.get()}, true, false, 0, null, 'warning')}"
+    ></div>
   </div>
+
+  <a class="usa-button" th:href="${model.homeUrl}"
+    >🏠 [[#{devtools.homepage}]]</a
+  >
+
+  <!--/* Each card's buttons sit in its body, stacked at full width directly
+       under the description. */-->
+  <ul class="usa-card-group margin-top-4">
+    <!-- Seed -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.seed.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.seed.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <form th:action="${model.seedProgramsUrl}" method="post">
+                <input
+                  type="hidden"
+                  name="csrfToken"
+                  th:value="${templateGlobals.csrfToken()}"
+                />
+                <button class="usa-button width-full" type="submit">
+                  [[#{devtools.seed.programs}]]
+                </button>
+              </form>
+            </li>
+            <li class="usa-button-group__item margin-x-0">
+              <form th:action="${model.seedQuestionsUrl}" method="post">
+                <input
+                  type="hidden"
+                  name="csrfToken"
+                  th:value="${templateGlobals.csrfToken()}"
+                />
+                <button class="usa-button width-full" type="submit">
+                  [[#{devtools.seed.questions}]]
+                </button>
+              </form>
+            </li>
+            <li class="usa-button-group__item margin-x-0">
+              <form th:action="${model.clearUrl}" method="post">
+                <input
+                  type="hidden"
+                  name="csrfToken"
+                  th:value="${templateGlobals.csrfToken()}"
+                />
+                <button
+                  class="usa-button usa-button--secondary width-full cf-dev-tools-clear-button"
+                  type="submit"
+                >
+                  [[#{devtools.seed.clear}]]
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Durable jobs -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.jobs.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.jobs.description}]]</p>
+          <form th:action="${model.runDurableJobUrl}" method="post">
+            <input
+              type="hidden"
+              name="csrfToken"
+              th:value="${templateGlobals.csrfToken()}"
+            />
+            <label class="usa-label" for="durable-job-select"
+              >[[#{devtools.jobs.select}]]</label
+            >
+            <select
+              id="durable-job-select"
+              name="durableJobSelect"
+              class="usa-select maxw-none"
+            >
+              <option
+                th:each="option : ${model.durableJobOptions}"
+                th:value="${option}"
+                th:text="${option}"
+              ></option>
+            </select>
+            <ul class="usa-button-group flex-column margin-top-2">
+              <li class="usa-button-group__item margin-x-0">
+                <button class="usa-button width-full" type="submit">
+                  [[#{devtools.jobs.run}]]
+                </button>
+              </li>
+            </ul>
+          </form>
+        </div>
+      </div>
+    </li>
+
+    <!-- Caching -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.cache.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.cache.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <form th:action="${model.clearCacheUrl}" method="post">
+                <input
+                  type="hidden"
+                  name="csrfToken"
+                  th:value="${templateGlobals.csrfToken()}"
+                />
+                <button class="usa-button width-full" type="submit">
+                  💵 [[#{devtools.cache.clear}]]
+                </button>
+              </form>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Icons -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.icons.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.icons.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <a class="usa-button width-full" th:href="${model.iconsUrl}"
+                >[[#{devtools.icons.view}]]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Localstack (dev only) -->
+    <li th:if="${model.isDev}" class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.localstack.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.localstack.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                href="http://localhost.localstack.cloud:4566/_aws/ses/"
+                target="_blank"
+                >✉️ [[#{devtools.localstack.ses}]]</a
+              >
+            </li>
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3"
+                target="_blank"
+                >📁 [[#{devtools.localstack.private}]]</a
+              >
+            </li>
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public"
+                target="_blank"
+                >📁 [[#{devtools.localstack.public}]]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Address tools -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.address.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.address.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                th:href="${model.addressToolsUrl}"
+                >🗺️ [[#{devtools.address.go}]]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Session tools -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.session.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.session.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                th:href="${model.sessionProfileUrl}"
+                >👤 [[#{devtools.session.pac4j}]]</a
+              >
+            </li>
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                th:href="${model.sessionDisplayUrl}"
+                >📜 [[#{devtools.session.play}]]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+
+    <!-- Debug tools -->
+    <li class="usa-card tablet:grid-col-6">
+      <div class="usa-card__container">
+        <div class="usa-card__header">
+          <h2 class="usa-card__heading">[[#{devtools.debug.title}]]</h2>
+        </div>
+        <div class="usa-card__body">
+          <p>[[#{devtools.debug.description}]]</p>
+          <ul class="usa-button-group flex-column">
+            <li class="usa-button-group__item margin-x-0">
+              <a
+                class="usa-button width-full"
+                th:href="${model.logBlankLinesUrl}"
+                >[[#{devtools.debug.logBlankLines}]]</a
+              >
+            </li>
+          </ul>
+        </div>
+      </div>
+    </li>
+  </ul>
 </th:block>
