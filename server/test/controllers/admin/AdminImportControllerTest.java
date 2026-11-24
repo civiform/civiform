@@ -7,22 +7,33 @@ import static play.test.Helpers.contentAsString;
 import static support.FakeRequestBuilder.fakeRequest;
 import static support.FakeRequestBuilder.fakeRequestBuilder;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import controllers.WithMockedProfiles;
 import io.ebean.DB;
 import io.ebean.Database;
+import java.util.Locale;
+import java.util.Optional;
+import mapping.admin.migration.AdminImportProgramDataPartialMapper;
 import models.ApplicationStatusesModel;
+import models.ApplicationStep;
 import models.ProgramModel;
 import models.QuestionModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.mvc.Result;
+import repository.QuestionRepository;
+import repository.VersionRepository;
 import services.ErrorAnd;
+import services.LocalizedStrings;
+import services.migration.ProgramMigrationService;
 import services.program.ProgramBlockDefinitionNotFoundException;
 import services.program.ProgramDefinition;
 import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.QuestionDefinition;
+import services.question.types.QuestionDefinitionBuilder;
+import services.question.types.QuestionType;
 import services.statuses.StatusDefinitions;
 import support.ProgramBuilder;
 import views.admin.migration.AdminProgramImportForm;
@@ -601,6 +612,155 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     assertThat(duplicateOptions).containsKey("Text");
     assertThat(duplicateOptions.get("Text"))
         .isEqualTo(ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE);
+  }
+
+  @Test
+  public void hxImportProgram_duplicateQuestionWithExistingImage_rendersImageWarnings()
+      throws Exception {
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    ProgramMigrationService migrationService = instanceOf(ProgramMigrationService.class);
+
+    QuestionModel existingQuestion =
+        new QuestionModel(
+            new QuestionDefinitionBuilder()
+                .setName("static-image-q")
+                .setDescription("static question")
+                .setQuestionText(LocalizedStrings.withDefaultValue("Static instructions"))
+                .setQuestionType(QuestionType.STATIC)
+                .setImageFileKey(Optional.of("question-image/question-1/photo.png"))
+                .setLocalizedImageDescription(
+                    Optional.of(LocalizedStrings.withDefaultValue("Diagram alt text")))
+                .build());
+    existingQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    ProgramDefinition exportedProgram =
+        ProgramBuilder.newProgram("imported-image-program", 100L)
+            .withLocalizedShortDescription(Locale.US, "Short description")
+            .withApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .withBlock("Screen 1")
+            .withRequiredQuestion(existingQuestion)
+            .buildDefinition();
+    String json =
+        migrationService
+            .serialize(
+                migrationService.prepForExport(exportedProgram),
+                ImmutableList.of(existingQuestion.getQuestionDefinition()))
+            .getResult();
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder().method("POST").bodyForm(ImmutableMap.of("programJson", json)).build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains(AdminImportProgramDataPartialMapper.TOP_LEVEL_EXISTING_IMAGE_WARNING);
+    assertThat(content)
+        .contains(AdminImportProgramDataPartialMapper.DUPLICATE_EXISTING_IMAGE_WARNING);
+  }
+
+  @Test
+  public void hxImportProgram_newQuestionWithImageAltText_rendersImageWarnings() throws Exception {
+    ProgramMigrationService migrationService = instanceOf(ProgramMigrationService.class);
+
+    QuestionDefinition newImageQuestion =
+        new QuestionDefinitionBuilder()
+            .setId(42L)
+            .setName("new-static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Static instructions"))
+            .setQuestionType(QuestionType.STATIC)
+            .setLocalizedImageDescription(
+                Optional.of(LocalizedStrings.withDefaultValue("Diagram alt text")))
+            .build();
+    ProgramDefinition exportedProgram =
+        ProgramBuilder.newProgram("imported-new-image-program", 101L)
+            .withLocalizedShortDescription(Locale.US, "Short description")
+            .withApplicationSteps(ImmutableList.of(new ApplicationStep("title", "description")))
+            .withBlock("Screen 1")
+            .withRequiredQuestionDefinition(newImageQuestion)
+            .buildDefinition();
+    String json =
+        migrationService
+            .serialize(
+                migrationService.prepForExport(exportedProgram),
+                ImmutableList.of(newImageQuestion))
+            .getResult();
+
+    Result result =
+        controller.hxImportProgram(
+            fakeRequestBuilder().method("POST").bodyForm(ImmutableMap.of("programJson", json)).build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    String content = contentAsString(result);
+    assertThat(content)
+        .contains(AdminImportProgramDataPartialMapper.TOP_LEVEL_IMPORTED_ALT_TEXT_WARNING);
+    assertThat(content).contains(AdminImportProgramDataPartialMapper.NEW_QUESTION_IMAGE_WARNING);
+  }
+
+  @Test
+  public void hxSaveProgram_overwriteExistingQuestionWithImage_preservesImageFileKey()
+      throws Exception {
+    VersionRepository versionRepository = instanceOf(VersionRepository.class);
+    QuestionRepository questionRepository = instanceOf(QuestionRepository.class);
+    ProgramMigrationService migrationService = instanceOf(ProgramMigrationService.class);
+
+    String existingImageFileKey = "question-image/question-1/photo.png";
+    QuestionModel existingQuestion =
+        new QuestionModel(
+            new QuestionDefinitionBuilder()
+                .setName("static-image-q")
+                .setDescription("static question")
+                .setQuestionText(LocalizedStrings.withDefaultValue("Original instructions"))
+                .setQuestionType(QuestionType.STATIC)
+                .setImageFileKey(Optional.of(existingImageFileKey))
+                .setLocalizedImageDescription(
+                    Optional.of(LocalizedStrings.withDefaultValue("Original alt text")))
+                .build());
+    existingQuestion.addVersion(versionRepository.getActiveVersion()).save();
+
+    QuestionDefinition exportedQuestion =
+        new QuestionDefinitionBuilder(existingQuestion.getQuestionDefinition())
+            .setQuestionText(LocalizedStrings.withDefaultValue("Updated instructions"))
+            .setLocalizedImageDescription(
+                Optional.of(LocalizedStrings.withDefaultValue("Updated alt text")))
+            .build();
+    ProgramDefinition exportedProgram =
+        ProgramBuilder.newProgram("imported-overwrite-image-program", 102L)
+            .withBlock("Screen 1")
+            .withRequiredQuestionDefinition(exportedQuestion)
+            .buildDefinition();
+    String json =
+        migrationService
+            .serialize(
+                migrationService.prepForExport(exportedProgram),
+                ImmutableList.of(exportedQuestion))
+            .getResult();
+
+    Result result =
+        controller.hxSaveProgram(
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(
+                    ImmutableMap.of(
+                        "programJson",
+                        json,
+                        AdminProgramImportForm.DUPLICATE_QUESTION_HANDLING_FIELD_PREFIX
+                            + "static-image-q",
+                        OVERWRITE_EXISTING))
+                .build());
+
+    assertThat(result.status()).isEqualTo(OK);
+    assertThat(contentAsString(result)).contains("Your program has been successfully imported");
+
+    QuestionDefinition savedDraft =
+        questionRepository
+            .getExistingQuestions(ImmutableSet.of("static-image-q"))
+            .get("static-image-q");
+    assertThat(savedDraft.getQuestionText().getDefault()).isEqualTo("Updated instructions");
+    assertThat(savedDraft.getImageFileKey()).contains(existingImageFileKey);
+    assertThat(savedDraft.getLocalizedImageDescription())
+        .contains(LocalizedStrings.withDefaultValue("Updated alt text"));
   }
 
   public static final String PROGRAM_JSON_WITHOUT_QUESTIONS =

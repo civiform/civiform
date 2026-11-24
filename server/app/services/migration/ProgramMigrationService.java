@@ -240,6 +240,24 @@ public final class ProgramMigrationService {
   }
 
   /**
+   * Returns the admin names from {@code existingAdminNames} whose latest stored question definition
+   * currently has an image file key.
+   */
+  public ImmutableSet<String> getExistingQuestionNamesWithImages(
+      ImmutableList<String> existingAdminNames) {
+    if (existingAdminNames.isEmpty()) {
+      return ImmutableSet.of();
+    }
+    return questionRepository
+        .getExistingQuestions(ImmutableSet.copyOf(existingAdminNames))
+        .values()
+        .stream()
+        .filter(q -> q.getImageFileKey().filter(key -> !key.isBlank()).isPresent())
+        .map(QuestionDefinition::getName)
+        .collect(ImmutableSet.toImmutableSet());
+  }
+
+  /**
    * Checks if there are existing questions that match the admin id of any of the incoming
    * questions. If a match is found, generate a new admin name of the <br>
    * format `orginal admin name -_- a`.
@@ -416,15 +434,19 @@ public final class ProgramMigrationService {
           questionDefinitions.stream()
               .filter(q -> reusedQuestions.contains(q.getName()))
               .collect(ImmutableList.toImmutableList());
-      // Need IDs of currently saved Qs
-      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
-          updateEnumeratorIdsAndSaveQuestions(
-              // Only save questions that are not reused from the question bank
+      // Only save questions that are not reused from the question bank. For overwritten questions,
+      // preserve any existing image file key from this environment since images are not included in
+      // program exports.
+      ImmutableList<QuestionDefinition> questionsToWrite =
+          preserveExistingQuestionImages(
               questionDefinitions.stream()
                   .filter(q -> !reusedQuestions.contains(q.getName()))
                   .collect(ImmutableList.toImmutableList()),
-              reusedQuestionDefinitions,
-              questionsOnJsonById);
+              overwrittenQuestions);
+      // Need IDs of currently saved Qs
+      ImmutableMap<String, QuestionDefinition> updatedQuestionsMap =
+          updateEnumeratorIdsAndSaveQuestions(
+              questionsToWrite, reusedQuestionDefinitions, questionsOnJsonById);
 
       ImmutableList<BlockDefinition> updatedBlockDefinitions =
           Utils.updateBlockDefinitions(programDefinition, questionsOnJsonById, updatedQuestionsMap);
@@ -484,6 +506,57 @@ public final class ProgramMigrationService {
         && (versionRepository.getProgramCountForVersion(draftVersion.get())
                 + versionRepository.getQuestionCountForVersion(draftVersion.get())
             > 0);
+  }
+
+  /**
+   * Preserves existing image file keys when overwriting questions, since {@code imageFileKey} is
+   * omitted from program exports. If the imported question provides non-blank alt text, it is used;
+   * otherwise the existing question's alt text is kept alongside its image.
+   */
+  private ImmutableList<QuestionDefinition> preserveExistingQuestionImages(
+      ImmutableList<QuestionDefinition> questionsToWrite,
+      ImmutableList<String> overwrittenQuestions) {
+    if (overwrittenQuestions.isEmpty()) {
+      return questionsToWrite;
+    }
+
+    ImmutableSet<String> overwrittenNameSet = ImmutableSet.copyOf(overwrittenQuestions);
+    ImmutableMap<String, QuestionDefinition> existingQuestionsByName =
+        questionRepository.getExistingQuestions(overwrittenNameSet);
+
+    return questionsToWrite.stream()
+        .map(
+            question -> {
+              if (!overwrittenNameSet.contains(question.getName())) {
+                return question;
+              }
+              QuestionDefinition existing = existingQuestionsByName.get(question.getName());
+              if (existing == null
+                  || !existing.getQuestionType().equals(question.getQuestionType())
+                  || existing.getImageFileKey().filter(key -> !key.isBlank()).isEmpty()) {
+                return question;
+              }
+              QuestionDefinitionBuilder builder =
+                  new QuestionDefinitionBuilder(question)
+                      .setImageFileKey(existing.getImageFileKey());
+              boolean importedHasAltText =
+                  question
+                      .getLocalizedImageDescription()
+                      .filter(
+                          description ->
+                              description.translations().values().stream()
+                                  .anyMatch(value -> !value.isBlank()))
+                      .isPresent();
+              if (!importedHasAltText) {
+                builder.setLocalizedImageDescription(existing.getLocalizedImageDescription());
+              }
+              try {
+                return builder.build();
+              } catch (UnsupportedQuestionTypeException error) {
+                throw new RuntimeException(error);
+              }
+            })
+        .collect(ImmutableList.toImmutableList());
   }
 
   /**

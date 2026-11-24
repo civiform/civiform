@@ -1259,4 +1259,188 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
     assertThat(result.isError()).isFalse();
     assertThat(result.hasResult()).isTrue();
   }
+
+  @Test
+  public void getExistingQuestionNamesWithImages_returnsOnlyQuestionsWithImages() throws Exception {
+    QuestionDefinition questionWithImage =
+        new QuestionDefinitionBuilder()
+            .setName("static-with-image")
+            .setDescription("static question with image")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Static text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setImageFileKey(Optional.of("question-image/question-1/photo.png"))
+            .setLocalizedImageDescription(
+                Optional.of(LocalizedStrings.withDefaultValue("Photo description")))
+            .build();
+    QuestionDefinition questionWithoutImage =
+        new QuestionDefinitionBuilder()
+            .setName("static-without-image")
+            .setDescription("static question without image")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Static text"))
+            .setQuestionType(QuestionType.STATIC)
+            .build();
+    new QuestionModel(questionWithImage).addVersion(versionRepository.getActiveVersion()).save();
+    new QuestionModel(questionWithoutImage).addVersion(versionRepository.getActiveVersion()).save();
+
+    assertThat(service.getExistingQuestionNamesWithImages(ImmutableList.of())).isEmpty();
+    assertThat(
+            service.getExistingQuestionNamesWithImages(
+                ImmutableList.of("static-with-image", "static-without-image", "missing")))
+        .containsExactly("static-with-image");
+  }
+
+  @Test
+  public void saveImportedProgram_overwriteExisting_preservesImageAndUsesImportedAltText()
+      throws Exception {
+    String existingFileKey = "question-image/question-1/cat.png";
+    LocalizedStrings existingAltText =
+        LocalizedStrings.of(Locale.US, "Old alt text", Locale.FRANCE, "Ancien texte alternatif");
+    QuestionDefinition existingStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Original text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setImageFileKey(Optional.of(existingFileKey))
+            .setLocalizedImageDescription(Optional.of(existingAltText))
+            .build();
+    QuestionModel existingModel = new QuestionModel(existingStaticQuestion);
+    existingModel.addVersion(versionRepository.getActiveVersion()).save();
+
+    LocalizedStrings importedAltText =
+        LocalizedStrings.of(Locale.US, "New alt text", Locale.FRANCE, "Nouveau texte alternatif");
+    QuestionDefinition importedStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setId(existingModel.id)
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Updated text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setLocalizedImageDescription(Optional.of(importedAltText))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
+            .withBlock("Block A")
+            .withRequiredQuestionDefinition(importedStaticQuestion)
+            .buildDefinition();
+
+    ErrorAnd<ProgramModel, String> result =
+        service.saveImportedProgram(
+            programDefinition,
+            ImmutableList.of(importedStaticQuestion),
+            ImmutableMap.of(
+                "static-image-q",
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING));
+
+    assertThat(result.isError()).isFalse();
+    QuestionDefinition savedDraft =
+        questionRepository
+            .getExistingQuestions(ImmutableSet.of("static-image-q"))
+            .get("static-image-q");
+    assertThat(savedDraft.getQuestionText().getDefault()).isEqualTo("Updated text");
+    assertThat(savedDraft.getImageFileKey()).contains(existingFileKey);
+    assertThat(savedDraft.getLocalizedImageDescription()).contains(importedAltText);
+  }
+
+  @Test
+  public void saveImportedProgram_overwriteExisting_keepsExistingAltTextWhenImportOmitsAltText()
+      throws Exception {
+    String existingFileKey = "question-image/question-1/cat.png";
+    LocalizedStrings existingAltText =
+        LocalizedStrings.of(Locale.US, "Existing alt text", Locale.FRANCE, "Texte existant");
+    QuestionDefinition existingStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Original text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setImageFileKey(Optional.of(existingFileKey))
+            .setLocalizedImageDescription(Optional.of(existingAltText))
+            .build();
+    QuestionModel existingModel = new QuestionModel(existingStaticQuestion);
+    existingModel.addVersion(versionRepository.getActiveVersion()).save();
+
+    QuestionDefinition importedStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setId(existingModel.id)
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Updated text"))
+            .setQuestionType(QuestionType.STATIC)
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
+            .withBlock("Block A")
+            .withRequiredQuestionDefinition(importedStaticQuestion)
+            .buildDefinition();
+
+    ErrorAnd<ProgramModel, String> result =
+        service.saveImportedProgram(
+            programDefinition,
+            ImmutableList.of(importedStaticQuestion),
+            ImmutableMap.of(
+                "static-image-q",
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.OVERWRITE_EXISTING));
+
+    assertThat(result.isError()).isFalse();
+    QuestionDefinition savedDraft =
+        questionRepository
+            .getExistingQuestions(ImmutableSet.of("static-image-q"))
+            .get("static-image-q");
+    assertThat(savedDraft.getQuestionText().getDefault()).isEqualTo("Updated text");
+    assertThat(savedDraft.getImageFileKey()).contains(existingFileKey);
+    assertThat(savedDraft.getLocalizedImageDescription()).contains(existingAltText);
+  }
+
+  @Test
+  public void saveImportedProgram_createDuplicate_keepsImportedAltTextWithoutImage()
+      throws Exception {
+    String existingFileKey = "question-image/question-1/cat.png";
+    LocalizedStrings altText =
+        LocalizedStrings.of(Locale.US, "Cat alt text", Locale.FRANCE, "Texte chat");
+    QuestionDefinition existingStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Original text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setImageFileKey(Optional.of(existingFileKey))
+            .setLocalizedImageDescription(Optional.of(altText))
+            .build();
+    QuestionModel existingModel = new QuestionModel(existingStaticQuestion);
+    existingModel.addVersion(versionRepository.getActiveVersion()).save();
+
+    QuestionDefinition importedStaticQuestion =
+        new QuestionDefinitionBuilder()
+            .setId(existingModel.id)
+            .setName("static-image-q")
+            .setDescription("static question")
+            .setQuestionText(LocalizedStrings.withDefaultValue("Duplicated text"))
+            .setQuestionType(QuestionType.STATIC)
+            .setLocalizedImageDescription(Optional.of(altText))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newProgram("program1", PROGRAM_ID_1)
+            .withBlock("Block A")
+            .withRequiredQuestionDefinition(importedStaticQuestion)
+            .buildDefinition();
+
+    ErrorAnd<ProgramModel, String> result =
+        service.saveImportedProgram(
+            programDefinition,
+            ImmutableList.of(importedStaticQuestion),
+            ImmutableMap.of(
+                "static-image-q",
+                ProgramMigrationWrapper.DuplicateQuestionHandlingOption.CREATE_DUPLICATE));
+
+    assertThat(result.isError()).isFalse();
+    ImmutableMap<String, QuestionDefinition> savedQuestions =
+        questionRepository.getExistingQuestions(
+            ImmutableSet.of("static-image-q", "static-image-q -_- a"));
+    assertThat(savedQuestions.get("static-image-q").getImageFileKey()).contains(existingFileKey);
+    assertThat(savedQuestions.get("static-image-q").getLocalizedImageDescription()).contains(altText);
+    assertThat(savedQuestions.get("static-image-q -_- a").getImageFileKey()).isEmpty();
+    assertThat(savedQuestions.get("static-image-q -_- a").getLocalizedImageDescription())
+        .contains(altText);
+  }
 }
