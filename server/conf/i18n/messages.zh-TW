@@ -1580,3 +1580,10 @@ devtools.session.description=
 devtools.session.pac4j=
 # Button text to view the current Play session.
 devtools.session.play=
+
+# Heading for the debug tools section of the dev tools page.
+devtools.debug.title=Debug Tools
+# Description for the debug tools section of the dev tools page.
+devtools.debug.description=Debugging aids
+# Button text to log blank lines to the server console.
+devtools.debug.logBlankLines=Log blank lines to console
