@@ -87,7 +87,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
   }
 
   public String render(Request request, ApplicationBaseViewParams applicationParams) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     ThymeleafModule.PlayThymeleafContext context =
         createThymeleafContext(
@@ -146,7 +146,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
     // Include file upload specific parameters.
     if (applicationParams.block().isFileUpload()
-        && !settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+        && !settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       this.addFileUploadParameters(request, applicationParams, context);
 
       return templateEngine.process(
@@ -201,8 +201,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
       context.setVariable("nameSuffixOptions", Suffix.values());
       context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
-      context.setVariable(
-          "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+      context.setVariable("isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
 
       // Whether the enumerator block uses the initial-question flow (the enumerator improvements
       // flag is on and the enumerator has an initial question). Used to suppress blank/duplicate-
@@ -219,8 +218,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
         setInitialQuestionContext(context, applicationParams);
       }
       context.setVariable(
-          "imagesInQuestionFeatureEnabled",
-          settingsManifest.getImagesInQuestionFeatureEnabled(request));
+          "imagesInQuestionFeatureEnabled", settingsManifest.getImagesInQuestionFeatureEnabled());
 
       return templateEngine.process("applicant/blocks/ApplicantProgramBlockEditTemplate", context);
     }
@@ -578,8 +576,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     context.setVariable("questionId", enumeratorQuestionId);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("nameSuffixOptions", Suffix.values());
-    context.setVariable(
-        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    context.setVariable("isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
     // A brand new entity row has no answers yet, so never shows errors.
     context.setVariable(
         "initialQuestionRendererParams",
@@ -607,7 +604,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
 
     final String previousBlockRoute;
     final String reviewRoute;
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+    if (settingsManifest.getProgramSlugUrlsEnabled()) {
       previousBlockRoute =
           applicantRoutes
               .blockPreviousOrReview(

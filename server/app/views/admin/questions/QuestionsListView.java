@@ -295,7 +295,7 @@ public final class QuestionsListView extends BaseHtmlView {
     DivTag row =
         div()
             .withClasses("flex")
-            .with(renderInfoCell(latestDefinition, request))
+            .with(renderInfoCell(latestDefinition))
             .with(referencingProgramAndModal.getLeft());
 
     DivTag draftAndActiveRows = div().withClasses("flex-grow");
@@ -389,7 +389,7 @@ public final class QuestionsListView extends BaseHtmlView {
     return Pair.of(row, actionsCellAndModal.getRight());
   }
 
-  private DivTag renderInfoCell(QuestionDefinition definition, Http.Request request) {
+  private DivTag renderInfoCell(QuestionDefinition definition) {
     DivTag questionText =
         div()
             .withClasses("question-bank-info-cell")
@@ -418,7 +418,7 @@ public final class QuestionsListView extends BaseHtmlView {
                 .withClasses("pl-10"));
     DivTag content = div().with(questionText).with(questionDescription);
 
-    if (settingsManifest.getImagesInQuestionFeatureEnabled(request)
+    if (settingsManifest.getImagesInQuestionFeatureEnabled()
         && definition.getImageFileKey().filter(k -> !k.isBlank()).isPresent()
         && PublicFileNameFormatter.isFileKeyForPublicQuestionImage(
             definition.getImageFileKey().get())) {

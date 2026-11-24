@@ -8,8 +8,10 @@ import io.ebean.DB;
 import io.ebean.Database;
 import java.io.IOException;
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -24,11 +26,13 @@ import models.LifecycleStage;
 import models.Models;
 import models.ProgramModel;
 import models.QuestionModel;
+import models.SettingsGroupModel;
 import models.TrustedIntermediaryGroupModel;
 import play.Environment;
 import play.Mode;
 import play.inject.Injector;
 import repository.DatabaseExecutionContext;
+import repository.SettingsGroupRepository;
 import services.LocalizedStrings;
 import services.ObjectMapperSingleton;
 import services.apikey.ApiKeyService;
@@ -75,6 +79,43 @@ public class ResourceCreator {
 
   public void truncateTables() {
     Models.truncate(database);
+    // The SettingsCacheMaintainer only clears the cache asynchronously, so clear it here to stop
+    // the truncated settings being served to the test.
+    settingsGroupRepository().clearCurrentSettingsCache();
+  }
+
+  /**
+   * Sets the value of a server setting as though an admin saved it, so {@link
+   * services.settings.SettingsManifest} returns it in place of the value in the application config.
+   * The setting keeps this value until {@link #clearCiviFormSettings} is called or the tables are
+   * truncated.
+   */
+  public void setCiviFormSetting(String name, String value) {
+    Map<String, String> settings =
+        new HashMap<>(
+            settingsGroupRepository()
+                .getCurrentSettingsSync()
+                .map(SettingsGroupModel::getSettings)
+                .orElse(ImmutableMap.of()));
+    settings.put(name, value);
+
+    // Replace the stored settings rather than adding a second group. The current group is the one
+    // with the newest creation time, which is ambiguous for groups saved in quick succession.
+    clearCiviFormSettings();
+    new SettingsGroupModel(ImmutableMap.copyOf(settings), "test").save();
+    // Cache the new settings so that loading them doesn't count towards the SQL statements of the
+    // code under test.
+    settingsGroupRepository().getCurrentSettingsSync();
+  }
+
+  /** Removes all stored server settings, leaving only the values in the application config. */
+  public void clearCiviFormSettings() {
+    database.find(SettingsGroupModel.class).delete();
+    settingsGroupRepository().clearCurrentSettingsCache();
+  }
+
+  private SettingsGroupRepository settingsGroupRepository() {
+    return injector.instanceOf(SettingsGroupRepository.class);
   }
 
   public void publishNewSynchronizedVersion() {

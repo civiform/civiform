@@ -2,7 +2,6 @@ package mapping.admin.settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -85,7 +84,7 @@ public final class AdminSettingsIndexPageMapperTest {
   }
 
   private void stubDisplayValue(SettingDescription settingDescription, String value) {
-    when(settingsManifest.getSettingDisplayValue(any(), eq(settingDescription)))
+    when(settingsManifest.getSettingDisplayValue(eq(settingDescription)))
         .thenReturn(Optional.of(value));
   }
 

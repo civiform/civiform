@@ -95,7 +95,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   protected final FormTag buildProgramForm(
       Request request, ProgramForm program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.getAdminName(),
         program.getAdminDescription(),
         program.getLocalizedDisplayName(),
@@ -119,7 +118,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   protected final FormTag buildProgramForm(
       Request request, ProgramDefinition program, ProgramEditStatus programEditStatus) {
     return buildProgramForm(
-        request,
         program.adminName(),
         program.adminDescription(),
         program.localizedName().getDefault(),
@@ -152,7 +150,6 @@ public class ProgramFormBuilder extends BaseHtmlView {
   }
 
   private FormTag buildProgramForm(
-      Request request,
       String adminName,
       String adminDescription,
       String displayName,
@@ -247,7 +244,7 @@ public class ProgramFormBuilder extends BaseHtmlView {
             // on.
             // Preservation of the stored value while the flag is off is handled controller-side.
             iff(
-                settingsManifest.getAnswerOptionScoringEnabled(request),
+                settingsManifest.getAnswerOptionScoringEnabled(),
                 fieldset(
                         legend(
                                 "Application scoring - apply answer option scores to submitted"

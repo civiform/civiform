@@ -154,12 +154,10 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   public void uploadProgramImage_nullBody_returnsBadRequest() {
     ProgramModel program = ProgramBuilder.newDraftProgram("test name").build();
 
+    resourceCreator.setCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.uploadProgramImage(
-            fakeRequestBuilder()
-                .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
-                .method("POST")
-                .build(),
+            fakeRequestBuilder().method("POST").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 
@@ -893,16 +891,13 @@ public class AdminProgramImageControllerTest extends ResetPostgres {
   }
 
   private Http.Request createDeleteRequest() {
-    return fakeRequestBuilder()
-        .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
-        .method("POST")
-        .build();
+    resourceCreator.setCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
+    return fakeRequestBuilder().method("POST").build();
   }
 
   private Http.Request createUploadRequest(String fileKey, String description) {
-    FakeRequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
+    resourceCreator.setCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
+    FakeRequestBuilder requestBuilder = fakeRequestBuilder();
     if (fileKey == null) {
       return requestBuilder
           .method("POST")

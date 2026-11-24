@@ -163,20 +163,16 @@ public final class AdminProgramBlocksController extends CiviFormController {
       if (enumeratorId.isPresent() && BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
         // Create a nested enumerator (enumerator under another enumerator)
         // This feature requires the enumerator improvements flag to be enabled
-        if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+        if (!settingsManifest.getEnumeratorImprovementsEnabled()) {
           return badRequest("Nested repeated sets require ENUMERATOR_IMPROVEMENTS_ENABLED flag");
         }
         result =
             programService.addNestedRepeatedSetToProgram(
-                programId,
-                enumeratorId.get(),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                programId, enumeratorId.get(), settingsManifest.getEnumeratorImprovementsEnabled());
       } else if (enumeratorId.isPresent()) {
         result =
             programService.addRepeatedBlockToProgram(
-                programId,
-                enumeratorId.get(),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                programId, enumeratorId.get(), settingsManifest.getEnumeratorImprovementsEnabled());
       } else {
         result =
             programService.addBlockToProgram(
@@ -184,7 +180,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
                 BlockType.ENUMERATOR.equals(blockType.orElse(null))
                     ? Optional.of(true)
                     : Optional.empty(),
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                settingsManifest.getEnumeratorImprovementsEnabled());
       }
       ProgramDefinition program = result.getResult().program();
       BlockDefinition block =
@@ -203,9 +199,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
       if (BlockType.ENUMERATOR.equals(blockType.orElse(null))) {
         result =
             programService.addRepeatedBlockToProgram(
-                programId,
-                addedBlockId,
-                settingsManifest.getEnumeratorImprovementsEnabled(request));
+                programId, addedBlockId, settingsManifest.getEnumeratorImprovementsEnabled());
         if (result.isError()) {
           ToastMessage message = ToastMessage.errorNonLocalized(joinErrors(result.getErrors()));
           return renderEditViewWithMessage(request, program, block, Optional.of(message));
@@ -225,8 +219,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
    * so an initial question can be backfilled onto it. Only applies with the enumerator improvements
    * flag on.
    */
-  private boolean isBackfillingInitialQuestionState(Request request, BlockDefinition block) {
-    return settingsManifest.getEnumeratorImprovementsEnabled(request)
+  private boolean isBackfillingInitialQuestionState(BlockDefinition block) {
+    return settingsManifest.getEnumeratorImprovementsEnabled()
         && block.getIsEnumerator()
         && block.hasEnumeratorQuestion()
         && block.getEnumeratorQuestionDefinition().getEnumeratorInitialQuestionId().isEmpty();
@@ -252,7 +246,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
         BlockDefinition blockForEnumeratorCheck =
             programForEnumeratorCheck.getBlockDefinition(blockId);
         boolean isEnumeratorSetup =
-            settingsManifest.getEnumeratorImprovementsEnabled(request)
+            settingsManifest.getEnumeratorImprovementsEnabled()
                 && blockForEnumeratorCheck.getIsEnumerator()
                 && !blockForEnumeratorCheck.hasEnumeratorQuestion();
         String stagedInitialQuestionUrl =
@@ -267,7 +261,7 @@ public final class AdminProgramBlocksController extends CiviFormController {
           // We omit sqb so the question bank doesn't re-open on landing.
           return redirect(stagedInitialQuestionUrl);
         }
-        if (isBackfillingInitialQuestionState(request, blockForEnumeratorCheck)) {
+        if (isBackfillingInitialQuestionState(blockForEnumeratorCheck)) {
           // Backfilling an initial question onto an existing enumerator. As in setup, the new
           // question is only staged on the card here and is attached when the admin saves it.
           return redirect(stagedInitialQuestionUrl);
@@ -278,8 +272,8 @@ public final class AdminProgramBlocksController extends CiviFormController {
               programId,
               blockId,
               ImmutableList.of(newQuestionId),
-              settingsManifest.getEnumeratorImprovementsEnabled(request),
-              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled(),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled());
           // Redirect without the newQuestionId parameter to reload the page cleanly
           return redirect(routes.AdminProgramBlocksController.edit(programId, blockId).url())
               .flashing(request.flash().data());

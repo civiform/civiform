@@ -97,12 +97,11 @@ public abstract class ApplicantBaseView {
     context.setVariable("smallLogoUrl", smallLogoUrl);
     context.setVariable(
         "footerLogoUrl", settingsManifest.getCivicEntityFooterLogoUrl().orElse(smallLogoUrl));
+    context.setVariable("hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader());
     context.setVariable(
-        "hideCivicEntityName", settingsManifest.getHideCivicEntityNameInHeader(request));
+        "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName().get());
     context.setVariable(
-        "civicEntityShortName", settingsManifest.getWhitelabelCivicEntityShortName(request).get());
-    context.setVariable(
-        "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName(request).get());
+        "civicEntityFullName", settingsManifest.getWhitelabelCivicEntityFullName().get());
     context.setVariable("adminLoginUrl", routes.LoginController.adminLogin().url());
     context.setVariable("closeIcon", Icons.CLOSE);
     context.setVariable("httpsIcon", bundledAssetsFinder.path("Images/uswds/icon-https.svg"));
@@ -112,7 +111,7 @@ public abstract class ApplicantBaseView {
     context.setVariable(
         "selectedLocationIcon",
         bundledAssetsFinder.path("Images/uswds/icon-location_selected.png"));
-    context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress(request).get());
+    context.setVariable("supportEmail", settingsManifest.getSupportEmailAddress().get());
     boolean userIsAdmin = profile.map(CiviFormProfile::isCiviFormAdmin).orElse(false);
     context.setVariable("userIsAdmin", userIsAdmin);
     context.setVariable("goBackIcon", Icons.ARROW_LEFT);
@@ -147,11 +146,11 @@ public abstract class ApplicantBaseView {
     context.setVariable("themeColorPrimary", THEME_PRIMARY_HEX);
     context.setVariable("themeColorPrimaryDark", THEME_PRIMARY_DARKER_HEX);
     settingsManifest
-        .getThemeColorPrimary(request)
+        .getThemeColorPrimary()
         .filter(setting -> !setting.isEmpty())
         .ifPresent(colorPrimary -> context.setVariable("themeColorPrimary", colorPrimary));
     settingsManifest
-        .getThemeColorPrimaryDark(request)
+        .getThemeColorPrimaryDark()
         .filter(setting -> !setting.isEmpty())
         .ifPresent(
             colorPrimaryDark -> context.setVariable("themeColorPrimaryDark", colorPrimaryDark));
@@ -201,7 +200,7 @@ public abstract class ApplicantBaseView {
             getSessionDurationMessage(sessionDurationMinutes, messages));
     context.setVariable("sessionReplayBanner", sessionExpirationBanner);
 
-    boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled(request);
+    boolean loginDropdownEnabled = settingsManifest.getLoginDropdownEnabled();
     context.setVariable("loginDropdownEnabled", loginDropdownEnabled);
 
     return context;
@@ -352,8 +351,8 @@ public abstract class ApplicantBaseView {
     // In Thymeleaf, it's impossible to add escaped text inside unescaped text, which makes it
     // difficult to add HTML within a message. So we have to manually build the html for a link
     // that will be embedded in the banner.
-    Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl(request);
-    Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName(request);
+    Optional<String> linkHref = settingsManifest.getCivicEntityProductionUrl();
+    Optional<String> linkText = settingsManifest.getWhitelabelCivicEntityFullName();
     Optional<String> unescapedDescription = Optional.empty();
     if (!linkHref.orElse("").isEmpty() && !linkText.orElse("").isEmpty()) {
       String linkHtml =

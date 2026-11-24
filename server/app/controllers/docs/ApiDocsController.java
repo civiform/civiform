@@ -73,15 +73,14 @@ public final class ApiDocsController {
     Optional<ProgramDefinition> programDefinition =
         apiDocsService.getProgramDefinition(selectedProgramSlug, lifecycleStage);
 
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled()) {
       String jsonPreview =
           programDefinition
               .map(
                   pd ->
                       apiDocsService.getSampleJsonPreview(
                           pd,
-                          /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(
-                              request)))
+                          /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled()))
               .orElse("");
       ImmutableMap<String, ImmutableList<String>> historicOptionsByQuestionNameKey =
           programDefinition

@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static support.FakeRequestBuilder.fakeRequest;
 
 import auth.CiviFormProfile;
 import com.google.common.collect.ImmutableList;
@@ -18,7 +17,6 @@ import models.SettingsGroupModel;
 import org.junit.Before;
 import org.junit.Test;
 import play.Environment;
-import play.mvc.Http;
 import repository.ResetPostgres;
 import repository.SettingsGroupRepository;
 import services.program.ActiveAndDraftPrograms;
@@ -147,6 +145,10 @@ public class SettingsServiceTest extends ResetPostgres {
     when(testProfile.getAuthorityId())
         .thenReturn(CompletableFuture.completedFuture(TEST_AUTHORITY_ID));
     programService = mock(ProgramService.class);
+    // Changing FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED checks the programs, so default to none.
+    ActiveAndDraftPrograms noPrograms = mock(ActiveAndDraftPrograms.class);
+    when(noPrograms.getMostRecentProgramDefinitions()).thenReturn(ImmutableList.of());
+    when(programService.getActiveAndDraftPrograms()).thenReturn(noPrograms);
 
     repo = instanceOf(SettingsGroupRepository.class);
     repo.clearCurrentSettingsCache();
@@ -162,29 +164,6 @@ public class SettingsServiceTest extends ResetPostgres {
     var result = settingsService.loadSettings().toCompletableFuture().join().get();
 
     assertThat(result).isEqualTo(TEST_SETTINGS);
-  }
-
-  @Test
-  public void applySettingsToRequest_addsTheSettingsToTheRequestAttributes() {
-    createTestSettings();
-    Http.Request request = fakeRequest();
-
-    Http.RequestHeader resultRequest =
-        settingsService.applySettingsToRequest(request).toCompletableFuture().join();
-
-    assertThat(resultRequest.attrs().get(SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY))
-        .isEqualTo(TEST_SETTINGS);
-  }
-
-  @Test
-  public void applySettingsToRequest_doesNotAlterAttributesIfNoSettingsFound() {
-    DB.getDefault().truncate(SettingsGroupModel.class);
-    Http.Request request = fakeRequest();
-
-    settingsService.applySettingsToRequest(request).toCompletableFuture().join();
-
-    assertThat(request.attrs().containsKey(SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY))
-        .isFalse();
   }
 
   @Test

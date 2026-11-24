@@ -250,7 +250,7 @@ public final class ProgramSlugHandler {
 
     // For pre-screener forms, redirect to the first block edit page
     if (activeProgramDefinition.programType().equals(ProgramType.PRE_SCREENER_FORM)) {
-      if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+      if (settingsManifest.getProgramSlugUrlsEnabled()) {
         return Results.redirect(applicantRoutes.edit(profile, applicantId, programSlug))
             .flashing(FlashKey.REDIRECTED_FROM_PROGRAM_SLUG, programSlug)
             // If we had a redirectTo session key that redirected us here, remove it so that it
@@ -309,7 +309,7 @@ public final class ProgramSlugHandler {
       Http.Request request,
       CiviFormProfile profile) {
     final Call reviewRoute;
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+    if (settingsManifest.getProgramSlugUrlsEnabled()) {
       reviewRoute = applicantRoutes.review(profile, applicantId, programSlug);
     } else {
       reviewRoute = applicantRoutes.review(profile, applicantId, programId);

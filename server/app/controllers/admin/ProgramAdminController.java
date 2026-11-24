@@ -60,7 +60,7 @@ public class ProgramAdminController extends CiviFormController {
     ActiveAndDraftPrograms activeAndDraftPrograms =
         this.programService.getActiveAndDraftProgramsWithoutQuestionLoad();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       ProgramAdminIndexPageViewModel model =
           new ProgramAdminIndexPageMapper()
               .map(

@@ -99,11 +99,11 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
     // Execute. Submit only the enumerator question to the block.
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
             .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
             .build();
     Result result = controller.create(request, program.id, 1);
@@ -124,9 +124,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     ProgramBuilder programBuilder = ProgramBuilder.newDraftProgram();
     ProgramModel program = programBuilder.withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -152,9 +152,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
         testQuestionBank.nameApplicantName().getQuestionDefinition();
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -201,9 +201,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             .getQuestionDefinition();
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -252,9 +252,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             .orElseThrow()
             .id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Jobs",
@@ -284,9 +284,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   public void hxCreateEnumerator_withUnknownInitialQuestionId_returnsErrorMessage() {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -313,9 +313,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     questionService.archiveQuestion(initialQuestion.getId());
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -359,9 +359,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     testQuestionBank.maybeSave(draftRevision, LifecycleStage.DRAFT);
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "entityType", "Pets",
@@ -430,9 +430,9 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
             .orElseThrow()
             .id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 // Missing initialQuestionId, and no "$this" in the question text.
                 ImmutableMap.of(
@@ -668,10 +668,10 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
         .build();
     long blockId = program.getProgramDefinition().blockDefinitions().get(0).id();
 
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.hxBackfillInitialQuestion(
             fakeRequestBuilder()
-                .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
                 .bodyForm(
                     ImmutableMap.of(
                         "initialQuestionId",
@@ -753,8 +753,8 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
   }
 
   private Request backfillRequest(long initialQuestionId, boolean flagOn) {
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn));
     return fakeRequestBuilder()
-        .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
         .bodyForm(ImmutableMap.of("initialQuestionId", String.valueOf(initialQuestionId)))
         .build();
   }
@@ -958,11 +958,11 @@ public class AdminProgramBlockQuestionsControllerTest extends ResetPostgres {
     ProgramModel program = ProgramBuilder.newDraftProgram().withEnumeratorBlock().build();
 
     // Add the enumerator (and its paired initial question) to the block.
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request createRequest =
         fakeRequestBuilder()
             .call(
                 controllers.admin.routes.AdminProgramBlockQuestionsController.create(program.id, 1))
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(ImmutableMap.of("question-", String.valueOf(enumeratorId)))
             .build();
     controller.create(createRequest, program.id, 1);

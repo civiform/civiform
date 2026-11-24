@@ -585,8 +585,7 @@ public final class ApplicantService {
       CiviFormProfile submitterProfile,
       Request request,
       boolean answerOptionScoringEnabled) {
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
     try {
       ProgramDefinition pd = programService.getFullProgramDefinition(programId);
       if (submitterProfile.isTrustedIntermediary()) {

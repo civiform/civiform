@@ -48,9 +48,9 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     questionService.setImageFileKeyAndDescription(
         questionModel.id, Optional.of(fileKey1), LocalizedStrings.DEFAULT_LOCALE, "first alt text");
 
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
             .call(
                 routes.QuestionPreviewController.sampleQuestion(
                     "Static Text", Optional.of(questionModel.id)))
@@ -93,9 +93,9 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     QuestionDefinition activeQd = testQuestionBank().staticContent().getQuestionDefinition();
     versionRepository.publishNewSynchronizedVersion();
 
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
             .call(
                 routes.QuestionPreviewController.sampleQuestion(
                     "Static Text", Optional.of(activeQd.getId())))
@@ -131,9 +131,9 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   public void sampleQuestion_enumeratorWithoutInitialQuestion_keepsTheLegacyTextInput()
       throws Exception {
     QuestionModel enumerator = testQuestionBank().enumeratorApplicantHouseholdMembers();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .call(
                 routes.QuestionPreviewController.sampleQuestion(
                     "Enumerator", Optional.of(enumerator.id)))
@@ -206,10 +206,8 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
   }
 
   private Request addEntityRequest(ImmutableMap<String, String> form, boolean flagOn) {
-    return fakeRequestBuilder()
-        .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn))
-        .bodyForm(form)
-        .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", String.valueOf(flagOn));
+    return fakeRequestBuilder().bodyForm(form).build();
   }
 
   @Test
@@ -220,9 +218,9 @@ public class QuestionPreviewControllerTest extends WithMockedProfiles {
     questionService.setImageFileKeyAndDescription(
         questionModel.id, Optional.of(fileKey), LocalizedStrings.DEFAULT_LOCALE, "sample alt text");
 
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false");
     Request request =
         fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
             .call(
                 routes.QuestionPreviewController.sampleQuestion(
                     "Static Text", Optional.of(questionModel.id)))

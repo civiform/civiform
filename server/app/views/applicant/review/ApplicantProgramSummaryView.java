@@ -72,7 +72,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     context.setVariable("programTitle", params.programTitle());
     context.setVariable("programShortDescription", params.programShortDescription());
     context.setVariable("blocks", params.blocks());
-    context.setVariable("continueUrl", getContinueUrl(params, request));
+    context.setVariable("continueUrl", getContinueUrl(params));
     context.setVariable(
         "hasCompletedAllBlocks", params.completedBlockCount() == params.totalBlockCount());
     context.setVariable("submitUrl", getSubmitUrl(params));
@@ -117,7 +117,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
           "authProviderName",
           // The applicant portal name should always be set (there is a
           // default setting as well).
-          settingsManifest.getApplicantPortalName(request).get());
+          settingsManifest.getApplicantPortalName().get());
     }
 
     // Summary data (List of blocks. Each block contains a list of questions and answers)
@@ -129,7 +129,7 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
 
     ImmutableList<BlockSummary> blockSummaries =
         params.blocks().stream()
-            .map(block -> new BlockSummary(block, getBlockEditUrl(params, block, request)))
+            .map(block -> new BlockSummary(block, getBlockEditUrl(params, block)))
             .collect(ImmutableList.toImmutableList());
 
     blockSummaries.forEach(
@@ -143,8 +143,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     return templateEngine.process("applicant/review/ApplicantProgramSummaryTemplate", context);
   }
 
-  private String getBlockEditUrl(Params params, Block block, Request request) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+  private String getBlockEditUrl(Params params, Block block) {
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (block.isAnsweredWithoutErrors()) {
       if (programSlugUrlsEnabled) {
         return applicantRoutes
@@ -186,8 +186,8 @@ public final class ApplicantProgramSummaryView extends ApplicantBaseView {
     }
   }
 
-  private String getContinueUrl(Params params, Request request) {
-    if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+  private String getContinueUrl(Params params) {
+    if (settingsManifest.getProgramSlugUrlsEnabled()) {
       return applicantRoutes
           .edit(params.profile(), params.applicantId(), params.programSlug())
           .url();

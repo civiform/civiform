@@ -137,7 +137,7 @@ public final class AdminProgramController extends CiviFormController {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
     ReadOnlyQuestionService roService = questionService.getReadOnlyQuestionServiceSync();
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderProgramIndexPage(
           request,
           programService.getInUseActiveAndDraftPrograms(roService),
@@ -162,7 +162,7 @@ public final class AdminProgramController extends CiviFormController {
   public Result indexDisabled(Request request) {
     Optional<CiviFormProfile> profileMaybe = profileUtils.optionalCurrentUserProfile(request);
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderProgramIndexPage(
           request,
           programService.getDisabledActiveAndDraftProgramsWithoutQuestionLoad(),
@@ -201,7 +201,7 @@ public final class AdminProgramController extends CiviFormController {
                     .selectedTab(selectedTab)
                     .anyDisabledPrograms(programService.anyDisabledPrograms())
                     .civicEntityShortName(
-                        settingsManifest.getWhitelabelCivicEntityShortName(request).get())
+                        settingsManifest.getWhitelabelCivicEntityShortName().get())
                     .baseUrl(baseUrl)
                     .hasTranslatableLocales(!translationLocales.translatableLocales().isEmpty())
                     .canViewApplications(program -> canViewApplications(profile, program, request))
@@ -236,7 +236,7 @@ public final class AdminProgramController extends CiviFormController {
   /** Returns an HTML page containing a form to create a new program in the draft version. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result newOne(Request request) {
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       ProgramForm programForm = new ProgramForm();
       // Same default as the legacy view: set here instead of in the ProgramForm
       // constructor because an unset checkbox value is not included in the POST
@@ -281,7 +281,7 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableMap.of(),
             programData.getProgramType());
     if (!errors.isEmpty()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
         return renderNewProgramPage(
             request,
             programData,
@@ -299,7 +299,7 @@ public final class AdminProgramController extends CiviFormController {
         && !programData.getConfirmedChangePreScreenerForm()) {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()) {
-        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
           return renderNewProgramPage(
               request,
               programData,
@@ -316,7 +316,7 @@ public final class AdminProgramController extends CiviFormController {
     // While the scoring flag is off the setting is not rendered, and a new program cannot acquire
     // it through a crafted post.
     boolean usesScoring =
-        settingsManifest.getAnswerOptionScoringEnabled(request)
+        settingsManifest.getAnswerOptionScoringEnabled()
             && Boolean.TRUE.equals(programData.getUsesScoring());
 
     ErrorAnd<ProgramDefinition, CiviFormError> result =
@@ -337,11 +337,11 @@ public final class AdminProgramController extends CiviFormController {
             ImmutableList.copyOf(programData.getTiGroups()),
             ImmutableList.copyOf(programData.getCategories()),
             applicationSteps,
-            settingsManifest.getEnumeratorImprovementsEnabled(request));
+            settingsManifest.getEnumeratorImprovementsEnabled());
     // There shouldn't be any errors since we already validated the program, but check for errors
     // again just in case.
     if (result.isError()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
         return renderNewProgramPage(
             request,
             programData,
@@ -366,7 +366,7 @@ public final class AdminProgramController extends CiviFormController {
     ProgramDefinition program = programService.getFullProgramDefinition(id);
     requestChecker.throwIfProgramNotDraft(id);
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderEditProgramPage(
           request,
           program,
@@ -465,7 +465,7 @@ public final class AdminProgramController extends CiviFormController {
             applicationSteps,
             programData.getProgramType());
     if (!validationErrors.isEmpty()) {
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
         return renderEditProgramPage(
             request,
             programDefinition,
@@ -487,7 +487,7 @@ public final class AdminProgramController extends CiviFormController {
       Optional<ProgramDefinition> maybePreScreenerForm = programService.getPreScreenerForm();
       if (maybePreScreenerForm.isPresent()
           && !maybePreScreenerForm.get().adminName().equals(programDefinition.adminName())) {
-        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+        if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
           return renderEditProgramPage(
               request,
               programDefinition,
@@ -510,7 +510,7 @@ public final class AdminProgramController extends CiviFormController {
     // While the scoring flag is off the setting is not rendered, so preserve the stored value and
     // discard any crafted post value.
     boolean usesScoring =
-        settingsManifest.getAnswerOptionScoringEnabled(request)
+        settingsManifest.getAnswerOptionScoringEnabled()
             ? Boolean.TRUE.equals(programData.getUsesScoring())
             : programDefinition.usesScoring();
 
@@ -545,7 +545,7 @@ public final class AdminProgramController extends CiviFormController {
         new ProgramFormPageMapper()
             .mapNew(
                 programForm,
-                settingsManifest.getAnswerOptionScoringEnabled(request),
+                settingsManifest.getAnswerOptionScoringEnabled(),
                 categoryRepository,
                 accountRepository,
                 defaultConfirmationMessage,
@@ -568,7 +568,7 @@ public final class AdminProgramController extends CiviFormController {
                 program,
                 programEditStatus,
                 programForm,
-                settingsManifest.getAnswerOptionScoringEnabled(request),
+                settingsManifest.getAnswerOptionScoringEnabled(),
                 baseUrl,
                 categoryRepository,
                 accountRepository,

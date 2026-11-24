@@ -70,13 +70,12 @@ public final class AddressCheckerController extends Controller {
     AddressCheckerPageViewModel model =
         AddressCheckerPageViewModel.builder()
             .backLinkUrl(routes.DevToolsController.index().url())
-            .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled(request))
-            .addressValidationEnabled(
-                settingsManifest.getEsriAddressServiceAreaValidationEnabled(request))
+            .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled())
+            .addressValidationEnabled(settingsManifest.getEsriAddressServiceAreaValidationEnabled())
             .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
             .addressServiceAreaValidationUrls(
                 settingsManifest.getEsriAddressServiceAreaValidationUrls())
-            .serviceAreaValidationConfigMap(serviceAreaValidationOptions(request))
+            .serviceAreaValidationConfigMap(serviceAreaValidationOptions())
             .correctAddressActionUrl(routes.AddressCheckerController.hxCorrectAddress().url())
             .checkServiceAreaActionUrl(routes.AddressCheckerController.hxCheckServiceArea().url())
             .build();
@@ -116,7 +115,7 @@ public final class AddressCheckerController extends Controller {
         .thenApplyAsync(
             addressSuggestionGroup -> {
               ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions =
-                  serviceAreaValidationOptions(request);
+                  serviceAreaValidationOptions();
 
               CorrectAddressResultsPartialViewModel model =
                   CorrectAddressResultsPartialViewModel.builder()
@@ -196,10 +195,9 @@ public final class AddressCheckerController extends Controller {
    * EsriServiceAreaValidationConfig#getImmutableMap()} throws when the settings are missing, so
    * only call it once validation is enabled, has URLs, and has a valid config.
    */
-  private ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions(
-      Http.Request request) {
+  private ImmutableMap<String, EsriServiceAreaValidationOption> serviceAreaValidationOptions() {
     boolean available =
-        settingsManifest.getEsriAddressServiceAreaValidationEnabled(request)
+        settingsManifest.getEsriAddressServiceAreaValidationEnabled()
             && settingsManifest
                 .getEsriAddressServiceAreaValidationUrls()
                 .map(urls -> !urls.isEmpty())

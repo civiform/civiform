@@ -152,7 +152,7 @@ public class FileController extends CiviFormController {
             decodedFileKey, FileUploadQuestion.getUploadedFileName(maybeFile, decodedFileKey));
 
     return ((adminAccount.getGlobalAdmin()
-                && settingsManifest.getAllowCiviformAdminAccessPrograms(request))
+                && settingsManifest.getAllowCiviformAdminAccessPrograms())
             || maybeFile.get().getAcls().hasProgramReadPermission(adminAccount))
         ? redirect(downloadUrl)
         : unauthorized();

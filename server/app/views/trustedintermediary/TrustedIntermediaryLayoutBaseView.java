@@ -63,12 +63,10 @@ public abstract class TrustedIntermediaryLayoutBaseView<TModel extends BaseViewM
             .faviconUrl(settingsManifest.getFaviconUrl().orElse(""))
             .showNotProductionBanner(
                 BannerUtils.isNotProductionBannerEnabled(settingsManifest, request))
-            .productionUrl(settingsManifest.getCivicEntityProductionUrl(request).orElse(""))
-            .civicEntityFullName(
-                settingsManifest.getWhitelabelCivicEntityFullName(request).orElse(""))
-            .civicEntityShortName(
-                settingsManifest.getWhitelabelCivicEntityShortName(request).orElse(""))
-            .hideCivicEntityName(settingsManifest.getHideCivicEntityNameInHeader(request))
+            .productionUrl(settingsManifest.getCivicEntityProductionUrl().orElse(""))
+            .civicEntityFullName(settingsManifest.getWhitelabelCivicEntityFullName().orElse(""))
+            .civicEntityShortName(settingsManifest.getWhitelabelCivicEntityShortName().orElse(""))
+            .hideCivicEntityName(settingsManifest.getHideCivicEntityNameInHeader())
             .logoUrl(
                 settingsManifest
                     .getCivicEntitySmallLogoUrl()
@@ -76,8 +74,7 @@ public abstract class TrustedIntermediaryLayoutBaseView<TModel extends BaseViewM
             .govIconUrl(bundledAssetsFinder.path("Images/uswds/icon-dot-gov.svg"))
             .httpsIconUrl(bundledAssetsFinder.path("Images/uswds/icon-https.svg"))
             .isTrustedIntermediary(profile.isTrustedIntermediary())
-            .showDevTools(
-                isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request))
+            .showDevTools(isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins())
             .isDevOrStaging(isDevOrStaging)
             .updateLanguageUrl(
                 controllers.applicant.routes.ApplicantInformationController.setLangFromSwitcher(
@@ -88,7 +85,7 @@ public abstract class TrustedIntermediaryLayoutBaseView<TModel extends BaseViewM
             .languageRedirectUrl(request.uri())
             .languageOptions(buildLanguageOptions(preferredLanguage))
             .accountIdentifier(tiEmailForDisplay(profile))
-            .supportEmail(settingsManifest.getSupportEmailAddress(request).orElse(""))
+            .supportEmail(settingsManifest.getSupportEmailAddress().orElse(""))
             .showSessionTimeoutModals(settingsManifest.getSessionTimeoutEnabled())
             .build());
   }

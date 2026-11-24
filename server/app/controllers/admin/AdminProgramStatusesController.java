@@ -82,7 +82,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
     StatusDefinitions activeStatusDefinitions =
         service.lookupActiveStatusDefinitions(program.adminName());
 
-    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
       return renderStatusesPage(
           request, program, activeStatusDefinitions, /* maybeStatusForm= */ Optional.empty());
     }
@@ -142,7 +142,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // any form values / errors. Instead, re-render the view at this URL
       // whenever there is are form validation errors, which preserves the
       // form values.
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
         return renderStatusesPage(request, program, activeStatusDefinitions, Optional.of(form));
       }
 
@@ -176,7 +176,7 @@ public final class AdminProgramStatusesController extends CiviFormController {
       // whenever there is are form validation errors, which preserves the
       // form values.
       form = form.withError(ProgramStatusesForm.STATUS_TEXT_FORM_NAME, e.userFacingMessage());
-      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled(request)) {
+      if (settingsManifest.getAdminUiMigrationJ2htmlToThymeleafScEnabled()) {
         return renderStatusesPage(request, program, activeStatusDefinitions, Optional.of(form));
       }
 

@@ -2,9 +2,10 @@ package services.settings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static services.settings.SettingMode.ADMIN_WRITEABLE;
-import static services.settings.SettingsService.CIVIFORM_SETTINGS_ATTRIBUTE_KEY;
 
 import com.google.common.base.Splitter;
+import com.google.common.base.Supplier;
+import com.google.common.base.Suppliers;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
@@ -13,31 +14,58 @@ import com.typesafe.config.ConfigException;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.function.Function;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import play.mvc.Http;
+import javax.inject.Provider;
+import models.SettingsGroupModel;
+import repository.SettingsGroupRepository;
 
 /** Provides behavior for {@link SettingsManifest}. */
 public abstract class AbstractSettingsManifest {
   public static final String FEATURE_FLAG_SETTING_SECTION_NAME = "Feature Flags";
 
   private final Config config;
-  private static final Logger logger = LoggerFactory.getLogger("SettingsManifest");
+  private final Supplier<Optional<ImmutableMap<String, String>>> storedSettings;
 
+  /**
+   * Creates a manifest that only reads from the application {@link Config}. Settings an admin has
+   * stored in the database are ignored.
+   */
   public AbstractSettingsManifest(Config config) {
     this.config = checkNotNull(config);
+    this.storedSettings = Optional::empty;
+  }
+
+  /**
+   * Creates a manifest that reads admin writeable settings from the current {@link
+   * SettingsGroupModel}, falling back to the application {@link Config}.
+   *
+   * <p>The repository is resolved on first use, since the manifest can be constructed before the
+   * database is available.
+   */
+  public AbstractSettingsManifest(
+      Config config, Provider<SettingsGroupRepository> settingsGroupRepositoryProvider) {
+    this.config = checkNotNull(config);
+    checkNotNull(settingsGroupRepositoryProvider);
+
+    Supplier<SettingsGroupRepository> settingsGroupRepository =
+        Suppliers.memoize(settingsGroupRepositoryProvider::get);
+    this.storedSettings =
+        () ->
+            settingsGroupRepository
+                .get()
+                .getCurrentSettingsSync()
+                .map(SettingsGroupModel::getSettings);
   }
 
   /**
    * Returns a map containing the names of the settings in the "Feature Flags" section mapped to
    * their current values.
    */
-  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted(Http.RequestHeader request) {
+  public ImmutableSortedMap<String, Boolean> getAllFeatureFlagsSorted() {
     ImmutableSortedMap.Builder<String, Boolean> map = ImmutableSortedMap.naturalOrder();
 
     for (SettingDescription settingDescription : getAllFeatureFlagsSettingDescriptions()) {
       String name = settingDescription.variableName();
-      map.put(name, getBool(name, request));
+      map.put(name, getWriteableBool(name));
     }
 
     return map.build();
@@ -77,19 +105,19 @@ public abstract class AbstractSettingsManifest {
   public abstract ImmutableMap<String, SettingsSection> getSections();
 
   /**
-   * Retrieve a string representation of the setting suitable for display in the UI from the request
-   * attributes or HOCON config.
+   * Retrieve a string representation of the setting suitable for display in the UI from the stored
+   * settings or HOCON config.
    */
-  public Optional<String> getSettingDisplayValue(
-      Http.RequestHeader request, SettingDescription settingDescription) {
+  public Optional<String> getSettingDisplayValue(SettingDescription settingDescription) {
+    String variableName = settingDescription.variableName();
+
     return switch (settingDescription.settingType()) {
       case BOOLEAN ->
-          Optional.of(
-              String.valueOf(getBool(settingDescription, request)).toUpperCase(Locale.ROOT));
-      case INT -> getInt(settingDescription, request).map(String::valueOf);
+          Optional.of(String.valueOf(getWriteableBool(variableName)).toUpperCase(Locale.ROOT));
+      case INT -> getWriteableInt(variableName).map(String::valueOf);
       case LIST_OF_STRINGS ->
-          getListOfStrings(settingDescription, request).map(list -> String.join(", ", list));
-      case ENUM, STRING -> getString(settingDescription, request).map(String::valueOf);
+          getWriteableListOfStrings(variableName).map(list -> String.join(", ", list));
+      case ENUM, STRING -> getWriteableString(variableName);
     };
   }
 
@@ -108,23 +136,13 @@ public abstract class AbstractSettingsManifest {
   }
 
   /**
-   * Gets the config value for the given setting. If the setting is found in the stored writeable
-   * settings, the value from the database is returned. Otherwise the value from the application
-   * {@link Config} is used.
+   * Gets the value for the given admin writeable setting. If the setting is found in the stored
+   * writeable settings, the value from the database is returned. Otherwise the value from the
+   * application {@link Config} is used.
    */
-  private boolean getBool(SettingDescription settingDescription, Http.RequestHeader request) {
-    return getBool(settingDescription.variableName(), request);
-  }
-
-  protected boolean getBool(String variableName, Http.RequestHeader request) {
-    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-    if (optionalWritableSettings.isEmpty()) {
-      logger.warn("Settings not found on request when looking up value for {}", variableName);
-    }
-
-    return optionalWritableSettings
-        .map(s -> s.get(variableName))
-        .map(s -> s.equals("true"))
+  protected boolean getWriteableBool(String variableName) {
+    return getStoredValue(variableName)
+        .map(value -> value.equals("true"))
         .orElseGet(() -> getBool(variableName));
   }
 
@@ -136,18 +154,9 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getBoolean, getHoconName(variableName)).orElse(false);
   }
 
-  protected Optional<String> getString(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getString(settingDescription.variableName(), request);
-  }
-
-  protected Optional<String> getString(String variableName, Http.RequestHeader request) {
-    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-    if (optionalWritableSettings.isEmpty()) {
-      logger.warn("Settings not found on request when looking up value for {}", variableName);
-    }
-
-    return optionalWritableSettings.map(s -> s.get(variableName)).or(() -> getString(variableName));
+  /** See {@link #getWriteableBool(String)}. */
+  protected Optional<String> getWriteableString(String variableName) {
+    return getStoredValue(variableName).or(() -> getString(variableName));
   }
 
   protected Optional<String> getString(SettingDescription settingDescription) {
@@ -158,21 +167,9 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getString, getHoconName(variableName));
   }
 
-  protected Optional<Integer> getInt(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getInt(settingDescription.variableName(), request);
-  }
-
-  protected Optional<Integer> getInt(String variableName, Http.RequestHeader request) {
-    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-    if (optionalWritableSettings.isEmpty()) {
-      logger.warn("Settings not found on request when looking up value for {}", variableName);
-    }
-
-    return optionalWritableSettings
-        .map(s -> s.get(variableName))
-        .map(Integer::parseInt)
-        .or(() -> getInt(variableName));
+  /** See {@link #getWriteableBool(String)}. */
+  protected Optional<Integer> getWriteableInt(String variableName) {
+    return getStoredValue(variableName).map(Integer::parseInt).or(() -> getInt(variableName));
   }
 
   protected Optional<Integer> getInt(SettingDescription settingDescription) {
@@ -183,21 +180,10 @@ public abstract class AbstractSettingsManifest {
     return getConfigVal(config::getInt, getHoconName(variableName));
   }
 
-  protected Optional<ImmutableList<String>> getListOfStrings(
-      SettingDescription settingDescription, Http.RequestHeader request) {
-    return getListOfStrings(settingDescription.variableName(), request);
-  }
-
-  protected Optional<ImmutableList<String>> getListOfStrings(
-      String variableName, Http.RequestHeader request) {
-    var optionalWritableSettings = request.attrs().getOptional(CIVIFORM_SETTINGS_ATTRIBUTE_KEY);
-    if (optionalWritableSettings.isEmpty()) {
-      logger.warn("Settings not found on request when looking up value for {}", variableName);
-    }
-
-    return optionalWritableSettings
-        .map(map -> map.get(variableName))
-        .map(s -> ImmutableList.copyOf(Splitter.on(",").split(s)))
+  /** See {@link #getWriteableBool(String)}. */
+  protected Optional<ImmutableList<String>> getWriteableListOfStrings(String variableName) {
+    return getStoredValue(variableName)
+        .map(value -> ImmutableList.copyOf(Splitter.on(",").split(value)))
         .or(() -> getListOfStrings(variableName));
   }
 
@@ -210,6 +196,11 @@ public abstract class AbstractSettingsManifest {
   protected Optional<ImmutableList<String>> getListOfStrings(String variableName) {
     return getConfigVal(
         name -> ImmutableList.copyOf(config.getStringList(name)), getHoconName(variableName));
+  }
+
+  /** Looks up the value an admin stored for the setting, if there is one. */
+  private Optional<String> getStoredValue(String variableName) {
+    return storedSettings.get().map(settings -> settings.get(variableName));
   }
 
   private <T> Optional<T> getConfigVal(Function<String, T> configGetter, String hoconName) {

@@ -97,7 +97,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
       Request request, long applicantId, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -110,7 +110,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
 
   public CompletionStage<Result> reviewInternal(
       Request request, long applicantId, String programParam) {
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     return programSlugHandler
         .resolveProgramParam(programParam, applicantId, programSlugUrlsEnabled)
         .thenCompose(
@@ -127,7 +127,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                           applicantService.getReadOnlyApplicantProgramService(
                               applicantId,
                               programId,
-                              settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                              settingsManifest.getEnumeratorImprovementsEnabled()),
                       classLoaderExecutionContext.current())
                   .thenApplyAsync(
                       (roApplicantProgramService) -> {
@@ -207,7 +207,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   public CompletionStage<Result> review(Request request, String programParam) {
     // Redirect home when the program param is the program id (numeric) but it should be the program
     // slug because the program slug URL is enabled
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
     if (programSlugUrlsEnabled && StringUtils.isNumeric(programParam)) {
       metricCounters
           .getUrlWithProgramIdCall()
@@ -256,7 +256,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                       applicantId,
                       programId,
                       profile,
-                      settingsManifest.getProgramSlugUrlsEnabled(request));
+                      settingsManifest.getProgramSlugUrlsEnabled());
               if (applicationUpdatedOptional.isPresent()) {
                 return CompletableFuture.completedFuture(applicationUpdatedOptional.get());
               }
@@ -295,7 +295,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
   private CompletionStage<Result> submitInternal(
       Request request, long applicantId, long programId) {
 
-    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled(request);
+    boolean programSlugUrlsEnabled = settingsManifest.getProgramSlugUrlsEnabled();
 
     CiviFormProfile submittingProfile = profileUtils.currentUserProfile(request);
 
@@ -305,7 +305,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
             programId,
             submittingProfile,
             request,
-            settingsManifest.getAnswerOptionScoringEnabled(request))
+            settingsManifest.getAnswerOptionScoringEnabled())
         .thenApplyAsync(
             (application) -> {
               Long applicationId = application.id;
@@ -366,7 +366,7 @@ public class ApplicantProgramReviewController extends CiviFormController {
                   return redirect(reviewPage).flashing(FlashKey.ERROR, errorMsg);
                 }
                 if (cause instanceof ApplicationNotEligibleException) {
-                  if (settingsManifest.getProgramSlugUrlsEnabled(request)) {
+                  if (settingsManifest.getProgramSlugUrlsEnabled()) {
                     return redirect(
                         applicantRoutes.showIneligible(
                             submittingProfile,

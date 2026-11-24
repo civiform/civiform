@@ -108,7 +108,7 @@ public final class QuestionPreviewController extends CiviFormController {
             .setQuestionDefinition(maybeQuestionDefinition)
             // The lookup is a blocking query, so skip it when the preview won't use it.
             .setInitialQuestionDefinition(
-                settingsManifest.getEnumeratorImprovementsEnabled(request)
+                settingsManifest.getEnumeratorImprovementsEnabled()
                     ? maybeQuestionDefinition.flatMap(this::initialQuestionDefinition)
                     : Optional.empty())
             .build();
@@ -123,7 +123,7 @@ public final class QuestionPreviewController extends CiviFormController {
    */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxAddEnumeratorEntity(Request request, long questionId) {
-    if (!settingsManifest.getEnumeratorImprovementsEnabled(request)) {
+    if (!settingsManifest.getEnumeratorImprovementsEnabled()) {
       return notFound();
     }
     Optional<QuestionDefinition> maybeEnumerator =

@@ -93,7 +93,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
    */
   Result callEdit(Boolean isProgramSlugEnabled, String programParam) {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(isProgramSlugEnabled);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(isProgramSlugEnabled);
 
     return controller.edit(request, programParam).toCompletableFuture().join();
   }
@@ -296,8 +296,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     // Must get the controller after settings the extra injector binding
     ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
 
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+    Request request = fakeRequestBuilder().build();
 
     Result result =
         controller
@@ -321,8 +320,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     // Must get the controller after settings the extra injector binding
     ApplicantProgramsController controller = instanceOf(ApplicantProgramsController.class);
 
-    Request request =
-        fakeRequestBuilder().addCiviFormSetting("NORTH_STAR_APPLICANT_UI", "true").build();
+    Request request = fakeRequestBuilder().build();
 
     Result result =
         controller
@@ -460,7 +458,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result = controller.edit(request, programId).toCompletableFuture().join();
 
@@ -481,7 +479,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .build();
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result = controller.edit(request, program.getSlug()).toCompletableFuture().join();
 
@@ -511,7 +509,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         controller
@@ -537,7 +535,7 @@ public class ApplicantProgramsControllerTest extends WithMockedProfiles {
             .build();
 
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         controller

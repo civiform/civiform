@@ -99,7 +99,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   @Test
   public void addressCorrection_whenProgramSlugUrlsEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -134,8 +134,9 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   @Test
   public void addressCorrection_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    // Answer first. The answer is submitted with the program id, which the flag disallows.
     answerAddressQuestion();
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -189,7 +190,7 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   public void
       addressCorrectionWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -229,8 +230,9 @@ public class ApplicantAddressCorrectionControllerTest extends WithMockedProfiles
   public void
       addressCorrectionWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    // Answer first. The answer is submitted with the program id, which the flag disallows.
     answerAddressQuestion();
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject

@@ -26,9 +26,8 @@ public class AdminProgramControllerIndexPageTest extends WithMockedProfiles {
   }
 
   private static Request thymeleafRequest() {
-    return fakeRequestBuilder()
-        .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-        .build();
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true");
+    return fakeRequestBuilder().build();
   }
 
   @Test

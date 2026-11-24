@@ -347,9 +347,9 @@ public class AdminQuestionTranslationsControllerTest extends WithMockedProfiles 
   public void update_repeatedQuestionWithoutThis_enumeratorImprovementsEnabled_savesTranslation()
       throws TranslationNotFoundException {
     QuestionModel question = createDraftRepeatedQuestionWithoutThis();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
     Http.RequestBuilder requestBuilder =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",
@@ -378,9 +378,9 @@ public class AdminQuestionTranslationsControllerTest extends WithMockedProfiles 
   @Test
   public void update_repeatedQuestionWithoutThis_enumeratorImprovementsDisabled_rendersError() {
     QuestionModel question = createDraftRepeatedQuestionWithoutThis();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
     Http.RequestBuilder requestBuilder =
         fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
             .bodyForm(
                 ImmutableMap.of(
                     "questionText",

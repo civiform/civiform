@@ -24,7 +24,7 @@ public class QuestionImagesEnabledAction extends Action.Simple {
 
   @Override
   public CompletionStage<Result> call(Request req) {
-    if (!settingsManifest.getImagesInQuestionFeatureEnabled(req)) {
+    if (!settingsManifest.getImagesInQuestionFeatureEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
     return delegate.call(req);

@@ -32,14 +32,13 @@ public record DemoBanner(
       boolean isDevOrStaging,
       Clock clock) {
     boolean enabled = BannerUtils.isDemoBannerEnabled(settingsManifest, request);
-    boolean showDebugTools =
-        isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins(request);
+    boolean showDebugTools = isDevOrStaging && !settingsManifest.getStagingDisableDemoModeLogins();
 
     return DemoBanner.builder()
         .enabled(enabled)
         .showDebugTools(showDebugTools)
         .civicEntityShortName(
-            enabled ? settingsManifest.getWhitelabelCivicEntityShortName(request).orElse("") : "")
+            enabled ? settingsManifest.getWhitelabelCivicEntityShortName().orElse("") : "")
         .daysRemainingCount(
             enabled
                 ? BannerUtils.getDemoBannerDaysRemainingCount(settingsManifest, clock)

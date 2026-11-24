@@ -102,11 +102,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     String altText = "Bill with \"Account number\" circled";
     QuestionModel question = createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
-    Request editRequest =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    Request editRequest = fakeRequestBuilder().addCSRFToken().build();
     Result editResult =
         controller
             .edit(editRequest, question.id, /* redirectUrl= */ "")
@@ -304,10 +301,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         .put("questionType", "TEXT")
         .put("questionText", "What color is this repeated entity?")
         .put("questionHelpText", "help text without legacy repeated entity selector");
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(formData.build());
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
@@ -331,10 +326,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         .put("questionType", "TEXT")
         .put("questionText", "What color is this repeated entity?")
         .put("questionHelpText", "help text without placeholder");
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
-            .bodyForm(formData.build());
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "text");
@@ -496,10 +489,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     String altText = "Alt text for static question image";
     createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    Request request = fakeRequestBuilder().build();
     Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).contains("data-testid=\"question-image-container\"");
@@ -513,10 +504,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         Optional.of("question-image/question-1/test-image.png"),
         Optional.of("Alt text for static question image"));
 
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false")
-            .build();
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "false");
+    Request request = fakeRequestBuilder().build();
     Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("data-testid=\"question-image-container\"");
@@ -526,10 +515,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void index_withoutQuestionImage_doesNotDisplayImage() {
     createDraftStaticQuestion(Optional.empty(), Optional.empty());
 
-    Request request =
-        fakeRequestBuilder()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    Request request = fakeRequestBuilder().build();
     Result result = controller.index(request, Optional.empty()).toCompletableFuture().join();
     assertThat(result.status()).isEqualTo(OK);
     assertThat(contentAsString(result)).doesNotContain("data-testid=\"question-image-container\"");
@@ -577,11 +564,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
   @Test
   public void newOne_flagEnabled_truncatesRepeatedQuestionInformationMessage() {
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result =
         controller.newOne(
             request,
@@ -602,11 +586,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
 
   @Test
   public void newOne_enumeratorFlagDisabled_showsFullRepeatedQuestionInformationMessage() {
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
-            .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
+    Request request = fakeRequestBuilder().addCSRFToken().build();
     Result result =
         controller.newOne(
             request,
@@ -751,10 +732,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         .put("questionHelpText", "help text")
         .put("entityType", "household member")
         .put("concurrencyToken", enumeratorQuestion.getConcurrencyToken().toString());
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(formData.build());
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData.build());
 
     Result result =
         controller.update(
@@ -784,11 +763,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void edit_enumerator_withImprovementsDisabled_hidesInitialQuestion() {
     QuestionModel enumeratorQuestion =
         testQuestionBank.enumeratorWithInitialQuestionApplicantHouseholdMembers();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false")
-            .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "false");
+    Request request = fakeRequestBuilder().addCSRFToken().build();
 
     Result result =
         controller
@@ -805,11 +781,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   @Test
   public void edit_enumerator_withoutInitialQuestion_hidesInitialQuestion() {
     QuestionModel enumeratorQuestion = testQuestionBank.enumeratorApplicantHouseholdMembers();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().build();
 
     Result result =
         controller
@@ -838,12 +811,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         .put("questionHelpText", "help text")
         .put("entityType", "")
         .put("concurrencyToken", enumeratorQuestion.getConcurrencyToken().toString());
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true")
-            .bodyForm(formData.build())
-            .build();
+    resourceCreator.setCiviFormSetting("ENUMERATOR_IMPROVEMENTS_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData.build()).build();
 
     Result result =
         controller.update(
@@ -1324,10 +1293,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("newOptionScores[0]", "5.5")
             .put("newOptionScores[1]", "7.25")
             .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData);
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "dropdown");
@@ -1363,10 +1330,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("newOptionScores[0]", "")
             .put("newOptionScores[1]", "")
             .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData);
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(requestBuilder.build(), "dropdown");
@@ -1432,12 +1397,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("newOptionAdminNames[0]", "first_admin")
             .put("newOptionScores[0]", "junk")
             .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData).build();
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(request, "dropdown");
@@ -1464,12 +1425,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("newOptionAdminNames[1]", "second_admin")
             .put("newOptionScores[1]", "")
             .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData).build();
 
     ImmutableSet<Long> questionIdsBefore = retrieveAllQuestionIds();
     Result result = controller.create(request, "dropdown");
@@ -1505,10 +1462,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData);
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     Result result =
         controller.update(
@@ -1552,10 +1507,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
-    RequestBuilder requestBuilder =
-        fakeRequestBuilder()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData);
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    RequestBuilder requestBuilder = fakeRequestBuilder().bodyForm(formData);
 
     Result result =
         controller.update(
@@ -1644,12 +1597,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData).build();
 
     Result result =
         controller.update(request, question.id, definition.getQuestionType().toString());
@@ -1693,12 +1642,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData).build();
 
     Result result =
         controller.update(request, question.id, definition.getQuestionType().toString());
@@ -1742,12 +1687,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
             .put("questionExportState", "NON_DEMOGRAPHIC")
             .put("concurrencyToken", question.getConcurrencyToken().toString())
             .build();
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .bodyForm(formData)
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().bodyForm(formData).build();
 
     Result result =
         controller.update(request, question.id, definition.getQuestionType().toString());
@@ -1772,11 +1713,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
   public void edit_scoredQuestion_flagEnabled_rendersScoreInputsWithValues() {
     QuestionModel question =
         testQuestionBank.maybeSave(createScoredDropdownDefinition(), LifecycleStage.DRAFT);
-    Request request =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("ANSWER_OPTION_SCORING_ENABLED", "true");
+    Request request = fakeRequestBuilder().addCSRFToken().build();
 
     Result result =
         controller.edit(request, question.id, /* redirectUrl= */ "").toCompletableFuture().join();

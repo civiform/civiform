@@ -81,7 +81,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("questionRendererParams", rendererParams);
     if (questionDefinition instanceof EnumeratorQuestionDefinition enumeratorDefinition
         && params.initialQuestionDefinition().isPresent()
-        && settingsManifest.getEnumeratorImprovementsEnabled(params.request())) {
+        && settingsManifest.getEnumeratorImprovementsEnabled()) {
       setInitialQuestionContext(
           context,
           applicantQuestion,
@@ -92,8 +92,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("enumMaxEntityCount", EnumeratorQuestionForm.MAX_ENUM_ENTITIES_ALLOWED);
 
-    context.setVariable(
-        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(params.request()));
+    context.setVariable("isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
     context.setVariable("maxFileSizeMb", 100);
     context.setVariable(
@@ -102,8 +101,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("isPreview", true);
     context.setVariable("homeUrl", index(params, applicantRoutes));
     context.setVariable(
-        "imagesInQuestionFeatureEnabled",
-        settingsManifest.getImagesInQuestionFeatureEnabled(params.request()));
+        "imagesInQuestionFeatureEnabled", settingsManifest.getImagesInQuestionFeatureEnabled());
     // For static question image preview: set the resolved public URL and alt text so the
     // StaticTextQuestionFragment can render an inline 16:9 image block when one is present.
     context.setVariable("questionImageUrl", params.imageUrl().orElse(""));
@@ -159,8 +157,7 @@ public class QuestionPreview extends ApplicantBaseView {
     context.setVariable("questionId", enumeratorQuestionId);
     context.setVariable("stateAbbreviations", AddressQuestion.STATE_ABBREVIATIONS);
     context.setVariable("nameSuffixOptions", ApplicantModel.Suffix.values());
-    context.setVariable(
-        "isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled(request));
+    context.setVariable("isNameSuffixEnabled", settingsManifest.getNameSuffixDropdownEnabled());
     context.setVariable(
         "initialQuestionRendererParams",
         ApplicantQuestionRendererParams.builder()

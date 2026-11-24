@@ -126,12 +126,9 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
   @Test
   public void index_thymeleafAndRedesignEnabled_rendersRedesignView() {
-    var result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", "true")
-                .build());
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true");
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_UX_REDESIGN_SC_ENABLED", "true");
+    var result = controller.index(fakeRequestBuilder().build());
 
     assertThat(result.status()).isEqualTo(OK);
     verify(redesignPageView).render(any(), any());
@@ -140,11 +137,8 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
   @Test
   public void index_thymeleafEnabled_withNoTis_rendersThymeleafViewWithEmptyList() {
-    var result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .build());
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true");
+    var result = controller.index(fakeRequestBuilder().build());
 
     assertThat(result.status()).isEqualTo(OK);
     assertThat(result.contentType()).hasValue("text/html");
@@ -158,11 +152,8 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
     accountRepository.createNewTrustedIntermediaryGroup(GROUP_1_NAME, GROUP_1_DESCRIPTION);
     accountRepository.createNewTrustedIntermediaryGroup(GROUP_2_NAME, GROUP_2_DESCRIPTION);
 
-    var result =
-        controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
-                .build());
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true");
+    var result = controller.index(fakeRequestBuilder().build());
     String content = contentAsString(result);
 
     assertThat(result.status()).isEqualTo(OK);
@@ -176,10 +167,10 @@ public class TrustedIntermediaryManagementControllerTest extends ResetPostgres {
 
   @Test
   public void index_thymeleafEnabled_withFlashError_showsNonDismissibleErrorToastAndStickyValues() {
+    resourceCreator.setCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true");
     var result =
         controller.index(
             fakeRequestBuilder()
-                .addCiviFormSetting("ADMIN_UI_MIGRATION_J2HTML_TO_THYMELEAF_SC_ENABLED", "true")
                 .flash(
                     ImmutableMap.of(
                         ERROR_KEY,

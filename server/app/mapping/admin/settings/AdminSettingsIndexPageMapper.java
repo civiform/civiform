@@ -103,11 +103,7 @@ public final class AdminSettingsIndexPageMapper {
             .map(
                 settingDescription ->
                     mapSetting(
-                        request,
-                        settingsManifest,
-                        civiFormMarkdown,
-                        errorMessages,
-                        settingDescription))
+                        settingsManifest, civiFormMarkdown, errorMessages, settingDescription))
             .collect(ImmutableList.toImmutableList());
 
     ImmutableList<Section> subsections =
@@ -129,14 +125,13 @@ public final class AdminSettingsIndexPageMapper {
   }
 
   private static Setting mapSetting(
-      Http.Request request,
       SettingsManifest settingsManifest,
       CiviFormMarkdown civiFormMarkdown,
       Optional<ImmutableMap<String, UpdateError>> errorMessages,
       SettingDescription settingDescription) {
     Optional<String> value =
         settingsManifest
-            .getSettingDisplayValue(request, settingDescription)
+            .getSettingDisplayValue(settingDescription)
             .filter(displayValue -> !displayValue.isBlank());
     Optional<UpdateError> updateError =
         errorMessages.flatMap(

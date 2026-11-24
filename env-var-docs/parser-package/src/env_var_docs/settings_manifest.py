@@ -173,6 +173,9 @@ class GetterMethodSpec:
         elif self.variable.type == "index-list":
             return "getListOfStrings"
 
+    def internal_writeable_getter(self):
+        return self.internal_getter().replace("get", "getWriteable", 1)
+
     def return_type(self):
         # yapf cannot handle match/case statements so we use if/else instead
         # https://github.com/google/yapf/issues/1045

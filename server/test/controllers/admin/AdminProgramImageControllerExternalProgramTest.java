@@ -31,12 +31,10 @@ public class AdminProgramImageControllerExternalProgramTest extends WithMockedPr
             .withProgramType(ProgramType.EXTERNAL)
             .build();
 
+    resourceCreator.setCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true");
     Result result =
         controller.index(
-            fakeRequestBuilder()
-                .addCiviFormSetting("FILE_UPLOAD_QUESTION_IMPROVEMENTS_ENABLED", "true")
-                .method("GET")
-                .build(),
+            fakeRequestBuilder().method("GET").build(),
             program.id,
             ProgramEditStatus.CREATION.name());
 

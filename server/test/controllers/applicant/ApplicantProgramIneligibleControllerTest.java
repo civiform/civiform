@@ -71,7 +71,7 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
     String programId = String.valueOf(program.id);
 
     Request request = fakeRequestBuilder().build();
-    when(settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject.ineligible(request, programId, Optional.empty()).toCompletableFuture().join();
@@ -95,7 +95,7 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
   public void ineligible_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject
@@ -169,7 +169,7 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
   public void
       ineligibleWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramIdFromUrl_redirectsToHome() {
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
     String programId = Long.toString(program.id);
 
     Result result =
@@ -202,7 +202,7 @@ public class ApplicantProgramIneligibleControllerTest extends WithMockedProfiles
       ineligibleWithApplicantId_whenProgramSlugUrlsFeatureEnabledAndIsProgramSlugFromUrl_isOk() {
     String programSlug = program.getSlug();
     Request request = fakeRequestBuilder().build();
-    when(this.settingsManifest.getProgramSlugUrlsEnabled(request)).thenReturn(true);
+    when(this.settingsManifest.getProgramSlugUrlsEnabled()).thenReturn(true);
 
     Result result =
         subject

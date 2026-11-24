@@ -123,7 +123,7 @@ public class AdminQuestionImageController extends CiviFormController {
   /** Removes the question image and alt text. */
   @Secure(authorizers = Authorizers.Labels.CIVIFORM_ADMIN)
   public Result hxDeleteQuestionImage(Http.Request request, long questionId) {
-    if (!settingsManifest.getImagesInQuestionFeatureEnabled(request)) {
+    if (!settingsManifest.getImagesInQuestionFeatureEnabled()) {
       return notFound();
     }
 

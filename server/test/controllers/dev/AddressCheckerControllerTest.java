@@ -48,7 +48,7 @@ public class AddressCheckerControllerTest extends ResetPostgres {
     settingsManifest = mock(SettingsManifest.class);
     esriClient = mock(EsriClient.class);
 
-    when(settingsManifest.getEsriAddressCorrectionEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressCorrectionEnabled()).thenReturn(true);
     when(settingsManifest.getEsriFindAddressCandidatesUrls())
         .thenReturn(Optional.of(ImmutableList.of("http://esri/findAddressCandidates")));
 
@@ -73,7 +73,7 @@ public class AddressCheckerControllerTest extends ResetPostgres {
 
   @Test
   public void index_validationDisabledAndUnconfigured_rendersCorrectionForm() {
-    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled(any())).thenReturn(false);
+    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled()).thenReturn(false);
     when(settingsManifest.getEsriAddressServiceAreaValidationUrls()).thenReturn(Optional.empty());
 
     Result result = controller.index(fakeRequest());
@@ -86,7 +86,7 @@ public class AddressCheckerControllerTest extends ResetPostgres {
 
   @Test
   public void index_validationEnabledButConfigMissing_rendersPage() {
-    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled(any())).thenReturn(true);
+    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled()).thenReturn(true);
     when(settingsManifest.getEsriAddressServiceAreaValidationUrls())
         .thenReturn(Optional.of(ImmutableList.of("http://esri/serviceArea")));
 
@@ -98,7 +98,7 @@ public class AddressCheckerControllerTest extends ResetPostgres {
 
   @Test
   public void hxCorrectAddress_validationUnconfigured_rendersResultsWithoutValidation() {
-    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled(any())).thenReturn(false);
+    when(settingsManifest.getEsriAddressServiceAreaValidationEnabled()).thenReturn(false);
     when(settingsManifest.getEsriAddressServiceAreaValidationUrls()).thenReturn(Optional.empty());
 
     Address address =

@@ -103,8 +103,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result create(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
     ImmutableList<Long> questionIds =
@@ -145,7 +144,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
           blockId,
           latestQuestionIds,
           enumeratorImprovementsEnabled,
-          settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+          settingsManifest.getFileUploadQuestionImprovementsEnabled());
     } catch (ProgramNotFoundException e) {
       return notFound(String.format("Program ID %d not found.", programId));
     } catch (ProgramBlockDefinitionNotFoundException e) {
@@ -162,7 +161,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
     // bank open would be confusing. In all other cases, keep it open so the admin can add more
     // questions.
     boolean closeBankAndFocusEnumeratorHeading =
-        addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled(request);
+        addedEnumeratorQuestion && settingsManifest.getEnumeratorImprovementsEnabled();
     return redirect(
         closeBankAndFocusEnumeratorHeading
             ? ProgramQuestionBank.addFocusEnumeratorHeadingParam(editUrl)
@@ -322,8 +321,8 @@ public class AdminProgramBlockQuestionsController extends Controller {
               programId,
               blockId,
               questionIds,
-              settingsManifest.getEnumeratorImprovementsEnabled(request),
-              settingsManifest.getFileUploadQuestionImprovementsEnabled(request));
+              settingsManifest.getEnumeratorImprovementsEnabled(),
+              settingsManifest.getFileUploadQuestionImprovementsEnabled());
       blockDefinition = programDefinition.getBlockDefinition(blockId);
       programQuestionDefinition =
           blockDefinition.programQuestionDefinitions().stream()
@@ -445,10 +444,9 @@ public class AdminProgramBlockQuestionsController extends Controller {
   @Secure(authorizers = Labels.CIVIFORM_ADMIN)
   public Result hxBackfillInitialQuestion(Request request, long programId, long blockId) {
     requestChecker.throwIfProgramNotDraft(programId);
-    boolean enumeratorImprovementsEnabled =
-        settingsManifest.getEnumeratorImprovementsEnabled(request);
+    boolean enumeratorImprovementsEnabled = settingsManifest.getEnumeratorImprovementsEnabled();
     boolean fileUploadQuestionImprovementsEnabled =
-        settingsManifest.getFileUploadQuestionImprovementsEnabled(request);
+        settingsManifest.getFileUploadQuestionImprovementsEnabled();
     Messages messages = messagesApi.preferred(request);
 
     DynamicForm requestData = formFactory.form().bindFromRequest(request);
@@ -756,7 +754,7 @@ public class AdminProgramBlockQuestionsController extends Controller {
 
       // In these cases, we warn admins that changing address correction is not allowed in the
       // tooltip, so we can silently ignore the request.
-      if (!settingsManifest.getEsriAddressCorrectionEnabled(request)
+      if (!settingsManifest.getEsriAddressCorrectionEnabled()
           || programDefinition.isQuestionUsedInPredicate(questionDefinitionId)
           || programDefinition
               .getBlockDefinition(blockDefinitionId)

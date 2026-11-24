@@ -155,13 +155,13 @@ public class DevToolsController extends Controller {
 
   public Result seedPrograms(Request request) {
     Result result = redirect(routes.DevToolsController.index().url());
-    return seedProgramsInternal(request)
+    return seedProgramsInternal()
         ? result.flashing(FlashKey.SUCCESS, "The database has been seeded")
         : result.flashing(FlashKey.ERROR, "Failed to seed programs");
   }
 
   public Result seedProgramsHeadless(Request request) {
-    return seedProgramsInternal(request) ? ok() : internalServerError();
+    return seedProgramsInternal() ? ok() : internalServerError();
   }
 
   public Result seedApplicationsHeadless(Request request) {
@@ -171,16 +171,16 @@ public class DevToolsController extends Controller {
     return seedApplicationsInternal(programSlug, count) ? ok() : internalServerError();
   }
 
-  private boolean seedProgramsInternal(Request request) {
+  private boolean seedProgramsInternal() {
     try {
       // TODO: Check whether test program already exists to prevent error.
       ImmutableList<QuestionDefinition> createdSampleQuestions =
           devDatabaseSeedTask.seedQuestions();
       devDatabaseSeedTask.seedProgramCategories();
       devDatabaseSeedTask.insertMinimalSampleProgram(
-          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled(request));
+          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled());
       devDatabaseSeedTask.insertComprehensiveSampleProgram(
-          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled(request));
+          createdSampleQuestions, settingsManifest.getEnumeratorImprovementsEnabled());
 
       return true;
     } catch (RuntimeException ex) {

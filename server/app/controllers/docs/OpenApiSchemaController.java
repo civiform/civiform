@@ -81,9 +81,9 @@ public final class OpenApiSchemaController {
       OpenApiSchemaSettings openApiSchemaSettings =
           new OpenApiSchemaSettings(
               settingsManifest.getBaseUrl().orElse(""),
-              getEmailAddress(request),
+              getEmailAddress(),
               deploymentType.isDev(),
-              /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled(request)
+              /* includeScores= */ settingsManifest.getAnswerOptionScoringEnabled()
                   && apiDocsService.anyVersionUsesScoring(optionalProgramDefinition.get()));
 
       OpenApiSchemaGenerator openApiSchemaGenerator =
@@ -107,12 +107,12 @@ public final class OpenApiSchemaController {
   }
 
   /** Get either the IT email address or the support email address */
-  private String getEmailAddress(Http.Request request) {
+  private String getEmailAddress() {
     Optional<String> contactEmailAddress =
         settingsManifest.getItEmailAddress().isPresent()
                 && !settingsManifest.getItEmailAddress().get().isBlank()
             ? settingsManifest.getItEmailAddress()
-            : settingsManifest.getSupportEmailAddress(request);
+            : settingsManifest.getSupportEmailAddress();
     return contactEmailAddress.orElse("");
   }
 
@@ -143,7 +143,7 @@ public final class OpenApiSchemaController {
                 Optional.of(openApiVersion.orElse(OpenApiVersion.OPENAPI_V3_0.toString())))
             .url();
 
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
+    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled()) {
       return ok(schemaPageView.render(
               request,
               SchemaPageMapper.map(

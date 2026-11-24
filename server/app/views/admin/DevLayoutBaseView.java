@@ -58,7 +58,7 @@ public abstract class DevLayoutBaseView<TModel extends BaseViewModel> extends Ba
         AdminCommonHeader.builder()
             .activeNavPage(activeNavigationPage())
             .isOnlyProgramAdmin(false)
-            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled(request))
+            .isApiBridgeEnabled(settingsManifest.getApiBridgeEnabled())
             .build());
   }
 

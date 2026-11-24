@@ -24,7 +24,7 @@ public class FileUploadImprovementsEnabledAction extends Action.Simple {
 
   @Override
   public CompletionStage<Result> call(Request req) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(req)) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
     return delegate.call(req);

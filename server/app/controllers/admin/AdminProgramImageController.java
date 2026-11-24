@@ -92,7 +92,7 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result index(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    if (settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       ProgramDefinition program = programService.getFullProgramDefinition(programId);
       Optional<ProgramCardParams> programCardParams = Optional.empty();
       try {
@@ -200,7 +200,7 @@ public final class AdminProgramImageController extends CiviFormController {
   public Result deleteProgramImage(Http.Request request, long programId, String editStatus)
       throws ProgramNotFoundException {
     requestChecker.throwIfProgramNotDraft(programId);
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       return notFound();
     }
     programService.deleteSummaryImageFileKey(programId);

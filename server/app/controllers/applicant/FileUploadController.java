@@ -136,7 +136,7 @@ public final class FileUploadController extends CiviFormController {
 
     return applicantService
         .getReadOnlyApplicantProgramService(
-            applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled(request))
+            applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled())
         .thenComposeAsync(
             roApplicantProgramService -> {
               Optional<Block> block = roApplicantProgramService.getActiveBlock(blockId);
@@ -180,10 +180,10 @@ public final class FileUploadController extends CiviFormController {
                               programId,
                               blockId,
                               formData,
-                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                              settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                               /* forceUpdate= */ true,
-                              settingsManifest.getApiBridgeEnabled(request),
-                              settingsManifest.getEnumeratorImprovementsEnabled(request)));
+                              settingsManifest.getApiBridgeEnabled(),
+                              settingsManifest.getEnumeratorImprovementsEnabled()));
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
@@ -206,7 +206,7 @@ public final class FileUploadController extends CiviFormController {
    */
   @Secure(authorizers = DefaultAuthorizers.IS_AUTHENTICATED)
   public CompletionStage<Result> hxRemoveFile(Request request, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -221,7 +221,7 @@ public final class FileUploadController extends CiviFormController {
   @Secure(authorizers = Authorizers.Labels.TI_OR_CIVIFORM_ADMIN)
   public CompletionStage<Result> hxRemoveFileWithApplicantId(
       Request request, long applicantId, long programId, String blockId) {
-    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled(request)) {
+    if (!settingsManifest.getFileUploadQuestionImprovementsEnabled()) {
       return CompletableFuture.completedFuture(notFound());
     }
 
@@ -251,9 +251,7 @@ public final class FileUploadController extends CiviFormController {
         .thenComposeAsync(
             v ->
                 applicantService.getReadOnlyApplicantProgramService(
-                    applicantId,
-                    programId,
-                    settingsManifest.getEnumeratorImprovementsEnabled(request)),
+                    applicantId, programId, settingsManifest.getEnumeratorImprovementsEnabled()),
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             roApplicantProgramService -> {
@@ -274,10 +272,10 @@ public final class FileUploadController extends CiviFormController {
                   programId,
                   blockId,
                   formData,
-                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(request),
+                  settingsManifest.getEsriAddressServiceAreaValidationEnabled(),
                   /* forceUpdate= */ true,
-                  settingsManifest.getApiBridgeEnabled(request),
-                  settingsManifest.getEnumeratorImprovementsEnabled(request));
+                  settingsManifest.getApiBridgeEnabled(),
+                  settingsManifest.getEnumeratorImprovementsEnabled());
             },
             classLoaderExecutionContext.current())
         .thenComposeAsync(
