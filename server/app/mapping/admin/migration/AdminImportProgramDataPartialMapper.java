@@ -212,7 +212,9 @@ public final class AdminImportProgramDataPartialMapper {
   }
 
   private static String buildImageWarningText(
-      QuestionDefinition questionDefinition, boolean questionIsDuplicate, boolean existingHasImage) {
+      QuestionDefinition questionDefinition,
+      boolean questionIsDuplicate,
+      boolean existingHasImage) {
     boolean hasImportedAltText = hasNonBlankImageAltText(questionDefinition);
     if (!questionIsDuplicate && hasImportedAltText) {
       return NEW_QUESTION_IMAGE_WARNING;

@@ -649,7 +649,10 @@ public class AdminImportControllerTest extends WithMockedProfiles {
 
     Result result =
         controller.hxImportProgram(
-            fakeRequestBuilder().method("POST").bodyForm(ImmutableMap.of("programJson", json)).build());
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", json))
+                .build());
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
@@ -683,13 +686,15 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     String json =
         migrationService
             .serialize(
-                migrationService.prepForExport(exportedProgram),
-                ImmutableList.of(newImageQuestion))
+                migrationService.prepForExport(exportedProgram), ImmutableList.of(newImageQuestion))
             .getResult();
 
     Result result =
         controller.hxImportProgram(
-            fakeRequestBuilder().method("POST").bodyForm(ImmutableMap.of("programJson", json)).build());
+            fakeRequestBuilder()
+                .method("POST")
+                .bodyForm(ImmutableMap.of("programJson", json))
+                .build());
 
     assertThat(result.status()).isEqualTo(OK);
     String content = contentAsString(result);
@@ -733,8 +738,7 @@ public class AdminImportControllerTest extends WithMockedProfiles {
     String json =
         migrationService
             .serialize(
-                migrationService.prepForExport(exportedProgram),
-                ImmutableList.of(exportedQuestion))
+                migrationService.prepForExport(exportedProgram), ImmutableList.of(exportedQuestion))
             .getResult();
 
     Result result =

@@ -1438,7 +1438,8 @@ public final class ProgramMigrationServiceTest extends ResetPostgres {
         questionRepository.getExistingQuestions(
             ImmutableSet.of("static-image-q", "static-image-q -_- a"));
     assertThat(savedQuestions.get("static-image-q").getImageFileKey()).contains(existingFileKey);
-    assertThat(savedQuestions.get("static-image-q").getLocalizedImageDescription()).contains(altText);
+    assertThat(savedQuestions.get("static-image-q").getLocalizedImageDescription())
+        .contains(altText);
     assertThat(savedQuestions.get("static-image-q -_- a").getImageFileKey()).isEmpty();
     assertThat(savedQuestions.get("static-image-q -_- a").getLocalizedImageDescription())
         .contains(altText);
