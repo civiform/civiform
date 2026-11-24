@@ -14,6 +14,7 @@ declare module '@uswds/uswds/js/usa-file-input' {
 declare module '@uswds/uswds/js/usa-modal' {
   export interface USWDSModal {
     toggleModal: (event: {target: HTMLElement; type: string}) => boolean
+    on: (element: HTMLElement | Document) => void
     teardown: (element: HTMLElement) => void
   }
 

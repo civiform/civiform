@@ -1296,6 +1296,35 @@ test.describe('applicant program index page with images', () => {
       await expect(continueButton).toBeVisible()
     })
 
+    await test.step('keyboard focus stays in the modal until it is closed', async () => {
+      const modal = page.getByRole('dialog')
+      // The page behind the modal can't scroll or be reached by a screen reader.
+      await expect(page.locator('body')).toHaveClass(/usa-js-modal--active/)
+
+      // The modal has three focusable elements. Tabbing past all of them would
+      // move focus out of the modal if it weren't trapped.
+      for (let i = 0; i < 5; i++) {
+        await page.keyboard.press('Tab')
+        await expect(modal.locator(':focus')).toHaveCount(1)
+      }
+
+      await page.keyboard.press('Escape')
+      await expect(modal).toBeHidden()
+      await expect(page.locator('body')).not.toHaveClass(/usa-js-modal--active/)
+      await expect(
+        page.getByRole('button', {
+          name: `View in new tab: ${externalProgramName}`,
+        }),
+      ).toBeFocused()
+    })
+
+    await test.step('open the external program modal again', async () => {
+      await applicantQuestions.clickApplyProgramButton(externalProgramName)
+
+      const modal = page.getByRole('dialog')
+      await expect(modal.getByRole('link', {name: 'Continue'})).toBeVisible()
+    })
+
     await test.step("selecting 'go back' closes the modal", async () => {
       const modal = page.getByRole('dialog')
       const goBackButton = modal.getByRole('button', {name: 'Go back'})
