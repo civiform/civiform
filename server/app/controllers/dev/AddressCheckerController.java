@@ -71,8 +71,7 @@ public final class AddressCheckerController extends Controller {
         AddressCheckerPageViewModel.builder()
             .backLinkUrl(routes.DevToolsController.index().url())
             .addressCorrectionEnabled(settingsManifest.getEsriAddressCorrectionEnabled())
-            .addressValidationEnabled(
-                settingsManifest.getEsriAddressServiceAreaValidationEnabled())
+            .addressValidationEnabled(settingsManifest.getEsriAddressServiceAreaValidationEnabled())
             .findAddressCandidatesUrls(settingsManifest.getEsriFindAddressCandidatesUrls())
             .addressServiceAreaValidationUrls(
                 settingsManifest.getEsriAddressServiceAreaValidationUrls())
