@@ -94,7 +94,7 @@ public final class InputElementTagModelProcessor extends AbstractElementModelPro
     var divAttrs = new BetterLinkedHashMap<String, String>();
     divAttrs.put("class", divCssClasses.toString());
 
-    targetModel.add(modelFactory.createOpenElementTag("div", divAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "div", divAttrs));
 
     addLabelElement(elementSettings, targetModel, modelFactory);
     addHelpTextDivElement(elementSettings, targetModel, modelFactory);
@@ -201,7 +201,6 @@ public final class InputElementTagModelProcessor extends AbstractElementModelPro
     }
 
     // Add self-closing input tag
-    targetModel.add(
-        modelFactory.createStandaloneElementTag("input", inputAttrs, null, false, true));
+    targetModel.add(createStandaloneElementTag(modelFactory, "input", inputAttrs, true));
   }
 }

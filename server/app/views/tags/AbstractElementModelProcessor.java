@@ -19,11 +19,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.thymeleaf.context.ITemplateContext;
 import org.thymeleaf.model.IModel;
 import org.thymeleaf.model.IModelFactory;
+import org.thymeleaf.model.IOpenElementTag;
 import org.thymeleaf.model.IProcessableElementTag;
+import org.thymeleaf.model.IStandaloneElementTag;
+import org.thymeleaf.model.IText;
 import org.thymeleaf.standard.expression.IStandardExpression;
 import org.thymeleaf.standard.expression.IStandardExpressionParser;
 import org.thymeleaf.standard.expression.StandardExpressions;
 import org.thymeleaf.templatemode.TemplateMode;
+import org.unbescape.html.HtmlEscape;
 import views.PlayValidationAttributeExtractor;
 import views.tags.settings.FormSettings;
 
@@ -89,7 +93,7 @@ public abstract class AbstractElementModelProcessor
     // <input required /> which when present indicates it is
     // enabled.
     if (tag.hasAttribute(attributeName)) {
-      String value = tag.getAttributeValue(attributeName);
+      String value = HtmlEscape.unescapeHtml(tag.getAttributeValue(attributeName));
 
       return AttributeInfo.builder()
           .attributeName(attributeName)
@@ -131,7 +135,7 @@ public abstract class AbstractElementModelProcessor
           .attributeName("th:" + attributeName)
           .hasAttribute(true)
           .isThymeleafAttribute(true)
-          .value(value)
+          .value(HtmlEscape.unescapeHtml(value))
           .build();
     }
 
@@ -162,14 +166,60 @@ public abstract class AbstractElementModelProcessor
     }
   }
 
+  /**
+   * Creates an open element tag with HTML-escaped attribute values.
+   *
+   * <p>Thymeleaf's {@link IModelFactory} writes attribute values verbatim into the output HTML, so
+   * values must be HTML-escaped before creating the tag.
+   */
+  protected static IOpenElementTag createOpenElementTag(
+      IModelFactory modelFactory, String elementName, Map<String, String> attributes) {
+    return modelFactory.createOpenElementTag(
+        elementName, escapeAttributes(attributes), null, false);
+  }
+
+  /**
+   * Creates a standalone element tag with HTML-escaped attribute values.
+   *
+   * <p>Thymeleaf's {@link IModelFactory} writes attribute values verbatim into the output HTML, so
+   * values must be HTML-escaped before creating the tag.
+   */
+  protected static IStandaloneElementTag createStandaloneElementTag(
+      IModelFactory modelFactory,
+      String elementName,
+      Map<String, String> attributes,
+      boolean minimized) {
+    return modelFactory.createStandaloneElementTag(
+        elementName, escapeAttributes(attributes), null, false, minimized);
+  }
+
+  /**
+   * Creates a text node with HTML-escaped content.
+   *
+   * <p>Thymeleaf's {@link IModelFactory#createText(CharSequence)} writes text verbatim into the
+   * output HTML, so text must be HTML-escaped before creating the node.
+   */
+  protected static IText createText(IModelFactory modelFactory, String text) {
+    return modelFactory.createText(HtmlEscape.escapeHtml4Xml(text));
+  }
+
+  private static Map<String, String> escapeAttributes(Map<String, String> attributes) {
+    if (attributes == null) {
+      return null;
+    }
+    Map<String, String> escaped = new LinkedHashMap<>(attributes.size());
+    attributes.forEach((name, value) -> escaped.put(name, HtmlEscape.escapeHtml4Xml(value)));
+    return escaped;
+  }
+
   protected static void addLabelElement(
       FormSettings elementSettings, IModel targetModel, IModelFactory modelFactory) {
     var labelAttrs = new BetterLinkedHashMap<String, String>();
     labelAttrs.put("class", "usa-label");
     labelAttrs.put("for", elementSettings.id().value());
 
-    targetModel.add(modelFactory.createOpenElementTag("label", labelAttrs, null, false));
-    targetModel.add(modelFactory.createText(elementSettings.label().value()));
+    targetModel.add(createOpenElementTag(modelFactory, "label", labelAttrs));
+    targetModel.add(createText(modelFactory, elementSettings.label().value()));
     targetModel.add(modelFactory.createCloseElementTag("label"));
   }
 
@@ -183,8 +233,8 @@ public abstract class AbstractElementModelProcessor
     helpAttrs.put("id", elementSettings.helpTextId());
     helpAttrs.put("class", "usa-hint");
 
-    targetModel.add(modelFactory.createOpenElementTag("div", helpAttrs, null, false));
-    targetModel.add(modelFactory.createText(elementSettings.helpText().value()));
+    targetModel.add(createOpenElementTag(modelFactory, "div", helpAttrs));
+    targetModel.add(createText(modelFactory, elementSettings.helpText().value()));
     targetModel.add(modelFactory.createCloseElementTag("div"));
   }
 
@@ -198,10 +248,10 @@ public abstract class AbstractElementModelProcessor
 
     spanAttrs.putIf(elementSettings.isValid().valueAsBoolean(), "hidden", "hidden");
 
-    targetModel.add(modelFactory.createOpenElementTag("span", spanAttrs, null, false));
+    targetModel.add(createOpenElementTag(modelFactory, "span", spanAttrs));
 
     if (isNotBlank(elementSettings.validationMessage().value())) {
-      targetModel.add(modelFactory.createText(elementSettings.validationMessage().value()));
+      targetModel.add(createText(modelFactory, elementSettings.validationMessage().value()));
     }
 
     targetModel.add(modelFactory.createCloseElementTag("span"));
@@ -244,7 +294,7 @@ public abstract class AbstractElementModelProcessor
         (name, value) -> {
           if (!ignoredAttributes.contains(name)
               && allowedAttributePrefixes.stream().anyMatch(name::startsWith)) {
-            attrs.put(name, value);
+            attrs.put(name, HtmlEscape.unescapeHtml(value));
           }
         });
 

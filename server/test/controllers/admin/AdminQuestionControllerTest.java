@@ -96,6 +96,29 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
         .isEqualTo(altText);
   }
 
+  @Test
+  public void edit_withImageAltTextContainingDoubleQuotes_escapesInputValue() {
+    String fileKey = "questions/1/image1.png";
+    String altText = "Bill with \"Account number\" circled";
+    QuestionModel question = createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
+
+    Request editRequest =
+        fakeRequestBuilder()
+            .addCSRFToken()
+            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
+            .build();
+    Result editResult =
+        controller
+            .edit(editRequest, question.id, /* redirectUrl= */ "")
+            .toCompletableFuture()
+            .join();
+    assertThat(editResult.status()).isEqualTo(OK);
+    assertThat(contentAsString(editResult))
+        .contains(
+            "id=\"questionImageDescription\" name=\"questionImageDescription\" value=\"Bill with"
+                + " &quot;Account number&quot; circled\"");
+  }
+
   /**
    * Regression test for the bug where an image uploaded via the HTMX uploader is silently dropped
    * when the admin submits Update for an active question that had no draft at page load.
