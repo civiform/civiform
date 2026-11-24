@@ -13,16 +13,16 @@
       class="display-flex flex-align-center font-sans-md text-no-underline margin-bottom-4"
       th:href="${model.backUrl}"
       ><cf:icon type="icon-navigate_before" />
-      <span th:text="#{link.adminProgramImage.back}" />
+      <span th:text="#{link.adminProgramImage.back}"></span>
     </a>
 
-    <h1 id="program-image-title" th:text="#{title.adminProgramImage}" />
+    <h1 id="program-image-title" th:text="#{title.adminProgramImage}"></h1>
 
     <div
       class="usa-error-message margin-bottom-2"
       th:unless="${model.showCardPreview()}"
       th:text="#{content.adminProgramImage.cardPreviewError}"
-    />
+    ></div>
 
     <div class="grid-row grid-gap-lg">
       <div class="grid-col-12 tablet:grid-col-6">
@@ -34,6 +34,7 @@
           novalidate
           th:action="${model.submitNavigationUrl + '?csrfToken=' + #uris.escapeQueryParam(templateGlobals.csrfToken())}"
         >
+          <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
           <input
             hidden
             name="csrfToken"
@@ -44,11 +45,11 @@
             <div
               class="usa-hint"
               th:text="#{content.adminProgramImage.hintMaxSize}"
-            />
+            ></div>
             <div
               class="usa-hint"
               th:text="#{content.adminProgramImage.hintCrop}"
-            />
+            ></div>
           </div>
           <!--/* The input has no label of its own, so the page title names it, followed by USWDS's
             aria-label. See the comment on the file input in questiontypes/FileUploadQuestionFragment.html (#10438). */-->
@@ -109,6 +110,7 @@
             th:action="${model.deleteNavigationUrl}"
             th:if="${model.hasSummaryImage()}"
           >
+            <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
             <input
               hidden
               name="csrfToken"
@@ -116,7 +118,7 @@
             />
             <cf:button type="submit" variant="outline">
               <cf:icon type="icon-delete" />
-              <span th:text="#{button.adminProgramImage.delete}" />
+              <span th:text="#{button.adminProgramImage.delete}"></span>
             </cf:button>
           </form>
           <th:block th:if="${model.showContinueButton()}">

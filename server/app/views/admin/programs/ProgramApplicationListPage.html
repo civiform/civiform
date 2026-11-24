@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-input-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*
   Admin list of the applications submitted to one program, migrated 1:1 from
   the j2html ProgramApplicationTableView. Rendered in the transitional
@@ -107,7 +108,7 @@
           whitespace text node would widen the gap beyond the space-x-2 margin.
         */-->
         <button
-          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
           type="submit"
         >
           <svg
@@ -117,7 +118,7 @@
         </button>
         <a
           th:href="${model.indexUrl}"
-          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
           >Clear</a
         >
         <button
@@ -298,7 +299,7 @@
             th:with="radioId=${model.randomFieldId()}"
             class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
             th:for="${radioId}"
-            ><input
+            ><!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */--><input
               type="radio"
               value=""
               maxlength="10000"
@@ -312,7 +313,7 @@
             th:with="radioId=${model.randomFieldId()}"
             class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
             th:for="${radioId}"
-            ><input
+            ><!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */--><input
               type="radio"
               value="1"
               maxlength="10000"
@@ -331,14 +332,14 @@
           />
           <div class="flex mt-6 space-x-2">
             <button
-              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
               th:formaction="${model.downloadAllCsvUrl}"
               type="submit"
             >
               Download CSV
             </button>
             <button
-              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
+              class="cf-download-all-button cf-modal-close block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2"
               th:formaction="${model.downloadAllJsonUrl}"
               type="submit"
             >

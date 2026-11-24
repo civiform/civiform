@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-input-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.questions.QuestionFormPageViewModel"*/-->
 <th:block th:fragment="content">
@@ -171,7 +172,7 @@
                  there renders as a visible space and shifts the icon right of
                  the legacy j2html output. */-->
           <!-- prettier-ignore -->
-          <label for="question-name-input" class="text-gray-600 text-base px-1 py-2">Administrative identifier. This value can't be changed later <span th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"></span><span><div class="group inline"><svg th:replace="~{admin/shared/LegacySvgFragments :: iconInfo('inline-block w-5 relative')}"></svg><span class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5" th:text="'This will be used to identify questions in the API and CSV export.  It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.'"></span></div></span></label>
+          <label for="question-name-input" class="text-gray-600 text-base px-1 py-2">Administrative identifier. This value can't be changed later <span th:replace="~{admin/shared/LegacyFieldWithLabel/RequiredIndicator :: requiredIndicator(true)}"></span><span><!--/* [html-validate-disable-next element-permitted-content -- existing markup, <div> is not allowed in <span>] */--><div class="group inline"><svg th:replace="~{admin/shared/LegacySvgFragments :: iconInfo('inline-block w-5 relative')}"></svg><span class="hidden z-50 group-hover:block bg-white rounded-3xl p-2 px-4 text-black absolute border-gray-200 border text-left w-96 text-sm font-normal whitespace-normal max-w-fit mt-2.5" th:text="'This will be used to identify questions in the API and CSV export.  It will be formatted so that white spaces are replaced with underscores, uppercase letters are converted to lowercase and all non-alphabetic characters are stripped.'"></span></div></span></label>
           <div class="flex flex-col">
             <input
               type="text"
@@ -197,6 +198,7 @@
           <p class="pointer-events-none text-gray-600 text-base px-1 py-2">
             Administrative identifier. This value can't be changed
           </p>
+          <!--/* [html-validate-disable-next no-dup-id -- only one of these branches renders] */-->
           <p
             id="question-name-input"
             class="px-3 bg-white text-black text-lg"
@@ -461,11 +463,13 @@
           th:each="tag : ${model.paiTags}"
           class="cf-primary-applicant-info-subsection"
         >
+          <!--/* [html-validate-disable-next no-implicit-close -- existing markup, <div> is not allowed in <p>] */-->
           <p class="px-1 pb-2 text-sm text-gray-600">
             <span th:text="${tag.description}"></span>
             <div
               th:replace="~{admin/shared/LegacyFieldWithLabel/Toggle :: toggle(${tag.fieldName}, ${tag.fieldName}, ${tag.enabled}, ${tag.toggleHidden}, ${tag.displayName})}"
             ></div>
+            <!--/* [html-validate-disable-next close-order -- the <div> above already closed this <p>] */-->
           </p>
           <th:block th:unless="${tag.differentQuestionHasTag}">
             <div
@@ -503,7 +507,7 @@
           th:with="fieldId=${model.randomFieldId()}"
           class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
           th:for="${fieldId}"
-          ><input
+          ><!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */--><input
             type="radio"
             value="NON_DEMOGRAPHIC"
             maxlength="10000"
@@ -562,7 +566,7 @@
         </button>
         <button
           type="submit"
-          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+          class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
         >
           Create
         </button>
@@ -573,7 +577,7 @@
       <button
         th:if="${model.editMode}"
         type="button"
-        class="ml-2 block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        class="ml-2 block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
         id="confirm-question-updates-modal-button"
       >
         Update
@@ -637,7 +641,7 @@
             type="submit"
             id="accept-question-updates-button"
             form="full-edit-form"
-            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
           >
             Remove from universal questions
           </button>

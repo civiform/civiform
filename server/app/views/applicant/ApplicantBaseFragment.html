@@ -40,7 +40,6 @@
   <script
     th:nonce="${cspNonce}"
     th:src="${uswdsJsInit}"
-    type="text/javascript"
     th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
 
@@ -61,7 +60,6 @@
   <script
     th:nonce="${cspNonce}"
     th:src="${uswdsJsBundle}"
-    type="text/javascript"
     th:crossorigin="${useBundlerDevServer ? 'anonymous' : null}"
   ></script>
   <link

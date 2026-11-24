@@ -11,6 +11,7 @@
       th:for="${fieldName + '.key'}"
       th:inline="text"
     >
+      <!--/* [html-validate-disable-block element-permitted-content -- existing markup, <div> is not allowed in <label>] */-->
       <div class="font-body-sm">
         [[#{${labelKey}}]]
         <span title="required" class="usa-hint usa-hint--required">*</span>
@@ -90,6 +91,7 @@
         [[#{map.displayNameLabel}]]
         <span title="required" class="usa-hint usa-hint--required">*</span>
       </label>
+      <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
       <input
         data-testid="display-name-input"
         class="usa-input cf-display-name-input"
@@ -170,6 +172,7 @@
             [[#{map.valueLabel}]]
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
+          <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
           <input
             data-testid="tag-value-input"
             class="usa-input cf-tag-value-input"
@@ -185,6 +188,7 @@
             [[#{map.displayNameLabel}]]
             <span title="required" class="usa-hint usa-hint--required">*</span>
           </label>
+          <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
           <input
             data-testid="tag-display-name-input"
             class="usa-input cf-tag-display-name-input"
@@ -219,7 +223,6 @@
     <button
       id="add-map-tag-button"
       type="button"
-      role="button"
       th:class="|add-map-tag-button usa-button usa-button--outline margin-top-3 ${selectedKey != '' ? 'hidden' : ''}|"
       th:inline="text"
     >

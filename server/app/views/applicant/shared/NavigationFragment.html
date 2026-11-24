@@ -19,6 +19,7 @@
     <div th:replace="~{this :: immigrationStatusInfoBanner}"></div>
   </th:block>
   <div class="usa-overlay"></div>
+  <!--/* [html-validate-disable-next no-redundant-role -- USWDS header markup, and whether this is a banner depends on where the fragment is included] */-->
   <header class="usa-header usa-header--basic" role="banner">
     <div class="usa-nav-container">
       <div class="usa-navbar width-full">
@@ -58,7 +59,6 @@
       <nav
         th:aria-label="#{label.primaryNavigation}"
         class="usa-nav grid-container"
-        role="navigation"
       >
         <button
           type="button"
@@ -75,13 +75,13 @@
             <div
               th:if="${demoBanner.showDebugTools() and !demoBanner.enabled()}"
             >
-              <button th:replace="~{this :: showDebugTools}"></button>
+              <th:block th:replace="~{this :: showDebugTools}"></th:block>
             </div>
             <div>
-              <button th:replace="~{this :: loginOrLogout}"></button>
+              <th:block th:replace="~{this :: loginOrLogout}"></th:block>
             </div>
             <th:block th:if="${enabledLanguages.size() > 1}">
-              <button th:replace="~{this :: languageSelector}"></button>
+              <th:block th:replace="~{this :: languageSelector}"></th:block>
             </th:block>
           </div>
         </div>
@@ -116,6 +116,7 @@
   <div th:replace="~{this :: tiAlert}"></div>
 </th:block>
 
+<!--/* [html-validate-disable-next prefer-native-element -- existing markup] */-->
 <section
   th:fragment="officialGovermentWebsiteBanner"
   class="usa-banner"
@@ -211,7 +212,6 @@
 <section
   th:fragment="guestSessionAlert"
   th:if="${isGuest and hasProfile}"
-  role="region"
   th:aria-label="#{label.guestSessionAlert}"
 >
   <div
@@ -237,7 +237,6 @@
 >
   <section
     class="usa-site-alert usa-site-alert--info usa-site-alert--slim cf-alert"
-    role="region"
     th:aria-label="#{label.immigrationStatusInfoBanner.label}"
   >
     <div class="usa-alert">
@@ -270,6 +269,7 @@
     <div class="usa-alert" aria-role="status">
       <div class="usa-alert__body">
         <div class="ti-banner-internal">
+          <!--/* [html-validate-disable-next aria-label-misuse -- existing markup, this element has no role that takes a name] */-->
           <span
             class="usa-alert__text"
             th:text="#{banner.viewApplication(${applicantDisplayName})}"
@@ -315,12 +315,11 @@
         id="select-login-menu"
         type="button"
         class="usa-button usa-language__link"
-        role="button"
         aria-expanded="false"
         aria-controls="select-login"
         th:text="#{button.login}"
       ></button>
-      <ul id="select-login" class="usa-language__submenu" hidden="true">
+      <ul id="select-login" class="usa-language__submenu" hidden>
         <li class="usa-language__submenu-item">
           <a
             th:text="#{button.applicantLogin}"
@@ -372,7 +371,9 @@
 
 <div th:fragment="languageSelector">
   <form th:action="${updateLanguageAction}" method="POST">
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input hidden th:value="${csrfToken}" name="csrfToken" />
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input hidden th:value="${redirectUri}" name="redirectLink" />
 
     <ul class="usa-language__primary usa-accordion">
@@ -381,7 +382,6 @@
           id="select-language-menu"
           type="button"
           class="usa-button usa-language__link"
-          role="button"
           aria-expanded="false"
           aria-controls="select-language"
           th:text="#{button.languages}"
@@ -390,7 +390,7 @@
           th:aria-label="#{label.languageSr}"
           id="select-language"
           class="usa-language__submenu"
-          hidden="true"
+          hidden
         >
           <li
             th:each="language: ${enabledLanguages}"

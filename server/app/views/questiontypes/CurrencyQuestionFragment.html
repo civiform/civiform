@@ -76,6 +76,7 @@
     th:classappend="${hasErrors ? 'usa-input-group--error' : ''}"
   >
     <div class="usa-input-prefix">$</div>
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input
       th:with="value=${currencyQuestion.getCurrencyValue().isPresent() ?
                                 currencyQuestion.getCurrencyValue().get().prettyPrint() :

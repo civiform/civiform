@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-button-type, no-implicit-input-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/* CiviForm admin's list of all programs. */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.programs.ProgramIndexPageViewModel"*/-->
@@ -46,7 +47,7 @@
           <button
             th:if="${model.publishAllTriggerId != null}"
             th:id="${model.publishAllTriggerId}"
-            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 my-2"
+            class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 my-2"
           >
             <svg
               th:replace="~{admin/shared/LegacySvgFragments :: iconPublish('inline-block h-4.5 w-4.5')}"
@@ -154,7 +155,7 @@
     </fieldset>
     <button
       type="submit"
-      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 mt-6"
+      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base space-x-2 mt-6"
     >
       <svg
         th:replace="~{admin/shared/LegacySvgFragments :: iconDownload('inline-block h-4.5 w-4.5')}"
@@ -183,7 +184,7 @@
   <div class="flex flex-col md:flex-row py-4">
     <button
       type="submit"
-      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+      class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
     >
       Publish program
     </button>
@@ -251,7 +252,7 @@
       />
       <button
         type="submit"
-        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
+        class="block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-base"
       >
         Publish all draft programs and questions
       </button>

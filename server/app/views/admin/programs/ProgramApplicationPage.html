@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-button-type -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*
   Program admin view of a single submitted application.
 
@@ -31,7 +32,7 @@
     <a
       id="application-table-view-"
       th:href="${model.backUrl}"
-      class="text-blue-600 hover:text-blue-500 inline-flex items-center block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white rounded-full font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-sm"
+      class="text-blue-600 hover:text-blue-500 inline-flex items-center block py-2 text-center rounded-full border bg-civiform-blue border-transparent text-white font-semibold px-8 hover:bg-blue-700 disabled:bg-gray-200 disabled:text-gray-400 text-sm"
       >Back</a
     >
 
@@ -108,6 +109,7 @@
 
     <!--/* Hidden triggers of the status confirmation modals; admin_application_view.ts
            clicks the one whose data attribute matches the selected status. */-->
+    <!--/* [html-validate-disable-next text-content -- hidden trigger, clicked by admin_application_view.ts] */-->
     <button
       th:each="modal : ${model.statusModals}"
       type="button"

@@ -14,9 +14,9 @@
     th:aria-describedby="${questionId} + '-description'"
   >
     <!--/* Title and Help Text */-->
-    <div
+    <legend
       th:replace="~{questiontypes/QuestionBaseFragment :: titleAndHelpTextMultipleInput(${question}, ${questionId})}"
-    ></div>
+    ></legend>
 
     <div
       th:replace="~{this :: addressFields(
@@ -103,6 +103,7 @@
         *</span
       >
     </label>
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input
       class="usa-input cf-input-large"
       th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
@@ -137,6 +138,7 @@
       th:for="${inputId}"
       th:text="#{label.addressLine2}"
     ></label>
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input
       class="usa-input cf-input-large"
       th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
@@ -175,6 +177,7 @@
         *</span
       >
     </label>
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input
       class="usa-input cf-input-large"
       th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"
@@ -260,6 +263,7 @@
         *</span
       >
     </label>
+    <!--/* [html-validate-disable-next no-implicit-input-type -- existing markup, scripts and browser tests select inputs by type] */-->
     <input
       class="usa-input usa-input--medium"
       th:classappend="${hasFieldErrors ? 'usa-input--error' : ''}"

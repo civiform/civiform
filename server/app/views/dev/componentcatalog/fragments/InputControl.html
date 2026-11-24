@@ -7,10 +7,10 @@
   <table class="usa-table">
     <thead>
       <tr>
-        <th>Name</th>
-        <th>Required</th>
-        <th>Type</th>
-        <th>Details</th>
+        <th scope="col">Name</th>
+        <th scope="col">Required</th>
+        <th scope="col">Type</th>
+        <th scope="col">Details</th>
       </tr>
     </thead>
     <tbody>
@@ -372,6 +372,7 @@
       </button>
     </h3>
     <div id="b-a2" class="usa-accordion__content usa-prose">
+      <!--/* [html-validate-disable-next no-implicit-close -- existing markup, <h4> is not allowed in <p>] */-->
       <p>
         <h4>Java</h4>
         <pre><code class="language-java">public class EmailInput {
@@ -421,6 +422,7 @@
     name=&quot;email&quot;
     placeholder=&quot;name@example.com&quot; /&gt;
 &lt;/div&gt;</code></pre>
+        <!--/* [html-validate-disable-next close-order -- the <h4> above already closed this <p>] */-->
       </p>
     </div>
   </div>

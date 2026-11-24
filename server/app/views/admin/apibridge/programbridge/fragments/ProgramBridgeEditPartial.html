@@ -25,11 +25,7 @@
   </form>
 
   <!--/* Bootstrap the edit form javascript */-->
-  <script
-    type="text/javascript"
-    th:nonce="${templateGlobals.cspNonce()}"
-    th:inline="javascript"
-  >
+  <script th:nonce="${templateGlobals.cspNonce()}" th:inline="javascript">
     document.body.addEventListener('htmx:afterSwap', function (event) {
       window.app.scripts.AdminProgramApiBridge.init(event)
     })

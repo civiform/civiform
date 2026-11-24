@@ -4,7 +4,7 @@
     th:with="fieldId=${model.randomFieldId()}"
     class="px-3 bg-white text-black text-lg py-2 block outline-none box-border m-auto border border-gray-500 rounded-lg w-full focus:border-civiform-blue align-middle flex flex-row mb-2 cf-radio-option"
     th:for="${fieldId}"
-    ><input
+    ><!--/* [html-validate-disable-next input-attributes -- legacy parity, j2html FieldWithLabel puts maxlength on every input] */--><input
       type="checkbox"
       value="true"
       maxlength="10000"

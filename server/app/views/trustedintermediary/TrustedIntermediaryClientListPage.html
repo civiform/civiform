@@ -1,3 +1,4 @@
+<!--/* [html-validate-disable no-implicit-input-type, wcag/h71 -- legacy j2html markup, left as is until the page is rewritten] */-->
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.trustedintermediary.TrustedIntermediaryClientListPageViewModel"*/-->
 <!--/* Flash error toast, consumed by toast.ts; the layout renders this
@@ -65,6 +66,7 @@
         </div>
         <div class="ml-6">
           <div>
+            <!--/* [html-validate-disable-next element-permitted-content -- existing markup, <legend> is not allowed in <div>] */-->
             <legend class="usa-legend" th:text="#{label.searchByDob}"></legend>
             <span
               class="usa-hint"
