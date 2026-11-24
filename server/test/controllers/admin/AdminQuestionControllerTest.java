@@ -102,11 +102,8 @@ public class AdminQuestionControllerTest extends WithMockedProfiles {
     String altText = "Bill with \"Account number\" circled";
     QuestionModel question = createDraftStaticQuestion(Optional.of(fileKey), Optional.of(altText));
 
-    Request editRequest =
-        fakeRequestBuilder()
-            .addCSRFToken()
-            .addCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true")
-            .build();
+    resourceCreator.setCiviFormSetting("IMAGES_IN_QUESTION_FEATURE_ENABLED", "true");
+    Request editRequest = fakeRequestBuilder().addCSRFToken().build();
     Result editResult =
         controller
             .edit(editRequest, question.id, /* redirectUrl= */ "")
