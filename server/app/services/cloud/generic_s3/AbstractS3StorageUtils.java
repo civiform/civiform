@@ -17,10 +17,8 @@ import software.amazon.awssdk.services.s3.endpoints.S3EndpointProvider;
 
 /** Class providing helper methods for working with Simple Storage Service (S3). */
 public abstract class AbstractS3StorageUtils {
-  /**
-   * The path to the config variable containing the endpoint for our local instance (LocalStack).
-   */
-  public static final String LOCAL_ENDPOINT_CONF_PATH = "localstack.endpoint";
+  /** The path to the config variable containing the endpoint for our local instance (Floci). */
+  public static final String LOCAL_ENDPOINT_CONF_PATH = "floci.endpoint";
 
   private static final Logger logger = LoggerFactory.getLogger(AbstractS3StorageUtils.class);
 
@@ -72,38 +70,38 @@ public abstract class AbstractS3StorageUtils {
 
   public abstract String prodActionLink(String bucketName, Region region);
 
-  /** Returns the action link to use when uploading or downloading to LocalStack. */
-  public String localStackActionLink(Config config, String bucketName, Region region) {
+  /** Returns the action link to use when uploading or downloading to Floci. */
+  public String flociActionLink(Config config, String bucketName, Region region) {
     try {
       String url =
           S3EndpointProvider.defaultProvider()
               .resolveEndpoint(
                   (builder) ->
                       builder
-                          .endpoint(localStackEndpoint(config).toString())
+                          .endpoint(flociEndpoint(config).toString())
                           .bucket(bucketName)
                           .region(region))
               .get()
               .endpointUrl()
               .toUri()
               .toString();
-      // The prod AWS action links end with `/`, so our LocalStack action links should do the same.
+      // The prod AWS action links end with `/`, so our Floci action links should do the same.
       return url + "/";
     } catch (ExecutionException | InterruptedException e) {
-      logger.warn("Unable to create a Localstack action link. Returning empty string");
+      logger.warn("Unable to create a Floci action link. Returning empty string");
       return "";
     }
   }
 
-  /** Returns the endpoint to use to connect with LocalStack to manage file storage. */
-  public URI localStackEndpoint(Config config) {
+  /** Returns the endpoint to use to connect with Floci to manage file storage. */
+  public URI flociEndpoint(Config config) {
     String localEndpoint = checkNotNull(config).getString(LOCAL_ENDPOINT_CONF_PATH);
-    // LocalStack actions that deal with file storage (upload, download, deletion) need to have
-    // "s3." prepended to the URL for them to work correctly. However, we also use LocalStack
+    // Floci actions that deal with file storage (upload, download, deletion) need to have
+    // "s3." prepended to the URL for them to work correctly. However, we also use Floci
     // for non-file actions like emailing applicants when they've submitted an application (see
     // SimpleEmail). Those actions do *not* need the "s3." in the URL.
-    // So, AWS_LOCAL_ENDPOINT_CONF_PATH represents the main LocalStack URL without the "s3."
-    // and we manually add the "s3." here since it's only needed for file-related LocalStack
+    // So, AWS_LOCAL_ENDPOINT_CONF_PATH represents the main Floci URL without the "s3."
+    // and we manually add the "s3." here since it's only needed for file-related Floci
     // actions.
     URI mainUri = URI.create(localEndpoint);
     return URI.create(String.format("%s://s3.%s", mainUri.getScheme(), mainUri.getAuthority()));

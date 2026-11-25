@@ -53,7 +53,7 @@ public final class SimpleEmail implements EmailSendClient {
     this.emailSendMetrics = emailSendMetrics;
 
     if (environment.isDev()) {
-      client = new LocalStackClient(region, config);
+      client = new FlociClient(region, config);
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
@@ -164,14 +164,14 @@ public final class SimpleEmail implements EmailSendClient {
     }
   }
 
-  static class LocalStackClient implements Client {
-    private String LOCALSTACK_ENDPOINT_CONF_PATH = "localstack.endpoint";
+  static class FlociClient implements Client {
+    private String FLOCI_ENDPOINT_CONF_PATH = "floci.endpoint";
 
     private final String localEndpoint;
     private final SesClient client;
 
-    LocalStackClient(AwsRegion region, Config config) {
-      localEndpoint = checkNotNull(config).getString(LOCALSTACK_ENDPOINT_CONF_PATH);
+    FlociClient(AwsRegion region, Config config) {
+      localEndpoint = checkNotNull(config).getString(FLOCI_ENDPOINT_CONF_PATH);
       URI localUri;
       try {
         localUri = new URI(localEndpoint);

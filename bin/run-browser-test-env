@@ -10,7 +10,7 @@ truth::declare_var_false continuous_integration
 
 # Default to not using both emulators.
 # both_emulators should only be true for Azurite browser tests, because these
-# tests also require localstack for SES email sending.
+# tests also require Floci for SES email sending.
 truth::declare_var_false both_emulators
 
 # Default to not running browser tests in local mode, which
@@ -18,8 +18,8 @@ truth::declare_var_false both_emulators
 # with other concurrently running stacks.
 truth::declare_var_false local
 
-# Default to using Localstack emulator.
-emulators::set_localstack_emulator_vars
+# Default to using Floci emulator.
+emulators::set_floci_emulator_vars
 
 #######################################
 # Process the script's commandline args.
@@ -49,11 +49,11 @@ Options:
 --ci    Run the environment in CI mode. Removes caching for SBT builds and
         redirects log statements to a .dockerlogs file. Defaults to off.
 
---aws   Use the AWS emulator (Localstack) for simulating cloud services,
+--aws   Use the AWS emulator (Floci) for simulating cloud services,
         cannot be used with --azure flag. This is the default.
 
 --azure Use the Azure emulator (Azurite) for simulating cloud storage for file
-        upload and download. Also use localstack, since we need that for SES.
+        upload and download. Also use Floci, since we need that for SES.
 
 --local Set BASE_URL to http://localhost:9999 to enable running
         bin/run-browser-tests-local
@@ -71,7 +71,7 @@ EOF
         emulators::set_azurite_emulator_vars
         # We do this because the Azurite tests need both emulators running to
         # be successful. But, for AWS, we only want one emulator running,
-        # localstack.
+        # Floci.
         truth::enable both_emulators
         ;;
 
@@ -138,23 +138,23 @@ echo "Waiting for the cloud emulator"
 "bin/${emulator}/wait" "${emulator_url}"
 
 # The --no-recreate option is particularly important for CI scenarios
-# where localstack may be recreated due to the additional time involved
+# where Floci may be recreated due to the additional time involved
 # in pulling images.
 # See https://github.com/seattle-uat/civiform/issues/2810#issuecomment-1168993637
 
-# localstack emulator is also required for Azurite. This should only run for
+# Floci emulator is also required for Azurite. This should only run for
 # Azure browser tests.
 if truth::is_enabled both_emulators; then
-  echo "Starting localstack emulator as well"
+  echo "Starting Floci emulator as well"
   if truth::is_enabled continuous_integration; then
-    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack >.dockerlogs 2>&1 &
+    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d floci >.dockerlogs 2>&1 &
   else
-    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d localstack
+    compose_browser_test "${use_dev}" --profile aws up --no-recreate -d floci
   fi
-  # Wait for localstack to start. This script also has the side effect of verifying the email
+  # Wait for Floci to start. This script also has the side effect of verifying the email
   # address used for browser tests. Without this call, emails won't be sent.
-  # The emulator URL is the same as that set by emulators::set_localstack_emulator_vars.
-  "bin/localstack/wait" "http://localhost:6645"
+  # The emulator URL is the same as that set by emulators::set_floci_emulator_vars.
+  "bin/floci/wait" "http://localhost:6645"
 fi
 
 # Start everything else.

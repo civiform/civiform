@@ -69,7 +69,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -82,13 +82,13 @@ public class GcpPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("localstack");
+    assertThat(uploadRequest.actionLink()).contains("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
-  public void getSignedUploadRequest_testEnv_notLocalStackOrProd() {
+  public void getSignedUploadRequest_testEnv_notFlociOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -101,7 +101,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).doesNotContain("localstack");
+    assertThat(uploadRequest.actionLink()).doesNotContain("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
   }
 
@@ -261,7 +261,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_devEnv_endpointIsLocalStack() {
+  public void prunePublicFileStorage_devEnv_endpointIsFloci() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -275,11 +275,11 @@ public class GcpPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     gcpPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("floci");
   }
 
   @Test
-  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProd() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotFlociOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -293,7 +293,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     gcpPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("floci");
     assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("googleapis");
   }
 

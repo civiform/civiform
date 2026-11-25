@@ -1,12 +1,12 @@
 #! /usr/bin/env bash
 
-# DOC: Verify SES email identity in localstack.
+# DOC: Verify SES email identity in Floci.
 
 source bin/lib.sh
-source bin/localstack/lib.sh
+source bin/floci/lib.sh
 
 verify_identity_cmd="ses verify-email-identity
   --region us-west-2
   --email-address ${1}"
 
-localstack::run_command "${verify_identity_cmd}"
+floci::run_command "${verify_identity_cmd}"

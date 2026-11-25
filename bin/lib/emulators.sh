@@ -36,16 +36,16 @@ function emulators::set_azurite_emulator_vars() {
 }
 
 #######################################
-# Sets variables for running an environment with the Localstack AWS emulator.
+# Sets variables for running an environment with the Floci AWS emulator.
 # Sets globals:
 #   cloud_provider
 #   emulator
 #   emulator_url
 #   storage_service_name
 #######################################
-function emulators::set_localstack_emulator_vars() {
+function emulators::set_floci_emulator_vars() {
   cloud_provider="aws"
-  emulator="localstack"
+  emulator="floci"
   emulator_url="http://localhost:6645"
   export STORAGE_SERVICE_NAME="s3"
 }

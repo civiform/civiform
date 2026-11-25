@@ -71,9 +71,8 @@ public final class GenericS3Client implements GenericS3ClientWrapper {
     return S3Client.builder()
         .credentialsProvider(credentials.credentialsProvider())
         .region(region)
-        // Override the endpoint so that Localstack works correctly.
-        // See https://docs.localstack.cloud/user-guide/integrations/sdks/java/#s3-service and
-        // https://github.com/localstack/localstack/issues/5209#issuecomment-1004395805.
+        // Override the endpoint so that Floci works correctly.
+        // See https://floci.io/floci/services/s3/#virtual-hosted-style.
         .endpointOverride(endpoint)
         .build();
   }

@@ -159,37 +159,37 @@
       </div>
     </li>
 
-    <!-- Localstack (dev only) -->
+    <!-- Floci (dev only) -->
     <li th:if="${model.isDev}" class="usa-card tablet:grid-col-6">
       <div class="usa-card__container">
         <div class="usa-card__header">
-          <h2 class="usa-card__heading">[[#{devtools.localstack.title}]]</h2>
+          <h2 class="usa-card__heading">[[#{devtools.floci.title}]]</h2>
         </div>
         <div class="usa-card__body">
-          <p>[[#{devtools.localstack.description}]]</p>
+          <p>[[#{devtools.floci.description}]]</p>
           <ul class="usa-button-group flex-column">
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://localhost.localstack.cloud:4566/_aws/ses/"
+                href="http://localhost.floci.io:4566/_aws/ses/"
                 target="_blank"
-                >✉️ [[#{devtools.localstack.ses}]]</a
+                >✉️ [[#{devtools.floci.ses}]]</a
               >
             </li>
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3"
+                href="http://civiform-local-s3.s3.localhost.floci.io:4566/"
                 target="_blank"
-                >📁 [[#{devtools.localstack.private}]]</a
+                >📁 [[#{devtools.floci.private}]]</a
               >
             </li>
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public"
+                href="http://civiform-local-s3-public.s3.localhost.floci.io:4566/"
                 target="_blank"
-                >📁 [[#{devtools.localstack.public}]]</a
+                >📁 [[#{devtools.floci.public}]]</a
               >
             </li>
           </ul>

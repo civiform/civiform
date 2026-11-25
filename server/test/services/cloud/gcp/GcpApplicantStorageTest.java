@@ -46,7 +46,7 @@ public class GcpApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
     GcpApplicantStorage gcpApplicantStorage =
         new GcpApplicantStorage(
             instanceOf(GcpStorageUtils.class),
@@ -59,7 +59,7 @@ public class GcpApplicantStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("localstack");
+    assertThat(uploadRequest.actionLink()).contains("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }

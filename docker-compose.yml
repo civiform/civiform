@@ -1,22 +1,20 @@
 # Use postgres/example user/password credentials
 services:
-  localstack:
-    image: localstack/localstack:4.14.0@sha256:3ebc37595918b8accb852f8048fef2aff047d465167edd655528065b07bc364a
+  floci:
+    image: floci/floci:2.5.0@sha256:a0fbf944d7f338cc0856f1ef83831ea749ff2be71956eb7a7fce08fc21458e19
     profiles: ['aws', 'emulator']
     expose:
       - '4566'
-    environment:
-      - SERVICES=s3,ses
     networks:
       default:
         aliases:
           # We use hosted-style for s3 bucket urls. Which matches production.
-          # https://docs.localstack.cloud/user-guide/aws/s3/
+          # https://floci.io/floci/services/s3/#virtual-hosted-style
           # So we need to add host mapping for test bucket civiform-local-s3
           # and civiform-local-s3-public
-          - civiform-local-s3.s3.localhost.localstack.cloud
-          - civiform-local-s3-public.s3.localhost.localstack.cloud
-          - localhost.localstack.cloud
+          - civiform-local-s3.s3.localhost.floci.io
+          - civiform-local-s3-public.s3.localhost.floci.io
+          - localhost.floci.io
 
   azurite:
     image: mcr.microsoft.com/azure-storage/azurite@sha256:830430c1da1a2d537e08f3e6764dd1f5ae00cf0346bcaf625b968ec3f0971fd5

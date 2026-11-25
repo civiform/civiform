@@ -66,7 +66,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -79,13 +79,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("localstack");
+    assertThat(uploadRequest.actionLink()).contains("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
-  public void getSignedUploadRequest_testEnv_notLocalStackOrProdAws() {
+  public void getSignedUploadRequest_testEnv_notFlociOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -98,7 +98,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).doesNotContain("localstack");
+    assertThat(uploadRequest.actionLink()).doesNotContain("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
   }
 
@@ -258,7 +258,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_devEnv_endpointIsLocalStack() {
+  public void prunePublicFileStorage_devEnv_endpointIsFloci() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -272,11 +272,11 @@ public class AwsPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("floci");
   }
 
   @Test
-  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProdAws() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotFlociOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -290,7 +290,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("floci");
     assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("amazonaws");
   }
 

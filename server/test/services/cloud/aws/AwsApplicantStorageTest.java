@@ -44,7 +44,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
             instanceOf(AwsStorageUtils.class),
@@ -57,7 +57,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("localstack");
+    assertThat(uploadRequest.actionLink()).contains("floci");
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }

@@ -1,9 +1,9 @@
 #! /usr/bin/env bash
 
-# DOC: Create S3 bucket in localstack.
+# DOC: Create S3 bucket in Floci.
 
 source bin/lib.sh
-source bin/localstack/lib.sh
+source bin/floci/lib.sh
 
 #######################################
 # Creates a bucket with the given name if it doesn't already exist.
@@ -20,8 +20,8 @@ function create_bucket_if_not_exists() {
 
   # We first check to see if the desired bucket already exists
   # prior to trying to create it.
-  localstack::run_command "${check_cmd}" \
-    || localstack::run_command "${create_cmd}"
+  floci::run_command "${check_cmd}" \
+    || floci::run_command "${create_cmd}"
 }
 
 create_bucket_if_not_exists ${APPLICANT_BUCKET_NAME}
