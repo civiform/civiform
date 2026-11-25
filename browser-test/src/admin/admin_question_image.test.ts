@@ -507,10 +507,12 @@ test.describe('Admin can manage question image', () => {
       await adminQuestions.gotoQuestionEditPage(questionName)
     })
 
-    await test.step('Upload 1.5MB image and verify error alert is displayed', async () => {
+    await test.step('Select 1.5MB image and verify error alert is displayed', async () => {
       await adminQuestionImage.setImageDescription(altText)
-      await adminQuestionImage.uploadImageFileWithMbSize(1.5)
-      await adminQuestionImage.expectUploadError('Request entity too large')
+      await adminQuestionImage.selectImageFileWithMbSize(1.5)
+      await adminQuestionImage.expectUploadError(
+        'Your file is too large. Please choose a file less than 1 MB.',
+      )
       await adminQuestionImage.expectDeleteButtonHidden()
       await adminQuestionImage.expectNoPreviewImage()
     })

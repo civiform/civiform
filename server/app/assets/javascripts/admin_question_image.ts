@@ -1,7 +1,9 @@
 import {default as uswdsFileInput} from '@uswds/uswds/js/usa-file-input'
-import {hideError, showError} from '@/file_upload_util'
+import {hideError, isFileTooLarge, showError} from '@/file_upload_util'
 
 const FILE_INPUT_ID = 'question-image-input'
+const FILE_TOO_LARGE_MESSAGE_ATTR = 'data-file-too-large-message'
+const UPLOAD_ERRORS_ID = 'question-image-file-input-errors'
 const ALT_INPUT_ID = 'questionImageDescription'
 const ALT_ERROR_ID = 'error-message-questionImageDescription'
 const DELETE_BUTTON_ID = 'delete-question-image-button'
@@ -98,6 +100,34 @@ export function init() {
       altInput.focus()
     }
   })
+
+  // Checks the size in the capture phase, before USWDS builds a preview or htmx sends the
+  // upload, so an oversized file is never shown as selected and never uploaded. The error
+  // goes in the element the server's errors replace, so the next upload response clears it.
+  document.body.addEventListener(
+    'change',
+    (event) => {
+      const input = event.target as HTMLInputElement
+      if (input.id !== FILE_INPUT_ID) {
+        return
+      }
+      if (!isFileTooLarge(input)) {
+        input.removeAttribute('aria-invalid')
+        return
+      }
+      event.stopImmediatePropagation()
+      input.value = ''
+      input.setAttribute('aria-invalid', 'true')
+      const uploadErrors = document.getElementById(UPLOAD_ERRORS_ID)
+      if (uploadErrors) {
+        uploadErrors.textContent =
+          input.getAttribute(FILE_TOO_LARGE_MESSAGE_ATTR) ?? ''
+        uploadErrors.className = 'text-red-600 text-base py-2'
+      }
+      syncAndValidate()
+    },
+    {capture: true},
+  )
 
   document.body.addEventListener('htmx:afterRequest', (event) => {
     const target = event.detail.elt

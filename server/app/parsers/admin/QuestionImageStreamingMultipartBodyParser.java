@@ -19,6 +19,7 @@ import play.mvc.Http;
 import play.mvc.Result;
 import services.cloud.BucketType;
 import services.cloud.PublicFileNameFormatter;
+import services.cloud.PublicStorageClient;
 
 /**
  * Question image upload implementation of the streaming multipart parser.
@@ -27,8 +28,6 @@ import services.cloud.PublicFileNameFormatter;
  * key is generated server-side using {@link services.cloud.PublicFileNameFormatter}.
  */
 public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipartBodyParser {
-  public static final long MAX_FILE_SIZE = 1L * 1024L * 1024L; // 1MB
-
   // Matches /admin/questions/questionId/hx/image/upload in the request path.
   private static final Pattern QUESTION_IMAGE_UPLOAD_PATH_PATTERN =
       Pattern.compile("/admin/questions/(\\d+)/hx/image/upload(/|$)");
@@ -40,13 +39,14 @@ public class QuestionImageStreamingMultipartBodyParser extends StreamingMultipar
       Materializer materializer,
       ErrorHandler errorHandler,
       MultipartUploadSinks streamingMultipartUploadSinks,
-      FileTypeValidation fileTypeValidation) {
+      FileTypeValidation fileTypeValidation,
+      PublicStorageClient publicStorageClient) {
     super(
         materializer,
         errorHandler,
         streamingMultipartUploadSinks,
         fileTypeValidation,
-        MAX_FILE_SIZE);
+        publicStorageClient.getFileLimitMb() * 1024L * 1024L);
   }
 
   @Override

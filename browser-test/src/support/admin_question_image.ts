@@ -96,23 +96,14 @@ export class AdminQuestionImage {
     return await uploadResponse
   }
 
-  async uploadImageFileWithMbSize(mbSize: number) {
+  async selectImageFileWithMbSize(mbSize: number) {
     const filePath = `image-size-${mbSize}-mb.png`
     const baseImage = readFileSync('src/assets/program-summary-image-wide.png')
     const targetSize = Math.floor(mbSize * 1024 * 1024)
     const padding = Buffer.alloc(Math.max(0, targetSize - baseImage.length))
     writeFileSync(filePath, Buffer.concat([baseImage, padding]))
     try {
-      // Selecting the file starts the upload. Wait for the server's response
-      // before deleting the file, because the browser reads it from disk while
-      // sending the request.
-      const uploadResponse = this.page.waitForResponse(
-        (response) =>
-          response.request().method() === 'POST' &&
-          response.url().includes('/image/upload'),
-      )
       await this.setImageFile(filePath)
-      await uploadResponse
     } finally {
       try {
         unlinkSync(filePath)
