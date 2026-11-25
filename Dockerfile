@@ -38,8 +38,15 @@ RUN set -o pipefail && \
 RUN mkdir -p "${PROJECT_LOC}"
 WORKDIR "${PROJECT_LOC}"
 
-# SBT downloads a lot at run-time.
-RUN sbt update --allow-empty
+# Resolve sbt plugins and library dependencies from the build definition alone,
+# so this layer is only rebuilt when the build definition changes, not on every
+# source change. build.sbt reads .jvmopts at load time.
+COPY "${PROJECT_NAME}"/build.sbt "${PROJECT_NAME}"/.jvmopts "${PROJECT_NAME}"/.sbtopts ./
+COPY "${PROJECT_NAME}"/project/build.properties "${PROJECT_NAME}"/project/*.sbt "${PROJECT_NAME}"/project/*.scala ./project/
+
+# scalaCompilerBridgeBinaryJar also fetches the compiler bridge, which compile
+# otherwise downloads on first use.
+RUN sbt update scalaCompilerBridgeBinaryJar
 
 ########################################################
 ### Install dependancies and build the server,       ###
