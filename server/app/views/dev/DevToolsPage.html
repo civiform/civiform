@@ -159,7 +159,7 @@
       </div>
     </li>
 
-    <!-- Localstack (dev only) -->
+    <!-- AWS emulator (dev only) -->
     <li th:if="${model.isDev}" class="usa-card tablet:grid-col-6">
       <div class="usa-card__container">
         <div class="usa-card__header">
@@ -171,7 +171,7 @@
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://localhost.localstack.cloud:4566/_aws/ses/"
+                href="http://localhost.floci.io:4566/_aws/ses/"
                 target="_blank"
                 >✉️ [[#{devtools.localstack.ses}]]</a
               >
@@ -179,7 +179,7 @@
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3"
+                href="http://civiform-local-s3.s3.localhost.floci.io:4566/"
                 target="_blank"
                 >📁 [[#{devtools.localstack.private}]]</a
               >
@@ -187,7 +187,7 @@
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
-                href="http://civiform-local-s3.localhost.localstack.cloud:4566/civiform-local-s3-public"
+                href="http://civiform-local-s3-public.s3.localhost.floci.io:4566/"
                 target="_blank"
                 >📁 [[#{devtools.localstack.public}]]</a
               >

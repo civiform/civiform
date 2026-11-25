@@ -33,7 +33,7 @@ services:
     stdin_open: true # docker run -i
     tty: true # docker run -t
 
-  localstack:
+  aws-emulator:
     ports:
       - 4566:4566
 

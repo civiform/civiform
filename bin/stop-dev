@@ -6,8 +6,8 @@ source bin/lib.sh
 docker::set_project_name_dev
 set +e # errors are OK
 
-# Default to using Localstack emulator.
-emulators::set_localstack_emulator_vars
+# Default to using the AWS emulator.
+emulators::set_aws_emulator_vars
 
 #######################################
 # Process the script's commandline args.

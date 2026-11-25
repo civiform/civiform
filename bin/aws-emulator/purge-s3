@@ -1,0 +1,9 @@
+#! /usr/bin/env bash
+
+# DOC: Purge S3 bucket in the AWS emulator.
+
+source bin/lib.sh
+source bin/aws-emulator/lib.sh
+
+aws_emulator::run_command "s3 rm s3://${APPLICANT_BUCKET_NAME}/ --recursive"
+aws_emulator::run_command "s3 rm s3://${PUBLIC_BUCKET_NAME}/ --recursive"

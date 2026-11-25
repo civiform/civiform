@@ -1,6 +1,6 @@
 export const {
   BASE_URL = 'http://civiform:9000',
-  LOCALSTACK_URL = 'http://localhost.localstack.cloud:4566',
+  AWS_EMULATOR_URL = 'http://localhost.floci.io:4566',
   MOCK_WEB_SERVICES_URL = 'http://mock-web-services:8000',
   TEST_USER_AUTH_STRATEGY = '',
   TEST_USER_LOGIN = '',

@@ -1,0 +1,12 @@
+#! /usr/bin/env bash
+
+# DOC: Verify SES email identity in the AWS emulator.
+
+source bin/lib.sh
+source bin/aws-emulator/lib.sh
+
+verify_identity_cmd="ses verify-email-identity
+  --region us-west-2
+  --email-address ${1}"
+
+aws_emulator::run_command "${verify_identity_cmd}"

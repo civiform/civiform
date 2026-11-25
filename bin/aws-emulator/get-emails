@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 source bin/lib.sh
 
-# DOC: Gets all emails sent by Civiform to the Localstack server in the dev environment. Uses jq if installed to be prettier.
+# DOC: Gets all emails sent by Civiform to the AWS emulator in the dev environment. Uses jq if installed to be prettier.
 
 if hash curl 2>/dev/null; then
   if hash jq 2>/dev/null; then

@@ -1554,15 +1554,15 @@ devtools.icons.description=See all the svg icons in CiviForm
 # Button text to view all SVG icons.
 devtools.icons.view=View All SVG Icons
 
-# Heading for the Localstack section of the dev tools page.
-devtools.localstack.title=Localstack
-# Description for the Localstack section of the dev tools page.
-devtools.localstack.description=Open S3 or SES endpoints on localstack
-# Button text to view SES emails in Localstack.
+# Heading for the AWS emulator section of the dev tools page.
+devtools.localstack.title=AWS Emulator
+# Description for the AWS emulator section of the dev tools page.
+devtools.localstack.description=Open S3 or SES endpoints on the AWS emulator
+# Button text to view SES emails in the AWS emulator.
 devtools.localstack.ses=View SES Emails
-# Button text to view the S3 private bucket in Localstack.
+# Button text to view the S3 private bucket in the AWS emulator.
 devtools.localstack.private=S3 Private Bucket
-# Button text to view the S3 public bucket in Localstack.
+# Button text to view the S3 public bucket in the AWS emulator.
 devtools.localstack.public=S3 Public Bucket
 
 # Heading for the address tools section of the dev tools page.

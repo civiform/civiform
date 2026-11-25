@@ -53,7 +53,7 @@ public final class SimpleEmail implements EmailSendClient {
     this.emailSendMetrics = emailSendMetrics;
 
     if (environment.isDev()) {
-      client = new LocalStackClient(region, config);
+      client = new AwsEmulatorClient(region, config);
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
@@ -164,14 +164,14 @@ public final class SimpleEmail implements EmailSendClient {
     }
   }
 
-  static class LocalStackClient implements Client {
-    private String LOCALSTACK_ENDPOINT_CONF_PATH = "localstack.endpoint";
+  static class AwsEmulatorClient implements Client {
+    private String AWS_EMULATOR_ENDPOINT_CONF_PATH = "aws.emulator.endpoint";
 
     private final String localEndpoint;
     private final SesClient client;
 
-    LocalStackClient(AwsRegion region, Config config) {
-      localEndpoint = checkNotNull(config).getString(LOCALSTACK_ENDPOINT_CONF_PATH);
+    AwsEmulatorClient(AwsRegion region, Config config) {
+      localEndpoint = checkNotNull(config).getString(AWS_EMULATOR_ENDPOINT_CONF_PATH);
       URI localUri;
       try {
         localUri = new URI(localEndpoint);

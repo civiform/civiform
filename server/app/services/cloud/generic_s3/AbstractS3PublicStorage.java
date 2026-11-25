@@ -48,7 +48,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new LocalStackClient(config, s3StorageUtils);
+      client = new AwsEmulatorClient(config, s3StorageUtils);
     } else if (environment.isProd()) {
       client = new AwsClient();
     } else {
@@ -151,8 +151,8 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
      * Returns the endpoint that this client represents.
      *
      * <p>This endpoint URI should *not* include any particular bucket, and instead should just link
-     * to the client's base URL. For example, "http://s3.localhost.localstack.cloud:4566" not
-     * "http://civiform-local-s3-public.s3.localhost.localstack.cloud:4566/".
+     * to the client's base URL. For example, "http://s3.localhost.floci.io:4566" not
+     * "http://civiform-local-s3-public.s3.localhost.floci.io:4566/".
      */
     URI endpoint();
 
@@ -161,8 +161,8 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
      * `/`.
      *
      * <p>The action link *should* contain the particular bucket that files will be sent to. For
-     * example, "http://civiform-local-s3-public.s3.localhost.localstack.cloud:4566/" not
-     * "http://s3.localhost.localstack.cloud:4566".
+     * example, "http://civiform-local-s3-public.s3.localhost.floci.io:4566/" not
+     * "http://s3.localhost.floci.io:4566".
      */
     String actionLink();
   }
@@ -193,24 +193,24 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     }
   }
 
-  /** A LocalStack client implementation used for local development. */
-  class LocalStackClient implements Client {
+  /** An AWS emulator client implementation used for local development. */
+  class AwsEmulatorClient implements Client {
     private final Config config;
     private final AbstractS3StorageUtils s3StorageUtils1;
 
-    LocalStackClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
+    AwsEmulatorClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
       this.config = checkNotNull(config);
       this.s3StorageUtils1 = checkNotNull(s3StorageUtils);
     }
 
     @Override
     public URI endpoint() {
-      return s3StorageUtils1.localStackEndpoint(config);
+      return s3StorageUtils1.awsEmulatorEndpoint(config);
     }
 
     @Override
     public String actionLink() {
-      return s3StorageUtils1.localStackActionLink(config, bucket, region);
+      return s3StorageUtils1.awsEmulatorActionLink(config, bucket, region);
     }
   }
 }

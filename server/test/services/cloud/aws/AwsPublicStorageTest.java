@@ -17,6 +17,7 @@ import org.junit.Test;
 import play.Environment;
 import play.Mode;
 import repository.ResetPostgres;
+import services.cloud.generic_s3.AbstractS3StorageUtils;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
@@ -66,7 +67,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsLocalStack() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsAwsEmulator() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -79,13 +80,13 @@ public class AwsPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("localstack");
+    assertThat(uploadRequest.actionLink()).contains(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
-  public void getSignedUploadRequest_testEnv_notLocalStackOrProdAws() {
+  public void getSignedUploadRequest_testEnv_notAwsEmulatorOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -98,7 +99,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).doesNotContain("localstack");
+    assertThat(uploadRequest.actionLink()).doesNotContain(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
   }
 
@@ -258,7 +259,7 @@ public class AwsPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_devEnv_endpointIsLocalStack() {
+  public void prunePublicFileStorage_devEnv_endpointIsAwsEmulator() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -272,11 +273,11 @@ public class AwsPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains(awsEmulatorHost());
   }
 
   @Test
-  public void prunePublicFileStorage_testEnv_endpointIsNotLocalStackOrProdAws() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotAwsEmulatorOrProdAws() {
     AwsPublicStorage awsPublicStorage =
         new AwsPublicStorage(
             fakeS3Client,
@@ -290,7 +291,8 @@ public class AwsPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     awsPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("localstack");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost())
+        .doesNotContain(awsEmulatorHost());
     assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("amazonaws");
   }
 
@@ -422,5 +424,12 @@ public class AwsPublicStorageTest extends ResetPostgres {
 
     // THEN we want that exception is handled internally in AwsPublicStorage and not re-thrown. This
     // test doesn't need an assert, it just verifies there was no exception.
+  }
+
+  /** The host of the configured AWS emulator endpoint, e.g. "localhost.floci.io". */
+  private String awsEmulatorHost() {
+    return URI.create(
+            instanceOf(Config.class).getString(AbstractS3StorageUtils.LOCAL_ENDPOINT_CONF_PATH))
+        .getHost();
   }
 }

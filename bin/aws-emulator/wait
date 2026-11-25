@@ -1,0 +1,37 @@
+#! /usr/bin/env bash
+
+# DOC: Poll the AWS emulator (Floci) and block until it is healthy.
+
+source bin/lib.sh
+
+emulator_endpoint="http://localhost:4566"
+
+if [ "$1" ]; then
+  emulator_endpoint="${1}"
+fi
+
+echo "Using AWS emulator endpoint: ${emulator_endpoint}"
+
+START_TIME="$(date +%s)"
+DEADLINE="$(($START_TIME + 200))"
+
+echo "Waiting for the AWS emulator to get set up..."
+
+# Floci returns compact JSON and reports SES under its signing name, "email".
+healthy() {
+  [[ "${1}" =~ \"s3\":\ ?\"(available|running)\" &&
+    "${1}" =~ \"email\":\ ?\"(available|running)\" ]]
+}
+
+readonly HEALTH_URL="${emulator_endpoint}/_floci/health"
+
+until healthy "$(curl --silent --fail --max-time 2 "${HEALTH_URL}")"; do
+  if (("$(date +%s)" > "${DEADLINE}")); then
+    out::error "deadline exceeded waiting for AWS emulator start"
+    exit 1
+  fi
+  sleep 1
+done
+
+bin/aws-emulator/mk-s3
+bin/aws-emulator/ses-verify-identity "noreply@fake.identity"
