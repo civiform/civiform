@@ -15,10 +15,10 @@ name: Browser Tests - Refresh Shard Durations
 
 on:
   schedule:
-    # Wednesdays at 17:17 UTC (9:17am Pacific, 12:17pm Eastern standard time).
-    # Results artifacts are kept for 3 days, so a midweek run has the most PR
-    # runs to draw on.
-    - cron: '17 17 * * 3'
+    # Thursdays at 11:00 UTC (3am PST / 4am PDT, 6am EST / 7am EDT), before the
+    # workday. Results artifacts are kept for 3 days, so this draws on the
+    # Monday to Wednesday PR runs.
+    - cron: '0 11 * * 4'
   workflow_dispatch:
     inputs:
       force:
