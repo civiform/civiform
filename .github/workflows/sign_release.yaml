@@ -1,0 +1,116 @@
+# Signs the released docker image and uploads the signature to the release.
+#
+# bin/create-release retags a SNAPSHOT image with docker pull, tag and push,
+# which gives the release tag a new digest. A signature made at build time
+# would not apply to it, so signing has to happen after the release is
+# published. This workflow resolves the digest of the final release tag,
+# writes it to a small file, and signs that file with Sigstore keyless signing
+# (the signing identity is this workflow, so there are no keys to store or
+# rotate). The file and its *.sigstore.json bundle are attached to the GitHub
+# Release, which is where the OpenSSF Scorecard Signed-Releases check looks.
+#
+# How to verify a release is described in SECURITY.md.
+#
+# A release published from a tag runs the copy of this workflow that exists at
+# that tag. For a release whose tag does not contain this file (for example a
+# release/* branch cut before it was added), run this workflow by hand from
+# main with workflow_dispatch and the tag name.
+name: Sign Release
+
+on:
+  release:
+    types: ['published']
+
+  workflow_dispatch:
+    inputs:
+      tag_name:
+        description: 'The tag name of a published release, e.g. v3.38.0'
+        required: true
+
+permissions: read-all
+
+concurrency:
+  group: sign-release-${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+  cancel-in-progress: false
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    permissions:
+      contents: write # upload the signature to the release
+      id-token: write # keyless signing identity
+
+    env:
+      # Get the tag value from the workflow dispatch or the release event info
+      TAG_NAME: ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      IMAGE: docker.io/civiform/civiform
+      # Only this workflow, run from main, a release branch or a release tag,
+      # may produce a signature we accept.
+      IDENTITY_REGEXP: '^https://github\.com/civiform/civiform/\.github/workflows/sign_release\.yaml@refs/(heads/main|heads/release/.+|tags/v[0-9]+\.[0-9]+\.[0-9]+)$'
+      OIDC_ISSUER: https://token.actions.githubusercontent.com
+
+    steps:
+      - name: Check the tag name and that the release is published
+        run: |
+          if ! [[ "$TAG_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Unexpected tag name: $TAG_NAME" >&2
+            exit 1
+          fi
+          is_draft=$(gh release view "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --json isDraft --jq .isDraft)
+          if [[ "$is_draft" != "false" ]]; then
+            echo "Release $TAG_NAME is not published (isDraft=$is_draft)" >&2
+            exit 1
+          fi
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@881c63bd87e38389154debd8331404ce7ca8a3ab # v4.1.4
+        with:
+          cosign-release: 'v3.1.5'
+
+      - name: Write the release image digest to a file
+        run: |
+          digest=$(docker buildx imagetools inspect "${IMAGE}:${TAG_NAME}" --format '{{.Manifest.Digest}}')
+          if ! [[ "$digest" =~ ^sha256:[0-9a-f]{64}$ ]]; then
+            echo "Unexpected digest: $digest" >&2
+            exit 1
+          fi
+          file="civiform-civiform_${TAG_NAME//./_}.digest.txt"
+          echo "${IMAGE}:${TAG_NAME}@${digest}" > "$file"
+          echo "FILE=$file" >> "$GITHUB_ENV"
+          echo "DIGEST=$digest" >> "$GITHUB_ENV"
+          cat "$file"
+
+      - name: Sign the digest file and verify the signature
+        run: |
+          cosign sign-blob --yes --bundle "${FILE}.sigstore.json" "$FILE"
+          cosign verify-blob \
+            --bundle "${FILE}.sigstore.json" \
+            --certificate-identity-regexp "$IDENTITY_REGEXP" \
+            --certificate-oidc-issuer "$OIDC_ISSUER" \
+            "$FILE"
+
+      - name: Check the tag still points at the signed digest
+        run: |
+          current=$(docker buildx imagetools inspect "${IMAGE}:${TAG_NAME}" --format '{{.Manifest.Digest}}')
+          if [[ "$current" != "$DIGEST" ]]; then
+            echo "${IMAGE}:${TAG_NAME} changed from $DIGEST to $current while signing" >&2
+            exit 1
+          fi
+
+      - name: Upload the digest file and signature to release ${{ github.event.inputs.tag_name || github.event.release.tag_name }}
+        run: |
+          gh release upload "$TAG_NAME" "$FILE" "${FILE}.sigstore.json" --clobber --repo "$GITHUB_REPOSITORY"
+
+      - name: Download the uploaded assets and verify them
+        run: |
+          mkdir verify
+          gh release download "$TAG_NAME" --repo "$GITHUB_REPOSITORY" --dir verify \
+            --pattern "$FILE" --pattern "${FILE}.sigstore.json"
+          cosign verify-blob \
+            --bundle "verify/${FILE}.sigstore.json" \
+            --certificate-identity-regexp "$IDENTITY_REGEXP" \
+            --certificate-oidc-issuer "$OIDC_ISSUER" \
+            "verify/${FILE}"
