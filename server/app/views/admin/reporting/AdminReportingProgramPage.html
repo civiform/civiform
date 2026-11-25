@@ -7,7 +7,7 @@
   <div class="my-8">
     <p th:text="#{reportingProgram.dataDelay}"></p>
   </div>
-  <div class="grid-container section usa-prose">
+  <div class="section">
     <table class="usa-table">
       <caption
         th:text="#{reportingProgram.caption.submissionsByMonth}"
@@ -28,10 +28,7 @@
       <tbody>
         <th:block th:each="stat : ${model.monthlySubmissionsForProgram}">
           <tr>
-            <th
-              scope="row"
-              th:text="${#dates.format(stat.timestamp.get(), 'MM/yy')}"
-            ></th>
+            <th scope="row" th:text="${model.formatMonth(stat)}"></th>
             <td th:text="${stat.applicationCount}"></td>
             <td
               th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"

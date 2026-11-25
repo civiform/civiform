@@ -3,6 +3,7 @@ package views.admin.reporting;
 import lombok.Builder;
 import lombok.Data;
 import modules.MainModule;
+import services.reporting.ApplicationSubmissionsStat;
 import services.reporting.ReportingService.MonthlyStats;
 import views.BaseViewModel;
 
@@ -10,6 +11,7 @@ import views.BaseViewModel;
 @Builder
 public class AdminReportingPageViewModel implements BaseViewModel {
   private final MonthlyStats monthlyStats;
+  private final boolean useDeterministicStats;
 
   public String getDetailsUrl(String programName) {
     return controllers.admin.routes.AdminReportingController.show(
@@ -18,7 +20,11 @@ public class AdminReportingPageViewModel implements BaseViewModel {
   }
 
   public String formatDuration(double durationSeconds) {
-    return AdminReportingUtils.formatDuration(durationSeconds);
+    return AdminReportingUtils.formatDuration(durationSeconds, useDeterministicStats);
+  }
+
+  public String formatMonth(ApplicationSubmissionsStat stat) {
+    return AdminReportingUtils.formatMonth(stat, useDeterministicStats);
   }
 
   public String getDownloadCsvUrl(String csvName) {

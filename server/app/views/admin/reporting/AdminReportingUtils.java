@@ -1,9 +1,42 @@
 package views.admin.reporting;
 
+import java.text.SimpleDateFormat;
 import java.time.Duration;
+import services.reporting.ApplicationSubmissionsStat;
 
 /** Utility methods for admin reporting views. */
 public final class AdminReportingUtils {
+  /** Duration shown when {@code reporting_use_deterministic_stats} is enabled. */
+  public static final String DETERMINISTIC_DURATION = "11:11:11";
+
+  /** Month shown when {@code reporting_use_deterministic_stats} is enabled. */
+  public static final String DETERMINISTIC_MONTH = "MM/YY";
+
+  /**
+   * Formats a duration for display. Browser snapshot tests enable {@code
+   * reporting_use_deterministic_stats} because submission times vary between runs, so a fixed value
+   * is returned in that case.
+   */
+  public static String formatDuration(double durationSeconds, boolean useDeterministicStats) {
+    if (useDeterministicStats) {
+      return DETERMINISTIC_DURATION;
+    }
+
+    return formatDuration(durationSeconds);
+  }
+
+  /**
+   * Formats the month of a stat as MM/yy. Returns a fixed value when {@code
+   * reporting_use_deterministic_stats} is enabled.
+   */
+  public static String formatMonth(ApplicationSubmissionsStat stat, boolean useDeterministicStats) {
+    if (useDeterministicStats) {
+      return DETERMINISTIC_MONTH;
+    }
+
+    return new SimpleDateFormat("MM/yy").format(stat.timestamp().get());
+  }
+
   /**
    * Formats a duration in seconds to a human-readable string format.
    *
