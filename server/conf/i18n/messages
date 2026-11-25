@@ -1455,6 +1455,18 @@ button.downloadCsv=Download CSV
 caption.submissionsByMonth=Submissions by month (all programs)
 # Column header for month
 content.month=Month
+# Heading above the numbered notes that explain the time to complete columns in a reporting table
+heading.reportingNotes=Notes
+# Screen reader label for a numbered link in a reporting table column header that jumps to the matching note below the table. {0} is the note number.
+link.ariaLabel.reportingNote=Note {0}
+# Note explaining the 25th percentile time to complete column in a reporting table
+content.reportingNoteP25=The fastest 25 percent of applicants finished in this time or less.
+# Note explaining the median time to complete column in a reporting table
+content.reportingNoteMedian=Half of all applicants finished in this time or less.
+# Note explaining the 75th percentile time to complete column in a reporting table
+content.reportingNoteP75=Most applicants (75 percent) finished in this time or less.
+# Note explaining the 99th percentile time to complete column in a reporting table
+content.reportingNoteP99=Almost all applicants (99 percent) finished in this time or less.
 
 #------------------------------------------------------------------------------#
 #  ADMIN REPORTING PROGRAM                                                     #

@@ -1,5 +1,6 @@
 package views.admin.reporting;
 
+import java.util.Optional;
 import javax.inject.Inject;
 import play.i18n.Messages;
 import views.admin.AdminLayout;
@@ -16,6 +17,17 @@ public final class AdminReportingProgramPageView
   @Override
   protected String pageTitle(AdminReportingProgramPageViewModel model, Messages messages) {
     return "Reporting";
+  }
+
+  @Override
+  protected String pageHeading(AdminReportingProgramPageViewModel model, Messages messages) {
+    return messages.at("reportingProgram.heading", model.getEnUSLocalizedProgramName());
+  }
+
+  @Override
+  protected Optional<String> pageIntro(
+      AdminReportingProgramPageViewModel model, Messages messages) {
+    return Optional.of(messages.at("reportingProgram.dataDelay"));
   }
 
   @Override

@@ -13,9 +13,14 @@ public class AdminReportingProgramPageViewModel implements BaseViewModel {
   private final String programSlug;
   private final String programName;
   private final String enUSLocalizedProgramName;
+  private final boolean useDeterministicStats;
 
   public String formatDuration(double durationSeconds) {
-    return AdminReportingUtils.formatDuration(durationSeconds);
+    return AdminReportingUtils.formatDuration(durationSeconds, useDeterministicStats);
+  }
+
+  public String formatMonth(ApplicationSubmissionsStat stat) {
+    return AdminReportingUtils.formatMonth(stat, useDeterministicStats);
   }
 
   public String getDownloadProgramCsvUrl(String programSlug) {

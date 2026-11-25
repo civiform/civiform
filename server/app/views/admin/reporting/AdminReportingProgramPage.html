@@ -1,59 +1,80 @@
 <!--/*@thymesVar id="templateGlobals" type="views.shared.TemplateGlobals"*/-->
 <!--/*@thymesVar id="model" type="views.admin.reporting.AdminReportingProgramPageViewModel"*/-->
 <th:block th:fragment="content">
-  <h1
-    th:text="${#messages.msg('reportingProgram.heading', model.enUSLocalizedProgramName)}"
-  ></h1>
-  <div class="my-8">
-    <p th:text="#{reportingProgram.dataDelay}"></p>
-  </div>
-  <div class="grid-container section usa-prose">
-    <table class="usa-table">
-      <caption
-        th:text="#{reportingProgram.caption.submissionsByMonth}"
-      ></caption>
+  <section class="spacing-2" aria-labelledby="by-month-heading">
+    <h2
+      id="by-month-heading"
+      th:text="#{reportingProgram.caption.submissionsByMonth}"
+    ></h2>
+    <table
+      class="usa-table usa-table--striped width-full"
+      aria-labelledby="by-month-heading"
+    >
       <thead>
         <tr>
           <th scope="col" th:text="#{reportingProgram.month}"></th>
           <th scope="col" th:text="#{reportingProgram.submissions}"></th>
-          <th scope="col" th:text="#{reportingProgram.timeToCompleteP25}"></th>
-          <th
-            scope="col"
-            th:text="#{reportingProgram.medianTimeToComplete}"
-          ></th>
-          <th scope="col" th:text="#{reportingProgram.timeToCompleteP75}"></th>
-          <th scope="col" th:text="#{reportingProgram.timeToCompleteP99}"></th>
+          <th scope="col">
+            <span th:text="#{reportingProgram.timeToCompleteP25}"></span>
+            <a
+              th:replace="~{admin/reporting/ReportingTableFragments :: noteRef('by-month', 1)}"
+            ></a>
+          </th>
+          <th scope="col">
+            <span th:text="#{reportingProgram.medianTimeToComplete}"></span>
+            <a
+              th:replace="~{admin/reporting/ReportingTableFragments :: noteRef('by-month', 2)}"
+            ></a>
+          </th>
+          <th scope="col">
+            <span th:text="#{reportingProgram.timeToCompleteP75}"></span>
+            <a
+              th:replace="~{admin/reporting/ReportingTableFragments :: noteRef('by-month', 3)}"
+            ></a>
+          </th>
+          <th scope="col">
+            <span th:text="#{reportingProgram.timeToCompleteP99}"></span>
+            <a
+              th:replace="~{admin/reporting/ReportingTableFragments :: noteRef('by-month', 4)}"
+            ></a>
+          </th>
         </tr>
       </thead>
       <tbody>
-        <th:block th:each="stat : ${model.monthlySubmissionsForProgram}">
-          <tr>
-            <th
-              scope="row"
-              th:text="${#dates.format(stat.timestamp.get(), 'MM/yy')}"
-            ></th>
-            <td th:text="${stat.applicationCount}"></td>
-            <td
-              th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
-            ></td>
-            <td
-              th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
-            ></td>
-            <td
-              th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
-            ></td>
-            <td
-              th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
-            ></td>
-          </tr>
-        </th:block>
+        <tr th:each="stat : ${model.monthlySubmissionsForProgram}">
+          <th
+            scope="row"
+            class="text-normal"
+            th:text="${model.formatMonth(stat)}"
+          ></th>
+          <td class="text-right" th:text="${stat.applicationCount}"></td>
+          <td
+            class="text-right"
+            th:text="${model.formatDuration(stat.submissionDurationSeconds25p)}"
+          ></td>
+          <td
+            class="text-right"
+            th:text="${model.formatDuration(stat.submissionDurationSeconds50p)}"
+          ></td>
+          <td
+            class="text-right"
+            th:text="${model.formatDuration(stat.submissionDurationSeconds75p)}"
+          ></td>
+          <td
+            class="text-right"
+            th:text="${model.formatDuration(stat.submissionDurationSeconds99p)}"
+          ></td>
+        </tr>
       </tbody>
     </table>
     <a
-      class="usa-button"
+      class="usa-button margin-top-2"
       th:href="${model.getDownloadProgramCsvUrl(model.programSlug)}"
       th:text="#{reportingProgram.downloadCsv}"
     >
     </a>
-  </div>
+    <th:block
+      th:replace="~{admin/reporting/ReportingTableFragments :: notes('by-month')}"
+    ></th:block>
+  </section>
 </th:block>
