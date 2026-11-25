@@ -18,6 +18,7 @@ import {
   waitForPageJsLoad,
   ClientInformation,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('view program statuses', () => {
   test.beforeEach(async ({page}) => {
@@ -510,10 +511,11 @@ test.describe('view program statuses', () => {
       async ({
         page,
         adminPrograms,
-        adminQuestions,
         applicantQuestions,
         adminProgramStatuses,
+        seeding,
       }) => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
 
         // Add a program with a single question that is used for asserting downloaded content.
@@ -523,13 +525,10 @@ test.describe('view program statuses', () => {
         )
         await adminProgramStatuses.createStatus(approvedStatusName)
         await adminProgramStatuses.createStatus(rejectedStatusName)
-        await adminQuestions.addTextQuestion({
-          questionName: 'statuses-fave-color-q',
-        })
         await adminPrograms.editProgramBlock(
           programForFilteringName,
           'dummy description',
-          ['statuses-fave-color-q'],
+          [SAMPLE_QUESTIONS.text],
         )
         await adminPrograms.publishProgram(programForFilteringName)
         await adminPrograms.expectActiveProgram(programForFilteringName)
@@ -593,7 +592,7 @@ test.describe('view program statuses', () => {
         await adminPrograms.getJson(applyFilters)
       expect(noStatusFilteredJsonContent).toHaveLength(1)
       expect(
-        noStatusFilteredJsonContent[0].application.statusesfavecolorq.text,
+        noStatusFilteredJsonContent[0].application.sample_text_question.text,
       ).toEqual(favoriteColorAnswer)
 
       // Ensure that the application is excluded if the filter excludes it.
@@ -702,33 +701,25 @@ test.describe('view program statuses', () => {
 
   test.describe('correctly shows eligibility', () => {
     const eligibilityProgramName = 'Test program for eligibility status'
-    const eligibilityQuestionId = 'eligibility-number-q'
+    const eligibilityQuestionId = SAMPLE_QUESTIONS.number
 
     test.beforeEach(
       async ({
         page,
-        adminQuestions,
         adminPredicates,
         applicantQuestions,
         adminPrograms,
+        seeding,
       }) => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
 
         // Create a program without eligibility
-        await adminQuestions.addNameQuestion({
-          questionName: 'NameQuestion',
-        })
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-        })
-        await adminQuestions.addTextQuestion({
-          questionName: 'statuses-fave-color-q',
-        })
         await adminPrograms.addProgram(eligibilityProgramName)
         await adminPrograms.editProgramBlock(
           eligibilityProgramName,
           'first description',
-          [eligibilityQuestionId, 'statuses-fave-color-q', 'NameQuestion'],
+          [eligibilityQuestionId, SAMPLE_QUESTIONS.text, SAMPLE_QUESTIONS.name],
         )
         await adminPrograms.gotoAdminProgramsPage()
         await adminPrograms.publishProgram(eligibilityProgramName)
