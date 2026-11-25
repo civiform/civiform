@@ -1,11 +1,11 @@
 import {test, expect} from '../../support/civiform_fixtures'
 import {
-  AdminQuestions,
   loginAsAdmin,
   logout,
   validateAccessibility,
   validateScreenshot,
 } from '../../support'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../../support/seeding'
 import {Eligibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
@@ -13,57 +13,46 @@ test.describe('Applicant navigation flow', () => {
   test.describe('navigation with eligibility conditions', () => {
     // Create a program with 3 questions and an eligibility condition.
     const fullProgramName = 'Test program for eligibility navigation flows'
-    const eligibilityQuestionId = 'nav-predicate-number-q'
+    const eligibilityQuestionId = SAMPLE_QUESTIONS.number
 
-    test.beforeEach(
-      async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
-        await loginAsAdmin(page)
+    test.beforeEach(async ({page, adminPredicates, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
 
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-        })
-        await adminQuestions.addEmailQuestion({
-          questionName: 'nav-predicate-email-q',
-        })
-        await adminQuestions.addTextQuestion({
-          questionName: 'nav-predicate-text-q',
-        })
+      // Add the full program.
+      await adminPrograms.addProgram(fullProgramName)
+      await adminPrograms.editProgramBlock(
+        fullProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        fullProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicates({
+        questionName: eligibilityQuestionId,
+        scalar: 'number',
+        operator: 'is equal to',
+        value: '5',
+      })
 
-        // Add the full program.
-        await adminPrograms.addProgram(fullProgramName)
-        await adminPrograms.editProgramBlock(
-          fullProgramName,
-          'first description',
-          ['nav-predicate-number-q'],
-        )
-        await adminPrograms.goToEditBlockEligibilityPredicatePage(
-          fullProgramName,
-          'Screen 1',
-        )
-        await adminPredicates.addPredicates({
-          questionName: 'nav-predicate-number-q',
-          scalar: 'number',
-          operator: 'is equal to',
-          value: '5',
-        })
+      await adminPrograms.addProgramBlock(
+        fullProgramName,
+        'second description',
+        [SAMPLE_QUESTIONS.email],
+      )
 
-        await adminPrograms.addProgramBlock(
-          fullProgramName,
-          'second description',
-          ['nav-predicate-email-q'],
-        )
+      await adminPrograms.addProgramBlock(
+        fullProgramName,
+        'third description',
+        [SAMPLE_QUESTIONS.text],
+      )
 
-        await adminPrograms.addProgramBlock(
-          fullProgramName,
-          'third description',
-          ['nav-predicate-text-q'],
-        )
-
-        await adminPrograms.gotoAdminProgramsPage()
-        await adminPrograms.publishProgram(fullProgramName)
-        await logout(page)
-      },
-    )
+      await adminPrograms.gotoAdminProgramsPage()
+      await adminPrograms.publishProgram(fullProgramName)
+      await logout(page)
+    })
 
     test("does not show 'not eligible' when there is no answer", async ({
       applicantQuestions,
@@ -100,7 +89,7 @@ test.describe('Applicant navigation flow', () => {
 
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
+          SAMPLE_QUESTION_TEXT.number,
         )
         await validateScreenshot(page, 'application-ineligible-review-page', {
           mobileScreenshot: true,
@@ -120,12 +109,12 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickContinue()
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
+          SAMPLE_QUESTION_TEXT.number,
         )
         await applicantQuestions.clickSubmitApplication()
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
+          SAMPLE_QUESTION_TEXT.number,
         )
       })
     })
@@ -234,7 +223,7 @@ test.describe('Applicant navigation flow', () => {
         await applicantQuestions.clickReview()
         await applicantQuestions.expectMayNotBeEligibileAlertToBeVisible()
         await applicantQuestions.expectIneligibleQuestionInReviewPageAlert(
-          AdminQuestions.NUMBER_QUESTION_TEXT,
+          SAMPLE_QUESTION_TEXT.number,
         )
         await validateAccessibility(page)
       })
