@@ -907,6 +907,11 @@
         "description": "Enables populating more fields in OIDC logout requests to applicant identity provider.",
         "type": "bool"
       },
+      "APPLICANT_OIDC_ALLOW_MISSING_EMAIL_VERIFIED": {
+        "mode": "ADMIN_READABLE",
+        "description": "Allows an applicant login to match an existing account by email address when the applicant identity provider does not send the email_verified claim. Leave this off unless your identity provider omits the claim and trusted intermediaries or returning applicants can't log in. When it is off, a login without the claim can't take over an existing account that has no identity provider ID. A provider that sends email_verified as false is always refused.",
+        "type": "bool"
+      },
       "SUGGEST_PROGRAMS_ON_APPLICATION_CONFIRMATION_PAGE": {
         "mode": "ADMIN_WRITEABLE",
         "description": "Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an application.",

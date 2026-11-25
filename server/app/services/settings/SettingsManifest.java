@@ -1046,6 +1046,17 @@ public final class SettingsManifest extends AbstractSettingsManifest {
   }
 
   /**
+   * Allows an applicant login to match an existing account by email address when the applicant
+   * identity provider does not send the email_verified claim. Leave this off unless your identity
+   * provider omits the claim and trusted intermediaries or returning applicants can't log in. When
+   * it is off, a login without the claim can't take over an existing account that has no identity
+   * provider ID. A provider that sends email_verified as false is always refused.
+   */
+  public boolean getApplicantOidcAllowMissingEmailVerified() {
+    return getBool("APPLICANT_OIDC_ALLOW_MISSING_EMAIL_VERIFIED");
+  }
+
+  /**
    * Upsell: Add programs cards to the confirmation screen that an applicant sees after finishing an
    * application.
    */
@@ -2322,6 +2333,19 @@ public final class SettingsManifest extends AbstractSettingsManifest {
                           "APPLICANT_OIDC_ENHANCED_LOGOUT_ENABLED",
                           "Enables populating more fields in OIDC logout requests to applicant"
                               + " identity provider.",
+                          /* isRequired= */ false,
+                          SettingType.BOOLEAN,
+                          SettingMode.ADMIN_READABLE),
+                      SettingDescription.create(
+                          "APPLICANT_OIDC_ALLOW_MISSING_EMAIL_VERIFIED",
+                          "Allows an applicant login to match an existing account by email address"
+                              + " when the applicant identity provider does not send the"
+                              + " email_verified claim. Leave this off unless your identity"
+                              + " provider omits the claim and trusted intermediaries or returning"
+                              + " applicants can't log in. When it is off, a login without the"
+                              + " claim can't take over an existing account that has no identity"
+                              + " provider ID. A provider that sends email_verified as false is"
+                              + " always refused.",
                           /* isRequired= */ false,
                           SettingType.BOOLEAN,
                           SettingMode.ADMIN_READABLE),
