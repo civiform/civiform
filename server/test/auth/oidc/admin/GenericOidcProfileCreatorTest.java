@@ -51,6 +51,19 @@ public class GenericOidcProfileCreatorTest extends ResetPostgres {
   }
 
   @Test
+  public void getExistingApplicant_missingEmailVerifiedClaim_fallsBackToEmail() {
+    // The applicant setting that rejects a missing claim doesn't apply to admin logins.
+    var account = resourceCreator.insertAccount().setEmailAddress("email@example.com");
+    account.save();
+    OidcProfile profile = new OidcProfile();
+    profile.addAttribute("email", "email@example.com");
+    profile.addAttribute("iss", "issuer");
+    profile.setId("other-subject");
+
+    assertThat(genericOidcProfileCreator.getExistingApplicant(profile)).isPresent();
+  }
+
+  @Test
   public void mergeCiviFormProfile_adminSucceeds() {
     OidcProfile profile = new OidcProfile();
     profile.addAttribute("email", "email@example.com");

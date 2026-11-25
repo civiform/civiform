@@ -11,7 +11,9 @@ import auth.Role;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import io.ebean.DuplicateKeyException;
 import java.util.Optional;
+import java.util.concurrent.CompletionException;
 import java.util.function.Function;
 import javax.inject.Provider;
 import models.AccountModel;
@@ -239,8 +241,19 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         newMergeStage = NewGuestMergeLaunchStage.ENABLED;
       }
     }
-    return civiFormProfileMerger.mergeProfiles(
-        existingApplicant, guestProfile, mergeFunction, newMergeStage);
+    try {
+      return civiFormProfileMerger.mergeProfiles(
+          existingApplicant, guestProfile, mergeFunction, newMergeStage);
+    } catch (DuplicateKeyException | CompletionException e) {
+      if (e instanceof CompletionException && !(e.getCause() instanceof DuplicateKeyException)) {
+        throw e;
+      }
+      // The email is already on an account this login was not allowed to claim, because the
+      // identity provider marked the email unverified. The transaction rolled back, so no account
+      // was created or changed.
+      logger.warn("Rejecting OIDC login: the email belongs to an account it can't be linked to.");
+      return Optional.empty();
+    }
   }
 
   /**
@@ -309,7 +322,24 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
     }
 
     // For pre-existing deployments before April 2022, users will exist without an
-    // authority ID and will be keyed on their email.
+    // authority ID and will be keyed on their email. Trusted intermediaries added by email also
+    // have no authority ID until their first login. Anyone who can register an address at the
+    // identity provider could claim such an account, so only match on an email the provider hasn't
+    // marked unverified. Applicant providers must also send email_verified, unless the deployment
+    // allows a missing claim.
+    Optional<Boolean> emailVerified = getEmailVerifiedClaim(profile);
+    if (emailVerified.isPresent() && !emailVerified.get()) {
+      logger.debug("Not looking up user by email because the email is marked unverified.");
+      return Optional.empty();
+    }
+    if (emailVerified.isEmpty()
+        && identityProviderType() == IdentityProviderType.APPLICANT_IDENTITY_PROVIDER
+        && !settingsManifest.getApplicantOidcAllowMissingEmailVerified()) {
+      logger.info(
+          "Not looking up user by email because the identity provider did not send"
+              + " email_verified. Set APPLICANT_OIDC_ALLOW_MISSING_EMAIL_VERIFIED to allow it.");
+      return Optional.empty();
+    }
     String userEmail = profile.getAttribute(emailAttributeName(), String.class);
     logger.debug("Looking up user using email {}", userEmail);
     return accountRepositoryProvider
@@ -317,6 +347,23 @@ public abstract class CiviformOidcProfileCreator extends OidcProfileCreator {
         .lookupApplicantByEmail(userEmail)
         .toCompletableFuture()
         .join();
+  }
+
+  /** Returns the {@code email_verified} claim, or empty if it is missing or not true or false. */
+  private static Optional<Boolean> getEmailVerifiedClaim(OidcProfile profile) {
+    Object claim = profile.getAttribute("email_verified");
+    if (claim instanceof Boolean verified) {
+      return Optional.of(verified);
+    }
+    if (claim instanceof String text) {
+      if (text.equalsIgnoreCase("true")) {
+        return Optional.of(true);
+      }
+      if (text.equalsIgnoreCase("false")) {
+        return Optional.of(false);
+      }
+    }
+    return Optional.empty();
   }
 
   protected final boolean isTrustedIntermediary(CiviFormProfile profile) {

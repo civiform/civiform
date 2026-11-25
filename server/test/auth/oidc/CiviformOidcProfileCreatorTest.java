@@ -65,9 +65,18 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
 
   private CiviformOidcProfileCreator getOidcProfileCreator(
       boolean enhancedLogoutEnabled, boolean includePhoneScope) {
+    return getOidcProfileCreator(
+        enhancedLogoutEnabled, includePhoneScope, /* allowMissingEmailVerified= */ false);
+  }
+
+  private CiviformOidcProfileCreator getOidcProfileCreator(
+      boolean enhancedLogoutEnabled, boolean includePhoneScope, boolean allowMissingEmailVerified) {
     ImmutableMap.Builder<String, Object> configMapBuilder =
         ImmutableMap.<String, Object>builder()
-            .put("applicant_oidc_enhanced_logout_enabled", String.valueOf(enhancedLogoutEnabled));
+            .put("applicant_oidc_enhanced_logout_enabled", String.valueOf(enhancedLogoutEnabled))
+            .put(
+                "applicant_oidc_allow_missing_email_verified",
+                String.valueOf(allowMissingEmailVerified));
 
     Optional<String> phoneNumberAttribute = Optional.empty();
 
@@ -104,12 +113,148 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     return getOidcProfileCreator(false, false);
   }
 
+  private CiviformOidcProfileCreator getOidcProfileCreatorAllowingMissingEmailVerified() {
+    return getOidcProfileCreator(false, false, /* allowMissingEmailVerified= */ true);
+  }
+
   private CiviformOidcProfileCreator getOidcProfileCreatorWithEnhancedLogoutEnabled() {
     return getOidcProfileCreator(true, false);
   }
 
   private CiviformOidcProfileCreator getOidcProfileCreatorWithPhoneScope() {
     return getOidcProfileCreator(false, true);
+  }
+
+  private OidcProfile profileWithDifferentSubject(Object emailVerified) {
+    OidcProfile other = new OidcProfile();
+    other.addAttribute("user_emailid", EMAIL);
+    if (emailVerified != null) {
+      other.addAttribute("email_verified", emailVerified);
+    }
+    other.addAttribute("iss", ISSUER);
+    other.setId("other-subject");
+    other.setIdTokenString(ID_TOKEN_STRING);
+    return other;
+  }
+
+  @Test
+  public void getExistingApplicant_unverifiedEmail_doesNotFallBackToEmail() {
+    resourceCreator.insertAccount().setEmailAddress(EMAIL).save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreator().getExistingApplicant(profileWithDifferentSubject(false));
+
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_unverifiedEmailAsString_doesNotFallBackToEmail() {
+    resourceCreator.insertAccount().setEmailAddress(EMAIL).save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreator().getExistingApplicant(profileWithDifferentSubject("false"));
+
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_missingEmailVerifiedClaim_doesNotFallBackToEmail() {
+    resourceCreator.insertAccount().setEmailAddress(EMAIL).save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreator().getExistingApplicant(profileWithDifferentSubject(null));
+
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_missingEmailVerifiedClaim_settingOn_fallsBackToEmail() {
+    // A deployment whose identity provider doesn't send the claim can turn the setting on, which
+    // is how a trusted intermediary added by email gets their account at first login.
+    var emailAccount = resourceCreator.insertAccount().setEmailAddress(EMAIL);
+    emailAccount.save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreatorAllowingMissingEmailVerified()
+            .getExistingApplicant(profileWithDifferentSubject(null));
+
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().getAccount().id).isEqualTo(emailAccount.id);
+  }
+
+  @Test
+  public void getExistingApplicant_unverifiedEmail_settingOn_doesNotFallBackToEmail() {
+    resourceCreator.insertAccount().setEmailAddress(EMAIL).save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreatorAllowingMissingEmailVerified()
+            .getExistingApplicant(profileWithDifferentSubject(false));
+
+    assertThat(applicant).isEmpty();
+  }
+
+  @Test
+  public void getExistingApplicant_verifiedEmailAsString_fallsBackToEmail() {
+    var emailAccount = resourceCreator.insertAccount().setEmailAddress(EMAIL);
+    emailAccount.save();
+
+    Optional<ApplicantModel> applicant =
+        getOidcProfileCreator().getExistingApplicant(profileWithDifferentSubject("true"));
+
+    assertThat(applicant).isPresent();
+    assertThat(applicant.get().getAccount().id).isEqualTo(emailAccount.id);
+  }
+
+  @Test
+  public void
+      innerCreate_unverifiedEmailMatchingExistingAccount_failsLoginAndLeavesAccountUnbound() {
+    var victim = resourceCreator.insertAccount().setEmailAddress(EMAIL);
+    victim.save();
+
+    Optional<UserProfile> result =
+        getOidcProfileCreator()
+            .innerCreate(
+                Optional.of(profileWithDifferentSubject(false)),
+                /* guestProfile= */ Optional.empty());
+
+    assertThat(result).isEmpty();
+    victim.refresh();
+    assertThat(victim.getAuthorityId()).isNull();
+  }
+
+  @Test
+  public void innerCreate_trustedIntermediaryAddedByEmail_missingClaim_failsLogin() {
+    accountRepository.addTrustedIntermediaryToGroup(tiGroup.id, EMAIL);
+    AccountModel tiAccount = accountRepository.lookupAccountByEmail(EMAIL).orElseThrow();
+
+    Optional<UserProfile> result =
+        getOidcProfileCreator()
+            .innerCreate(
+                Optional.of(profileWithDifferentSubject(null)),
+                /* guestProfile= */ Optional.empty());
+
+    assertThat(result).isEmpty();
+    tiAccount.refresh();
+    assertThat(tiAccount.getAuthorityId()).isNull();
+  }
+
+  @Test
+  public void innerCreate_trustedIntermediaryAddedByEmail_missingClaim_settingOn_logsIn() {
+    accountRepository.addTrustedIntermediaryToGroup(tiGroup.id, EMAIL);
+    AccountModel tiAccount = accountRepository.lookupAccountByEmail(EMAIL).orElseThrow();
+
+    Optional<UserProfile> result =
+        getOidcProfileCreatorAllowingMissingEmailVerified()
+            .innerCreate(
+                Optional.of(profileWithDifferentSubject(null)),
+                /* guestProfile= */ Optional.empty());
+
+    assertThat(result).isPresent();
+    assertThat(((CiviFormProfileData) result.get()).getEmail()).isEqualTo(EMAIL);
+    tiAccount.refresh();
+    assertThat(tiAccount.getMemberOfGroup()).isPresent();
+    assertThat(accountRepository.lookupAccountByEmail(EMAIL).orElseThrow().id)
+        .isEqualTo(tiAccount.id);
   }
 
   @Test
@@ -122,6 +267,7 @@ public class CiviformOidcProfileCreatorTest extends ResetPostgres {
     var emailAccount = resourceCreator.insertAccount().setEmailAddress(EMAIL);
     emailAccount.save();
     CiviformOidcProfileCreator oidcProfileCreator = getOidcProfileCreator();
+    oidcProfile.addAttribute("email_verified", true);
 
     // Execute.
     Optional<ApplicantModel> applicant = oidcProfileCreator.getExistingApplicant(oidcProfile);
