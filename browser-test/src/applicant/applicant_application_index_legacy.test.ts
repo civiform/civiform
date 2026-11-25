@@ -11,6 +11,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 import {Page} from '@playwright/test'
 import {ProgramCategories, ProgramVisibility} from '../support/admin_programs'
 import {BASE_URL} from '../support/config'
@@ -123,8 +124,8 @@ test.describe('applicant program index page with images', () => {
     adminPrograms,
     adminProgramStatuses,
     adminProgramImage,
-    adminQuestions,
     applicantQuestions,
+    seeding,
   }) => {
     test.slow()
 
@@ -132,6 +133,7 @@ test.describe('applicant program index page with images', () => {
     const approvedStatusName = 'Approved'
 
     await test.step('create program with image as admin', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       const preScreenerFormProgramName = 'Benefits finder'
       await adminPrograms.addPreScreener(
@@ -141,13 +143,9 @@ test.describe('applicant program index page with images', () => {
       )
 
       await adminPrograms.addProgram(programNameInProgressImage)
-      await adminQuestions.addTextQuestion({
-        questionName: 'first-q',
-        questionText: 'first question text',
-      })
       await adminPrograms.addProgramBlockUsingSpec(programNameInProgressImage, {
         description: 'first block',
-        questions: [{name: 'first-q'}],
+        questions: [{name: SAMPLE_QUESTIONS.text}],
       })
 
       await adminPrograms.goToProgramImagePage(programNameInProgressImage)
