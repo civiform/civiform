@@ -7,25 +7,21 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Prevent Duplicate Submission', () => {
   const programName = 'Test Program Name'
-  const questionId = 'test-q'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await test.step('Create program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
-
-      await adminQuestions.addNumberQuestion({
-        questionName: questionId,
-        questionText: 'How many keyboards do you own?',
-      })
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
         description: 'First screen',
-        questions: [{name: questionId}],
+        questions: [{name: SAMPLE_QUESTIONS.number}],
       })
 
       await adminPrograms.publishProgram(programName)
