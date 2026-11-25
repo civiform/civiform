@@ -843,6 +843,50 @@ validation.duplicateEntityName=ກະລຸນາປ້ອນຄ່າທີ່�
 validation.tooManyEntities=ກະລຸນາໃສ່ສູງສຸດ {0} ຄ່າ.
 # Error shown if the enumerator question has a minimum answer limit and the applicant enters too few values
 validation.tooFewEntities=ກະລຸນາໃສ່ຢ່າງໜ້ອຍ {0} ຄ່າ.
+# Error shown in a list where the applicant types each entry, when they enter something that matches another row.
+validation.duplicateListEntry=An identical entry already exists. Please enter a unique entry.
+# Error shown in a list where the applicant picks an option on each row, when they pick an option already picked on another row.
+validation.duplicateListOption=This option has already been selected. Please choose a different option.
+# Error shown when the first name is left blank. In a list of people with one person on each row, {0} is who the list is collecting, as a singular noun such as "household member", and {1} is the row number, so "household member #1" names the first row.
+validation.firstNameRequired.listItem=Enter the first name for {0} #{1}.
+# Error shown when the last name is left blank. In a list of people with one person on each row, {0} is who the list is collecting, as a singular noun such as "household member", and {1} is the row number, so "household member #1" names the first row.
+validation.lastNameRequired.listItem=Enter the last name for {0} #{1}.
+# Error shown when the street address is left blank. In a list of addresses with one address on each row, {0} is what the list is collecting, as a singular noun such as "employer" or "previous home", and {1} is the row number, so "employer #1" names the first row.
+validation.streetRequired.listItem=Enter the street name and number for {0} #{1}.
+# Error shown when the city is left blank. In a list of addresses with one address on each row, {0} is what the list is collecting, as a singular noun such as "employer" or "previous home", and {1} is the row number, so "employer #1" names the first row.
+validation.cityRequired.listItem=Enter the city for {0} #{1}.
+# Error shown when the state is left blank. In a list of addresses with one address on each row, {0} is what the list is collecting, as a singular noun such as "employer" or "previous home", and {1} is the row number, so "employer #1" names the first row.
+validation.stateRequired.listItem=Enter the state for {0} #{1}.
+# Error shown when the ZIP code is not a valid 5-digit ZIP code. In a list of addresses with one address on each row, {0} is what the list is collecting, as a singular noun such as "employer" or "previous home", and {1} is the row number, so "employer #1" names the first row.
+validation.invalidZipcode.listItem=Enter a valid 5-digit ZIP code for {0} #{1}.
+# Error shown when the address is a PO Box, which is not accepted. In a list of addresses with one address on each row, {0} is what the list is collecting, as a singular noun such as "employer" or "previous home", and {1} is the row number, so "employer #1" names the first row.
+validation.noPoBox.listItem=Enter a valid address for {0} #{1}. We do not accept PO Boxes.
+# Error shown when no month is selected in a date. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.monthRequired.listItem=Select a month for {0} #{1}.
+# Error shown when the day of a date is left blank. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.dayRequired.listItem=Enter a day for {0} #{1}.
+# Error shown when the day of a date is not between 1 and 31. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.dayInvalid.listItem=Enter a valid day from 1 to 31 for {0} #{1}.
+# Error shown when the year of a date does not have 4 digits. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.yearMustBeFourDigits.listItem=Enter a 4-digit year for {0} #{1}, for example 1996.
+# Error shown when a date is not in a valid format. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.invalidDateFormat.listItem=Enter a date in the correct format for {0} #{1}.
+# Error shown when the date must be today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.currentDateRequired.listItem=Enter today''s date for {0} #{1}.
+# Error shown when the date is too far in the past. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is a number of years.
+validation.dateBeyondAllowablePast.listItem=Enter a date in the last {2} years for {0} #{1}.
+# Error shown when the date is too far in the future. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is a number of years.
+validation.dateBeyondAllowableFuture.listItem=Enter a date less than {2} years in the future for {0} #{1}.
+# Error shown when the date must be after today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.futureDateRequired.listItem=The date for {0} #{1} must be after today''s date.
+# Error shown when the date must be before today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
+validation.pastDateRequired.listItem=The date for {0} #{1} must be before today''s date.
+# Error shown when the date is earlier than the earliest allowed date. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the earliest allowed date.
+validation.dateTooFarInPast.listItem=The date for {0} #{1} must be after {2}.
+# Error shown when the date is later than the latest allowed date. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the latest allowed date.
+validation.dateTooFarInFuture.listItem=The date for {0} #{1} must be before {2}.
+# Error shown when the date is outside the allowed range. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the earliest allowed date and {3} is the latest.
+validation.dateNotInRange.listItem=The date for {0} #{1} must be between {2} and {3}.
 placeholder.entityName=ຊື່ {0}
 
 #---------------------------------------------------------------------------------#
