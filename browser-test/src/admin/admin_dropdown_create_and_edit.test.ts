@@ -137,8 +137,6 @@ test.describe('create dropdown question with options', () => {
     const questionName = 'favorite ice cream'
 
     await test.step(`setup`, async () => {
-      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
-
       await loginAsAdmin(page)
 
       await page.click('text=Questions')

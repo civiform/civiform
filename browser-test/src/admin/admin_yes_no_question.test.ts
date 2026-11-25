@@ -76,7 +76,6 @@ test.describe('Yes/no translations', () => {
     adminQuestions,
   }) => {
     await test.step('setup', async () => {
-      await enableFeatureFlag(page, 'ANSWER_OPTION_SCORING_ENABLED')
       await loginAsAdmin(page)
     })
 
