@@ -9,6 +9,7 @@ import {
   validateAccessibility,
   validateScreenshot,
 } from '../support'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../support/seeding'
 
 /**
  * Tests for the address correction view and navigation to and from that view.
@@ -307,17 +308,13 @@ test.describe('address correction single-block, single-address program', () => {
 test.describe('require address correction when address is pre-filled', () => {
   const programWithCorrection = 'Program with correction'
   const programWithoutCorrection = 'Program without correction'
-  const addressQuestionId = 'address-q'
+  const addressQuestionId = SAMPLE_QUESTIONS.address
 
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
-
-    await adminQuestions.addAddressQuestion({
-      questionName: addressQuestionId,
-      questionText: 'address question',
-    })
 
     await adminPrograms.addProgram(programWithoutCorrection)
     await adminPrograms.editProgramBlockUsingSpec(programWithoutCorrection, {
@@ -665,28 +662,14 @@ if (isLocalDevEnvironment()) {
    */
   test.describe('address buttons', () => {
     const programName = 'Test program for file upload buttons'
-    const emailQuestionText = 'Test email question'
-    const addressQuestionText = 'Test address question'
-    const numberQuestionText = 'Test number question'
+    const emailQuestionText = SAMPLE_QUESTION_TEXT.email
+    const addressQuestionText = SAMPLE_QUESTION_TEXT.address
+    const numberQuestionText = SAMPLE_QUESTION_TEXT.number
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
       await enableFeatureFlag(page, 'esri_address_correction_enabled')
-
-      await test.step('Create all questions', async () => {
-        await adminQuestions.addEmailQuestion({
-          questionName: 'email-test-q',
-          questionText: emailQuestionText,
-        })
-        await adminQuestions.addAddressQuestion({
-          questionName: 'address-question-test-q',
-          questionText: addressQuestionText,
-        })
-        await adminQuestions.addNumberQuestion({
-          questionName: 'number-test-q',
-          questionText: numberQuestionText,
-        })
-      })
 
       await test.step('Create program with blocks before and after the address question', async () => {
         // Having blocks before and after the address question lets us verify
@@ -697,12 +680,12 @@ if (isLocalDevEnvironment()) {
         await adminPrograms.addProgram(programName)
         await adminPrograms.editProgramBlockUsingSpec(programName, {
           name: 'Email block',
-          questions: [{name: 'email-test-q', isOptional: true}],
+          questions: [{name: SAMPLE_QUESTIONS.email, isOptional: true}],
         })
 
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           name: 'Address block',
-          questions: [{name: 'address-question-test-q'}],
+          questions: [{name: SAMPLE_QUESTIONS.address}],
         })
         await adminPrograms.clickAddressCorrectionToggleByName(
           addressQuestionText,
@@ -710,7 +693,7 @@ if (isLocalDevEnvironment()) {
 
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           name: 'Number block',
-          questions: [{name: 'number-test-q', isOptional: true}],
+          questions: [{name: SAMPLE_QUESTIONS.number, isOptional: true}],
         })
         await adminPrograms.publishAllDrafts()
       })
