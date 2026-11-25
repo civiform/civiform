@@ -176,8 +176,20 @@ export class ApplicantQuestions {
       header + 'C'.repeat(mbSize * 1024 * 1024 - header.length),
     )
     await this.page.setInputFiles('input[type=file]', filePath)
-    unlinkSync(filePath)
-    await waitForHtmxReady(this.page)
+    // The browser reads the file from disk when it uploads it, which can be
+    // after this method returns (the upload may still be in flight, or start
+    // on a later form submit). Keep the file until the page closes.
+    this.page.once('close', () => {
+      try {
+        unlinkSync(filePath)
+      } catch {
+        // Already removed by an earlier call with the same size.
+      }
+    })
+    // Uploading a file this large can take longer than the default 5 seconds.
+    // The legacy flow uploads with a form submit, and this wait blocks until
+    // that navigation finishes.
+    await waitForHtmxReady(this.page, 30000)
   }
 
   async answerIdQuestion(id: string, index = 0) {
