@@ -1,6 +1,7 @@
 package models;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.TestQuestionBank.createQuestionDefinition;
 
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
@@ -28,11 +29,7 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
-import services.question.exceptions.UnsupportedQuestionTypeException;
-import services.question.types.AddressQuestionDefinition;
-import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 public class ProgramModelTest extends ResetPostgres {
@@ -62,15 +59,9 @@ public class ProgramModelTest extends ResetPostgres {
   }
 
   @Test
-  public void canSaveProgram() throws UnsupportedQuestionTypeException {
+  public void canSaveProgram() {
     QuestionDefinition questionDefinition =
-        new QuestionDefinitionBuilder()
-            .setQuestionType(QuestionType.TEXT)
-            .setId(123L)
-            .setName("question")
-            .setDescription("applicant's name")
-            .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-            .build();
+        createQuestionDefinition("question", 123L, QuestionType.TEXT);
     long programDefinitionId = uniqueProgramId;
     BlockDefinition blockDefinition =
         BlockDefinition.builder()
@@ -161,25 +152,11 @@ public class ProgramModelTest extends ResetPostgres {
   }
 
   @Test
-  public void correctlySerializesDifferentQuestionTypes() throws UnsupportedQuestionTypeException {
-    AddressQuestionDefinition addressQuestionDefinition =
-        (AddressQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.ADDRESS)
-                .setId(456L)
-                .setName("address question")
-                .setDescription("applicant's address")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your address?"))
-                .build();
-    NameQuestionDefinition nameQuestionDefinition =
-        (NameQuestionDefinition)
-            new QuestionDefinitionBuilder()
-                .setQuestionType(QuestionType.NAME)
-                .setId(789L)
-                .setName("name question")
-                .setDescription("applicant's name")
-                .setQuestionText(LocalizedStrings.of(Locale.US, "What is your name?"))
-                .build();
+  public void correctlySerializesDifferentQuestionTypes() {
+    QuestionDefinition addressQuestionDefinition =
+        createQuestionDefinition("address question", 456L, QuestionType.ADDRESS);
+    QuestionDefinition nameQuestionDefinition =
+        createQuestionDefinition("name question", 789L, QuestionType.NAME);
 
     long programDefinitionId = uniqueProgramId;
     BlockDefinition blockDefinition =
