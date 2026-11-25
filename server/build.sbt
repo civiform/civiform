@@ -82,7 +82,7 @@ lazy val root = (project in file("."))
 
       // EqualsTester
       // https://javadoc.io/doc/com.google.guava/guava-testlib/latest/index.html
-      "com.google.guava" % "guava-testlib" % "33.7.2-jre" % Test,
+      "com.google.guava" % "guava-testlib" % "33.8.0-jre" % Test,
 
       // To provide an implementation of JAXB-API, which is required by Ebean.
       "jakarta.xml.bind" % "jakarta.xml.bind-api" % "4.0.5",
