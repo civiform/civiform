@@ -91,11 +91,6 @@ public final class ReferenceClasses {
   // Common reference classes
   // ///////////////////////////////////////////////////////////////////////////////////////////////
 
-  public static final String ACCORDION = "cf-accordion";
-  public static final String ACCORDION_BUTTON = "cf-accordion-button";
-  public static final String ACCORDION_CONTENT = "cf-accordion-content";
-  public static final String ACCORDION_HEADER = "cf-accordion-header";
-
   public static final String TOAST_MESSAGE = "cf-toast-data";
   public static final String RADIO_INPUT = "cf-radio-input";
   public static final String RADIO_OPTION = "cf-radio-option";

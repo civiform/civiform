@@ -20,11 +20,9 @@ import services.docs.ApiDocsService;
 import services.program.ProgramDefinition;
 import services.settings.SettingsManifest;
 import views.admin.docs.ApiDocsPageView;
-import views.docs.ApiDocsView;
 
 public final class ApiDocsController {
 
-  private final ApiDocsView docsView;
   private final SettingsManifest settingsManifest;
   private final ApiDocsPageView apiDocsPageView;
   private final ApiDocsService apiDocsService;
@@ -32,12 +30,10 @@ public final class ApiDocsController {
 
   @Inject
   public ApiDocsController(
-      ApiDocsView docsView,
       SettingsManifest settingsManifest,
       ApiDocsPageView apiDocsPageView,
       ApiDocsService apiDocsService,
       MessagesApi messagesApi) {
-    this.docsView = docsView;
     this.settingsManifest = settingsManifest;
     this.apiDocsPageView = apiDocsPageView;
     this.apiDocsService = apiDocsService;
@@ -73,37 +69,32 @@ public final class ApiDocsController {
     Optional<ProgramDefinition> programDefinition =
         apiDocsService.getProgramDefinition(selectedProgramSlug, lifecycleStage);
 
-    if (settingsManifest.getAdminUiMigrationUxRedesignScEnabled(request)) {
-      String jsonPreview =
-          programDefinition
-              .map(
-                  pd ->
-                      apiDocsService.getSampleJsonPreview(
-                          pd,
-                          /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(
-                              request)))
-              .orElse("");
-      ImmutableMap<String, ImmutableList<String>> historicOptionsByQuestionNameKey =
-          programDefinition
-              .map(apiDocsService::getHistoricOptionsByQuestionNameKey)
-              .orElse(ImmutableMap.of());
+    String jsonPreview =
+        programDefinition
+            .map(
+                pd ->
+                    apiDocsService.getSampleJsonPreview(
+                        pd,
+                        /* scoringEnabled= */ settingsManifest.getAnswerOptionScoringEnabled(
+                            request)))
+            .orElse("");
+    ImmutableMap<String, ImmutableList<String>> historicOptionsByQuestionNameKey =
+        programDefinition
+            .map(apiDocsService::getHistoricOptionsByQuestionNameKey)
+            .orElse(ImmutableMap.of());
 
-      return ok(apiDocsPageView.render(
-              request,
-              new ApiDocsPageMapper()
-                  .map(
-                      request,
-                      selectedProgramSlug,
-                      lifecycleStage,
-                      allNonExternalProgramSlugs,
-                      programDefinition,
-                      jsonPreview,
-                      historicOptionsByQuestionNameKey)))
-          .as(Http.MimeTypes.HTML);
-    }
-    return ok(
-        docsView.render(
-            request, selectedProgramSlug, programDefinition, allNonExternalProgramSlugs));
+    return ok(apiDocsPageView.render(
+            request,
+            new ApiDocsPageMapper()
+                .map(
+                    request,
+                    selectedProgramSlug,
+                    lifecycleStage,
+                    allNonExternalProgramSlugs,
+                    programDefinition,
+                    jsonPreview,
+                    historicOptionsByQuestionNameKey)))
+        .as(Http.MimeTypes.HTML);
   }
 
   /** Redirect to the api docs view for the slug/stage combo */
