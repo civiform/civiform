@@ -1,10 +1,10 @@
 <!--/* TODO(#7080): Refactor Enumerator question to use HTMX instead of relying on TS and DOM templates. */-->
-<!--/* TODO(#11943): The initialQuestionFlowIsActive argument to createEnumeratorQuestion is part of
-     the initialQuestionFlowIsActive signal; drop it (call createEnumeratorQuestion() with no args)
-     when removing the blank-name check in EnumeratorQuestion. */-->
+<!--/* TODO(#11943): The initialQuestionTypeIfFlowIsActive argument to createEnumeratorQuestion is
+     part of the initialQuestionFlowIsActive signal; see EnumeratorQuestion. Pages other than the
+     applicant block edit page (such as the admin preview) don't set it. */-->
 <div
   th:fragment="enumerator(question,enumMaxEntityCount)"
-  th:with="enumeratorQuestion=${question.createEnumeratorQuestion(initialQuestionFlowIsActive != null and initialQuestionFlowIsActive)},
+  th:with="enumeratorQuestion=${initialQuestionTypeIfFlowIsActive != null ? question.createEnumeratorQuestion(initialQuestionTypeIfFlowIsActive) : question.createEnumeratorQuestion()},
              questionId=${'id-' + #strings.randomAlphanumeric(8)},
              questionErrors=${enumeratorQuestion.getValidationErrors().get(question.getContextualizedPath())},
              hasErrors=${questionRendererParams.shouldShowErrors() && !enumeratorQuestion.getValidationErrors().isEmpty()}"

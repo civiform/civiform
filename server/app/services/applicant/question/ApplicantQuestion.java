@@ -71,6 +71,19 @@ public final class ApplicantQuestion {
     return repeatedEntity;
   }
 
+  /**
+   * Returns the list item this question asks about when it is its list set's initial question,
+   * which is answered on a row of the list set screen. Empty for every other question.
+   */
+  public Optional<RepeatedEntity> getInitialQuestionEntity() {
+    return repeatedEntity.filter(
+        entity ->
+            entity
+                .enumeratorQuestionDefinition()
+                .getEnumeratorInitialQuestionId()
+                .equals(Optional.of(getQuestionDefinition().getId())));
+  }
+
   public ApplicantData getApplicantData() {
     return this.applicantData;
   }
@@ -310,19 +323,20 @@ public final class ApplicantQuestion {
   }
 
   public EnumeratorQuestion createEnumeratorQuestion() {
-    return new EnumeratorQuestion(this, /* initialQuestionFlowIsActive= */ false);
+    return new EnumeratorQuestion(this, /* initialQuestionType= */ Optional.empty());
   }
 
   /**
-   * When {@code initialQuestionFlowIsActive} is true the enumerator skips its blank/duplicate-blank
-   * entity-name validation because the per-entity initial-question fields report those errors
-   * themselves.
+   * Pass the initial question's type when the list set uses the initial-question flow. The
+   * enumerator then skips its blank/duplicate-blank entity-name validation, because the per-entity
+   * initial-question fields report those errors themselves, and words its duplicate error for that
+   * type.
    *
-   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove this overload with the
-   * blank-name check in {@link EnumeratorQuestion}.
+   * <p>TODO(#11943): Part of the initialQuestionFlowIsActive signal; see {@link
+   * EnumeratorQuestion}.
    */
-  public EnumeratorQuestion createEnumeratorQuestion(boolean initialQuestionFlowIsActive) {
-    return new EnumeratorQuestion(this, initialQuestionFlowIsActive);
+  public EnumeratorQuestion createEnumeratorQuestion(Optional<QuestionType> initialQuestionType) {
+    return new EnumeratorQuestion(this, initialQuestionType);
   }
 
   public SingleSelectQuestion createSingleSelectQuestion() {

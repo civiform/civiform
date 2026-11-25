@@ -1261,7 +1261,9 @@ public class ApplicantServiceTest extends ResetPostgres {
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors =
         staged.initialQuestion().getQuestion().getValidationErrors();
     assertThat(errors.get(staged.initialQuestionPath().join(Scalar.LAST_NAME)))
-        .contains(ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED));
+        .contains(
+            ValidationErrorMessage.create(
+                MessageKey.NAME_VALIDATION_LAST_REQUIRED_FOR_LIST_ITEM, "household member", 1));
     // A partially answered entry has no top-level "required" error.
     assertThat(errors).doesNotContainKey(staged.initialQuestionPath());
   }

@@ -81,7 +81,7 @@ public class BlockTest {
               .setEnumeratorInitialQuestionId(INITIAL_QUESTION_ID)
               .setLastModifiedTime(Optional.empty())
               .build(),
-          LocalizedStrings.empty());
+          LocalizedStrings.of(Locale.US, "household member"));
 
   private static final TextQuestionDefinition INITIAL_QUESTION =
       new TextQuestionDefinition(
@@ -109,7 +109,7 @@ public class BlockTest {
               .setEnumeratorInitialQuestionId(NAME_INITIAL_QUESTION_ID)
               .setLastModifiedTime(Optional.empty())
               .build(),
-          LocalizedStrings.empty());
+          LocalizedStrings.of(Locale.US, "household member"));
 
   private static final NameQuestionDefinition NAME_INITIAL_QUESTION =
       new NameQuestionDefinition(

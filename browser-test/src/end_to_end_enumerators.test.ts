@@ -2366,6 +2366,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await addRepeatedSetBlocks(page)
         await fillAndSubmitEnumeratorQuestionForm(page, {
           questionText: 'List the names of your pets.',
+          listedEntity: 'Pet',
           initialQuestion: SAMPLE_QUESTIONS.name,
         })
         await adminPrograms.publishProgram(programName)
@@ -2378,7 +2379,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Add an entity and continue with all fields empty', async () => {
         await applicantQuestions.applyProgram(programName)
-        await blockForm.getByRole('button', {name: 'Add Pets'}).click()
+        await blockForm.getByRole('button', {name: 'Add Pet'}).click()
         await waitForHtmxReady(page)
         await applicantQuestions.clickContinue()
       })
@@ -2390,7 +2391,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           page.getByText('Error: This question is required.'),
         ).toBeVisible()
         await expect(
-          page.getByText('Error: Please enter your last name.'),
+          page.getByText('Error: Enter the last name for Pet #1.'),
         ).toBeHidden()
         await expect(firstName).toHaveClass(/usa-input--error/)
         await expect(lastName).toHaveClass(/usa-input--error/)
@@ -2403,7 +2404,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Verify a field-specific error attaches to the missing last name only', async () => {
         await expect(
-          page.getByText('Error: Please enter your last name.'),
+          page.getByText('Error: Enter the last name for Pet #1.'),
         ).toBeVisible()
         await expect(
           page.getByText('Error: This question is required.'),
@@ -2641,12 +2642,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           .first()
         await expect(
           blockForm.getByText(
-            'Error: Please enter a unique value for each line.',
+            'Error: An identical entry already exists. Please enter a unique entry.',
           ),
         ).toBeVisible()
         await expect(firstName).toBeFocused()
         await expect(firstName).toHaveAccessibleDescription(
-          /^Error: Please enter a unique value for each line\./,
+          /^Error: An identical entry already exists\. Please enter a unique entry\./,
         )
         await validateAccessibility(page, '#cf-block-form')
       })
@@ -2888,7 +2889,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           await addRepeatedEntity(page, 'Jobs', 'Banker')
           await applicantQuestions.clickContinue()
           await expect(errors).toContainText(
-            'Error: Please enter a unique value for each line.',
+            'Error: An identical entry already exists. Please enter a unique entry.',
           )
         })
 

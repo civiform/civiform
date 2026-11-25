@@ -2,6 +2,7 @@ package services.applicant.question;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import java.util.Locale;
 import java.util.Optional;
@@ -14,10 +15,14 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import repository.ResetPostgres;
 import services.LocalizedStrings;
+import services.MessageKey;
 import services.applicant.ApplicantData;
+import services.applicant.RepeatedEntity;
+import services.applicant.ValidationErrorMessage;
 import services.program.ProgramQuestionDefinition;
 import services.question.PrimaryApplicantInfoTag;
 import services.question.QuestionAnswerer;
+import services.question.types.EnumeratorQuestionDefinition;
 import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionDefinitionConfig;
 
@@ -87,6 +92,70 @@ public class NameQuestionTest extends ResetPostgres {
     if (nameQuestion.getNameSuffixValue().isPresent()) {
       assertThat(nameQuestion.getNameSuffixValue().get()).isEqualTo(suffix);
     }
+  }
+
+  @Test
+  public void getValidationErrors_initialQuestionOfListSet_namesTheListItem() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            nameQuestionDefinition,
+            applicant,
+            applicantData,
+            Optional.of(
+                RepeatedEntity.createForPreview(
+                    enumeratorWithInitialQuestion(/* initialQuestionId= */ 1L), /* index= */ 1)));
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "Wendel", "", "", "");
+
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+
+    assertThat(nameQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                nameQuestion.getLastNamePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(
+                        MessageKey.NAME_VALIDATION_LAST_REQUIRED_FOR_LIST_ITEM,
+                        "household member",
+                        2))));
+  }
+
+  @Test
+  public void getValidationErrors_repeatedQuestionThatIsNotInitialQuestion_keepsErrors() {
+    ApplicantQuestion applicantQuestion =
+        new ApplicantQuestion(
+            nameQuestionDefinition,
+            applicant,
+            applicantData,
+            Optional.of(
+                RepeatedEntity.createForPreview(
+                    enumeratorWithInitialQuestion(/* initialQuestionId= */ 2L), /* index= */ 1)));
+    QuestionAnswerer.answerNameQuestion(
+        applicantData, applicantQuestion.getContextualizedPath(), "Wendel", "", "", "");
+
+    NameQuestion nameQuestion = applicantQuestion.createNameQuestion();
+
+    assertThat(nameQuestion.getValidationErrors())
+        .isEqualTo(
+            ImmutableMap.of(
+                nameQuestion.getLastNamePath(),
+                ImmutableSet.of(
+                    ValidationErrorMessage.create(MessageKey.NAME_VALIDATION_LAST_REQUIRED))));
+  }
+
+  private static EnumeratorQuestionDefinition enumeratorWithInitialQuestion(
+      long initialQuestionId) {
+    return new EnumeratorQuestionDefinition(
+        QuestionDefinitionConfig.builder()
+            .setName("household members")
+            .setDescription("description")
+            .setQuestionText(LocalizedStrings.of(Locale.US, "Who are your household members?"))
+            .setQuestionHelpText(LocalizedStrings.of(Locale.US, "help text"))
+            .setId(OptionalLong.of(10))
+            .setEnumeratorInitialQuestionId(initialQuestionId)
+            .setLastModifiedTime(Optional.empty())
+            .build(),
+        LocalizedStrings.of(Locale.US, "household member"));
   }
 
   @Test

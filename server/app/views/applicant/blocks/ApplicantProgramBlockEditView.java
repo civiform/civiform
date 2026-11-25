@@ -207,11 +207,13 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
       // Whether the enumerator block uses the initial-question flow (the enumerator improvements
       // flag is on and the enumerator has an initial question). Used to suppress blank/duplicate-
       // blank entry error validation when the initial-question fields report those errors
-      // themselves.
+      // themselves, and to word the duplicate-entry error for the initial question's type.
       // TODO(#11943): Part of the initialQuestionFlowIsActive signal; remove with the blank-name
       // check in EnumeratorQuestion.
       boolean initialQuestionFlowIsActive = applicationParams.block().initialQuestionFlowIsActive();
-      context.setVariable("initialQuestionFlowIsActive", initialQuestionFlowIsActive);
+      context.setVariable(
+          "initialQuestionTypeIfFlowIsActive",
+          applicationParams.block().initialQuestionTypeIfFlowIsActive());
 
       // Initial-question context for enumerator blocks using the initial-question flow. When
       // absent, the enumerator fragment falls back to the legacy text input.
@@ -551,7 +553,7 @@ public final class ApplicantProgramBlockEditView extends ApplicantBaseView {
     // with no args when removing the blank-name check in EnumeratorQuestion.
     var listErrors =
         enumerator
-            .createEnumeratorQuestion(params.block().initialQuestionFlowIsActive())
+            .createEnumeratorQuestion(params.block().initialQuestionTypeIfFlowIsActive())
             .getValidationErrors()
             .get(enumerator.getContextualizedPath());
     return listErrors != null && !listErrors.isEmpty();
