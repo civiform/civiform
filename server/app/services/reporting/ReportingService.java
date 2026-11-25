@@ -1,9 +1,6 @@
 package services.reporting;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_MONTH_HEADERS;
-import static views.admin.reporting.AdminReportingIndexView.APPLICATION_COUNTS_BY_PROGRAM_HEADERS;
-import static views.admin.reporting.AdminReportingShowView.APPLICATION_COUNTS_FOR_PROGRAM_BY_MONTH_HEADERS;
 
 import com.google.auto.value.AutoValue;
 import com.google.common.base.Preconditions;
@@ -27,7 +24,7 @@ import play.cache.NamedCache;
 import play.cache.SyncCacheApi;
 import repository.ReportingRepository;
 import services.DateConverter;
-import views.admin.reporting.ReportingTableRenderer;
+import views.admin.reporting.AdminReportingUtils;
 
 /** A service responsible for logic related to collating and presenting reporting data. */
 public final class ReportingService {
@@ -37,6 +34,25 @@ public final class ReportingService {
 
   private static final Comparator<ApplicationSubmissionsStat> STAT_TIMESTAMP_DESCENDING =
       Comparator.comparing((ApplicationSubmissionsStat stat) -> stat.timestamp().get()).reversed();
+
+  private static final ImmutableList<String> DURATION_HEADERS =
+      ImmutableList.of(
+          "Time to complete (p25)",
+          "Median time to complete",
+          "Time to complete (p75)",
+          "Time to complete (p99)");
+
+  private static final ImmutableList<String> APPLICATION_COUNTS_BY_MONTH_HEADERS =
+      ImmutableList.<String>builder().add("Month", "Submissions").addAll(DURATION_HEADERS).build();
+
+  private static final ImmutableList<String> APPLICATION_COUNTS_BY_PROGRAM_HEADERS =
+      ImmutableList.<String>builder()
+          .add("Program", "Submissions")
+          .addAll(DURATION_HEADERS)
+          .build();
+
+  private static final ImmutableList<String> APPLICATION_COUNTS_FOR_PROGRAM_BY_MONTH_HEADERS =
+      APPLICATION_COUNTS_BY_MONTH_HEADERS;
 
   private final ReportingRepository reportingRepository;
   private final SyncCacheApi reportingDataCache;
@@ -75,14 +91,10 @@ public final class ReportingService {
           try {
             printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
             printer.print(stat.applicationCount());
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds25p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds50p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds75p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds99p()));
 
             printer.println();
           } catch (IOException e) {
@@ -100,14 +112,10 @@ public final class ReportingService {
           try {
             printer.print(stat.programName());
             printer.print(stat.applicationCount());
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds25p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds50p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds75p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds99p()));
 
             printer.println();
           } catch (IOException e) {
@@ -125,14 +133,10 @@ public final class ReportingService {
           try {
             printer.print(dateConverter.renderAsTwoDigitMonthAndYear(stat.timestamp().get()));
             printer.print(stat.applicationCount());
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds25p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds50p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds75p()));
-            printer.print(
-                ReportingTableRenderer.renderDuration(stat.submissionDurationSeconds99p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds25p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds50p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds75p()));
+            printer.print(AdminReportingUtils.formatDuration(stat.submissionDurationSeconds99p()));
 
             printer.println();
           } catch (IOException e) {
@@ -143,14 +147,11 @@ public final class ReportingService {
 
   private String buildCsv(
       ImmutableList<ApplicationSubmissionsStat> stats,
-      ImmutableList<ReportingTableRenderer.ReportingTableHeader> headers,
+      ImmutableList<String> headers,
       BiConsumer<CSVPrinter, ApplicationSubmissionsStat> printFn) {
     OutputStream inMemoryBytes = new ByteArrayOutputStream();
 
-    String[] csvHeaders =
-        headers.stream()
-            .map(ReportingTableRenderer.ReportingTableHeader::headerText)
-            .toArray(String[]::new);
+    String[] csvHeaders = headers.toArray(String[]::new);
 
     try (Writer writer = new OutputStreamWriter(inMemoryBytes, StandardCharsets.UTF_8)) {
       var printer = new CSVPrinter(writer, CSVFormat.DEFAULT.builder().setHeader(csvHeaders).get());

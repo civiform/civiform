@@ -1,7 +1,6 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {
   disableFeatureFlag,
-  isLocalDevEnvironment,
   loginAsAdmin,
   loginAsCiviformAndProgramAdmin,
   loginAsProgramAdmin,
@@ -351,22 +350,6 @@ test.describe('Program admin review of submitted applications', () => {
       await waitForPageJsLoad(page)
       await validateScreenshot(page, 'cf-admin-applications-page')
     })
-
-    if (isLocalDevEnvironment()) {
-      // The reporting page is not deterministic outside the hermetic testing environment
-      // so don't validate the screenshot for it when running staging probers.
-      await test.step('Go to reporting page', async () => {
-        await page.getByRole('link', {name: 'Reporting'}).click()
-
-        await validateScreenshot(page, 'reporting-page')
-      })
-
-      await test.step('Go to reporting program details', async () => {
-        await page.getByRole('link', {name: programName}).click()
-
-        await validateScreenshot(page, 'program-specific-reporting-page')
-      })
-    }
   })
 
   test('program applications listed most recent first', async ({
