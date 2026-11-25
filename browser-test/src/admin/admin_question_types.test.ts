@@ -1,6 +1,7 @@
 import {test, expect} from '../support/civiform_fixtures'
 import {disableFeatureFlag, enableFeatureFlag, loginAsAdmin} from '../support'
 import {Locator} from '@playwright/test'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 const QUESTION_TYPES_EXCEPT_ENUMERATOR = [
   'Address',
@@ -100,17 +101,16 @@ test.describe('Admin question list on programs page with enumerator improvements
   test('displays list of available question types with non-empty block', async ({
     page,
     adminPrograms,
-    adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
-    // Create a question to add to the block
-    await adminQuestions.addTextQuestion({questionName: 'text-question'})
 
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     // Add existing question to make block non-empty
-    await adminPrograms.addQuestionFromQuestionBank('text-question')
+    await adminPrograms.addQuestionFromQuestionBank(SAMPLE_QUESTIONS.text)
     await page.getByRole('button', {name: 'Add a question'}).click()
     await page.click('#create-question-button')
     const dropdownLocator = page.getByTestId('create-question-button-dropdown')
@@ -148,17 +148,16 @@ test.describe('Admin question list on programs page with enumerator improvements
   test('displays list of available question types with non-empty block', async ({
     page,
     adminPrograms,
-    adminQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
-    // Create a question to add to the block
-    await adminQuestions.addTextQuestion({questionName: 'text-question'})
 
     const programName = 'Test program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName)
     // Add existing question to make block non-empty
-    await adminPrograms.addQuestionFromQuestionBank('text-question')
+    await adminPrograms.addQuestionFromQuestionBank(SAMPLE_QUESTIONS.text)
     await page.getByRole('button', {name: 'Add a question'}).click()
     await page.click('#create-question-button')
     const dropdownLocator = page.getByTestId('create-question-button-dropdown')
