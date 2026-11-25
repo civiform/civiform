@@ -1,5 +1,6 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../support/seeding'
 import {waitForHtmxReady} from '../support/wait'
 import {Eligibility} from '../support/admin_programs'
 import {QuestionType} from '../support/admin_questions'
@@ -222,20 +223,17 @@ const PROGRAM_SAMPLE_QUESTIONS = new Map<
 test.describe('create and edit predicates', () => {
   test('Create and edit a new predicate', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit a new predicate'
-    const questionText = 'text question'
+    const questionText = SAMPLE_QUESTION_TEXT.text
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-        questionText: questionText,
-      })
+      const questionName = SAMPLE_QUESTIONS.text
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -361,20 +359,17 @@ test.describe('create and edit predicates', () => {
 
   test('Create and edit an eligibility predicate', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit an eligibility predicate'
-    const questionName = 'predicate-q'
-    const questionText = 'Text question'
+    const questionName = SAMPLE_QUESTIONS.text
+    const questionText = SAMPLE_QUESTION_TEXT.text
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-        questionText: questionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -451,17 +446,15 @@ test.describe('create and edit predicates', () => {
 
   test('Create a non-blocking eligibility predicate', async ({
     page,
-    adminQuestions,
     adminPrograms,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create a non-blocking eligibility predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-      })
+      const questionName = SAMPLE_QUESTIONS.text
       await adminPrograms.addProgram(programName, {
         eligibility: Eligibility.IS_NOT_GATING,
       })
@@ -486,18 +479,16 @@ test.describe('create and edit predicates', () => {
 
   test('Create and edit a visibility predicate', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit a visibility predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-      })
+      const questionName = SAMPLE_QUESTIONS.text
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -1067,25 +1058,26 @@ test.describe('create and edit predicates', () => {
 
   test('Delete conditions', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
-    const nameQuestionValues = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.NAME)!
-    const dateQuestionValues = PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)!
+    const nameQuestionValues = {
+      ...PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.NAME)!,
+      questionName: SAMPLE_QUESTIONS.name,
+      questionText: SAMPLE_QUESTION_TEXT.name,
+    }
+    const dateQuestionValues = {
+      ...PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)!,
+      questionName: SAMPLE_QUESTIONS.date,
+      questionText: SAMPLE_QUESTION_TEXT.date,
+    }
 
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit a new predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      await adminQuestions.addNameQuestion({
-        questionName: nameQuestionValues.questionName,
-        questionText: nameQuestionValues.questionText,
-      })
-      await adminQuestions.addDateQuestion({
-        questionName: dateQuestionValues.questionName,
-        questionText: dateQuestionValues.questionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -1459,16 +1451,16 @@ test.describe('create and edit predicates', () => {
 
   test('No available questions on screen', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit a new predicate'
 
     await test.step('create a new program with no available questions', async () => {
-      const questionName = 'file-question'
-      await adminQuestions.addFileUploadQuestion({questionName: questionName})
+      const questionName = SAMPLE_QUESTIONS.fileUpload
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -1518,23 +1510,22 @@ test.describe('create and edit predicates', () => {
 
   test('Eligibility message', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Eligibility message'
     const eligibilityMessageLabel =
       'Display message shown to ineligible applicants'
-    const questionValues = assertNotNull(
-      PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE),
-    )
+    const questionValues = {
+      ...assertNotNull(PROGRAM_SAMPLE_QUESTIONS.get(QuestionType.DATE)),
+      questionName: SAMPLE_QUESTIONS.date,
+      questionText: SAMPLE_QUESTION_TEXT.date,
+    }
 
     await test.step('Create a program', async () => {
-      await adminQuestions.addDateQuestion({
-        questionName: questionValues.questionName,
-        questionText: questionValues.questionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -1584,18 +1575,16 @@ test.describe('create and edit predicates', () => {
 
   test('Bad HTMX request', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit an eligibility predicate'
 
     await test.step('Create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-      })
+      const questionName = SAMPLE_QUESTIONS.text
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
@@ -1645,18 +1634,16 @@ test.describe('create and edit predicates', () => {
 
   test('Exit predicate edit without saving', async ({
     page,
-    adminQuestions,
     adminPrograms,
     adminPredicates,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     const programName = 'Create and edit an eligibility predicate'
 
     await test.step('create a program with a question to use in the predicate', async () => {
-      const questionName = 'predicate-q'
-      await adminQuestions.addTextQuestion({
-        questionName: questionName,
-      })
+      const questionName = SAMPLE_QUESTIONS.text
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         name: 'Screen 1',
