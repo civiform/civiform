@@ -1,0 +1,111 @@
+name: Approve Renovate auto-merge PRs
+
+# main requires an approving review, and Renovate can't approve its own PRs.
+# This approves the PRs .github/renovate.json5 marks for auto-merge (the
+# renovate-automerge label) so GitHub auto-merge can land them once the
+# required checks pass. Every other Renovate PR still needs a person.
+#
+# The label alone isn't trusted, since anyone with triage access can add it.
+# Before approving, this checks that the PR is Renovate's, that every commit is
+# Renovate's and signed, and that it only touches the files the auto-merge
+# rules cover. The approval is pinned to the commit it checked.
+#
+# main requires approval after the last push, so this runs again and
+# re-approves when Renovate rebases the branch.
+#
+# pull_request_target runs this workflow from main with a write token. It must
+# never check out or run code from the PR.
+
+on:
+  pull_request_target:
+    types: [opened, reopened, synchronize, labeled]
+
+permissions: {}
+
+concurrency:
+  group: renovate-approve-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  approve:
+    runs-on: ubuntu-latest
+    if: >-
+      github.repository == 'civiform/civiform' &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      startsWith(github.event.pull_request.head.ref, 'renovate/') &&
+      github.event.pull_request.user.login == 'civiform-github-automation' &&
+      contains(github.event.pull_request.labels.*.name, 'renovate-automerge')
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Check and approve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          # Owner of the CIVIFORM_AUTOMATION_SELF_HOSTED_RENOVATE token, which
+          # authors and signs Renovate's commits (see renovate.yaml).
+          RENOVATE_LOGIN: civiform-github-automation
+          # Keep in sync with the auto-merge rules in renovate.json5.
+          ALLOWED_FILES: |
+            browser-test/package.json
+            browser-test/package-lock.json
+            formatter/package.json
+            formatter/package-lock.json
+            mock-web-services/package.json
+            mock-web-services/package-lock.json
+            test-support/package.json
+            test-support/package-lock.json
+            server/project/plugins.sbt
+        run: |
+          set -euo pipefail
+
+          pr="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}")"
+          if [[ "$(jq -r .state <<<"${pr}")" != "open" ]]; then
+            echo "PR is not open."
+            exit 0
+          fi
+          if ! jq -e '.labels | any(.name == "renovate-automerge")' <<<"${pr}" >/dev/null; then
+            echo "Label was removed."
+            exit 0
+          fi
+          base_sha="$(jq -r .base.sha <<<"${pr}")"
+          head_sha="$(jq -r .head.sha <<<"${pr}")"
+
+          already_approved="$(gh api "repos/${REPO}/pulls/${PR_NUMBER}/reviews" --paginate \
+            --jq "[.[] | select(.user.login == \"github-actions[bot]\" and .state == \"APPROVED\" and .commit_id == \"${head_sha}\")] | length")"
+          if [[ "${already_approved}" != "0" ]]; then
+            echo "Already approved at ${head_sha}."
+            exit 0
+          fi
+
+          # Compare by SHA so the files and commits checked are exactly the ones
+          # the approval below is pinned to.
+          compare="$(gh api "repos/${REPO}/compare/${base_sha}...${head_sha}")"
+
+          bad_commits="$(jq -r --arg login "${RENOVATE_LOGIN}" '.commits[]
+            | select(.author.login != $login or .committer.login != $login
+                     or .commit.verification.verified != true)
+            | .sha' <<<"${compare}")"
+          if [[ -n "${bad_commits}" ]]; then
+            echo "Not approving: commits not authored and signed by ${RENOVATE_LOGIN}:"
+            echo "${bad_commits}"
+            exit 0
+          fi
+
+          disallowed="$(jq -r '(.files // [])[].filename' <<<"${compare}" \
+            | grep -vxF -f <(grep -v '^$' <<<"${ALLOWED_FILES}") || true)"
+          if [[ -n "${disallowed}" ]]; then
+            echo "Not approving: changes files outside the auto-merge rules:"
+            echo "${disallowed}"
+            exit 0
+          fi
+
+          gh api --method POST "repos/${REPO}/pulls/${PR_NUMBER}/reviews" \
+            -f commit_id="${head_sha}" \
+            -f event=APPROVE \
+            -f body="Approved automatically: patch update to dev tooling covered by the auto-merge rules in .github/renovate.json5." \
+            >/dev/null
+          echo "Approved ${head_sha}."
