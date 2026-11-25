@@ -42,7 +42,7 @@ lazy val root = (project in file("."))
 
       // Templating
       "com.j2html" % "j2html" % "1.6.0",
-      "org.thymeleaf" % "thymeleaf" % "3.1.5.RELEASE",
+      "org.thymeleaf" % "thymeleaf" % "3.1.7.RELEASE",
       "org.commonmark" % "commonmark" % "0.33.0",
       "org.commonmark" % "commonmark-ext-autolink" % "0.33.0",
       "com.googlecode.owasp-java-html-sanitizer" % "owasp-java-html-sanitizer" % "20261011.1",
