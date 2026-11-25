@@ -1,0 +1,136 @@
+name: Browser Tests - Refresh Shard Durations
+
+# Keeps browser-test/shard-durations.json current so browser test shards stay
+# balanced. Each week this regenerates the file from the Playwright results
+# that recent green PR runs uploaded, and opens (or updates) a PR with it when
+# the shards have drifted out of balance or too many tests have no recorded
+# duration. Otherwise it does nothing. The thresholds are in
+# browser-test/bin/update_shard_durations.mjs.
+#
+# The PR is opened with CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN, not
+# GITHUB_TOKEN, because PRs opened with GITHUB_TOKEN don't trigger the
+# required test workflows. The token needs Contents and Pull requests write on
+# this repository. The commit is made through the GraphQL API so GitHub signs
+# it, which main's branch protection requires.
+
+on:
+  schedule:
+    # Thursdays at 11:00 UTC (3am PST / 4am PDT, 6am EST / 7am EDT), before the
+    # workday. Results artifacts are kept for 3 days, so this draws on the
+    # Monday to Wednesday PR runs.
+    - cron: '0 11 * * 4'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Open the PR even if the shards are still balanced
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: refresh-shard-durations
+  cancel-in-progress: false
+
+env:
+  BRANCH: automation/refresh-shard-durations
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    # Forks get this workflow too but have neither the token nor the runs.
+    if: github.repository == 'civiform/civiform'
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: main
+          persist-credentials: false
+
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 24
+
+      # Same as playwright.Dockerfile: package.json requires npm 12, and
+      # listing the tests needs Playwright and the test dependencies.
+      - name: Install browser test dependencies
+        working-directory: browser-test
+        run: |
+          npm install -g npm@^12
+          npm ci
+
+      - name: Regenerate shard-durations.json
+        working-directory: browser-test
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: node bin/update_shard_durations.mjs --summary="${RUNNER_TEMP}/summary.json" --from-github
+
+      - name: Open or update the refresh PR
+        env:
+          GH_TOKEN: ${{ secrets.CIVIFORM_GITHUB_AUTOMATION_PERSONAL_ACCESS_TOKEN }}
+          FORCE: ${{ inputs.force || false }}
+          REPO: ${{ github.repository }}
+        run: |
+          summary="${RUNNER_TEMP}/summary.json"
+          if git diff --quiet -- browser-test/shard-durations.json; then
+            echo "shard-durations.json is unchanged."
+            exit 0
+          fi
+          if [[ "$(jq -r .needsRefresh "${summary}")" != "true" && "${FORCE}" != "true" ]]; then
+            echo "Shards are still balanced; not opening a PR."
+            exit 0
+          fi
+
+          # Start the branch from main again, replacing any earlier refresh.
+          main_sha="$(git rev-parse HEAD)"
+          if gh api "repos/${REPO}/git/refs/heads/${BRANCH}" --silent 2>/dev/null; then
+            gh api -X PATCH "repos/${REPO}/git/refs/heads/${BRANCH}" \
+              -f sha="${main_sha}" -F force=true --silent
+          else
+            gh api -X POST "repos/${REPO}/git/refs" \
+              -f ref="refs/heads/${BRANCH}" -f sha="${main_sha}" --silent
+          fi
+
+          jq -n \
+            --arg repo "${REPO}" \
+            --arg branch "${BRANCH}" \
+            --arg head "${main_sha}" \
+            --arg contents "$(base64 -w0 browser-test/shard-durations.json)" \
+            '{
+              query: "mutation($input: CreateCommitOnBranchInput!) { createCommitOnBranch(input: $input) { commit { oid } } }",
+              variables: {input: {
+                branch: {repositoryNameWithOwner: $repo, branchName: $branch},
+                expectedHeadOid: $head,
+                message: {headline: "Refresh browser test shard durations"},
+                fileChanges: {additions: [{path: "browser-test/shard-durations.json", contents: $contents}]}
+              }}
+            }' | gh api graphql --input - --silent
+
+          body="${RUNNER_TEMP}/body.md"
+          {
+            echo "### Description"
+            echo
+            echo "Regenerated \`browser-test/shard-durations.json\` from the Playwright results of recent green PR runs, so browser test shards stay balanced by time. Opened by the [Refresh Shard Durations workflow](${GITHUB_SERVER_URL}/${REPO}/actions/runs/${GITHUB_RUN_ID})."
+            echo
+            if [[ "$(jq '.reasons | length' "${summary}")" -gt 0 ]]; then
+              jq -r '.reasons[] | "- " + .' "${summary}"
+            else
+              echo "- Opened by a manual run with force set."
+            fi
+            echo
+            jq -r '"Compared \(.runsCompared) runs (\(.resultsFiles) results files). \(.missingBefore) of \(.tests) tests had no duration before this change and \(.missingAfter) after."' "${summary}"
+            echo
+            echo "To check it, look for green browser test shards. Each shard prints its expected time and the heaviest shard's in the \`run_browser_tests\` logs."
+          } > "${body}"
+
+          pr="$(gh pr list --repo "${REPO}" --head "${BRANCH}" --state open --json number --jq '.[0].number')"
+          if [[ -n "${pr}" ]]; then
+            gh pr edit "${pr}" --repo "${REPO}" --body-file "${body}"
+          else
+            gh pr create --repo "${REPO}" --base main --head "${BRANCH}" \
+              --title "Refresh browser test shard durations" \
+              --body-file "${body}" \
+              --label infrastructure --label ignore-for-release
+          fi

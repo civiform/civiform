@@ -9,14 +9,19 @@
 //     runs (artifacts are only kept for 3 days, so runs whose results have
 //     expired are skipped) and regenerates the file.
 //   node bin/update_shard_durations.mjs <dir>
-//     Uses results.json files you already downloaded under <dir>.
+//     Uses results.json files you already downloaded under <dir>, one
+//     subdirectory per run (<dir>/<run>/.../results.json).
+//   --summary=<file>, before either form, also writes a JSON summary that
+//     says whether the committed file needs a refresh (see needsRefresh
+//     below).
 //
 // Run it on a checkout that is up to date with main (merge main into your
 // branch first). Tests that main has added since your checkout would be
 // dropped, and CI, which tests the merge with main, would still warn.
 //
-// Then commit shard-durations.json. Refresh it every month or two, or when
-// the "tests without a recorded duration" warning shows up in the CI logs.
+// The "Browser Tests - Refresh Shard Durations" workflow runs this weekly on
+// main and opens a PR with the new file when needsRefresh is true. To refresh
+// by hand, run it here and commit shard-durations.json.
 //
 // Each test's duration is the median of its passing attempts across all the
 // results.json files found. Only tests that exist in this checkout are kept,
@@ -25,6 +30,7 @@
 
 import {execFileSync} from 'node:child_process'
 import {
+  existsSync,
   mkdtempSync,
   readdirSync,
   readFileSync,
@@ -83,10 +89,18 @@ const downloadRecentResults = (count) => {
   return dir
 }
 
-const [firstArg, secondArg] = process.argv.slice(2)
+// A refresh is worth a PR when the shards CI ran are this far out of balance
+// (heaviest shard over the mean shard, timed with the new durations), or when
+// this share of current tests has no duration in the committed file.
+const MAX_IMBALANCE = 1.1
+const MAX_MISSING_SHARE = 0.03
+
+const args = process.argv.slice(2)
+const summaryArg = args.find((arg) => arg.startsWith('--summary='))
+const [firstArg, secondArg] = args.filter((arg) => arg !== summaryArg)
 if (!firstArg) {
   console.error(
-    'Usage: update_shard_durations.mjs --from-github [runs] | <dir with results.json files>',
+    'Usage: update_shard_durations.mjs [--summary=<file>] --from-github [runs] | <dir with results.json files>',
   )
   process.exit(2)
 }
@@ -103,10 +117,11 @@ const findResults = (dir) =>
   })
 
 const samples = new Map() // key -> seconds[]
-const walk = (suite, titles) => {
+const walk = (suite, titles, shardKeys) => {
   for (const spec of suite.specs ?? []) {
     const key = keyFor([...titles, spec.title])
     for (const test of spec.tests) {
+      shardKeys.push(key)
       // Only passing attempts: a failed attempt's duration says nothing about
       // how long the test takes.
       const passed = test.results.filter((r) => r.status === 'passed')
@@ -116,7 +131,7 @@ const walk = (suite, titles) => {
     }
   }
   for (const child of suite.suites ?? []) {
-    walk(child, [...titles, child.title])
+    walk(child, [...titles, child.title], shardKeys)
   }
 }
 
@@ -125,10 +140,14 @@ if (files.length === 0) {
   console.error(`No results.json files found under ${root}. Nothing written.`)
   process.exit(1)
 }
+const shardsByRun = new Map() // run directory -> [test keys run by a shard]
 for (const file of files) {
+  const run = path.relative(root, file).split(path.sep)[0]
+  const shardKeys = []
   for (const fileSuite of JSON.parse(readFileSync(file, 'utf8')).suites) {
-    walk(fileSuite, [fileSuite.title])
+    walk(fileSuite, [fileSuite.title], shardKeys)
   }
+  shardsByRun.set(run, [...(shardsByRun.get(run) ?? []), shardKeys])
 }
 
 const current = new Set(listTests().map((t) => keyFor(t.titlePath)))
@@ -138,12 +157,60 @@ for (const key of [...samples.keys()].sort()) {
     durations[key] = Math.round(median(samples.get(key)) * 10) / 10
   }
 }
+// How well the committed file split the tests: time each shard of each run
+// with the new durations, which takes runner speed out of it, and compare the
+// heaviest shard with the mean. Take the median across runs, since each run
+// may come from a PR that added or removed tests. Runs with a single results
+// file can't be compared.
+const newSeconds = (key) =>
+  samples.has(key) ? median(samples.get(key)) : 0
+const imbalances = [...shardsByRun.values()]
+  .filter((shards) => shards.length > 1)
+  .map((shards) => {
+    const loads = shards.map((keys) =>
+      keys.reduce((sum, key) => sum + newSeconds(key), 0),
+    )
+    return (
+      Math.max(...loads) / (loads.reduce((sum, s) => sum + s, 0) / loads.length)
+    )
+  })
+const imbalance = imbalances.length > 0 ? median(imbalances) : null
 const dropped = [...samples.keys()].filter((key) => !current.has(key)).length
 const missing = [...current].filter((key) => !(key in durations)).length
 
 const out = path.join(browserTestDir, 'shard-durations.json')
+const committed = existsSync(out) ? JSON.parse(readFileSync(out, 'utf8')) : {}
+const missingBefore = [...current].filter((key) => !(key in committed)).length
 writeFileSync(out, JSON.stringify(durations, null, 2) + '\n')
 console.error(
   `Wrote ${Object.keys(durations).length} test durations from ${files.length} results files to ${out}. ` +
     `Dropped ${dropped} tests that aren't in this checkout; ${missing} tests here have no passing result yet.`,
 )
+
+if (summaryArg) {
+  const missingShare = missingBefore / current.size
+  const reasons = []
+  if (imbalance !== null && imbalance > MAX_IMBALANCE) {
+    reasons.push(
+      `The heaviest shard takes ${Math.round((imbalance - 1) * 100)}% longer ` +
+        `than the average shard (median of ${imbalances.length} runs).`,
+    )
+  }
+  if (missingShare > MAX_MISSING_SHARE) {
+    reasons.push(
+      `${missingBefore} of ${current.size} tests had no recorded duration.`,
+    )
+  }
+  const summary = {
+    needsRefresh: reasons.length > 0,
+    reasons,
+    imbalance: imbalance === null ? null : Math.round(imbalance * 1000) / 1000,
+    runsCompared: imbalances.length,
+    tests: current.size,
+    missingBefore,
+    missingAfter: missing,
+    resultsFiles: files.length,
+  }
+  writeFileSync(summaryArg.slice('--summary='.length), JSON.stringify(summary, null, 2) + '\n')
+  console.error(JSON.stringify(summary))
+}
