@@ -2090,7 +2090,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('applies a visibility condition on the initial question to repeated screens but not to a regular screen after the list set', async ({
+    test('applies visibility conditions on the initial question and on an earlier repeated question to repeated screens but not to a regular screen after the list set', async ({
       page,
       adminPrograms,
       adminQuestions,
@@ -2099,12 +2099,24 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
     }) => {
       const programName = 'Initial question visibility program'
       const repeatedQuestionText = 'Repeated question shown for big numbers'
+      const repeatedNumberQuestionText = 'Repeated number question'
+      const followUpQuestionText = 'Follow-up shown for big repeated numbers'
       const regularQuestionText = 'Regular question after the list set'
       // Picking an existing question as the initial question saves a copy with a suffixed admin
       // name.
       const initialQuestionAdminName = `${SAMPLE_QUESTIONS.number} -_- a`
+      const overFive = (questionName: string) => ({
+        questionName,
+        action: 'shown if',
+        scalar: 'number',
+        operator: 'is greater than',
+        value: '5',
+      })
+      const addChildScreenButton = page
+        .getByTestId('block-panel-edit')
+        .getByRole('button', {name: 'Add child screen'})
 
-      await test.step('Publish a program whose repeated screen is shown only when the initial question is over 5', async () => {
+      await test.step('Create a list set with a number initial question and the repeated and regular questions', async () => {
         await loginAsAdmin(page)
         await adminPrograms.addProgram(programName)
         await adminPrograms.gotoEditDraftProgramPage(programName)
@@ -2117,10 +2129,23 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           questionText: repeatedQuestionText,
           enumeratorName: 'pets enumerator',
         })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'initial-visibility-repeated-number',
+          questionText: repeatedNumberQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-visibility-repeated-follow-up',
+          questionText: followUpQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
         await adminQuestions.addTextQuestion({
           questionName: 'initial-visibility-regular',
           questionText: regularQuestionText,
         })
+      })
+
+      await test.step('Show repeated Screen 3 only when the initial question is over 5', async () => {
         await adminPrograms.gotoEditDraftProgramPage(programName)
         await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
         await adminPrograms.addQuestionFromQuestionBank(
@@ -2130,30 +2155,40 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           programName,
           'Screen 3',
         )
-        await adminPredicates.addPredicates({
-          questionName: initialQuestionAdminName,
-          action: 'shown if',
-          scalar: 'number',
-          operator: 'is greater than',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(overFive(initialQuestionAdminName))
       })
 
-      await test.step('Add a regular screen after the list set with the same condition', async () => {
+      await test.step('Add repeated Screen 4 with a number question, and repeated Screen 5 shown only when that number is over 5', async () => {
+        for (const screenNumber of [4, 5]) {
+          await adminPrograms.gotoEditDraftProgramPage(programName)
+          await page.getByRole('link', {name: 'Screen 2'}).click()
+          await addChildScreenButton.click()
+          await adminPrograms.gotoEditDraftProgramPage(programName)
+          await navigateToRepeatedScreen(page, screenNumber)
+          await adminPrograms.addQuestionFromQuestionBank(
+            screenNumber === 4
+              ? 'initial-visibility-repeated-number'
+              : 'initial-visibility-repeated-follow-up',
+          )
+        }
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 5',
+        )
+        await adminPredicates.addPredicates(
+          overFive('initial-visibility-repeated-number'),
+        )
+      })
+
+      await test.step('Add regular Screen 6 after the list set, shown only when the initial question is over 5', async () => {
         await adminPrograms.addProgramBlockUsingSpec(programName, {
           questions: [{name: 'initial-visibility-regular'}],
         })
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           programName,
-          'Screen 4',
+          'Screen 6',
         )
-        await adminPredicates.addPredicates({
-          questionName: initialQuestionAdminName,
-          action: 'shown if',
-          scalar: 'number',
-          operator: 'is greater than',
-          value: '5',
-        })
+        await adminPredicates.addPredicates(overFive(initialQuestionAdminName))
         await adminPrograms.publishProgram(programName)
         await logout(page)
       })
@@ -2161,7 +2196,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const blockForm = page.locator('#cf-block-form')
       const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
 
-      await test.step('Add one entity over 5 and one under', async () => {
+      await test.step('Add one entity whose initial question is over 5 and one under', async () => {
         await applicantQuestions.applyProgram(programName)
         await addButton.click()
         await waitForHtmxReady(page)
@@ -2172,9 +2207,25 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await applicantQuestions.clickContinue()
       })
 
-      await test.step('The repeated screen is shown for the entity over 5', async () => {
+      await test.step('First entity: Screen 3 is shown, and Screen 5 is skipped for a repeated number under 5', async () => {
         await applicantQuestions.validateQuestionIsOnPage(repeatedQuestionText)
         await applicantQuestions.answerTextQuestion('first')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage(
+          repeatedNumberQuestionText,
+        )
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Second entity: Screen 3 is skipped, and Screen 5 is shown for a repeated number over 5', async () => {
+        await applicantQuestions.validateQuestionIsOnPage(
+          repeatedNumberQuestionText,
+        )
+        await applicantQuestions.answerNumberQuestion('10')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage(followUpQuestionText)
+        await applicantQuestions.answerTextQuestion('second')
         await applicantQuestions.clickContinue()
       })
 
@@ -2183,9 +2234,11 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // question's answers are stored per entity under the enumerator, so a condition on a
       // non-repeated screen can't read them. When this is fixed, expect the regular question to be
       // on the page here before the review page.
-      await test.step('The repeated screen is skipped for the entity under 5, and the regular screen is incorrectly skipped', async () => {
+      await test.step('Each conditional repeated screen appears once, and the regular screen is incorrectly skipped', async () => {
         await applicantQuestions.expectReviewPage()
         await expect(page.getByText(repeatedQuestionText)).toHaveCount(1)
+        await expect(page.getByText(repeatedNumberQuestionText)).toHaveCount(2)
+        await expect(page.getByText(followUpQuestionText)).toHaveCount(1)
         await expect(page.getByText(regularQuestionText)).toHaveCount(0)
       })
     })

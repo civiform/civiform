@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Function;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ApplicantModel;
@@ -942,11 +943,16 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void getAllActiveBlocks_blockAfterEnumeratorWithPredicateOnRepeatedQuestion_isHidden() {
+  public void
+      getAllActiveBlocks_predicateOnRepeatedQuestion_appliesPerEntityOnRepeatedBlockButHidesBlockAfterEnumerator() {
     QuestionDefinition enumeratorQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedNumberQuestion =
         testQuestionBank.numberRepeatedHouseholdMemberNumber().getQuestionDefinition();
+    QuestionDefinition repeatedTextQuestion =
+        testQuestionBank
+            .textRepeatedApplicantHouseholdMemberFavoriteShape()
+            .getQuestionDefinition();
     PredicateDefinition predicate =
         PredicateDefinition.create(
             PredicateExpressionNode.create(
@@ -962,6 +968,9 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             .withRequiredQuestionDefinition(enumeratorQuestion)
             .withRepeatedBlock("repeated")
             .withRequiredQuestionDefinition(repeatedNumberQuestion)
+            .withAnotherRepeatedBlock("repeated follow-up")
+            .withVisibilityPredicate(predicate)
+            .withRequiredQuestionDefinition(repeatedTextQuestion)
             .withBlock("after enumerator")
             .withVisibilityPredicate(predicate)
             .withRequiredQuestionDefinition(colorQuestion)
@@ -970,11 +979,15 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
     Path enumeratorPath =
         ApplicantData.APPLICANT_PATH.join(enumeratorQuestion.getQuestionPathSegment());
     QuestionAnswerer.answerEnumeratorQuestion(
-        applicantData, enumeratorPath, ImmutableList.of("member one"));
+        applicantData, enumeratorPath, ImmutableList.of("member one", "member two"));
     QuestionAnswerer.answerNumberQuestion(
         applicantData,
         enumeratorPath.atIndex(0).join(repeatedNumberQuestion.getQuestionPathSegment()),
         10);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        enumeratorPath.atIndex(1).join(repeatedNumberQuestion.getQuestionPathSegment()),
+        1);
 
     ReadOnlyApplicantProgramService service =
         new ReadOnlyApplicantProgramService(
@@ -985,15 +998,30 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             /* failedUpdates= */ ImmutableMap.of(),
             /* enumeratorImprovementsEnabled= */ false);
 
-    // BUG: the block after the enumerator should be shown, since the household member's number is
-    // over 5. Instead its predicate never matches and the block is silently hidden: the block isn't
-    // repeated, so it has no repeated entity context for reading the repeated question's answer,
-    // and PredicateEvaluator treats the resulting InvalidPredicateException as false. When this is
-    // fixed, expect "after enumerator" in getAllActiveBlocks() instead.
-    assertThat(service.getAllActiveBlocks().stream().map(Block::getName))
-        .containsExactly("enumerator", "repeated");
-    assertThat(service.getAllHiddenBlocks().stream().map(Block::getName))
-        .containsExactly("after enumerator");
+    Function<Block, String> nameWithEntity =
+        block ->
+            block.getName()
+                + block
+                    .getRepeatedEntity()
+                    .map(entity -> " (" + entity.entityName() + ")")
+                    .orElse("");
+
+    // The repeated follow-up block reads the number answered for its own household member, so it's
+    // shown only for the member whose number is over 5.
+    //
+    // BUG: the same predicate can be set on the block after the enumerator, but there it never
+    // matches and the block is silently hidden, even though a household member's number is over 5.
+    // The block isn't repeated, so it has no repeated entity context for reading the repeated
+    // question's answer, and PredicateEvaluator treats the resulting InvalidPredicateException as
+    // false.
+    assertThat(service.getAllActiveBlocks().stream().map(nameWithEntity))
+        .containsExactly(
+            "enumerator",
+            "repeated (member one)",
+            "repeated follow-up (member one)",
+            "repeated (member two)");
+    assertThat(service.getAllHiddenBlocks().stream().map(nameWithEntity))
+        .containsExactlyInAnyOrder("repeated follow-up (member two)", "after enumerator");
   }
 
   @Test
