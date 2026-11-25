@@ -8,6 +8,7 @@ import {
   validateScreenshot,
   validateToastMessage,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Applicant navigation flow', () => {
   const programName = 'Test program for summary page'
@@ -172,12 +173,11 @@ test.describe('Applicant navigation flow', () => {
 
   test('Click to download file', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const programName = 'Test program for single file upload'
-    const fileUploadQuestionText = 'Required file upload question'
     const fileName = 'foo.pdf'
     const payload = 'some sample text'
     const fileContent =
@@ -191,14 +191,11 @@ test.describe('Applicant navigation flow', () => {
       payload
 
     await test.step('As admin, set up program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addFileUploadQuestion({
-        questionName: 'file-upload-test-q',
-        questionText: fileUploadQuestionText,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['file-upload-test-q'],
+        [SAMPLE_QUESTIONS.fileUpload],
         programName,
       )
 
