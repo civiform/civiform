@@ -100,6 +100,31 @@ test.describe('Date question for applicant flow', () => {
       await expect(page.getByLabel('Month')).toHaveAttribute('aria-required')
       await expect(page.getByLabel('Year')).toHaveAttribute('aria-required')
 
+      await test.step('shows USWDS format hints before submit', async () => {
+        const groupHint = page.getByText(
+          'Select a month. Enter 1-31 for the day and a 4 digit year e.g. 1996.',
+        )
+        await expect(groupHint).toHaveAttribute('aria-hidden', 'true')
+        await expect(groupHint).not.toHaveAttribute('id')
+
+        // Per-field screen-reader-only hints
+        const monthHint = page.getByText('Select a month from the dropdown.', {
+          exact: true,
+        })
+        const dayHint = page.getByText('Enter 1-31.', {
+          exact: true,
+        })
+        const yearHint = page.getByText('Enter a 4 digit year e.g. 1996.', {
+          exact: true,
+        })
+        await expect(monthHint).toHaveClass(/usa-sr-only/)
+        await expect(dayHint).toHaveClass(/usa-sr-only/)
+        await expect(yearHint).toHaveClass(/usa-sr-only/)
+        await expect(monthHint).toHaveAttribute('id')
+        await expect(dayHint).toHaveAttribute('id')
+        await expect(yearHint).toHaveAttribute('id')
+      })
+
       await validateAccessibility(page)
     })
   })
