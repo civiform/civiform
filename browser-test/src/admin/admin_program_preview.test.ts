@@ -1,5 +1,6 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, validateScreenshot, waitForPageJsLoad} from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('admin preview as applicant', () => {
   test.beforeEach(async ({page}) => {
@@ -9,17 +10,18 @@ test.describe('admin preview as applicant', () => {
   test('preview as applicant and use to admin back button', async ({
     page,
     adminPrograms,
-    adminQuestions,
     applicantProgramOverview,
+    seeding,
   }) => {
     const programName = 'test program'
 
+    await seeding.seedQuestions()
+
     await test.step('create test program', async () => {
-      await adminQuestions.addEmailQuestion({questionName: 'email-q'})
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'description',
-        questions: [{name: 'email-q'}],
+        questions: [{name: SAMPLE_QUESTIONS.email}],
       })
     })
 
