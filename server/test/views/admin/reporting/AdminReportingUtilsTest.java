@@ -38,8 +38,8 @@ public class AdminReportingUtilsTest {
   }
 
   @Test
-  public void formatMonth_formatsTwoDigitMonthAndYear() {
-    assertThat(AdminReportingUtils.formatMonth(STAT, false)).isEqualTo("03/24");
+  public void formatMonth_formatsTwoDigitMonthAndFourDigitYear() {
+    assertThat(AdminReportingUtils.formatMonth(STAT, false)).isEqualTo("03/2024");
   }
 
   @Test

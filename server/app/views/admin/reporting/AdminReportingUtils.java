@@ -26,7 +26,7 @@ public final class AdminReportingUtils {
   }
 
   /**
-   * Formats the month of a stat as MM/yy. Returns a fixed value when {@code
+   * Formats the month of a stat as MM/yyyy. Returns a fixed value when {@code
    * reporting_use_deterministic_stats} is enabled.
    */
   public static String formatMonth(ApplicationSubmissionsStat stat, boolean useDeterministicStats) {
@@ -34,7 +34,7 @@ public final class AdminReportingUtils {
       return DETERMINISTIC_MONTH;
     }
 
-    return new SimpleDateFormat("MM/yy").format(stat.timestamp().get());
+    return new SimpleDateFormat("MM/yyyy").format(stat.timestamp().get());
   }
 
   /**

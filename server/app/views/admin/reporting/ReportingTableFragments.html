@@ -1,0 +1,30 @@
+<!--/* Shared pieces for the admin reporting tables. */-->
+
+<!--/*
+  Numbered link in a column header that jumps to the matching note below the table.
+  idPrefix keeps note ids unique when a page has more than one table.
+*/-->
+<a
+  th:fragment="noteRef(idPrefix, number)"
+  class="usa-link"
+  th:href="|#${idPrefix}-note-${number}|"
+  th:aria-label="${#messages.msg('link.ariaLabel.reportingNote', number)}"
+  th:text="|[${number}]|"
+></a>
+
+<!--/* Notes explaining the time to complete columns. */-->
+<th:block th:fragment="notes(idPrefix)">
+  <h3
+    class="font-body-xs text-bold margin-top-5 margin-bottom-1"
+    th:text="#{heading.reportingNotes}"
+  ></h3>
+  <ol class="usa-list margin-top-0">
+    <li th:id="|${idPrefix}-note-1|" th:text="#{content.reportingNoteP25}"></li>
+    <li
+      th:id="|${idPrefix}-note-2|"
+      th:text="#{content.reportingNoteMedian}"
+    ></li>
+    <li th:id="|${idPrefix}-note-3|" th:text="#{content.reportingNoteP75}"></li>
+    <li th:id="|${idPrefix}-note-4|" th:text="#{content.reportingNoteP99}"></li>
+  </ol>
+</th:block>
