@@ -1,24 +1,20 @@
 import {test} from '../support/civiform_fixtures'
 import {loginAsAdmin, logout, validateAccessibility} from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('Applicant breadcrumb navigation', () => {
   const programName = 'Test program for breadcrumb navigation'
   const programDescription = 'Test description'
-  const staticQuestionText = 'static question text'
 
-  test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
-
-    await adminQuestions.addStaticQuestion({
-      questionName: 'nav-static-q',
-      questionText: staticQuestionText,
-    })
 
     await adminPrograms.addProgram(programName, {
       description: programDescription,
     })
     await adminPrograms.editProgramBlock(programName, 'first description', [
-      'nav-static-q',
+      SAMPLE_QUESTIONS.staticContent,
     ])
 
     await adminPrograms.gotoAdminProgramsPage()
