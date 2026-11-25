@@ -942,6 +942,61 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void getAllActiveBlocks_blockAfterEnumeratorWithPredicateOnRepeatedQuestion_isHidden() {
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition repeatedNumberQuestion =
+        testQuestionBank.numberRepeatedHouseholdMemberNumber().getQuestionDefinition();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    repeatedNumberQuestion.getId(),
+                    Scalar.NUMBER,
+                    Operator.GREATER_THAN,
+                    PredicateValue.of(5))),
+            PredicateAction.SHOW_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("enumerator")
+            .withRequiredQuestionDefinition(enumeratorQuestion)
+            .withRepeatedBlock("repeated")
+            .withRequiredQuestionDefinition(repeatedNumberQuestion)
+            .withBlock("after enumerator")
+            .withVisibilityPredicate(predicate)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .buildDefinition();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestion.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, enumeratorPath, ImmutableList.of("member one"));
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        enumeratorPath.atIndex(0).join(repeatedNumberQuestion.getQuestionPathSegment()),
+        10);
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    // BUG: the block after the enumerator should be shown, since the household member's number is
+    // over 5. Instead its predicate never matches and the block is silently hidden: the block isn't
+    // repeated, so it has no repeated entity context for reading the repeated question's answer,
+    // and PredicateEvaluator treats the resulting InvalidPredicateException as false. When this is
+    // fixed, expect "after enumerator" in getAllActiveBlocks() instead.
+    assertThat(service.getAllActiveBlocks().stream().map(Block::getName))
+        .containsExactly("enumerator", "repeated");
+    assertThat(service.getAllHiddenBlocks().stream().map(Block::getName))
+        .containsExactly("after enumerator");
+  }
+
+  @Test
   public void
       shouldDisplayEligibilityMessage_hasAnsweredEligibilityQuestionsIneligibleAndGatingEligibility_isTrue() {
     QuestionDefinition numberQuestionDefinition =

@@ -448,6 +448,85 @@ test.describe('End to end enumerator test', () => {
     })
   })
 
+  test.describe('Visibility conditions on repeated questions', () => {
+    test('a screen after the enumerator with a condition on a repeated question is hidden', async ({
+      page,
+      adminQuestions,
+      adminPrograms,
+      adminPredicates,
+      applicantQuestions,
+    }) => {
+      const visibilityProgramName = 'Repeated question visibility program'
+      const afterEnumeratorQuestionText = 'Question after the enumerator'
+
+      await test.step('Create an enumerator, a repeated number question, and a regular question', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addEnumeratorQuestion({
+          questionName: 'visibility-householdmembers',
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'visibility-repeated-number',
+          questionText: 'Number for $this',
+          enumeratorName: 'visibility-householdmembers',
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'visibility-after-enumerator',
+          questionText: afterEnumeratorQuestionText,
+        })
+      })
+
+      await test.step('Add the enumerator screen and its repeated screen', async () => {
+        await adminPrograms.addProgram(visibilityProgramName)
+        await adminPrograms.editProgramBlock(
+          visibilityProgramName,
+          'enumerator screen',
+          ['visibility-householdmembers'],
+        )
+        await page.click('#create-repeated-block-button')
+        await adminPrograms.addQuestionFromQuestionBank(
+          'visibility-repeated-number',
+        )
+      })
+
+      await test.step('Add a screen after the enumerator, shown only when the repeated number is over 5', async () => {
+        await adminPrograms.addProgramBlockUsingSpec(visibilityProgramName, {
+          questions: [{name: 'visibility-after-enumerator'}],
+        })
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          visibilityProgramName,
+          'Screen 3',
+        )
+        await adminPredicates.addPredicates({
+          questionName: 'visibility-repeated-number',
+          action: 'shown if',
+          scalar: 'number',
+          operator: 'is greater than',
+          value: '5',
+        })
+        await adminPrograms.publishProgram(visibilityProgramName)
+        await logout(page)
+      })
+
+      await test.step('Add a household member whose number is over 5', async () => {
+        await applicantQuestions.applyProgram(visibilityProgramName)
+        await applicantQuestions.addEnumeratorAnswer('Bugs')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.answerNumberQuestion('10')
+        await applicantQuestions.clickContinue()
+      })
+
+      // BUG: the screen after the enumerator should be shown, since the household member's number
+      // is over 5. Instead its condition never matches and the screen is silently hidden: the screen
+      // isn't repeated, so it has no repeated entity to read the repeated question's answer from,
+      // and the condition is treated as false. When this is fixed, expect the question after the
+      // enumerator to be on the page here before the review page.
+      await test.step('The screen after the enumerator is incorrectly skipped', async () => {
+        await applicantQuestions.expectReviewPage()
+        await expect(page.getByText(afterEnumeratorQuestionText)).toHaveCount(0)
+      })
+    })
+  })
+
   async function setupEnumeratorQuestion(
     page: Page,
     adminQuestions: AdminQuestions,
