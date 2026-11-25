@@ -1,12 +1,12 @@
 package services.migration;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static support.TestQuestionBank.createQuestionDefinition;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Test;
-import services.LocalizedStrings;
 import services.applicant.question.Scalar;
 import services.program.BlockDefinition;
 import services.program.EligibilityDefinition;
@@ -17,9 +17,7 @@ import services.program.predicate.PredicateAction;
 import services.program.predicate.PredicateDefinition;
 import services.program.predicate.PredicateExpressionNode;
 import services.program.predicate.PredicateValue;
-import services.question.exceptions.UnsupportedQuestionTypeException;
 import services.question.types.QuestionDefinition;
-import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 import support.ProgramBuilder;
 
@@ -31,11 +29,11 @@ public class UtilsTest {
   private QuestionDefinition NEW_QUESTION_2;
 
   @Before
-  public void setup() throws UnsupportedQuestionTypeException {
-    OLD_QUESTION_1 = makeQuestion("question1", QuestionType.ADDRESS, 1L);
-    OLD_QUESTION_2 = makeQuestion("question2", QuestionType.TEXT, 2L);
-    NEW_QUESTION_1 = makeQuestion("question1", QuestionType.ADDRESS, 101L);
-    NEW_QUESTION_2 = makeQuestion("question2", QuestionType.TEXT, 102L);
+  public void setup() {
+    OLD_QUESTION_1 = createQuestionDefinition("question1", 1L, QuestionType.ADDRESS);
+    OLD_QUESTION_2 = createQuestionDefinition("question2", 2L, QuestionType.TEXT);
+    NEW_QUESTION_1 = createQuestionDefinition("question1", 101L, QuestionType.ADDRESS);
+    NEW_QUESTION_2 = createQuestionDefinition("question2", 102L, QuestionType.TEXT);
   }
 
   @Test
@@ -132,16 +130,5 @@ public class UtilsTest {
                 Scalar.NUMBER,
                 Operator.GREATER_THAN_OR_EQUAL_TO,
                 PredicateValue.of(1000L)));
-  }
-
-  private static QuestionDefinition makeQuestion(String name, QuestionType type, Long id)
-      throws UnsupportedQuestionTypeException {
-    return new QuestionDefinitionBuilder()
-        .setName(name)
-        .setId(id)
-        .setQuestionType(type)
-        .setQuestionText(LocalizedStrings.withDefaultValue(name))
-        .setDescription(name)
-        .build();
   }
 }
