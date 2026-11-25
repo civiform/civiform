@@ -11,6 +11,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../../support'
+import {SAMPLE_QUESTIONS} from '../../support/seeding'
 import {ProgramVisibility} from '../../support/admin_programs'
 import {CardSectionName} from '../../support/applicant_program_list'
 
@@ -19,55 +20,51 @@ test.describe('Applicant navigation flow', () => {
     // Create two programs, one is pre-screener
     const preScreenerProgramName = 'Test Pre-Screener Form Program'
     const secondProgramName = 'Test Regular Program with Eligibility Conditions'
-    const eligibilityQuestionId = 'nav-predicate-number-q'
+    const eligibilityQuestionId = SAMPLE_QUESTIONS.number
     const secondProgramCorrectAnswer = '5'
 
-    test.beforeEach(
-      async ({page, adminQuestions, adminPredicates, adminPrograms}) => {
-        await loginAsAdmin(page)
+    test.beforeEach(async ({page, adminPredicates, adminPrograms, seeding}) => {
+      await seeding.seedQuestions()
+      await loginAsAdmin(page)
 
-        // Add questions
-        await adminQuestions.addNumberQuestion({
-          questionName: eligibilityQuestionId,
-        })
+      // Add questions
 
-        // Set up pre-screener form
-        await adminPrograms.addPreScreener(
-          preScreenerProgramName,
-          'short program description',
-          ProgramVisibility.PUBLIC,
-        )
+      // Set up pre-screener form
+      await adminPrograms.addPreScreener(
+        preScreenerProgramName,
+        'short program description',
+        ProgramVisibility.PUBLIC,
+      )
 
-        await adminPrograms.editProgramBlock(
-          preScreenerProgramName,
-          'first description',
-          [eligibilityQuestionId],
-        )
+      await adminPrograms.editProgramBlock(
+        preScreenerProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
 
-        // Set up another program
-        await adminPrograms.addProgram(secondProgramName)
+      // Set up another program
+      await adminPrograms.addProgram(secondProgramName)
 
-        await adminPrograms.editProgramBlock(
-          secondProgramName,
-          'first description',
-          [eligibilityQuestionId],
-        )
+      await adminPrograms.editProgramBlock(
+        secondProgramName,
+        'first description',
+        [eligibilityQuestionId],
+      )
 
-        await adminPrograms.goToEditBlockEligibilityPredicatePage(
-          secondProgramName,
-          'Screen 1',
-        )
-        await adminPredicates.addPredicates({
-          questionName: 'nav-predicate-number-q',
-          scalar: 'number',
-          operator: 'is equal to',
-          value: secondProgramCorrectAnswer,
-        })
+      await adminPrograms.goToEditBlockEligibilityPredicatePage(
+        secondProgramName,
+        'Screen 1',
+      )
+      await adminPredicates.addPredicates({
+        questionName: eligibilityQuestionId,
+        scalar: 'number',
+        operator: 'is equal to',
+        value: secondProgramCorrectAnswer,
+      })
 
-        await adminPrograms.publishAllDrafts()
-        await logout(page)
-      },
-    )
+      await adminPrograms.publishAllDrafts()
+      await logout(page)
+    })
 
     test('does not show eligible programs or upsell on confirmation page when no programs are eligible and signed in', async ({
       page,
