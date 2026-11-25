@@ -293,10 +293,10 @@ public class DateQuestionTest extends ResetPostgres {
                 ImmutableSet.of(
                     ValidationErrorMessage.create(
                         MessageKey.DATE_VALIDATION_DATE_NOT_IN_RANGE_FOR_LIST_ITEM,
-                        YESTERDAY.toString(),
-                        TOMORROW.toString(),
                         "household member",
-                        1))));
+                        1,
+                        YESTERDAY.toString(),
+                        TOMORROW.toString()))));
   }
 
   @Test

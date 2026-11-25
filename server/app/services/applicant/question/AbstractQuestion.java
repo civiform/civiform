@@ -160,7 +160,7 @@ public abstract class AbstractQuestion {
     ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors = ImmutableMap.copyOf(errorMap);
     return applicantQuestion
         .getInitialQuestionEntity()
-        .map(entity -> nameListItemInErrors(errors, entity))
+        .map(entity -> updateErrorsForListItems(errors, entity))
         .orElse(errors);
   }
 
@@ -169,33 +169,38 @@ public abstract class AbstractQuestion {
    * and row number (for example "Enter the last name for household member #1") instead of saying
    * "your". A list set screen can show the same field error on several rows.
    */
-  private ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> nameListItemInErrors(
+  private ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> updateErrorsForListItems(
       ImmutableMap<Path, ImmutableSet<ValidationErrorMessage>> errors, RepeatedEntity entity) {
     String entityType =
         entity
             .enumeratorQuestionDefinition()
             .getEntityType()
             .getOrDefault(applicantQuestion.getApplicantData().preferredLocale());
-    int rowNumber = entity.index() + 1;
+    // The repeated entity index is 0-based; applicants see rows numbered from 1.
+    int rowNumberForDisplay = entity.index() + 1;
     return errors.entrySet().stream()
         .collect(
             ImmutableMap.toImmutableMap(
                 Map.Entry::getKey,
                 entry ->
                     entry.getValue().stream()
-                        .map(error -> forListItem(error, entityType, rowNumber))
+                        .map(error -> forListItem(error, entityType, rowNumberForDisplay))
                         .collect(ImmutableSet.toImmutableSet())));
   }
 
   private static ValidationErrorMessage forListItem(
       ValidationErrorMessage error, String entityType, int rowNumber) {
-    MessageKey listItemKey = LIST_ITEM_ERROR_KEYS.get(error.key());
-    if (listItemKey == null) {
-      return error;
-    }
-    return ValidationErrorMessage.create(
-        listItemKey,
-        ImmutableList.builder().addAll(error.args()).add(entityType, rowNumber).build().toArray());
+    return Optional.ofNullable(LIST_ITEM_ERROR_KEYS.get(error.key()))
+        .map(
+            listItemKey ->
+                ValidationErrorMessage.create(
+                    listItemKey,
+                    ImmutableList.builder()
+                        .add(entityType, rowNumber)
+                        .addAll(error.args())
+                        .build()
+                        .toArray()))
+        .orElse(error);
   }
 
   /**

@@ -229,8 +229,7 @@ public class EnumeratorQuestionTest extends ResetPostgres {
     QuestionAnswerer.answerEnumeratorQuestion(
         applicantData, applicantQuestion.getContextualizedPath(), ImmutableList.of("Sarah", ""));
 
-    EnumeratorQuestion enumeratorQuestion =
-        new EnumeratorQuestion(applicantQuestion, /* initialQuestionType= */ Optional.empty());
+    EnumeratorQuestion enumeratorQuestion = new EnumeratorQuestion(applicantQuestion);
 
     assertThat(enumeratorQuestion.getValidationErrors())
         .isEqualTo(

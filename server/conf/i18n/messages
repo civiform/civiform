@@ -873,20 +873,20 @@ validation.yearMustBeFourDigits.listItem=Enter a 4-digit year for {0} #{1}, for 
 validation.invalidDateFormat.listItem=Enter a date in the correct format for {0} #{1}.
 # Error shown when the date must be today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
 validation.currentDateRequired.listItem=Enter today''s date for {0} #{1}.
-# Error shown when the date is too far in the past. {0} is a number of years. In a list of dates with one date on each row, {1} is what the list is collecting, as a singular noun such as "appointment", and {2} is the row number, so "appointment #1" names the first row.
-validation.dateBeyondAllowablePast.listItem=Enter a date in the last {0} years for {1} #{2}.
-# Error shown when the date is too far in the future. {0} is a number of years. In a list of dates with one date on each row, {1} is what the list is collecting, as a singular noun such as "appointment", and {2} is the row number, so "appointment #1" names the first row.
-validation.dateBeyondAllowableFuture.listItem=Enter a date less than {0} years in the future for {1} #{2}.
+# Error shown when the date is too far in the past. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is a number of years.
+validation.dateBeyondAllowablePast.listItem=Enter a date in the last {2} years for {0} #{1}.
+# Error shown when the date is too far in the future. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is a number of years.
+validation.dateBeyondAllowableFuture.listItem=Enter a date less than {2} years in the future for {0} #{1}.
 # Error shown when the date must be after today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
 validation.futureDateRequired.listItem=The date for {0} #{1} must be after today''s date.
 # Error shown when the date must be before today. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row.
 validation.pastDateRequired.listItem=The date for {0} #{1} must be before today''s date.
-# Error shown when the date is earlier than the earliest allowed date. {0} is the earliest allowed date. In a list of dates with one date on each row, {1} is what the list is collecting, as a singular noun such as "appointment", and {2} is the row number, so "appointment #1" names the first row.
-validation.dateTooFarInPast.listItem=The date for {1} #{2} must be after {0}.
-# Error shown when the date is later than the latest allowed date. {0} is the latest allowed date. In a list of dates with one date on each row, {1} is what the list is collecting, as a singular noun such as "appointment", and {2} is the row number, so "appointment #1" names the first row.
-validation.dateTooFarInFuture.listItem=The date for {1} #{2} must be before {0}.
-# Error shown when the date is outside the allowed range. {0} is the earliest allowed date and {1} is the latest. In a list of dates with one date on each row, {2} is what the list is collecting, as a singular noun such as "appointment", and {3} is the row number, so "appointment #1" names the first row.
-validation.dateNotInRange.listItem=The date for {2} #{3} must be between {0} and {1}.
+# Error shown when the date is earlier than the earliest allowed date. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the earliest allowed date.
+validation.dateTooFarInPast.listItem=The date for {0} #{1} must be after {2}.
+# Error shown when the date is later than the latest allowed date. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the latest allowed date.
+validation.dateTooFarInFuture.listItem=The date for {0} #{1} must be before {2}.
+# Error shown when the date is outside the allowed range. In a list of dates with one date on each row, {0} is what the list is collecting, as a singular noun such as "appointment", and {1} is the row number, so "appointment #1" names the first row. {2} is the earliest allowed date and {3} is the latest.
+validation.dateNotInRange.listItem=The date for {0} #{1} must be between {2} and {3}.
 placeholder.entityName={0} name
 
 #---------------------------------------------------------------------------------#

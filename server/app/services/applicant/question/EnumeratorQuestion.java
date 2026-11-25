@@ -25,8 +25,7 @@ public final class EnumeratorQuestion extends AbstractQuestion {
   // The initial question's type when the list set uses the initial-question flow, or empty for the
   // legacy free-text entry. It picks the duplicate-entry message.
   // TODO(#11943): Part of the initialQuestionFlowIsActive signal. When removing the blank-name
-  // check
-  // in validateEntities(), pass the initial question's type whenever the list set has one.
+  // check in validateEntities(), pass the initial question's type whenever the list set has one.
   private final Optional<QuestionType> initialQuestionType;
 
   EnumeratorQuestion(ApplicantQuestion applicantQuestion) {
