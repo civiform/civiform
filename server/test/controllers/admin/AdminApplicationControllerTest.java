@@ -163,6 +163,62 @@ public class AdminApplicationControllerTest extends ResetPostgres {
   }
 
   @Test
+  public void index_olderProgramVersion_redirectsToActiveVersion() throws Exception {
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    ProgramModel olderVersion = ProgramBuilder.newObsoleteProgram("same program").build();
+    ProgramModel activeVersion = ProgramBuilder.newActiveProgram("same program").build();
+
+    Result result =
+        controller.index(
+            fakeRequest(),
+            olderVersion.id,
+            /* search= */ Optional.empty(),
+            /* page= */ Optional.of(1), // Needed to skip the page redirect.
+            /* fromDate= */ Optional.empty(),
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty(),
+            /* selectedApplicationUri= */ Optional.empty(),
+            /* showDownloadModal= */ Optional.empty(),
+            /* message= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(SEE_OTHER);
+    assertThat(result.redirectLocation().orElseThrow())
+        .startsWith(
+            routes.AdminApplicationController.index(
+                    activeVersion.id,
+                    /* search= */ Optional.empty(),
+                    /* page= */ Optional.of(1),
+                    /* fromDate= */ Optional.empty(),
+                    /* untilDate= */ Optional.empty(),
+                    /* applicationStatus= */ Optional.empty(),
+                    /* selectedApplicationUri= */ Optional.empty(),
+                    /* showDownloadModal= */ Optional.empty(),
+                    /* message= */ Optional.empty())
+                .url());
+  }
+
+  @Test
+  public void index_draftOnlyProgram_showsDraft() throws Exception {
+    controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());
+    ProgramModel draftProgram = ProgramBuilder.newDraftProgram("draft only").build();
+
+    Result result =
+        controller.index(
+            fakeRequest(),
+            draftProgram.id,
+            /* search= */ Optional.empty(),
+            /* page= */ Optional.of(1), // Needed to skip the page redirect.
+            /* fromDate= */ Optional.empty(),
+            /* untilDate= */ Optional.empty(),
+            /* applicationStatus= */ Optional.empty(),
+            /* selectedApplicationUri= */ Optional.empty(),
+            /* showDownloadModal= */ Optional.empty(),
+            /* message= */ Optional.empty());
+
+    assertThat(result.status()).isEqualTo(OK);
+  }
+
+  @Test
   public void index_showsBulkStatusViewWhenFlagOn() throws Exception {
 
     controller = makeNoOpProfileController(/* adminAccount= */ Optional.empty());

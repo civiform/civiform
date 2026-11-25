@@ -11,6 +11,7 @@ import auth.Authorizers;
 import auth.CiviFormProfile;
 import auth.ProfileUtils;
 import auth.controllers.MissingOptionalException;
+import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.inject.Provider;
 import controllers.BadRequestException;
@@ -574,6 +575,23 @@ public final class AdminApplicationController extends CiviFormController {
       return unauthorized();
     }
 
+    // Applications link to the program version they were submitted under, so this page can be
+    // reached with an older version's id. Show the active version so downloads follow its settings.
+    Optional<ProgramDefinition> activeProgram = findActiveVersion(program);
+    if (activeProgram.isPresent() && activeProgram.get().id() != program.id()) {
+      return redirect(
+          routes.AdminApplicationController.index(
+              activeProgram.get().id(),
+              search,
+              page,
+              fromDate,
+              untilDate,
+              applicationStatus,
+              selectedApplicationUri,
+              showDownloadModal,
+              message));
+    }
+
     StatusDefinitions activeStatusDefinitions =
         statusService.lookupActiveStatusDefinitions(program.adminName());
 
@@ -630,6 +648,26 @@ public final class AdminApplicationController extends CiviFormController {
             filterParams,
             showDownloadModal,
             message));
+  }
+
+  /**
+   * Returns the active version of the same program, or empty if the program has no active version
+   * yet (it only has a draft).
+   */
+  private Optional<ProgramDefinition> findActiveVersion(ProgramDefinition program) {
+    try {
+      return Optional.of(
+          programService
+              .getActiveFullProgramDefinitionAsync(program.slug())
+              .toCompletableFuture()
+              .join());
+    } catch (CompletionException e) {
+      if (Throwables.getCausalChain(e).stream()
+          .anyMatch(t -> t instanceof ProgramNotFoundException)) {
+        return Optional.empty();
+      }
+      throw e;
+    }
   }
 
   /**
