@@ -2090,13 +2090,46 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
-    test('applies visibility conditions on the initial question and on an earlier repeated question to repeated screens but not to a regular screen after the list set', async ({
+    test('applies visibility conditions to repeated screens and non-repeated ones.', async ({
       page,
       adminPrograms,
       adminQuestions,
       adminPredicates,
       applicantQuestions,
     }) => {
+      // This is an exhaustive test for visibility based on initial question, repeated questions and access to them outside of the repeated set.
+      // Initial question visibility program
+      //
+      // +-- Screen 1   regular, empty (created with the program, unused)
+      // |
+      // +-- Screen 2   LIST SET "Pets"
+      // |   |   questions: pets enumerator
+      // |   |              initial question "Sample Number Question -_- a" (number)
+      // |   |
+      // |   +-- Screen 3   REPEATED (per pet)
+      // |   |       question:  initial-visibility-repeated (text)
+      // |   |       shown if:  initial question > 5                [works per pet]
+      // |   |
+      // |   +-- Screen 4   REPEATED (per pet)
+      // |   |       question:  initial-visibility-repeated-number (number)
+      // |   |       no condition
+      // |   |
+      // |   +-- Screen 5   REPEATED (per pet)
+      // |           question:  initial-visibility-repeated-follow-up (text)
+      // |           shown if:  Screen 4 number > 5                 [works per pet]
+      // |
+      // +-- Screen 6   REGULAR (after the list set)
+      //         question:  initial-visibility-regular (text)
+      //         shown if:  initial question > 5                    [BUG: always skipped]
+      //
+      // Applicant flow (initial question: Pet #1 = 10, Pet #2 = 1)
+      //
+      //   Screen 2:  add Pet #1 = 10, Pet #2 = 1
+      //   Pet #1:    Screen 3 shown   -> Screen 4 = 1   -> Screen 5 skipped
+      //   Pet #2:    Screen 3 skipped -> Screen 4 = 10  -> Screen 5 shown
+      //   Screen 6:  skipped (bug)
+      //   Review:    Screen 3 x1, Screen 4 x2, Screen 5 x1, Screen 6 x0
+
       const programName = 'Initial question visibility program'
       const repeatedQuestionText = 'Repeated question shown for big numbers'
       const repeatedNumberQuestionText = 'Repeated number question'
@@ -2105,7 +2138,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // Picking an existing question as the initial question saves a copy with a suffixed admin
       // name.
       const initialQuestionAdminName = `${SAMPLE_QUESTIONS.number} -_- a`
-      const overFive = (questionName: string) => ({
+      const overFivePredicate = (questionName: string) => ({
         questionName,
         action: 'shown if',
         scalar: 'number',
@@ -2124,6 +2157,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await fillAndSubmitEnumeratorQuestionForm(page, {
           initialQuestion: SAMPLE_QUESTIONS.number,
         })
+        // Now that the enumerator is made, make repeated questions.
         await adminQuestions.addTextQuestion({
           questionName: 'initial-visibility-repeated',
           questionText: repeatedQuestionText,
@@ -2155,7 +2189,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           programName,
           'Screen 3',
         )
-        await adminPredicates.addPredicates(overFive(initialQuestionAdminName))
+        await adminPredicates.addPredicates(
+          overFivePredicate(initialQuestionAdminName),
+        )
       })
 
       await test.step('Add repeated Screen 4 with a number question, and repeated Screen 5 shown only when that number is over 5', async () => {
@@ -2176,7 +2212,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           'Screen 5',
         )
         await adminPredicates.addPredicates(
-          overFive('initial-visibility-repeated-number'),
+          overFivePredicate('initial-visibility-repeated-number'),
         )
       })
 
@@ -2188,7 +2224,10 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           programName,
           'Screen 6',
         )
-        await adminPredicates.addPredicates(overFive(initialQuestionAdminName))
+        // TODO(#14624): This should not be able to use the list set questions but it can.
+        await adminPredicates.addPredicates(
+          overFivePredicate(initialQuestionAdminName),
+        )
         await adminPrograms.publishProgram(programName)
         await logout(page)
       })
@@ -2229,16 +2268,12 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await applicantQuestions.clickContinue()
       })
 
-      // BUG: the regular screen after the list set should be shown, since one entity is over 5.
-      // Instead its condition never matches and the screen is silently hidden: the initial
-      // question's answers are stored per entity under the enumerator, so a condition on a
-      // non-repeated screen can't read them. When this is fixed, expect the regular question to be
-      // on the page here before the review page.
-      await test.step('Each conditional repeated screen appears once, and the regular screen is incorrectly skipped', async () => {
+      await test.step('Each conditional repeated screen appears once, and the regular screen is skipped', async () => {
         await applicantQuestions.expectReviewPage()
         await expect(page.getByText(repeatedQuestionText)).toHaveCount(1)
         await expect(page.getByText(repeatedNumberQuestionText)).toHaveCount(2)
         await expect(page.getByText(followUpQuestionText)).toHaveCount(1)
+        // TODO(#14624): The regular screen after the list set should not be able to use list set questions for visibility. It can though and as such the evaluation is not as desired. There is a value that should show the screen but it is not shown.
         await expect(page.getByText(regularQuestionText)).toHaveCount(0)
       })
     })

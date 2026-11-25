@@ -799,9 +799,8 @@ public class ProgramDefinitionTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      getAvailablePredicateQuestionDefinitions_onlyEligibilityExcludesEnumeratorInitialQuestion()
-          throws ProgramBlockDefinitionNotFoundException {
+  public void getAvailablePredicateQuestionDefinitions_withInitialQuestion()
+      throws ProgramBlockDefinitionNotFoundException {
     long programDefinitionId = 123L;
     QuestionDefinition questionA = testQuestionBank.nameApplicantName().getQuestionDefinition();
     QuestionDefinition enumeratorQuestion =
@@ -831,10 +830,10 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setLocalizedDescription(LocalizedStrings.withDefaultValue("List set"))
             .setIsEnumerator(Optional.of(true))
             .addQuestion(
-                ProgramQuestionDefinition.create(initialQuestion, Optional.of(programDefinitionId)))
-            .addQuestion(
                 ProgramQuestionDefinition.create(
                     enumeratorQuestion, Optional.of(programDefinitionId)))
+            .addQuestion(
+                ProgramQuestionDefinition.create(initialQuestion, Optional.of(programDefinitionId)))
             .build();
     BlockDefinition blockAfter =
         BlockDefinition.builder()
@@ -853,9 +852,13 @@ public class ProgramDefinitionTest extends ResetPostgres {
             .setBlockDefinitions(ImmutableList.of(blockA, blockEnum, blockAfter))
             .build();
 
+    // The Enumerator block doesn't see any questions for eligibility.
     assertThat(
             programDefinition.getAvailableEligibilityPredicateQuestionDefinitions(blockEnum.id()))
         .isEmpty();
+    // The subsequent block sees the first block's questions.
+    // TODO(#14624): The subsequent block should not be able to see any  questions from the repeated
+    // screen.
     assertThat(
             programDefinition.getAvailableVisibilityPredicateQuestionDefinitions(blockAfter.id()))
         .containsExactly(questionA, initialQuestion);

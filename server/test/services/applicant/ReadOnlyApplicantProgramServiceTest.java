@@ -943,8 +943,7 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
   }
 
   @Test
-  public void
-      getAllActiveBlocks_predicateOnRepeatedQuestion_appliesPerEntityOnRepeatedBlockButHidesBlockAfterEnumerator() {
+  public void getAllActiveBlocks_predicateOnRepeatedQuestion() {
     QuestionDefinition enumeratorQuestion =
         testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
     QuestionDefinition repeatedNumberQuestion =
@@ -1008,12 +1007,6 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
 
     // The repeated follow-up block reads the number answered for its own household member, so it's
     // shown only for the member whose number is over 5.
-    //
-    // BUG: the same predicate can be set on the block after the enumerator, but there it never
-    // matches and the block is silently hidden, even though a household member's number is over 5.
-    // The block isn't repeated, so it has no repeated entity context for reading the repeated
-    // question's answer, and PredicateEvaluator treats the resulting InvalidPredicateException as
-    // false.
     assertThat(service.getAllActiveBlocks().stream().map(nameWithEntity))
         .containsExactly(
             "enumerator",
@@ -1021,7 +1014,13 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             "repeated follow-up (member one)",
             "repeated (member two)");
     assertThat(service.getAllHiddenBlocks().stream().map(nameWithEntity))
-        .containsExactlyInAnyOrder("repeated follow-up (member two)", "after enumerator");
+        .containsExactlyInAnyOrder(
+            "repeated follow-up (member two)",
+            // TODO(#14624): While we are fabricating the circumstance of the issue
+            // this test asserts the circumstances of it, that when an inaccessible
+            // question is used in visibility predicates that the result is incorrect.
+            // A valid value exists but the predicate doesn't show as configured.
+            "after enumerator");
   }
 
   @Test

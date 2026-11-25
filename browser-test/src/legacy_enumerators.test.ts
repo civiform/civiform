@@ -449,28 +449,55 @@ test.describe('End to end enumerator test', () => {
   })
 
   test.describe('Visibility conditions on repeated questions', () => {
-    test('a condition on a repeated question applies per entry on a later repeated screen but hides a screen after the enumerator', async ({
+    test('applies visibility conditions to repeated screens and non-repeated ones.', async ({
       page,
       adminQuestions,
       adminPrograms,
       adminPredicates,
       applicantQuestions,
     }) => {
+      // This is an exhaustive test for visibility based on repeated questions and access to them outside of the repeated set.
+      // Repeated question visibility program
+      //
+      // +-- Screen 1   ENUMERATOR "Household members"
+      // |   |   question:  visibility-householdmembers (enumerator)
+      // |   |
+      // |   +-- Screen 2   REPEATED (per member)
+      // |   |       question:  visibility-repeated-number (number)
+      // |   |       no condition
+      // |   |
+      // |   +-- Screen 3   REPEATED (per member)
+      // |           question:  visibility-repeated-follow-up (text)
+      // |           shown if:  Screen 2 number > 5                 [works per member]
+      // |
+      // +-- Screen 4   REGULAR (after the enumerator)
+      //         question:  visibility-after-enumerator (text)
+      //         shown if:  Screen 2 number > 5                     [BUG: always skipped]
+      //
+      // Applicant flow
+      //
+      //   Screen 1:  add Bugs, Daffy
+      //   Bugs:      Screen 2 = 10  -> Screen 3 shown
+      //   Daffy:     Screen 2 = 1   -> Screen 3 skipped
+      //   Screen 4:  skipped (bug)
+      //   Review:    Screen 3 for Bugs x1, Screen 3 for Daffy x0, Screen 4 x0
+
       const visibilityProgramName = 'Repeated question visibility program'
       const afterEnumeratorQuestionText = 'Question after the enumerator'
-      const visibilityCondition = {
-        questionName: 'visibility-repeated-number',
+      const overFivePredicate = (questionName: string) => ({
+        questionName,
         action: 'shown if',
         scalar: 'number',
         operator: 'is greater than',
         value: '5',
-      }
+      })
 
       await test.step('Create an enumerator, repeated number and text questions, and a regular question', async () => {
         await loginAsAdmin(page)
         await adminQuestions.addEnumeratorQuestion({
           questionName: 'visibility-householdmembers',
         })
+        // Now that the enumerator is made, make repeated questions.
         await adminQuestions.addNumberQuestion({
           questionName: 'visibility-repeated-number',
           questionText: 'Number for $this',
@@ -511,7 +538,9 @@ test.describe('End to end enumerator test', () => {
           visibilityProgramName,
           'Screen 3',
         )
-        await adminPredicates.addPredicates(visibilityCondition)
+        await adminPredicates.addPredicates(
+          overFivePredicate('visibility-repeated-number'),
+        )
       })
 
       await test.step('Add a screen after the enumerator, shown only when the repeated number is over 5', async () => {
@@ -522,7 +551,10 @@ test.describe('End to end enumerator test', () => {
           visibilityProgramName,
           'Screen 4',
         )
-        await adminPredicates.addPredicates(visibilityCondition)
+        // TODO(#14624): This should not be able to use the repeated questions but it can.
+        await adminPredicates.addPredicates(
+          overFivePredicate('visibility-repeated-number'),
+        )
         await adminPrograms.publishProgram(visibilityProgramName)
         await logout(page)
       })
@@ -550,11 +582,8 @@ test.describe('End to end enumerator test', () => {
         await expect(page.getByText('Follow-up for Daffy')).toHaveCount(0)
       })
 
-      // BUG: the screen after the enumerator should be shown, since a household member's number is
-      // over 5. Instead its condition never matches and the screen is silently hidden: the screen
-      // isn't repeated, so it has no repeated entity to read the repeated question's answer from,
-      // and the condition is treated as false.
-      await test.step('The screen after the enumerator is incorrectly skipped', async () => {
+      await test.step('The screen after the enumerator is skipped', async () => {
+        // TODO(#14624): The screen after the enumerator should not be able to use repeated questions for visibility. It can though and as such the evaluation is not as desired. There is a value that should show the screen but it is not shown.
         await expect(page.getByText(afterEnumeratorQuestionText)).toHaveCount(0)
       })
     })
