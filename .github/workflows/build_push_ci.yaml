@@ -105,6 +105,8 @@ jobs:
       - name: Create manifest list
         working-directory: ${{ runner.temp }}/digests
         run: |
+          # Word splitting is intended: one argument per digest file.
+          # shellcheck disable=SC2046
           docker buildx imagetools create -t civiform/civiform-dev:latest \
             $(printf 'civiform/civiform-dev@sha256:%s ' *)
       - name: Inspect
@@ -142,7 +144,7 @@ jobs:
           - version: mock-web-services
             image: 'civiform/mock-web-services:latest'
             script: 'bin/build-mock-web-services'
-            file_pattern: 'esri-mock-service/'
+            file_pattern: 'mock-web-services/'
             platform: 'linux/amd64,linux/arm64' # build for m1 mac, too
     concurrency:
       group: build_dependancies-${{ matrix.version }}-${{ github.workflow }}-${{ github.ref }}
@@ -161,7 +163,7 @@ jobs:
 
       - name: Check build & push
         id: check_build
-        if: >
+        if: >-
           ${{ (github.event_name == 'workflow_dispatch') ||
             contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.file_pattern) ||
             contains(toJSON(steps.file_changes.outputs.all_changed_files), matrix.script) ||

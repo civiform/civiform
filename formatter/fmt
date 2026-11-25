@@ -120,6 +120,18 @@ function get_modified_prettier_files() {
   )
 }
 
+function get_modified_github_actions_files() {
+  # Workflows, composite actions, and the Dependabot config: the inputs
+  # zizmor audits.
+  #
+  # Zero matches in grep returns a 1, but we want to treat as empty which is
+  # why the `|| true` is there
+  (
+    get_tracked_modified_files
+    get_untracked_files
+  ) | grep -E "^\.github/workflows/.+\.ya?ml$|(^|/)action\.ya?ml$|^\.github/dependabot\.ya?ml$" || true
+}
+
 function get_modified_python_files() {
   # Zero matches in grep returns a 1, but we want to treat as empty which is
   # why the `|| true` is there
@@ -241,6 +253,23 @@ else
     --exclude env-var-docs/venv \
     --exclude mock-web-services/.venv \
     ${modified_py[@]}
+fi
+
+modified_actions="$(get_modified_github_actions_files)"
+if [[ -z "${modified_actions}" ]]; then
+  echo 'No modified GitHub Actions files found'
+else
+  echo 'Start fixing GitHub Actions files with zizmor'
+  # Applies only zizmor's safe auto-fixes. Findings without a safe fix are
+  # printed but don't fail the run (--no-exit-codes), since many workflows
+  # have existing findings. --offline skips audits that call the GitHub API
+  # so the formatter doesn't need a token or network access.
+  zizmor \
+    --offline \
+    --fix=safe \
+    --no-exit-codes \
+    ${modified_actions[@]}
+  echo 'Done fixing GitHub Actions files with zizmor'
 fi
 
 # get modified sql files and prefix each with "../" so they are a relative path from the formatter
