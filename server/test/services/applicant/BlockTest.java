@@ -46,15 +46,7 @@ public class BlockTest {
       (TextQuestionDefinition)
           testQuestionBank.textApplicantFavoriteColor().getQuestionDefinition();
   private static final StaticContentQuestionDefinition STATIC_QUESTION =
-      new StaticContentQuestionDefinition(
-          QuestionDefinitionConfig.builder()
-              .setName("more info about something")
-              .setDescription("Shows more info to the applicant")
-              .setQuestionText(LocalizedStrings.of(Locale.US, "This is more info"))
-              .setQuestionHelpText(LocalizedStrings.of(Locale.US, ""))
-              .setId(OptionalLong.of(123L))
-              .setLastModifiedTime(Optional.empty())
-              .build());
+      (StaticContentQuestionDefinition) testQuestionBank.staticContent().getQuestionDefinition();
   private static final TextQuestionDefinition HIDDEN_TEXT_QUESTION =
       new TextQuestionDefinition(
           QuestionDefinitionConfig.builder()
