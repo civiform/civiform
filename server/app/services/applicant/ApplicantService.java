@@ -329,6 +329,55 @@ public final class ApplicantService {
       boolean forceUpdate,
       boolean apiBridgeEnabled,
       boolean enumeratorImprovementsEnabled) {
+    return stageAndUpdateIfValid(
+        applicantId,
+        programId,
+        blockId,
+        updateMap,
+        addressServiceAreaValidationEnabled,
+        forceUpdate,
+        apiBridgeEnabled,
+        enumeratorImprovementsEnabled,
+        /* allowAddressDerivedScalars= */ false);
+  }
+
+  /**
+   * Same as {@link #stageAndUpdateIfValid(long, long, String, ImmutableMap, boolean, boolean,
+   * boolean, boolean)}, but accepts the address scalars the geocoding service derives (corrected,
+   * latitude, longitude and well known ID). Only call this with values built from a suggestion the
+   * server itself fetched from the geocoding service, never from request data.
+   */
+  public CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValidForAddressCorrection(
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate,
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled) {
+    return stageAndUpdateIfValid(
+        applicantId,
+        programId,
+        blockId,
+        updateMap,
+        addressServiceAreaValidationEnabled,
+        forceUpdate,
+        apiBridgeEnabled,
+        enumeratorImprovementsEnabled,
+        /* allowAddressDerivedScalars= */ true);
+  }
+
+  private CompletionStage<ReadOnlyApplicantProgramService> stageAndUpdateIfValid(
+      long applicantId,
+      long programId,
+      String blockId,
+      ImmutableMap<String, String> updateMap,
+      boolean addressServiceAreaValidationEnabled,
+      boolean forceUpdate,
+      boolean apiBridgeEnabled,
+      boolean enumeratorImprovementsEnabled,
+      boolean allowAddressDerivedScalars) {
     ImmutableSet<Update> updates =
         updateMap.entrySet().stream()
             .map(entry -> Update.create(Path.create(entry.getKey()), entry.getValue()))
@@ -355,6 +404,16 @@ public final class ApplicantService {
           new IllegalArgumentException("Path contained reserved score key"));
     }
 
+    // Address scalars derived from the geocoding service decide service area eligibility, so only
+    // the address correction flow may set them. Empty values are fine: they clear the stored
+    // scalar when the street address changes.
+    if (!allowAddressDerivedScalars
+        && updates.stream()
+            .anyMatch(update -> isReservedAddressDerivedUpdate(update.path(), update.value()))) {
+      return CompletableFuture.failedFuture(
+          new IllegalArgumentException("Path contained reserved address scalar key"));
+    }
+
     return stageAndUpdateIfValid(
         applicantId,
         programId,
@@ -365,6 +424,18 @@ public final class ApplicantService {
         forceUpdate,
         apiBridgeEnabled,
         enumeratorImprovementsEnabled);
+  }
+
+  /**
+   * Returns true if setting the given path to the given value writes a non-empty address scalar the
+   * server must derive. Enumerator entity paths such as {@code applicant.latitude[0]} are exempt.
+   */
+  @VisibleForTesting
+  static boolean isReservedAddressDerivedUpdate(Path path, String value) {
+    Path keyPath = path.isArrayElement() ? path.withoutArrayReference() : path;
+    return Scalar.getAddressDerivedScalarKeys().contains(keyPath.keyName())
+        && !isEnumeratorEntityPath(path)
+        && !value.isEmpty();
   }
 
   /**

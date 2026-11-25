@@ -87,6 +87,19 @@ public enum Scalar {
           .map(String::toLowerCase)
           .collect(ImmutableSet.toImmutableSet());
 
+  /**
+   * Address scalars the server derives from the geocoding service. Applicants can't set them
+   * directly, or they could pick the point a service area check runs against.
+   */
+  private static final ImmutableSet<Scalar> ADDRESS_DERIVED_SCALARS =
+      ImmutableSet.of(CORRECTED, LATITUDE, LONGITUDE, WELL_KNOWN_ID);
+
+  private static final ImmutableSet<String> ADDRESS_DERIVED_SCALAR_KEYS =
+      ADDRESS_DERIVED_SCALARS.stream()
+          .map(Scalar::name)
+          .map(String::toLowerCase)
+          .collect(ImmutableSet.toImmutableSet());
+
   private static final ImmutableSet<Scalar> SCORE_SCALARS =
       ImmutableSet.of(SCORE, SCORES, TOTAL_SCORE);
   private static final ImmutableSet<String> SCORE_SCALAR_KEYS =
@@ -178,6 +191,11 @@ public enum Scalar {
   /** A set of Scalars as strings that represent keys where metadata is stored. */
   public static ImmutableSet<String> getMetadataScalarKeys() {
     return METADATA_SCALAR_KEYS;
+  }
+
+  /** The address scalars as strings that only the server's address correction may write. */
+  public static ImmutableSet<String> getAddressDerivedScalarKeys() {
+    return ADDRESS_DERIVED_SCALAR_KEYS;
   }
 
   /** The scalars answer-option scores are stored under. See {@link #SCORE}. */

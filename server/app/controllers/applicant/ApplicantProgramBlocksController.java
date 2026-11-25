@@ -382,7 +382,7 @@ public final class ApplicantProgramBlocksController extends CiviFormController {
             classLoaderExecutionContext.current())
         .thenComposeAsync(
             questionPathToValueMap ->
-                applicantService.stageAndUpdateIfValid(
+                applicantService.stageAndUpdateIfValidForAddressCorrection(
                     applicantId,
                     programId,
                     blockId,
