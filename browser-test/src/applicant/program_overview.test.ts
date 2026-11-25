@@ -99,10 +99,13 @@ test.describe('Applicant program overview', () => {
       // Exercise guest path
       await page.goto(`/programs/${programName}`)
       await applicantProgramOverview.expectProgramOverviewPage(programName)
+      await expect(
+        page.getByRole('link', {name: 'Continue application'}),
+      ).toBeHidden()
 
       await logout(page)
 
-      // Exercise test user path
+      // Exercise test user path (in-progress application)
       await loginAsTestUser(page)
       await applicantQuestions.applyProgram(programName)
       await applicantQuestions.answerTextQuestion('first answer')
@@ -110,6 +113,18 @@ test.describe('Applicant program overview', () => {
 
       await page.goto(`/programs/${programName}`)
       await applicantProgramOverview.expectProgramOverviewPage(programName)
+      await expect(
+        page.getByRole('link', {name: 'Continue application'}),
+      ).toHaveCount(2)
+
+      // Exercise test user path after submitting application
+      await page.getByRole('link', {name: 'Continue application'}).first().click()
+      await applicantQuestions.submitFromReviewPage()
+      await page.goto(`/programs/${programName}`)
+      await applicantProgramOverview.expectProgramOverviewPage(programName)
+      await expect(
+        page.getByRole('link', {name: 'Continue application'}),
+      ).toHaveCount(2)
     })
   })
 
@@ -348,12 +363,15 @@ test.describe('Applicant program overview', () => {
     ).toBeAttached()
   })
 
-  test('clicking on "Start an application" goes to the first page of the application', async ({
+  test('clicking on "Start application as a guest" goes to the first page of the application', async ({
     page,
     applicantProgramOverview: applicantProgramOverview,
   }) => {
     await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', {name: 'Start an application'}).click()
+    await page
+      .getByRole('button', {name: 'Start application as a guest'})
+      .first()
+      .click()
     await applicantProgramOverview.expectFirstPageOfApplication()
   })
 
@@ -371,16 +389,17 @@ test.describe('Applicant program overview', () => {
 
     const stepsAndAlertsLocator = page.getByTestId('steps-and-alerts')
 
-    await test.step('verify there is no create account alert but, rather, a "Start an application" button', async () => {
+    await test.step('verify there is no create account alert but, rather, a "Start application" button', async () => {
       await expect(page.locator('#create-account')).toBeHidden()
+      await expect(page.getByTestId('start-application-card')).toBeHidden()
       await expect(
-        stepsAndAlertsLocator.getByRole('link', {name: 'Start an application'}),
+        stepsAndAlertsLocator.getByRole('link', {name: 'Start application'}),
       ).toBeVisible()
     })
 
-    await test.step('click on 2nd "Start an application" button and verify that it goes to the application', async () => {
+    await test.step('click on 2nd "Start application" button and verify that it goes to the application', async () => {
       await stepsAndAlertsLocator
-        .getByRole('link', {name: 'Start an application'})
+        .getByRole('link', {name: 'Start application'})
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
@@ -394,20 +413,32 @@ test.describe('Applicant program overview', () => {
 
     await expect(page.getByRole('button', {name: 'Log in'})).toBeVisible()
 
-    await test.step('verify the create account alert is visible', async () => {
+    await test.step('verify the start application card and create account alert are visible', async () => {
       await expect(
-        page.getByRole('button', {name: 'Start application with an account'}),
+        page.getByRole('heading', {name: 'Start application'}),
       ).toBeVisible()
+      await expect(
+        page.getByText('Ready to apply? Log in to save your progress.'),
+      ).toBeVisible()
+      await expect(
+        page.getByRole('button', {name: 'Log in to start application'}),
+      ).toHaveCount(2)
       await expect(
         page.getByRole('heading', {
           name: 'To access your application later, create an account',
         }),
+      ).toBeVisible()
+      await expect(
+        page.getByText(
+          'Use an account to log back in to check on your application status and save time applying to other programs.',
+        ),
       ).toBeVisible()
     })
 
     await test.step('click "Start application as a guest" and verify that it goes to the application', async () => {
       await page
         .getByRole('button', {name: 'Start application as a guest'})
+        .first()
         .click()
       await applicantProgramOverview.expectFirstPageOfApplication()
     })
@@ -460,7 +491,7 @@ test.describe('Applicant program overview for login only program', () => {
 
     await expect(
       page
-        .getByRole('button', {name: 'Start application with an account'})
+        .getByRole('button', {name: 'Log in to start application'})
         .first(),
     ).toBeVisible()
 
@@ -481,7 +512,7 @@ test.describe('Applicant program overview for login only program', () => {
     await page.goto(`/programs/${programName}`)
 
     await expect(
-      page.getByRole('link', {name: 'Start an application'}).first(),
+      page.getByRole('link', {name: 'Start application'}).first(),
     ).toBeVisible()
   })
 })
@@ -516,7 +547,7 @@ test.describe('guest cannot complete applications for login only program', () =>
   }) => {
     await loginAsTestUser(page)
     await page.goto(`/programs/${programName}`)
-    await page.getByRole('link', {name: 'Start an application'}).first().click()
+    await page.getByRole('link', {name: 'Start application'}).first().click()
     await waitForPageJsLoad(page)
 
     // logged in user can see the application page

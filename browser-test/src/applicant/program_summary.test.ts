@@ -262,7 +262,7 @@ test.describe('guest cannot see program summary page for login only program', ()
       await loginAsTestUser(page)
       await page.goto(`/programs/${programName}`)
       await page
-        .getByRole('link', {name: 'Start an application'})
+        .getByRole('link', {name: 'Start application'})
         .first()
         .click()
       await applicantQuestions.answerNameQuestion('test', 'user')

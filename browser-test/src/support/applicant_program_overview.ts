@@ -18,8 +18,12 @@ export class ApplicantProgramOverview {
     translatedLinkText?: string,
   ): Promise<void> {
     await this.expectProgramOverviewPage(programName, translatedOverviewTitle)
+    const targetName =
+      translatedLinkText ||
+      /^(Start application|Start an application|Start application as a guest|Continue application)$/
     await this.page
-      .getByRole('link', {name: translatedLinkText || 'Start an application'})
+      .getByRole('link', {name: targetName})
+      .or(this.page.getByRole('button', {name: targetName}))
       .first()
       .click()
   }
@@ -47,7 +51,11 @@ export class ApplicantProgramOverview {
     buttonText: string,
   ): Promise<void> {
     await this.expectTranslatedProgramOverviewPage(pageTitle, header)
-    await this.page.getByRole('link', {name: buttonText}).first().click()
+    await this.page
+      .getByRole('link', {name: buttonText})
+      .or(this.page.getByRole('button', {name: buttonText}))
+      .first()
+      .click()
   }
 
   async expectTranslatedProgramOverviewPage(pageTitle: string, header: string) {
