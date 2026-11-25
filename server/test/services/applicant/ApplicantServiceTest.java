@@ -2,6 +2,7 @@ package services.applicant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatExceptionOfType;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.assertj.core.api.Assertions.catchThrowable;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
@@ -1594,6 +1595,45 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void isReservedAddressDerivedUpdate_rejectsNonEmptyDerivedScalarWrites() {
+    Path address = Path.create("applicant.applicant_address");
+
+    assertThat(
+            ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.LATITUDE), "100.0"))
+        .isTrue();
+    assertThat(ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.LONGITUDE), "1"))
+        .isTrue();
+    assertThat(
+            ApplicantService.isReservedAddressDerivedUpdate(
+                address.join(Scalar.WELL_KNOWN_ID), "1"))
+        .isTrue();
+    assertThat(ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.CORRECTED), "x"))
+        .isTrue();
+    // Whitespace is not the empty value the update flow uses to clear a scalar.
+    assertThat(ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.LATITUDE), " "))
+        .isTrue();
+  }
+
+  @Test
+  public void isReservedAddressDerivedUpdate_allowsEmptyValuesEntityPathsAndOrdinaryScalars() {
+    Path address = Path.create("applicant.applicant_address");
+
+    assertThat(ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.LATITUDE), ""))
+        .isFalse();
+    assertThat(ApplicantService.isReservedAddressDerivedUpdate(address.join(Scalar.CORRECTED), ""))
+        .isFalse();
+    // Enumerator entities addressed directly, e.g. an enumerator named "latitude".
+    assertThat(
+            ApplicantService.isReservedAddressDerivedUpdate(
+                Path.create("applicant.latitude[0]"), "x"))
+        .isFalse();
+    assertThat(
+            ApplicantService.isReservedAddressDerivedUpdate(
+                address.join(Scalar.STREET), "1 Main St"))
+        .isFalse();
+  }
+
+  @Test
   public void isReservedScoreUpdatePath_rejectsScoreKeyWrites() {
     assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("total_score"))).isTrue();
     assertThat(ApplicantService.isReservedScoreUpdatePath(Path.create("total_score[0]"))).isTrue();
@@ -3040,6 +3080,74 @@ public class ApplicantServiceTest extends ResetPostgres {
   }
 
   @Test
+  public void stageAndUpdateIfValid_forgedAddressScalars_doNotGrantServiceAreaInclusion() {
+    QuestionDefinition addressQuestion =
+        testQuestionBank.addressApplicantAddress().getQuestionDefinition();
+    EligibilityDefinition eligibilityDef =
+        EligibilityDefinition.builder()
+            .setPredicate(
+                PredicateDefinition.create(
+                    PredicateExpressionNode.create(
+                        LeafAddressServiceAreaExpressionNode.create(
+                            addressQuestion.getId(), "Seattle", Operator.IN_SERVICE_AREA)),
+                    PredicateAction.ELIGIBLE_BLOCK))
+            .build();
+    ProgramDefinition programDefinition =
+        ProgramBuilder.newActiveProgram("test program", "desc")
+            .withBlock()
+            .withRequiredCorrectedAddressQuestion(testQuestionBank.addressApplicantAddress())
+            .withEligibilityDefinition(eligibilityDef)
+            .buildDefinition();
+    ApplicantModel applicant = subject.createApplicant().toCompletableFuture().join();
+    Path rootPath = Path.create("applicant.applicant_address");
+    Path serviceAreaPath = rootPath.join(Scalar.SERVICE_AREAS).asArrayElement();
+
+    subject
+        .stageAndUpdateIfValid(
+            applicant.id,
+            programDefinition.id(),
+            "1",
+            ImmutableMap.<String, String>builder()
+                .put(rootPath.join(Scalar.STREET).toString(), "555 E 5th St")
+                .put(rootPath.join(Scalar.CITY).toString(), "City")
+                .put(rootPath.join(Scalar.STATE).toString(), "State")
+                .put(rootPath.join(Scalar.ZIP).toString(), "55555")
+                .build(),
+            true,
+            false,
+            false,
+            false)
+        .toCompletableFuture()
+        .join();
+
+    // Posting only the scalars the geocoding service derives must be rejected.
+    assertThatThrownBy(
+            () ->
+                subject
+                    .stageAndUpdateIfValid(
+                        applicant.id,
+                        programDefinition.id(),
+                        "1",
+                        ImmutableMap.<String, String>builder()
+                            .put(rootPath.join(Scalar.CORRECTED).toString(), "Corrected")
+                            .put(rootPath.join(Scalar.LATITUDE).toString(), "100.0")
+                            .put(rootPath.join(Scalar.LONGITUDE).toString(), "-100.0")
+                            .put(rootPath.join(Scalar.WELL_KNOWN_ID).toString(), "4326")
+                            .build(),
+                        true,
+                        false,
+                        false,
+                        false)
+                    .toCompletableFuture()
+                    .join())
+        .hasCauseInstanceOf(IllegalArgumentException.class);
+
+    ApplicantData data =
+        accountRepository.lookupApplicantSync(applicant.id).get().getApplicantData();
+    assertThat(data.readServiceAreaList(serviceAreaPath)).isEmpty();
+  }
+
+  @Test
   public void stageAndUpdateIfValid_with_correctedAddress_and_esriServiceAreaValidation() {
 
     QuestionDefinition addressQuestion =
@@ -3111,7 +3219,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(
+        .stageAndUpdateIfValidForAddressCorrection(
             applicant.id,
             programDefinition.id(),
             "1",
@@ -3225,7 +3333,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(
+        .stageAndUpdateIfValidForAddressCorrection(
             applicant.id,
             programDefinition.id(),
             "1",
@@ -3331,7 +3439,7 @@ public class ApplicantServiceTest extends ResetPostgres {
             .build();
 
     subject
-        .stageAndUpdateIfValid(
+        .stageAndUpdateIfValidForAddressCorrection(
             applicant.id,
             programDefinition.id(),
             "1",
