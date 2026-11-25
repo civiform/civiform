@@ -112,7 +112,7 @@ lazy val root = (project in file("."))
         "auto-value-shaded"
       ),
       // Errorprone
-      "com.google.errorprone" % "error_prone_core" % "2.50.0",
+      "com.google.errorprone" % "error_prone_core" % "2.53.0",
       "org.checkerframework" % "dataflow-errorprone" % "4.4.0",
 
       // Apache libraries for export
