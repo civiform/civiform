@@ -20,6 +20,7 @@ import repository.ResetPostgres;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.FileListFailureException;
 import services.cloud.aws.SignedS3UploadRequest;
+import services.cloud.generic_s3.AbstractS3StorageUtils;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 import software.amazon.awssdk.regions.Region;
@@ -69,7 +70,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsAwsEmulator() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -82,13 +83,13 @@ public class GcpPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("floci");
+    assertThat(uploadRequest.actionLink()).contains(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
 
   @Test
-  public void getSignedUploadRequest_testEnv_notFlociOrProd() {
+  public void getSignedUploadRequest_testEnv_notAwsEmulatorOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -101,7 +102,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpPublicStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).doesNotContain("floci");
+    assertThat(uploadRequest.actionLink()).doesNotContain(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
   }
 
@@ -261,7 +262,7 @@ public class GcpPublicStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void prunePublicFileStorage_devEnv_endpointIsFloci() {
+  public void prunePublicFileStorage_devEnv_endpointIsAwsEmulator() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -275,11 +276,11 @@ public class GcpPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     gcpPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains("floci");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).contains(awsEmulatorHost());
   }
 
   @Test
-  public void prunePublicFileStorage_testEnv_endpointIsNotFlociOrProd() {
+  public void prunePublicFileStorage_testEnv_endpointIsNotAwsEmulatorOrProd() {
     GcpPublicStorage gcpPublicStorage =
         new GcpPublicStorage(
             fakeS3Client,
@@ -293,7 +294,8 @@ public class GcpPublicStorageTest extends ResetPostgres {
     fakeS3Client.addObject("program-summary-image/program-10/myFile10.jpeg");
     gcpPublicStorage.prunePublicFileStorage(ImmutableSet.of());
 
-    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("floci");
+    assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost())
+        .doesNotContain(awsEmulatorHost());
     assertThat(fakeS3Client.getLastDeleteEndpointUsed().getHost()).doesNotContain("googleapis");
   }
 
@@ -425,5 +427,12 @@ public class GcpPublicStorageTest extends ResetPostgres {
 
     // THEN we want that exception is handled internally in GcpPublicStorage and not re-thrown. This
     // test doesn't need an assert, it just verifies there was no exception.
+  }
+
+  /** The host of the configured AWS emulator endpoint, e.g. "localhost.floci.io". */
+  private String awsEmulatorHost() {
+    return URI.create(
+            instanceOf(Config.class).getString(AbstractS3StorageUtils.LOCAL_ENDPOINT_CONF_PATH))
+        .getHost();
   }
 }

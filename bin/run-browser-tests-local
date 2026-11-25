@@ -8,7 +8,7 @@ source bin/lib.sh
 # image and produce different screenshots.
 export DISABLE_SCREENSHOTS=true
 export BASE_URL="${BASE_URL:-http://localhost:9999}"
-export FLOCI_URL=http://localhost.floci.io:6645
+export AWS_EMULATOR_URL=http://localhost.floci.io:6645
 
 cd browser-test
 bin/wait_for_server_start_and_run_tests.sh "$@"

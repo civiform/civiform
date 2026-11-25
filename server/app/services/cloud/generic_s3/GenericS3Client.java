@@ -71,7 +71,7 @@ public final class GenericS3Client implements GenericS3ClientWrapper {
     return S3Client.builder()
         .credentialsProvider(credentials.credentialsProvider())
         .region(region)
-        // Override the endpoint so that Floci works correctly.
+        // Override the endpoint so that the AWS emulator (Floci) works correctly.
         // See https://floci.io/floci/services/s3/#virtual-hosted-style.
         .endpointOverride(endpoint)
         .build();

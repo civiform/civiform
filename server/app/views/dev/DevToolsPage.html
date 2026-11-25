@@ -159,21 +159,21 @@
       </div>
     </li>
 
-    <!-- Floci (dev only) -->
+    <!-- AWS emulator (dev only) -->
     <li th:if="${model.isDev}" class="usa-card tablet:grid-col-6">
       <div class="usa-card__container">
         <div class="usa-card__header">
-          <h2 class="usa-card__heading">[[#{devtools.floci.title}]]</h2>
+          <h2 class="usa-card__heading">[[#{devtools.awsEmulator.title}]]</h2>
         </div>
         <div class="usa-card__body">
-          <p>[[#{devtools.floci.description}]]</p>
+          <p>[[#{devtools.awsEmulator.description}]]</p>
           <ul class="usa-button-group flex-column">
             <li class="usa-button-group__item margin-x-0">
               <a
                 class="usa-button width-full"
                 href="http://localhost.floci.io:4566/_aws/ses/"
                 target="_blank"
-                >✉️ [[#{devtools.floci.ses}]]</a
+                >✉️ [[#{devtools.awsEmulator.ses}]]</a
               >
             </li>
             <li class="usa-button-group__item margin-x-0">
@@ -181,7 +181,7 @@
                 class="usa-button width-full"
                 href="http://civiform-local-s3.s3.localhost.floci.io:4566/"
                 target="_blank"
-                >📁 [[#{devtools.floci.private}]]</a
+                >📁 [[#{devtools.awsEmulator.private}]]</a
               >
             </li>
             <li class="usa-button-group__item margin-x-0">
@@ -189,7 +189,7 @@
                 class="usa-button width-full"
                 href="http://civiform-local-s3-public.s3.localhost.floci.io:4566/"
                 target="_blank"
-                >📁 [[#{devtools.floci.public}]]</a
+                >📁 [[#{devtools.awsEmulator.public}]]</a
               >
             </li>
           </ul>

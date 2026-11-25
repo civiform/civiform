@@ -4,17 +4,17 @@ APPLICANT_BUCKET_NAME="civiform-local-s3"
 PUBLIC_BUCKET_NAME="civiform-local-s3-public"
 
 #######################################
-# Run an AWS CLI command against Floci.
+# Run an AWS CLI command against the AWS emulator.
 # Arguments:
 #   1: The command to run.
 # Globals:
 #   DOCKER_NETWORK_NAME
 #######################################
-function floci::run_command() {
-  local floci_command="${1}"
+function aws_emulator::run_command() {
+  local emulator_command="${1}"
 
-  echo "Running Floci command:"
-  echo "  aws-cli ${floci_command}"
+  echo "Running AWS emulator command:"
+  echo "  aws-cli ${emulator_command}"
 
   # The command variable is referenced without quotes to allow word splitting.
   docker run --rm \
@@ -24,5 +24,5 @@ function floci::run_command() {
     -e "AWS_SECRET_ACCESS_KEY=test" \
     amazon/aws-cli \
     --endpoint-url="http://localhost.floci.io:4566" \
-    $floci_command
+    $emulator_command
 }

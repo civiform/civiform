@@ -46,7 +46,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new AbstractS3ApplicantStorage.FlociClient(config, s3StorageUtils);
+      client = new AbstractS3ApplicantStorage.AwsEmulatorClient(config, s3StorageUtils);
     } else if (environment.isTest()) {
       client = new AbstractS3ApplicantStorage.NullClient();
     } else {
@@ -190,17 +190,17 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
     }
   }
 
-  class FlociClient implements Client {
+  class AwsEmulatorClient implements Client {
     private final Config config;
     private final AbstractS3StorageUtils s3StorageUtils;
     private final S3Presigner presigner;
 
-    FlociClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
+    AwsEmulatorClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
       this.config = checkNotNull(config);
       this.s3StorageUtils = checkNotNull(s3StorageUtils);
       this.presigner =
           S3Presigner.builder()
-              .endpointOverride(s3StorageUtils.flociEndpoint(config))
+              .endpointOverride(s3StorageUtils.awsEmulatorEndpoint(config))
               .region(region)
               .build();
     }
@@ -212,7 +212,7 @@ public abstract class AbstractS3ApplicantStorage implements ApplicantStorageClie
 
     @Override
     public String actionLink() {
-      return s3StorageUtils.flociActionLink(config, bucket, region);
+      return s3StorageUtils.awsEmulatorActionLink(config, bucket, region);
     }
 
     @Override

@@ -1,7 +1,7 @@
 #! /usr/bin/env bash
 source bin/lib.sh
 
-# DOC: Deletes the record of all emails stored by the Floci server in the dev environment.
+# DOC: Deletes the record of all emails stored by the AWS emulator in the dev environment.
 
 if hash curl 2>/dev/null; then
   curl -X DELETE http://localhost:4566/_aws/ses

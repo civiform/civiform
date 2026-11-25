@@ -7,7 +7,7 @@ services:
       - ./browser-test/custom-postgres.conf:/etc/postgresql/postgresql.conf
     command: -c 'config_file=/etc/postgresql/postgresql.conf'
 
-  floci:
+  aws-emulator:
     ports:
       - 6645:4566
 
@@ -29,7 +29,7 @@ services:
       - CIVIFORM_ADMIN_IDP=adfs
       - DB_JDBC_STRING=jdbc:postgresql://db:5432/postgres
       - BASE_URL=${BASE_URL:-http://civiform:9000}
-      - FLOCI_URL=http://localhost.floci.io:4566
+      - AWS_EMULATOR_URL=http://localhost.floci.io:4566
       - CIVIFORM_TIME_ZONE_ID
       - USE_BUNDLER_DEV_SERVER=false
     command: ~runBrowserTestsServer

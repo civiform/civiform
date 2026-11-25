@@ -7,11 +7,13 @@ import static services.cloud.aws.AwsApplicantStorage.AWS_S3_FILE_LIMIT_CONF_PATH
 
 import com.typesafe.config.Config;
 import java.io.File;
+import java.net.URI;
 import org.junit.Test;
 import play.Environment;
 import play.Mode;
 import play.inject.ApplicationLifecycle;
 import repository.ResetPostgres;
+import services.cloud.generic_s3.AbstractS3StorageUtils;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
@@ -44,7 +46,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsAwsEmulator() {
     AwsApplicantStorage awsApplicantStorage =
         new AwsApplicantStorage(
             instanceOf(AwsStorageUtils.class),
@@ -57,7 +59,7 @@ public class AwsApplicantStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         awsApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("floci");
+    assertThat(uploadRequest.actionLink()).contains(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("amazonaws.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
@@ -192,5 +194,12 @@ public class AwsApplicantStorageTest extends ResetPostgres {
         .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true");
     // Verify that the redirect URL is treated as a prefix.
     assertThat(uploadRequest.useSuccessActionRedirectAsPrefix()).isTrue();
+  }
+
+  /** The host of the configured AWS emulator endpoint, e.g. "localhost.floci.io". */
+  private String awsEmulatorHost() {
+    return URI.create(
+            instanceOf(Config.class).getString(AbstractS3StorageUtils.LOCAL_ENDPOINT_CONF_PATH))
+        .getHost();
   }
 }

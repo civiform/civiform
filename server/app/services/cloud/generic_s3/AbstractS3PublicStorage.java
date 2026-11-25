@@ -48,7 +48,7 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     this.bucket = checkNotNull(config).getString(getBucketConfigPath());
     this.fileLimitMb = checkNotNull(config).getInt(getFileLimitMbPath());
     if (environment.isDev()) {
-      client = new FlociClient(config, s3StorageUtils);
+      client = new AwsEmulatorClient(config, s3StorageUtils);
     } else if (environment.isProd()) {
       client = new AwsClient();
     } else {
@@ -193,24 +193,24 @@ public abstract class AbstractS3PublicStorage extends PublicStorageClient {
     }
   }
 
-  /** A Floci client implementation used for local development. */
-  class FlociClient implements Client {
+  /** An AWS emulator client implementation used for local development. */
+  class AwsEmulatorClient implements Client {
     private final Config config;
     private final AbstractS3StorageUtils s3StorageUtils1;
 
-    FlociClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
+    AwsEmulatorClient(Config config, AbstractS3StorageUtils s3StorageUtils) {
       this.config = checkNotNull(config);
       this.s3StorageUtils1 = checkNotNull(s3StorageUtils);
     }
 
     @Override
     public URI endpoint() {
-      return s3StorageUtils1.flociEndpoint(config);
+      return s3StorageUtils1.awsEmulatorEndpoint(config);
     }
 
     @Override
     public String actionLink() {
-      return s3StorageUtils1.flociActionLink(config, bucket, region);
+      return s3StorageUtils1.awsEmulatorActionLink(config, bucket, region);
     }
   }
 }

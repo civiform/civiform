@@ -1,6 +1,6 @@
 # Use postgres/example user/password credentials
 services:
-  floci:
+  aws-emulator:
     image: floci/floci:2.5.0@sha256:a0fbf944d7f338cc0856f1ef83831ea749ff2be71956eb7a7fce08fc21458e19
     profiles: ['aws', 'emulator']
     expose:

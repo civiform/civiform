@@ -7,6 +7,7 @@ import static services.cloud.gcp.GcpApplicantStorage.GCP_S3_FILE_LIMIT_CONF_PATH
 
 import com.typesafe.config.Config;
 import java.io.File;
+import java.net.URI;
 import org.junit.Test;
 import play.Environment;
 import play.Mode;
@@ -14,6 +15,7 @@ import play.inject.ApplicationLifecycle;
 import repository.ResetPostgres;
 import services.cloud.aws.Credentials;
 import services.cloud.aws.SignedS3UploadRequest;
+import services.cloud.generic_s3.AbstractS3StorageUtils;
 import software.amazon.awssdk.auth.credentials.AwsCredentials;
 import software.amazon.awssdk.auth.credentials.AwsSessionCredentials;
 
@@ -46,7 +48,7 @@ public class GcpApplicantStorageTest extends ResetPostgres {
   }
 
   @Test
-  public void getSignedUploadRequest_devEnv_actionLinkIsFloci() {
+  public void getSignedUploadRequest_devEnv_actionLinkIsAwsEmulator() {
     GcpApplicantStorage gcpApplicantStorage =
         new GcpApplicantStorage(
             instanceOf(GcpStorageUtils.class),
@@ -59,7 +61,7 @@ public class GcpApplicantStorageTest extends ResetPostgres {
     SignedS3UploadRequest uploadRequest =
         gcpApplicantStorage.getSignedUploadRequest("fileKey", "redirect");
 
-    assertThat(uploadRequest.actionLink()).contains("floci");
+    assertThat(uploadRequest.actionLink()).contains(awsEmulatorHost());
     assertThat(uploadRequest.actionLink()).doesNotContain("googleapis.com");
     assertThat(uploadRequest.actionLink()).endsWith("/");
   }
@@ -194,5 +196,12 @@ public class GcpApplicantStorageTest extends ResetPostgres {
         .isEqualTo("https://civiform.dev/programs/4/blocks/1/updateFile/true");
     // Verify that the redirect URL is treated as a prefix.
     assertThat(uploadRequest.useSuccessActionRedirectAsPrefix()).isTrue();
+  }
+
+  /** The host of the configured AWS emulator endpoint, e.g. "localhost.floci.io". */
+  private String awsEmulatorHost() {
+    return URI.create(
+            instanceOf(Config.class).getString(AbstractS3StorageUtils.LOCAL_ENDPOINT_CONF_PATH))
+        .getHost();
   }
 }

@@ -53,7 +53,7 @@ public final class SimpleEmail implements EmailSendClient {
     this.emailSendMetrics = emailSendMetrics;
 
     if (environment.isDev()) {
-      client = new FlociClient(region, config);
+      client = new AwsEmulatorClient(region, config);
     } else if (environment.isTest()) {
       client = new NullClient();
     } else {
@@ -164,14 +164,14 @@ public final class SimpleEmail implements EmailSendClient {
     }
   }
 
-  static class FlociClient implements Client {
-    private String FLOCI_ENDPOINT_CONF_PATH = "floci.endpoint";
+  static class AwsEmulatorClient implements Client {
+    private String AWS_EMULATOR_ENDPOINT_CONF_PATH = "aws.emulator.endpoint";
 
     private final String localEndpoint;
     private final SesClient client;
 
-    FlociClient(AwsRegion region, Config config) {
-      localEndpoint = checkNotNull(config).getString(FLOCI_ENDPOINT_CONF_PATH);
+    AwsEmulatorClient(AwsRegion region, Config config) {
+      localEndpoint = checkNotNull(config).getString(AWS_EMULATOR_ENDPOINT_CONF_PATH);
       URI localUri;
       try {
         localUri = new URI(localEndpoint);
