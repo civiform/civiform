@@ -123,8 +123,6 @@ test.describe('Date question for applicant flow', () => {
         await expect(monthHint).toHaveAttribute('id')
         await expect(dayHint).toHaveAttribute('id')
         await expect(yearHint).toHaveAttribute('id')
-
-        await expect(page.getByLabel('Year')).toHaveAttribute('minlength', '4')
       })
 
       await validateAccessibility(page)

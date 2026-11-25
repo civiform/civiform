@@ -71,9 +71,11 @@
            dayHintId=|${questionId}-day-hint|,
            yearHintId=|${questionId}-year-hint|,
            descriptionId=${isInitialQuestion ? null : questionId + '-description'},
-           monthDescribedBy=|${listErrorsId} ${descriptionId} ${monthHintId} ${monthHasError ? errorId : null}|,
-           dayDescribedBy=|${descriptionId} ${dayHintId} ${dayHasError ? errorId : null}|,
-           yearDescribedBy=|${descriptionId} ${yearHintId} ${yearHasError ? errorId : null}|"
+           describedByPrefix=${descriptionId != null ? descriptionId + ' ' : ''},
+           monthOwnDescribedBy=|${describedByPrefix}${monthHintId}${monthHasError ? ' ' + errorId : ''}|,
+           monthDescribedBy=${listErrorsId == null ? monthOwnDescribedBy : listErrorsId + ' ' + monthOwnDescribedBy},
+           dayDescribedBy=|${describedByPrefix}${dayHintId}${dayHasError ? ' ' + errorId : ''}|,
+           yearDescribedBy=|${describedByPrefix}${yearHintId}${yearHasError ? ' ' + errorId : ''}|"
 >
   <!--/* Display errors */-->
   <th:block th:if="${fieldErrors == null || fieldErrors.isEmpty()}">
@@ -250,7 +252,6 @@
         th:autofocus="${questionRendererParams.autofocusFirstError() && yearHasError && !monthHasError && !dayHasError}"
         th:id="${yearId}"
         th:name="${dateQuestion.getYearPath()}"
-        minlength="4"
         maxlength="4"
         pattern="[0-9]*"
         inputmode="numeric"
