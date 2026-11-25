@@ -7,7 +7,7 @@ import views.admin.TransitionalLayoutBaseView;
 import views.shared.LayoutDeps;
 
 /** View setup for rendering the DiscoveryPage.html */
-public class DiscoveryPageView extends TransitionalLayoutBaseView<DiscoveryPageViewModel> {
+public final class DiscoveryPageView extends TransitionalLayoutBaseView<DiscoveryPageViewModel> {
 
   @Inject
   public DiscoveryPageView(LayoutDeps layoutDeps) {

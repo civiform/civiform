@@ -70,7 +70,7 @@ import views.style.BaseStyles;
 import views.style.StyleUtils;
 
 /** Contains methods rendering common components used across applicant pages. */
-public class ApplicantLayout extends BaseHtmlLayout {
+public final class ApplicantLayout extends BaseHtmlLayout {
 
   private static final Logger logger = LoggerFactory.getLogger(ApplicantLayout.class);
 
@@ -517,7 +517,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return email;
   }
 
-  protected String renderPageTitleWithBlockProgress(
+  String renderPageTitleWithBlockProgress(
       String pageTitle, int blockIndex, int totalBlockCount, Messages messages) {
     // While applicant is filling out the application, include the block they are on as part of
     // their progress.
@@ -536,7 +536,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
    *
    * <p>For the summary view, there is no "current" block, and full progress can be shown.
    */
-  protected DivTag renderProgramApplicationTitleAndProgressIndicator(
+  DivTag renderProgramApplicationTitleAndProgressIndicator(
       String programTitle,
       int blockIndex,
       int totalBlockCount,
@@ -615,8 +615,7 @@ public class ApplicantLayout extends BaseHtmlLayout {
     return div().with(programTitleContainer).with(progressIndicator);
   }
 
-  protected Optional<DivTag> maybeRenderBackToAdminViewButton(
-      Http.Request request, long programId) {
+  Optional<DivTag> maybeRenderBackToAdminViewButton(Http.Request request, long programId) {
     Optional<CiviFormProfile> profile = profileUtils.optionalCurrentUserProfile(request);
     if (profile.isPresent() && profile.get().isCiviFormAdmin()) {
       return Optional.of(

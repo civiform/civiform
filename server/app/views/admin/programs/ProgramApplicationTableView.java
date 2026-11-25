@@ -69,7 +69,7 @@ import views.style.BaseStyles;
 import views.style.ReferenceClasses;
 import views.style.StyleUtils;
 
-public class ProgramApplicationTableView extends BaseHtmlView {
+public final class ProgramApplicationTableView extends BaseHtmlView {
 
   private static final String FROM_DATE_PARAM = "fromDate";
   private static final String UNTIL_DATE_PARAM = "untilDate";

@@ -31,7 +31,7 @@ import play.mvc.Result;
  * These routes can be hit even if you are logged in already, which is what allows the merge logic -
  * normally you need to be logged out in order to be redirected to a login page.
  */
-public class LoginController extends Controller {
+public final class LoginController extends Controller {
 
   private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
   private final IndirectClient adminClient;

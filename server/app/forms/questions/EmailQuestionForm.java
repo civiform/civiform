@@ -4,7 +4,7 @@ import services.question.types.EmailQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating an email question. */
-public class EmailQuestionForm extends QuestionForm {
+public final class EmailQuestionForm extends QuestionForm {
 
   public EmailQuestionForm() {
     super();

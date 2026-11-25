@@ -5,7 +5,7 @@ package services.program;
  * with parameters it should not have, such as address correction being enabled for multiple address
  * questions.
  */
-public class ProgramQuestionDefinitionInvalidException extends Exception {
+public final class ProgramQuestionDefinitionInvalidException extends Exception {
   public ProgramQuestionDefinitionInvalidException(
       long programId, long blockDefinitionId, long questionId) {
     super(

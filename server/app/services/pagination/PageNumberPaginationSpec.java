@@ -21,7 +21,7 @@ import io.ebean.Query;
  * <p>If orderBy expression is (submitTime, id) then an index over (submitTime, id) should exist for
  * the table being paged.
  */
-public class PageNumberPaginationSpec extends BasePaginationSpec {
+public final class PageNumberPaginationSpec extends BasePaginationSpec {
 
   public enum OrderByEnum {
     ID,

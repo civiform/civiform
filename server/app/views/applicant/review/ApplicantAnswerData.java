@@ -9,7 +9,7 @@ import services.question.types.QuestionType;
 
 // Wrapper for AnswerData for ease of rendering in Thymeleaf.
 // It's safer to process data in Java than at runtime in Thymeleaf.
-public class ApplicantAnswerData implements Comparable<ApplicantAnswerData> {
+public final class ApplicantAnswerData implements Comparable<ApplicantAnswerData> {
   private final AnswerData answerData;
   private final long applicantId;
 

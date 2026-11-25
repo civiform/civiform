@@ -21,7 +21,7 @@ import org.pac4j.play.store.PlayCookieSessionStore;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class CiviFormSessionStoreFactory implements SessionStoreFactory {
+public final class CiviFormSessionStoreFactory implements SessionStoreFactory {
   // Chosen based on OWASP's recommendation for PBKDF2-HMAC-SHA256
   private static final int PBKDF2_ITERATIONS = 600000;
   private static final int AES_KEY_BITS = 128;

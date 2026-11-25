@@ -48,7 +48,7 @@ import views.applicant.review.ApplicantProgramSummaryView;
  * access another applicant's data!
  */
 @With(ProgramDisabledAction.class)
-public class ApplicantProgramReviewController extends CiviFormController {
+public final class ApplicantProgramReviewController extends CiviFormController {
 
   private final ApplicantService applicantService;
   private final ClassLoaderExecutionContext classLoaderExecutionContext;

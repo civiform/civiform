@@ -42,7 +42,7 @@ import services.question.types.QuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Configuration used to generate a program specific swagger 2 schema */
-public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
+public final class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
     implements OpenApiSchemaGenerator {
 
   public Swagger2SchemaGenerator(OpenApiSchemaSettings openApiSchemaSettings) {
@@ -215,7 +215,7 @@ public class Swagger2SchemaGenerator extends AbstractOpenApiSchemaGenerator
   /**
    * Recursive method used to build out the full object graph from the tree of QuestionDefinitions
    */
-  protected ImmutableMap<String, Property> buildApplicationDefinitions(
+  ImmutableMap<String, Property> buildApplicationDefinitions(
       QuestionDefinitionNode parentQuestionDefinitionNode, boolean includeScores)
       throws InvalidQuestionTypeException, UnsupportedQuestionTypeException {
     ImmutableMap.Builder<String, Property> definitionList = ImmutableMap.builder();

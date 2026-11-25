@@ -12,7 +12,7 @@ import services.email.aws.SimpleEmail;
 import services.email.graph.GraphApiEmailClient;
 
 /** Configures and initializes the classes for interacting with email sending. */
-public class EmailSendModule extends AbstractModule {
+public final class EmailSendModule extends AbstractModule {
   private final Config config;
 
   // Environment must always be provided as a param, even if it's unused.

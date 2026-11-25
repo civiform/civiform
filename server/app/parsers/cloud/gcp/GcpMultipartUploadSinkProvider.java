@@ -15,7 +15,7 @@ import parsers.cloud.GenericMultipartUploadSinkProvider;
 import services.cloud.BucketType;
 import services.cloud.StorageServiceName;
 
-public class GcpMultipartUploadSinkProvider
+public final class GcpMultipartUploadSinkProvider
     extends GenericMultipartUploadSinkProvider<StorageObject> {
   private final Config config;
 

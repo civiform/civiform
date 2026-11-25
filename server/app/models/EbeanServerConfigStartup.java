@@ -10,7 +10,7 @@ import services.ObjectMapperSingleton;
  * Java 8 Optionals. Note that this is necessary because Ebean uses a different ObjectMapper than
  * the one provided by the Play framework.
  */
-public class EbeanServerConfigStartup implements ServerConfigStartup {
+public final class EbeanServerConfigStartup implements ServerConfigStartup {
   @Override
   public void onStart(DatabaseBuilder config) {
     // Use legacy serialization settings. (De)serialization errors may occur if changed.

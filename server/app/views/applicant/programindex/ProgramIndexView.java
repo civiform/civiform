@@ -30,7 +30,7 @@ import views.applicant.ApplicantBaseView;
 import views.applicant.programindex.ProgramCardsSectionParamsFactory.ProgramSectionParams;
 
 /** Renders a list of programs that an applicant can browse, with buttons for applying. */
-public class ProgramIndexView extends ApplicantBaseView {
+public final class ProgramIndexView extends ApplicantBaseView {
   private final ProgramCardsSectionParamsFactory programCardsSectionParamsFactory;
 
   @Inject

@@ -46,7 +46,7 @@ import services.apikey.ApiKeyService;
  *       credentials.
  * </ul>
  */
-public class ApiAuthenticator implements Authenticator {
+public final class ApiAuthenticator implements Authenticator {
 
   private static final Logger logger = LoggerFactory.getLogger(ApiAuthenticator.class);
   private final Provider<ApiKeyService> apiKeyService;

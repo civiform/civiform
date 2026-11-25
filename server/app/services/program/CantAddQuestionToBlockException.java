@@ -3,7 +3,7 @@ package services.program;
 import services.ProgramBlockValidation;
 import services.question.types.QuestionDefinition;
 
-public class CantAddQuestionToBlockException extends Exception {
+public final class CantAddQuestionToBlockException extends Exception {
   public CantAddQuestionToBlockException(
       ProgramDefinition program,
       BlockDefinition block,

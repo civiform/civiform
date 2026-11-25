@@ -18,7 +18,7 @@ import org.slf4j.LoggerFactory;
  * This class creates a pac4j `UserProfile` for admins when the identity provider is a generic OIDC
  * provider.
  */
-public class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
+public final class GenericOidcProfileCreator extends CiviformOidcProfileCreator {
   private static final Logger logger = LoggerFactory.getLogger(GenericOidcProfileCreator.class);
   private String groupsAttributeName;
   private String adminGroupName;

@@ -31,7 +31,7 @@ import views.applicant.ApplicantBaseView;
 import views.questiontypes.ApplicantQuestionRendererParams;
 import views.questiontypes.ApplicantQuestionRendererParams.ErrorDisplayMode;
 
-public class QuestionPreview extends ApplicantBaseView {
+public final class QuestionPreview extends ApplicantBaseView {
 
   @Inject
   QuestionPreview(

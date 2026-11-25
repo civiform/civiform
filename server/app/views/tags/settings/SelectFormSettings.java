@@ -14,7 +14,7 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @Accessors(fluent = true)
 @ToString(callSuper = true)
 @EqualsAndHashCode(callSuper = true)
-public class SelectFormSettings extends FormSettings {
+public final class SelectFormSettings extends FormSettings {
 
   @Builder
   public SelectFormSettings(

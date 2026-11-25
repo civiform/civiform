@@ -15,7 +15,7 @@ import services.MessageKey;
 import services.settings.SettingsManifest;
 import views.applicant.ApplicantBaseView;
 
-public class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
+public final class ApplicantPreScreenerUpsellView extends ApplicantBaseView {
 
   @Inject
   ApplicantPreScreenerUpsellView(

@@ -19,7 +19,7 @@ import java.time.Instant;
  * multiple applications that have the same submit time. To avoid a performance penaly on these
  * queries an index over (submitTime, id) should exist.
  */
-public class SubmitTimeSequentialAccessPaginationSpec extends BasePaginationSpec {
+public final class SubmitTimeSequentialAccessPaginationSpec extends BasePaginationSpec {
 
   // Static object helper definitions.
   public static SubmitTimeSequentialAccessPaginationSpec APPLICATION_MODEL_MAX_PAGE_SIZE_SPEC =

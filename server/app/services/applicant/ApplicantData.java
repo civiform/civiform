@@ -30,7 +30,7 @@ import services.geo.ServiceAreaInclusion;
  * <p>When extending this class, seek to avoid leaking details of the JSON format to the code that
  * consumes it and prefer higher-level objects over primitives in method signatures.
  */
-public class ApplicantData extends CfJsonDocumentContext {
+public final class ApplicantData extends CfJsonDocumentContext {
 
   private static final String APPLICANT = "applicant";
   public static final Path APPLICANT_PATH = Path.create(APPLICANT);

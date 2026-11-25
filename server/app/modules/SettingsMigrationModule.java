@@ -12,7 +12,7 @@ import services.settings.SettingsService;
  * Migrate ADMIN_WRITEABLE server settings from the Play Config system to database-backed admin
  * settings. Runs each time the server is started.
  */
-public class SettingsMigrationModule extends AbstractModule {
+public final class SettingsMigrationModule extends AbstractModule {
   private static final Logger logger = LoggerFactory.getLogger(SettingsMigrationModule.class);
 
   @Override

@@ -15,7 +15,7 @@ import org.pac4j.oidc.client.OidcClient;
  *
  * <p>https://auth0.com/docs/authenticate/protocols/openid-connect-protocol
  */
-public class Auth0ClientProvider extends GenericOidcClientProvider {
+public final class Auth0ClientProvider extends GenericOidcClientProvider {
 
   @Inject
   public Auth0ClientProvider(OidcClientProviderParams params) {

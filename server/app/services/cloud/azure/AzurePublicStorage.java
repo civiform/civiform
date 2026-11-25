@@ -20,7 +20,7 @@ import services.cloud.StorageUploadRequest;
  * <p>TODO(#9213): Complete program card image upload for azure, as is, this is a no-op, test-only
  * implementation of the AzurePublicStorage class.
  */
-public class AzurePublicStorage extends PublicStorageClient {
+public final class AzurePublicStorage extends PublicStorageClient {
   @VisibleForTesting
   static final String AZURE_PUBLIC_CONTAINER_NAME_CONF_PATH = "azure.blob.public_container_name";
 

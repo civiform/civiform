@@ -27,7 +27,7 @@ import software.amazon.awssdk.http.HttpStatusCode;
 
 /** GraphApiEmailClient provides methods to send email notifications through Microsoft Graph API. */
 @Singleton
-public class GraphApiEmailClient implements EmailSendClient {
+public final class GraphApiEmailClient implements EmailSendClient {
   public static final String AZURE_SENDER_CONF_PATH = "email.sender";
   private static final Logger logger = LoggerFactory.getLogger(GraphApiEmailClient.class);
 

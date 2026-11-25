@@ -8,7 +8,7 @@ import services.question.types.QuestionType;
  *
  * <p>NOTE: {@link InvalidQuestionTypeException} should be thrown if a question type is not valid.
  */
-public class UnsupportedQuestionTypeException extends Exception {
+public final class UnsupportedQuestionTypeException extends Exception {
   public UnsupportedQuestionTypeException(QuestionType questionType) {
     super(String.format("QuestionType %s is not supported.", questionType));
   }

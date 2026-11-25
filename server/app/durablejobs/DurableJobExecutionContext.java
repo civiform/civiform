@@ -9,7 +9,7 @@ import play.libs.concurrent.CustomExecutionContext;
 
 /** Thread pool for executing durable jobs. */
 @Singleton
-public class DurableJobExecutionContext extends CustomExecutionContext {
+public final class DurableJobExecutionContext extends CustomExecutionContext {
 
   @Inject
   public DurableJobExecutionContext(ActorSystem actorSystem) {

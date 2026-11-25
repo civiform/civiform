@@ -8,7 +8,7 @@ import views.BaseViewModel;
 
 @Data
 @Builder
-public class DevToolsPageViewModel implements BaseViewModel {
+public final class DevToolsPageViewModel implements BaseViewModel {
   private final String seedProgramsUrl;
   private final String seedQuestionsUrl;
   private final String clearUrl;

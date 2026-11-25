@@ -6,7 +6,7 @@ import views.LayoutType;
 import views.admin.DevLayoutBaseView;
 import views.shared.LayoutDeps;
 
-public class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
+public final class CatalogPageView extends DevLayoutBaseView<CatalogPageViewModel> {
 
   @Inject
   public CatalogPageView(LayoutDeps layoutDeps) {

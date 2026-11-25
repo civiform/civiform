@@ -63,7 +63,7 @@ import views.admin.programs.ProgramBlocksView;
 import views.components.ProgramQuestionBank;
 
 /** Controller for admins editing questions on a screen (block) of a program. */
-public class AdminProgramBlockQuestionsController extends Controller {
+public final class AdminProgramBlockQuestionsController extends Controller {
   private static final Logger logger =
       LoggerFactory.getLogger(AdminProgramBlockQuestionsController.class);
 

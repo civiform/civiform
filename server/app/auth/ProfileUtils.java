@@ -14,9 +14,8 @@ import org.pac4j.play.PlayWebContext;
 import play.libs.typedmap.TypedKey;
 import play.mvc.Http;
 
-// NON_ABSTRACT_CLASS_ALLOWS_SUBCLASSING ProfileUtils
-
 /** A utility class for CiviForm profile. */
+@SuppressWarnings("FinalOrAbstractClass")
 public class ProfileUtils {
   private final SessionStore sessionStore;
   private final ProfileFactory profileFactory;

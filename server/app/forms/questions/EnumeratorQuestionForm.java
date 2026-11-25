@@ -8,7 +8,7 @@ import services.question.types.QuestionDefinitionBuilder;
 import services.question.types.QuestionType;
 
 /** Form for updating an enumerator question. */
-public class EnumeratorQuestionForm extends QuestionForm {
+public final class EnumeratorQuestionForm extends QuestionForm {
   private String entityType;
   private OptionalInt minEntities;
   private OptionalInt maxEntities;

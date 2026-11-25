@@ -15,7 +15,7 @@ import play.Environment;
  *
  * <p>Customize the OIDC provider to handle Keycloak specific settings for the admin provider
  */
-public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
+public final class KeycloakAdminClientProvider extends GenericOidcClientProvider {
   @Inject
   public KeycloakAdminClientProvider(OidcClientProviderParams params, Environment env) {
     super(params);
@@ -43,11 +43,11 @@ public class KeycloakAdminClientProvider extends GenericOidcClientProvider {
     return "id_token token";
   }
 
-  protected String getRealm() {
+  String getRealm() {
     return getConfigurationValueOrThrow("realm");
   }
 
-  protected String getBaseUri() {
+  String getBaseUri() {
     return getConfigurationValueOrThrow("base_uri");
   }
 

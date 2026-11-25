@@ -9,7 +9,7 @@ import play.libs.Json;
  * types such as: {@link java.util.Optional}, {@link com.google.common.collect.ImmutableList},
  * {@link com.google.common.collect.ImmutableMap}.
  */
-public class ObjectMapperProvider implements Provider<ObjectMapper> {
+public final class ObjectMapperProvider implements Provider<ObjectMapper> {
 
   @Override
   public ObjectMapper get() {

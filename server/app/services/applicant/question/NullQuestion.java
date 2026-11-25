@@ -13,7 +13,7 @@ import services.applicant.ValidationErrorMessage;
  * <p>In normal operation this shouldn't ever be reached, but an occasional gremlin has resulted in
  * the rare instance of a program pointing at an old version of a question.
  */
-public class NullQuestion extends AbstractQuestion {
+public final class NullQuestion extends AbstractQuestion {
   NullQuestion(ApplicantQuestion applicantQuestion) {
     super(applicantQuestion);
   }

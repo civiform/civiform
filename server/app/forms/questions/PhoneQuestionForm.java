@@ -3,7 +3,7 @@ package forms.questions;
 import services.question.types.PhoneQuestionDefinition;
 import services.question.types.QuestionType;
 
-public class PhoneQuestionForm extends QuestionForm {
+public final class PhoneQuestionForm extends QuestionForm {
   public PhoneQuestionForm() {
     super();
   }

@@ -21,7 +21,7 @@ import views.admin.tools.UrlCheckerView;
 import views.admin.tools.UrlCheckerViewModel;
 
 @Slf4j
-public class AdminToolsController extends Controller {
+public final class AdminToolsController extends Controller {
   private final FormFactory formFactory;
   private final WSClient wsClient;
   private final UrlCheckerView urlCheckerView;

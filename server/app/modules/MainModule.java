@@ -29,7 +29,7 @@ import repository.StoredFileRepository;
  * project. You can create modules in other locations, such as the "modules" folder, by adding
  * `play.modules.enabled` settings to the `application.conf` configuration file.
  */
-public class MainModule extends AbstractModule {
+public final class MainModule extends AbstractModule {
 
   public static final Slugify SLUGIFIER = Slugify.builder().build();
 

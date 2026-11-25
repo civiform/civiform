@@ -17,7 +17,7 @@ import services.question.types.QuestionDefinitionBuilder;
 /** Form for updating translation for map questions. */
 @Setter
 @Getter
-public class MapQuestionTranslationForm extends QuestionTranslationForm {
+public final class MapQuestionTranslationForm extends QuestionTranslationForm {
 
   // These will be in the same order as the filter settings.
   private List<String> filters;

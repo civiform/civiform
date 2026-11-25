@@ -13,7 +13,7 @@ import views.tags.AbstractElementModelProcessor.AttributeInfo;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Accessors(fluent = true)
-public class TextAreaFormSettings extends FormSettings {
+public final class TextAreaFormSettings extends FormSettings {
   private final AttributeInfo minLength;
   private final AttributeInfo maxLength;
   private final AttributeInfo markdownEnabled;

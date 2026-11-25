@@ -16,7 +16,7 @@ import repository.AccountRepository;
 import repository.StoredFileRepository;
 
 /** Provider class for the AD OIDC Client. */
-public class AdfsClientProvider implements Provider<OidcClient> {
+public final class AdfsClientProvider implements Provider<OidcClient> {
 
   private final Config configuration;
   private final String baseUrl;

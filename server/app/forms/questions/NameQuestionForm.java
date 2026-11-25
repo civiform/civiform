@@ -4,7 +4,7 @@ import services.question.types.NameQuestionDefinition;
 import services.question.types.QuestionType;
 
 /** Form for updating a name question. */
-public class NameQuestionForm extends QuestionForm {
+public final class NameQuestionForm extends QuestionForm {
   public NameQuestionForm() {
     super();
   }
