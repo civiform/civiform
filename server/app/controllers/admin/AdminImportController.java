@@ -203,6 +203,7 @@ public class AdminImportController extends CiviFormController {
             program,
             questions,
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             jsonString);
       }
 
@@ -224,6 +225,9 @@ public class AdminImportController extends CiviFormController {
             .as(Http.MimeTypes.HTML);
       }
 
+      ImmutableSet<String> existingQuestionNamesWithImages =
+          programMigrationService.getExistingQuestionNamesWithImages(existingAdminNames);
+
       ErrorAnd<String, String> serializeResult =
           programMigrationService.serialize(program, questions);
       if (serializeResult.isError()) {
@@ -231,7 +235,12 @@ public class AdminImportController extends CiviFormController {
       }
 
       return renderProgramData(
-          request, program, questions, existingAdminNames, serializeResult.getResult());
+          request,
+          program,
+          questions,
+          existingAdminNames,
+          existingQuestionNamesWithImages,
+          serializeResult.getResult());
     } catch (RuntimeException e) {
       return renderImportError(
           request,
@@ -302,11 +311,17 @@ public class AdminImportController extends CiviFormController {
       ProgramDefinition program,
       ImmutableList<QuestionDefinition> questions,
       ImmutableList<String> duplicateQuestionNames,
+      ImmutableSet<String> existingQuestionNamesWithImages,
       String json) {
     return ok(adminImportProgramDataPartialView.render(
             request,
             new AdminImportProgramDataPartialMapper()
-                .map(program, questions, duplicateQuestionNames, json)))
+                .map(
+                    program,
+                    questions,
+                    duplicateQuestionNames,
+                    existingQuestionNamesWithImages,
+                    json)))
         .as(Http.MimeTypes.HTML);
   }
 

@@ -29,6 +29,13 @@ public final class AdminImportProgramDataPartialViewModel implements BaseViewMod
   // Question summary alert text.
   private final String questionAlertText;
 
+  // Whether to show the warning alert explaining that question images are not
+  // included in program exports.
+  private final boolean showQuestionImageAlert;
+
+  // Warning alert text for question images. Null when showQuestionImageAlert is false.
+  private final String questionImageAlertText;
+
   // JSON representation of the program, carried in a hidden textarea so it is
   // posted along with the duplicate-handling selections.
   private final String programJson;
@@ -98,6 +105,10 @@ public final class AdminImportProgramDataPartialViewModel implements BaseViewMod
     // Duplicate-handling radio group data. Null unless the question is a
     // duplicate.
     private final DuplicateHandling duplicateHandling;
+
+    // Warning text when the imported question has image alt text or the
+    // existing duplicate question has an image. Null when no image is involved.
+    private final String imageWarningText;
   }
 
   /** One answer option of an imported multi-option question. */

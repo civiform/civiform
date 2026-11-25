@@ -22,6 +22,16 @@
       <p class="usa-alert__text" th:text="${model.questionAlertText}"></p>
     </div>
   </div>
+  <div
+    th:if="${model.showQuestionImageAlert}"
+    class="usa-alert usa-alert--warning usa-alert--slim mb-2"
+    aria-live="polite"
+    role="alert"
+  >
+    <div class="usa-alert__body">
+      <p class="usa-alert__text" th:text="${model.questionImageAlertText}"></p>
+    </div>
+  </div>
   <h2 class="mb-2 font-semibold" th:text="${model.programTitle}"></h2>
   <h4 class="mb-2" th:text="|Admin name: ${model.adminName}|"></h4>
 

@@ -51,6 +51,15 @@
           ></span>
         </li>
       </ul>
+      <div
+        th:if="${card.imageWarningText != null}"
+        class="usa-alert usa-alert--warning usa-alert--slim mt-2"
+        role="alert"
+      >
+        <div class="usa-alert__body">
+          <p class="usa-alert__text" th:text="${card.imageWarningText}"></p>
+        </div>
+      </div>
     </div>
     <th:block th:if="${card.duplicateHandling != null}">
       <fieldset

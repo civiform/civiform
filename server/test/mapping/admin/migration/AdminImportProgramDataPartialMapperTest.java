@@ -8,6 +8,7 @@ import static org.mockito.Mockito.when;
 import auth.ProgramAcls;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import java.util.Arrays;
 import java.util.Optional;
 import models.ApplicationStep;
@@ -43,6 +44,7 @@ public final class AdminImportProgramDataPartialMapperTest {
     when(question.getQuestionHelpText())
         .thenReturn(LocalizedStrings.withDefaultValue(name + " help"));
     when(question.getEnumeratorId()).thenReturn(Optional.empty());
+    when(question.getLocalizedImageDescription()).thenReturn(Optional.empty());
     when(question.isUniversal()).thenReturn(false);
     when(question.isEnumerator()).thenReturn(false);
     when(question.isRepeated()).thenReturn(false);
@@ -101,6 +103,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getProgramTitle()).isEqualTo("Program Name");
@@ -116,6 +119,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getProgramJson()).isEqualTo(PROGRAM_JSON);
@@ -130,12 +134,15 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.isShowQuestionAlert()).isTrue();
     assertThat(result.getQuestionAlertTypeClass()).isEqualTo("usa-alert--info");
     assertThat(result.getQuestionAlertText())
         .isEqualTo("This program will add 1 new question to the question bank.");
+    assertThat(result.isShowQuestionImageAlert()).isFalse();
+    assertThat(result.getQuestionImageAlertText()).isNull();
   }
 
   @Test
@@ -149,6 +156,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question1, question2, question3)),
             ImmutableList.of(question1, question2, question3),
             /* duplicateQuestionNames= */ ImmutableList.of("q2", "q3"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getQuestionAlertTypeClass()).isEqualTo("usa-alert--warning");
@@ -167,6 +175,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of("q1"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getQuestionAlertTypeClass()).isEqualTo("usa-alert--warning");
@@ -181,9 +190,11 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L)),
             /* questions= */ ImmutableList.of(),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.isShowQuestionAlert()).isFalse();
+    assertThat(result.isShowQuestionImageAlert()).isFalse();
   }
 
   @Test
@@ -196,6 +207,7 @@ public final class AdminImportProgramDataPartialMapperTest {
                     program(block(1L)),
                     /* questions= */ null,
                     /* duplicateQuestionNames= */ ImmutableList.of(),
+                    /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
                     PROGRAM_JSON))
         .isInstanceOf(NullPointerException.class);
   }
@@ -210,12 +222,14 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question1, question2)),
             ImmutableList.of(question1, question2),
             /* duplicateQuestionNames= */ ImmutableList.of("q1"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
     AdminImportProgramDataPartialViewModel twoDuplicates =
         mapper.map(
             program(block(1L, question1, question2)),
             ImmutableList.of(question1, question2),
             /* duplicateQuestionNames= */ ImmutableList.of("q1", "q2"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(oneDuplicate.isShowToplevelDuplicateOptions()).isFalse();
@@ -231,6 +245,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getBlocks()).hasSize(1);
@@ -249,6 +264,7 @@ public final class AdminImportProgramDataPartialMapperTest {
     assertThat(card.getEnumeratorName()).isNull();
     assertThat(card.getOptions()).isNull();
     assertThat(card.getDuplicateHandling()).isNull();
+    assertThat(card.getImageWarningText()).isNull();
   }
 
   @Test
@@ -263,6 +279,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             /* questions= */ ImmutableList.of(),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     assertThat(result.getBlocks().get(0).getQuestionCards()).isEmpty();
@@ -277,6 +294,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of("q1"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
@@ -289,6 +307,7 @@ public final class AdminImportProgramDataPartialMapperTest {
         .isEqualTo(
             controllers.admin.routes.AdminQuestionController.index(Optional.of("Admin ID: q1"))
                 .url());
+    assertThat(card.getImageWarningText()).isNull();
   }
 
   @Test
@@ -302,6 +321,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, enumerator, repeated)),
             ImmutableList.of(enumerator, repeated),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     ImmutableList<QuestionCard> cards = result.getBlocks().get(0).getQuestionCards();
@@ -319,10 +339,91 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
     assertThat(card.getUniversalBadgeText()).isEqualTo("Universal text question");
+  }
+
+  @Test
+  public void map_newQuestionWithImageAltText_setsTopLevelAndCardImageWarnings() {
+    QuestionDefinition question = mockQuestion("q1", 10L);
+    when(question.getLocalizedImageDescription())
+        .thenReturn(Optional.of(LocalizedStrings.withDefaultValue("A helpful diagram")));
+
+    AdminImportProgramDataPartialViewModel result =
+        mapper.map(
+            program(block(1L, question)),
+            ImmutableList.of(question),
+            /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
+            PROGRAM_JSON);
+
+    assertThat(result.isShowQuestionImageAlert()).isTrue();
+    assertThat(result.getQuestionImageAlertText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.TOP_LEVEL_IMPORTED_ALT_TEXT_WARNING);
+    assertThat(result.getBlocks().get(0).getQuestionCards().get(0).getImageWarningText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.NEW_QUESTION_IMAGE_WARNING);
+  }
+
+  @Test
+  public void map_duplicateQuestionWithExistingImage_setsTopLevelAndCardImageWarnings() {
+    QuestionDefinition question = mockQuestion("q1", 10L);
+
+    AdminImportProgramDataPartialViewModel result =
+        mapper.map(
+            program(block(1L, question)),
+            ImmutableList.of(question),
+            /* duplicateQuestionNames= */ ImmutableList.of("q1"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of("q1"),
+            PROGRAM_JSON);
+
+    assertThat(result.isShowQuestionImageAlert()).isTrue();
+    assertThat(result.getQuestionImageAlertText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.TOP_LEVEL_EXISTING_IMAGE_WARNING);
+    assertThat(result.getBlocks().get(0).getQuestionCards().get(0).getImageWarningText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.DUPLICATE_EXISTING_IMAGE_WARNING);
+  }
+
+  @Test
+  public void map_duplicateQuestionWithoutExistingImageButWithImportedAltText_setsImageWarnings() {
+    QuestionDefinition question = mockQuestion("q1", 10L);
+    when(question.getLocalizedImageDescription())
+        .thenReturn(Optional.of(LocalizedStrings.withDefaultValue("Exported alt text")));
+
+    AdminImportProgramDataPartialViewModel result =
+        mapper.map(
+            program(block(1L, question)),
+            ImmutableList.of(question),
+            /* duplicateQuestionNames= */ ImmutableList.of("q1"),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
+            PROGRAM_JSON);
+
+    assertThat(result.isShowQuestionImageAlert()).isTrue();
+    assertThat(result.getQuestionImageAlertText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.TOP_LEVEL_IMPORTED_ALT_TEXT_WARNING);
+    assertThat(result.getBlocks().get(0).getQuestionCards().get(0).getImageWarningText())
+        .isEqualTo(AdminImportProgramDataPartialMapper.DUPLICATE_IMPORTED_ALT_TEXT_WARNING);
+  }
+
+  @Test
+  public void map_blankImageAltText_hidesImageWarnings() {
+    QuestionDefinition question = mockQuestion("q1", 10L);
+    when(question.getLocalizedImageDescription())
+        .thenReturn(Optional.of(LocalizedStrings.withDefaultValue("   ")));
+
+    AdminImportProgramDataPartialViewModel result =
+        mapper.map(
+            program(block(1L, question)),
+            ImmutableList.of(question),
+            /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
+            PROGRAM_JSON);
+
+    assertThat(result.isShowQuestionImageAlert()).isFalse();
+    assertThat(result.getQuestionImageAlertText()).isNull();
+    assertThat(result.getBlocks().get(0).getQuestionCards().get(0).getImageWarningText()).isNull();
   }
 
   private static MultiOptionQuestionDefinition mockMultiOptionQuestion(
@@ -334,6 +435,7 @@ public final class AdminImportProgramDataPartialMapperTest {
     when(question.getQuestionText()).thenReturn(LocalizedStrings.withDefaultValue("q1 text"));
     when(question.getQuestionHelpText()).thenReturn(LocalizedStrings.empty());
     when(question.getEnumeratorId()).thenReturn(Optional.empty());
+    when(question.getLocalizedImageDescription()).thenReturn(Optional.empty());
     when(question.isUniversal()).thenReturn(false);
     when(question.getOptions()).thenReturn(options);
     return question;
@@ -360,6 +462,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
@@ -396,6 +499,7 @@ public final class AdminImportProgramDataPartialMapperTest {
             program(block(1L, question)).toBuilder().setUsesScoring(false).build(),
             ImmutableList.of(question),
             /* duplicateQuestionNames= */ ImmutableList.of(),
+            /* existingQuestionNamesWithImages= */ ImmutableSet.of(),
             PROGRAM_JSON);
 
     QuestionCard card = result.getBlocks().get(0).getQuestionCards().get(0);
