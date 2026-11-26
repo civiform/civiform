@@ -1,6 +1,7 @@
 import {expect, test} from '../support/civiform_fixtures'
 import {enableFeatureFlag, loginAsAdmin, validateScreenshot} from '../support'
 import {ProgramLifecycle, ProgramVisibility} from '../support/admin_programs'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from '../support/seeding'
 
 test.describe('program migration', () => {
   // These values should be kept in sync with USWDS Alert style classes in views/style/BaseStyles.java.
@@ -21,30 +22,20 @@ test.describe('program migration', () => {
     adminPrograms,
     adminProgramMigration,
     adminQuestions,
+    seeding,
   }) => {
     const programName = 'Program 1'
-    const dateQuestionText = 'What is your birthday?'
-    const emailQuestionText = 'What is your email?'
-    const phoneQuestionText = 'What is your phone number?'
+    const dateQuestionText = SAMPLE_QUESTION_TEXT.date
+    const emailQuestionText = SAMPLE_QUESTION_TEXT.email
+    const phoneQuestionText = SAMPLE_QUESTION_TEXT.phone
     const idQuestionText = 'What is your id number?'
     const block1Description = 'Birthday block'
     const block2Description = 'Key information block'
 
     await test.step('add draft program', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addDateQuestion({
-        questionName: 'date-q',
-        questionText: dateQuestionText,
-      })
-      await adminQuestions.addEmailQuestion({
-        questionName: 'email-q',
-        questionText: emailQuestionText,
-      })
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'phone-q',
-        questionText: phoneQuestionText,
-      })
       await adminQuestions.addIdQuestion({
         questionName: 'id-q',
         questionText: idQuestionText,
@@ -54,14 +45,14 @@ test.describe('program migration', () => {
 
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlock(programName, block1Description, [
-        'date-q',
+        SAMPLE_QUESTIONS.date,
         'id-q',
       ])
       await adminPrograms.addProgramBlockUsingSpec(programName, {
         description: block2Description,
         questions: [
-          {name: 'email-q', isOptional: false},
-          {name: 'phone-q', isOptional: true},
+          {name: SAMPLE_QUESTIONS.email, isOptional: false},
+          {name: SAMPLE_QUESTIONS.phone, isOptional: true},
         ],
       })
     })

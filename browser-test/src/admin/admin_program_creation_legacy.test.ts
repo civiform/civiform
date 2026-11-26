@@ -6,6 +6,7 @@ import {
   validateScreenshot,
   waitForPageJsLoad,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 import {
   Eligibility,
   FormField,
@@ -370,21 +371,19 @@ test.describe('program creation', () => {
 
   test('create program with address and address correction feature enabled', async ({
     page,
-    adminQuestions,
     adminPrograms,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     await enableFeatureFlag(page, 'esri_address_correction_enabled')
-
-    await adminQuestions.addAddressQuestion({questionName: 'ace-address'})
-    await adminQuestions.addNameQuestion({questionName: 'ace-name'})
 
     const programName = 'Ace program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'ace program description')
 
-    await adminPrograms.addQuestionFromQuestionBank('ace-address')
-    await adminPrograms.addQuestionFromQuestionBank('ace-name')
+    await adminPrograms.addQuestionFromQuestionBank(SAMPLE_QUESTIONS.address)
+    await adminPrograms.addQuestionFromQuestionBank(SAMPLE_QUESTIONS.name)
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
@@ -397,7 +396,7 @@ test.describe('program creation', () => {
     // ensure that non address question does not contain address correction button
     expect(
       await page.innerText(
-        adminPrograms.questionCardSelectorInProgramView('ace-name'),
+        adminPrograms.questionCardSelectorInProgramView(SAMPLE_QUESTIONS.name),
       ),
     ).not.toContain('Address correction')
   })
@@ -474,19 +473,18 @@ test.describe('program creation', () => {
 
   test('create program with address and address correction feature disabled', async ({
     page,
-    adminQuestions,
     adminPrograms,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
     await disableFeatureFlag(page, 'esri_address_correction_enabled')
-
-    await adminQuestions.addAddressQuestion({questionName: 'acd-address'})
 
     const programName = 'Acd program'
     await adminPrograms.addProgram(programName)
     await adminPrograms.editProgramBlock(programName, 'acd program description')
 
-    await adminPrograms.addQuestionFromQuestionBank('acd-address')
+    await adminPrograms.addQuestionFromQuestionBank(SAMPLE_QUESTIONS.address)
 
     const addressCorrectionInput = adminPrograms.getAddressCorrectionToggle()
 
@@ -677,13 +675,14 @@ test.describe('program creation', () => {
     adminPrograms,
     adminQuestions,
     adminProgramImage,
+    seeding,
   }) => {
     const programName = 'Test program'
-    const questionName = 'text-question'
+    const questionName = SAMPLE_QUESTIONS.text
 
     await test.step('setup program with question', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({questionName})
       await adminPrograms.addProgram(programName)
       await adminProgramImage.clickContinueButton()
       await adminPrograms.addQuestionFromQuestionBank(questionName)
