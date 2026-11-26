@@ -10,23 +10,20 @@ import {
   selectApplicantLanguage,
   waitForPageJsLoad,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 import {Eligibility, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Applicant program overview', () => {
   const programName = 'test'
-  const questionText = 'This is a text question'
 
-  test.beforeEach(async ({page, adminPrograms, adminQuestions}) => {
+  test.beforeEach(async ({page, adminPrograms, seeding}) => {
     await test.step('create a new program with one text question', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
-      await adminQuestions.addTextQuestion({
-        questionName: 'text question',
-        questionText: questionText,
-      })
       await adminPrograms.addProgram(programName)
       await adminPrograms.editProgramBlockUsingSpec(programName, {
         description: 'First block',
-        questions: [{name: 'text question', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.text, isOptional: false}],
       })
       await adminPrograms.gotoAdminProgramsPage()
       await adminPrograms.publishProgram(programName)
@@ -184,14 +181,14 @@ test.describe('Applicant program overview', () => {
       await adminPrograms.addProgram(secondProgram)
       await adminPrograms.editProgramBlockUsingSpec(secondProgram, {
         description: 'First block',
-        questions: [{name: 'text question', isOptional: false}],
+        questions: [{name: SAMPLE_QUESTIONS.text, isOptional: false}],
       })
       await adminPrograms.goToEditBlockEligibilityPredicatePage(
         secondProgram,
         'Screen 1',
       )
       await adminPredicates.addPredicates({
-        questionName: 'text question',
+        questionName: SAMPLE_QUESTIONS.text,
         scalar: 'text',
         operator: 'is equal to',
         value: 'eligible',
