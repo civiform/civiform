@@ -460,22 +460,22 @@ test.describe('End to end enumerator test', () => {
       // Repeated question visibility program
       //
       // +-- Screen 1   REGULAR
-      // |       question:  visibility-screen-one (text)
+      // |       question:  question-screen-one (text)
       // |       no condition
       // |
       // +-- Screen 2   ENUMERATOR "Household members"
-      // |   |   question:  visibility-householdmembers (enumerator)
+      // |   |   question:  question-householdmembers (enumerator)
       // |   |
       // |   +-- Screen 3   REPEATED (per member)
-      // |   |       question:  visibility-repeated-number (number)
+      // |   |       question:  question-repeated-number (number)
       // |   |       no condition
       // |   |
       // |   +-- Screen 4   REPEATED (per member)
-      // |           question:  visibility-repeated-follow-up (text)
+      // |           question:  question-repeated-follow-up (text)
       // |           shown if:  Screen 3 number > 5                 [works per member]
       // |
       // +-- Screen 5   REGULAR (after the enumerator)
-      //         question:  visibility-after-enumerator (text)
+      //         question:  question-after-enumerator (text)
       //         shown if:  Screen 3 number > 5                     [BUG: always skipped]
       //
       // Applicant flow
@@ -500,25 +500,25 @@ test.describe('End to end enumerator test', () => {
       await test.step('Create an enumerator, repeated number and text questions, and regular questions', async () => {
         await loginAsAdmin(page)
         await adminQuestions.addTextQuestion({
-          questionName: 'visibility-screen-one',
+          questionName: 'question-screen-one',
           questionText: 'Question before the enumerator',
         })
         await adminQuestions.addEnumeratorQuestion({
-          questionName: 'visibility-householdmembers',
+          questionName: 'question-householdmembers',
         })
         // Now that the enumerator is made, make repeated questions.
         await adminQuestions.addNumberQuestion({
-          questionName: 'visibility-repeated-number',
+          questionName: 'question-repeated-number',
           questionText: 'Number for $this',
-          enumeratorName: 'visibility-householdmembers',
+          enumeratorName: 'question-householdmembers',
         })
         await adminQuestions.addTextQuestion({
-          questionName: 'visibility-repeated-follow-up',
+          questionName: 'question-repeated-follow-up',
           questionText: 'Follow-up for $this',
-          enumeratorName: 'visibility-householdmembers',
+          enumeratorName: 'question-householdmembers',
         })
         await adminQuestions.addTextQuestion({
-          questionName: 'visibility-after-enumerator',
+          questionName: 'question-after-enumerator',
           questionText: afterEnumeratorQuestionText,
         })
       })
@@ -528,15 +528,15 @@ test.describe('End to end enumerator test', () => {
         await adminPrograms.editProgramBlock(
           visibilityProgramName,
           'screen one',
-          ['visibility-screen-one'],
+          ['question-screen-one'],
         )
         await adminPrograms.addProgramBlockUsingSpec(visibilityProgramName, {
           description: 'enumerator screen',
-          questions: [{name: 'visibility-householdmembers'}],
+          questions: [{name: 'question-householdmembers'}],
         })
         await page.click('#create-repeated-block-button')
         await adminPrograms.addQuestionFromQuestionBank(
-          'visibility-repeated-number',
+          'question-repeated-number',
         )
       })
 
@@ -545,20 +545,20 @@ test.describe('End to end enumerator test', () => {
           visibilityProgramName,
           'Screen 2',
           'repeated follow-up screen',
-          ['visibility-repeated-follow-up'],
+          ['question-repeated-follow-up'],
         )
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           visibilityProgramName,
           'Screen 4',
         )
         await adminPredicates.addPredicates(
-          overFivePredicate('visibility-repeated-number'),
+          overFivePredicate('question-repeated-number'),
         )
       })
 
       await test.step('Add a screen after the enumerator, shown only when the repeated number is over 5', async () => {
         await adminPrograms.addProgramBlockUsingSpec(visibilityProgramName, {
-          questions: [{name: 'visibility-after-enumerator'}],
+          questions: [{name: 'question-after-enumerator'}],
         })
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           visibilityProgramName,
@@ -566,7 +566,7 @@ test.describe('End to end enumerator test', () => {
         )
         // TODO(#14624): This should not be able to use the repeated questions but it can.
         await adminPredicates.addPredicates(
-          overFivePredicate('visibility-repeated-number'),
+          overFivePredicate('question-repeated-number'),
         )
       })
 
@@ -580,19 +580,19 @@ test.describe('End to end enumerator test', () => {
         await adminPredicates.expectAvailableQuestions(
           /* conditionId= */ 1,
           /* subconditionId= */ 1,
-          ['visibility-screen-one'],
+          ['question-screen-one'],
         )
 
         const expectedQuestionsByScreen: Array<[string, string[]]> = [
           // Screen 1's question, and the repeated question on the earlier repeated screen.
-          ['Screen 4', ['visibility-screen-one', 'visibility-repeated-number']],
+          ['Screen 4', ['question-screen-one', 'question-repeated-number']],
           [
             'Screen 5',
             [
-              'visibility-screen-one',
+              'question-screen-one',
               // TODO(#14624): A screen after the enumerator should not be offered the repeated questions.
-              'visibility-repeated-number',
-              'visibility-repeated-follow-up',
+              'question-repeated-number',
+              'question-repeated-follow-up',
             ],
           ],
         ]
@@ -623,10 +623,10 @@ test.describe('End to end enumerator test', () => {
         await adminPredicates.expectNoAddConditionButton()
 
         const expectedQuestionsByScreen: Array<[string, string[]]> = [
-          ['Screen 1', ['visibility-screen-one']],
-          ['Screen 3', ['visibility-repeated-number']],
-          ['Screen 4', ['visibility-repeated-follow-up']],
-          ['Screen 5', ['visibility-after-enumerator']],
+          ['Screen 1', ['question-screen-one']],
+          ['Screen 3', ['question-repeated-number']],
+          ['Screen 4', ['question-repeated-follow-up']],
+          ['Screen 5', ['question-after-enumerator']],
         ]
         for (const [screenName, questionNames] of expectedQuestionsByScreen) {
           await adminPrograms.goToEditBlockEligibilityPredicatePage(
