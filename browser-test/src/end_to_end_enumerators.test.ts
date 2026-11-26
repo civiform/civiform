@@ -1236,6 +1236,46 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       })
     })
 
+    test('initial question is not available for eligibility conditions but is for visibility conditions', async ({
+      page,
+      adminPrograms,
+      adminPredicates,
+    }) => {
+      await test.step('Add a list set with a number initial question', async () => {
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+      })
+
+      await test.step('The list set screen has no questions for an eligibility condition', async () => {
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          'Enumerator test program',
+          'Screen 2',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on this screen with which to set an eligibility condition.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+        await expect(page.locator('#submit-predicate')).toBeDisabled()
+      })
+
+      await test.step('The repeated screen can use the initial question for a visibility condition', async () => {
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          'Enumerator test program',
+          'Screen 3',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on preceding screens with which to set a visibility condition for this screen.',
+          ),
+        ).toBeHidden()
+        await adminPredicates.expectAddConditionButton()
+      })
+    })
+
     test('"Add nested list set" button appears only on parent enumerator and direct repeated screens', async ({
       page,
     }) => {
@@ -2047,6 +2087,298 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
           })
           .sort((a, b) => a - b)
         expect(entityIndices).toEqual([0, 1, 2])
+      })
+    })
+
+    test('applies visibility conditions to repeated screens and non-repeated ones.', async ({
+      page,
+      adminPrograms,
+      adminQuestions,
+      adminPredicates,
+      applicantQuestions,
+    }) => {
+      // This is an exhaustive test for visibility based on initial question, repeated questions and access to them outside of the repeated set.
+      // Initial question visibility program
+      //
+      // +-- Screen 1   REGULAR
+      // |       question:  initial-question-screen-one (text)
+      // |       no condition
+      // |
+      // +-- Screen 2   LIST SET "Pets"
+      // |   |   questions: pets enumerator
+      // |   |              initial question "Sample Number Question -_- a" (number)
+      // |   |
+      // |   +-- Screen 3   REPEATED (per pet)
+      // |   |       question:  initial-question-repeated (text)
+      // |   |       shown if:  initial question > 5                [works per pet]
+      // |   |
+      // |   +-- Screen 4   REPEATED (per pet)
+      // |   |       question:  initial-question-repeated-number (number)
+      // |   |       no condition
+      // |   |
+      // |   +-- Screen 5   REPEATED (per pet)
+      // |           question:  initial-question-repeated-follow-up (text)
+      // |           shown if:  Screen 4 number > 5                 [works per pet]
+      // |
+      // +-- Screen 6   REGULAR (after the list set)
+      //         question:  initial-question-regular (text)
+      //         shown if:  initial question > 5                    [BUG: always skipped]
+      //
+      // Applicant flow (initial question: Pet #1 = 10, Pet #2 = 1)
+      //
+      //   Screen 1:  answer the regular question
+      //   Screen 2:  add Pet #1 = 10, Pet #2 = 1
+      //   Pet #1:    Screen 3 shown   -> Screen 4 = 1   -> Screen 5 skipped
+      //   Pet #2:    Screen 3 skipped -> Screen 4 = 10  -> Screen 5 shown
+      //   Screen 6:  skipped (bug)
+      //   Review:    Screen 3 x1, Screen 4 x2, Screen 5 x1, Screen 6 x0
+
+      const programName = 'Initial question visibility program'
+      const repeatedQuestionText = 'Repeated question shown for big numbers'
+      const repeatedNumberQuestionText = 'Repeated number question'
+      const followUpQuestionText = 'Follow-up shown for big repeated numbers'
+      const regularQuestionText = 'Regular question after the list set'
+      const screenOneQuestionText = 'Regular question before the list set'
+      // Picking an existing question as the initial question saves a copy with a suffixed admin
+      // name.
+      const initialQuestionAdminName = `${SAMPLE_QUESTIONS.number} -_- a`
+      const overFivePredicate = (questionName: string) => ({
+        questionName,
+        action: 'shown if',
+        scalar: 'number',
+        operator: 'is greater than',
+        value: '5',
+      })
+      const addChildScreenButton = page
+        .getByTestId('block-panel-edit')
+        .getByRole('button', {name: 'Add child screen'})
+
+      await test.step('Create a list set with a number initial question and the repeated and regular questions', async () => {
+        await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-question-screen-one',
+          questionText: screenOneQuestionText,
+        })
+        await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlock(programName, 'screen one', [
+          'initial-question-screen-one',
+        ])
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await addRepeatedSetBlocks(page)
+        await fillAndSubmitEnumeratorQuestionForm(page, {
+          initialQuestion: SAMPLE_QUESTIONS.number,
+        })
+        // Now that the enumerator is made, make repeated questions.
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-question-repeated',
+          questionText: repeatedQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
+        await adminQuestions.addNumberQuestion({
+          questionName: 'initial-question-repeated-number',
+          questionText: repeatedNumberQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-question-repeated-follow-up',
+          questionText: followUpQuestionText,
+          enumeratorName: 'pets enumerator',
+        })
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-question-regular',
+          questionText: regularQuestionText,
+        })
+      })
+
+      await test.step('Show repeated Screen 3 only when the initial question is over 5', async () => {
+        await adminPrograms.gotoEditDraftProgramPage(programName)
+        await navigateToRepeatedScreen(page, /* screenNumber= */ 3)
+        await adminPrograms.addQuestionFromQuestionBank(
+          'initial-question-repeated',
+        )
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 3',
+        )
+        await adminPredicates.addPredicates(
+          overFivePredicate(initialQuestionAdminName),
+        )
+      })
+
+      await test.step('Add repeated Screen 4 with a number question, and repeated Screen 5 shown only when that number is over 5', async () => {
+        for (const screenNumber of [4, 5]) {
+          await adminPrograms.gotoEditDraftProgramPage(programName)
+          await page.getByRole('link', {name: 'Screen 2'}).click()
+          await addChildScreenButton.click()
+          await adminPrograms.gotoEditDraftProgramPage(programName)
+          await navigateToRepeatedScreen(page, screenNumber)
+          await adminPrograms.addQuestionFromQuestionBank(
+            screenNumber === 4
+              ? 'initial-question-repeated-number'
+              : 'initial-question-repeated-follow-up',
+          )
+        }
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 5',
+        )
+        await adminPredicates.addPredicates(
+          overFivePredicate('initial-question-repeated-number'),
+        )
+      })
+
+      await test.step('Add regular Screen 6 after the list set, shown only when the initial question is over 5', async () => {
+        await adminPrograms.addProgramBlockUsingSpec(programName, {
+          questions: [{name: 'initial-question-regular'}],
+        })
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 6',
+        )
+        // TODO(#14624): This should not be able to use the list set questions but it can.
+        await adminPredicates.addPredicates(
+          overFivePredicate(initialQuestionAdminName),
+        )
+      })
+
+      await test.step('Each screen offers the questions in its scope for visibility conditions', async () => {
+        // Screen 2 has no saved condition, so add one to see its options.
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 2',
+        )
+        await adminPredicates.clickAddConditionButton()
+        await adminPredicates.expectAvailableQuestions(
+          /* conditionId= */ 1,
+          /* subconditionId= */ 1,
+          ['initial-question-screen-one'],
+        )
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          // Screen 1's question and the list set screen's initial question. The enumerator
+          // question can't be used.
+          [
+            'Screen 3',
+            ['initial-question-screen-one', initialQuestionAdminName],
+          ],
+          // Also the repeated questions on the earlier repeated screens.
+          [
+            'Screen 5',
+            [
+              'initial-question-screen-one',
+              initialQuestionAdminName,
+              'initial-question-repeated',
+              'initial-question-repeated-number',
+            ],
+          ],
+          // TODO(#14624): A screen after the list set should not be offered the list set's
+          // questions, but it inherits the scope of the repeated screen before it.
+          [
+            'Screen 6',
+            [
+              'initial-question-screen-one',
+              initialQuestionAdminName,
+              'initial-question-repeated',
+              'initial-question-repeated-number',
+              'initial-question-repeated-follow-up',
+            ],
+          ],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockVisibilityPredicatePage(
+            programName,
+            screenName,
+          )
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
+      })
+
+      await test.step('Each screen offers only its own questions for eligibility conditions', async () => {
+        // The list set screen's only usable question is the initial question, which can't be used
+        // for eligibility. The enumerator question can't be used either.
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 2',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on this screen with which to set an eligibility condition.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          ['Screen 1', ['initial-question-screen-one']],
+          ['Screen 3', ['initial-question-repeated']],
+          ['Screen 4', ['initial-question-repeated-number']],
+          ['Screen 5', ['initial-question-repeated-follow-up']],
+          ['Screen 6', ['initial-question-regular']],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockEligibilityPredicatePage(
+            programName,
+            screenName,
+          )
+          await adminPredicates.clickAddConditionButton()
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
+        await adminPrograms.publishProgram(programName)
+        await logout(page)
+      })
+
+      const blockForm = page.locator('#cf-block-form')
+      const addButton = blockForm.getByRole('button', {name: 'Add Pets'})
+
+      await test.step('Add one entity whose initial question is over 5 and one under', async () => {
+        await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerTextQuestion('screen one')
+        await applicantQuestions.clickContinue()
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('spinbutton', {name: 'Pets #1'}).fill('10')
+        await addButton.click()
+        await waitForHtmxReady(page)
+        await blockForm.getByRole('spinbutton', {name: 'Pets #2'}).fill('1')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('First entity: Screen 3 is shown, and Screen 5 is skipped for a repeated number under 5', async () => {
+        await applicantQuestions.validateQuestionIsOnPage(repeatedQuestionText)
+        await applicantQuestions.answerTextQuestion('first')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage(
+          repeatedNumberQuestionText,
+        )
+        await applicantQuestions.answerNumberQuestion('1')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Second entity: Screen 3 is skipped, and Screen 5 is shown for a repeated number over 5', async () => {
+        await applicantQuestions.validateQuestionIsOnPage(
+          repeatedNumberQuestionText,
+        )
+        await applicantQuestions.answerNumberQuestion('10')
+        await applicantQuestions.clickContinue()
+        await applicantQuestions.validateQuestionIsOnPage(followUpQuestionText)
+        await applicantQuestions.answerTextQuestion('second')
+        await applicantQuestions.clickContinue()
+      })
+
+      await test.step('Each conditional repeated screen appears once, and the regular screen is skipped', async () => {
+        await applicantQuestions.expectReviewPage()
+        await expect(page.getByText(repeatedQuestionText)).toHaveCount(1)
+        await expect(page.getByText(repeatedNumberQuestionText)).toHaveCount(2)
+        await expect(page.getByText(followUpQuestionText)).toHaveCount(1)
+        // TODO(#14624): The regular screen after the list set should not be able to use list set questions for visibility. It can though and as such the evaluation is not as desired. There is a value that should show the screen but it is not shown.
+        await expect(page.getByText(regularQuestionText)).toHaveCount(0)
       })
     })
 

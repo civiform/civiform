@@ -7,6 +7,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.function.Function;
 import junitparams.JUnitParamsRunner;
 import junitparams.Parameters;
 import models.ApplicantModel;
@@ -939,6 +940,87 @@ public class ReadOnlyApplicantProgramServiceTest extends ResetPostgres {
             /* failedUpdates= */ ImmutableMap.of(),
             /* enumeratorImprovementsEnabled= */ false);
     assertThat(service.getInProgressBlocks()).hasSize(3);
+  }
+
+  @Test
+  public void getAllActiveBlocks_predicateOnRepeatedQuestion() {
+    QuestionDefinition enumeratorQuestion =
+        testQuestionBank.enumeratorApplicantHouseholdMembers().getQuestionDefinition();
+    QuestionDefinition repeatedNumberQuestion =
+        testQuestionBank.numberRepeatedHouseholdMemberNumber().getQuestionDefinition();
+    QuestionDefinition repeatedTextQuestion =
+        testQuestionBank
+            .textRepeatedApplicantHouseholdMemberFavoriteShape()
+            .getQuestionDefinition();
+    PredicateDefinition predicate =
+        PredicateDefinition.create(
+            PredicateExpressionNode.create(
+                LeafOperationExpressionNode.create(
+                    repeatedNumberQuestion.getId(),
+                    Scalar.NUMBER,
+                    Operator.GREATER_THAN,
+                    PredicateValue.of(5))),
+            PredicateAction.SHOW_BLOCK);
+    ProgramDefinition program =
+        ProgramBuilder.newActiveProgram()
+            .withBlock("enumerator")
+            .withRequiredQuestionDefinition(enumeratorQuestion)
+            .withRepeatedBlock("repeated")
+            .withRequiredQuestionDefinition(repeatedNumberQuestion)
+            .withAnotherRepeatedBlock("repeated follow-up")
+            .withVisibilityPredicate(predicate)
+            .withRequiredQuestionDefinition(repeatedTextQuestion)
+            .withBlock("after enumerator")
+            .withVisibilityPredicate(predicate)
+            .withRequiredQuestionDefinition(colorQuestion)
+            .buildDefinition();
+
+    Path enumeratorPath =
+        ApplicantData.APPLICANT_PATH.join(enumeratorQuestion.getQuestionPathSegment());
+    QuestionAnswerer.answerEnumeratorQuestion(
+        applicantData, enumeratorPath, ImmutableList.of("member one", "member two"));
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        enumeratorPath.atIndex(0).join(repeatedNumberQuestion.getQuestionPathSegment()),
+        10);
+    QuestionAnswerer.answerNumberQuestion(
+        applicantData,
+        enumeratorPath.atIndex(1).join(repeatedNumberQuestion.getQuestionPathSegment()),
+        1);
+
+    ReadOnlyApplicantProgramService service =
+        new ReadOnlyApplicantProgramService(
+            jsonPathPredicateGeneratorFactory,
+            applicant,
+            applicantData,
+            program,
+            /* failedUpdates= */ ImmutableMap.of(),
+            /* enumeratorImprovementsEnabled= */ false);
+
+    Function<Block, String> nameWithEntity =
+        block ->
+            block.getName()
+                + block
+                    .getRepeatedEntity()
+                    .map(entity -> " (" + entity.entityName() + ")")
+                    .orElse("");
+
+    // The repeated follow-up block reads the number answered for its own household member, so it's
+    // shown only for the member whose number is over 5.
+    assertThat(service.getAllActiveBlocks().stream().map(nameWithEntity))
+        .containsExactly(
+            "enumerator",
+            "repeated (member one)",
+            "repeated follow-up (member one)",
+            "repeated (member two)");
+    assertThat(service.getAllHiddenBlocks().stream().map(nameWithEntity))
+        .containsExactlyInAnyOrder(
+            "repeated follow-up (member two)",
+            // TODO(#14624): While we are fabricating the circumstance of the issue
+            // this test asserts the circumstances of it, that when an inaccessible
+            // question is used in visibility predicates that the result is incorrect.
+            // A valid value exists but the predicate doesn't show as configured.
+            "after enumerator");
   }
 
   @Test
