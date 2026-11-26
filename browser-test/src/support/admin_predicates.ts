@@ -357,6 +357,25 @@ export class AdminPredicates {
   }
 
   /**
+   * Expects the subcondition's question dropdown to offer exactly the questions with the given
+   * admin names, in any order.
+   */
+  async expectAvailableQuestions(
+    conditionId: number,
+    subconditionId: number,
+    questionNames: string[],
+  ) {
+    const questionOptions = this.page.locator(
+      `#condition-${conditionId}-subcondition-${subconditionId}-question option[data-question-name]`,
+    )
+    const availableQuestionNames = await questionOptions.evaluateAll(
+      (options) =>
+        options.map((option) => option.getAttribute('data-question-name')),
+    )
+    expect(availableQuestionNames.sort()).toEqual([...questionNames].sort())
+  }
+
+  /**
    * Configures an expanded form logic predicate with the given inputs. For the values, populate whatever is present.
    */
   async configureSubcondition({

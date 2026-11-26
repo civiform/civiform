@@ -459,28 +459,33 @@ test.describe('End to end enumerator test', () => {
       // This is an exhaustive test for visibility based on repeated questions and access to them outside of the repeated set.
       // Repeated question visibility program
       //
-      // +-- Screen 1   ENUMERATOR "Household members"
+      // +-- Screen 1   REGULAR
+      // |       question:  visibility-screen-one (text)
+      // |       no condition
+      // |
+      // +-- Screen 2   ENUMERATOR "Household members"
       // |   |   question:  visibility-householdmembers (enumerator)
       // |   |
-      // |   +-- Screen 2   REPEATED (per member)
+      // |   +-- Screen 3   REPEATED (per member)
       // |   |       question:  visibility-repeated-number (number)
       // |   |       no condition
       // |   |
-      // |   +-- Screen 3   REPEATED (per member)
+      // |   +-- Screen 4   REPEATED (per member)
       // |           question:  visibility-repeated-follow-up (text)
-      // |           shown if:  Screen 2 number > 5                 [works per member]
+      // |           shown if:  Screen 3 number > 5                 [works per member]
       // |
-      // +-- Screen 4   REGULAR (after the enumerator)
+      // +-- Screen 5   REGULAR (after the enumerator)
       //         question:  visibility-after-enumerator (text)
-      //         shown if:  Screen 2 number > 5                     [BUG: always skipped]
+      //         shown if:  Screen 3 number > 5                     [BUG: always skipped]
       //
       // Applicant flow
       //
-      //   Screen 1:  add Bugs, Daffy
-      //   Bugs:      Screen 2 = 10  -> Screen 3 shown
-      //   Daffy:     Screen 2 = 1   -> Screen 3 skipped
-      //   Screen 4:  skipped (bug)
-      //   Review:    Screen 3 for Bugs x1, Screen 3 for Daffy x0, Screen 4 x0
+      //   Screen 1:  answer the regular question
+      //   Screen 2:  add Bugs, Daffy
+      //   Bugs:      Screen 3 = 10  -> Screen 4 shown
+      //   Daffy:     Screen 3 = 1   -> Screen 4 skipped
+      //   Screen 5:  skipped (bug)
+      //   Review:    Screen 4 for Bugs x1, Screen 4 for Daffy x0, Screen 5 x0
 
       const visibilityProgramName = 'Repeated question visibility program'
       const afterEnumeratorQuestionText = 'Question after the enumerator'
@@ -492,8 +497,12 @@ test.describe('End to end enumerator test', () => {
         value: '5',
       })
 
-      await test.step('Create an enumerator, repeated number and text questions, and a regular question', async () => {
+      await test.step('Create an enumerator, repeated number and text questions, and regular questions', async () => {
         await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'visibility-screen-one',
+          questionText: 'Question before the enumerator',
+        })
         await adminQuestions.addEnumeratorQuestion({
           questionName: 'visibility-householdmembers',
         })
@@ -514,13 +523,17 @@ test.describe('End to end enumerator test', () => {
         })
       })
 
-      await test.step('Add the enumerator screen and its repeated screen', async () => {
+      await test.step('Add a regular screen, then the enumerator screen and its repeated screen', async () => {
         await adminPrograms.addProgram(visibilityProgramName)
         await adminPrograms.editProgramBlock(
           visibilityProgramName,
-          'enumerator screen',
-          ['visibility-householdmembers'],
+          'screen one',
+          ['visibility-screen-one'],
         )
+        await adminPrograms.addProgramBlockUsingSpec(visibilityProgramName, {
+          description: 'enumerator screen',
+          questions: [{name: 'visibility-householdmembers'}],
+        })
         await page.click('#create-repeated-block-button')
         await adminPrograms.addQuestionFromQuestionBank(
           'visibility-repeated-number',
@@ -530,13 +543,13 @@ test.describe('End to end enumerator test', () => {
       await test.step('Add a second repeated screen, shown only when the repeated number is over 5', async () => {
         await adminPrograms.addProgramRepeatedBlock(
           visibilityProgramName,
-          'Screen 1',
+          'Screen 2',
           'repeated follow-up screen',
           ['visibility-repeated-follow-up'],
         )
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           visibilityProgramName,
-          'Screen 3',
+          'Screen 4',
         )
         await adminPredicates.addPredicates(
           overFivePredicate('visibility-repeated-number'),
@@ -549,18 +562,92 @@ test.describe('End to end enumerator test', () => {
         })
         await adminPrograms.goToEditBlockVisibilityPredicatePage(
           visibilityProgramName,
-          'Screen 4',
+          'Screen 5',
         )
         // TODO(#14624): This should not be able to use the repeated questions but it can.
         await adminPredicates.addPredicates(
           overFivePredicate('visibility-repeated-number'),
         )
+      })
+
+      await test.step('Each screen offers the questions in its scope for visibility conditions', async () => {
+        // Screen 2 has no saved condition, so add one to see its options.
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          visibilityProgramName,
+          'Screen 2',
+        )
+        await adminPredicates.clickAddConditionButton()
+        await adminPredicates.expectAvailableQuestions(
+          /* conditionId= */ 1,
+          /* subconditionId= */ 1,
+          ['visibility-screen-one'],
+        )
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          // Screen 1's question, and the repeated question on the earlier repeated screen.
+          ['Screen 4', ['visibility-screen-one', 'visibility-repeated-number']],
+          [
+            'Screen 5',
+            [
+              'visibility-screen-one',
+              // TODO(#14624): A screen after the enumerator should not be offered the repeated questions.
+              'visibility-repeated-number',
+              'visibility-repeated-follow-up',
+            ],
+          ],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockVisibilityPredicatePage(
+            visibilityProgramName,
+            screenName,
+          )
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
+      })
+
+      await test.step('Each screen offers only its own questions for eligibility conditions', async () => {
+        // The enumerator screen's only question is the enumerator question, which can't be used.
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          visibilityProgramName,
+          'Screen 2',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on this screen with which to set an eligibility condition.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          ['Screen 1', ['visibility-screen-one']],
+          ['Screen 3', ['visibility-repeated-number']],
+          ['Screen 4', ['visibility-repeated-follow-up']],
+          ['Screen 5', ['visibility-after-enumerator']],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockEligibilityPredicatePage(
+            visibilityProgramName,
+            screenName,
+          )
+          await adminPredicates.clickAddConditionButton()
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
         await adminPrograms.publishProgram(visibilityProgramName)
         await logout(page)
       })
 
-      await test.step('Add two household members, one whose number is over 5', async () => {
+      await test.step('Answer the regular screen and add two household members, one whose number is over 5', async () => {
         await applicantQuestions.applyProgram(visibilityProgramName)
+        await applicantQuestions.answerTextQuestion('screen one')
+        await applicantQuestions.clickContinue()
         await applicantQuestions.addEnumeratorAnswer('Bugs')
         await applicantQuestions.addEnumeratorAnswer('Daffy')
         await applicantQuestions.clickContinue()

@@ -2100,7 +2100,9 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       // This is an exhaustive test for visibility based on initial question, repeated questions and access to them outside of the repeated set.
       // Initial question visibility program
       //
-      // +-- Screen 1   regular, empty (created with the program, unused)
+      // +-- Screen 1   REGULAR
+      // |       question:  initial-visibility-screen-one (text)
+      // |       no condition
       // |
       // +-- Screen 2   LIST SET "Pets"
       // |   |   questions: pets enumerator
@@ -2124,6 +2126,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       //
       // Applicant flow (initial question: Pet #1 = 10, Pet #2 = 1)
       //
+      //   Screen 1:  answer the regular question
       //   Screen 2:  add Pet #1 = 10, Pet #2 = 1
       //   Pet #1:    Screen 3 shown   -> Screen 4 = 1   -> Screen 5 skipped
       //   Pet #2:    Screen 3 skipped -> Screen 4 = 10  -> Screen 5 shown
@@ -2135,6 +2138,7 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
       const repeatedNumberQuestionText = 'Repeated number question'
       const followUpQuestionText = 'Follow-up shown for big repeated numbers'
       const regularQuestionText = 'Regular question after the list set'
+      const screenOneQuestionText = 'Regular question before the list set'
       // Picking an existing question as the initial question saves a copy with a suffixed admin
       // name.
       const initialQuestionAdminName = `${SAMPLE_QUESTIONS.number} -_- a`
@@ -2151,7 +2155,14 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Create a list set with a number initial question and the repeated and regular questions', async () => {
         await loginAsAdmin(page)
+        await adminQuestions.addTextQuestion({
+          questionName: 'initial-visibility-screen-one',
+          questionText: screenOneQuestionText,
+        })
         await adminPrograms.addProgram(programName)
+        await adminPrograms.editProgramBlock(programName, 'screen one', [
+          'initial-visibility-screen-one',
+        ])
         await adminPrograms.gotoEditDraftProgramPage(programName)
         await addRepeatedSetBlocks(page)
         await fillAndSubmitEnumeratorQuestionForm(page, {
@@ -2228,6 +2239,97 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
         await adminPredicates.addPredicates(
           overFivePredicate(initialQuestionAdminName),
         )
+      })
+
+      await test.step('Each screen offers the questions in its scope for visibility conditions', async () => {
+        // Screen 2 has no saved condition, so add one to see its options.
+        await adminPrograms.goToEditBlockVisibilityPredicatePage(
+          programName,
+          'Screen 2',
+        )
+        await adminPredicates.clickAddConditionButton()
+        await adminPredicates.expectAvailableQuestions(
+          /* conditionId= */ 1,
+          /* subconditionId= */ 1,
+          ['initial-visibility-screen-one'],
+        )
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          // Screen 1's question and the list set screen's initial question. The enumerator
+          // question can't be used.
+          [
+            'Screen 3',
+            ['initial-visibility-screen-one', initialQuestionAdminName],
+          ],
+          // Also the repeated questions on the earlier repeated screens.
+          [
+            'Screen 5',
+            [
+              'initial-visibility-screen-one',
+              initialQuestionAdminName,
+              'initial-visibility-repeated',
+              'initial-visibility-repeated-number',
+            ],
+          ],
+          // TODO(#14624): A screen after the list set should not be offered the list set's
+          // questions, but it inherits the scope of the repeated screen before it.
+          [
+            'Screen 6',
+            [
+              'initial-visibility-screen-one',
+              initialQuestionAdminName,
+              'initial-visibility-repeated',
+              'initial-visibility-repeated-number',
+              'initial-visibility-repeated-follow-up',
+            ],
+          ],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockVisibilityPredicatePage(
+            programName,
+            screenName,
+          )
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
+      })
+
+      await test.step('Each screen offers only its own questions for eligibility conditions', async () => {
+        // The list set screen's only usable question is the initial question, which can't be used
+        // for eligibility. The enumerator question can't be used either.
+        await adminPrograms.goToEditBlockEligibilityPredicatePage(
+          programName,
+          'Screen 2',
+        )
+        await expect(
+          page.getByText(
+            'There are no available questions on this screen with which to set an eligibility condition.',
+          ),
+        ).toBeVisible()
+        await adminPredicates.expectNoAddConditionButton()
+
+        const expectedQuestionsByScreen: Array<[string, string[]]> = [
+          ['Screen 1', ['initial-visibility-screen-one']],
+          ['Screen 3', ['initial-visibility-repeated']],
+          ['Screen 4', ['initial-visibility-repeated-number']],
+          ['Screen 5', ['initial-visibility-repeated-follow-up']],
+          ['Screen 6', ['initial-visibility-regular']],
+        ]
+        for (const [screenName, questionNames] of expectedQuestionsByScreen) {
+          await adminPrograms.goToEditBlockEligibilityPredicatePage(
+            programName,
+            screenName,
+          )
+          await adminPredicates.clickAddConditionButton()
+          await adminPredicates.expectAvailableQuestions(
+            /* conditionId= */ 1,
+            /* subconditionId= */ 1,
+            questionNames,
+          )
+        }
         await adminPrograms.publishProgram(programName)
         await logout(page)
       })
@@ -2237,6 +2339,8 @@ test.describe('End to end enumerator test with enumerators feature flag on', () 
 
       await test.step('Add one entity whose initial question is over 5 and one under', async () => {
         await applicantQuestions.applyProgram(programName)
+        await applicantQuestions.answerTextQuestion('screen one')
+        await applicantQuestions.clickContinue()
         await addButton.click()
         await waitForHtmxReady(page)
         await blockForm.getByRole('spinbutton', {name: 'Pets #1'}).fill('10')
