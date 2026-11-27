@@ -8,6 +8,7 @@ import {
   logout,
   testUserDisplayName,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 
 test.describe('view an application in an older version', () => {
   test.beforeEach(async ({page}) => {
@@ -21,12 +22,13 @@ test.describe('view an application in an older version', () => {
     page,
     adminQuestions,
     adminPrograms,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
     // Create a program with one question
-    const questionName = 'text-to-be-obsolete-q'
-    await adminQuestions.addTextQuestion({questionName})
+    const questionName = SAMPLE_QUESTIONS.text
     const programName = 'Program with previous applications'
     await adminPrograms.addAndPublishProgramWithQuestions(
       [questionName],

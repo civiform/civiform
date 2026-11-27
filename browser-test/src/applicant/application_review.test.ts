@@ -11,6 +11,7 @@ import {
   waitForPageJsLoad,
   validateScreenshot,
 } from '../support'
+import {SAMPLE_QUESTIONS} from '../support/seeding'
 import {ProgramExtraAction, ProgramLifecycle} from '../support/admin_programs'
 
 test.describe('Program admin review of submitted applications', () => {
@@ -371,19 +372,19 @@ test.describe('Program admin review of submitted applications', () => {
 
   test('program applications listed most recent first', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const programName = 'Fruit program'
     const answers = ['apple', 'banana', 'cherry', 'durian']
 
     await test.step('Create a simple one question program application', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addTextQuestion({questionName: 'fruit-text-q'})
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['fruit-text-q'],
+        [SAMPLE_QUESTIONS.text],
         programName,
       )
 
@@ -413,7 +414,7 @@ test.describe('Program admin review of submitted applications', () => {
         await waitForPageJsLoad(page)
         await adminPrograms.expectApplicationAnswers(
           'Screen 1',
-          'fruit-text-q',
+          SAMPLE_QUESTIONS.text,
           answers[answers.length - i - 1],
         )
         await page.getByRole('link', {name: 'Back'}).click()
@@ -423,24 +424,20 @@ test.describe('Program admin review of submitted applications', () => {
 
   test('program application filters cleared', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const noApplyFilters = false
     const applyFilters = true
     const programName = 'Test program'
 
     await test.step('Add and publish program as Civiform Admin', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'Sample Name Question',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Sample Name Question'],
+        [SAMPLE_QUESTIONS.name],
         programName,
       )
 
@@ -533,36 +530,19 @@ test.describe('Program admin review of submitted applications', () => {
 
   test('Application search using Personal Applicant Info works', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const applyFilters = true
     const programName = 'Test program'
 
     await test.step('Login as an admin and create a program with three PAI questions', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'Name',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
-      await adminQuestions.addEmailQuestion({
-        questionName: 'Email',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'Phone',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Name', 'Email', 'Phone'],
+        [SAMPLE_QUESTIONS.name, SAMPLE_QUESTIONS.email, SAMPLE_QUESTIONS.phone],
         programName,
       )
 
