@@ -13,6 +13,7 @@ import {
   PrimaryApplicantInfoAlertType,
   PrimaryApplicantInfoField,
 } from './support/admin_questions'
+import {SAMPLE_QUESTIONS} from './support/seeding'
 
 test.describe('primary applicant info questions', () => {
   test.beforeEach(async ({page}) => {
@@ -242,21 +243,20 @@ test.describe('primary applicant info questions', () => {
     adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
+    await seeding.seedQuestions()
     await loginAsAdmin(page)
 
-    await adminQuestions.addNameQuestion({
-      questionName: 'name',
-      universal: true,
-      primaryApplicantInfo: true,
-    })
     await adminPrograms.addProgram('test')
-    await adminPrograms.editProgramBlock('test', 'desc', ['name'])
+    await adminPrograms.editProgramBlock('test', 'desc', [
+      SAMPLE_QUESTIONS.name,
+    ])
     await adminPrograms.gotoAdminProgramsPage()
     await adminPrograms.expectDraftProgram('test')
     await adminPrograms.publishProgram('test')
     await adminPrograms.expectActiveProgram('test')
-    await adminQuestions.expectActiveQuestionExist('name')
+    await adminQuestions.expectActiveQuestionExist(SAMPLE_QUESTIONS.name)
 
     await logout(page)
     await loginAsTestUser(page)
