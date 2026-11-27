@@ -424,24 +424,20 @@ test.describe('Program admin review of submitted applications', () => {
 
   test('program application filters cleared', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const noApplyFilters = false
     const applyFilters = true
     const programName = 'Test program'
 
     await test.step('Add and publish program as Civiform Admin', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'Sample Name Question',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Sample Name Question'],
+        [SAMPLE_QUESTIONS.name],
         programName,
       )
 
@@ -534,36 +530,19 @@ test.describe('Program admin review of submitted applications', () => {
 
   test('Application search using Personal Applicant Info works', async ({
     page,
-    adminQuestions,
     adminPrograms,
     applicantQuestions,
+    seeding,
   }) => {
     const applyFilters = true
     const programName = 'Test program'
 
     await test.step('Login as an admin and create a program with three PAI questions', async () => {
+      await seeding.seedQuestions()
       await loginAsAdmin(page)
 
-      await adminQuestions.addNameQuestion({
-        questionName: 'Name',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
-      await adminQuestions.addEmailQuestion({
-        questionName: 'Email',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
-      await adminQuestions.addPhoneQuestion({
-        questionName: 'Phone',
-        universal: true,
-        primaryApplicantInfo: true,
-      })
-
       await adminPrograms.addAndPublishProgramWithQuestions(
-        ['Name', 'Email', 'Phone'],
+        [SAMPLE_QUESTIONS.name, SAMPLE_QUESTIONS.email, SAMPLE_QUESTIONS.phone],
         programName,
       )
 
