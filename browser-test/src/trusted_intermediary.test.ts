@@ -11,6 +11,7 @@ import {
   selectApplicantLanguage,
 } from './support'
 import {ProgramCategories} from './support/admin_programs'
+import {SAMPLE_QUESTIONS, SAMPLE_QUESTION_TEXT} from './support/seeding'
 
 test.describe('Trusted intermediaries', () => {
   test.beforeEach(async ({page}) => {
@@ -1253,35 +1254,17 @@ test.describe('Trusted intermediaries', () => {
       phoneNumber: '9178675309',
     }
 
-    test.beforeEach(async ({page, adminQuestions, adminPrograms}) => {
+    test.beforeEach(async ({page, adminPrograms, seeding}) => {
       await test.step('create a program with PAI questions', async () => {
+        await seeding.seedQuestions()
         await loginAsAdmin(page)
-        await adminQuestions.addDateQuestion({
-          questionName: 'dob',
-          questionText: 'Date of birth',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addNameQuestion({
-          questionName: 'name',
-          questionText: 'Name',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addPhoneQuestion({
-          questionName: 'phone',
-          questionText: 'Phone',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
-        await adminQuestions.addEmailQuestion({
-          questionName: 'email',
-          questionText: 'Email',
-          universal: true,
-          primaryApplicantInfo: true,
-        })
         await adminPrograms.addAndPublishProgramWithQuestions(
-          ['dob', 'name', 'phone', 'email'],
+          [
+            SAMPLE_QUESTIONS.date,
+            SAMPLE_QUESTIONS.name,
+            SAMPLE_QUESTIONS.phone,
+            SAMPLE_QUESTIONS.email,
+          ],
           'PAI Program',
         )
         await logout(page)
@@ -1302,25 +1285,27 @@ test.describe('Trusted intermediaries', () => {
       await test.step('verify client info is pre-populated on the application review page', async () => {
         await page.getByRole('button', {name: 'Review and submit'}).click()
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Date of birth',
+          SAMPLE_QUESTION_TEXT.date,
           '01/01/2001',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Name',
+          SAMPLE_QUESTION_TEXT.name,
           'first middle last',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Phone',
+          SAMPLE_QUESTION_TEXT.phone,
           '+1 917-867-5309',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Email',
+          SAMPLE_QUESTION_TEXT.email,
           'test@email.com',
         )
       })
 
       await test.step('verify client info is pre-populated in the application form', async () => {
-        await applicantQuestions.editQuestionFromReviewPage('Date of birth')
+        await applicantQuestions.editQuestionFromReviewPage(
+          SAMPLE_QUESTION_TEXT.date,
+        )
 
         await expect(page.getByRole('textbox', {name: 'Day'})).toHaveValue('1')
         await expect(page.getByRole('textbox', {name: 'Year'})).toHaveValue(
@@ -1368,19 +1353,19 @@ test.describe('Trusted intermediaries', () => {
 
       await test.step('verify the new values for name are shown in the application and the other values are unchanged', async () => {
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Date of birth',
+          SAMPLE_QUESTION_TEXT.date,
           '01/01/2001',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Name',
+          SAMPLE_QUESTION_TEXT.name,
           'newfirst middle newlast',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Phone',
+          SAMPLE_QUESTION_TEXT.phone,
           '+1 917-867-5309',
         )
         await applicantQuestions.expectQuestionAnsweredOnReviewPage(
-          'Email',
+          SAMPLE_QUESTION_TEXT.email,
           'test@email.com',
         )
       })
